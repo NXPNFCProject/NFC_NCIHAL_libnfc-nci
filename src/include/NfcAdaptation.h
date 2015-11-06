@@ -102,7 +102,7 @@ private:
     static tHAL_NFC_DATA_CBACK* mHalDataCallback;
     static ThreadCondVar mHalOpenCompletedEvent;
     static ThreadCondVar mHalCloseCompletedEvent;
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     pthread_t mThreadId;
     static ThreadCondVar mHalCoreResetCompletedEvent;
     static ThreadCondVar mHalCoreInitCompletedEvent;
@@ -120,7 +120,7 @@ private:
     static void HalClose ();
     static void HalCoreInitialized (UINT8* p_core_init_rsp_params);
     static void HalWrite (UINT16 data_len, UINT8* p_data);
-#if((ESE_NFC_POWER_MANAGEMENT == TRUE)&&(NFC_NXP_NOT_OPEN_INCLUDED == TRUE))
+#if((NFC_POWER_MANAGEMENT == TRUE)&&(NXP_EXTNS == TRUE))
     static int HalIoctl (long arg, void* p_data);
 #endif
     static BOOLEAN HalPrediscover ();

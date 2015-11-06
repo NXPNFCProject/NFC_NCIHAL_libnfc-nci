@@ -21,7 +21,8 @@
 #include <hardware/hardware.h>
 #include <hardware/nfc.h>
 #include <phNxpNciHal_Adaptation.h>
-
+#include <string.h>
+#include <stdlib.h>
 /*****************************************************************************
  * NXP NCI HAL Function implementations.
  *****************************************************************************/

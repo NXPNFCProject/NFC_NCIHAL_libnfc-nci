@@ -24,7 +24,7 @@
 #include <phDal4Nfc_messageQueueLib.h>
 #include <phTmlNfc_i2c.h>
 #include <phNxpNciHal_utils.h>
-#if((ESE_NFC_POWER_MANAGEMENT == TRUE)&&(NFC_NXP_NOT_OPEN_INCLUDED == TRUE))
+#if((NFC_POWER_MANAGEMENT == TRUE)&&(NXP_EXTNS == TRUE))
 #include <sys/types.h>
 long nfc_service_pid;
 #endif
@@ -174,7 +174,7 @@ NFCSTATUS phTmlNfc_Init(pphTmlNfc_Config_t pConfig)
         /* Clear all handles and memory locations initialized during init */
         phTmlNfc_CleanUp();
     }
-#if(ESE_NFC_POWER_MANAGEMENT == TRUE)
+#if(NFC_POWER_MANAGEMENT == TRUE)
     else
     {
         nfc_service_pid = getpid();
@@ -941,7 +941,7 @@ NFCSTATUS phTmlNfc_IoCtl(phTmlNfc_ControlCode_t eControlCode)
                     usleep(100 * 1000);
                     break;
                 }
-#if(ESE_NFC_POWER_MANAGEMENT == TRUE)
+#if(NFC_POWER_MANAGEMENT == TRUE)
             case phTmlNfc_e_SetNfcServicePid:
             {
                 wStatus = phTmlNfc_set_pid(gpphTmlNfc_Context->pDevHandle, nfc_service_pid);

@@ -61,7 +61,7 @@ static const tNFA_SYS_REG nfa_dm_sys_reg =
 };
 
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 tNFA_DM_CB  nfa_dm_cb;
 #else
 tNFA_DM_CB  nfa_dm_cb = {FALSE};
@@ -103,7 +103,7 @@ const tNFA_DM_ACTION nfa_dm_action[] =
     nfa_dm_act_reg_vsc,                 /* NFA_DM_API_REG_VSC_EVT               */
     nfa_dm_act_send_vsc,                /* NFA_DM_API_SEND_VSC_EVT              */
     nfa_dm_act_disable_timeout          /* NFA_DM_TIMEOUT_DISABLE_EVT           */
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
     , nfa_dm_act_send_nxp                 /* NFA_DM_API_SEND_NXP_EVT              */
 #endif
 };
@@ -217,7 +217,7 @@ BOOLEAN nfa_dm_is_protocol_supported (tNFC_PROTOCOL protocol, UINT8 sel_res)
             ||(protocol == NFC_PROTOCOL_ISO_DEP)
             ||(protocol == NFC_PROTOCOL_NFC_DEP)
             ||(protocol == NFC_PROTOCOL_15693)
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
             ||(protocol == NFC_PROTOCOL_T3BT)
 #endif
             );
@@ -255,7 +255,7 @@ BOOLEAN nfa_dm_is_active (void)
 *******************************************************************************/
 tNFA_STATUS nfa_dm_check_set_config (UINT8 tlv_list_len, UINT8 *p_tlv_list, BOOLEAN app_init)
 {
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
     UINT8 type, len, *p_value, *p_stored = NULL, max_len = 0;
 #else
     UINT8 type, len, *p_value, *p_stored, max_len;
@@ -322,14 +322,14 @@ tNFA_STATUS nfa_dm_check_set_config (UINT8 tlv_list_len, UINT8 *p_tlv_list, BOOL
         **  Listen B Configuration
         */
         case NFC_PMID_LB_SENSB_INFO:
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
             if(app_init == TRUE)
             {
 #endif
                 p_stored  = nfa_dm_cb.params.lb_sensb_info;
                 max_len   = NCI_PARAM_LEN_LB_SENSB_INFO;
                 p_cur_len = &nfa_dm_cb.params.lb_sensb_info_len;
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
             }
             else
             {
@@ -371,7 +371,7 @@ tNFA_STATUS nfa_dm_check_set_config (UINT8 tlv_list_len, UINT8 *p_tlv_list, BOOL
             max_len   = NCI_PARAM_LEN_LF_T3T_FLAGS2;
             p_cur_len = &nfa_dm_cb.params.lf_t3t_flags2_len;
             break;
-#if(NFC_NXP_NOT_OPEN_INCLUDED != TRUE)
+#if(NXP_EXTNS != TRUE)
         case NFC_PMID_LF_T3T_PMM:
             p_stored = nfa_dm_cb.params.lf_t3t_pmm;
             max_len  = NCI_PARAM_LEN_LF_T3T_PMM;
@@ -380,7 +380,7 @@ tNFA_STATUS nfa_dm_check_set_config (UINT8 tlv_list_len, UINT8 *p_tlv_list, BOOL
         /*
         **  ISO-DEP and NFC-DEP Configuration
         */
-#if(NFC_NXP_NOT_OPEN_INCLUDED != TRUE)
+#if(NXP_EXTNS != TRUE)
         case NFC_PMID_FWI:
             p_stored = nfa_dm_cb.params.fwi;
             max_len  = NCI_PARAM_LEN_FWI;
@@ -431,7 +431,7 @@ tNFA_STATUS nfa_dm_check_set_config (UINT8 tlv_list_len, UINT8 *p_tlv_list, BOOL
                 {
                     update = TRUE;
                 }
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
                 else if(appl_dta_mode_flag && app_init)
                 {/*In DTA mode, config update is forced so that length of config params
                   (i.e update_len) is updated accordingly even for setconfig have only one tlv*/
@@ -445,7 +445,7 @@ tNFA_STATUS nfa_dm_check_set_config (UINT8 tlv_list_len, UINT8 *p_tlv_list, BOOL
                 {
                     update = TRUE;
                 }
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
                 else if(appl_dta_mode_flag && app_init)
                 {/*In DTA mode, config update is forced so that length of config params
                   (i.e update_len) is updated accordingly even for setconfig have only one tlv*/
@@ -477,11 +477,11 @@ tNFA_STATUS nfa_dm_check_set_config (UINT8 tlv_list_len, UINT8 *p_tlv_list, BOOL
     /*if (updated_len || app_init) app_init is TRUE when setconfig is invoked from application. For extra setconfigs from internal to
     stack, updated_len will be true. To avoid extra setconfigs from stack which is NOT required by DTA, condition is modified*/
     if
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     ((
 #endif
        (updated_len || app_init)
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
        && (appl_dta_mode_flag == 0x00 ))
        || ((appl_dta_mode_flag) && (app_init)))
 #endif

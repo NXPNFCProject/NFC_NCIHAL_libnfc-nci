@@ -59,7 +59,9 @@ extern "C" {
 
 
 extern unsigned char appl_trace_level;
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+extern UINT32 ScrProtocolTraceFlag;
+
+#if(NXP_EXTNS == TRUE)
 extern unsigned char appl_dta_mode_flag; //defined for run time DTA mode selection
 #endif
 
@@ -82,9 +84,9 @@ extern unsigned char appl_dta_mode_flag; //defined for run time DTA mode selecti
 **
 *******************************************************************************/
 unsigned char initializeGlobalAppLogLevel ();
+UINT32 initializeProtocolLogLevel ();
 
-
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function:        initializeGlobalDtaMode

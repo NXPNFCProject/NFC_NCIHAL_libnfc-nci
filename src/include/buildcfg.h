@@ -56,7 +56,7 @@
 
 #define GKI_BUF1_MAX            0
 // 2 is in use
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 #define GKI_BUF3_MAX            70
 #else
 #define GKI_BUF3_MAX            30
@@ -69,7 +69,7 @@
 #define GKI_BUF8_MAX            0
 
 #define GKI_BUF2_SIZE           660
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 #define GKI_BUF2_MAX            70
 #else
 #define GKI_BUF2_MAX            50
@@ -79,7 +79,7 @@
 #define GKI_BUF0_MAX            40
 
 #define NCI_BUF_POOL_ID         GKI_POOL_ID_0
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 #define GKI_NUM_FIXED_BUF_POOLS 9
 #else
 #define GKI_NUM_FIXED_BUF_POOLS 4

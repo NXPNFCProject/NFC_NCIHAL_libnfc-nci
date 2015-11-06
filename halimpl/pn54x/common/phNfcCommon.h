@@ -54,8 +54,8 @@
 #endif
 
 /* HAL Version number (Updated as per release) */
-#define NXP_MW_VERSION_MAJ  (5U)
-#define NXP_MW_VERSION_MIN  (0U)
+#define NXP_MW_VERSION_MAJ  (1U)
+#define NXP_MW_VERSION_MIN  (1U)
 
 /*
  *****************************************************************

@@ -53,7 +53,7 @@
 #include "nfc_int.h"
 #include "gki.h"
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 extern unsigned char appl_dta_mode_flag;
 #endif
 /* Local Functions */
@@ -317,7 +317,7 @@ void rw_t1t_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data)
         {
             rw_t1t_process_error ();
         }
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
         if((p_data != NULL) && (p_data->data.p_data != NULL))
         {
             /* Free the response buffer in case of invalid response*/
@@ -503,7 +503,7 @@ static tRW_EVENT rw_t1t_handle_rid_rsp (BT_HDR *p_pkt)
 
     /* Fetch UID0-3 from RID response message */
     STREAM_TO_ARRAY (p_t1t->mem,  p_rid_rsp, T1T_CMD_UID_LEN);
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     /* Free the RID response buffer */
     GKI_freebuf (p_pkt);
 #endif
@@ -720,7 +720,7 @@ void rw_t1t_handle_op_complete (void)
 
     p_t1t->state    = RW_T1T_STATE_IDLE;
 #if (defined (RW_NDEF_INCLUDED) && (RW_NDEF_INCLUDED == TRUE))
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     if ((appl_dta_mode_flag == 0) && (p_t1t->state != RW_T1T_STATE_READ_NDEF))
 #else
     if (p_t1t->state != RW_T1T_STATE_READ_NDEF)

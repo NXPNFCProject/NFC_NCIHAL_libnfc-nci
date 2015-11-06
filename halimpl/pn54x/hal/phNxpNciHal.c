@@ -425,6 +425,8 @@ int phNxpNciHal_open(nfc_stack_callback_t *p_cback, nfc_stack_data_callback_t *p
 {
     phOsalNfc_Config_t tOsalConfig;
     phTmlNfc_Config_t tTmlConfig;
+    uint8_t *nfc_dev_node = NULL;
+    const uint16_t max_len = 260; /* device node name is max of 255 bytes + 5 bytes (/dev/) */
     NFCSTATUS wConfigStatus = NFCSTATUS_SUCCESS;
     NFCSTATUS status = NFCSTATUS_SUCCESS;
     /*NCI_INIT_CMD*/
@@ -461,10 +463,23 @@ int phNxpNciHal_open(nfc_stack_callback_t *p_cback, nfc_stack_data_callback_t *p
     nxpncihal_ctrl.p_nfc_stack_cback = p_cback;
     nxpncihal_ctrl.p_nfc_stack_data_cback = p_data_cback;
 
+    /* Read the nfc device node name */
+    nfc_dev_node = (uint8_t*) malloc(max_len*sizeof(uint8_t));
+    if(nfc_dev_node == NULL)
+    {
+        NXPLOG_NCIHAL_E("malloc of nfc_dev_node failed ");
+        goto clean_and_return;
+    }
+    else if (!GetNxpStrValue (NAME_NXP_NFC_DEV_NODE, nfc_dev_node, sizeof (nfc_dev_node)))
+    {
+        NXPLOG_NCIHAL_E("Invalid nfc device node name keeping the default device node /dev/pn544");
+        strcpy (nfc_dev_node, "/dev/pn544");
+    }
+
     /* Configure hardware link */
     nxpncihal_ctrl.gDrvCfg.nClientId = phDal4Nfc_msgget(0, 0600);
     nxpncihal_ctrl.gDrvCfg.nLinkType = ENUM_LINK_TYPE_I2C;/* For PN54X */
-    tTmlConfig.pDevName = (int8_t *) "/dev/pn544";
+    tTmlConfig.pDevName = (uint8_t *) nfc_dev_node;
     tOsalConfig.dwCallbackThreadId
     = (uintptr_t) nxpncihal_ctrl.gDrvCfg.nClientId;
     tOsalConfig.pLogFile = NULL;
@@ -476,6 +491,14 @@ int phNxpNciHal_open(nfc_stack_callback_t *p_cback, nfc_stack_data_callback_t *p
     {
         NXPLOG_NCIHAL_E("phTmlNfc_Init Failed");
         goto clean_and_return;
+    }
+    else
+    {
+        if(nfc_dev_node != NULL)
+        {
+            free(nfc_dev_node);
+            nfc_dev_node = NULL;
+        }
     }
 
     /* Create the client thread */
@@ -605,6 +628,11 @@ force_download:
 
     clean_and_return:
     CONCURRENCY_UNLOCK();
+    if(nfc_dev_node != NULL)
+    {
+        free(nfc_dev_node);
+        nfc_dev_node = NULL;
+    }
     /* Report error status */
     (*nxpncihal_ctrl.p_nfc_stack_cback)(HAL_NFC_OPEN_CPLT_EVT,
             HAL_NFC_STATUS_FAILED);
@@ -885,7 +913,7 @@ static void phNxpNciHal_read_complete(void *pContext, phTmlNfc_TransactInfo_t *p
         phNxpNciHal_print_res_status(nxpncihal_ctrl.p_rx_data,  &nxpncihal_ctrl.rx_data_len);
         /* Check if response should go to hal module only */
         if (nxpncihal_ctrl.hal_ext_enabled == 1
-                && (nxpncihal_ctrl.p_rx_data[0x00] & 0x40) == 0x40)
+                && (nxpncihal_ctrl.p_rx_data[0x00] & 0xF0) == 0x40)
         {
             if(status == NFCSTATUS_FAILED)
             {
@@ -1608,7 +1636,6 @@ retry_core_init:
                 retry_core_init_cnt++;
                 goto retry_core_init;
             }
-
         }
         else
         {
@@ -1636,9 +1663,10 @@ retry_core_init:
         if(p_core_init_rsp_params[35] > 0)
         {  //if length of last command is 0 then it doesn't need to send last command.
             if( !(((p_core_init_rsp_params[36] == 0x21) && (p_core_init_rsp_params[37] == 0x03))
-                && (*(p_core_init_rsp_params + 1) == 1))&&
-                    !((p_core_init_rsp_params[36] == 0x21) && (p_core_init_rsp_params[37] == 0x06)))
-                //if last command is discovery and RF staus is also discovery state, then it doesn't need to execute.
+                && (*(p_core_init_rsp_params + 1) == 1)) &&
+                    !((p_core_init_rsp_params[36] == 0x21) && (p_core_init_rsp_params[37] == 0x06) && (p_core_init_rsp_params[39] == 0x00) &&(*(p_core_init_rsp_params + 1) == 0x00)))
+                //if last command is discovery and RF status is also discovery state, then it doesn't need to execute or similarly
+                // if the last command is deactivate to idle and RF status is also idle , no need to execute the command .
             {
                 tmp_len = p_core_init_rsp_params[35];
 
@@ -2245,7 +2273,7 @@ int phNxpNciHal_ioctl(long arg, void *p_data)
 
     int ret = -1;
     NFCSTATUS status = NFCSTATUS_FAILED;
-#if(ESE_NFC_POWER_MANAGEMENT == TRUE)
+#if(NFC_POWER_MANAGEMENT == TRUE)
     switch(arg)
     {
     case 0:

@@ -75,7 +75,7 @@ extern BOOLEAN HCI_LOOPBACK_DEBUG;
 #define NFA_HCI_STATE_RESTORE               0x07     /* HCI restore */
 #define NFA_HCI_STATE_RESTORE_NETWK_ENABLE  0x08     /* HCI is waiting for initialization of other host in the network after restore */
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #define NFA_HCI_MAX_RSP_WAIT_TIME           0x0C
 #define NFA_HCI_CHAIN_PKT_RSP_TIMEOUT       30000    /* After the reception of WTX, maximum response timeout value is 30 sec */
 #endif
@@ -384,7 +384,7 @@ typedef struct
 /* Internal flags */
 #define NFA_HCI_FL_DISABLING        0x01                /* sub system is being disabled */
 #define NFA_HCI_FL_NV_CHANGED       0x02                /* NV Ram changed */
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 #define NFA_HCI_FL_CONN_PIPE 0x01
 #define NFA_HCI_FL_APDU_PIPE 0x02
 #define NFA_HCI_FL_OTHER_PIPE 0x04
@@ -412,7 +412,7 @@ typedef struct
     BOOLEAN                         nv_write_needed;                    /* Something changed - NV write is needed */
     BOOLEAN                         assembling;                         /* Set true if in process of assembling a message  */
     BOOLEAN                         assembly_failed;                    /* Set true if Insufficient buffer to Reassemble incoming message */
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
     UINT8                           assembling_flags;                   /* the flags to keep track of assembling status*/
     UINT8                           assembly_failed_flags;              /* the flags to keep track of failed assembly*/
 #endif
@@ -430,7 +430,7 @@ typedef struct
     UINT16                          max_msg_len;                        /* Maximum reassembled message size */
     UINT8                           msg_data[NFA_MAX_HCI_EVENT_LEN];    /* For segmentation - the combined message data */
     UINT8                           *p_msg_data;                        /* For segmentation - reassembled message */
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
     UINT8                           *p_evt_data;                        /* For segmentation - reassembled event data */
     UINT16                          evt_len;                            /* For segmentation - length of the combined event data */
     UINT16                          max_evt_len;                        /* Maximum reassembled message size */
@@ -490,7 +490,7 @@ extern void nfa_hci_dh_startup_complete (void);
 extern void nfa_hci_startup_complete (tNFA_STATUS status);
 extern void nfa_hci_startup (void);
 extern void nfa_hci_restore_default_config (UINT8 *p_session_id);
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 extern void nfa_hci_release_transcieve();
 extern void nfa_hci_network_enable();
 #endif

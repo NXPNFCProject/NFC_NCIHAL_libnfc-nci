@@ -124,14 +124,14 @@ UINT8 nci_snd_core_get_config (UINT8 *param_ids, UINT8 num_ids)
 {
     BT_HDR *p;
     UINT8 *pp;
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     UINT8 bytes;
     UINT8 propConfigCnt;
 #endif
 
     if ((p = NCI_GET_CMD_BUF (num_ids)) == NULL)
         return (NCI_STATUS_FAILED);
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     UINT32 idx = 0;
     UINT8 *params =  param_ids;
     propConfigCnt=0;
@@ -149,7 +149,7 @@ UINT8 nci_snd_core_get_config (UINT8 *param_ids, UINT8 num_ids)
 #endif
 
     p->event            = BT_EVT_TO_NFC_NCI;
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     p->len              = NCI_MSG_HDR_SIZE + bytes + 1;
 #else
     p->len              = NCI_MSG_HDR_SIZE + num_ids + 1;
@@ -161,13 +161,13 @@ UINT8 nci_snd_core_get_config (UINT8 *param_ids, UINT8 num_ids)
 
     NCI_MSG_BLD_HDR0 (pp, NCI_MT_CMD, NCI_GID_CORE);
     NCI_MSG_BLD_HDR1 (pp, NCI_MSG_CORE_GET_CONFIG);
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     UINT8_TO_STREAM (pp, (UINT8) (bytes + 1));
 #else
     UINT8_TO_STREAM (pp, (UINT8) (num_ids + 1));
 #endif
     UINT8_TO_STREAM (pp, num_ids);
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     ARRAY_TO_STREAM (pp, param_ids, bytes);
 #else
     ARRAY_TO_STREAM (pp, param_ids, num_ids);
@@ -389,7 +389,7 @@ UINT8 nci_snd_discover_cmd (UINT8 num, tNCI_DISCOVER_PARAMS *p_param)
     int xx;
     int size;
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     if(NULL == p_param)
     {
         return NCI_STATUS_FAILED;

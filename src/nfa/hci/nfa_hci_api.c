@@ -40,6 +40,7 @@
  *
  ******************************************************************************/
 #include <string.h>
+#include <unistd.h>
 #include "nfc_api.h"
 #include "nfa_sys.h"
 #include "nfa_sys_int.h"
@@ -928,7 +929,7 @@ tNFA_STATUS NFA_HciAddStaticPipe (tNFA_HANDLE hci_handle, UINT8 host, UINT8 gate
         NFA_TRACE_API1 ("NFA_HciAddStaticPipe (): Invalid Gate:0x%02x", gate);
         return (NFA_STATUS_FAILED);
     }
-#if(NFC_NXP_NOT_OPEN_INCLUDED != TRUE)
+#if(NXP_EXTNS != TRUE)
     if (pipe <= NFA_HCI_LAST_DYNAMIC_PIPE)
     {
         NFA_TRACE_API1 ("NFA_HciAddStaticPipe (): Invalid Pipe:0x%02x", pipe);
@@ -1028,7 +1029,7 @@ void NFA_HciDebug (UINT8 action, UINT8 size, UINT8 *p_data)
         break;
     }
 }
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         NFA_HciW4eSETransaction_Complete

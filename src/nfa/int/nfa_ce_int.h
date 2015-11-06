@@ -77,7 +77,7 @@ enum
     NFA_CE_REG_TYPE_ISO_DEP,
     NFA_CE_REG_TYPE_FELICA,
     NFA_CE_REG_TYPE_UICC
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     , NFA_CE_REG_TYPE_ESE
 #endif
 };
@@ -158,7 +158,7 @@ typedef union
 #define NFA_CE_LISTEN_INFO_START_NTF_PND    0x00000100  /* App has not been notified of LISTEN_START yet                    */
 #define NFA_CE_LISTEN_INFO_FELICA           0x00000200  /* This is a listen_info for non-NDEF Felica                        */
 #define NFA_CE_LISTEN_INFO_UICC             0x00000400  /* This is a listen_info for UICC                                   */
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #define NFA_CE_LISTEN_INFO_ESE              0x00008000  /* This is a listen_info for ESE                                    */
 #endif
 

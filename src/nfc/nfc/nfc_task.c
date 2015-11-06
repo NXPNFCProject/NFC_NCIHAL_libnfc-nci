@@ -152,7 +152,7 @@ void nfc_process_timer_evt (void)
             break;
         case NFC_TTYPE_NCI_WAIT_DATA_NTF:
         {
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
             if( get_i2c_fragmentation_enabled () == I2C_FRAGMENATATION_ENABLED)
             {
                 nfc_cb.i2c_data_t.nci_cmd_channel_busy = 0;
@@ -162,7 +162,7 @@ void nfc_process_timer_evt (void)
 #endif
             break;
         }
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
         case NFC_TTYPE_LISTEN_ACTIVATION:
             {
                 extern uint8_t sListenActivated;
@@ -318,7 +318,7 @@ void nfc_process_quick_timer_evt (void)
         case NFC_TTYPE_RW_I93_RESPONSE:
             rw_i93_process_timeout (p_tle);
             break;
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
         case NFC_TTYPE_P2P_PRIO_RESPONSE:
             nfa_dm_p2p_timer_event ();
             break;

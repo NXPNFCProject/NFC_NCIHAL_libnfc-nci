@@ -66,7 +66,7 @@ tNFA_STATUS nfa_ce_api_deregister_listen (tNFA_HANDLE handle, UINT32 listen_info
 
     /* Validate handle */
     if (  (listen_info != NFA_CE_LISTEN_INFO_UICC
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
             && listen_info != NFA_CE_LISTEN_INFO_ESE
 #endif
             )
@@ -251,7 +251,7 @@ tNFA_STATUS NFA_CeConfigureUiccListenTech (tNFA_HANDLE ee_handle,
     return (NFA_STATUS_FAILED);
 }
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         NFA_CeConfigureEseListenTech
@@ -411,7 +411,11 @@ tNFA_STATUS NFA_CeRegisterAidOnDH (UINT8 aid[NFC_MAX_AID_LEN],
     NFA_TRACE_API0 ("NFA_CeRegisterAidOnDH ()");
 
     /* Validate parameters */
+#if (NXP_EXTNS == TRUE)
+    if ((p_conn_cback==NULL) || (aid_len > NFC_MAX_AID_LEN))
+#else
     if (p_conn_cback==NULL)
+#endif
         return (NFA_STATUS_INVALID_PARAM);
 
     if ((p_msg = (tNFA_CE_MSG *) GKI_getbuf ((UINT16) sizeof(tNFA_CE_MSG))) != NULL)

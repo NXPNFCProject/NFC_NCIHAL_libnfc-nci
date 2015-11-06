@@ -768,7 +768,7 @@ NFC_API extern tNFA_STATUS NFA_RwI93GetSysInfo (UINT8 *p_uid);
 *******************************************************************************/
 NFC_API extern tNFA_STATUS NFA_RwI93GetMultiBlockSecurityStatus (UINT8  first_block_number,
                                                                  UINT16 number_blocks);
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         NFA_SetReconnectState

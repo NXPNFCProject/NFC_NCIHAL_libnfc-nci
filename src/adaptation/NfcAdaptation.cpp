@@ -59,7 +59,7 @@ tHAL_NFC_CBACK* NfcAdaptation::mHalCallback = NULL;
 tHAL_NFC_DATA_CBACK* NfcAdaptation::mHalDataCallback = NULL;
 ThreadCondVar NfcAdaptation::mHalOpenCompletedEvent;
 ThreadCondVar NfcAdaptation::mHalCloseCompletedEvent;
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 ThreadCondVar NfcAdaptation::mHalCoreResetCompletedEvent;
 ThreadCondVar NfcAdaptation::mHalCoreInitCompletedEvent;
 ThreadCondVar NfcAdaptation::mHalInitCompletedEvent;
@@ -67,7 +67,7 @@ ThreadCondVar NfcAdaptation::mHalInitCompletedEvent;
 
 UINT32 ScrProtocolTraceFlag = SCR_PROTO_TRACE_ALL; //0x017F00;
 UINT8 appl_trace_level = 0xff;
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 UINT8 appl_dta_mode_flag = 0x00;
 #endif
 char bcm_nfc_location[120];
@@ -157,8 +157,8 @@ void NfcAdaptation::Initialize ()
     {
         strlcpy (bcm_nfc_location, "/data/nfc", sizeof(bcm_nfc_location));
     }
-    if ( GetNumValue ( NAME_PROTOCOL_TRACE_LEVEL, &num, sizeof ( num ) ) )
-        ScrProtocolTraceFlag = num;
+
+    initializeProtocolLogLevel ();
 
     if ( GetStrValue ( NAME_NFA_DM_CFG, (char*)nfa_dm_cfg, sizeof ( nfa_dm_cfg ) ) )
         p_nfa_dm_cfg = ( tNFA_DM_CFG * ) &nfa_dm_cfg[0];
@@ -336,7 +336,7 @@ void NfcAdaptation::InitializeHalDeviceContext ()
     mHalEntryFuncs.close = HalClose;
     mHalEntryFuncs.core_initialized = HalCoreInitialized;
     mHalEntryFuncs.write = HalWrite;
-#if((ESE_NFC_POWER_MANAGEMENT == TRUE)&&(NFC_NXP_NOT_OPEN_INCLUDED == TRUE))
+#if((NFC_POWER_MANAGEMENT == TRUE)&&(NXP_EXTNS == TRUE))
     mHalEntryFuncs.ioctl = HalIoctl;
 #endif
     mHalEntryFuncs.prediscover = HalPrediscover;
@@ -483,7 +483,7 @@ void NfcAdaptation::HalWrite (UINT16 data_len, UINT8* p_data)
     }
 }
 
-#if((ESE_NFC_POWER_MANAGEMENT == TRUE)&&(NFC_NXP_NOT_OPEN_INCLUDED == TRUE))
+#if((NFC_POWER_MANAGEMENT == TRUE)&&(NXP_EXTNS == TRUE))
 /*******************************************************************************
 **
 ** Function:    NfcAdaptation::HalIoctl
@@ -639,7 +639,7 @@ void NfcAdaptation::DownloadFirmware ()
 {
     const char* func = "NfcAdaptation::DownloadFirmware";
     ALOGD ("%s: enter", func);
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
     static UINT8 cmd_reset_nci[] = {0x20,0x00,0x01,0x01};
     static UINT8 cmd_init_nci[]  = {0x20,0x01,0x00};
     static UINT8 cmd_reset_nci_size = sizeof(cmd_reset_nci) / sizeof(UINT8);
@@ -652,7 +652,7 @@ void NfcAdaptation::DownloadFirmware ()
     ALOGD ("%s: try open HAL", func);
     HalOpen (HalDownloadFirmwareCallback, HalDownloadFirmwareDataCallback);
     mHalOpenCompletedEvent.wait ();
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
     /* Send a CORE_RESET and CORE_INIT to the NFCC. This is required because when calling
      * HalCoreInitialized, the HAL is going to parse the conf file and send NCI commands
      * to the NFCC. Hence CORE-RESET and CORE-INIT have to be sent prior to this.
@@ -727,7 +727,7 @@ void NfcAdaptation::HalDownloadFirmwareCallback (nfc_event_t event, nfc_status_t
 *******************************************************************************/
 void NfcAdaptation::HalDownloadFirmwareDataCallback (uint16_t data_len, uint8_t* p_data)
 {
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
     if (data_len > 3)
     {
         if (p_data[0] == 0x40 && p_data[1] == 0x00)

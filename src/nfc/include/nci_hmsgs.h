@@ -58,7 +58,7 @@ void nci_proc_core_ntf (BT_HDR *p_msg);
 void nci_proc_rf_management_ntf (BT_HDR *p_msg);
 void nci_proc_ee_management_ntf (BT_HDR *p_msg);
 void nci_proc_prop_rsp (BT_HDR *p_msg);
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 void nci_proc_prop_nxp_rsp (BT_HDR *p_msg);
 #endif
 void nci_proc_prop_ntf (BT_HDR *p_msg);

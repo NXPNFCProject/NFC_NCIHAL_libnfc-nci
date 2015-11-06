@@ -2218,7 +2218,7 @@ static void rw_t1t_update_lock_attributes (void)
                     {
                         /* Set/clear lock_attr byte bits based on whether a particular lock bit is set or not
                          * each bit in lock_attr represents one byte in Tag read only attribute */
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
                         if ((p_t1t->lockbyte[num_dynamic_lock_bytes].lock_byte & rw_t1t_mask_bits[xx]) && (block_count < T1T_BLOCKS_PER_SEGMENT))
 #else
                         if (p_t1t->lockbyte[num_dynamic_lock_bytes].lock_byte & rw_t1t_mask_bits[xx])

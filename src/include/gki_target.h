@@ -214,7 +214,7 @@
 
 /* The size of the buffers in pool 3. */
 #ifndef GKI_BUF3_SIZE
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #define GKI_BUF3_SIZE               (0xFFB0)
 #else
 #define GKI_BUF3_SIZE               2500

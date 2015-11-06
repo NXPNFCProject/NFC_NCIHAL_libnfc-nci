@@ -56,7 +56,7 @@ extern void nfa_ee_vs_cback (tNFC_VS_EVT event, BT_HDR *p_data);
 tNFA_EE_CB nfa_ee_cb;
 #endif
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #ifndef NFA_EE_DISCV_TIMEOUT_VAL
 #define NFA_EE_DISCV_TIMEOUT_VAL    4000 //Wait for UICC Init complete.
 #endif
@@ -696,7 +696,7 @@ BOOLEAN nfa_ee_evt_hdlr (BT_HDR *p_msg)
     NFA_TRACE_DEBUG2 ("nfa_ee_evt_hdlr (): Event 0x%02x, State: %d", p_evt_data->hdr.event, nfa_ee_cb.em_state);
 #endif
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     /*This is required to receive Reader Over SWP event*/
     if(p_evt_data->hdr.event == NFA_EE_NCI_DISC_NTF_EVT)
     {

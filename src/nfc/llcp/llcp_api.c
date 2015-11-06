@@ -81,7 +81,7 @@ void LLCP_SetTestParams (UINT8 version, UINT16 wks)
 }
 #endif
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         LLCP_RegisterDtaCback
@@ -1567,6 +1567,28 @@ UINT8 LLCP_GetRemoteLSC (void)
         return (llcp_cb.lcb.peer_opt & (LLCP_LSC_1 | LLCP_LSC_2));
     else
         return (LLCP_LSC_UNKNOWN);
+}
+
+/*******************************************************************************
+**
+** Function         LLCP_GetRemoteVersion
+**
+** Description      Return LLCP version of connected device
+**
+**
+** Returns          LLCP version
+**
+*******************************************************************************/
+UINT8 LLCP_GetRemoteVersion (void)
+{
+    LLCP_TRACE_API1 ("LLCP_GetRemoteVersion () Version: 0x%x",
+                     (llcp_cb.lcb.link_state == LLCP_LINK_STATE_ACTIVATED)
+                     ? llcp_cb.lcb.peer_version : 0);
+
+    if (llcp_cb.lcb.link_state == LLCP_LINK_STATE_ACTIVATED)
+        return (llcp_cb.lcb.peer_version);
+    else
+        return 0;
 }
 
 /*******************************************************************************

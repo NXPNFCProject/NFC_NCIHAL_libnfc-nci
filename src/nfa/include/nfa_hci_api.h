@@ -86,7 +86,7 @@ typedef UINT8 tNFA_HCI_EVT;
 #define NFA_MAX_HCI_APP_NAME_LEN                0x10    /* Max application name length */
 #define NFA_MAX_HCI_CMD_LEN                     255     /* Max HCI command length */
 #define NFA_MAX_HCI_RSP_LEN                     255     /* Max HCI event length */
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 /*
  * increased the the buffer size, since as per HCI specification connectivity event may
  * take up 271 bytes. (MAX AID length:16, MAX PARAMETERS length:255)
@@ -295,7 +295,7 @@ typedef union
     tNFA_HCI_ADD_STATIC_PIPE_EVT    pipe_added;     /* NFA_HCI_ADD_STATIC_PIPE_EVT    */
 } tNFA_HCI_EVT_DATA;
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 typedef enum
 {
     Wait = 0,
@@ -637,7 +637,7 @@ NFC_API extern tNFA_STATUS NFA_HciAddStaticPipe (tNFA_HANDLE hci_handle, UINT8 h
 *******************************************************************************/
 NFC_API extern void NFA_HciDebug (UINT8 action, UINT8 size, UINT8 *p_data);
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         NFA_HciW4eSETransaction_Complete

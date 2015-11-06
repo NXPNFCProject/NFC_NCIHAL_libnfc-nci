@@ -80,7 +80,7 @@ static void nfa_hci_sys_enable (void);
 static void nfa_hci_sys_disable (void);
 static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data);
 static void nfa_hci_set_receive_buf (UINT8 pipe);
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 void nfa_hci_rsp_timeout (tNFA_HCI_EVENT_DATA *p_evt_data);
 static void nfa_hci_assemble_msg (UINT8 *p_data, UINT16 data_len, UINT8 pipe);
 #else
@@ -172,7 +172,7 @@ void nfa_hci_ee_info_cback (tNFA_EE_DISC_STS status)
     case NFA_EE_DISC_STS_REQ:
         nfa_hci_cb.num_ee_dis_req_ntf++;
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
         if (  (nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_NETWK_ENABLE)
             ||(nfa_hci_cb.hci_state == NFA_HCI_STATE_RESTORE_NETWK_ENABLE)  )
         {
@@ -383,7 +383,7 @@ BOOLEAN nfa_hci_is_valid_cfg (void)
                     }
                 }
             }
-#if(NFC_NXP_NOT_OPEN_INCLUDED == FALSE)
+#if(NXP_EXTNS == FALSE)
             /* The local gate should be one of the element in gate control block */
             for (zz = 0; zz < gate_count; zz++)
             {
@@ -409,7 +409,7 @@ BOOLEAN nfa_hci_is_valid_cfg (void)
 #endif
         }
     }
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     if (validated_gate_count != gate_count && xx < NFA_HCI_MAX_PIPE_CB)
     {
         NFA_TRACE_EVENT1 ("nfa_hci_is_valid_cfg  Invalid Gate: %u", nfa_hci_cb.cfg.dyn_pipes[xx].local_gate);
@@ -523,7 +523,7 @@ void nfa_hci_proc_nfcc_power_mode (UINT8 nfcc_power_mode)
 void nfa_hci_dh_startup_complete (void)
 {
 //NFC-INIT MACH
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     if(nfa_hci_cb.ee_disable_disc)
     {
         if(nfa_hci_cb.hci_state == NFA_HCI_STATE_STARTUP &&
@@ -643,7 +643,7 @@ void nfa_hci_startup (void)
             if(ee_info[count].ee_interface[0] == NFA_EE_INTERFACE_HCI_ACCESS)
             {
                 found = TRUE;
-#if(NFC_NXP_NOT_OPEN_INCLUDED != TRUE)
+#if(NXP_EXTNS != TRUE)
                 if (ee_info[count].ee_status == NFA_EE_STATUS_INACTIVE)
                 {
                     NFC_NfceeModeSet (target_handle, NFC_MODE_ACTIVATE);
@@ -657,7 +657,7 @@ void nfa_hci_startup (void)
                     NFA_TRACE_ERROR0 ("nfa_hci_startup - Failed to Create Logical connection. HCI Initialization/Restore failed");
                     nfa_hci_startup_complete (NFA_STATUS_FAILED);
                 }
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
                 /*if (ee_info[count].ee_status == NFA_EE_STATUS_INACTIVE)
                 {
                     NFC_NfceeModeSet (target_handle, NFC_MODE_ACTIVATE);
@@ -674,7 +674,7 @@ void nfa_hci_startup (void)
     }
 }
 
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 void nfa_hci_network_enable()
 {
     tNFA_EE_INFO    ee_info[2];
@@ -789,7 +789,7 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
         }
         else
         {
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
             nfa_hciu_send_set_param_cmd (NFA_HCI_ADMIN_PIPE, NFA_HCI_WHITELIST_INDEX, p_nfa_hci_cfg->num_whitelist_host, p_nfa_hci_cfg->p_whitelist);
 #else
             /* Read session id, to know DH session id is correct */
@@ -829,7 +829,7 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
     if (pkt_len != 0)
         pkt_len--;
 
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
     UINT8 is_assembling_on_current_pipe = 0;
 
     if(nfa_hci_cb.assembling_flags & NFA_HCI_FL_CONN_PIPE)
@@ -857,7 +857,7 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
         nfa_hci_cb.type            = ((*p) >> 0x06) & 0x03;
         nfa_hci_cb.inst            = (*p++ & 0x3F);
 
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
         if(pipe == NFA_HCI_CONN_ESE_PIPE ||
                 (pipe == NFA_HCI_CONN_UICC_PIPE))
         {
@@ -874,14 +874,14 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
             pkt_len--;
         nfa_hci_cb.assembly_failed = FALSE;
         nfa_hci_cb.msg_len         = 0;
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
         nfa_hci_cb.evt_len = 0;
 #endif
         if (chaining_bit == NFA_HCI_MESSAGE_FRAGMENTATION)
         {
             nfa_hci_cb.assembling = TRUE;
             nfa_hci_set_receive_buf (pipe);
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
             is_assembling_on_current_pipe = 1;
             nfa_hci_assemble_msg (p, pkt_len, pipe);
 #else
@@ -891,13 +891,13 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
         else
         {
             if ((pipe >= NFA_HCI_FIRST_DYNAMIC_PIPE) && (nfa_hci_cb.type == NFA_HCI_EVENT_TYPE)
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
                  && (nfa_hci_cb.inst != NFA_HCI_EVT_WTX)
 #endif
                )
             {
                 nfa_hci_set_receive_buf (pipe);
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
                 nfa_hci_assemble_msg (p, pkt_len, pipe);
                 if(pipe == NFA_HCI_APDU_PIPE)
                 {
@@ -923,7 +923,7 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
     }
     else
     {
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
         UINT8 is_assembly_failed_on_current_pipe = 0;
         if(nfa_hci_cb.assembly_failed_flags & NFA_HCI_FL_CONN_PIPE)
         {
@@ -951,7 +951,7 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
         }
         else
         {
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
             nfa_hci_assemble_msg (p, pkt_len, pipe);
 #else
             /* Reassemble the packet */
@@ -963,7 +963,7 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
         {
             /* Just added the last segment in the chain. Reset pointers */
             nfa_hci_cb.assembling = FALSE;
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
             is_assembling_on_current_pipe = 0;
             if(pipe == NFA_HCI_APDU_PIPE)
             {
@@ -989,7 +989,7 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
         }
     }
 
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
     if(pipe == NFA_HCI_CONN_ESE_PIPE ||
             (pipe == NFA_HCI_CONN_UICC_PIPE))
     {
@@ -1012,7 +1012,7 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
                       pipe, nfa_hci_cb.type, nfa_hci_cb.inst, chaining_bit, nfa_hci_cb.assembling, p_pkt->len);
 #endif
 
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
     /*After the reception of WTX, if the next response is chained
      * the timer value should be big enough to hold the complete packet*/
     if((nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_RSP) &&
@@ -1024,7 +1024,7 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
     }
 #endif
 
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
     if (is_assembling_on_current_pipe == 1)
 #else
         /* If still reassembling fragments, just return */
@@ -1039,19 +1039,19 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
     /* If we got a response, cancel the response timer. Also, if waiting for */
     /* a single response, we can go back to idle state                       */
     if (
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
             (pipe == NFA_HCI_APDU_PIPE) &&(
 #endif
                     (nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_RSP)
                     &&((nfa_hci_cb.type == NFA_HCI_RESPONSE_TYPE) || (nfa_hci_cb.w4_rsp_evt && (nfa_hci_cb.type == NFA_HCI_EVENT_TYPE)
                     ))
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
             )
 #endif
     )
     {
         nfa_sys_stop_timer (&nfa_hci_cb.timer);
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
         is_first_chain_pkt = TRUE;
         if(nfa_hci_cb.inst == NFA_HCI_EVT_WTX)
         {
@@ -1097,15 +1097,15 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
     }
 
     if (
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
             (pipe == NFA_HCI_APDU_PIPE) && (
 #endif
                     (nfa_hci_cb.type == NFA_HCI_RESPONSE_TYPE) || (nfa_hci_cb.w4_rsp_evt && (nfa_hci_cb.type == NFA_HCI_EVENT_TYPE)
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
                             && (nfa_hci_cb.inst != NFA_HCI_EVT_WTX)
 #endif
                     )
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
             )
 #endif
     )
@@ -1265,7 +1265,7 @@ void nfa_hci_rsp_timeout (tNFA_HCI_EVENT_DATA *p_evt_data)
             evt_data.registry.pipe     = nfa_hci_cb.pipe_in_use;
             evt_data.registry.data_len = 0;
             evt_data.registry.index    = nfa_hci_cb.param_in_use;
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
             evt_data.registry.status   = NFA_HCI_ANY_E_TIMEOUT;
 #endif
             evt                        = NFA_HCI_GET_REG_RSP_EVT;
@@ -1318,7 +1318,7 @@ void nfa_hci_rsp_timeout (tNFA_HCI_EVENT_DATA *p_evt_data)
             delete_pipe                = nfa_hci_cb.pipe_in_use;
             break;
         }
-#if (NFC_NXP_NOT_OPEN_INCLUDED != TRUE)
+#if (NXP_EXTNS != TRUE)
         if (delete_pipe && (delete_pipe <= NFA_HCI_LAST_DYNAMIC_PIPE))
         {
             nfa_hciu_send_delete_pipe_cmd (delete_pipe);
@@ -1349,7 +1349,7 @@ static void nfa_hci_set_receive_buf (UINT8 pipe)
     if (  (pipe >= NFA_HCI_FIRST_DYNAMIC_PIPE)
         &&(nfa_hci_cb.type == NFA_HCI_EVENT_TYPE)  )
     {
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
         if(pipe == NFA_HCI_CONN_ESE_PIPE || pipe == NFA_HCI_CONN_UICC_PIPE)
         {
             /* Connectivity or transaction events are received
@@ -1408,13 +1408,13 @@ static void nfa_hci_set_receive_buf (UINT8 pipe)
 ** Returns          None
 **
 *******************************************************************************/
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 static void nfa_hci_assemble_msg (UINT8 *p_data, UINT16 data_len, UINT8 pipe)
 #else
 static void nfa_hci_assemble_msg (UINT8 *p_data, UINT16 data_len)
 #endif
 {
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
     if(pipe == NFA_HCI_APDU_PIPE)
     {
         if ((nfa_hci_cb.msg_len + data_len) > nfa_hci_cb.max_msg_len)
@@ -1544,7 +1544,7 @@ static BOOLEAN nfa_hci_evt_hdlr (BT_HDR *p_msg)
     return FALSE;
 }
 
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 void nfa_hci_release_transcieve()
 {
     NFA_TRACE_DEBUG0 ("nfa_hci_release_transcieve (); Release ongoing transcieve");

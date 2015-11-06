@@ -74,19 +74,19 @@
 #define NFC_STATUS_EE_PROTOCOL_ERR      NCI_STATUS_EE_PROTOCOL_ERR      /* EE protocol error    */
 #define NFC_STATUS_EE_TIMEOUT           NCI_STATUS_EE_TIMEOUT           /* EE Timeout           */
 
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 //DTA API for MW Version need to change according to release
 #define NXP_EN_PN547C2                  1
 #define NXP_EN_PN65T                    1
 #define NXP_EN_PN548AD                  1
 #define NXP_EN_PN66T                    1
-#define NXP_ANDROID_VER                 (3U) /* NXP android version */
-#define NFC_NXP_MW_VERSION_MAJ          (5U) /* MW Major Version */
-#define NFC_NXP_MW_VERSION_MIN          (0U) /* MW Minor Version */
+#define NXP_ANDROID_VER                 (4U) /* NXP android version */
+#define NFC_NXP_MW_VERSION_MAJ          (1U) /* MW Major Version */
+#define NFC_NXP_MW_VERSION_MIN          (1U) /* MW Minor Version */
 #endif
 /* 0xE0 ~0xFF are proprietary status codes */
 #define NFC_STATUS_CMD_STARTED          0xE3/* Command started successfully                     */
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 #define NFC_STATUS_HW_TIMEOUT           0xEC/* changed from 0xE4 (as 0xE4 is defined for STATUS_EMVCO_PCD_COLLISOIN
                                              NFCC Timeout in responding to an NCI command     */
 #else
@@ -105,7 +105,7 @@
 #define NFC_STATUS_BAD_HANDLE           0xFE                      /* invalid handle             */
 #define NFC_STATUS_CONGESTED            0xFF                      /* congested                  */
 typedef UINT8 tNFC_STATUS;
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 #define NFC_NFCC_INIT_MAX_RETRY         2
 #endif
 
@@ -231,7 +231,7 @@ enum
     NFC_DATA_CEVT,                          /* 3  Data                          */
     NFC_ERROR_CEVT,                         /* 4  generic or interface error    */
     NFC_DATA_START_CEVT,                    /* 5  received the first fragment on RF link */
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
     NFC_RF_WTX_CEVT                         /* 6  received rf wtx */
 #endif
 };
@@ -272,7 +272,7 @@ typedef struct
     UINT8                   *p_param_tlvs;  /* TLV                  */
 } tNFC_GET_CONFIG_REVT;
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /* This data type is for FW Version */
 typedef struct
 {
@@ -301,7 +301,7 @@ typedef UINT8 tNFC_NFCEE_INTERFACE;
 #define NFC_NFCEE_TAG_ATR_BYTES         NCI_NFCEE_TAG_ATR_BYTES
 #define NFC_NFCEE_TAG_T3T_INFO          NCI_NFCEE_TAG_T3T_INFO
 #define NFC_NFCEE_TAG_HCI_HOST_ID       NCI_NFCEE_TAG_HCI_HOST_ID
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 typedef UINT16 tNFC_NFCEE_TAG;
 #else
 typedef UINT8 tNFC_NFCEE_TAG;
@@ -400,7 +400,7 @@ typedef UINT8 tNFC_RF_TECH;
 #define NFC_PROTOCOL_T3T        NCI_PROTOCOL_T3T      /* Type3Tag    - NFC-F            */
 #define NFC_PROTOCOL_ISO_DEP    NCI_PROTOCOL_ISO_DEP  /* Type 4A,4B  - NFC-A or NFC-B   */
 #define NFC_PROTOCOL_NFC_DEP    NCI_PROTOCOL_NFC_DEP  /* NFCDEP/LLCP - NFC-A or NFC-F       */
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 #define NFC_PROTOCOL_ISO7816    NCI_PROTOCOL_ISO7816 /*ISO7816 -AID default Routing */
 #define NFC_PROTOCOL_MIFARE     NCI_PROTOCOL_MIFARE
 #define NFC_PROTOCOL_ISO7816    NCI_PROTOCOL_ISO7816
@@ -455,7 +455,7 @@ typedef UINT8 tNFC_BIT_RATE;
 #define NFC_INTERFACE_LLCP_LOW      NCI_INTERFACE_LLCP_LOW
 #define NFC_INTERFACE_LLCP_HIGH     NCI_INTERFACE_LLCP_HIGH
 #define NFC_INTERFACE_VS_T2T_CE     NCI_INTERFACE_VS_T2T_CE
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 #define NFC_INTERFACE_MIFARE        NCI_INTERFACE_MIFARE
 #endif
 typedef tNCI_INTF_TYPE tNFC_INTF_TYPE;
@@ -598,7 +598,7 @@ typedef tNFC_STATUS tNFC_START_DEVT;
 typedef tNCI_RF_PA_PARAMS tNFC_RF_PA_PARAMS;
 #define NFC_MAX_SENSB_RES_LEN         NCI_MAX_SENSB_RES_LEN
 #define NFC_NFCID0_MAX_LEN          4
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 #define NFC_PUPIID_MAX_LEN          8
 #endif
 typedef struct
@@ -606,7 +606,7 @@ typedef struct
     UINT8       sensb_res_len;/* Length of SENSB_RES Response (Byte 2 - Byte 12 or 13) Available after Technology Detection */
     UINT8       sensb_res[NFC_MAX_SENSB_RES_LEN]; /* SENSB_RES Response (ATQ) */
     UINT8       nfcid0[NFC_NFCID0_MAX_LEN];
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
     UINT8       pupiid_len;
     UINT8       pupiid[NFC_PUPIID_MAX_LEN];
 #endif
@@ -666,7 +666,7 @@ typedef struct
     UINT8                   rf_disc_id;     /* RF Discovery ID                  */
     UINT8                   protocol;       /* supported protocol               */
     tNFC_RF_TECH_PARAMS     rf_tech_param;  /* RF technology parameters         */
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     UINT8                   more;           /* 0: last notification             */
 #else
     BOOLEAN                 more;           /* 0: last notification             */
@@ -1318,7 +1318,7 @@ NFC_API extern tNFC_STATUS NFC_SendVsCommand(UINT8          oid,
                                              BT_HDR        *p_data,
                                              tNFC_VS_CBACK *p_cback);
 
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         NFC_SendNxpNciCommand
@@ -1380,7 +1380,7 @@ NFC_API extern UINT8 NFC_SetTraceLevel (UINT8 new_level);
 NFC_API extern char * NFC_GetStatusName (tNFC_STATUS status);
 #endif
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         nfc_ncif_getFWVersion
@@ -1392,7 +1392,7 @@ NFC_API extern char * NFC_GetStatusName (tNFC_STATUS status);
 **
 *******************************************************************************/
 NFC_API extern tNFC_FW_VERSION nfc_ncif_getFWVersion();
-#if(ESE_NFC_POWER_MANAGEMENT == TRUE)
+#if(NFC_POWER_MANAGEMENT == TRUE)
 
 /*******************************************************************************
 **

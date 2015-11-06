@@ -143,7 +143,7 @@ tNFA_STATUS NFA_EeGetInfo(UINT8        *p_num_nfcee,
         p_info->num_interface   = p_cb->num_interface;
         p_info->num_tlvs        = p_cb->num_tlvs;
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
         p_info->la_protocol =  p_cb->la_protocol;
         p_info->lb_protocol =  p_cb->lb_protocol;
         p_info->lf_protocol =  p_cb->lf_protocol;
@@ -159,7 +159,7 @@ tNFA_STATUS NFA_EeGetInfo(UINT8        *p_num_nfcee,
     return (NFA_STATUS_OK);
 }
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         NFA_AllEeGetInfo
@@ -210,7 +210,7 @@ tNFA_STATUS NFA_AllEeGetInfo(UINT8        *p_num_nfcee,
         p_info->num_interface   = p_cb->num_interface;
         p_info->num_tlvs        = p_cb->num_tlvs;
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
         p_info->la_protocol =  p_cb->la_protocol;
         p_info->lb_protocol =  p_cb->lb_protocol;
         p_info->lf_protocol =  p_cb->lf_protocol;
@@ -224,6 +224,21 @@ tNFA_STATUS NFA_AllEeGetInfo(UINT8        *p_num_nfcee,
     NFA_TRACE_DEBUG1 ("num_ret:%d", num_ret);
     *p_num_nfcee = num_ret;
     return (NFA_STATUS_OK);
+}
+
+/*******************************************************************************
+**
+** Function         NFA_setProvisionMode
+**
+** Description      This function is used to set/reset the provision mode info
+**
+** Returns          None
+**
+*******************************************************************************/
+void NFA_setProvisionMode(BOOLEAN provisionMode)
+{
+    NFA_TRACE_API1 ("NFA_setProvisionMode(), provisionMode:%d", provisionMode);
+    gNfaProvisionMode = provisionMode;
 }
 #endif
 
@@ -387,7 +402,7 @@ tNFA_STATUS NFA_EeSetDefaultTechRouting(tNFA_HANDLE          ee_handle,
                                         tNFA_TECHNOLOGY_MASK technologies_switch_on,
                                         tNFA_TECHNOLOGY_MASK technologies_switch_off,
                                         tNFA_TECHNOLOGY_MASK technologies_battery_off
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
                                        ,tNFA_TECHNOLOGY_MASK technologies_screen_lock,
                                         tNFA_TECHNOLOGY_MASK technologies_screen_off
 #endif
@@ -415,7 +430,7 @@ tNFA_STATUS NFA_EeSetDefaultTechRouting(tNFA_HANDLE          ee_handle,
         p_msg->technologies_switch_on   = technologies_switch_on;
         p_msg->technologies_switch_off  = technologies_switch_off;
         p_msg->technologies_battery_off = technologies_battery_off;
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
         p_msg->technologies_screen_lock = technologies_screen_lock;
         p_msg->technologies_screen_off  = technologies_screen_off;
 #endif
@@ -451,7 +466,7 @@ tNFA_STATUS NFA_EeSetDefaultProtoRouting(tNFA_HANDLE         ee_handle,
                                          tNFA_PROTOCOL_MASK  protocols_switch_on,
                                          tNFA_PROTOCOL_MASK  protocols_switch_off,
                                          tNFA_PROTOCOL_MASK  protocols_battery_off
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
                                         ,tNFA_PROTOCOL_MASK  protocols_screen_lock,
                                          tNFA_PROTOCOL_MASK  protocols_screen_off
 #endif
@@ -479,7 +494,7 @@ tNFA_STATUS NFA_EeSetDefaultProtoRouting(tNFA_HANDLE         ee_handle,
         p_msg->protocols_switch_on      = protocols_switch_on;
         p_msg->protocols_switch_off     = protocols_switch_off;
         p_msg->protocols_battery_off    = protocols_battery_off;
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
         p_msg->protocols_screen_lock     = protocols_screen_lock;
         p_msg->protocols_screen_off    = protocols_screen_off;
 #endif
@@ -514,7 +529,7 @@ tNFA_STATUS NFA_EeAddAidRouting(tNFA_HANDLE          ee_handle,
                                 UINT8                aid_len,
                                 UINT8               *p_aid,
                                 tNFA_EE_PWR_STATE    power_state
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
                                 , UINT8              vs_info)
 #else
 )
@@ -544,7 +559,7 @@ tNFA_STATUS NFA_EeAddAidRouting(tNFA_HANDLE          ee_handle,
         p_msg->aid_len          = aid_len;
         p_msg->power_state      = power_state;
         p_msg->p_aid            = (UINT8 *)(p_msg + 1);
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
         p_msg->vs_info          = vs_info;
 #endif
         memcpy(p_msg->p_aid, p_aid, aid_len);
@@ -557,7 +572,7 @@ tNFA_STATUS NFA_EeAddAidRouting(tNFA_HANDLE          ee_handle,
     return status;
 }
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         NFA_AddEePowerState

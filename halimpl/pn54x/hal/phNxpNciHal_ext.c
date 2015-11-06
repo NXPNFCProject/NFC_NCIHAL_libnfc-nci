@@ -52,7 +52,6 @@ extern uint16_t wFwVer;
 /* local buffer to store CORE_INIT response */
 static uint32_t bCoreInitRsp[40];
 static uint32_t iCoreInitRspLen;
-
 extern uint32_t timeoutTimerId;
 
 extern NFCSTATUS read_retry();
@@ -127,6 +126,7 @@ NFCSTATUS phNxpNciHal_process_ext_rsp (uint8_t *p_ntf, uint16_t *p_len)
         p_ntf[5] = 0x03;
         NXPLOG_NCIHAL_D("FelicaReaderMode:Activity 1.1");
     }
+
 
 #ifdef P2P_PRIO_LOGIC_HAL_IMP
     if(p_ntf[0] == 0x61 &&

@@ -104,9 +104,9 @@
 #define LLCP_MIN_SNL_MAJOR_VERSION  0x01
 #define LLCP_MIN_SNL_MINOR_VERSION  0x01
 
-/* LLCP Version 1.1 */
+/* LLCP Version 1.2 */
 #define LLCP_VERSION_MAJOR  0x01
-#define LLCP_VERSION_MINOR  0x01
+#define LLCP_VERSION_MINOR  0x02
 #define LLCP_VERSION_VALUE  ((LLCP_VERSION_MAJOR << 4) | LLCP_VERSION_MINOR)
 
 /* Maximum Information Unit Extension */

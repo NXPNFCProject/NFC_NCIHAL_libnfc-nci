@@ -81,7 +81,7 @@ tNFC_CB nfc_cb;
 #endif
 UINT8 i2c_fragmentation_enabled = 0xff;
 #if (NFC_RW_ONLY == FALSE)
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #if(NFC_NXP_CHIP_TYPE != PN547C2)
 #define NFC_NUM_INTERFACE_MAP   4
 #else
@@ -111,7 +111,7 @@ static const tNCI_DISCOVER_MAPS nfc_interface_mapping[NFC_NUM_INTERFACE_MAP] =
         NCI_INTERFACE_NFC_DEP
     }
 #endif
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     ,
     {
         NCI_PROTOCOL_MIFARE,
@@ -284,7 +284,7 @@ void nfc_enabled (tNFC_STATUS nfc_status, BT_HDR *p_init_rsp_msg)
         {
             if ((*p) <= NCI_INTERFACE_MAX)
                 evt_data.enable.nci_interfaces |= (1 << (*p));
-            #if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+            #if(NXP_EXTNS == TRUE)
             else if (((*p) >= NCI_INTERFACE_FIRST_VS) && (yy < NFC_NFCC_MAX_NUM_VS_INTERFACE))
             #else
             else if (((*p) > NCI_INTERFACE_FIRST_VS) && (yy < NFC_NFCC_MAX_NUM_VS_INTERFACE))
@@ -373,7 +373,7 @@ void nfc_gen_cleanup (void)
     {
         nfc_cb.flags &= ~NFC_FL_DISCOVER_PENDING;
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
         if(nfc_cb.p_last_disc)
         {
             GKI_freebuf (nfc_cb.p_last_disc);
@@ -483,7 +483,7 @@ void nfc_main_handle_hal_evt (tNFC_HAL_EVT_MSG *p_msg)
             nfc_cb.flags &= ~NFC_FL_DISCOVER_PENDING;
             ps            = (UINT8 *)nfc_cb.p_disc_pending;
             nci_snd_discover_cmd (*ps, (tNFC_DISCOVER_PARAMS *)(ps + 1));
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
             if(nfc_cb.p_last_disc)
             {
                 GKI_freebuf( nfc_cb.p_last_disc);
@@ -914,7 +914,7 @@ tNFC_STATUS NFC_DiscoveryMap (UINT8 num, tNFC_DISCOVER_MAPS *p_maps,
     UINT8   xx, yy, num_intf, intf_mask;
     tNFC_DISCOVER_MAPS  max_maps[NFC_NFCC_MAX_NUM_VS_INTERFACE + NCI_INTERFACE_MAX];
     BOOLEAN is_supported;
-    #if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+    #if (NXP_EXTNS == TRUE)
     nfc_cb.num_disc_maps = num;
     #endif
     nfc_cb.p_discv_cback = p_cback;
@@ -1266,7 +1266,7 @@ tNFC_STATUS NFC_Deactivate (tNFC_DEACT_TYPE deactivate_type)
             /* if HAL did not request for control, clear this bit now */
             nfc_cb.flags &= ~NFC_FL_CONTROL_REQUESTED;
         }
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
         if( nfc_cb.p_last_disc)
         {
             GKI_freebuf (nfc_cb.p_last_disc);
@@ -1453,7 +1453,7 @@ int  get_i2c_fragmentation_enabled()
     return i2c_fragmentation_enabled;
 }
 
-#if((ESE_NFC_POWER_MANAGEMENT == TRUE)&&(NFC_NXP_NOT_OPEN_INCLUDED == TRUE))
+#if((NFC_POWER_MANAGEMENT == TRUE)&&(NXP_EXTNS == TRUE))
 /*******************************************************************************
 **
 ** Function         NFC_ReqWiredAccess

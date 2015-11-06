@@ -172,6 +172,9 @@ void GKI_init(void)
     p_os->no_timer_suspend = GKI_TIMER_TICK_RUN_COND;
     pthread_mutex_init(&p_os->gki_timer_mutex, NULL);
     pthread_cond_init(&p_os->gki_timer_cond, NULL);
+#if (NXP_EXTNS == TRUE)
+    pthread_mutexattr_destroy(&attr);
+#endif
 }
 
 
@@ -264,7 +267,10 @@ UINT8 GKI_create_task (TASKPTR task_entry, UINT8 task_id, INT8 *taskname, UINT16
               &attr1,
               (void *)gki_task_entry,
               &gki_pthread_info[task_id]);
-
+#if (NXP_EXTNS == TRUE)
+    pthread_attr_destroy(&attr1);
+    pthread_condattr_destroy(&attr);
+#endif
     if (ret != 0)
     {
          GKI_TRACE_2("pthread_create failed(%d), %s!", ret, taskname);
@@ -492,7 +498,9 @@ void GKI_run (void *p_task_id)
     struct timespec delay;
     int err = 0;
     volatile int * p_run_cond = &gki_cb.os.no_timer_suspend;
-
+#if (NXP_EXTNS == TRUE)
+    int ret = 0;
+#endif
 #ifndef GKI_NO_TICK_STOP
     /* register start stop function which disable timer loop in GKI_run() when no timers are
      * in any GKI/BTA/BTU this should save power when BTLD is idle! */
@@ -508,10 +516,19 @@ void GKI_run (void *p_task_id)
 
     pthread_attr_init(&timer_attr);
     pthread_attr_setdetachstate(&timer_attr, PTHREAD_CREATE_DETACHED);
+#if (NXP_EXTNS == TRUE)
+    ret = pthread_create( &timer_thread_id,
+            &timer_attr,
+            timer_thread,
+            NULL);
+    pthread_attr_destroy(&timer_attr);
+    if (ret != 0)
+#else
     if (pthread_create( &timer_thread_id,
               &timer_attr,
               timer_thread,
               NULL) != 0 )
+#endif
     {
         GKI_TRACE_0("GKI_run: pthread_create failed to create timer_thread!");
         return GKI_FAILURE;

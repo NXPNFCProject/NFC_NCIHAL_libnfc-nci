@@ -284,7 +284,7 @@ typedef struct
     UINT8           total_rx_ui_pdu;                /* total number of rx UI PDU in all of ui_rx_q  */
     UINT8           total_rx_i_pdu;                 /* total number of rx I PDU in all of i_rx_q    */
     BOOLEAN         overall_rx_congested;           /* TRUE if overall rx link is congested         */
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     tLLCP_DTA_CBACK *p_dta_cback;                   /* callback to notify DTA when respoding SNL    */
     BOOLEAN         dta_snl_resp;                   /* TRUE if need to notify DTA when respoding SNL*/
 #endif

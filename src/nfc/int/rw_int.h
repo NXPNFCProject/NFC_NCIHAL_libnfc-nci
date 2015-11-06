@@ -210,7 +210,7 @@ typedef struct
 #define T2T_BRCM_STATIC_MEM                             0x2E01
 #define T2T_BRCM_DYNAMIC_MEM                            0x2E02
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /* CC2 value on MiFare ULC tag */
 #define T2T_MIFARE_ULC_TMS                              0x12
 /* Possible corrupt cc2 value range on MiFare ULC tags */
@@ -492,7 +492,7 @@ typedef struct
 
     UINT16              max_read_size;      /* max reading size per a command   */
     UINT16              max_update_size;    /* max updating size per a command  */
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
     UINT16              card_size;
     UINT8               card_type;
 #endif
@@ -663,6 +663,8 @@ extern void rw_t4t_process_timeout (TIMER_LIST_ENT *p_tle);
 
 extern tNFC_STATUS rw_i93_select (UINT8 *p_uid);
 extern void rw_i93_process_timeout (TIMER_LIST_ENT *p_tle);
+
+void nfa_rw_update_pupi_id(UINT8 *p, UINT8 len);
 
 #if (defined (RW_STATS_INCLUDED) && (RW_STATS_INCLUDED == TRUE))
 /* Internal fcns for statistics (from rw_main.c) */

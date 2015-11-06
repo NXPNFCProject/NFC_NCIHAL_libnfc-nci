@@ -54,14 +54,14 @@ int GetNumValue(const char* name, void* p_value, unsigned long len);
 #define NAME_APPL_TRACE_LEVEL           "APPL_TRACE_LEVEL"
 #define NAME_USE_RAW_NCI_TRACE          "USE_RAW_NCI_TRACE"
 #define NAME_LOGCAT_FILTER              "LOGCAT_FILTER"
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #define NAME_APPL_DTA_MODE              "APPL_DTA_MODE"
 #endif
 #define NAME_LPTD_CFG                   "LPTD_CFG"
 #define NAME_SCREEN_OFF_POWER_STATE     "SCREEN_OFF_POWER_STATE"
 #define NAME_PREINIT_DSP_CFG            "PREINIT_DSP_CFG"
 #define NAME_DTA_START_CFG              "DTA_START_CFG"
-#if(NFC_NXP_NOT_OPEN_INCLUDED != TRUE)
+#if(NXP_EXTNS != TRUE)
 #define NAME_TRANSPORT_DRIVER           "TRANSPORT_DRIVER"
 #define NAME_POWER_CONTROL_DRIVER       "POWER_CONTROL_DRIVER"
 #endif
@@ -90,7 +90,7 @@ int GetNumValue(const char* name, void* p_value, unsigned long len);
 #define NAME_UICC_LISTEN_TECH_MASK      "UICC_LISTEN_TECH_MASK"
 #define NAME_UICC_LISTEN_TECH_EX_MASK   "UICC_LISTEN_TECH_EXCLUDE_MASK"
 #define NAME_HOST_LISTEN_ENABLE         "HOST_LISTEN_ENABLE"
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 #define NAME_DEFAULT_AID_ROUTE          "DEFAULT_AID_ROUTE"
 #define NAME_DEFAULT_DESFIRE_ROUTE      "DEFAULT_DESFIRE_ROUTE"
 #define NAME_DEFAULT_MIFARE_CLT_ROUTE   "DEFAULT_MIFARE_CLT_ROUTE"

@@ -47,7 +47,7 @@
 /* Static gates */
 #define NFA_HCI_LOOP_BACK_GATE              0x04
 #define NFA_HCI_IDENTITY_MANAGEMENT_GATE    0x05
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #ifdef GEMALTO_SE_SUPPORT
 #define NFC_HCI_DEFAULT_DEST_GATE           0XF0
 #endif
@@ -122,7 +122,7 @@
 #define NFA_HCI_EVT_POST_DATA               0x02
 #define NFA_HCI_EVT_HOT_PLUG                0x03
 
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 #define NFA_HCI_EVT_WTX                     0x11
 #endif
 

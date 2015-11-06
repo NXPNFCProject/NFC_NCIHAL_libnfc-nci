@@ -131,7 +131,7 @@ enum
     NFA_RW_OP_I93_GET_SYS_INFO,
     NFA_RW_OP_I93_GET_MULTI_BLOCK_STATUS,
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     NFA_RW_OP_T3BT_PUPI,
 #endif
 
@@ -372,7 +372,7 @@ extern BOOLEAN nfa_rw_handle_event (BT_HDR *p_msg);
 extern void    nfa_rw_free_ndef_rx_buf (void);
 extern void    nfa_rw_sys_disable (void);
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 extern void nfa_rw_set_cback(tNFC_DISCOVER *p_data);
 extern void nfa_rw_update_pupi_id(UINT8 *p, UINT8 len);
 #endif

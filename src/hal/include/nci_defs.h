@@ -371,7 +371,7 @@ typedef UINT8 tNCI_STATUS;
 #define NCI_INTERFACE_MAX               NCI_INTERFACE_NFC_DEP
 
 #define NCI_INTERFACE_FIRST_VS          0x80
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 #define NCI_INTERFACE_MIFARE            0x80
 #if (NFC_NXP_CHIP_TYPE != PN547C2)
 #define NCI_INTERFACE_UICC_DIRECT       0x82
@@ -405,13 +405,13 @@ typedef UINT8 tNCI_INTF_TYPE;
 #define NCI_PROTOCOL_T3T                0x03
 #define NCI_PROTOCOL_ISO_DEP            0x04
 #define NCI_PROTOCOL_NFC_DEP            0x05
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 #define NCI_PROTOCOL_ISO7816            0xA0
 #endif
 /**********************************************
  * Proprietary Protocols
  **********************************************/
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 #ifndef NCI_PROTOCOL_ISO7816
 #define NCI_PROTOCOL_ISO7816             0xA0
 #endif
@@ -436,7 +436,7 @@ typedef UINT8 tNCI_INTF_TYPE;
 #ifndef NCI_PROTOCOL_DUAL
 #define NCI_PROTOCOL_DUAL               0x82
 #endif
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 #ifndef NCI_PROTOCOL_15693
 #define NCI_PROTOCOL_15693              0x06
 #endif
@@ -448,7 +448,7 @@ typedef UINT8 tNCI_INTF_TYPE;
 
 
 #ifndef NCI_PROTOCOL_KOVIO
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 #if(NFC_NXP_CHIP_TYPE != PN547C2)
 #define NCI_PROTOCOL_KOVIO              0x81
 #else
@@ -458,7 +458,7 @@ typedef UINT8 tNCI_INTF_TYPE;
 #define NCI_PROTOCOL_KOVIO              0x8A
 #endif
 #endif
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #ifndef NCI_PROTOCOL_T3BT
 #define NCI_PROTOCOL_T3BT               0x8b
 #endif
@@ -472,7 +472,7 @@ typedef UINT8 tNCI_INTF_TYPE;
 #define NCI_DISCOVERY_TYPE_POLL_A_ACTIVE        0x03
 #define NCI_DISCOVERY_TYPE_POLL_F_ACTIVE        0x05
 #define NCI_DISCOVERY_TYPE_POLL_B_PRIME         0x74
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 #if(NFC_NXP_CHIP_TYPE != PN547C2)
 #define NCI_DISCOVERY_TYPE_POLL_KOVIO           0x70
 #else
@@ -511,7 +511,7 @@ typedef UINT8 tNCI_DISCOVERY_TYPE;
 #define NCI_ROUTE_PWR_STATE_ON          0x01        /* The device is on */
 #define NCI_ROUTE_PWR_STATE_SWITCH_OFF  0x02        /* The device is switched off */
 #define NCI_ROUTE_PWR_STATE_BATT_OFF    0x04        /* The device's battery is removed */
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #define NCI_ROUTE_PWR_STATE_SCREEN_LOCK 0x40        /* The device is screen lock mode */
 #define NCI_ROUTE_PWR_STATE_SCREEN_OFF  0x80        /* The device is screen off mode */
 #endif
@@ -528,7 +528,7 @@ typedef UINT8 tNCI_DISCOVERY_TYPE;
 
 /* NCI RF Management Group Params */
 #define NCI_RF_PARAM_SIZE_T3T_POLLING   0x04        /* System Code, RC, TSN */
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #define NCI_MSG_RF_WTX                  0x17
 #endif
 
@@ -732,7 +732,7 @@ typedef struct
 } tNCI_RF_PB_PARAMS;
 
 #define NCI_MAX_SENSF_RES_LEN       18
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #define NCI_SENSF_RES_OFFSET_NFCID2 1
 #endif
 #define NCI_SENSF_RES_OFFSET_PAD0   8

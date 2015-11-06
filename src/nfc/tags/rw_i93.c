@@ -53,7 +53,7 @@
 #include "rw_api.h"
 #include "rw_int.h"
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #define RW_I93_TOUT_RESP                        RW_I93_MAX_RSP_TIMEOUT    /* Response timeout     */
 #endif
 #define RW_I93_TOUT_STAY_QUIET                  200     /* stay quiet timeout   */
@@ -1964,7 +1964,7 @@ void rw_i93_sm_detect_ndef (BT_HDR *p_resp)
 *******************************************************************************/
 void rw_i93_sm_read_ndef (BT_HDR *p_resp)
 {
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     UINT8      *p;
     UINT16      offset = 0, length = 0;
 #else
@@ -1984,7 +1984,7 @@ void rw_i93_sm_read_ndef (BT_HDR *p_resp)
         RW_TRACE_DEBUG0 ("rw_i93_sm_read_ndef: p_resp is NULL");
         return;
     }
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     p = (UINT8 *) (p_resp + 1) + p_resp->offset;
     length = p_resp->len;
 #endif
@@ -3116,7 +3116,7 @@ static void rw_i93_data_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_
         }
         else
         {
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
             /* free retry buffer */
             if ((event == NFC_DEACTIVATE_CEVT )&& p_i93->p_retry_cmd)
             {

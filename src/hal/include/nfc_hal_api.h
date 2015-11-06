@@ -104,7 +104,7 @@ typedef void (tHAL_API_OPEN) (tHAL_NFC_CBACK *p_hal_cback, tHAL_NFC_DATA_CBACK *
 typedef void (tHAL_API_CLOSE) (void);
 typedef void (tHAL_API_CORE_INITIALIZED) (UINT8 *p_core_init_rsp_params);
 typedef void (tHAL_API_WRITE) (UINT16 data_len, UINT8 *p_data);
-#if((ESE_NFC_POWER_MANAGEMENT == TRUE)&&(NFC_NXP_NOT_OPEN_INCLUDED == TRUE))
+#if((NFC_POWER_MANAGEMENT == TRUE)&&(NXP_EXTNS == TRUE))
 typedef int (tHAL_API_IOCTL) (long arg, void *p_data);
 #endif
 typedef BOOLEAN (tHAL_API_PREDISCOVER) (void);
@@ -140,7 +140,7 @@ typedef struct
     tHAL_API_CLOSE *close;
     tHAL_API_CORE_INITIALIZED *core_initialized;
     tHAL_API_WRITE *write;
-#if((ESE_NFC_POWER_MANAGEMENT == TRUE)&&(NFC_NXP_NOT_OPEN_INCLUDED == TRUE))
+#if((NFC_POWER_MANAGEMENT == TRUE)&&(NXP_EXTNS == TRUE))
     tHAL_API_IOCTL *ioctl;
 #endif
     tHAL_API_PREDISCOVER *prediscover;

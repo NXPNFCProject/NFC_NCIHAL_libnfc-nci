@@ -81,7 +81,7 @@ extern "C" {
 #define NFC_TTYPE_RW_T4T_RESPONSE           107
 #define NFC_TTYPE_RW_I93_RESPONSE           108
 #define NFC_TTYPE_CE_T4T_UPDATE             109
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #define NFC_TTYPE_P2P_PRIO_RESPONSE         110  /* added for p2p prio logic timer */
 #define NFC_TTYPE_LISTEN_ACTIVATION         111  /* added for listen activation timer */
 #define NFC_TTYPE_P2P_PRIO_LOGIC_CLEANUP    112  /* added for p2p prio logic clenaup */
@@ -143,7 +143,7 @@ typedef struct
     UINT8       buff_size;      /* the max buffer size for this connection.     .   */
     UINT8       num_buff;       /* num of buffers left to send on this connection   */
     UINT8       init_credits;   /* initial num of buffer credits                    */
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     UINT8       act_interface;  /* the active interface on this logical i=connetion  */
     UINT8       sel_res;        /* the sel_res of the activated rf interface connection */
 #endif
@@ -175,7 +175,7 @@ typedef void (tNFC_PWR_ST_CBACK) (void);
 
 /* NCI command buffer contains a VSC (in BT_HDR.layer_specific) */
 #define NFC_WAIT_RSP_VSC            0x01
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #define NFC_WAIT_RSP_NXP            0x02
 #endif
 
@@ -197,7 +197,7 @@ typedef struct
     tNFC_RESPONSE_CBACK *p_resp_cback;
     tNFC_TEST_CBACK     *p_test_cback;
     tNFC_VS_CBACK       *p_vs_cb[NFC_NUM_VS_CBACKS];/* Register for vendor specific events  */
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     UINT8               nxpCbflag;
 #endif
 
@@ -214,7 +214,7 @@ typedef struct
     UINT16              nci_interfaces;             /* the NCI interfaces of NFCC       */
     UINT8               num_disc_maps;              /* number of RF Discovery interface mappings */
     void               *p_disc_pending;            /* the parameters associated with pending NFC_DiscoveryStart */
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     void               *p_last_disc;            /* the parameters associated with pending NFC_DiscoveryStart */
 #endif
 
@@ -226,19 +226,19 @@ typedef struct
 
     tNFC_STATE          nfc_state;
     BOOLEAN             reassembly;         /* Reassemble fragmented data pkt */
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     tNFC_STATE          old_nfc_state;
 #endif
     UINT8               trace_level;
     UINT8               last_hdr[NFC_SAVED_HDR_SIZE];/* part of last NCI command header */
     UINT8               last_cmd[NFC_SAVED_CMD_SIZE];/* part of last NCI command payload */
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     UINT8              *last_cmd_buf;
     UINT8               cmd_size;
 #endif
     void                *p_vsc_cback;       /* the callback function for last VSC command */
     BUFFER_Q            nci_cmd_xmit_q;     /* NCI command queue */
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     BUFFER_Q            nci_cmd_recov_xmit_q;     /* NCI recovery command queue */
     TIMER_LIST_ENT      listen_activation_timer_list;           /* Timer for monitoring listen activation */
 #endif
@@ -310,7 +310,7 @@ NFC_API extern void nfc_ncif_proc_reset_rsp (UINT8 *p, BOOLEAN is_ntf);
 NFC_API extern void nfc_ncif_proc_init_rsp (BT_HDR *p_msg);
 NFC_API extern void nfc_ncif_proc_get_config_rsp (BT_HDR *p_msg);
 NFC_API extern void nfc_ncif_proc_data (BT_HDR *p_msg);
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 NFC_API extern tNFC_STATUS nfc_ncif_store_FWVersion(UINT8 * p_buf);
 NFC_API extern BOOLEAN nfa_dm_p2p_prio_logic(UINT8 event, UINT8 *p, UINT8 ntf_rsp);
 NFC_API extern void nfc_ncif_update_window (void);

@@ -90,7 +90,7 @@ static void    llcp_link_send_to_lower (BT_HDR *p_msg);
 extern tLLCP_TEST_PARAMS llcp_test_params;
 #endif
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 extern unsigned char appl_dta_mode_flag;
 #endif
 
@@ -227,14 +227,14 @@ tLLCP_STATUS llcp_link_activate (tLLCP_ACTIVATE_CONFIG *p_config)
                              llcp_link_rwt[p_config->waiting_time],
                              llcp_cb.lcb.peer_lto);
     }
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     /*For DTA mode Peer LTO Should not include TX RX Delay, Just llcp deactivate after Peer LTO time */
     if(!appl_dta_mode_flag)
     {
 #endif
        /* extend LTO as much as internally required processing time and propagation delays */
        llcp_cb.lcb.peer_lto += LLCP_INTERNAL_TX_DELAY + LLCP_INTERNAL_RX_DELAY;
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     }
 #endif
     /* LLCP version number agreement */

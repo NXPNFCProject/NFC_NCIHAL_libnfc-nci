@@ -303,7 +303,7 @@
 
 /* RW Type 3 Tag timeout for each API call, in ms */
 #ifndef RW_T3T_TOUT_RESP
-#define RW_T3T_TOUT_RESP            100         /* NFC-Android will use 100 instead of 75 for T3t presence-check */
+#define RW_T3T_TOUT_RESP            500         /* increased T3t presence-check time from 100 to 500, as Felica Secure mode commands require longer time to process */
 #endif
 
 /* CE Type 3 Tag maximum response timeout index (for check and update, used in SENSF_RES) */
@@ -560,7 +560,7 @@
 
 /* Timeout for waiting for the response to HCP Command packet */
 #ifndef NFA_HCI_RESPONSE_TIMEOUT
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /*
  * NOTE : HCI Response will be received only after Credit Ntf is received.
  *        If credit Ntf timeout is triggered then response timer will also be stopped.
@@ -599,7 +599,7 @@
 #ifndef NFA_DM_MAX_PRESENCE_CHECK_TIMEOUT
 #define NFA_DM_MAX_PRESENCE_CHECK_TIMEOUT           500
 #endif
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #define NFA_DM_ISO_15693_MAX_PRESENCE_CHECK_TIMEOUT           500
 #endif
 
@@ -621,7 +621,7 @@
 /* Maximum number of listen entries configured/registered with NFA_CeConfigureUiccListenTech, */
 /* NFA_CeRegisterFelicaSystemCodeOnDH, or NFA_CeRegisterT4tAidOnDH                            */
 #ifndef NFA_CE_LISTEN_INFO_MAX
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #define NFA_CE_LISTEN_INFO_MAX        10
 #else
 #define NFA_CE_LISTEN_INFO_MAX        5
@@ -692,7 +692,7 @@
 
 /* Max number of NFCEE supported */
 #ifndef NFA_EE_MAX_EE_SUPPORTED
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #define NFA_EE_MAX_EE_SUPPORTED         3 //Wait for UICC Init complete.
 #else
 #define NFA_EE_MAX_EE_SUPPORTED         4           /* Modified for NFC-A until we add dynamic support */
@@ -701,7 +701,7 @@
 
 /* Maximum number of AID entries per target_handle  */
 #ifndef NFA_EE_MAX_AID_ENTRIES
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #if(NFC_NXP_CHIP_TYPE != PN547C2)
 #define NFA_EE_MAX_AID_ENTRIES      (50)
 #else

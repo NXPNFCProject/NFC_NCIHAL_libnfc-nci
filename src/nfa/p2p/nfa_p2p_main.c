@@ -266,7 +266,7 @@ static void nfa_p2p_update_active_listen (void)
     if (nfa_p2p_cb.listen_tech_mask & NFA_TECHNOLOGY_MASK_F_ACTIVE)
         p2p_listen_mask |= NFA_DM_DISC_MASK_LFA_NFC_DEP;
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     /*For P2P mode(Default DTA mode) open Raw channel to bypass LLCP layer. For LLCP DTA mode activate LLCP
      * Bypassing LLCP is handled in nfa_dm_poll_disc_cback*/
     if ((appl_dta_mode_flag == 1) && (nfa_dm_cb.eDtaMode == NFA_DTA_DEFAULT_MODE))
@@ -327,6 +327,7 @@ void nfa_p2p_llcp_link_cback (UINT8 event, UINT8 reason)
         llcp_activated.remote_link_miu = nfa_p2p_cb.remote_link_miu;
         llcp_activated.remote_lsc      = LLCP_GetRemoteLSC ();
         llcp_activated.remote_wks      = LLCP_GetRemoteWKS ();
+        llcp_activated.remote_version  = LLCP_GetRemoteVersion ();
 
         nfa_dm_act_conn_cback_notify (NFA_LLCP_ACTIVATED_EVT, (tNFA_CONN_EVT_DATA *) &llcp_activated);
 
@@ -392,7 +393,7 @@ void nfa_p2p_llcp_link_cback (UINT8 event, UINT8 reason)
         {
             if (nfa_p2p_cb.is_initiator)
             {
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
                /*For LLCP DTA test, Deactivate to Sleep is needed to send DSL_REQ*/
                if((appl_dta_mode_flag == 1) && (nfa_dm_cb.eDtaMode == NFA_DTA_LLCP_MODE))
                {
@@ -402,7 +403,7 @@ void nfa_p2p_llcp_link_cback (UINT8 event, UINT8 reason)
                {
 #endif
                    nfa_dm_rf_deactivate (NFA_DEACTIVATE_TYPE_DISCOVERY);
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
                }
 #endif
             }
@@ -648,7 +649,7 @@ void nfa_p2p_enable_listening (tNFA_SYS_ID sys_id, BOOLEAN update_wks)
 
     if (p2p_listen_mask)
     {
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
         /*For P2P mode(Default DTA mode) open Raw channel to bypass LLCP layer. For LLCP DTA mode activate LLCP
          * Bypassing LLCP is handled in nfa_dm_poll_disc_cback*/
         if ((appl_dta_mode_flag == 1) && (nfa_dm_cb.eDtaMode == NFA_DTA_DEFAULT_MODE))
@@ -750,7 +751,7 @@ void nfa_p2p_update_listen_tech (tNFA_TECHNOLOGY_MASK tech_mask)
 
         /* restart discovery without updating sub-module status */
         if (nfa_p2p_cb.is_p2p_listening
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
                 || appl_dta_mode_flag
 #endif
             )

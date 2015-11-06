@@ -100,7 +100,7 @@ typedef enum
     phTmlNfc_e_ResetDevice = PH_TMLNFC_RESETDEVICE, /* Reset the device */
     phTmlNfc_e_EnableDownloadMode, /* Do the hardware setting to enter into download mode */
     phTmlNfc_e_EnableNormalMode/* Hardware setting for normal mode of operation */
-#if(ESE_NFC_POWER_MANAGEMENT == TRUE)
+#if(NFC_POWER_MANAGEMENT == TRUE)
     ,phTmlNfc_e_SetNfcServicePid, /* Register the Nfc service PID with the driver */
     phTmlNfc_e_GetP61PwrMode, /* Get the current P61 mode of operation */
     phTmlNfc_e_SetP61WiredMode, /* Set the current P61 mode of operation to Wired*/

@@ -50,7 +50,7 @@
 #include "llcp_int.h"
 #include "llcp_defs.h"
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #include "nfa_sys.h"
 #include "nfa_dm_int.h"
 #endif
@@ -100,7 +100,7 @@ void llcp_sdp_check_send_snl (void)
         GKI_enqueue (&llcp_cb.lcb.sig_xmit_q, llcp_cb.sdp_cb.p_snl);
         llcp_cb.sdp_cb.p_snl = NULL;
     }
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     else
     {
         /* Notify DTA after sending out SNL with SDRES not to send SNLs in AGF PDU */
@@ -343,7 +343,7 @@ UINT8 llcp_sdp_get_sap_by_name (char *p_name, UINT8 length)
             &&(strlen((char*)p_app_cb->p_service_name) == length)
             &&(!strncmp((char*)p_app_cb->p_service_name, p_name, length))  )
         {
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
             /* if device is under LLCP DTA testing */
             if (  (llcp_cb.p_dta_cback)
                 &&(!strncmp((char*)p_app_cb->p_service_name, "urn:nfc:sn:cl-echo-in", length))  )
@@ -419,7 +419,7 @@ void llcp_sdp_proc_deactivation (void)
     }
 
     llcp_cb.sdp_cb.next_tid = 0;
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     llcp_cb.dta_snl_resp = FALSE;
 #endif
 }
@@ -464,7 +464,7 @@ tLLCP_STATUS llcp_sdp_proc_snl (UINT16 sdu_length, UINT8 *p)
             }
             else
             {
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
                 /*For P2P in LLCP mode TC_CTO_TAR_BI_03_x(x=3) fix*/
                 if ((appl_dta_mode_flag == 1) && (nfa_dm_cb.eDtaMode == NFA_DTA_LLCP_MODE))
                 {

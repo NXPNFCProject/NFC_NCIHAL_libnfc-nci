@@ -640,6 +640,18 @@ LLCP_API extern UINT8 LLCP_GetRemoteLSC (void);
 
 /*******************************************************************************
 **
+** Function         LLCP_GetRemoteVersion
+**
+** Description      Return LLCP version of connected device
+**
+**
+** Returns          LLCP version
+**
+*******************************************************************************/
+LLCP_API extern UINT8 LLCP_GetRemoteVersion (void);
+
+/*******************************************************************************
+**
 ** Function         LLCP_GetLinkMIU
 **
 ** Description      Return local and remote link MIU
@@ -676,7 +688,7 @@ LLCP_API extern tLLCP_STATUS LLCP_DiscoverService (char            *p_name,
 *******************************************************************************/
 LLCP_API extern UINT8 LLCP_SetTraceLevel (UINT8 new_level);
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         LLCP_RegisterDtaCback

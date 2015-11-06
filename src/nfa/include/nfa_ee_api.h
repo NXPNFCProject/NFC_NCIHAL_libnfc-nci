@@ -51,7 +51,7 @@
 *****************************************************************************/
 #define NFA_MAX_AID_LEN             NFC_MAX_AID_LEN /* 16 per ISO 7816 specification    */
 #define NFA_EE_HANDLE_DH            (NFA_HANDLE_GROUP_EE|NFC_DH_ID)
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 extern  UINT8 NFA_REMOVE_ALL_AID[];
 #define NFA_REMOVE_ALL_AID_LEN      (0x08)
 extern  UINT8 nfa_ee_ce_route_strict_disable;
@@ -95,7 +95,7 @@ typedef UINT8 tNFA_EE_INTERFACE;
 #define NFA_EE_TAG_ATR_BYTES         NFC_NFCEE_TAG_ATR_BYTES            /* ATR Bytes            */
 #define NFA_EE_TAG_T3T_INFO          NFC_NFCEE_TAG_T3T_INFO             /* T3T Supplement. Info */
 #define NFA_EE_TAG_HCI_HOST_ID       NFC_NFCEE_TAG_HCI_HOST_ID          /* Broadcom Proprietary */
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 typedef UINT16 tNFA_EE_TAG;
 #else
 typedef UINT8 tNFA_EE_TAG;
@@ -139,7 +139,7 @@ typedef struct
     tNFA_EE_INTERFACE   ee_interface[NFC_MAX_EE_INTERFACE];/* NFCEE supported interface */
     UINT8               num_tlvs;               /* number of TLVs           */
     tNFA_EE_TLV         ee_tlv[NFC_MAX_EE_TLVS];/* the TLV                  */
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     tNFA_NFC_PROTOCOL       la_protocol;        /* Listen A protocol    */
     tNFA_NFC_PROTOCOL       lb_protocol;        /* Listen B protocol    */
     tNFA_NFC_PROTOCOL       lf_protocol;        /* Listen F protocol    */
@@ -199,7 +199,7 @@ typedef struct
     tNFA_NFC_PROTOCOL   lb_protocol;        /* Listen B protocol    */
     tNFA_NFC_PROTOCOL   lf_protocol;        /* Listen F protocol    */
     tNFA_NFC_PROTOCOL   lbp_protocol;       /* Listen B' protocol   */
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     tNFA_NFC_PROTOCOL   pa_protocol;        /* Passive poll A SWP Reader   */
     tNFA_NFC_PROTOCOL   pb_protocol;        /* Passive poll B SWP Reader   */
     UINT8               ee_req_op;          /* add or remove req ntf*/
@@ -288,7 +288,7 @@ NFC_API extern tNFA_STATUS NFA_EeDiscover (tNFA_EE_CBACK *p_cback);
 NFC_API extern tNFA_STATUS NFA_EeGetInfo (UINT8        *p_num_nfcee,
                                           tNFA_EE_INFO *p_info);
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         NFA_AllEeGetInfo
@@ -376,7 +376,7 @@ NFC_API extern tNFA_STATUS NFA_EeSetDefaultTechRouting (tNFA_HANDLE          ee_
                                                         tNFA_TECHNOLOGY_MASK technologies_switch_on,
                                                         tNFA_TECHNOLOGY_MASK technologies_switch_off,
                                                         tNFA_TECHNOLOGY_MASK technologies_battery_off
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
                                                        ,tNFA_TECHNOLOGY_MASK technologies_screen_lock,
                                                         tNFA_TECHNOLOGY_MASK technologies_screen_off
 #endif
@@ -407,7 +407,7 @@ NFC_API extern tNFA_STATUS NFA_EeSetDefaultProtoRouting (tNFA_HANDLE         ee_
                                                          tNFA_PROTOCOL_MASK  protocols_switch_on,
                                                          tNFA_PROTOCOL_MASK  protocols_switch_off,
                                                          tNFA_PROTOCOL_MASK  protocols_battery_off
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
                                                         ,tNFA_PROTOCOL_MASK  protocols_screen_lock,
                                                          tNFA_PROTOCOL_MASK  protocols_screen_off
 #endif
@@ -436,11 +436,10 @@ NFC_API extern tNFA_STATUS NFA_EeAddAidRouting (tNFA_HANDLE          ee_handle,
                                                 UINT8                aid_len,
                                                 UINT8               *p_aid,
                                                 tNFA_EE_PWR_STATE     power_state
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
-                                                , UINT8              vs_info);
-#else
-)
+#if(NXP_EXTNS == TRUE)
+                                                , UINT8              vs_info
 #endif
+);
 
 /*******************************************************************************
 **
@@ -547,7 +546,7 @@ NFC_API extern tNFA_STATUS NFA_EeSendData (tNFA_HANDLE  ee_handle,
 *******************************************************************************/
 NFC_API extern tNFA_STATUS NFA_EeDisconnect (tNFA_HANDLE ee_handle);
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         NFA_AddEePowerState
@@ -602,6 +601,18 @@ NFC_API extern UINT16 NFA_GetRemainingAidTableSize();
 **
 *******************************************************************************/
 NFC_API extern void NFA_SetCEStrictDisable(UINT32 state);
+
+/*******************************************************************************
+**
+** Function         NFA_setProvisionMode
+**
+** Description      This function is called to set/reset the provision mode info.
+**
+** Returns          None.
+**
+*******************************************************************************/
+NFC_API extern void NFA_setProvisionMode(BOOLEAN provisionMode);
+
 #endif
 
 #ifdef __cplusplus

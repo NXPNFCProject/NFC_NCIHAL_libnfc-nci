@@ -1768,7 +1768,7 @@ static void rw_t3t_handle_ndef_detect_poll_rsp (tRW_T3T_CB *p_cb, UINT8 nci_stat
             /* Add CHECK opcode to message  */
             UINT8_TO_STREAM (p, T3T_MSG_OPC_CHECK_CMD);
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
             /* Update NFCID2 using SENSF_RES */
             memcpy (p_cb->peer_nfcid2, (p_sensf_res_buf + NCI_SENSF_RES_OFFSET_NFCID2), NCI_NFCID2_LEN);
 #endif
@@ -2391,6 +2391,15 @@ void rw_t3t_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data)
         {
             rw_t3t_data_cback (conn_id, &(p_data->data));
             break;
+        }
+        else
+        {
+            RW_TRACE_DEBUG2 ("rw_t3t_conn_cback: p_data->data.p_data=0x%X p_data->data.status=0x%02x", p_data->data.p_data, p_data->data.status);
+            if(p_data->data.p_data)
+            {
+                GKI_freebuf(p_data->data.p_data);
+                p_data->data.p_data = NULL;
+            }
         }
         /* Data event with error status...fall through to NFC_ERROR_CEVT case */
 

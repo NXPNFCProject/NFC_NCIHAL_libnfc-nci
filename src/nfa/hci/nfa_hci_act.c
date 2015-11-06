@@ -1302,7 +1302,7 @@ void nfa_hci_handle_admin_gate_cmd (UINT8 *p_data)
 
         if (  (dest_gate == NFA_HCI_IDENTITY_MANAGEMENT_GATE)
             ||(dest_gate == NFA_HCI_LOOP_BACK_GATE)
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #ifdef GEMALTO_SE_SUPPORT
             ||(dest_gate == NFC_HCI_DEFAULT_DEST_GATE)
             ||(dest_gate == NFA_HCI_CONNECTIVITY_GATE)
@@ -1438,7 +1438,7 @@ void nfa_hci_handle_admin_gate_rsp (UINT8 *p_data, UINT8 data_len)
         switch (nfa_hci_cb.cmd_sent)
         {
         case NFA_HCI_ANY_SET_PARAMETER:
-#if(NFC_NXP_NOT_OPEN_INCLUDED != TRUE)
+#if(NXP_EXTNS != TRUE)
             if (nfa_hci_cb.param_in_use == NFA_HCI_SESSION_IDENTITY_INDEX)
             {
                 /* Set WHITELIST */
@@ -1510,7 +1510,7 @@ void nfa_hci_handle_admin_gate_rsp (UINT8 *p_data, UINT8 data_len)
                 /* The only parameter we get when initializing is the session ID. Check for match. */
                 if (!memcmp ((UINT8 *) nfa_hci_cb.cfg.admin_gate.session_id, p_data, NFA_HCI_SESSION_ID_LEN) )
                 {
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
                     nfa_hci_network_enable();
                     if (  (nfa_hci_cb.hci_state == NFA_HCI_STATE_STARTUP)
                         ||(nfa_hci_cb.hci_state == NFA_HCI_STATE_RESTORE)  )
@@ -1522,7 +1522,7 @@ void nfa_hci_handle_admin_gate_rsp (UINT8 *p_data, UINT8 data_len)
                 }
                 else
                 {
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
                     /* Session ID is reset, Set New session id */
                     memcpy (&nfa_hci_cb.cfg.admin_gate.session_id[NFA_HCI_SESSION_ID_LEN / 2], nfa_hci_cb.cfg.admin_gate.session_id, (NFA_HCI_SESSION_ID_LEN / 2));
                     os_tick = GKI_get_os_tick_count ();
@@ -1540,7 +1540,7 @@ void nfa_hci_handle_admin_gate_rsp (UINT8 *p_data, UINT8 data_len)
         case NFA_HCI_ANY_OPEN_PIPE:
             nfa_hci_cb.cfg.admin_gate.pipe01_state = NFA_HCI_PIPE_OPENED;
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED != TRUE)
+#if(NXP_EXTNS != TRUE)
             if (nfa_hci_cb.b_hci_netwk_reset)
             {
                 nfa_hci_cb.b_hci_netwk_reset = FALSE;
@@ -1834,7 +1834,7 @@ void nfa_hci_handle_dyn_pipe_pkt (UINT8 pipe_id, UINT8 *p_data, UINT16 data_len)
     {
         nfa_hci_handle_connectivity_gate_pkt (p_data, data_len, p_pipe);
     }
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #ifdef GEMALTO_SE_SUPPORT
     else if (p_pipe->local_gate == NFC_HCI_DEFAULT_DEST_GATE)
     {
@@ -2292,13 +2292,13 @@ static void nfa_hci_handle_generic_gate_evt (UINT8 *p_data, UINT16 data_len, tNF
         evt_data.rcvd_evt.status    = NFA_STATUS_OK;
 
     evt_data.rcvd_evt.p_evt_buf = p_data;
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     if(nfa_hci_cb.inst != NFA_HCI_EVT_WTX)
     {
 #endif
         nfa_hci_cb.rsp_buf_size     = 0;
         nfa_hci_cb.p_rsp_buf        = NULL;
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     }
 #endif
 

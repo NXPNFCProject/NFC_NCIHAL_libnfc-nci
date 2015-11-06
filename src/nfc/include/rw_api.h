@@ -54,7 +54,7 @@
 #define RW_T3T_FIRST_EVT    0x60
 #define RW_T4T_FIRST_EVT    0x80
 #define RW_I93_FIRST_EVT    0xA0
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #define RW_T3BT_FIRST_EVT   0xB0
 #endif
 
@@ -123,7 +123,7 @@ enum
     RW_T4T_PRESENCE_CHECK_EVT,                  /* Response to RW_T4tPresenceCheck          */
     RW_T4T_RAW_FRAME_EVT,                       /* Response of raw frame sent               */
     RW_T4T_INTF_ERROR_EVT,                      /* RF Interface error event                 */
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     RW_T4T_NDEF_FORMAT_CPLT_EVT,                /* Format operation completed               */
     RW_T4T_RAW_FRAME_RF_WTX_EVT,                /* Received RF WTX for raw frame sent       */
 #endif
@@ -145,7 +145,7 @@ enum
     RW_I93_PRESENCE_CHECK_EVT,                  /* Response to RW_I93PresenceCheck    */
     RW_I93_RAW_FRAME_EVT,                       /* Response of raw frame sent         */
     RW_I93_INTF_ERROR_EVT,                      /* RF Interface error event           */
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     RW_I93_MAX_EVT,
     RW_T3BT_RAW_READ_CPLT_EVT,
     RW_T3BT_MAX_EVT
@@ -153,7 +153,7 @@ enum
     RW_I93_MAX_EVT
 #endif
 };
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #define RW_I93_MAX_RSP_TIMEOUT    1000
 #endif
 #define RW_RAW_FRAME_EVT     0xFF
@@ -873,7 +873,7 @@ NFC_API extern tNFC_STATUS RW_T3tPresenceCheck (void);
 *****************************************************************************/
 NFC_API extern tNFC_STATUS RW_T3tGetSystemCodes (void);
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /*****************************************************************************
 **
 ** Function         RW_T4tFormatNDef
@@ -1358,7 +1358,7 @@ NFC_API extern tNFC_STATUS RW_SetActivatedTagType (tNFC_ACTIVATE_DEVT *p_activat
 *******************************************************************************/
 NFC_API extern UINT8 RW_SetTraceLevel (UINT8 new_level);
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 NFC_API extern tNFC_STATUS RW_T3BtGetPupiID();
 #endif
 

@@ -47,7 +47,7 @@
 #include "nfa_ce_int.h"
 #include "nfa_sys_int.h"
 #include "ndef_utils.h"
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 UINT32 gFelicaReaderMode;
 #endif
 
@@ -242,7 +242,7 @@ tNFA_STATUS NFA_GetConfig (UINT8 num_ids,
                            tNFA_PMID *p_param_ids)
 {
     tNFA_DM_API_GET_CONFIG *p_msg;
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     UINT8 bytes;
     UINT8 propConfigCnt;
 
@@ -276,7 +276,7 @@ tNFA_STATUS NFA_GetConfig (UINT8 num_ids,
         p_msg->p_pmids = (tNFA_PMID *) (p_msg+1);
 
         /* Copy the param IDs */
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
         memcpy (p_msg->p_pmids, p_param_ids, bytes);
 #else
         memcpy (p_msg->p_pmids, p_param_ids, num_ids);
@@ -1232,7 +1232,7 @@ tNFA_STATUS NFA_SendVsCommand (UINT8            oid,
     return (NFA_STATUS_FAILED);
 }
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         NFA_SendNxpNciCommand
@@ -1297,7 +1297,7 @@ UINT8 NFA_SetTraceLevel (UINT8 new_level)
 
     return (nfa_sys_cb.trace_level);
 }
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function       NFA_SetReaderMode

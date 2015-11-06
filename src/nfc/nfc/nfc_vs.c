@@ -159,7 +159,7 @@ tNFC_STATUS NFC_SendVsCommand (UINT8          oid,
     nfc_ncif_check_cmd_queue (p_data);
     return status;
 }
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         NFC_SendNxpNciCommand

@@ -109,7 +109,7 @@ typedef struct _free_queue
 
 /* Buffer related defines
 */
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #define ALIGN_POOL(pl_size)  ( (((pl_size) + (sizeof(UINT32)-1)) / sizeof(UINT32)) * sizeof(UINT32))
 #else
 #define ALIGN_POOL(pl_size)  ( (((pl_size) + 3) / sizeof(UINT32)) * sizeof(UINT32))

@@ -188,7 +188,7 @@ void nci_proc_rf_management_rsp (BT_HDR *p_msg)
     switch (op_code)
     {
     case NCI_MSG_RF_DISCOVER:
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
         nfa_dm_p2p_prio_logic(op_code, pp, 1);
 #endif
         nfc_ncif_rf_management_status (NFC_START_DEVT, *pp);
@@ -206,7 +206,7 @@ void nci_proc_rf_management_rsp (BT_HDR *p_msg)
         break;
 
     case NCI_MSG_RF_DEACTIVATE:
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
         if (FALSE == nfa_dm_p2p_prio_logic(op_code, pp, 1))
         {
             NFC_TRACE_ERROR0("Dont process the Response");
@@ -267,7 +267,7 @@ void nci_proc_rf_management_ntf (BT_HDR *p_msg)
         break;
 
     case NCI_MSG_RF_DEACTIVATE:
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
         if (FALSE == nfa_dm_p2p_prio_logic(op_code, pp, 2))
         {
             NFC_TRACE_ERROR0("Dont process the Event");
@@ -278,7 +278,7 @@ void nci_proc_rf_management_ntf (BT_HDR *p_msg)
         break;
 
     case NCI_MSG_RF_INTF_ACTIVATED:
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
         if (FALSE == nfa_dm_p2p_prio_logic(op_code, pp, 2))
         {
             NFC_TRACE_ERROR0("Dont process the Event");
@@ -441,7 +441,7 @@ void nci_proc_ee_management_ntf (BT_HDR *p_msg)
 
         for (xx = 0; xx < nfcee_info.num_tlvs; xx++, p_tlv++)
         {
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
             if(*pp < 0xA0)
             {
                 p_tlv->tag = *pp++;
@@ -503,7 +503,7 @@ void nci_proc_prop_rsp (BT_HDR *p_msg)
         (*p_cback) ((tNFC_VS_EVT) (NCI_RSP_BIT|op_code), p_msg->len, p_evt);
 }
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         nci_proc_prop_nxp_rsp
@@ -558,7 +558,7 @@ void nci_proc_prop_ntf (BT_HDR *p_msg)
     NCI_MSG_PRS_HDR1 (pp, op_code);
     len = *pp++;
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     NFC_TRACE_DEBUG1 ("nci_proc_prop_ntf:op_code =0x%x", op_code);
     switch(op_code)
     {

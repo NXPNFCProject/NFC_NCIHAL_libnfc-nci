@@ -33,6 +33,7 @@
 #include <phTmlNfc_i2c.h>
 #include <phNfcStatus.h>
 #include <string.h>
+#include <phNxpNciHal_utils.h>
 
 #define CRC_LEN                     2
 #define NORMAL_MODE_HEADER_LEN      3
@@ -337,7 +338,7 @@ int phTmlNfc_i2c_reset(void *pDevHandle, long level)
     return ret;
 }
 
-#if(ESE_NFC_POWER_MANAGEMENT == TRUE)
+#if(NFC_POWER_MANAGEMENT == TRUE)
 /*******************************************************************************
 **
 ** Function         phTmlNfc_set_pid

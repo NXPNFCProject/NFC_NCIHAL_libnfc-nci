@@ -312,7 +312,7 @@ static void nfa_rw_handle_ndef_detect(tRW_EVENT event, tRW_DATA *p_rw_data)
                 conn_evt_data.ndef_detect.cur_size = 0;
                 conn_evt_data.ndef_detect.max_size = 0;
                 conn_evt_data.ndef_detect.flags    = RW_NDEF_FL_UNKNOWN;
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
                 conn_evt_data.ndef_detect.status   = NFA_STATUS_TIMEOUT;
 #endif
             }
@@ -588,7 +588,7 @@ void nfa_rw_handle_presence_check_rsp (tNFC_STATUS status)
 static void nfa_rw_handle_t1t_evt (tRW_EVENT event, tRW_DATA *p_rw_data)
 {
     tNFA_CONN_EVT_DATA conn_evt_data;
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     tNFA_TAG_PARAMS tag_params;
     UINT8 *p_rid_rsp;
     tNFA_STATUS activation_status;
@@ -598,7 +598,7 @@ static void nfa_rw_handle_t1t_evt (tRW_EVENT event, tRW_DATA *p_rw_data)
     switch (event)
     {
     case RW_T1T_RID_EVT:
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
         if(p_rw_data->data.p_data != NULL)
         {
             /* Assume the data is just the response byte sequence */
@@ -1060,7 +1060,7 @@ static void nfa_rw_handle_t4t_evt (tRW_EVENT event, tRW_DATA *p_rw_data)
     case RW_T4T_NDEF_DETECT_EVT :           /* Result of NDEF detection procedure */
         nfa_rw_handle_ndef_detect(event, p_rw_data);
         break;
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     case RW_T4T_NDEF_FORMAT_CPLT_EVT:
         /* Command complete - perform cleanup, notify the app */
         nfa_rw_command_complete();
@@ -1161,7 +1161,7 @@ static void nfa_rw_handle_t4t_evt (tRW_EVENT event, tRW_DATA *p_rw_data)
         }
         break;
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     case RW_T4T_RAW_FRAME_RF_WTX_EVT:
         /* Stop the presence check timer */
         nfa_rw_stop_presence_check_timer();
@@ -1477,7 +1477,7 @@ static void nfa_rw_handle_i93_evt (tRW_EVENT event, tRW_DATA *p_rw_data)
         break;
     }
 }
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 static void nfa_rw_handle_t3bt_evt (tRW_EVENT event, tRW_DATA *p_rw_data)
 {
     //tNFC_ACTIVATE_DEVT *activate_ntf = (tNFC_ACTIVATE_DEVT*)nfa_dm_cb.p_activate_ntf;
@@ -1538,7 +1538,7 @@ static void nfa_rw_cback (tRW_EVENT event, tRW_DATA *p_rw_data)
         /* Handle ISO 15693 tag events */
         nfa_rw_handle_i93_evt(event, p_rw_data);
     }
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     else if (event < RW_T3BT_MAX_EVT)
     {
         /* Handle ISO 14443-3B tag events */
@@ -1894,7 +1894,7 @@ void nfa_rw_presence_check (tNFA_RW_MSG *p_data)
     BOOLEAN             unsupported = FALSE;
     UINT8               option = NFA_RW_OPTION_INVALID;
     tNFA_RW_PRES_CHK_OPTION op_param = NFA_RW_PRES_CHK_DEFAULT;
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     UINT16              iso_15693_max_presence_check_timeout = NFA_DM_ISO_15693_MAX_PRESENCE_CHECK_TIMEOUT + RW_I93_MAX_RSP_TIMEOUT;
 #endif
     switch (protocol)
@@ -2014,7 +2014,7 @@ void nfa_rw_presence_check (tNFA_RW_MSG *p_data)
         nfa_rw_handle_presence_check_rsp(NFC_STATUS_FAILED);
     else if (!unsupported)
     {
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
         if( protocol == NFC_PROTOCOL_15693 )
         {
             nfa_sys_start_timer (&nfa_rw_cb.tle, NFA_RW_PRESENCE_CHECK_TIMEOUT_EVT, iso_15693_max_presence_check_timeout);
@@ -2098,7 +2098,7 @@ static void nfa_rw_format_tag (tNFA_RW_MSG *p_data)
         status = RW_I93FormatNDef();
     }
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     else if (protocol == NFC_PROTOCOL_ISO_DEP)
     {
         status = RW_T4tFormatNDef();
@@ -2509,7 +2509,7 @@ static BOOLEAN nfa_rw_t3t_get_system_codes (tNFA_RW_MSG *p_data)
     return TRUE;
 }
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 static BOOLEAN nfa_rw_t3bt_get_pupi(tNFA_RW_MSG *p_data)
 {
     tNFC_STATUS     status;
@@ -2765,7 +2765,7 @@ BOOLEAN nfa_rw_activate_ntf(tNFA_RW_MSG *p_data)
             &&(p_activate_params->protocol != NFA_PROTOCOL_T2T)
             &&(p_activate_params->protocol != NFA_PROTOCOL_T3T)
             &&(p_activate_params->protocol != NFC_PROTOCOL_15693)
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
             &&(p_activate_params->protocol != NFA_PROTOCOL_T3BT)
 #endif
            )
@@ -2821,7 +2821,7 @@ BOOLEAN nfa_rw_activate_ntf(tNFA_RW_MSG *p_data)
         /* Retrieve HR and UID fields from activation notification */
         memcpy (tag_params.t1t.hr, p_activate_params->rf_tech_param.param.pa.hr, NFA_T1T_HR_LEN);
         memcpy (tag_params.t1t.uid, p_activate_params->rf_tech_param.param.pa.nfcid1, p_activate_params->rf_tech_param.param.pa.nfcid1_len);
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
         msg.op = NFA_RW_OP_T1T_RID;
         nfa_rw_handle_op_req((tNFA_RW_MSG *)&msg);
         activate_notify = FALSE;                    /* Delay notifying upper layer of NFA_ACTIVATED_EVT until HR0/HR1 is received */
@@ -2834,7 +2834,7 @@ BOOLEAN nfa_rw_activate_ntf(tNFA_RW_MSG *p_data)
         break;
 
     case NFC_PROTOCOL_T3T:
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
         if(appl_dta_mode_flag)
         {
             /*Incase of DTA mode Dont send commands to get system code. Just notify activation*/
@@ -2848,12 +2848,12 @@ BOOLEAN nfa_rw_activate_ntf(tNFA_RW_MSG *p_data)
             /* Issue command to get Felica system codes */
             msg.op = NFA_RW_OP_T3T_GET_SYSTEM_CODES;
             nfa_rw_handle_op_req((tNFA_RW_MSG *)&msg);
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
         }
 #endif
         break;
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     case NFC_PROTOCOL_T3BT:
         activate_notify = FALSE;                    /* Delay notifying upper layer of NFA_ACTIVATED_EVT until system codes are retrieved */
         msg.op = NFA_RW_OP_T3BT_PUPI;
@@ -3160,7 +3160,7 @@ BOOLEAN nfa_rw_handle_op_req (tNFA_RW_MSG *p_data)
         nfa_rw_i93_command (p_data);
         break;
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     case NFA_RW_OP_T3BT_PUPI:
         nfa_rw_t3bt_get_pupi(p_data);
         break;
@@ -3278,7 +3278,7 @@ void nfa_rw_command_complete(void)
     nfa_rw_check_start_presence_check_timer (NFA_RW_PRESENCE_CHECK_INTERVAL);
 }
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 void nfa_rw_set_cback(tNFC_DISCOVER *p_data)
 {
     NFA_TRACE_DEBUG0("nfa_rw_set_cback:");

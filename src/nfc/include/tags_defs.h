@@ -221,7 +221,7 @@
 #define T2T_TLEN_LOCK_CTRL_TLV    3      /* Tag len for LOCK_CTRL TLV per spec */
 #define T2T_TLEN_MEM_CTRL_TLV     3      /* Tag len for MEM_CTRL TLV per spec */
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #define T2T_MAX_SECTOR            3      /* Maximum number of sectors supported */
 #else
 #define T2T_MAX_SECTOR            2      /* Maximum number of sectors supported */
@@ -358,7 +358,7 @@ typedef UINT8 tT3T_POLL_RC;
 #define T4T_CMD_INS_SELECT              0xA4
 #define T4T_CMD_INS_READ_BINARY         0xB0
 #define T4T_CMD_INS_UPDATE_BINARY       0xD6
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #define T4T_CMD_DES_CLASS               0x90
 #define T4T_CMD_INS_GET_HW_VERSION      0x60
 #define T4T_CMD_CREATE_AID              0xCA
@@ -408,7 +408,7 @@ typedef UINT8 tT3T_POLL_RC;
 #define T4T_FC_NO_WRITE_ACCESS          0xFF    /* no write access granted at all (read-only) */
 
 #define T4T_FILE_LENGTH_SIZE            0x02
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #define T4T_ADDI_FRAME_RESP             0xAFU
 #define T4T_SIZE_IDENTIFIER_2K          0x16U
 #define T4T_SIZE_IDENTIFIER_4K          0x18U

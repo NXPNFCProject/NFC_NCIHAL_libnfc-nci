@@ -17,7 +17,7 @@ UDRV := src/udrv
 D_CFLAGS := -DANDROID -DBUILDCFG=1
 
 #NXP PN547 Enable
-D_CFLAGS += -DNFC_NXP_NOT_OPEN_INCLUDED=TRUE
+D_CFLAGS += -DNXP_EXTNS=TRUE
 #variables for NFC_NXP_CHIP_TYPE
 PN547C2 := 1
 PN548C2 := 2
@@ -62,18 +62,16 @@ D_CFLAGS += -DNFC_NXP_CHIP_TYPE=PN548C2
 #Gemalto SE support
 D_CFLAGS += -DGEMALTO_SE_SUPPORT
 D_CFLAGS += -DNXP_UICC_ENABLE
-D_CFLAGS += -DESE_NFC_POWER_MANAGEMENT=FALSE
+D_CFLAGS += -DNFC_POWER_MANAGEMENT=FALSE
 ######################################
 # Build shared library system/lib/libnfc-nci.so for stack code.
 
-LOCAL_PRELINK_MODULE := false
 LOCAL_ARM_MODE := arm
 LOCAL_MODULE := libnfc-nci
 LOCAL_MODULE_TAGS := optional
-LOCAL_SHARED_LIBRARIES := libhardware_legacy libcutils liblog libdl libstlport libhardware
+LOCAL_SHARED_LIBRARIES := libhardware_legacy libcutils liblog libdl libhardware
 LOCAL_CFLAGS += $(D_CFLAGS)
-LOCAL_C_INCLUDES := external/stlport/stlport bionic/ bionic/libstdc++/include \
-    $(LOCAL_PATH)/src/include \
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/src/include \
     $(LOCAL_PATH)/src/gki/ulinux \
     $(LOCAL_PATH)/src/gki/common \
     $(LOCAL_PATH)/$(NFA)/include \

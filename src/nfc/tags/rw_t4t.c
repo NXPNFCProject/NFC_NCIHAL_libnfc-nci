@@ -65,7 +65,7 @@
 #define RW_T4T_STATE_PRESENCE_CHECK             0x05    /* checking presence of tag             */
 #define RW_T4T_STATE_SET_READ_ONLY              0x06    /* convert tag to read only             */
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #define RW_T4T_STATE_NDEF_FORMAT                0x07    /* performing NDEF format               */
 #define RW_T3BT_STATE_GET_PROP_DATA             0x08
 #endif
@@ -80,7 +80,7 @@
 #define RW_T4T_SUBSTATE_WAIT_UPDATE_NLEN        0x07    /* waiting for response of updating NLEN    */
 #define RW_T4T_SUBSTATE_WAIT_UPDATE_CC          0x08    /* waiting for response of updating CC      */
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #define RW_T4T_SUBSTATE_WAIT_GET_HW_VERSION     0x09
 #define RW_T4T_SUBSTATE_WAIT_GET_SW_VERSION     0x0A
 #define RW_T4T_SUBSTATE_WAIT_GET_UID            0x0B
@@ -107,7 +107,7 @@ static BOOLEAN rw_t4t_update_cc_to_readonly (void);
 static BOOLEAN rw_t4t_select_application (UINT8 version);
 static BOOLEAN rw_t4t_validate_cc_file (void);
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 static BOOLEAN rw_t4t_get_hw_version (void);
 static BOOLEAN rw_t4t_get_sw_version (void);
 static BOOLEAN rw_t4t_create_app (void);
@@ -125,7 +125,7 @@ static void rw_t4t_sm_update_ndef (BT_HDR  *p_r_apdu);
 static void rw_t4t_sm_set_readonly (BT_HDR  *p_r_apdu);
 static void rw_t4t_data_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data);
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 static void rw_t4t_sm_ndef_format (BT_HDR  *p_r_apdu);
 static void rw_t3Bt_sm_get_card_id(BT_HDR *p_r_apdu);
 #endif
@@ -156,7 +156,7 @@ static BOOLEAN rw_t4t_send_to_lower (BT_HDR *p_c_apdu)
     return TRUE;
 }
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         rw_t4t_get_hw_version
@@ -652,7 +652,7 @@ static BOOLEAN rw_t4t_write_ndef (void)
 }
 #endif
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 static BOOLEAN rw_t3bt_get_pupi (void)
 {
     tRW_T4T_CB  *p_t4t = &rw_cb.tcb.t4t;
@@ -1151,7 +1151,7 @@ static void rw_t4t_handle_error (tNFC_STATUS status, UINT8 sw1, UINT8 sw2)
             event = RW_T4T_SET_TO_RO_EVT;
             break;
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
         case RW_T4T_STATE_NDEF_FORMAT:
             event = RW_T4T_NDEF_FORMAT_CPLT_EVT;
             rw_data.status = NFC_STATUS_FAILED;
@@ -1178,7 +1178,7 @@ static void rw_t4t_handle_error (tNFC_STATUS status, UINT8 sw1, UINT8 sw2)
         p_t4t->state = RW_T4T_STATE_IDLE;
     }
 }
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         rw_t4t_sm_ndef_format
@@ -1415,7 +1415,7 @@ static void rw_t4t_sm_ndef_format(BT_HDR *p_r_apdu)
 }
 #endif
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 static void rw_t3Bt_sm_get_card_id(BT_HDR *p_r_apdu)
 {
     tRW_T4T_CB  *p_t4t = &rw_cb.tcb.t4t;
@@ -2064,7 +2064,7 @@ static void rw_t4t_data_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_
         return;
 
     case NFC_ERROR_CEVT:
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
         if (p_t4t->state == RW_T4T_STATE_PRESENCE_CHECK)
         {
             p_t4t->state   = RW_T4T_STATE_IDLE;
@@ -2105,7 +2105,7 @@ static void rw_t4t_data_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_
         p_r_apdu = (BT_HDR *) p_data->data.p_data;
         break;
 
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
     case NFC_RF_WTX_CEVT:
         if(p_t4t->state == RW_T4T_STATE_IDLE)
         {
@@ -2185,7 +2185,7 @@ static void rw_t4t_data_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_
         rw_t4t_sm_set_readonly (p_r_apdu);
         GKI_freebuf (p_r_apdu);
         break;
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     case RW_T4T_STATE_NDEF_FORMAT:
         rw_t4t_sm_ndef_format(p_r_apdu);
         GKI_freebuf (p_r_apdu);
@@ -2211,7 +2211,7 @@ static void rw_t4t_data_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_
 #endif
 }
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         RW_T4tFormatNDef
@@ -2576,7 +2576,7 @@ tNFC_STATUS RW_T4tSetNDefReadOnly (void)
     return (retval);
 }
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 tNFC_STATUS RW_T3BtGetPupiID(void)
 {
     BT_HDR      *p_c_apdu;
@@ -2680,7 +2680,7 @@ static char *rw_t4t_get_sub_state_name (UINT8 sub_state)
         return ("WAIT_UPDATE_RESP");
     case RW_T4T_SUBSTATE_WAIT_UPDATE_NLEN:
         return ("WAIT_UPDATE_NLEN");
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     case RW_T4T_SUBSTATE_WAIT_GET_HW_VERSION:
         return ("WAIT_GET_HW_VERSION");
     case RW_T4T_SUBSTATE_WAIT_GET_SW_VERSION :

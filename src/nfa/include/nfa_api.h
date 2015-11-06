@@ -142,7 +142,7 @@ typedef UINT8 tNFA_TECHNOLOGY_MASK;
 #define NFA_PROTOCOL_ISO15693   NFC_PROTOCOL_15693
 #define NFA_PROTOCOL_B_PRIME    NFC_PROTOCOL_B_PRIME
 #define NFA_PROTOCOL_KOVIO      NFC_PROTOCOL_KOVIO
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 #define NFA_PROTOCOL_MIFARE     NFC_PROTOCOL_MIFARE
 #define NFA_PROTOCOL_T3BT       NFC_PROTOCOL_T3BT
 #endif
@@ -156,7 +156,7 @@ typedef UINT8 tNFA_NFC_PROTOCOL;
 #define NFA_PROTOCOL_MASK_T3T       0x04    /* FeliCa / Type 3 tag */
 #define NFA_PROTOCOL_MASK_ISO_DEP   0x08    /* ISODEP/4A,4B        */
 #define NFA_PROTOCOL_MASK_NFC_DEP   0x10    /* NFCDEP/LLCP         */
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #define NFC_PROTOCOL_MASK_ISO7816   0x20    /*ISO 7816 - Aid Default Route */
 #endif
 typedef UINT8 tNFA_PROTOCOL_MASK;
@@ -171,7 +171,7 @@ typedef UINT8 tNFA_PROTOCOL_MASK;
 #define NFA_DM_RF_FIELD_EVT             5   /* Status of RF Field               */
 #define NFA_DM_NFCC_TIMEOUT_EVT         6   /* NFCC is not responding           */
 #define NFA_DM_NFCC_TRANSPORT_ERR_EVT   7   /* NCI Tranport error               */
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #define NFA_DM_EMVCO_PCD_COLLISION_EVT  8   /* Collision event in case of EMV-CO Profile (Nxp)*/
 #define NFA_DM_SET_ROUTE_CONFIG_REVT    9   /* Status of EE Route config CMD (Nxp)*/
 #define NFA_DM_GET_ROUTE_CONFIG_REVT    10  /* Result of NFA_GetRouting         */
@@ -215,7 +215,7 @@ typedef struct
     UINT8 param_tlvs[1];    /* TLV (Parameter ID-Len-Value byte stream) */
 } tNFA_GET_CONFIG;
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /* Data for NFA_DM_GET_ROUTING_EVT */
 typedef struct
 {
@@ -254,7 +254,7 @@ typedef union
     tNFA_STATUS             status;         /* NFA_DM_ENABLE_EVT        */
     tNFA_SET_CONFIG         set_config;     /* NFA_DM_SET_CONFIG_EVT    */
     tNFA_GET_CONFIG         get_config;     /* NFA_DM_GET_CONFIG_EVT    */
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     tNFA_GET_ROUTING        get_routing;    /* NFA_DM_GET_ROUTING_EVT    */
 #endif
     tNFA_DM_PWR_MODE_CHANGE power_mode;     /* NFA_DM_PWR_MODE_CHANGE_EVT   */
@@ -265,7 +265,7 @@ typedef union
 /* NFA_DM callback */
 typedef void (tNFA_DM_CBACK) (UINT8 event, tNFA_DM_CBACK_DATA *p_data);
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /* NFA Enable DTA Type Mode */
 typedef enum
 {
@@ -323,7 +323,7 @@ typedef struct
 #define NFA_LISTEN_DISABLED_EVT                 37  /* Listening disabled event                     */
 #define NFA_P2P_PAUSED_EVT                      38  /* P2P services paused event                    */
 #define NFA_P2P_RESUMED_EVT                     39  /* P2P services resumed event                   */
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 #define NFA_CE_ESE_LISTEN_CONFIGURED_EVT        40  /* ESE Listen configured                        */
 #define NFA_ACTIVATED_UPDATE_EVT                41  /* Activated intf for updating the   tech variables */
 #define NFA_RECOVERY_EVT                        42  /*Recovery*/
@@ -436,6 +436,7 @@ typedef struct
     UINT8               remote_lsc;     /* Link Service Class of peer       */
     UINT16              remote_link_miu;/* Link MIU of peer                 */
     UINT16              local_link_miu; /* Link MIU of local                */
+    UINT8               remote_version; /* LLCP version of remote           */
 } tNFA_LLCP_ACTIVATED;
 
 /* Data for NFA_LLCP_DEACTIVATED_EVT */
@@ -664,7 +665,7 @@ typedef tNFC_RF_COMM_PARAMS tNFA_RF_COMM_PARAMS;
 #define NFA_INTERFACE_FRAME         NFC_INTERFACE_FRAME
 #define NFA_INTERFACE_ISO_DEP       NFC_INTERFACE_ISO_DEP
 #define NFA_INTERFACE_NFC_DEP       NFC_INTERFACE_NFC_DEP
-#if (NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if (NXP_EXTNS == TRUE)
 #define NFA_INTERFACE_MIFARE        NFC_INTERFACE_MIFARE
 #endif
 typedef tNFC_INTF_TYPE tNFA_INTF_TYPE;
@@ -1303,7 +1304,7 @@ NFC_API extern tNFA_STATUS NFA_SendVsCommand (UINT8            oid,
                                               UINT8            *p_cmd_params,
                                               tNFA_VSC_CBACK   *p_cback);
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         NFA_SendNxpNciCommand
@@ -1347,7 +1348,7 @@ NFC_API extern UINT8 NFA_SetTraceLevel (UINT8 new_level);
 ** Returns:         none:
 **
 *******************************************************************************/
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         NFA_SetReaderMode

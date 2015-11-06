@@ -82,7 +82,7 @@ enum
     NFA_DM_API_REG_VSC_EVT,
     NFA_DM_API_SEND_VSC_EVT,
     NFA_DM_TIMEOUT_DISABLE_EVT,
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     NFA_DM_API_SEND_NXP_EVT,
 #endif
     NFA_DM_MAX_EVT
@@ -500,7 +500,7 @@ typedef struct
     tNFA_DM_CBACK              *p_dm_cback;         /* NFA DM callback                                      */
     TIMER_LIST_ENT              tle;
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     BOOLEAN                     presence_check_deact_pending; /* TRUE if deactivate while checking presence */
     tNFA_DEACTIVATE_TYPE        presence_check_deact_type;    /* deactivate type                            */
 #endif
@@ -537,7 +537,7 @@ typedef struct
 
     /* NFCC power mode */
     UINT8                       nfcc_pwr_mode;          /* NFA_DM_PWR_MODE_FULL or NFA_DM_PWR_MODE_OFF_SLEEP */
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
     UINT8                       eDtaMode;               /*For enable the DTA type modes. */
 #endif
 } tNFA_DM_CB;
@@ -569,11 +569,11 @@ extern UINT8 nfa_ee_max_ee_cfg;
 extern tNCI_DISCOVER_MAPS *p_nfa_dm_interface_mapping;
 extern UINT8 nfa_dm_num_dm_interface_mapping;
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 void nfa_dm_poll_disc_cback_dta_wrapper(tNFA_DM_RF_DISC_EVT event, tNFC_DISCOVER *p_data);
 #endif
 
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 extern unsigned char appl_dta_mode_flag;
 #endif
 
@@ -634,7 +634,7 @@ BOOLEAN nfa_dm_ndef_dereg_hdlr (tNFA_DM_MSG *p_data);
 BOOLEAN nfa_dm_tout (tNFA_DM_MSG *p_data);
 BOOLEAN nfa_dm_act_reg_vsc (tNFA_DM_MSG *p_data);
 BOOLEAN nfa_dm_act_send_vsc (tNFA_DM_MSG *p_data);
-#if(NFC_NXP_NOT_OPEN_INCLUDED == TRUE)
+#if(NXP_EXTNS == TRUE)
 BOOLEAN nfa_dm_act_send_nxp(tNFA_DM_MSG *p_data);
 UINT16 nfa_dm_act_get_rf_disc_duration ();
 #endif
@@ -671,7 +671,7 @@ tNFC_STATUS nfa_dm_disc_sleep_wakeup (void);
 tNFC_STATUS nfa_dm_disc_start_kovio_presence_check (void);
 BOOLEAN nfa_dm_is_raw_frame_session (void);
 BOOLEAN nfa_dm_is_p2p_paused (void);
-
+void nfa_dm_p2p_prio_logic_cleanup (void);
 
 #if (NFC_NFCEE_INCLUDED == FALSE)
 #define nfa_ee_get_tech_route(ps, ha) memset(ha, NFC_DH_ID, NFA_DM_MAX_TECH_ROUTE);
