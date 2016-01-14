@@ -290,6 +290,10 @@ void nfa_ce_discovery_cback (tNFA_DM_RF_DISC_EVT event, tNFC_DISCOVER *p_data)
         {
             ce_msg.hdr.event = NFA_CE_DEACTIVATE_NTF_EVT;
             ce_msg.hdr.layer_specific = p_data->deactivate.type;
+#if (NXP_EXTNS == TRUE)
+            /*clear the p61 ce*/
+            nfa_ee_ce_p61_active = 0;
+#endif
             nfa_ce_hdl_event ((BT_HDR *) &ce_msg);
         }
         break;
@@ -1569,13 +1573,9 @@ BOOLEAN nfa_ce_api_dereg_listen (tNFA_CE_MSG *p_ce_msg)
 
         if (listen_info_idx == NFA_CE_LISTEN_INFO_MAX)
         {
-#if(NXP_EXTNS == TRUE)
-            NFA_TRACE_ERROR0 ("nfa_ce_api_dereg_listen (): cannot find listen_info for UICC/ESE");
-#else
-            NFA_TRACE_ERROR0 ("nfa_ce_api_dereg_listen (): cannot find listen_info for UICC");
-#endif
             conn_evt.status = NFA_STATUS_INVALID_PARAM;
 #if(NXP_EXTNS == TRUE)
+            NFA_TRACE_ERROR0 ("nfa_ce_api_dereg_listen (): cannot find listen_info for UICC/ESE");
             if(p_ce_msg->dereg_listen.listen_info & NFA_CE_LISTEN_INFO_UICC )
             {
                 nfa_dm_conn_cback_event_notify (NFA_CE_UICC_LISTEN_CONFIGURED_EVT, &conn_evt);
@@ -1585,6 +1585,7 @@ BOOLEAN nfa_ce_api_dereg_listen (tNFA_CE_MSG *p_ce_msg)
                 nfa_dm_conn_cback_event_notify (NFA_CE_ESE_LISTEN_CONFIGURED_EVT, &conn_evt);
             }
 #else
+            NFA_TRACE_ERROR0 ("nfa_ce_api_dereg_listen (): cannot find listen_info for UICC");
             nfa_dm_conn_cback_event_notify (NFA_CE_UICC_LISTEN_CONFIGURED_EVT, &conn_evt);
 #endif
         }

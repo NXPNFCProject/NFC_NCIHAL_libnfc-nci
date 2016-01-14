@@ -677,6 +677,9 @@ static void rw_t2t_handle_tlv_detect_rsp (UINT8 *p_data)
                 if (  (tlvtype == TAG_LOCK_CTRL_TLV)
                     ||(tlvtype == TAG_NDEF_TLV)  )
                 {
+                    if(p_t2t->bytes_count > 2)
+                        //avoid causing negative index
+                        break;
                     /* Collect Lock TLV */
                     p_t2t->tlv_value[2 - p_t2t->bytes_count] = p_data[offset];
                     if (p_t2t->bytes_count == 0)
@@ -720,6 +723,9 @@ static void rw_t2t_handle_tlv_detect_rsp (UINT8 *p_data)
                 if (  (tlvtype == TAG_MEM_CTRL_TLV)
                     ||(tlvtype == TAG_NDEF_TLV)  )
                 {
+                    if(p_t2t->bytes_count > 2)
+                        //avoid causing negative index
+                        break;
                     p_t2t->tlv_value[2 - p_t2t->bytes_count] = p_data[offset];
                     if (p_t2t->bytes_count == 0)
                     {
@@ -3101,6 +3107,7 @@ tNFC_STATUS RW_T2tWriteNDef (UINT16 msg_len, UINT8 *p_msg)
 {
     tRW_T2T_CB  *p_t2t          = &rw_cb.tcb.t2t;
     UINT16      block;
+    UINT8 offset = 0;
     const       tT2T_INIT_TAG *p_ret;
 
     tNFC_STATUS status          = NFC_STATUS_OK;
@@ -3152,7 +3159,14 @@ tNFC_STATUS RW_T2tWriteNDef (UINT16 msg_len, UINT8 *p_msg)
     {
         p_t2t->state        = RW_T2T_STATE_WRITE_NDEF;
         p_t2t->block_read   = block;
-        rw_t2t_handle_ndef_write_rsp (&p_t2t->tag_data[(block - T2T_FIRST_DATA_BLOCK) * T2T_BLOCK_LEN]);
+        offset              = (block - T2T_FIRST_DATA_BLOCK) * T2T_BLOCK_LEN;
+        if(offset <= T2T_READ_DATA_LEN)
+        rw_t2t_handle_ndef_write_rsp (&p_t2t->tag_data[offset]);
+        else
+        {
+            RW_TRACE_WARNING0 ("tag_data offset exceeds the limit");
+            return (NFC_STATUS_FAILED);
+        }
     }
     else
     {

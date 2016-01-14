@@ -97,6 +97,18 @@ UINT32 initializeProtocolLogLevel ();
 **
 *******************************************************************************/
 void initializeGlobalAppDtaMode ();
+
+/*******************************************************************************
+**
+** Function:        enableDisableAppLevel
+**
+** Description:      This function can be used to enable/disable application
+**                   trace  logs
+**
+** Returns:         none:
+**
+*******************************************************************************/
+void enableDisableAppLevel(UINT8 type);
 #endif
 #ifdef __cplusplus
 }

@@ -70,7 +70,9 @@ extern "C" {
 /* NFC Timer events */
 #define NFC_TTYPE_NCI_WAIT_RSP              0
 #define NFC_TTYPE_WAIT_2_DEACTIVATE         1
+#if(NXP_EXTNS == TRUE)
 #define NFC_TTYPE_NCI_WAIT_DATA_NTF         2
+#endif
 #define NFC_TTYPE_LLCP_LINK_MANAGER         100
 #define NFC_TTYPE_LLCP_LINK_INACT           101
 #define NFC_TTYPE_LLCP_DATA_LINK            102
@@ -85,6 +87,7 @@ extern "C" {
 #define NFC_TTYPE_P2P_PRIO_RESPONSE         110  /* added for p2p prio logic timer */
 #define NFC_TTYPE_LISTEN_ACTIVATION         111  /* added for listen activation timer */
 #define NFC_TTYPE_P2P_PRIO_LOGIC_CLEANUP    112  /* added for p2p prio logic clenaup */
+#define NFC_TTYPE_P2P_PRIO_LOGIC_DEACT_NTF_TIMEOUT 113
 #endif
 #define NFC_TTYPE_VS_BASE                   200
 
@@ -241,9 +244,9 @@ typedef struct
 #if(NXP_EXTNS == TRUE)
     BUFFER_Q            nci_cmd_recov_xmit_q;     /* NCI recovery command queue */
     TIMER_LIST_ENT      listen_activation_timer_list;           /* Timer for monitoring listen activation */
+    TIMER_LIST_ENT      nci_wait_data_ntf_timer; /* Timer for waiting for core credit ntf*/
 #endif
     TIMER_LIST_ENT      nci_wait_rsp_timer; /* Timer for waiting for nci command response */
-    TIMER_LIST_ENT      nci_wait_data_ntf_timer; /* Timer for waiting for core credit ntf*/
     UINT16              nci_wait_rsp_tout;  /* NCI command timeout (in ms) */
     UINT8               nci_wait_rsp;       /* layer_specific for last NCI message */
 
@@ -252,9 +255,30 @@ typedef struct
     BT_HDR              *p_nci_init_rsp;    /* holding INIT_RSP until receiving HAL_NFC_POST_INIT_CPLT_EVT */
     tHAL_NFC_ENTRY      *p_hal;
     i2c_data            i2c_data_t;         /* holding i2c fragmentation data */
+#if(NXP_EXTNS == TRUE)
+    UINT8               boot_mode;
+#endif
 } tNFC_CB;
 
+#if(NXP_EXTNS == TRUE)
+typedef struct phNxpNci_getCfg_info {
+    BOOLEAN    isGetcfg;
+    uint8_t  total_duration[4];
+    uint8_t  total_duration_len;
+    uint8_t  atr_req_gen_bytes[48];
+    uint8_t  atr_req_gen_bytes_len;
+    uint8_t  atr_res_gen_bytes[48];
+    uint8_t  atr_res_gen_bytes_len;
+    uint8_t  pmid_wt[3];
+    uint8_t  pmid_wt_len;
+} phNxpNci_getCfg_info_t;
 
+typedef struct
+{
+    UINT8 fw_update_reqd;
+    UINT8 rf_update_reqd;
+}tNFC_FWUpdate_Info_t;
+#endif
 /*****************************************************************************
 **  EXTERNAL FUNCTION DECLARATIONS
 *****************************************************************************/
@@ -312,6 +336,9 @@ NFC_API extern void nfc_ncif_proc_get_config_rsp (BT_HDR *p_msg);
 NFC_API extern void nfc_ncif_proc_data (BT_HDR *p_msg);
 #if(NXP_EXTNS == TRUE)
 NFC_API extern tNFC_STATUS nfc_ncif_store_FWVersion(UINT8 * p_buf);
+#if((!(NFC_NXP_CHIP_TYPE == PN547C2)) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
+NFC_API extern tNFC_STATUS nfc_ncif_set_MaxRoutingTableSize(UINT8 * p_buf);
+#endif
 NFC_API extern BOOLEAN nfa_dm_p2p_prio_logic(UINT8 event, UINT8 *p, UINT8 ntf_rsp);
 NFC_API extern void nfc_ncif_update_window (void);
 NFC_API extern void nfa_dm_p2p_timer_event ();

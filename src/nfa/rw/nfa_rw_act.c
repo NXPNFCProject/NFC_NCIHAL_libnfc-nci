@@ -1981,13 +1981,17 @@ void nfa_rw_presence_check (tNFA_RW_MSG *p_data)
         break;
 
     case NFC_PROTOCOL_T2T:   /* Type2Tag    - NFC-A */
-        /* If T2T NFC-Forum, then let RW handle presence check; otherwise fall through */
+        /* If T2T NFC-Forum, then let RW handle presence check */
         if (sel_res == NFC_SEL_RES_NFC_FORUM_T2T)
         {
             /* Type 2 tag have not sent NACK after activation */
             status = RW_T2tPresenceCheck();
-            break;
         }
+        else
+        {
+            unsupported = TRUE;
+        }
+        break;
 
     default:
         /* Protocol unsupported by RW module... */

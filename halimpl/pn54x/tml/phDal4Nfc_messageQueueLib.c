@@ -94,7 +94,7 @@ void phDal4Nfc_msgrelease(intptr_t msqid)
     if(pQueue != NULL)
     {
         sem_post(&pQueue->nProcessSemaphore);
-        usleep(300000);
+        usleep(3000);
         if (sem_destroy(&pQueue->nProcessSemaphore))
         {
             NXPLOG_TML_E("Failed to destroy semaphore (errno=0x%08x)", errno);

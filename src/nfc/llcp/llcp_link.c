@@ -205,6 +205,31 @@ tLLCP_STATUS llcp_link_activate (tLLCP_ACTIVATE_CONFIG *p_config)
                                    p_config->p_gen_bytes ) == FALSE)
     {
         LLCP_TRACE_ERROR0 ("llcp_link_activate (): Failed to parse general bytes");
+#if(NXP_EXTNS == TRUE)
+    /*For LLCP DTA test, In case of bad magic bytes normal p2p communication is expected
+     * In case of wrong magic bytes in ATR_REQ LLC layer will be disconnected but P2P connection
+     * is expected to be in connected state. So, non LLC PDU is expected.
+     * Below changes is to send PDU after disconnect of LLCP PDU.
+     * fix for TC_MAC_TAR_BI_01 LLCP test case*/
+    if((appl_dta_mode_flag == 1) && (p_config->is_initiator == FALSE))
+    {
+        BT_HDR *p_msg;
+        UINT8  *p;
+        p_msg = (BT_HDR*) GKI_getpoolbuf (LLCP_POOL_ID);
+
+        if (p_msg)
+        {
+            p_msg->len    = LLCP_PDU_SYMM_SIZE;
+            p_msg->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
+
+            p = (UINT8 *) (p_msg + 1) + p_msg->offset;
+            UINT16_TO_BE_STREAM (p, LLCP_GET_PDU_HEADER (LLCP_SAP_LM, LLCP_PDU_SYMM_TYPE, LLCP_SAP_LM ));
+
+            llcp_cb.lcb.symm_state = LLCP_LINK_SYMM_REMOTE_XMIT_NEXT;
+            NFC_SendData (NFC_RF_CONN_ID, p_msg);
+        }
+    }
+#endif
         (*llcp_cb.lcb.p_link_cback) (LLCP_LINK_ACTIVATION_FAILED_EVT, LLCP_LINK_BAD_GEN_BYTES);
 
         if (p_config->is_initiator == FALSE)
@@ -1046,7 +1071,7 @@ static void llcp_link_proc_ui_pdu (UINT8  local_sap,
         /* get last buffer in rx queue */
         p_last_buf = (BT_HDR *) GKI_getlast (&p_app_cb->ui_rx_q);
 
-        if (p_last_buf)
+        if ((p_last_buf)&&(p_ui_pdu != NULL))
         {
             /* get max length to append at the end of buffer */
             available_bytes = GKI_get_buf_size (p_last_buf) - BT_HDR_SIZE - p_last_buf->offset - p_last_buf->len;
@@ -1089,7 +1114,7 @@ static void llcp_link_proc_ui_pdu (UINT8  local_sap,
             {
                 p_msg = (BT_HDR *) GKI_getpoolbuf (LLCP_POOL_ID);
 
-                if (p_msg)
+                if ((p_msg)&&(p_ui_pdu != NULL))
                 {
                     p_dst = (UINT8*) (p_msg + 1);
 

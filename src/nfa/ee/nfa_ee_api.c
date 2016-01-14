@@ -210,12 +210,11 @@ tNFA_STATUS NFA_AllEeGetInfo(UINT8        *p_num_nfcee,
         p_info->num_interface   = p_cb->num_interface;
         p_info->num_tlvs        = p_cb->num_tlvs;
 
-#if(NXP_EXTNS == TRUE)
         p_info->la_protocol =  p_cb->la_protocol;
         p_info->lb_protocol =  p_cb->lb_protocol;
         p_info->lf_protocol =  p_cb->lf_protocol;
         p_info->lbp_protocol =  p_cb->lbp_protocol;
-#endif
+
         memcpy(p_info->ee_interface, p_cb->ee_interface, p_cb->num_interface);
         memcpy(p_info->ee_tlv, p_cb->ee_tlv, p_cb->num_tlvs * sizeof(tNFA_EE_TLV));
         p_info++;
@@ -413,8 +412,14 @@ tNFA_STATUS NFA_EeSetDefaultTechRouting(tNFA_HANDLE          ee_handle,
     UINT8       nfcee_id = (UINT8)(ee_handle & 0xFF);
     tNFA_EE_ECB *p_cb;
 
+#if(NXP_EXTNS == TRUE)
     NFA_TRACE_API6 ("NFA_EeSetDefaultTechRouting(): handle:<0x%x>technology_mask:<0x%x>/<0x%x>/<0x%x><0x%x><0x%x>",
-        ee_handle, technologies_switch_on, technologies_switch_off, technologies_battery_off, technologies_screen_lock, technologies_screen_off );
+            ee_handle, technologies_switch_on, technologies_switch_off, technologies_battery_off, technologies_screen_lock, technologies_screen_off );
+#else
+    NFA_TRACE_API4 ("NFA_EeSetDefaultTechRouting(): handle:<0x%x>technology_mask:<0x%x>/<0x%x>/<0x%x>",
+            ee_handle, technologies_switch_on, technologies_switch_off, technologies_battery_off);
+#endif
+
     p_cb = nfa_ee_find_ecb (nfcee_id);
 
     if (p_cb == NULL)
@@ -477,8 +482,14 @@ tNFA_STATUS NFA_EeSetDefaultProtoRouting(tNFA_HANDLE         ee_handle,
     UINT8       nfcee_id = (UINT8)(ee_handle & 0xFF);
     tNFA_EE_ECB *p_cb;
 
+#if(NXP_EXTNS == TRUE)
     NFA_TRACE_API6 ("NFA_EeSetDefaultProtoRouting(): handle:<0x%x>protocol_mask:<0x%x>/<0x%x>/<0x%x><0x%x><0x%x>",
         ee_handle, protocols_switch_on, protocols_switch_off, protocols_battery_off, protocols_screen_lock, protocols_screen_off);
+#else
+    NFA_TRACE_API4 ("NFA_EeSetDefaultProtoRouting(): handle:<0x%x>protocol_mask:<0x%x>/<0x%x>/<0x%x>",
+            ee_handle, protocols_switch_on, protocols_switch_off, protocols_battery_off);
+#endif
+
     p_cb = nfa_ee_find_ecb (nfcee_id);
 
     if (p_cb == NULL)
@@ -649,7 +660,11 @@ tNFA_STATUS NFA_AddEePowerState(tNFA_HANDLE          ee_handle,
 *******************************************************************************/
 UINT16 NFA_GetAidTableSize()
 {
+#if((!(NFC_NXP_CHIP_TYPE == PN547C2)) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
+    return nfa_ee_api_get_max_aid_config_length();
+#else
     return NFA_EE_MAX_AID_CFG_LEN;
+#endif
 }
 
 /*******************************************************************************
@@ -665,9 +680,11 @@ UINT16 NFA_GetAidTableSize()
 UINT16 NFA_GetRemainingAidTableSize()
 {
     UINT16 size = 0;
-
+#if((!(NFC_NXP_CHIP_TYPE == PN547C2)) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
+    size = nfa_ee_api_get_max_aid_config_length() - nfa_ee_lmrt_size();
+#else
     size = NFA_EE_MAX_AID_CFG_LEN - nfa_ee_lmrt_size();
-
+#endif
     return size ;
 }
 /*******************************************************************************
@@ -683,8 +700,23 @@ void NFA_SetCEStrictDisable(UINT32 state)
 {
     nfa_ee_ce_route_strict_disable = (UINT8)state;
 }
-#endif
 
+
+
+/*******************************************************************************
+**
+** Function         NFA_checkDwpCl_Activated
+**
+** Description      This function to check dwp cl is active through p61.
+**
+** Returns          None.
+**
+*******************************************************************************/
+UINT8 NFA_check_p61_CL_Activated()
+{
+    return nfa_ee_ce_p61_active;
+}
+#endif
 /*******************************************************************************
 **
 ** Function         NFA_EeRemoveAidRouting

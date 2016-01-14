@@ -122,7 +122,29 @@ enum
 };
 typedef UINT8 tNFA_EE_CONN_ST;
 #if(NXP_EXTNS == TRUE)
-#if(NFC_NXP_CHIP_TYPE != PN547C2)
+#if(NFC_NXP_CHIP_TYPE == PN548C2)
+#define NFA_EE_ROUT_BUF_SIZE            720
+#else
+#define NFA_EE_ROUT_BUF_SIZE            200
+#endif
+#else
+#define NFA_EE_ROUT_BUF_SIZE            540
+#endif
+
+#define NFA_EE_ROUT_MAX_TLV_SIZE        0xFD
+
+#if(NXP_EXTNS == TRUE)
+#define NFA_EE_NUM_PROTO     6
+#else
+#define NFA_EE_NUM_PROTO     5
+#endif
+
+#define NFA_EE_NUM_TECH     3
+#if(NXP_EXTNS == TRUE)
+#define NFA_EE_BUFFER_FUTURE_EXT     15
+#define NFA_EE_PROTO_ROUTE_ENTRY_SIZE    5
+#define NFA_EE_TECH_ROUTE_ENTRY_SIZE    5
+#if(NFC_NXP_CHIP_TYPE == PN548C2)
 /**
  * Max Routing Table Size = 720
  * After allocating size for Technology based routing and Protocol based routing,
@@ -140,15 +162,17 @@ typedef UINT8 tNFA_EE_CONN_ST;
  * BUFFER for future extensions = 15
  * TOTAL SIZE FOR AID = 675 - 15 = 660
  */
-#define NFA_EE_MAX_AID_CFG_LEN  (660)
+#define NFA_EE_TOTAL_TECH_ROUTE_SIZE     (NFA_EE_PROTO_ROUTE_ENTRY_SIZE * NFA_EE_NUM_TECH)
+#define NFA_EE_TOTAL_PROTO_ROUTE_SIZE     (NFA_EE_PROTO_ROUTE_ENTRY_SIZE * NFA_EE_NUM_PROTO)
 
+#define NFA_EE_TOTAL_PROTO_TECH_FUTURE_EXT_ROUTE_SIZE     (NFA_EE_TOTAL_TECH_ROUTE_SIZE + NFA_EE_TOTAL_PROTO_ROUTE_SIZE + NFA_EE_BUFFER_FUTURE_EXT)
+#define NFA_EE_MAX_AID_CFG_LEN  (NFA_EE_ROUT_BUF_SIZE - NFA_EE_TOTAL_PROTO_TECH_FUTURE_EXT_ROUTE_SIZE)
 #else
 #define NFA_EE_MAX_AID_CFG_LEN  (160)
 #endif
 #else
 #define NFA_EE_MAX_AID_CFG_LEN  (510)
 #endif
-#define NFA_EE_7816_STATUS_LEN  (2)
 
 /* NFA EE control block flags:
  * use to indicate an API function has changed the configuration of the associated NFCEE
@@ -191,11 +215,22 @@ typedef struct
      * The first T is always NFA_EE_AID_CFG_TAG_NAME, the L is the actual AID length
      * the aid_len is the total length of all the TLVs associated with this AID entry
      */
+#if(NXP_EXTNS == TRUE)
+#if((!(NFC_NXP_CHIP_TYPE == PN547C2)) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
+    UINT8                   *aid_len;           /* the actual lengths in aid_cfg */
+    UINT8                   *aid_pwr_cfg;       /* power configuration of this AID entry */
+    UINT8                   *aid_rt_info;       /* route/vs info for this AID entry */
+    UINT8                   *aid_rt_loc;         /* route location info for this AID entry */
+#else
+    UINT8                   aid_rt_loc[NFA_EE_MAX_AID_ENTRIES];/* route location info for this AID entry */
     UINT8                   aid_len[NFA_EE_MAX_AID_ENTRIES];/* the actual lengths in aid_cfg */
     UINT8                   aid_pwr_cfg[NFA_EE_MAX_AID_ENTRIES];/* power configuration of this AID entry */
     UINT8                   aid_rt_info[NFA_EE_MAX_AID_ENTRIES];/* route/vs info for this AID entry */
-#if(NXP_EXTNS == TRUE)
-    UINT8                   aid_rt_loc[NFA_EE_MAX_AID_ENTRIES];/* route location info for this AID entry */
+#endif
+#else
+    UINT8                   aid_len[NFA_EE_MAX_AID_ENTRIES];/* the actual lengths in aid_cfg */
+    UINT8                   aid_pwr_cfg[NFA_EE_MAX_AID_ENTRIES];/* power configuration of this AID entry */
+    UINT8                   aid_rt_info[NFA_EE_MAX_AID_ENTRIES];/* route/vs info for this AID entry */
 #endif
     UINT8                   aid_cfg[NFA_EE_MAX_AID_CFG_LEN];/* routing entries based on AID */
     UINT8                   aid_entries;        /* The number of AID entries in aid_cfg */
@@ -527,6 +562,10 @@ tNFA_EE_ECB * nfa_ee_find_ecb_by_conn_id (UINT8 conn_id);
 #if(NXP_EXTNS == TRUE)
 UINT16 nfa_ee_lmrt_size();
 UINT8 nfa_ee_get_supported_tech_list(UINT8 nfcee_id);
+BOOLEAN nfa_ee_nfeeid_active(UINT8 nfee_id);
+UINT8 NFA_check_p61_CL_Activated();
+UINT16 nfa_ee_find_max_aid_config_length();
+UINT16 nfa_ee_api_get_max_aid_config_length();
 #endif
 UINT8 nfa_ee_ecb_to_mask (tNFA_EE_ECB *p_cb);
 void nfa_ee_restore_one_ecb (tNFA_EE_ECB *p_cb);
@@ -558,9 +597,6 @@ void nfa_ee_rout_timeout(tNFA_EE_MSG *p_data);
 void nfa_ee_discv_timeout(tNFA_EE_MSG *p_data);
 void nfa_ee_lmrt_to_nfcc(tNFA_EE_MSG *p_data);
 void nfa_ee_update_rout(void);
-#if (NXP_EXTNS == TRUE)
-BOOLEAN nfa_ee_nfeeid_active(UINT8 nfee_id);
-#endif
 void nfa_ee_report_event(tNFA_EE_CBACK *p_cback, tNFA_EE_EVT event, tNFA_EE_CBACK_DATA *p_data);
 tNFA_EE_ECB * nfa_ee_find_aid_offset(UINT8 aid_len, UINT8 *p_aid, int *p_offset, int *p_entry);
 void nfa_ee_remove_labels(void);

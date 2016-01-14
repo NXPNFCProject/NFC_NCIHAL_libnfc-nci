@@ -318,6 +318,7 @@ typedef UINT8 tNFA_DM_RF_DISC_EVT;
 #define NFA_DM_DISC_MASK_PAA_NFC_DEP            0x00000800
 #define NFA_DM_DISC_MASK_PFA_NFC_DEP            0x00001000
 #define NFA_DM_DISC_MASK_P_LEGACY               0x00002000  /* Legacy/proprietary/non-NFC Forum protocol (e.g Shanghai transit card) */
+#define NFA_DM_DISC_MASK_PB_T3BT                0x00004000
 #define NFA_DM_DISC_MASK_POLL                   0x0000FFFF
 
 #define NFA_DM_DISC_MASK_LA_T1T                 0x00010000
@@ -571,9 +572,6 @@ extern UINT8 nfa_dm_num_dm_interface_mapping;
 
 #if(NXP_EXTNS == TRUE)
 void nfa_dm_poll_disc_cback_dta_wrapper(tNFA_DM_RF_DISC_EVT event, tNFC_DISCOVER *p_data);
-#endif
-
-#if(NXP_EXTNS == TRUE)
 extern unsigned char appl_dta_mode_flag;
 #endif
 
@@ -672,6 +670,7 @@ tNFC_STATUS nfa_dm_disc_start_kovio_presence_check (void);
 BOOLEAN nfa_dm_is_raw_frame_session (void);
 BOOLEAN nfa_dm_is_p2p_paused (void);
 void nfa_dm_p2p_prio_logic_cleanup (void);
+void nfa_dm_deact_ntf_timeout();
 
 #if (NFC_NFCEE_INCLUDED == FALSE)
 #define nfa_ee_get_tech_route(ps, ha) memset(ha, NFC_DH_ID, NFA_DM_MAX_TECH_ROUTE);

@@ -325,6 +325,9 @@ void nfc_process_quick_timer_evt (void)
         case NFC_TTYPE_P2P_PRIO_LOGIC_CLEANUP:
             nfa_dm_p2p_prio_logic_cleanup();
             break;
+        case NFC_TTYPE_P2P_PRIO_LOGIC_DEACT_NTF_TIMEOUT:
+            nfa_dm_deact_ntf_timeout();
+            break;
 #endif
 #if (NFC_RW_ONLY == FALSE)
         case NFC_TTYPE_CE_T4T_UPDATE:
@@ -425,7 +428,11 @@ UINT32 nfc_task (UINT32 param)
 
             /* Reset the NFC controller. */
             nfc_set_state (NFC_STATE_CORE_INIT);
+#if(NXP_EXTNS == TRUE)
+            nci_snd_core_reset (NCI_RESET_TYPE_KEEP_CFG);
+#else
             nci_snd_core_reset (NCI_RESET_TYPE_RESET_CFG);
+#endif
         }
 
         if (event & NFC_MBOX_EVT_MASK)

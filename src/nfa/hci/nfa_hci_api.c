@@ -743,7 +743,11 @@ tNFA_STATUS NFA_HciSendEvent (tNFA_HANDLE  hci_handle,
                               UINT8        *p_data,
                               UINT16       rsp_size,
                               UINT8        *p_rsp_buf,
+#if(NXP_EXTNS == TRUE)
+                              UINT32       rsp_timeout)
+#else
                               UINT16       rsp_timeout)
+#endif
 {
     tNFA_HCI_API_SEND_EVENT_EVT *p_msg;
 

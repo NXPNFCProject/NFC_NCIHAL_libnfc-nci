@@ -211,28 +211,33 @@ static int nfc_open(const hw_module_t* module, const char* name,
 {
     ALOGD("%s: enter; name=%s", __FUNCTION__, name);
     int retval = 0; /* 0 is ok; -1 is error */
-
+    pn547_dev_t *dev = NULL;
     if (strcmp(name, NFC_NCI_CONTROLLER) == 0)
     {
-        pn547_dev_t *dev = calloc(1, sizeof(pn547_dev_t));
+        dev = calloc(1, sizeof(pn547_dev_t));
+        if(dev == NULL)
+        {
+            retval = -EINVAL;
+        }
+        else
+        {
+            /* Common hw_device_t fields */
+            dev->nci_device.common.tag = HARDWARE_DEVICE_TAG;
+            dev->nci_device.common.version = 0x00010000; /* [31:16] major, [15:0] minor */
+            dev->nci_device.common.module = (struct hw_module_t*) module;
+            dev->nci_device.common.close = nfc_close;
 
-        /* Common hw_device_t fields */
-        dev->nci_device.common.tag = HARDWARE_DEVICE_TAG;
-        dev->nci_device.common.version = 0x00010000; /* [31:16] major, [15:0] minor */
-        dev->nci_device.common.module = (struct hw_module_t*) module;
-        dev->nci_device.common.close = nfc_close;
-
-        /* NCI HAL method pointers */
-        dev->nci_device.open = hal_open;
-        dev->nci_device.write = hal_write;
-        dev->nci_device.ioctl = hal_ioctl;
-        dev->nci_device.core_initialized = hal_core_initialized;
-        dev->nci_device.pre_discover = hal_pre_discover;
-        dev->nci_device.close = hal_close;
-        dev->nci_device.control_granted = hal_control_granted;
-        dev->nci_device.power_cycle = hal_power_cycle;
-
-        *device = (hw_device_t*) dev;
+            /* NCI HAL method pointers */
+            dev->nci_device.open = hal_open;
+            dev->nci_device.write = hal_write;
+            dev->nci_device.ioctl = hal_ioctl;
+            dev->nci_device.core_initialized = hal_core_initialized;
+            dev->nci_device.pre_discover = hal_pre_discover;
+            dev->nci_device.close = hal_close;
+            dev->nci_device.control_granted = hal_control_granted;
+            dev->nci_device.power_cycle = hal_power_cycle;
+            *device = (hw_device_t*) dev;
+        }
     }
     else
     {

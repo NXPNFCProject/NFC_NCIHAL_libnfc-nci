@@ -47,6 +47,9 @@
 #include "nfa_sys.h"
 #include "nfa_dm_int.h"
 #include "nfa_sys_int.h"
+#if(NXP_EXTNS == TRUE)
+#include "nfc_int.h"
+#endif
 
 
 /*****************************************************************************
@@ -113,6 +116,9 @@ const tNFA_DM_ACTION nfa_dm_action[] =
 *****************************************************************************/
 #if (BT_TRACE_VERBOSE == TRUE)
 static char *nfa_dm_evt_2_str (UINT16 event);
+#endif
+#if(NXP_EXTNS == TRUE)
+void nfa_dm_init_cfgs (phNxpNci_getCfg_info_t* mGetCfg_info);
 #endif
 /*******************************************************************************
 **
@@ -376,11 +382,9 @@ tNFA_STATUS nfa_dm_check_set_config (UINT8 tlv_list_len, UINT8 *p_tlv_list, BOOL
             p_stored = nfa_dm_cb.params.lf_t3t_pmm;
             max_len  = NCI_PARAM_LEN_LF_T3T_PMM;
             break;
-#endif
         /*
         **  ISO-DEP and NFC-DEP Configuration
         */
-#if(NXP_EXTNS != TRUE)
         case NFC_PMID_FWI:
             p_stored = nfa_dm_cb.params.fwi;
             max_len  = NCI_PARAM_LEN_FWI;
@@ -516,6 +520,28 @@ tNFA_STATUS nfa_dm_check_set_config (UINT8 tlv_list_len, UINT8 *p_tlv_list, BOOL
     }
 }
 
+#if(NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         nfa_dm_init_cfgs
+**
+** Description      Initialise config params
+**
+** Returns          None
+**
+*******************************************************************************/
+void nfa_dm_init_cfgs (phNxpNci_getCfg_info_t* mGetCfg_info)
+{
+    NFA_TRACE_DEBUG1 ("%s Enter",__FUNCTION__);
+
+    memcpy (&nfa_dm_cb.params.atr_req_gen_bytes, mGetCfg_info->atr_req_gen_bytes, mGetCfg_info->atr_req_gen_bytes_len);
+    nfa_dm_cb.params.atr_req_gen_bytes_len = (int)mGetCfg_info->atr_req_gen_bytes_len;
+    memcpy (&nfa_dm_cb.params.atr_res_gen_bytes, mGetCfg_info->atr_res_gen_bytes, mGetCfg_info->atr_res_gen_bytes_len);
+    nfa_dm_cb.params.atr_res_gen_bytes_len = (int)mGetCfg_info->atr_res_gen_bytes_len;
+    memcpy (&nfa_dm_cb.params.total_duration, mGetCfg_info->total_duration, mGetCfg_info->total_duration_len);
+    memcpy (&nfa_dm_cb.params.wt, mGetCfg_info->pmid_wt, mGetCfg_info->pmid_wt_len);
+}
+#endif
 #if (BT_TRACE_VERBOSE == TRUE)
 /*******************************************************************************
 **

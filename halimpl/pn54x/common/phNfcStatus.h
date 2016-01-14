@@ -300,7 +300,7 @@
 /* No registry node matches the specified input data. */
 #define NFCSTATUS_NODE_NOT_FOUND                              (0x0017)
 
-#if(NFC_POWER_MANAGEMENT == TRUE)
+#if(NFC_NXP_ESE == TRUE)
 
 #define NFCSTATUS_SMX_SPI_STATE                               (0x00F0)
 

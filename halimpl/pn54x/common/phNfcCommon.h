@@ -33,10 +33,10 @@
 #include <phNfcCompId.h>
 
 
-#   define FW_DLL_ROOT_DIR "/system/vendor/firmware/"
-#   define FW_DLL_EXTENSION ".so"
+#define FW_DLL_ROOT_DIR "/system/vendor/firmware/"
+#define FW_DLL_EXTENSION ".so"
 
-#if(NFC_NXP_CHIP_TYPE != PN547C2)
+#if(NFC_NXP_CHIP_TYPE == PN548C2)
 
 /* Actual FW library name*/
 #define FW_LIB_PATH       FW_DLL_ROOT_DIR "libpn548ad_fw"          FW_DLL_EXTENSION
@@ -47,16 +47,29 @@
 #else
 /* Actual FW library name*/
 #define FW_LIB_PATH       FW_DLL_ROOT_DIR "libpn547_fw"          FW_DLL_EXTENSION
-/* Restore Currupted PLL Setttings/etc */
+/* Restore Currupted PLL Settings/etc */
 #define PLATFORM_LIB_PATH FW_DLL_ROOT_DIR "libpn547_fw_platform" FW_DLL_EXTENSION
 /* Upgrade the public Key */
 #define PKU_LIB_PATH      FW_DLL_ROOT_DIR "libpn547_fw_pku"      FW_DLL_EXTENSION
 #endif
 
+#if(NFC_NXP_CHIP_TYPE == PN548C2)
+#define COMPILATION_MW "PN548C2"
+#else
+#define COMPILATION_MW "PN547C2"
+#endif
 /* HAL Version number (Updated as per release) */
-#define NXP_MW_VERSION_MAJ  (2U)
+#define NXP_MW_VERSION_MAJ  (3U)
 #define NXP_MW_VERSION_MIN  (0U)
 
+#define GET_EEPROM_DATA (1U)
+#define SET_EEPROM_DATA (2U)
+
+#define BITWISE    (1U)
+#define BYTEWISE   (2U)
+
+#define GET_FW_DWNLD_FLAG   (1U)
+#define RESET_FW_DWNLD_FLAG (2U)
 /*
  *****************************************************************
  ***********  System clock source selection configuration ********
@@ -89,7 +102,7 @@
 #define NXP_SYS_CLK_FREQ_SEL  CLK_FREQ_19_2MHZ /* Set to one of CLK_FREQ_<value> */
 
 #define CLK_TO_CFG_DEF         1
-#define CLK_TO_CFG_MAX         26
+#define CLK_TO_CFG_MAX         6
 /*
  *  information to configure OSAL
  */

@@ -55,6 +55,8 @@
 
 #if(NXP_EXTNS == TRUE)
 #define RW_I93_TOUT_RESP                        RW_I93_MAX_RSP_TIMEOUT    /* Response timeout     */
+#else
+#define RW_I93_TOUT_RESP                        1000    /* Response timeout */
 #endif
 #define RW_I93_TOUT_STAY_QUIET                  200     /* stay quiet timeout   */
 #define RW_I93_READ_MULTI_BLOCK_SIZE            128     /* max reading data if read multi block is supported */

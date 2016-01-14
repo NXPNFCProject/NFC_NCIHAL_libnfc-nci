@@ -89,6 +89,9 @@ public:
     static  NfcAdaptation& GetInstance();
     tHAL_NFC_ENTRY* GetHalEntryFuncs ();
     void    DownloadFirmware ();
+#if(NXP_EXTNS == TRUE)
+    void MinInitialize ();
+#endif
 
 private:
     NfcAdaptation();
@@ -120,7 +123,7 @@ private:
     static void HalClose ();
     static void HalCoreInitialized (UINT8* p_core_init_rsp_params);
     static void HalWrite (UINT16 data_len, UINT8* p_data);
-#if((NFC_POWER_MANAGEMENT == TRUE)&&(NXP_EXTNS == TRUE))
+#if(NXP_EXTNS == TRUE)
     static int HalIoctl (long arg, void* p_data);
 #endif
     static BOOLEAN HalPrediscover ();

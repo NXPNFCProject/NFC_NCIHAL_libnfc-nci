@@ -75,7 +75,7 @@ typedef UINT8 tHAL_NFC_STATUS;
 #define HAL_NFC_HCI_UICC0_HOST      0x01
 #define HAL_NFC_HCI_UICC1_HOST      0x02
 #define HAL_NFC_HCI_UICC2_HOST      0x04
-#define HAL_NFC_ENABLE_I2C_FRAGMENTATION_EVT        0x07
+
 /*******************************************************************************
 ** tHAL_NFC_CBACK Definitions
 *******************************************************************************/
@@ -88,8 +88,10 @@ typedef UINT8 tHAL_NFC_STATUS;
 #define HAL_NFC_REQUEST_CONTROL_EVT     0x04
 #define HAL_NFC_RELEASE_CONTROL_EVT     0x05
 #define HAL_NFC_ERROR_EVT               0x06
-
-
+#if(NXP_EXTNS == TRUE)
+#define HAL_NFC_ENABLE_I2C_FRAGMENTATION_EVT        0x07
+#define HAL_NFC_POST_MIN_INIT_CPLT_EVT  0x08
+#endif
 typedef void (tHAL_NFC_STATUS_CBACK) (tHAL_NFC_STATUS status);
 typedef void (tHAL_NFC_CBACK) (UINT8 event, tHAL_NFC_STATUS status);
 typedef void (tHAL_NFC_DATA_CBACK) (UINT16 data_len, UINT8   *p_data);
@@ -104,7 +106,7 @@ typedef void (tHAL_API_OPEN) (tHAL_NFC_CBACK *p_hal_cback, tHAL_NFC_DATA_CBACK *
 typedef void (tHAL_API_CLOSE) (void);
 typedef void (tHAL_API_CORE_INITIALIZED) (UINT8 *p_core_init_rsp_params);
 typedef void (tHAL_API_WRITE) (UINT16 data_len, UINT8 *p_data);
-#if((NFC_POWER_MANAGEMENT == TRUE)&&(NXP_EXTNS == TRUE))
+#if(NXP_EXTNS == TRUE)
 typedef int (tHAL_API_IOCTL) (long arg, void *p_data);
 #endif
 typedef BOOLEAN (tHAL_API_PREDISCOVER) (void);
@@ -140,7 +142,7 @@ typedef struct
     tHAL_API_CLOSE *close;
     tHAL_API_CORE_INITIALIZED *core_initialized;
     tHAL_API_WRITE *write;
-#if((NFC_POWER_MANAGEMENT == TRUE)&&(NXP_EXTNS == TRUE))
+#if(NXP_EXTNS == TRUE)
     tHAL_API_IOCTL *ioctl;
 #endif
     tHAL_API_PREDISCOVER *prediscover;
@@ -148,10 +150,15 @@ typedef struct
     tHAL_API_POWER_CYCLE *power_cycle;
     tHAL_API_GET_MAX_NFCEE *get_max_ee;
 
-
 } tHAL_NFC_ENTRY;
 
-
+#if(NXP_EXTNS == TRUE)
+typedef struct
+{
+    tHAL_NFC_ENTRY *hal_entry_func;
+    UINT8 boot_mode;
+} tHAL_NFC_CONTEXT;
+#endif
 /*******************************************************************************
 ** HAL API Function Prototypes
 *******************************************************************************/

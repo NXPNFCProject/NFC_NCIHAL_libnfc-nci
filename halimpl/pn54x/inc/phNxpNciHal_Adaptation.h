@@ -38,5 +38,7 @@ int phNxpNciHal_pre_discover(void);
 int phNxpNciHal_close(void);
 int phNxpNciHal_control_granted(void);
 int phNxpNciHal_power_cycle(void);
-
+int phNxpNciHal_MinOpen(nfc_stack_callback_t *p_cback,
+        nfc_stack_data_callback_t *p_data_cback);
+int phNxpNciHal_Minclose(void);
 #endif /* _PHNXPNCIHAL_ADAPTATION_H_ */

@@ -117,6 +117,8 @@ static BOOLEAN rw_t4t_create_ndef (void);
 static BOOLEAN rw_t4t_write_cc (void);
 static BOOLEAN rw_t4t_write_ndef (void);
 static BOOLEAN rw_t3bt_get_pupi (void);
+static void rw_t4t_sm_ndef_format (BT_HDR  *p_r_apdu);
+static void rw_t3Bt_sm_get_card_id(BT_HDR *p_r_apdu);
 #endif
 static void rw_t4t_handle_error (tNFC_STATUS status, UINT8 sw1, UINT8 sw2);
 static void rw_t4t_sm_detect_ndef (BT_HDR *p_r_apdu);
@@ -125,10 +127,6 @@ static void rw_t4t_sm_update_ndef (BT_HDR  *p_r_apdu);
 static void rw_t4t_sm_set_readonly (BT_HDR  *p_r_apdu);
 static void rw_t4t_data_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data);
 
-#if(NXP_EXTNS == TRUE)
-static void rw_t4t_sm_ndef_format (BT_HDR  *p_r_apdu);
-static void rw_t3Bt_sm_get_card_id(BT_HDR *p_r_apdu);
-#endif
 /*******************************************************************************
 **
 ** Function         rw_t4t_send_to_lower
@@ -1413,9 +1411,7 @@ static void rw_t4t_sm_ndef_format(BT_HDR *p_r_apdu)
         break;
     }
 }
-#endif
 
-#if(NXP_EXTNS == TRUE)
 static void rw_t3Bt_sm_get_card_id(BT_HDR *p_r_apdu)
 {
     tRW_T4T_CB  *p_t4t = &rw_cb.tcb.t4t;

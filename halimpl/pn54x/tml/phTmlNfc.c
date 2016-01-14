@@ -24,7 +24,7 @@
 #include <phDal4Nfc_messageQueueLib.h>
 #include <phTmlNfc_i2c.h>
 #include <phNxpNciHal_utils.h>
-#if((NFC_POWER_MANAGEMENT == TRUE)&&(NXP_EXTNS == TRUE))
+#if((NFC_NXP_ESE == TRUE)&&(NXP_EXTNS == TRUE))
 #include <sys/types.h>
 long nfc_service_pid;
 #endif
@@ -174,7 +174,7 @@ NFCSTATUS phTmlNfc_Init(pphTmlNfc_Config_t pConfig)
         /* Clear all handles and memory locations initialized during init */
         phTmlNfc_CleanUp();
     }
-#if(NFC_POWER_MANAGEMENT == TRUE)
+#if(NFC_NXP_ESE == TRUE)
     else
     {
         nfc_service_pid = getpid();
@@ -383,6 +383,11 @@ static void phTmlNfc_TmlThread(void *pParam)
                 if (-1 == dwNoBytesWrRd)
                 {
                     NXPLOG_TML_E("PN54X - Error in I2C Read.....\n");
+                    sem_post(&gpphTmlNfc_Context->rxSemaphore);
+                }
+                else if(dwNoBytesWrRd > 260)
+                {
+                    NXPLOG_TML_E("Numer of bytes read exceeds the limit 260.....\n");
                     sem_post(&gpphTmlNfc_Context->rxSemaphore);
                 }
                 else
@@ -941,7 +946,7 @@ NFCSTATUS phTmlNfc_IoCtl(phTmlNfc_ControlCode_t eControlCode)
                     usleep(100 * 1000);
                     break;
                 }
-#if(NFC_POWER_MANAGEMENT == TRUE)
+#if(NFC_NXP_ESE == TRUE)
             case phTmlNfc_e_SetNfcServicePid:
             {
                 wStatus = phTmlNfc_set_pid(gpphTmlNfc_Context->pDevHandle, nfc_service_pid);
@@ -960,6 +965,16 @@ NFCSTATUS phTmlNfc_IoCtl(phTmlNfc_ControlCode_t eControlCode)
             case phTmlNfc_e_SetP61IdleMode:
             {
                 wStatus = phTmlNfc_i2c_set_p61_power_state(gpphTmlNfc_Context->pDevHandle, 0);
+                break;
+            }
+            case phTmlNfc_e_SetP61DisableMode:
+            {
+                wStatus = phTmlNfc_i2c_set_p61_power_state(gpphTmlNfc_Context->pDevHandle, 2);
+                break;
+            }
+            case phTmlNfc_e_SetP61EnableMode:
+            {
+                wStatus = phTmlNfc_i2c_set_p61_power_state(gpphTmlNfc_Context->pDevHandle, 3);
                 break;
             }
 #endif

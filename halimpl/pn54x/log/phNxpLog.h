@@ -18,8 +18,7 @@
 #define NXPLOG__H_INCLUDED
 
 #include <cutils/log.h>
-#include <string.h>
-
+#include <phNxpNciHal_utils.h>
 typedef struct nci_log_level
 {
     uint8_t global_log_level;
@@ -245,5 +244,5 @@ extern const char * NXPLOG_ITEM_HCPR;    /* Android logging tag for NxpHcpR   */
 #endif /* NXP_VRBS_REQ */
 
 void phNxpLog_InitializeLogLevel(void);
-
+NFCSTATUS phNxpLog_EnableDisableLogLevel(uint8_t enable);
 #endif /* NXPLOG__H_INCLUDED */

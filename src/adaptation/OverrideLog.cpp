@@ -117,6 +117,27 @@ UINT32 initializeProtocolLogLevel () {
 }
 
 #if(NXP_EXTNS == TRUE)
+/*********************************************************************************
+** Function:        enableDisableAppLevel
+**
+** Description:     Enable/Disable applicaton trace logs
+**
+** Returns:         none:
+**
+*******************************************************************************/
+void enableDisableAppLevel(UINT8 type)
+{
+    static UINT8  backup_app_trace = appl_trace_level;
+    if(0x01 == type && (backup_app_trace != appl_trace_level))
+    {
+        appl_trace_level = backup_app_trace;
+    }
+    else if(0x00 == type && (0x00 != appl_trace_level))
+    {
+        backup_app_trace = appl_trace_level;
+        appl_trace_level = 0x00;
+    }
+}
 /*******************************************************************************
 **
 ** Function:        initializeGlobalDtaMode

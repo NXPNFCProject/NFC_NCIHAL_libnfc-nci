@@ -78,11 +78,12 @@ static BOOLEAN nfa_hci_evt_hdlr (BT_HDR *p_msg);
 
 static void nfa_hci_sys_enable (void);
 static void nfa_hci_sys_disable (void);
+void nfa_hci_rsp_timeout (tNFA_HCI_EVENT_DATA *p_evt_data);
 static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data);
 static void nfa_hci_set_receive_buf (UINT8 pipe);
 #if (NXP_EXTNS == TRUE)
-void nfa_hci_rsp_timeout (tNFA_HCI_EVENT_DATA *p_evt_data);
 static void nfa_hci_assemble_msg (UINT8 *p_data, UINT16 data_len, UINT8 pipe);
+static UINT8 nfa_ee_ce_p61_completed = 0x00;
 #else
 static void nfa_hci_assemble_msg (UINT8 *p_data, UINT16 data_len);
 #endif
@@ -227,7 +228,9 @@ void nfa_hci_init (void)
     memset (&nfa_hci_cb, 0, sizeof (tNFA_HCI_CB));
 
     nfa_hci_cb.hci_state = NFA_HCI_STATE_STARTUP;
-
+#if (NXP_EXTNS == TRUE)
+    nfa_ee_ce_p61_completed = 0;
+#endif
     /* register message handler on NFA SYS */
     nfa_sys_register (NFA_ID_HCI, &nfa_hci_sys_reg);
 }
@@ -1057,13 +1060,18 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
         {
             if(nfa_hci_cb.w4_rsp_evt == TRUE)
             {
-                const INT32 rsp_timeout = 3000; //3-sec
+                const INT32 rsp_timeout = NFA_HCI_WTX_RESP_TIMEOUT; //3-sec
                 nfa_sys_start_timer (&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT, rsp_timeout);
             }
         }
         else
 #endif
-            nfa_hci_cb.hci_state  = NFA_HCI_STATE_IDLE;
+        {
+#if (NXP_EXTNS == TRUE)
+            nfa_ee_ce_p61_completed = 0;
+#endif
+             nfa_hci_cb.hci_state  = NFA_HCI_STATE_IDLE;
+        }
     }
 
     switch (pipe)
@@ -1509,6 +1517,32 @@ static BOOLEAN nfa_hci_evt_hdlr (BT_HDR *p_msg)
             break;
 
         case NFA_HCI_RSP_TIMEOUT_EVT:
+#if ((NXP_EXTNS == TRUE)&&(NFC_NXP_ESE == TRUE))
+        if(nfa_ee_ce_p61_completed != 0)
+        {
+            NFA_TRACE_EVENT0("nfa_hci_evt_hdlr Restart timer expired for wired transceive");
+            nfa_ee_ce_p61_completed = 0;
+        }
+        else
+        {
+            UINT32 p61_access_status = 0x0000;
+            if (NFC_GetP61Status((void*)&p61_access_status) < 0)
+            {
+                NFA_TRACE_EVENT0("nfa_hci_evt_hdlr : Check dual mode : NFC_GetP61Status failed");
+            }
+            else{
+                if(((p61_access_status == 0x400) || (p61_access_status == 0x1000)) &&
+                (NFA_check_p61_CL_Activated() != 0))
+                {
+                    NFA_TRACE_EVENT0("nfa_hci_evt_hdlr Restart timer for wired transceive");
+                    nfa_sys_start_timer (&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT, NFA_HCI_WTX_RESP_TIMEOUT);
+                    /*situation occurred*/
+                    nfa_ee_ce_p61_completed = 1;
+                    break;
+                }
+            }
+        }
+#endif
             nfa_hci_rsp_timeout ((tNFA_HCI_EVENT_DATA *)p_msg);
             break;
 

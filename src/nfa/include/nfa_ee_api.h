@@ -55,6 +55,7 @@
 extern  UINT8 NFA_REMOVE_ALL_AID[];
 #define NFA_REMOVE_ALL_AID_LEN      (0x08)
 extern  UINT8 nfa_ee_ce_route_strict_disable;
+extern  UINT8 nfa_ee_ce_p61_active;
 #define NFA_EE_AE_NXP_PREFIX_MATCH      (0x10)
 #endif
 

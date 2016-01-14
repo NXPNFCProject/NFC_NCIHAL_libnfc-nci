@@ -1367,27 +1367,29 @@ BT_HDR* llcp_dlc_get_next_pdu (tLLCP_DLCB *p_dlcb)
     {
         p_msg = (BT_HDR *) GKI_dequeue (&p_dlcb->i_xmit_q);
         llcp_cb.total_tx_i_pdu--;
-
-        if (p_msg->offset >= LLCP_MIN_OFFSET)
+        if(p_msg)
         {
-            /* add LLCP header, DSAP, PTYPE, SSAP, N(S), N(R) and update sent_ack_seq, V(RA) */
-            llcp_util_build_info_pdu (p_dlcb, p_msg);
+            if (p_msg->offset >= LLCP_MIN_OFFSET)
+            {
+                /* add LLCP header, DSAP, PTYPE, SSAP, N(S), N(R) and update sent_ack_seq, V(RA) */
+                llcp_util_build_info_pdu (p_dlcb, p_msg);
 
-            p_dlcb->next_tx_seq  = (p_dlcb->next_tx_seq + 1) % LLCP_SEQ_MODULO;
+                p_dlcb->next_tx_seq  = (p_dlcb->next_tx_seq + 1) % LLCP_SEQ_MODULO;
 
 #if (BT_TRACE_VERBOSE == TRUE)
-            LLCP_TRACE_DEBUG6 ("LLCP TX - N(S,R):(%d,%d) V(S,SA,R,RA):(%d,%d,%d,%d)",
-                                send_seq, p_dlcb->next_rx_seq,
-                                p_dlcb->next_tx_seq, p_dlcb->rcvd_ack_seq,
-                                p_dlcb->next_rx_seq, p_dlcb->sent_ack_seq);
+                LLCP_TRACE_DEBUG6 ("LLCP TX - N(S,R):(%d,%d) V(S,SA,R,RA):(%d,%d,%d,%d)",
+                        send_seq, p_dlcb->next_rx_seq,
+                        p_dlcb->next_tx_seq, p_dlcb->rcvd_ack_seq,
+                        p_dlcb->next_rx_seq, p_dlcb->sent_ack_seq);
 #endif
-        }
-        else
-        {
-            LLCP_TRACE_ERROR2 ("LLCP - llcp_dlc_get_next_pdu (): offset (%d) must be %d at least",
-                                p_msg->offset, LLCP_MIN_OFFSET );
-            GKI_freebuf (p_msg);
-            p_msg = NULL;
+            }
+            else
+            {
+                LLCP_TRACE_ERROR2 ("LLCP - llcp_dlc_get_next_pdu (): offset (%d) must be %d at least",
+                        p_msg->offset, LLCP_MIN_OFFSET );
+                GKI_freebuf (p_msg);
+                p_msg = NULL;
+            }
         }
     }
 

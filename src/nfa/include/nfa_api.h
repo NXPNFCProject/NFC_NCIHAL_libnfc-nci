@@ -145,6 +145,8 @@ typedef UINT8 tNFA_TECHNOLOGY_MASK;
 #if (NXP_EXTNS == TRUE)
 #define NFA_PROTOCOL_MIFARE     NFC_PROTOCOL_MIFARE
 #define NFA_PROTOCOL_T3BT       NFC_PROTOCOL_T3BT
+#define NFA_NORMAL_BOOT_MODE    NFC_NORMAL_BOOT_MODE
+#define NFA_FAST_BOOT_MODE      NFC_FAST_BOOT_MODE
 #endif
 #define NFA_PROTOCOL_INVALID    0xFF
 #define NFA_MAX_NUM_PROTOCOLS   8
@@ -1366,6 +1368,20 @@ NFC_API extern UINT8 NFA_SetTraceLevel (UINT8 new_level);
 **      void
 *******************************************************************************/
 NFC_API extern void NFA_SetReaderMode (BOOLEAN ReaderModeFlag, UINT32 Technologies);
+
+/*******************************************************************************
+**
+** Function         NFA_SetBootMode
+**
+** Description      This function enables the boot mode for NFC.
+**                  boot_mode  0 NORMAL_BOOT 1 FAST_BOOT
+**                  By default , the mode is set to NORMAL_BOOT.
+
+**
+** Returns          none
+**
+*******************************************************************************/
+NFC_API extern void NFA_SetBootMode(UINT8 boot_mode);
 
 NFC_API extern void  NFA_EnableDtamode (tNFA_eDtaModes eDtaMode);
 

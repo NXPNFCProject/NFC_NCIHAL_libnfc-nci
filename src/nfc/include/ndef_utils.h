@@ -61,7 +61,8 @@ enum
     NDEF_MSG_INVALID_EMPTY_REC,         /* 7 - Empty record with non-zero contents  */
     NDEF_MSG_INVALID_CHUNK,             /* 8 - Invalid chunk found                  */
     NDEF_MSG_LENGTH_MISMATCH,           /* 9 - Overall message length doesn't match */
-    NDEF_MSG_INSUFFICIENT_MEM           /* 10 - Insuffiecient memory to add record  */
+    NDEF_MSG_INSUFFICIENT_MEM,          /* 10 - Insuffiecient memory to add record  */
+    NDEF_MSG_EMPTY_PAYLOAD              /* 11 - Payload length is zero  */
 };
 typedef UINT8 tNDEF_STATUS;
 

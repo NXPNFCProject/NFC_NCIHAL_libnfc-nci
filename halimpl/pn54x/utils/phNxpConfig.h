@@ -95,6 +95,7 @@ int updateNxpConfigTimestamp();
 #define NAME_AID_MATCHING_PLATFORM "AID_MATCHING_PLATFORM"
 #define NAME_NXP_TYPEA_UICC_BAUD_RATE "NXP_TYPEA_UICC_BAUD_RATE"
 #define NAME_NXP_TYPEB_UICC_BAUD_RATE "NXP_TYPEB_UICC_BAUD_RATE"
+#define NAME_NXP_SET_CONFIG_ALWAYS "NXP_SET_CONFIG_ALWAYS"
 
 /* default configuration */
 #define default_storage_location "/data/nfc"

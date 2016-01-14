@@ -78,10 +78,10 @@
 //DTA API for MW Version need to change according to release
 #define NXP_EN_PN547C2                  1
 #define NXP_EN_PN65T                    1
-#define NXP_EN_PN548AD                  1
+#define NXP_EN_PN548C2                  1
 #define NXP_EN_PN66T                    1
 #define NXP_ANDROID_VER                 (4U) /* NXP android version */
-#define NFC_NXP_MW_VERSION_MAJ          (2U) /* MW Major Version */
+#define NFC_NXP_MW_VERSION_MAJ          (3U) /* MW Major Version */
 #define NFC_NXP_MW_VERSION_MIN          (0U) /* MW Minor Version */
 #endif
 /* 0xE0 ~0xFF are proprietary status codes */
@@ -107,6 +107,8 @@
 typedef UINT8 tNFC_STATUS;
 #if (NXP_EXTNS == TRUE)
 #define NFC_NFCC_INIT_MAX_RETRY         2
+#define NFC_NORMAL_BOOT_MODE            0
+#define NFC_FAST_BOOT_MODE              1
 #endif
 
 
@@ -957,7 +959,11 @@ NFC_API extern void NFC_Disable (void);
 ** Returns          nothing
 **
 *******************************************************************************/
+#if(NXP_EXTNS == TRUE)
+NFC_API extern void NFC_Init(tHAL_NFC_CONTEXT *p_hal_entry_cntxt);
+#else
 NFC_API extern void NFC_Init(tHAL_NFC_ENTRY *p_hal_entry_tbl);
+#endif
 
 /*******************************************************************************
 **
@@ -1392,8 +1398,28 @@ NFC_API extern char * NFC_GetStatusName (tNFC_STATUS status);
 **
 *******************************************************************************/
 NFC_API extern tNFC_FW_VERSION nfc_ncif_getFWVersion();
-#if(NFC_POWER_MANAGEMENT == TRUE)
-
+/*******************************************************************************
+**
+** Function         NFC_EnableDisableHalLog
+**
+** Description      This function is used to enable/disable
+**                  HAL log level.
+**
+*******************************************************************************/
+void NFC_EnableDisableHalLog(UINT8 type);
+#if((!(NFC_NXP_CHIP_TYPE == PN547C2)) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
+/*******************************************************************************
+**
+** Function         nfc_ncif_getMaxRoutingTableSize
+**
+** Description      This function is called to get the Max supported routing Table size.
+**
+** Returns           Max supported routing Table size
+**
+*******************************************************************************/
+NFC_API extern UINT16 nfc_ncif_getMaxRoutingTableSize();
+#endif
+#if(NFC_NXP_ESE == TRUE)
 /*******************************************************************************
 **
 ** Function         NFC_ReqWiredAccess
@@ -1427,6 +1453,28 @@ INT32 NFC_RelWiredAccess (void *pdata);
 **
 *******************************************************************************/
 INT32 NFC_GetP61Status (void *pdata);
+/*******************************************************************************
+**
+** Function         NFC_DisableWired
+**
+** Description      This function request to pn54x driver to
+**                  disable ese vdd gpio
+**
+** Returns          0 if api call success, else -1
+**
+*******************************************************************************/
+INT32 NFC_DisableWired (void *pdata);
+/*******************************************************************************
+**
+** Function         NFC_EnableWired
+**
+** Description      This function request to pn54x driver to
+**                  enable ese vdd gpio
+**
+** Returns          0 if api call success, else -1
+**
+*******************************************************************************/
+INT32 NFC_EnableWired (void *pdata);
 #endif
 #endif
 

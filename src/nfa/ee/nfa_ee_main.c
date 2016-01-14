@@ -133,7 +133,10 @@ void nfa_ee_init (void)
 
     nfa_ee_cb.ecb[NFA_EE_CB_4_DH].ee_status       = NFC_NFCEE_STATUS_ACTIVE;
     nfa_ee_cb.ecb[NFA_EE_CB_4_DH].nfcee_id        = NFC_DH_ID;
-
+#if (NXP_EXTNS == TRUE)
+    /*clear the p61 ce*/
+    nfa_ee_ce_p61_active = 0;
+#endif
     /* register message handler on NFA SYS */
     nfa_sys_register (NFA_ID_EE,  &nfa_ee_sys_reg);
 }

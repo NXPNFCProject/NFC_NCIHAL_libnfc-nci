@@ -49,6 +49,7 @@
 #include "ndef_utils.h"
 #if(NXP_EXTNS == TRUE)
 UINT32 gFelicaReaderMode;
+tHAL_NFC_CONTEXT hal_Initcntxt;
 #endif
 
 /*****************************************************************************
@@ -75,23 +76,36 @@ UINT32 gFelicaReaderMode;
 void NFA_Init(tHAL_NFC_ENTRY *p_hal_entry_tbl)
 {
     NFA_TRACE_API0 ("NFA_Init ()");
+#if(NXP_EXTNS == TRUE)
+    hal_Initcntxt.hal_entry_func = p_hal_entry_tbl;
+#endif
     nfa_sys_init();
     nfa_dm_init();
-    nfa_p2p_init();
-    nfa_cho_init();
-    nfa_snep_init(FALSE);
-    nfa_rw_init();
-    nfa_ce_init();
-    nfa_ee_init();
-    if (nfa_ee_max_ee_cfg != 0)
+#if(NXP_EXTNS == TRUE)
+    if(hal_Initcntxt.boot_mode == NFA_NORMAL_BOOT_MODE)
     {
-        nfa_dm_cb.get_max_ee    = p_hal_entry_tbl->get_max_ee;
-        nfa_hci_init();
+#endif
+        nfa_p2p_init();
+        nfa_cho_init();
+        nfa_snep_init(FALSE);
+        nfa_rw_init();
+        nfa_ce_init();
+        nfa_ee_init();
+        if (nfa_ee_max_ee_cfg != 0)
+        {
+            nfa_dm_cb.get_max_ee    = p_hal_entry_tbl->get_max_ee;
+
+            nfa_hci_init();
+        }
+#if(NXP_EXTNS == TRUE)
     }
-
-
+#endif
     /* Initialize NFC module */
+#if(NXP_EXTNS == TRUE)
+    NFC_Init (&hal_Initcntxt);
+#else
     NFC_Init (p_hal_entry_tbl);
+#endif
 }
 
 /*******************************************************************************
@@ -142,6 +156,7 @@ tNFA_STATUS NFA_Enable (tNFA_DM_CBACK        *p_dm_cback,
 
     return (NFA_STATUS_FAILED);
 }
+
 
 /*******************************************************************************
 **
@@ -1320,6 +1335,23 @@ void NFA_SetReaderMode (BOOLEAN ReaderModeFlag, UINT32 Technologies)
     gFelicaReaderMode = ReaderModeFlag;
     return;
 }
+
+/*******************************************************************************
+**
+** Function         NFA_SetBootMode
+**
+** Description      This function enables the boot mode for NFC.
+**                  boot_mode  0 NORMAL_BOOT 1 FAST_BOOT
+**                  By default , the mode is set to NORMAL_BOOT.
+
+**
+** Returns          none
+**
+*******************************************************************************/
+void NFA_SetBootMode(UINT8 boot_mode)
+{
+    hal_Initcntxt.boot_mode = boot_mode;
+}
 /*******************************************************************************
 **
 ** Function:        NFA_EnableDtamode
@@ -1338,7 +1370,7 @@ void  NFA_EnableDtamode (tNFA_eDtaModes eDtaMode)
 tNFA_MW_VERSION NFA_GetMwVersion ()
 {
     tNFA_MW_VERSION mwVer;
-    mwVer.validation = ( NXP_EN_PN547C2 | (NXP_EN_PN65T << 1) | (NXP_EN_PN548AD << 2) |
+    mwVer.validation = ( NXP_EN_PN547C2 | (NXP_EN_PN65T << 1) | (NXP_EN_PN548C2 << 2) |
                         (NXP_EN_PN66T << 3));
     mwVer.android_version = NXP_ANDROID_VER;
     NFA_TRACE_API1("0x%x:NFC MW Major Version:", NFC_NXP_MW_VERSION_MAJ);

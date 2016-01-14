@@ -81,7 +81,14 @@ typedef struct phNxpNciHal_Control
     /* retry count used to force download */
     uint16_t retry_cnt;
     uint8_t read_retry_cnt;
+    uint8_t hal_boot_mode;
 } phNxpNciHal_Control_t;
+
+typedef struct
+{
+    uint8_t fw_update_reqd;
+    uint8_t rf_update_reqd;
+} phNxpNciHal_FwRfupdateInfo_t;
 
 typedef struct phNxpNciClock{
     bool_t  isClockSet;
@@ -94,12 +101,57 @@ typedef struct phNxpNciRfSetting{
     uint8_t  p_rx_data[20];
 }phNxpNciRfSetting_t;
 
+/*set config management*/
+
+#define TOTAL_DURATION         0x00
+#define ATR_REQ_GEN_BYTES_POLL 0x29
+#define ATR_REQ_GEN_BYTES_LIS  0x61
+#define LEN_WT                 0x60
+
+/*Whenever a new get cfg need to be sent,
+ * array must be updated with defined config type*/
+static const uint8_t get_cfg_arr[]={
+        TOTAL_DURATION,
+        ATR_REQ_GEN_BYTES_POLL,
+        ATR_REQ_GEN_BYTES_LIS,
+        LEN_WT
+};
+
+typedef enum {
+    EEPROM_RF_CFG,
+    EEPROM_FW_DWNLD
+}phNxpNci_EEPROM_request_type_t;
+
+typedef struct phNxpNci_EEPROM_info {
+    uint8_t  request_mode;
+    phNxpNci_EEPROM_request_type_t  request_type;
+    uint8_t  update_mode;
+    uint8_t* buffer;
+    uint8_t  bufflen;
+}phNxpNci_EEPROM_info_t;
+
+typedef struct phNxpNci_getCfg_info {
+    bool_t    isGetcfg;
+    uint8_t  total_duration[4];
+    uint8_t  total_duration_len;
+    uint8_t  atr_req_gen_bytes[48];
+    uint8_t  atr_req_gen_bytes_len;
+    uint8_t  atr_res_gen_bytes[48];
+    uint8_t  atr_res_gen_bytes_len;
+    uint8_t  pmid_wt[3];
+    uint8_t  pmid_wt_len;
+}phNxpNci_getCfg_info_t;
 
 typedef enum {
     NFC_FORUM_PROFILE,
     EMV_CO_PROFILE,
     INVALID_PROFILe
 }phNxpNciProfile_t;
+
+typedef enum {
+    NFC_NORMAL_BOOT_MODE,
+    NFC_FAST_BOOT_MODE
+}phNxpNciBootMode;
 /* NXP Poll Profile control structure */
 typedef struct phNxpNciProfile_Control
 {
@@ -116,7 +168,7 @@ typedef struct phNxpNciProfile_Control
 #define NCI_HAL_PRE_DISCOVER_CPLT_MSG     0x414
 #define NCI_HAL_ERROR_MSG                 0x415
 #define NCI_HAL_RX_MSG                    0xF01
-
+#define NCI_HAL_POST_MIN_INIT_CPLT_MSG    0xF02
 #define NCIHAL_CMD_CODE_LEN_BYTE_OFFSET         (2U)
 #define NCIHAL_CMD_CODE_BYTE_LEN                (3U)
 
@@ -124,6 +176,8 @@ typedef struct phNxpNciProfile_Control
 
 void phNxpNciHal_request_control (void);
 void phNxpNciHal_release_control (void);
+NFCSTATUS phNxpNciHal_send_get_cfgs();
 int phNxpNciHal_write_unlocked (uint16_t data_len, const uint8_t *p_data);
+NFCSTATUS request_EEPROM(phNxpNci_EEPROM_info_t *mEEPROM_info);
 
 #endif /* _PHNXPNCIHAL_H_ */

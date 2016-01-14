@@ -67,7 +67,27 @@ void nfa_sys_cback_notify_enable_complete (UINT8 id)
         nfa_sys_cb.p_enable_cback = NULL;
     }
 }
+#if(NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         nfa_sys_cback_notify_MinEnable_complete
+**
+** Description      Called by other NFA SYS sub system to notify
+**                  NFC initialisation  is done .
+**
+** Returns          void
+**
+*******************************************************************************/
+void nfa_sys_cback_notify_MinEnable_complete (UINT8 id)
+{
 
+    if (nfa_sys_cb.p_enable_cback && id == NFA_ID_SYS)
+    {
+        nfa_sys_cb.p_enable_cback ();
+        nfa_sys_cb.p_enable_cback = NULL;
+    }
+}
+#endif
 /*******************************************************************************
 **
 ** Function         nfa_sys_cback_reg_nfcc_power_mode_proc_complete

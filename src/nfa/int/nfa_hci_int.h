@@ -78,6 +78,7 @@ extern BOOLEAN HCI_LOOPBACK_DEBUG;
 #if(NXP_EXTNS == TRUE)
 #define NFA_HCI_MAX_RSP_WAIT_TIME           0x0C
 #define NFA_HCI_CHAIN_PKT_RSP_TIMEOUT       30000    /* After the reception of WTX, maximum response timeout value is 30 sec */
+#define NFA_HCI_WTX_RESP_TIMEOUT            3000     /* Wait time to give response timeout to application if WTX not received*/
 #endif
 
 typedef UINT8 tNFA_HCI_STATE;
@@ -258,7 +259,11 @@ typedef struct
     UINT8               *p_evt_buf;
     UINT16              rsp_len;
     UINT8               *p_rsp_buf;
+#if(NXP_EXTNS == TRUE)
+    UINT32              rsp_timeout;
+#else
     UINT16              rsp_timeout;
+#endif
 } tNFA_HCI_API_SEND_EVENT_EVT;
 
 /* data type for NFA_HCI_API_SEND_CMD_EVT */
@@ -412,10 +417,6 @@ typedef struct
     BOOLEAN                         nv_write_needed;                    /* Something changed - NV write is needed */
     BOOLEAN                         assembling;                         /* Set true if in process of assembling a message  */
     BOOLEAN                         assembly_failed;                    /* Set true if Insufficient buffer to Reassemble incoming message */
-#if (NXP_EXTNS == TRUE)
-    UINT8                           assembling_flags;                   /* the flags to keep track of assembling status*/
-    UINT8                           assembly_failed_flags;              /* the flags to keep track of failed assembly*/
-#endif
     BOOLEAN                         w4_rsp_evt;                         /* Application command sent on HCP Event */
     tNFA_HANDLE                     app_in_use;                         /* Index of the application that is waiting for response */
     UINT8                           local_gate_in_use;                  /* Local gate currently working with */
@@ -431,6 +432,8 @@ typedef struct
     UINT8                           msg_data[NFA_MAX_HCI_EVENT_LEN];    /* For segmentation - the combined message data */
     UINT8                           *p_msg_data;                        /* For segmentation - reassembled message */
 #if (NXP_EXTNS == TRUE)
+    UINT8                           assembling_flags;                   /* the flags to keep track of assembling status*/
+    UINT8                           assembly_failed_flags;              /* the flags to keep track of failed assembly*/
     UINT8                           *p_evt_data;                        /* For segmentation - reassembled event data */
     UINT16                          evt_len;                            /* For segmentation - length of the combined event data */
     UINT16                          max_evt_len;                        /* Maximum reassembled message size */
@@ -439,7 +442,6 @@ typedef struct
     UINT8                           inst_evt;                               /* Instruction of incoming message */
     UINT8                           type_msg;                               /* Instruction type of incoming message */
     UINT8                           inst_msg;                               /* Instruction of incoming message */
-
 #endif
     UINT8                           type;                               /* Instruction type of incoming message */
     UINT8                           inst;                               /* Instruction of incoming message */

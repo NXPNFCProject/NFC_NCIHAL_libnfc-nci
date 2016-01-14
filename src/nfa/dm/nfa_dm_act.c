@@ -393,6 +393,12 @@ static void nfa_dm_nfc_response_cback (tNFC_RESPONSE_EVT event, tNFC_RESPONSE *p
         dm_cback_data.rf_field.status          = NFA_STATUS_OK;
         dm_cback_data.rf_field.rf_field_status = p_data->rf_field.rf_field;
         (*nfa_dm_cb.p_dm_cback) (NFA_DM_RF_FIELD_EVT, &dm_cback_data);
+#if(NXP_EXTNS == TRUE)
+        if(dm_cback_data.rf_field.rf_field_status == NFA_DM_RF_FIELD_OFF)
+        {
+            nfa_ee_ce_p61_active = 0;
+        }
+#endif
         break;
 
 
@@ -516,7 +522,6 @@ BOOLEAN nfa_dm_enable (tNFA_DM_MSG *p_data)
 
     return (TRUE);
 }
-
 /*******************************************************************************
 **
 ** Function         nfa_dm_disable
@@ -1002,6 +1007,9 @@ tNFA_STATUS nfa_dm_start_polling (void)
         if (poll_tech_mask & NFA_TECHNOLOGY_MASK_B)
         {
             poll_disc_mask |= NFA_DM_DISC_MASK_PB_ISO_DEP;
+#if(NXP_EXTNS == TRUE)
+            poll_disc_mask |= NFA_DM_DISC_MASK_PB_T3BT;
+#endif
         }
         if (poll_tech_mask & NFA_TECHNOLOGY_MASK_F)
         {

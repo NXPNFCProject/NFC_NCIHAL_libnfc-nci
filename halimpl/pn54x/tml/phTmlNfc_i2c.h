@@ -40,7 +40,7 @@ phTmlNfc_i2cfragmentation_t fragmentation_enabled;
  */
 #define PN544_SET_PWR    _IOW(PN544_MAGIC, 0x01, unsigned int)
 
-#if(NFC_POWER_MANAGEMENT == TRUE)
+#if(NFC_NXP_ESE == TRUE)
 NFCSTATUS phTmlNfc_i2c_get_p61_power_state(void *pDevHandle);
 NFCSTATUS phTmlNfc_i2c_set_p61_power_state(void *pDevHandle, long arg);
 NFCSTATUS phTmlNfc_set_pid(void *pDevHandle, long pid);

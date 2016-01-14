@@ -589,6 +589,10 @@ UINT8 nci_snd_parameter_update_cmd (UINT8 *p_param_tlvs, UINT8 tlv_size)
     UINT8 *pp;
     UINT8  num = 0, ulen, len, *pt;
 
+    //p_param_tlvs can take max 12 elements
+    if(tlv_size > 12)
+        return (NCI_STATUS_FAILED);
+
     if ((p = NCI_GET_CMD_BUF (tlv_size + 1)) == NULL)
         return (NCI_STATUS_FAILED);
 

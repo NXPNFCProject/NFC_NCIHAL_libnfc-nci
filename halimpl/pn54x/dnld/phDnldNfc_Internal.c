@@ -52,13 +52,13 @@
 #define PHDNLDNFC_USERDATA_EEPROM_OFFSIZE    (0x02U)    /* size of EEPROM offset */
 
 #ifdef  NXP_PN547C1_DOWNLOAD
-/* EEPROM offset and length value for C1 */
+/* EEPROM offset and length value for PN547C1 */
 #define PHDNLDNFC_USERDATA_EEPROM_OFFSET  (0x003CU)    /* 16 bits offset indicating user data area start location */
 #define PHDNLDNFC_USERDATA_EEPROM_LEN     (0x0DC0U)    /* 16 bits length of user data area */
 #else
 
 #if(NFC_NXP_CHIP_TYPE == PN547C2)
-/* EEPROM offset and length value for C2 */
+/* EEPROM offset and length value for PN547C2 */
 #define PHDNLDNFC_USERDATA_EEPROM_OFFSET  (0x023CU)    /* 16 bits offset indicating user data area start location */
 #define PHDNLDNFC_USERDATA_EEPROM_LEN     (0x0C80U)    /* 16 bits length of user data area */
 #else
@@ -700,7 +700,11 @@ static NFCSTATUS phDnldNfc_BuildFramePkt(pphDnldNfc_DlContext_t pDlContext)
                         wFrameLen += PHDNLDNFC_FRAME_HDR_LEN;
                     }
                 }
-
+                if(wFrameLen > PHDNLDNFC_CMDRESP_MAX_BUFF_SIZE)
+                {
+                    NXPLOG_FWDNLD_D("wFrameLen exceeds the limit");
+                    return NFCSTATUS_FAILED;
+                }
                 /* calculate CRC16 */
                 wCrcVal = phDnldNfc_CalcCrc16((pDlContext->tCmdRspFrameInfo.aFrameBuff),wFrameLen);
 

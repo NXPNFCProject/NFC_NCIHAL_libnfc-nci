@@ -130,7 +130,9 @@ extern void nfa_sys_cback_notify_enable_complete (UINT8 id);
 extern void nfa_sys_notify_nfcc_power_mode (UINT8 nfcc_power_mode);
 extern void nfa_sys_cback_reg_nfcc_power_mode_proc_complete (tNFA_SYS_PROC_NFCC_PWR_MODE_CMPL *p_cback);
 extern void nfa_sys_cback_notify_nfcc_power_mode_proc_complete (UINT8 id);
-
+#if(NXP_EXTNS == TRUE)
+extern void nfa_sys_cback_notify_MinEnable_complete (UINT8 id);
+#endif
 #ifdef __cplusplus
 }
 #endif

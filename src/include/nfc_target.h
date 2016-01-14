@@ -559,14 +559,18 @@
 #endif
 
 /* Timeout for waiting for the response to HCP Command packet */
-#ifndef NFA_HCI_RESPONSE_TIMEOUT
 #if(NXP_EXTNS == TRUE)
+#ifndef NFA_HCI_RESPONSE_TIMEOUT
 /*
  * NOTE : HCI Response will be received only after Credit Ntf is received.
  *        If credit Ntf timeout is triggered then response timer will also be stopped.
  *        So NFA_HCI_RESPONSE_TIMEOUT should always NFC_NCI_WAIT_DATA_NTF_TOUT + 1s
  * */
 #define NFA_HCI_RESPONSE_TIMEOUT    3000
+#endif
+#else
+#ifndef NFA_HCI_RESPONSE_TIMEOUT
+#define NFA_HCI_RESPONSE_TIMEOUT    1000
 #endif
 #endif
 
@@ -702,6 +706,7 @@
 /* Maximum number of AID entries per target_handle  */
 #ifndef NFA_EE_MAX_AID_ENTRIES
 #if(NXP_EXTNS == TRUE)
+#define NFA_EE_MIN_AID_SIZE         (5)
 #if(NFC_NXP_CHIP_TYPE != PN547C2)
 #define NFA_EE_MAX_AID_ENTRIES      (50)
 #else

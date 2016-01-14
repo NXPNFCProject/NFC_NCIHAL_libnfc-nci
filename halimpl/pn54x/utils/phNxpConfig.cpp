@@ -63,6 +63,7 @@ const char transport_config_path[] = "res/";
 #define     IsStringValue       0x80000000
 
 const char config_timestamp_path[] = "/data/nfc/libnfc-nxpConfigState.bin";
+const char default_nxp_config_path[] = "/etc/libnfc-nxp.conf";
 
 using namespace::std;
 
@@ -222,7 +223,10 @@ bool CNfcConfig::readConfig(const char* name, bool bResetContent)
         return false;
     }
     stat(name, &buf);
-    m_timeStamp = (unsigned long)buf.st_mtime;
+    if(strcmp(default_nxp_config_path, name) == 0)
+    {
+        m_timeStamp = (unsigned long)buf.st_mtime;
+    }
 
     mValidFile = true;
     if (size() > 0)

@@ -206,7 +206,36 @@ void NfcAdaptation::Initialize ()
     InitializeHalDeviceContext ();
     ALOGD ("%s: exit", func);
 }
+#if(NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function:    NfcAdaptation::MinInitialize()
+**
+** Description: class initializer
+**
+** Returns:     none
+**
+*******************************************************************************/
+void NfcAdaptation::MinInitialize ()
+{
+    const char* func = "NfcAdaptation::MinInitialize";
+    ALOGD("%s: enter", func);
+    GKI_init ();
+    GKI_enable ();
+    GKI_create_task ((TASKPTR)NFCA_TASK, BTU_TASK, (INT8*)"NFCA_TASK", 0, 0, (pthread_cond_t*)NULL, NULL);
+    {
+        AutoThreadMutex guard(mCondVar);
+        GKI_create_task ((TASKPTR)Thread, MMI_TASK, (INT8*)"NFCA_THREAD", 0, 0, (pthread_cond_t*)NULL, NULL);
+        mCondVar.wait();
+    }
 
+    mHalDeviceContext = NULL;
+    mHalCallback =  NULL;
+    memset (&mHalEntryFuncs, 0, sizeof(mHalEntryFuncs));
+    InitializeHalDeviceContext ();
+    ALOGD ("%s: exit", func);
+}
+#endif
 /*******************************************************************************
 **
 ** Function:    NfcAdaptation::Finalize()
@@ -336,14 +365,13 @@ void NfcAdaptation::InitializeHalDeviceContext ()
     mHalEntryFuncs.close = HalClose;
     mHalEntryFuncs.core_initialized = HalCoreInitialized;
     mHalEntryFuncs.write = HalWrite;
-#if((NFC_POWER_MANAGEMENT == TRUE)&&(NXP_EXTNS == TRUE))
+#if(NXP_EXTNS == TRUE)
     mHalEntryFuncs.ioctl = HalIoctl;
 #endif
     mHalEntryFuncs.prediscover = HalPrediscover;
     mHalEntryFuncs.control_granted = HalControlGranted;
     mHalEntryFuncs.power_cycle = HalPowerCycle;
     mHalEntryFuncs.get_max_ee = HalGetMaxNfcee;
-
     ret = hw_get_module (nci_hal_module, &hw_module);
     if (ret == 0)
     {
@@ -408,7 +436,6 @@ void NfcAdaptation::HalOpen (tHAL_NFC_CBACK *p_hal_cback, tHAL_NFC_DATA_CBACK* p
         mHalDeviceContext->open (mHalDeviceContext, HalDeviceContextCallback, HalDeviceContextDataCallback);
     }
 }
-
 /*******************************************************************************
 **
 ** Function:    NfcAdaptation::HalClose
@@ -483,7 +510,7 @@ void NfcAdaptation::HalWrite (UINT16 data_len, UINT8* p_data)
     }
 }
 
-#if((NFC_POWER_MANAGEMENT == TRUE)&&(NXP_EXTNS == TRUE))
+#if(NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function:    NfcAdaptation::HalIoctl
@@ -640,7 +667,7 @@ void NfcAdaptation::DownloadFirmware ()
     const char* func = "NfcAdaptation::DownloadFirmware";
     ALOGD ("%s: enter", func);
 #if (NXP_EXTNS == TRUE)
-    static UINT8 cmd_reset_nci[] = {0x20,0x00,0x01,0x01};
+    static UINT8 cmd_reset_nci[] = {0x20,0x00,0x01,0x00};
     static UINT8 cmd_init_nci[]  = {0x20,0x01,0x00};
     static UINT8 cmd_reset_nci_size = sizeof(cmd_reset_nci) / sizeof(UINT8);
     static UINT8 cmd_init_nci_size  = sizeof(cmd_init_nci)  / sizeof(UINT8);

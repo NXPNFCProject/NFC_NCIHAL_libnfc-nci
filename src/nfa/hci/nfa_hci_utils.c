@@ -385,7 +385,7 @@ tNFA_STATUS nfa_hciu_send_msg (UINT8 pipe_id, UINT8 type, UINT8 instruction, UIN
                 p_buf->len++;
             }
 
-            if (data_len != 0)
+            if ((data_len != 0)&&(p_msg != NULL))
             {
                 memcpy (p_data, p_msg, data_len);
 

@@ -258,7 +258,8 @@ tNFA_DM_API_REG_NDEF_HDLR *nfa_dm_ndef_find_next_handler (tNFA_DM_API_REG_NDEF_H
     {
         /* Check if TNF matches */
         if (  (p_cb->p_ndef_handler[i])
-            &&(p_cb->p_ndef_handler[i]->tnf == tnf)  )
+            &&(p_cb->p_ndef_handler[i]->tnf == tnf)
+            &&(p_type_name != NULL)  )
         {
             /* TNF matches. */
             /* If handler is for a specific URI type, check if type is WKT URI, */

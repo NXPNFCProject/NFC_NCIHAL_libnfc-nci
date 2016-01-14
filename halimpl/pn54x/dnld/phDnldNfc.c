@@ -1105,7 +1105,7 @@ NFCSTATUS phDnldNfc_LoadFW(const char* pathName, uint8_t **pImgInfo, uint16_t* p
     void* pImageInfo = NULL;
     void* pImageInfoLen = NULL;
 
-#if(NFC_NXP_CHIP_TYPE != PN547C2)
+#if(NFC_NXP_CHIP_TYPE == PN548C2)
     /* check for path name */
     if(pathName == NULL)
     {
