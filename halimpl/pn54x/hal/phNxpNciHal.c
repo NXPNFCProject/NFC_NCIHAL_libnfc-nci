@@ -1147,9 +1147,9 @@ int phNxpNciHal_core_initialized(uint8_t* p_core_init_rsp_params)
     uint8_t fw_dwnld_flag = FALSE, setConfigAlways = FALSE;
 
     /* Temp fix to re-apply the proper clock setting */
-     int temp_fix = 1;
-#if(NFC_NXP_CHIP_TYPE == PN548C2)
+    int temp_fix = 1;
     unsigned long num = 0;
+#if(NFC_NXP_CHIP_TYPE == PN548C2)
     //initialize dummy FW recovery variables
     gRecFwRetryCount = 0;
     gRecFWDwnld = 0;
