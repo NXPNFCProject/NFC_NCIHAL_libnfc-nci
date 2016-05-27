@@ -271,7 +271,7 @@ tNFA_STATUS nfa_dm_check_set_config (UINT8 tlv_list_len, UINT8 *p_tlv_list, BOOL
     tNFC_STATUS nfc_status;
     UINT32 cur_bit;
 
-    NFA_TRACE_DEBUG0 ("nfa_dm_check_set_config ()");
+    NFA_TRACE_DEBUG1 ("nfa_dm_check_set_config () tlv_len=%d",tlv_list_len);
 
     /* We only allow 32 pending SET_CONFIGs */
     if (nfa_dm_cb.setcfg_pending_num >= NFA_DM_SETCONFIG_PENDING_MAX)
@@ -290,6 +290,13 @@ tNFA_STATUS nfa_dm_check_set_config (UINT8 tlv_list_len, UINT8 *p_tlv_list, BOOL
 
         switch (type)
         {
+        /*
+        **  Poll F Configuration
+        */
+        case NFC_PMID_PF_RC:
+            p_stored = nfa_dm_cb.params.pf_rc;
+            max_len  = NCI_PARAM_LEN_PF_RC;
+            break;
         case NFC_PMID_TOTAL_DURATION:
             p_stored = nfa_dm_cb.params.total_duration;
             max_len  = NCI_PARAM_LEN_TOTAL_DURATION;
@@ -490,6 +497,13 @@ tNFA_STATUS nfa_dm_check_set_config (UINT8 tlv_list_len, UINT8 *p_tlv_list, BOOL
        || ((appl_dta_mode_flag) && (app_init)))
 #endif
     {
+#if(NXP_EXTNS == TRUE)
+        NFA_TRACE_DEBUG1 ("nfa_dm_check_set_config () updated_len=%d",updated_len);
+        if(!updated_len)
+        {
+            return NFA_STATUS_OK;
+        }
+#endif
         if ((nfc_status = NFC_SetConfig (updated_len, p_tlv_list)) == NFC_STATUS_OK)
         {
             /* Keep track of whether we will need to notify NFA_DM_SET_CONFIG_EVT on NFC_SET_CONFIG_REVT */

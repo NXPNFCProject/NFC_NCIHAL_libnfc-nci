@@ -181,6 +181,7 @@
 /**********************************************
  * NCI Interface Types
  **********************************************/
+#define NCI_INTERFACE_VS_MIFARE         0x80
 #define NCI_INTERFACE_VS_CALYPSO_CE     0x81
 #define NCI_INTERFACE_VS_T2T_CE         0x82    /* for Card Emulation side */
 #define NCI_INTERFACE_VS_15693          0x83    /* for both Reader/Writer and Card Emulation side */

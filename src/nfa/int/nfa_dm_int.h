@@ -486,6 +486,8 @@ typedef struct
     UINT8 atr_req_gen_bytes_len;
     UINT8 atr_res_gen_bytes[NCI_MAX_GEN_BYTES_LEN];
     UINT8 atr_res_gen_bytes_len;
+
+    UINT8 pf_rc[NCI_PARAM_LEN_PF_RC];
 } tNFA_DM_PARAMS;
 
 /*
@@ -569,7 +571,7 @@ extern UINT8 *p_nfa_dm_gen_cfg;
 extern UINT8 nfa_ee_max_ee_cfg;
 extern tNCI_DISCOVER_MAPS *p_nfa_dm_interface_mapping;
 extern UINT8 nfa_dm_num_dm_interface_mapping;
-
+extern BOOLEAN nfa_poll_bail_out_mode;
 #if(NXP_EXTNS == TRUE)
 void nfa_dm_poll_disc_cback_dta_wrapper(tNFA_DM_RF_DISC_EVT event, tNFC_DISCOVER *p_data);
 extern unsigned char appl_dta_mode_flag;
@@ -633,6 +635,7 @@ BOOLEAN nfa_dm_tout (tNFA_DM_MSG *p_data);
 BOOLEAN nfa_dm_act_reg_vsc (tNFA_DM_MSG *p_data);
 BOOLEAN nfa_dm_act_send_vsc (tNFA_DM_MSG *p_data);
 #if(NXP_EXTNS == TRUE)
+void nfa_dm_p2p_prio_logic_disable ();
 BOOLEAN nfa_dm_act_send_nxp(tNFA_DM_MSG *p_data);
 UINT16 nfa_dm_act_get_rf_disc_duration ();
 #endif
@@ -680,5 +683,7 @@ void nfa_dm_deact_ntf_timeout();
 char *nfa_dm_nfc_revt_2_str (tNFC_RESPONSE_EVT event);
 #endif
 
-
+#if((NXP_EXTNS == TRUE) && (NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == TRUE))
+tNFC_STATUS nfc_ncif_reset_nfcc();
+#endif
 #endif /* NFA_DM_INT_H */

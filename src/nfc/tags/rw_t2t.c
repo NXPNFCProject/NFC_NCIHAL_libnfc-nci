@@ -102,7 +102,7 @@ static void rw_t2t_proc_data (UINT8 conn_id, tNFC_DATA_CEVT *p_data)
 #endif
         evt_data.status = p_data->status;
         evt_data.p_data = p_pkt;
-        (*rw_cb.p_cback) (RW_T2T_RAW_FRAME_EVT, (tRW_DATA *)&evt_data);
+        (*rw_cb.p_cback) (RW_T2T_RAW_FRAME_EVT, (void *)&evt_data);
         return;
     }
 #if (defined (RW_STATS_INCLUDED) && (RW_STATS_INCLUDED == TRUE))
@@ -249,13 +249,13 @@ static void rw_t2t_proc_data (UINT8 conn_id, tNFC_DATA_CEVT *p_data)
             ndef_data.cur_size  = 0;
             /* Move back to idle state */
             rw_t2t_handle_op_complete ();
-            (*rw_cb.p_cback) (rw_event, (tRW_DATA *) &ndef_data);
+            (*rw_cb.p_cback) (rw_event, (void *) &ndef_data);
         }
         else
         {
             /* Move back to idle state */
             rw_t2t_handle_op_complete ();
-            (*rw_cb.p_cback) (rw_event, (tRW_DATA *) &evt_data);
+            (*rw_cb.p_cback) (rw_event, (void *) &evt_data);
         }
     }
 
@@ -332,6 +332,12 @@ void rw_t2t_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data)
             rw_t2t_proc_data (conn_id, &(p_data->data));
             break;
         }
+        else if((p_data != NULL) && (p_data->data.p_data != NULL))
+        {
+        /* Free the response buffer in case of invalid response*/
+            GKI_freebuf((BT_HDR *) (p_data->data.p_data));
+            p_data->data.p_data = NULL;
+        }
         /* Data event with error status...fall through to NFC_ERROR_CEVT case */
 
     case NFC_ERROR_CEVT:
@@ -350,7 +356,7 @@ void rw_t2t_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data)
                 evt_data.status = NFC_STATUS_FAILED;
 
             evt_data.p_data = NULL;
-            (*rw_cb.p_cback) (RW_T2T_INTF_ERROR_EVT, (tRW_DATA *) &evt_data);
+            (*rw_cb.p_cback) (RW_T2T_INTF_ERROR_EVT, (void *) &evt_data);
             break;
         }
         nfc_stop_quick_timer (&p_t2t->t2_timer);
@@ -374,12 +380,6 @@ void rw_t2t_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data)
         {
             rw_t2t_process_error ();
         }
-#if(NXP_EXTNS == TRUE)
-        /* Free the response buffer in case of invalid response*/
-        if (p_data != NULL) {
-                GKI_freebuf((BT_HDR *) (p_data->data.p_data));
-        }
-#endif
         break;
 
     default:
@@ -471,6 +471,7 @@ void rw_t2t_process_timeout (TIMER_LIST_ENT *p_tle)
 {
     tRW_READ_DATA       evt_data;
     tRW_T2T_CB          *p_t2t          = &rw_cb.tcb.t2t;
+    (void)p_tle;
 
     if (p_t2t->state == RW_T2T_STATE_CHECK_PRESENCE)
     {
@@ -497,7 +498,7 @@ void rw_t2t_process_timeout (TIMER_LIST_ENT *p_tle)
             rw_t2t_handle_op_complete ();
             evt_data.status = NFC_STATUS_OK;
             evt_data.p_data = NULL;
-            (*rw_cb.p_cback) (RW_T2T_SELECT_CPLT_EVT, (tRW_DATA *) &evt_data);
+            (*rw_cb.p_cback) (RW_T2T_SELECT_CPLT_EVT, (void *) &evt_data);
         }
         else
         {
@@ -623,7 +624,7 @@ static void rw_t2t_process_error (void)
         /* If not Halt move to idle state */
         rw_t2t_handle_op_complete ();
 
-        (*rw_cb.p_cback) (rw_event, (tRW_DATA *) &ndef_data);
+        (*rw_cb.p_cback) (rw_event, (void *) &ndef_data);
     }
     else
     {
@@ -633,7 +634,7 @@ static void rw_t2t_process_error (void)
             rw_t2t_handle_op_complete ();
 
         p_t2t->substate = RW_T2T_SUBSTATE_NONE;
-        (*rw_cb.p_cback) (rw_event, (tRW_DATA *) &evt_data);
+        (*rw_cb.p_cback) (rw_event, (void *) &evt_data);
     }
 }
 
@@ -654,7 +655,7 @@ void rw_t2t_handle_presence_check_rsp (tNFC_STATUS status)
     evt_data.status = status;
     rw_t2t_handle_op_complete ();
 
-    (*rw_cb.p_cback) (RW_T2T_PRESENCE_CHECK_EVT, (tRW_DATA *) &evt_data);
+    (*rw_cb.p_cback) (RW_T2T_PRESENCE_CHECK_EVT, (void *) &evt_data);
 }
 
 /*******************************************************************************
@@ -706,7 +707,7 @@ static void rw_t2t_resume_op (void)
             evt_data.status = NFC_STATUS_FAILED;
             event = rw_t2t_info_to_event (p_cmd_rsp_info);
             rw_t2t_handle_op_complete ();
-            (*rw_cb.p_cback) (event, (tRW_DATA *) &evt_data);
+            (*rw_cb.p_cback) (event, (void *) &evt_data);
         }
     }
 }

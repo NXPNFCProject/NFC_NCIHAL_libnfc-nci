@@ -21,6 +21,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <nfa_nv_ci.h>
 #include "buildcfg.h"
 #include "nfa_nv_co.h"
 #include "config.h"

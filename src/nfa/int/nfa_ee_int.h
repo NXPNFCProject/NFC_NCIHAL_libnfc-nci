@@ -122,7 +122,7 @@ enum
 };
 typedef UINT8 tNFA_EE_CONN_ST;
 #if(NXP_EXTNS == TRUE)
-#if(NFC_NXP_CHIP_TYPE == PN548C2)
+#if((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
 #define NFA_EE_ROUT_BUF_SIZE            720
 #else
 #define NFA_EE_ROUT_BUF_SIZE            200
@@ -141,10 +141,12 @@ typedef UINT8 tNFA_EE_CONN_ST;
 
 #define NFA_EE_NUM_TECH     3
 #if(NXP_EXTNS == TRUE)
+#define NFA_UICC_ID 0x02
+#define NFA_ESE_ID  0xC0
 #define NFA_EE_BUFFER_FUTURE_EXT     15
 #define NFA_EE_PROTO_ROUTE_ENTRY_SIZE    5
 #define NFA_EE_TECH_ROUTE_ENTRY_SIZE    5
-#if(NFC_NXP_CHIP_TYPE == PN548C2)
+#if((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
 /**
  * Max Routing Table Size = 720
  * After allocating size for Technology based routing and Protocol based routing,
@@ -216,23 +218,25 @@ typedef struct
      * the aid_len is the total length of all the TLVs associated with this AID entry
      */
 #if(NXP_EXTNS == TRUE)
-#if((!(NFC_NXP_CHIP_TYPE == PN547C2)) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
+#if(((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551)) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
     UINT8                   *aid_len;           /* the actual lengths in aid_cfg */
     UINT8                   *aid_pwr_cfg;       /* power configuration of this AID entry */
     UINT8                   *aid_rt_info;       /* route/vs info for this AID entry */
     UINT8                   *aid_rt_loc;         /* route location info for this AID entry */
+    UINT8                   *aid_cfg;            /* routing entries based on AID */
 #else
     UINT8                   aid_rt_loc[NFA_EE_MAX_AID_ENTRIES];/* route location info for this AID entry */
     UINT8                   aid_len[NFA_EE_MAX_AID_ENTRIES];/* the actual lengths in aid_cfg */
     UINT8                   aid_pwr_cfg[NFA_EE_MAX_AID_ENTRIES];/* power configuration of this AID entry */
     UINT8                   aid_rt_info[NFA_EE_MAX_AID_ENTRIES];/* route/vs info for this AID entry */
+    UINT8                   aid_cfg[NFA_EE_MAX_AID_CFG_LEN];/* routing entries based on AID */
 #endif
 #else
     UINT8                   aid_len[NFA_EE_MAX_AID_ENTRIES];/* the actual lengths in aid_cfg */
     UINT8                   aid_pwr_cfg[NFA_EE_MAX_AID_ENTRIES];/* power configuration of this AID entry */
     UINT8                   aid_rt_info[NFA_EE_MAX_AID_ENTRIES];/* route/vs info for this AID entry */
-#endif
     UINT8                   aid_cfg[NFA_EE_MAX_AID_CFG_LEN];/* routing entries based on AID */
+#endif
     UINT8                   aid_entries;        /* The number of AID entries in aid_cfg */
     UINT8                   nfcee_id;           /* ID for this NFCEE */
     UINT8                   ee_status;          /* The NFCEE status */

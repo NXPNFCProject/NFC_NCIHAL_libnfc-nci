@@ -245,54 +245,57 @@ tNFC_STATUS RW_SetActivatedTagType (tNFC_ACTIVATE_DEVT *p_activate_params, tRW_C
 #endif  /* RW_STATS_INCLUDED */
 
     rw_cb.p_cback = p_cback;
-    switch (p_activate_params->protocol)
-    {
     /* not a tag NFC_PROTOCOL_NFCIP1:   NFCDEP/LLCP - NFC-A or NFC-F */
-    case NFC_PROTOCOL_T1T:    /* Type1Tag    - NFC-A */
+    if (NFC_PROTOCOL_T1T == p_activate_params->protocol)
+    {
+    /* Type1Tag    - NFC-A */
         if (p_activate_params->rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A)
         {
             status = rw_t1t_select (p_activate_params->rf_tech_param.param.pa.hr,
                                     p_activate_params->rf_tech_param.param.pa.nfcid1);
         }
-        break;
-
-    case NFC_PROTOCOL_T2T:   /* Type2Tag    - NFC-A */
+    }
+    else if (NFC_PROTOCOL_T2T == p_activate_params->protocol)
+    {
+    /* Type2Tag    - NFC-A */
         if (p_activate_params->rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A)
         {
             if (p_activate_params->rf_tech_param.param.pa.sel_rsp == NFC_SEL_RES_NFC_FORUM_T2T)
                 status      = rw_t2t_select ();
         }
-        break;
-
-    case NFC_PROTOCOL_T3T:   /* Type3Tag    - NFC-F */
+    }
+    else if (NFC_PROTOCOL_T3T == p_activate_params->protocol)
+    {
+        /* Type3Tag    - NFC-F */
         if (p_activate_params->rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_F)
         {
             status = rw_t3t_select (p_activate_params->rf_tech_param.param.pf.nfcid2,
                                     p_activate_params->rf_tech_param.param.pf.mrti_check,
                                     p_activate_params->rf_tech_param.param.pf.mrti_update);
         }
-        break;
-
-    case NFC_PROTOCOL_ISO_DEP:     /* ISODEP/4A,4B- NFC-A or NFC-B */
+    }
+    else if (NFC_PROTOCOL_ISO_DEP == p_activate_params->protocol
 #if(NXP_EXTNS == TRUE)
-    case NFC_PROTOCOL_T3BT:
+    ||    NFC_PROTOCOL_T3BT == p_activate_params->protocol
 #endif
+    )
+    {
+        /* ISODEP/4A,4B- NFC-A or NFC-B */
         if (  (p_activate_params->rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_B)
             ||(p_activate_params->rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A)  )
         {
             status          = rw_t4t_select ();
         }
-        break;
-
-    case NFC_PROTOCOL_15693:     /* ISO 15693 */
+    }
+    else if (NFC_PROTOCOL_15693 == p_activate_params->protocol)
+    {   /* ISO 15693 */
         if (p_activate_params->rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_ISO15693)
         {
             status          = rw_i93_select (p_activate_params->rf_tech_param.param.pi93.uid);
         }
-        break;
-    /* TODO set up callback for proprietary protocol */
-
-    default:
+    }
+    else
+    {
         RW_TRACE_ERROR0 ("RW_SetActivatedTagType Invalid protocol");
     }
 

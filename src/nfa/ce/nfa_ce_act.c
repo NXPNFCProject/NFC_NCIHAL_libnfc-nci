@@ -70,6 +70,20 @@ void nfa_ce_handle_t3t_evt (tCE_EVENT event, tCE_DATA *p_ce_data)
     tNFA_CONN_EVT_DATA conn_evt;
 
     NFA_TRACE_DEBUG1 ("nfa_ce_handle_t3t_evt: event 0x%x", event);
+#if(NXP_EXTNS == TRUE && NXP_NFCC_HCE_F == TRUE)
+    UINT8 listen_info_idx;
+    /*Fix: for the felica on host for nfcFcallback*/
+    for (listen_info_idx=0; listen_info_idx<NFA_CE_LISTEN_INFO_IDX_INVALID; listen_info_idx++)
+            {
+                if ((p_cb->listen_info[listen_info_idx].flags & NFA_CE_LISTEN_INFO_IN_USE) &&
+                    (p_cb->listen_info[listen_info_idx].flags & NFA_CE_LISTEN_INFO_FELICA))
+                {
+                    p_cb->idx_cur_active      = listen_info_idx;
+                    p_cb->p_active_conn_cback = p_cb->listen_info[p_cb->idx_cur_active].p_conn_cback;
+                    break;
+                }
+            }
+#endif
 
     switch (event)
     {
@@ -281,7 +295,7 @@ void nfa_ce_discovery_cback (tNFA_DM_RF_DISC_EVT event, tNFC_DISCOVER *p_data)
 #endif
         ce_msg.activate_ntf.hdr.event = NFA_CE_ACTIVATE_NTF_EVT;
         ce_msg.activate_ntf.p_activation_params = &p_data->activate;
-        nfa_ce_hdl_event ((BT_HDR *) &ce_msg);
+        nfa_ce_hdl_event ((void *) &ce_msg);
         break;
 
     case NFA_DM_RF_DISC_DEACTIVATED_EVT:
@@ -294,7 +308,7 @@ void nfa_ce_discovery_cback (tNFA_DM_RF_DISC_EVT event, tNFC_DISCOVER *p_data)
             /*clear the p61 ce*/
             nfa_ee_ce_p61_active = 0;
 #endif
-            nfa_ce_hdl_event ((BT_HDR *) &ce_msg);
+            nfa_ce_hdl_event ((void *) &ce_msg);
         }
         break;
 
@@ -321,7 +335,11 @@ void nfc_ce_t3t_set_listen_params (void)
     UINT8 tlv_size;
     UINT16 t3t_flags2_mask = 0xFFFF;        /* Mask of which T3T_IDs are disabled */
     UINT8 t3t_idx = 0;
+
+#if(NXP_EXTNS == TRUE && NXP_NFCC_HCE_F == TRUE)
     UINT8 adv_Feat = 1;
+#endif
+
     /* Point to start of tlv buffer */
     p_params = tlv;
 
@@ -346,17 +364,19 @@ void nfc_ce_t3t_set_listen_params (void)
     /* For NCI draft 22+, the polarity of NFC_PMID_LF_T3T_FLAGS2 is flipped */
     t3t_flags2_mask = ~t3t_flags2_mask;
 
+#if(NFC_NXP_CHIP_TYPE != PN547C2)
+    NFA_TRACE_DEBUG0 (" LF_T3T_FLAGS swap for NCI specification compliance");
+    t3t_flags2_mask = ((t3t_flags2_mask >> 8)  | (t3t_flags2_mask << 8));
+#endif
+
     UINT8_TO_STREAM (p_params, NFC_PMID_LF_T3T_FLAGS2);      /* type */
     UINT8_TO_STREAM (p_params, NCI_PARAM_LEN_LF_T3T_FLAGS2); /* length */
-#if (NXP_EXTNS == TRUE)
-
-
+#if ((NXP_EXTNS == TRUE) && (NXP_NFCC_HCE_F == TRUE))
 //FelicaOnHost
     UINT16_TO_BE_STREAM (p_params, t3t_flags2_mask);
     UINT8_TO_STREAM (p_params, NCI_PARAM_ID_LF_CON_ADV_FEAT);      /* type */
     UINT8_TO_STREAM (p_params, NCI_PARAM_LEN_LF_CON_ADV_FEAT); /* length */
     UINT8_TO_STREAM (p_params, adv_Feat);            /* Mask of IDs to disable listening */
-
 #else
     UINT16_TO_STREAM (p_params, t3t_flags2_mask);            /* Mask of IDs to disable listening */
 #endif

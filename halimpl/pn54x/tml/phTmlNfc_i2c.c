@@ -85,7 +85,7 @@ NFCSTATUS phTmlNfc_i2c_open_and_configure(pphTmlNfc_Config_t pConfig, void ** pL
 
     NXPLOG_TML_D("Opening port=%s\n", pConfig->pDevName);
     /* open port */
-    nHandle = open((char const *)pConfig->pDevName, O_RDWR);
+    nHandle = open((const char *)pConfig->pDevName, O_RDWR);
     if (nHandle < 0)
     {
         NXPLOG_TML_E("_i2c_open() Failed: retval %x",nHandle);
@@ -455,6 +455,41 @@ NFCSTATUS phTmlNfc_i2c_get_p61_power_state(void *pDevHandle)
     wStatus = p61_current_state;
     return wStatus;
 }
+/*******************************************************************************
+**
+** Function         phTmlNfc_get_ese_access
+**
+** Description
+**
+** Parameters       pDevHandle     - valid device handle
+**                  timeout - timeout to wait for ese access
+**
+** Returns          success or failure
+**
+*******************************************************************************/
+NFCSTATUS phTmlNfc_get_ese_access(void *pDevHandle, long timeout)
+{
+    int ret = -1;
+    NFCSTATUS status = NFCSTATUS_SUCCESS;
+    NXPLOG_TML_D("phTmlNfc_get_ese_access(), enter timeout  %ld", timeout);
+
+    if (NULL == pDevHandle)
+    {
+        return NFCSTATUS_FAILED;
+    }
+
+    ret = ioctl((intptr_t)pDevHandle, P544_GET_ESE_ACCESS, timeout);
+    if (ret < 0)
+    {
+        if (ret == -EBUSY)
+            status = NFCSTATUS_BUSY;
+        else
+            status = NFCSTATUS_FAILED;
+    }
+    NXPLOG_TML_D("phTmlNfc_get_ese_access(), exit ret %d, status %d", ret, status);
+    return status;
+}
+
 #endif
 /*******************************************************************************
 **

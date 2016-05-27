@@ -204,7 +204,7 @@ NFC_API extern void nfc_reset_all_conn_cbs (void)
         if (p_conn_cb->conn_id != NFC_ILLEGAL_CONN_ID)
         {
             if (p_conn_cb->p_cback)
-                (*p_conn_cb->p_cback) (p_conn_cb->conn_id, NFC_DEACTIVATE_CEVT, (tNFC_CONN *) &deact);
+                (*p_conn_cb->p_cback) (p_conn_cb->conn_id, NFC_DEACTIVATE_CEVT, (void *) &deact);
             nfc_free_conn_cb (p_conn_cb);
         }
     }

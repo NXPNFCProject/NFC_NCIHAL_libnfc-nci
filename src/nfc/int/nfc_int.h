@@ -83,10 +83,11 @@ extern "C" {
 #define NFC_TTYPE_RW_T4T_RESPONSE           107
 #define NFC_TTYPE_RW_I93_RESPONSE           108
 #define NFC_TTYPE_CE_T4T_UPDATE             109
-#if(NXP_EXTNS == TRUE)
+
 #define NFC_TTYPE_P2P_PRIO_RESPONSE         110  /* added for p2p prio logic timer */
-#define NFC_TTYPE_LISTEN_ACTIVATION         111  /* added for listen activation timer */
 #define NFC_TTYPE_P2P_PRIO_LOGIC_CLEANUP    112  /* added for p2p prio logic clenaup */
+#if(NXP_EXTNS == TRUE)
+#define NFC_TTYPE_LISTEN_ACTIVATION         111  /* added for listen activation timer */
 #define NFC_TTYPE_P2P_PRIO_LOGIC_DEACT_NTF_TIMEOUT 113
 #endif
 #define NFC_TTYPE_VS_BASE                   200
@@ -107,11 +108,26 @@ enum
     NFC_STATE_NFCC_POWER_OFF_SLEEP  /* NFCC is power-off sleep mode             */
 };
 typedef UINT8 tNFC_STATE;
+
+/* DM P2P Priority event type */
+enum
+{
+    NFA_DM_P2P_PRIO_RSP = 0x01,         /* P2P priority event from RSP   */
+    NFA_DM_P2P_PRIO_NTF          /* P2P priority event from NTF   */
+};
 enum
 {
     I2C_FRAGMENATATION_ENABLED,     /*i2c fragmentation_enabled           */
     I2C_FRAGMENTATION_DISABLED      /*i2c_fragmentation_disabled          */
 };
+#if((NXP_EXTNS == TRUE) && (NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == TRUE))
+/*Get or Set swp activation state for UICC*/
+typedef enum
+{
+    GET_UICC_CONFIG = 0x01,         /*get swp activation state for UICC  */
+    SET_UICC_CONFIG                 /*set swp activation state for UICC  */
+}uicc_config_t;
+#endif
 /* NFC control block flags */
 #define NFC_FL_DEACTIVATING             0x0001  /* NFC_Deactivate () is called and the NCI cmd is not sent   */
 #define NFC_FL_RESTARTING               0x0002  /* restarting NFCC after PowerOffSleep          */
@@ -336,16 +352,19 @@ NFC_API extern void nfc_ncif_proc_get_config_rsp (BT_HDR *p_msg);
 NFC_API extern void nfc_ncif_proc_data (BT_HDR *p_msg);
 #if(NXP_EXTNS == TRUE)
 NFC_API extern tNFC_STATUS nfc_ncif_store_FWVersion(UINT8 * p_buf);
-#if((!(NFC_NXP_CHIP_TYPE == PN547C2)) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
+#if(((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551)) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
 NFC_API extern tNFC_STATUS nfc_ncif_set_MaxRoutingTableSize(UINT8 * p_buf);
 #endif
-NFC_API extern BOOLEAN nfa_dm_p2p_prio_logic(UINT8 event, UINT8 *p, UINT8 ntf_rsp);
+
 NFC_API extern void nfc_ncif_update_window (void);
-NFC_API extern void nfa_dm_p2p_timer_event ();
+
 NFC_API extern void nfc_ncif_empty_cmd_queue ();
 NFC_API extern BOOLEAN nfc_ncif_proc_proprietary_rsp (UINT8 mt, UINT8 gid, UINT8 oid);
 NFC_API extern void nfc_ncif_proc_rf_wtx_ntf (UINT8 *p, UINT16 plen);
 #endif
+NFC_API extern BOOLEAN nfa_dm_p2p_prio_logic(UINT8 event, UINT8 *p, UINT8 ntf_rsp);
+NFC_API extern void nfa_dm_p2p_timer_event ();
+NFC_API extern void nfa_dm_p2p_prio_logic_cleanup ();
 
 #if (NFC_RW_ONLY == FALSE)
 NFC_API extern void nfc_ncif_proc_rf_field_ntf (UINT8 rf_status);

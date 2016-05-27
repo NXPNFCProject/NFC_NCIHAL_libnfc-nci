@@ -219,13 +219,12 @@ tLLCP_STATUS llcp_link_activate (tLLCP_ACTIVATE_CONFIG *p_config)
 
         if (p_msg)
         {
-            p_msg->len    = LLCP_PDU_SYMM_SIZE;
+            /*LLCP test scenario requires non LLC PDU to be sent in case of wrong magic bytes.
+              So sending NFC-DEP pdu with size 1 (0x00)*/
+            p_msg->len    = 1;
             p_msg->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
 
             p = (UINT8 *) (p_msg + 1) + p_msg->offset;
-            UINT16_TO_BE_STREAM (p, LLCP_GET_PDU_HEADER (LLCP_SAP_LM, LLCP_PDU_SYMM_TYPE, LLCP_SAP_LM ));
-
-            llcp_cb.lcb.symm_state = LLCP_LINK_SYMM_REMOTE_XMIT_NEXT;
             NFC_SendData (NFC_RF_CONN_ID, p_msg);
         }
     }
@@ -1761,6 +1760,8 @@ static void llcp_link_send_to_lower (BT_HDR *p_pdu)
 *******************************************************************************/
 void llcp_link_connection_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data)
 {
+    (void)conn_id;
+
     if (event == NFC_DATA_CEVT)
     {
 #if (BT_TRACE_PROTOCOL == TRUE)

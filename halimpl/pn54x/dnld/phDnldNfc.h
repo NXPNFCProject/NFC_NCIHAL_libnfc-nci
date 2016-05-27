@@ -42,6 +42,8 @@ typedef void (*pphDnldNfc_RspCb_t)(void* pContext, NFCSTATUS wStatus,void* pInfo
 #define PHDNLDNFC_HWVER_MRA2_2       (0x05U)   /* ChipVersion MRA2.2 */
 
 #define PHDNLDNFC_HWVER_PN548AD_MRA1_0       (0x08U)   /* PN548AD ChipVersion MRA1.0 */
+
+#define PHDNLDNFC_HWVER_PN551_MRA1_0         (0x08U)   /* PN551 ChipVersion MRA1.0 */
 /*
  * Enum definition contains Download Life Cycle States
  */
@@ -104,7 +106,7 @@ extern NFCSTATUS phDnldNfc_LoadRecInfo(void);
 extern NFCSTATUS phDnldNfc_LoadPKInfo(void);
 extern void phDnldNfc_CloseFwLibHandle(void);
 extern NFCSTATUS phDnldNfc_LoadFW(const char* pathName, uint8_t **pImgInfo, uint16_t* pImgInfoLen);
-#if(NFC_NXP_CHIP_TYPE == PN548C2)
+#if(NFC_NXP_CHIP_TYPE != PN547C2)
 extern NFCSTATUS phDnldNfc_LoadRecoveryFW(const char* pathName, uint8_t **pImgInfo, uint16_t* pImgInfoLen);
 #endif
 extern NFCSTATUS phDnldNfc_UnloadFW(void);

@@ -30,8 +30,8 @@ const UINT8 nfa_dm_ce_cfg[] =
     13,                         /* total length */
     NFC_PMID_LF_T3T_PMM,        /* Type-3 tag default PMM */
     NCI_PARAM_LEN_LF_T3T_PMM,
-    0x20,
-    0x79,
+    0x01,                       /* This PAD0 is used to identify HCE-F on Android */
+    0xFE,                       /* This PAD0 is used to identify HCE-F on Android */
     0xFF,
     0xFF,
     0xFF,
@@ -121,3 +121,39 @@ const tNFA_HCI_CFG nfa_hci_cfg =
 };
 
 tNFA_HCI_CFG *p_nfa_hci_cfg = (tNFA_HCI_CFG *) &nfa_hci_cfg;
+
+BOOLEAN nfa_poll_bail_out_mode = FALSE;
+const tNFA_PROPRIETARY_CFG nfa_proprietary_cfg =
+{
+#if(NXP_EXTNS == TRUE)
+    0x05, /* NCI_PROTOCOL_18092_ACTIVE */
+#else
+    0x80,
+#endif
+    0x81, /* NCI_PROTOCOL_B_PRIME */
+    0x82, /* NCI_PROTOCOL_DUAL */
+#if(NXP_EXTNS == TRUE)
+    0x06,
+#else
+    0x83, /* NCI_PROTOCOL_15693 */
+#endif
+#if(NXP_EXTNS == TRUE && NFC_NXP_CHIP_TYPE != PN547C2)
+    0x81,
+#else
+    0x8A, /* NCI_PROTOCOL_KOVIO */
+#endif
+#if(NXP_EXTNS == TRUE)
+    0x80,
+#else
+    0xFF, /* NCI_PROTOCOL_MIFARE */
+#endif
+#if(NXP_EXTNS == TRUE && NFC_NXP_CHIP_TYPE != PN547C2)
+    0x70,
+#else
+    0x77, /* NCI_DISCOVERY_TYPE_POLL_KOVIO */
+#endif
+    0x74, /* NCI_DISCOVERY_TYPE_POLL_B_PRIME */
+    0xF4, /* NCI_DISCOVERY_TYPE_LISTEN_B_PRIME */
+};
+
+tNFA_PROPRIETARY_CFG *p_nfa_proprietary_cfg = (tNFA_PROPRIETARY_CFG *) &nfa_proprietary_cfg;

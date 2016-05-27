@@ -1435,6 +1435,7 @@ static void handle_debug_loopback (BT_HDR *p_buf, UINT8 pipe, UINT8 type, UINT8 
 {
     UINT8 *p = (UINT8 *) (p_buf + 1) + p_buf->offset;
     static UINT8  next_pipe = 0x10;
+    (void)pipe;
 
     if (type == NFA_HCI_COMMAND_TYPE)
     {

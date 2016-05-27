@@ -1331,6 +1331,8 @@ UINT8 NFA_SetTraceLevel (UINT8 new_level)
 *******************************************************************************/
 void NFA_SetReaderMode (BOOLEAN ReaderModeFlag, UINT32 Technologies)
 {
+    (void)Technologies;
+
     NFA_TRACE_API1 ("NFA_SetReaderMode =0x%x", ReaderModeFlag);
     gFelicaReaderMode = ReaderModeFlag;
     return;
@@ -1371,7 +1373,7 @@ tNFA_MW_VERSION NFA_GetMwVersion ()
 {
     tNFA_MW_VERSION mwVer;
     mwVer.validation = ( NXP_EN_PN547C2 | (NXP_EN_PN65T << 1) | (NXP_EN_PN548C2 << 2) |
-                        (NXP_EN_PN66T << 3));
+                        (NXP_EN_PN66T << 3) | (NXP_EN_PN551 << 4) | (NXP_EN_PN67T << 5));
     mwVer.android_version = NXP_ANDROID_VER;
     NFA_TRACE_API1("0x%x:NFC MW Major Version:", NFC_NXP_MW_VERSION_MAJ);
     NFA_TRACE_API1("0x%x:NFC MW Minor Version:", NFC_NXP_MW_VERSION_MIN);
@@ -1380,4 +1382,82 @@ tNFA_MW_VERSION NFA_GetMwVersion ()
     NFA_TRACE_API2("mwVer:Major=0x%x,Minor=0x%x", mwVer.major_version,mwVer.minor_version);
     return mwVer;
 }
+
+#if(NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == TRUE)
+/*******************************************************************************
+**
+** Function:        NFA_ResetNfcc
+**
+** Description:     Reset the NFCC
+**
+** Returns:         NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_FAILED otherwise
+**
+*******************************************************************************/
+tNFA_STATUS NFA_ResetNfcc()
+{
+    tNFA_STATUS status = NFA_STATUS_FAILED;
+    status = nfc_ncif_reset_nfcc();
+    return status;
+}
+
+/*******************************************************************************
+**
+** Function:        NFA_EE_HCI_Control
+**
+** Description:     Enable/Disable EE&HCI subsystem based on mode flag.
+**                  Since NFCC reset being done, to receive Ntf corresponding to
+**                  UICC/ESE, EE and HCI Network has to be reset.
+**                  In MW corresponding context will be cleared and re-initialized
+**
+** Returns:         none:
+**
+*******************************************************************************/
+void NFA_EE_HCI_Control(BOOLEAN flagEnable)
+{
+    uint8_t id[2] = {NFA_ID_HCI, NFA_ID_EE};
+    uint8_t i = 0;
+    if(!flagEnable)
+    {
+        NFA_TRACE_DEBUG0 ("NFA_EE_HCI_Control (); Disable system");
+        nfa_sys_cb.graceful_disable = TRUE;
+        for(i=0; i<2; i++)
+        {
+            if (nfa_sys_cb.is_reg[id[i]])
+            {
+                if (nfa_sys_cb.reg[id[i]]->disable != NULL)
+                {
+                    (*nfa_sys_cb.reg[id[i]]->disable) ();
+                }
+                else
+                {
+                    nfa_sys_deregister (id[i]);;
+                }
+            }
+        }
+    }
+    else
+    {
+        nfa_ee_init();
+        nfa_hci_init();
+
+        NFA_TRACE_DEBUG0 ("NFA_EE_HCI_Control (); Enable system");
+        for(i=0; i<2; i++)
+        {
+            if (nfa_sys_cb.is_reg[id[i]])
+            {
+                if (nfa_sys_cb.reg[id[i]]->enable != NULL)
+                {
+                    (*nfa_sys_cb.reg[id[i]]->enable) ();
+                }
+                else
+                {
+                    nfa_sys_cback_notify_enable_complete (id[i]);
+                }
+            }
+        }
+
+    }
+}
+#endif
 #endif

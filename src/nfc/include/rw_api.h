@@ -123,8 +123,8 @@ enum
     RW_T4T_PRESENCE_CHECK_EVT,                  /* Response to RW_T4tPresenceCheck          */
     RW_T4T_RAW_FRAME_EVT,                       /* Response of raw frame sent               */
     RW_T4T_INTF_ERROR_EVT,                      /* RF Interface error event                 */
-#if(NXP_EXTNS == TRUE)
     RW_T4T_NDEF_FORMAT_CPLT_EVT,                /* Format operation completed               */
+#if(NXP_EXTNS == TRUE)
     RW_T4T_RAW_FRAME_RF_WTX_EVT,                /* Received RF WTX for raw frame sent       */
 #endif
     RW_T4T_MAX_EVT,
@@ -873,7 +873,6 @@ NFC_API extern tNFC_STATUS RW_T3tPresenceCheck (void);
 *****************************************************************************/
 NFC_API extern tNFC_STATUS RW_T3tGetSystemCodes (void);
 
-#if(NXP_EXTNS == TRUE)
 /*****************************************************************************
 **
 ** Function         RW_T4tFormatNDef
@@ -889,7 +888,6 @@ NFC_API extern tNFC_STATUS RW_T3tGetSystemCodes (void);
 **      NFC_STATUS_FAILED: other error
 *****************************************************************************/
 NFC_API extern tNFC_STATUS RW_T4tFormatNDef (void);
-#endif
 
 /*******************************************************************************
 **

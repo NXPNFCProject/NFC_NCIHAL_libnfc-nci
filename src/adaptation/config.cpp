@@ -46,7 +46,11 @@
 const char transport_config_path[] = "/etc/";
 
 #define config_name             "libnfc-brcm.conf"
+#if(NXP_EXTNS == TRUE)
+#define extra_config_base       "libnfc-"
+#else
 #define extra_config_base       "libnfc-brcm-"
+#endif
 #define extra_config_ext        ".conf"
 #define     IsStringValue       0x80000000
 
@@ -72,8 +76,7 @@ class CNfcConfig : public vector<const CNfcParam*>
 public:
     virtual ~CNfcConfig();
     static CNfcConfig& GetInstance();
-    friend void readOptionalConfig(const char* optional);
-
+    friend void readOptionalConfigExt(const char* optional);
     bool    getValue(const char* name, char* pValue, size_t& len) const;
     bool    getValue(const char* name, unsigned long& rValue) const;
     bool    getValue(const char* name, unsigned short & rValue) const;
@@ -416,6 +419,10 @@ CNfcConfig& CNfcConfig::GetInstance()
         strPath.assign(transport_config_path);
         strPath += config_name;
         theInstance.readConfig(strPath.c_str(), true);
+#if(NXP_EXTNS == TRUE)
+        readOptionalConfigExt("nxp");
+#endif
+
     }
 
     return theInstance;
@@ -758,7 +765,7 @@ extern void resetConfig()
 ** Returns:     none
 **
 *******************************************************************************/
-void readOptionalConfig(const char* extra)
+void readOptionalConfigExt(const char* extra)
 {
     string strPath;
     strPath.assign(transport_config_path);

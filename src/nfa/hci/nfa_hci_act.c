@@ -1744,7 +1744,7 @@ void nfa_hci_handle_admin_gate_evt (UINT8 *p_data)
 {
     tNFA_HCI_EVT_DATA           evt_data;
     tNFA_HCI_API_GET_HOST_LIST  *p_msg;
-
+    (void)p_data;
     if (nfa_hci_cb.inst != NFA_HCI_EVT_HOT_PLUG)
     {
         NFA_TRACE_ERROR0 ("nfa_hci_handle_admin_gate_evt - Unknown event on ADMIN Pipe");
@@ -2002,6 +2002,7 @@ static void nfa_hci_handle_generic_gate_cmd (UINT8 *p_data, UINT8 data_len, tNFA
 {
     tNFA_HCI_EVT_DATA   evt_data;
     tNFA_HANDLE         app_handle = nfa_hciu_get_pipe_owner (p_pipe->pipe_id);
+    (void)p_gate;
 
     switch (nfa_hci_cb.inst)
     {
@@ -2072,6 +2073,7 @@ static void nfa_hci_handle_generic_gate_rsp (UINT8 *p_data, UINT8 data_len, tNFA
 {
     tNFA_HCI_EVT_DATA   evt_data;
     tNFA_STATUS         status = NFA_STATUS_OK;
+    (void)p_gate;
 
     if (nfa_hci_cb.inst != NFA_HCI_ANY_OK)
         status = NFA_STATUS_FAILED;

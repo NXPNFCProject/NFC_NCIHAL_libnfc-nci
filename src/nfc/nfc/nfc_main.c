@@ -87,15 +87,16 @@ extern void nfa_dm_init_cfgs (phNxpNci_getCfg_info_t* mGetCfg_info);
 tNFC_CB nfc_cb;
 #endif
 UINT8 i2c_fragmentation_enabled = 0xff;
+
 #if (NFC_RW_ONLY == FALSE)
 #if(NXP_EXTNS == TRUE)
 #if(NFC_NXP_CHIP_TYPE != PN547C2)
-#define NFC_NUM_INTERFACE_MAP   4
-#else
 #define NFC_NUM_INTERFACE_MAP   3
+#else
+#define NFC_NUM_INTERFACE_MAP   2
 #endif
 #else
-#define NFC_NUM_INTERFACE_MAP   3
+#define NFC_NUM_INTERFACE_MAP   2
 #endif
 #else
 #define NFC_NUM_INTERFACE_MAP   1
@@ -119,12 +120,6 @@ static const tNCI_DISCOVER_MAPS nfc_interface_mapping[NFC_NUM_INTERFACE_MAP] =
     }
 #endif
 #if(NXP_EXTNS == TRUE)
-    ,
-    {
-        NCI_PROTOCOL_MIFARE,
-        NCI_INTERFACE_MODE_POLL,
-        NCI_INTERFACE_MIFARE
-    }
 #if(NFC_NXP_CHIP_TYPE != PN547C2)
     ,
     /* This mapping is for Felica on DH  */
@@ -295,11 +290,7 @@ void nfc_enabled (tNFC_STATUS nfc_status, BT_HDR *p_init_rsp_msg)
         {
             if ((*p) <= NCI_INTERFACE_MAX)
                 evt_data.enable.nci_interfaces |= (1 << (*p));
-            #if(NXP_EXTNS == TRUE)
             else if (((*p) >= NCI_INTERFACE_FIRST_VS) && (yy < NFC_NFCC_MAX_NUM_VS_INTERFACE))
-            #else
-            else if (((*p) > NCI_INTERFACE_FIRST_VS) && (yy < NFC_NFCC_MAX_NUM_VS_INTERFACE))
-            #endif
             {
                 /* save the VS RF interface in control block, if there's still room */
                 nfc_cb.vs_interface[yy++] = *p;
@@ -430,7 +421,6 @@ void nfc_gen_cleanup (void)
 void nfc_main_handle_hal_evt (tNFC_HAL_EVT_MSG *p_msg)
 {
     UINT8  *ps;
-
     NFC_TRACE_DEBUG1 ("nfc_main_handle_hal_evt(): HAL event=0x%x", p_msg->hal_evt);
 
     switch (p_msg->hal_evt)
@@ -488,12 +478,15 @@ void nfc_main_handle_hal_evt (tNFC_HAL_EVT_MSG *p_msg)
                     if(mGetCfg_info == NULL)
                     {
                         mGetCfg_info = (phNxpNci_getCfg_info_t*)malloc(sizeof(phNxpNci_getCfg_info_t));
-                        memset(mGetCfg_info,0x00,sizeof(phNxpNci_getCfg_info_t));
+                        if(mGetCfg_info  != NULL)
+                        {
+                            memset(mGetCfg_info,0x00,sizeof(phNxpNci_getCfg_info_t));
+                            nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_GET_CONFIG_INFO,(void *)mGetCfg_info);
+                            nfa_dm_init_cfgs(mGetCfg_info);
+                            free(mGetCfg_info);
+                            mGetCfg_info = NULL;
+                        }
                     }
-                    nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_GET_CONFIG_INFO,(void *)mGetCfg_info);
-                    nfa_dm_init_cfgs(mGetCfg_info);
-                    free(mGetCfg_info);
-                    mGetCfg_info = NULL;
 #endif
                 }
                 else /* if post initailization failed */
@@ -684,7 +677,9 @@ static void nfc_main_hal_cback(UINT8 event, tHAL_NFC_STATUS status)
 #else
     NFC_TRACE_DEBUG2 ("nfc_main_hal_cback event: 0x%x, status=%d", event, status);
 #endif
-
+#if(NXP_EXTNS == TRUE)
+    tNFC_RESPONSE eventData;
+#endif
     switch (event)
     {
     case HAL_NFC_OPEN_CPLT_EVT:
@@ -714,6 +709,22 @@ static void nfc_main_hal_cback(UINT8 event, tHAL_NFC_STATUS status)
     case HAL_NFC_ERROR_EVT:
 #if(NXP_EXTNS == TRUE)
     case HAL_NFC_POST_MIN_INIT_CPLT_EVT:
+
+        if(status == HAL_NFC_STATUS_ERR_CMD_TIMEOUT)
+        {
+            eventData.status = (tNFC_STATUS) NFC_STATUS_FAILED;
+            /* Notify app of transport error */
+            if (nfc_cb.p_resp_cback)
+            {
+                (*nfc_cb.p_resp_cback) (NFC_NFCC_TIMEOUT_REVT, &eventData);
+                /* if enabling NFC, notify upper layer of failure after closing HAL*/
+                if (nfc_cb.nfc_state < NFC_STATE_IDLE)
+                {
+                    nfc_enabled (NFC_STATUS_FAILED, NULL);
+                }
+            }
+            break;
+        }
 #endif
         nfc_main_post_hal_evt (event, status);
         break;
@@ -1614,6 +1625,37 @@ INT32 NFC_EnableWired (void *pdata)
     return (nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_P61_ENABLE_MODE, pdata));
 }
 
+#if((NFC_NXP_ESE_VER == JCOP_VER_3_1) || (NFC_NXP_ESE_VER == JCOP_VER_3_2))
+/*******************************************************************************
+**
+** Function         NFC_GetEseAccess
+**
+** Description      This function request to pn54x driver to get access
+**                  of P61. it returns 0 on success. This api waits maximum
+**                  defined timeout
+**
+** Returns          0 if api call success, else -1
+**
+*******************************************************************************/
+INT32 NFC_GetEseAccess (void *pdata)
+{
+    return (nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_P61_GET_ACCESS, pdata));
+}
+/*******************************************************************************
+**
+** Function         NFC_RelEseAccess
+**
+** Description      This function release access of P61.
+**                  it returns 0 on success.
+**
+** Returns          0 if api call success, else -1
+**
+*******************************************************************************/
+INT32 NFC_RelEseAccess (void *pdata)
+{
+    return (nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_P61_REL_ACCESS, pdata));
+}
+#endif
 #endif
 
 #if(NXP_EXTNS == TRUE)

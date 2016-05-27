@@ -373,7 +373,7 @@ typedef UINT8 tNCI_STATUS;
 #define NCI_INTERFACE_FIRST_VS          0x80
 #if (NXP_EXTNS == TRUE)
 #define NCI_INTERFACE_MIFARE            0x80
-#if (NFC_NXP_CHIP_TYPE != PN547C2)
+#if((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
 #define NCI_INTERFACE_UICC_DIRECT       0x82
 #define NCI_INTERFACE_ESE_DIRECT        0x83
 #else
@@ -412,53 +412,6 @@ typedef UINT8 tNCI_INTF_TYPE;
  * Proprietary Protocols
  **********************************************/
 #if (NXP_EXTNS == TRUE)
-#ifndef NCI_PROTOCOL_ISO7816
-#define NCI_PROTOCOL_ISO7816             0xA0
-#endif
-#ifndef NCI_PROTOCOL_MIFARE
-#define NCI_PROTOCOL_MIFARE             0x80
-#endif
-#ifndef NCI_PROTOCOL_18092_ACTIVE
-#define NCI_PROTOCOL_18092_ACTIVE       0x05
-#endif
-#else
-#ifndef NCI_PROTOCOL_MIFARE
-#define NCI_PROTOCOL_MIFARE             0xFF
-#endif
-#ifndef NCI_PROTOCOL_18092_ACTIVE
-#define NCI_PROTOCOL_18092_ACTIVE       0x80
-#endif
-#endif
-
-#ifndef NCI_PROTOCOL_B_PRIME
-#define NCI_PROTOCOL_B_PRIME            0x81
-#endif
-#ifndef NCI_PROTOCOL_DUAL
-#define NCI_PROTOCOL_DUAL               0x82
-#endif
-#if (NXP_EXTNS == TRUE)
-#ifndef NCI_PROTOCOL_15693
-#define NCI_PROTOCOL_15693              0x06
-#endif
-#else
-#ifndef NCI_PROTOCOL_15693
-#define NCI_PROTOCOL_15693              0x83
-#endif
-#endif
-
-
-#ifndef NCI_PROTOCOL_KOVIO
-#if (NXP_EXTNS == TRUE)
-#if(NFC_NXP_CHIP_TYPE != PN547C2)
-#define NCI_PROTOCOL_KOVIO              0x81
-#else
-#define NCI_PROTOCOL_KOVIO              0x8A
-#endif
-#else
-#define NCI_PROTOCOL_KOVIO              0x8A
-#endif
-#endif
-#if(NXP_EXTNS == TRUE)
 #ifndef NCI_PROTOCOL_T3BT
 #define NCI_PROTOCOL_T3BT               0x8b
 #endif
@@ -471,22 +424,11 @@ typedef UINT8 tNCI_INTF_TYPE;
 #define NCI_DISCOVERY_TYPE_POLL_F               0x02
 #define NCI_DISCOVERY_TYPE_POLL_A_ACTIVE        0x03
 #define NCI_DISCOVERY_TYPE_POLL_F_ACTIVE        0x05
-#define NCI_DISCOVERY_TYPE_POLL_B_PRIME         0x74
-#if (NXP_EXTNS == TRUE)
-#if(NFC_NXP_CHIP_TYPE != PN547C2)
-#define NCI_DISCOVERY_TYPE_POLL_KOVIO           0x70
-#else
-#define NCI_DISCOVERY_TYPE_POLL_KOVIO           0x77
-#endif
-#else
-#define NCI_DISCOVERY_TYPE_POLL_KOVIO           0x77
-#endif
 #define NCI_DISCOVERY_TYPE_LISTEN_A             0x80
 #define NCI_DISCOVERY_TYPE_LISTEN_B             0x81
 #define NCI_DISCOVERY_TYPE_LISTEN_F             0x82
 #define NCI_DISCOVERY_TYPE_LISTEN_A_ACTIVE      0x83
 #define NCI_DISCOVERY_TYPE_LISTEN_F_ACTIVE      0x85
-#define NCI_DISCOVERY_TYPE_LISTEN_B_PRIME       0xF4
 #define NCI_DISCOVERY_TYPE_POLL_ISO15693        0x06
 #define NCI_DISCOVERY_TYPE_LISTEN_ISO15693      0x86
 #define NCI_DISCOVERY_TYPE_MAX  NCI_DISCOVERY_TYPE_LISTEN_ISO15693
@@ -543,6 +485,7 @@ typedef UINT8 tNCI_DISCOVERY_TYPE;
 #define NCI_PARAM_ID_PB_BAILOUT         0x11
 #define NCI_PARAM_ID_PB_ATTRIB_PARAM1   0x12
 #define NCI_PARAM_ID_PF_BIT_RATE        0x18
+#define NCI_PARAM_ID_PF_RC              0x19
 #define NCI_PARAM_ID_PB_H_INFO          0x20
 #define NCI_PARAM_ID_PI_BIT_RATE        0x21
 
@@ -618,6 +561,8 @@ typedef UINT8 tNCI_DISCOVERY_TYPE;
 
 #define NCI_PARAM_LEN_PA_FSDI               1
 
+#define NCI_PARAM_LEN_PF_RC                 1
+
 #define NCI_PARAM_LEN_LA_BIT_FRAME_SDD      1
 #define NCI_PARAM_LEN_LA_PLATFORM_CONFIG    1
 #define NCI_PARAM_LEN_LA_SEL_INFO           1
@@ -632,7 +577,7 @@ typedef UINT8 tNCI_DISCOVERY_TYPE;
 #define NCI_PARAM_LEN_LF_T3T_PMM            8
 #define NCI_PARAM_LEN_LF_T3T_ID            10
 #define NCI_PARAM_LEN_LF_CON_ADV_FEAT       1 //FelicaOnHost
-
+#define NCI_PARAM_LEN_LF_T3T_ID            10
 
 #define NCI_PARAM_LEN_FWI                   1
 #define NCI_PARAM_LEN_WT                    1

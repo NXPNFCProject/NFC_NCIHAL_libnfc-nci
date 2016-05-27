@@ -105,7 +105,9 @@ static nci_test_data_t swp2_test_data[] = {
 #endif
         },
         {
-#if(NFC_NXP_CHIP_TYPE == PN548C2)
+#if(NFC_NXP_CHIP_TYPE == PN551)
+            0x4, {0x40,0x01,0x19,0x00 } /* exp_rsp */
+#elif(NFC_NXP_CHIP_TYPE == PN548C2)
             0x4, {0x40,0x01,0x19,0x00 } /* exp_rsp */
 #else
             0x4, {0x40,0x01,0x17,0x00 }
@@ -175,7 +177,9 @@ static nci_test_data_t swp1_test_data[] = {
 #endif
         },
         {
-#if(NFC_NXP_CHIP_TYPE == PN548C2)
+#if(NFC_NXP_CHIP_TYPE == PN551)
+            0x4, {0x40,0x01,0x19,0x00 } /* exp_rsp */
+#elif(NFC_NXP_CHIP_TYPE == PN548C2)
             0x4, {0x40,0x01,0x19,0x00 } /* exp_rsp */
 #else
             0x4, {0x40,0x01,0x17,0x00 }
@@ -243,7 +247,9 @@ static nci_test_data_t prbs_test_data[] = {
 #endif
         },
         {
-#if(NFC_NXP_CHIP_TYPE == PN548C2)
+#if(NFC_NXP_CHIP_TYPE == PN551)
+            0x4, {0x40,0x01,0x19,0x00 } /* exp_rsp */
+#elif(NFC_NXP_CHIP_TYPE == PN548C2)
             0x4, {0x40,0x01,0x19,0x00 } /* exp_rsp */
 #else
             0x4, {0x40,0x01,0x17,0x00 } /* exp_rsp */
@@ -300,7 +306,9 @@ static nci_test_data_t rf_field_on_test_data[] = {
 #endif
         },
         {
-#if(NFC_NXP_CHIP_TYPE == PN548C2)
+#if(NFC_NXP_CHIP_TYPE == PN551)
+            0x4, {0x40,0x01,0x19,0x00 } /* exp_rsp */
+#elif(NFC_NXP_CHIP_TYPE == PN548C2)
             0x4, {0x40,0x01,0x19,0x00 } /* exp_rsp */
 #else
             0x4, {0x40,0x01,0x17,0x00 } /* exp_rsp */
@@ -401,7 +409,9 @@ static nci_test_data_t rf_field_off_test_data[] = {
 #endif
         },
         {
-#if(NFC_NXP_CHIP_TYPE == PN548C2)
+#if(NFC_NXP_CHIP_TYPE == PN551)
+            0x4, {0x40,0x01,0x19,0x00 } /* exp_rsp */
+#elif(NFC_NXP_CHIP_TYPE == PN548C2)
             0x4, {0x40,0x01,0x19,0x00 } /* exp_rsp */
 #else
             0x4, {0x40,0x01,0x17,0x00 } /* exp_rsp */
@@ -540,7 +550,9 @@ static nci_test_data_t antenna_self_test_data[] = {
 #endif
         },
         {
-#if(NFC_NXP_CHIP_TYPE == PN548C2)
+#if(NFC_NXP_CHIP_TYPE == PN551)
+            0x4, {0x40,0x01,0x19,0x00 } /* exp_rsp */
+#elif(NFC_NXP_CHIP_TYPE == PN548C2)
             0x4, {0x40,0x01,0x19,0x00 } /* exp_rsp */
 #else
             0x4, {0x40,0x01,0x17,0x00 } /* exp_rsp */
@@ -1175,6 +1187,7 @@ static void *phNxpNciHal_test_rx_thread(void *arg)
 
     NXPLOG_NCIHAL_D("Self test thread stopped");
 
+    pthread_exit(NULL);
     return NULL;
 }
 
@@ -1419,15 +1432,15 @@ NFCSTATUS phNxpNciHal_TestMode_open (void)
         NXPLOG_NCIHAL_E("malloc of nfc_dev_node failed ");
         goto clean_and_return;
     }
-    else if (!GetNxpStrValue (NAME_NXP_NFC_DEV_NODE, nfc_dev_node, sizeof (nfc_dev_node)))
+    else if (!GetNxpStrValue (NAME_NXP_NFC_DEV_NODE, (char*)nfc_dev_node, sizeof (nfc_dev_node)))
     {
         NXPLOG_NCIHAL_E("Invalid nfc device node name keeping the default device node /dev/pn544");
-        strcpy (nfc_dev_node, "/dev/pn544");
+        strcpy ((char *)nfc_dev_node, "/dev/pn544");
     }
 
     gDrvCfg.nClientId = phDal4Nfc_msgget(0, 0600);
     gDrvCfg.nLinkType = ENUM_LINK_TYPE_I2C;/* For PN54X */
-    tTmlConfig.pDevName = (uint8_t *) nfc_dev_node;
+    tTmlConfig.pDevName = (int8_t *) nfc_dev_node;
     tOsalConfig.dwCallbackThreadId = (uintptr_t) gDrvCfg.nClientId;
     tOsalConfig.pLogFile = NULL;
     tTmlConfig.dwGetMsgThreadId = (uintptr_t) gDrvCfg.nClientId;
@@ -1624,7 +1637,7 @@ NFCSTATUS phNxpNciHal_PrbsTestStart (phNxpNfc_Tech_t tech, phNxpNfc_Bitrate_t bi
 
     nci_test_data_t prbs_cmd_data;
 
-#if(NFC_NXP_CHIP_TYPE != PN547C2)
+#if((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
     uint8_t rsp_cmd_info[] = {0x4F, 0x30, 0x01, 0x00};
     prbs_cmd_data.cmd.len = 0x09;
 #else
@@ -1747,7 +1760,7 @@ NFCSTATUS phNxpNciHal_getPrbsCmd (uint8_t tech, uint8_t bitrate, uint8_t *prbs_c
 
     NXPLOG_NCIHAL_D("phNxpNciHal_getPrbsCmd - tech 0x%x bitrate = 0x%x", tech, bitrate);
     if(NULL == prbs_cmd ||
-#if(NFC_NXP_CHIP_TYPE != PN547C2)
+#if((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
             prbs_cmd_len != 0x09)
 #else
             prbs_cmd_len != 0x07)
@@ -1758,7 +1771,7 @@ NFCSTATUS phNxpNciHal_getPrbsCmd (uint8_t tech, uint8_t bitrate, uint8_t *prbs_c
 
     prbs_cmd[0] = 0x2F;
     prbs_cmd[1] = 0x30;
-#if(NFC_NXP_CHIP_TYPE != PN547C2)
+#if((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
     prbs_cmd[2] = 0x06;
     prbs_cmd[3] = (uint8_t)prbs_type;
     //0xFF Error value used for validation.

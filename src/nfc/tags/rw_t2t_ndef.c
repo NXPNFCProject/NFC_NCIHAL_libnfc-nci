@@ -320,14 +320,14 @@ static void rw_t2t_ntf_tlv_detect_complete (tNFC_STATUS status)
         }
 
         rw_t2t_handle_op_complete ();
-        (*rw_cb.p_cback) (RW_T2T_NDEF_DETECT_EVT, (tRW_DATA *) &ndef_data);
+        (*rw_cb.p_cback) (RW_T2T_NDEF_DETECT_EVT, (void *) &ndef_data);
     }
     else if (p_t2t->tlv_detect == TAG_PROPRIETARY_TLV)
     {
         evt_data.msg_len = p_t2t->prop_msg_len;
         evt_data.status  = status;
         rw_t2t_handle_op_complete ();
-        (*rw_cb.p_cback) (RW_T2T_TLV_DETECT_EVT, (tRW_DATA *) &evt_data);
+        (*rw_cb.p_cback) (RW_T2T_TLV_DETECT_EVT, (void *) &evt_data);
     }
     else
     {
@@ -347,7 +347,7 @@ static void rw_t2t_ntf_tlv_detect_complete (tNFC_STATUS status)
         }
         tlv_data.status     = status;
         rw_t2t_handle_op_complete ();
-        (*rw_cb.p_cback) (RW_T2T_TLV_DETECT_EVT, (tRW_DATA *) &tlv_data);
+        (*rw_cb.p_cback) (RW_T2T_TLV_DETECT_EVT, (void *) &tlv_data);
     }
 
 }
@@ -1657,7 +1657,7 @@ static void rw_t2t_handle_ndef_read_rsp (UINT8 *p_data)
         evt_data.status = failed ? NFC_STATUS_FAILED : NFC_STATUS_OK;
         evt_data.p_data = NULL;
         rw_t2t_handle_op_complete ();
-        (*rw_cb.p_cback) (RW_T2T_NDEF_READ_EVT, (tRW_DATA *) &evt_data);
+        (*rw_cb.p_cback) (RW_T2T_NDEF_READ_EVT, (void *) &evt_data);
     }
 }
 
@@ -1829,7 +1829,7 @@ static void rw_t2t_handle_ndef_write_rsp (UINT8 *p_data)
             p_t2t->ndef_msg_len = p_t2t->new_ndef_msg_len;
         }
         rw_t2t_handle_op_complete ();
-        (*rw_cb.p_cback) (RW_T2T_NDEF_WRITE_EVT, (tRW_DATA *) &evt_data);
+        (*rw_cb.p_cback) (RW_T2T_NDEF_WRITE_EVT, (void *) &evt_data);
     }
 }
 

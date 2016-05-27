@@ -1,10 +1,3 @@
-# function to find all *.cpp files under a directory
-define all-cpp-files-under
-$(patsubst ./%,%, \
-  $(shell cd $(LOCAL_PATH) ; \
-          find $(1) -name "*.cpp" -and -not -name ".*") \
- )
-endef
 
 
 LOCAL_PATH:= $(call my-dir)
@@ -14,15 +7,22 @@ NFC := src/nfc
 HAL := src/hal
 UDRV := src/udrv
 
-D_CFLAGS := -DANDROID -DBUILDCFG=1
+D_CFLAGS := -DANDROID -DBUILDCFG=1 \
+    -Wno-deprecated-register \
+    -Wno-unused-parameter \
 
 #Enable NXP Specific
 D_CFLAGS += -DNXP_EXTNS=TRUE
-
+D_CFLAGS += -DNFC_NXP_STAT_DUAL_UICC_EXT_SWITCH=TRUE
 D_CFLAGS += -DNFC_NXP_AID_MAX_SIZE_DYN=TRUE
+
+#Enable HCE-F specific
+D_CFLAGS += -DNXP_NFCC_HCE_F=TRUE
+
 #variables for NFC_NXP_CHIP_TYPE
 PN547C2 := 1
 PN548C2 := 2
+PN551   := 3
 
 NQ110 := $PN547C2
 NQ120 := $PN547C2
@@ -35,17 +35,16 @@ endif
 ifeq ($(PN548C2),2)
 D_CFLAGS += -DPN548C2=2
 endif
+ifeq ($(PN551),3)
+D_CFLAGS += -DPN551=3
+endif
 
 #### Select the JCOP OS Version ####
-JCOP_VER_3_0 := 1
-JCOP_VER_3_1_1 := 2
-JCOP_VER_3_1_2 := 3
-JCOP_VER_3_2 := 4
-JCOP_VER_3_3 := 5
+JCOP_VER_3_1 := 1
+JCOP_VER_3_2 := 2
+JCOP_VER_3_3 := 3
 
-LOCAL_CFLAGS += -DJCOP_VER_3_0=$(JCOP_VER_3_0)
-LOCAL_CFLAGS += -DJCOP_VER_3_1_1=$(JCOP_VER_3_1_1)
-LOCAL_CFLAGS += -DJCOP_VER_3_1_2=$(JCOP_VER_3_1_2)
+LOCAL_CFLAGS += -DJCOP_VER_3_1=$(JCOP_VER_3_1)
 LOCAL_CFLAGS += -DJCOP_VER_3_2=$(JCOP_VER_3_2)
 LOCAL_CFLAGS += -DJCOP_VER_3_3=$(JCOP_VER_3_3)
 
@@ -58,12 +57,14 @@ LOCAL_CFLAGS += -DNFC_NXP_ESE=TRUE
 endif
 
 #### Select the CHIP ####
-NXP_CHIP_TYPE := $(PN548C2)
+NXP_CHIP_TYPE := $(PN551)
 
 ifeq ($(NXP_CHIP_TYPE),$(PN547C2))
 D_CFLAGS += -DNFC_NXP_CHIP_TYPE=PN547C2
 else ifeq ($(NXP_CHIP_TYPE),$(PN548C2))
 D_CFLAGS += -DNFC_NXP_CHIP_TYPE=PN548C2
+else ifeq ($(NXP_CHIP_TYPE),$(PN551))
+D_CFLAGS += -DNFC_NXP_CHIP_TYPE=PN551
 endif
 
 #Gemalto SE support
@@ -77,7 +78,6 @@ D_CFLAGS += -DNFC_NXP_LISTEN_ROUTE_TBL_OPTIMIZATION=TRUE
 
 LOCAL_ARM_MODE := arm
 LOCAL_MODULE := libnfc-nci
-LOCAL_MODULE_TAGS := optional
 LOCAL_SHARED_LIBRARIES := libhardware_legacy libcutils liblog libdl libhardware
 LOCAL_CFLAGS += $(D_CFLAGS)
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/src/include \

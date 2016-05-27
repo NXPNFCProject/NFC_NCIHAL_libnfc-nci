@@ -89,6 +89,8 @@ static void rw_t1t_data_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_
 #if (BT_TRACE_VERBOSE == TRUE)
     UINT8                   begin_state         = p_t1t->state;
 #endif
+    (void)conn_id;
+    (void)event;
 
     p_pkt = (BT_HDR *) (p_data->data.p_data);
     if (p_pkt == NULL)
@@ -281,6 +283,11 @@ void rw_t1t_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data)
         {
             rw_t1t_data_cback (conn_id, event, p_data);
             break;
+        }else if((p_data != NULL) && (p_data->data.p_data != NULL))
+        {
+        /* Free the response buffer in case of invalid response*/
+            GKI_freebuf((BT_HDR *) (p_data->data.p_data));
+            p_data->data.p_data = NULL;
         }
         /* Data event with error status...fall through to NFC_ERROR_CEVT case */
 
@@ -300,7 +307,7 @@ void rw_t1t_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data)
                 evt_data.status = NFC_STATUS_FAILED;
 
             evt_data.p_data = NULL;
-            (*rw_cb.p_cback) (RW_T1T_INTF_ERROR_EVT, (tRW_DATA *) &evt_data);
+            (*rw_cb.p_cback) (RW_T1T_INTF_ERROR_EVT, (void *) &evt_data);
             break;
         }
         nfc_stop_quick_timer (&p_t1t->timer);
@@ -317,14 +324,6 @@ void rw_t1t_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data)
         {
             rw_t1t_process_error ();
         }
-#if(NXP_EXTNS == TRUE)
-        if((p_data != NULL) && (p_data->data.p_data != NULL))
-        {
-            /* Free the response buffer in case of invalid response*/
-            GKI_freebuf((BT_HDR *) (p_data->data.p_data));
-            p_data->data.p_data = NULL;
-        }
-#endif
         break;
 
     default:
@@ -503,10 +502,6 @@ static tRW_EVENT rw_t1t_handle_rid_rsp (BT_HDR *p_pkt)
 
     /* Fetch UID0-3 from RID response message */
     STREAM_TO_ARRAY (p_t1t->mem,  p_rid_rsp, T1T_CMD_UID_LEN);
-#if(NXP_EXTNS == TRUE)
-    /* Free the RID response buffer */
-    GKI_freebuf (p_pkt);
-#endif
 
     /* Notify RID response Event */
     return RW_T1T_RID_EVT;
@@ -561,6 +556,7 @@ tNFC_STATUS rw_t1t_select (UINT8 hr[T1T_HR_LEN], UINT8 uid[T1T_CMD_UID_LEN])
 void rw_t1t_process_timeout (TIMER_LIST_ENT *p_tle)
 {
     tRW_T1T_CB        *p_t1t  = &rw_cb.tcb.t1t;
+    (void)p_tle;
 
 #if (BT_TRACE_VERBOSE == TRUE)
     RW_TRACE_ERROR2 ("T1T timeout. state=%s command (opcode)=0x%02x ", rw_t1t_get_state_name (p_t1t->state), (rw_cb.tcb.t1t.p_cmd_rsp_info)->opcode);
@@ -676,12 +672,12 @@ static void rw_t1t_process_error (void)
         ndef_data.flags     = RW_NDEF_FL_UNKNOWN;
         ndef_data.max_size  = 0;
         ndef_data.cur_size  = 0;
-        (*rw_cb.p_cback) (rw_event, (tRW_DATA *) &ndef_data);
+        (*rw_cb.p_cback) (rw_event, (void *) &ndef_data);
     }
     else
     {
         evt_data.p_data = NULL;
-        (*rw_cb.p_cback) (rw_event, (tRW_DATA *) &evt_data);
+        (*rw_cb.p_cback) (rw_event, (void *) &evt_data);
     }
 }
 
@@ -702,7 +698,7 @@ void rw_t1t_handle_presence_check_rsp (tNFC_STATUS status)
     evt_data.status = status;
     rw_t1t_handle_op_complete ();
 
-    (*(rw_cb.p_cback)) (RW_T1T_PRESENCE_CHECK_EVT, (tRW_DATA *) &evt_data);
+    (*(rw_cb.p_cback)) (RW_T1T_PRESENCE_CHECK_EVT, (void *) &evt_data);
 }
 
 /*****************************************************************************

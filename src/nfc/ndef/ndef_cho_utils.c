@@ -600,6 +600,8 @@ static UINT8 *ndef_get_bt_oob_record (UINT8 *p_msg, UINT32 max_size, UINT32 *p_c
 {
     UINT8  *p_rec, *p_type;
     UINT8   id_len, tnf, type_len;
+    (void)(max_size);
+    (void)(p_cur_size);
 
     /* find record by Payload ID */
     id_len = (UINT8)strlen (p_id_str);

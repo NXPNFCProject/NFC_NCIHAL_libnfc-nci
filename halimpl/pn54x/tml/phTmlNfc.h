@@ -106,7 +106,8 @@ typedef enum
     phTmlNfc_e_SetP61WiredMode, /* Set the current P61 mode of operation to Wired*/
     phTmlNfc_e_SetP61IdleMode, /* Set the current P61 mode of operation to Idle*/
     phTmlNfc_e_SetP61DisableMode, /* Set the ese vdd gpio to low*/
-    phTmlNfc_e_SetP61EnableMode /* Set the ese vdd gpio to high*/
+    phTmlNfc_e_SetP61EnableMode, /* Set the ese vdd gpio to high*/
+    phTmlNfc_e_RelP61Access /*Release the P61 lock*/
 
 #endif
 } phTmlNfc_ControlCode_t ;  /* Control code for IOCTL call */
@@ -211,6 +212,7 @@ NFCSTATUS phTmlNfc_Read(uint8_t *pBuffer, uint16_t wLength, pphTmlNfc_TransactCo
 NFCSTATUS phTmlNfc_WriteAbort(void);
 NFCSTATUS phTmlNfc_ReadAbort(void);
 NFCSTATUS phTmlNfc_IoCtl(phTmlNfc_ControlCode_t eControlCode);
+NFCSTATUS phTmlNfc_get_ese_access(void *pDevHandle, long timeout);
 void phTmlNfc_DeferredCall(uintptr_t dwThreadId, phLibNfc_Message_t *ptWorkerMsg);
 void phTmlNfc_ConfigNciPktReTx( phTmlNfc_ConfigRetrans_t eConfig, uint8_t bRetryCount);
 void phTmlNfc_set_fragmentation_enabled(phTmlNfc_i2cfragmentation_t enable);

@@ -202,6 +202,8 @@ void nfa_p2p_discovery_cback (tNFA_DM_RF_DISC_EVT event, tNFC_DISCOVER *p_data)
 *******************************************************************************/
 static void nfa_p2p_update_active_listen_timeout_cback (TIMER_LIST_ENT *p_tle)
 {
+    (void)p_tle;
+
     NFA_TRACE_ERROR0 ("nfa_p2p_update_active_listen_timeout_cback()");
 
     /* restore active listen mode */
@@ -329,7 +331,7 @@ void nfa_p2p_llcp_link_cback (UINT8 event, UINT8 reason)
         llcp_activated.remote_wks      = LLCP_GetRemoteWKS ();
         llcp_activated.remote_version  = LLCP_GetRemoteVersion ();
 
-        nfa_dm_act_conn_cback_notify (NFA_LLCP_ACTIVATED_EVT, (tNFA_CONN_EVT_DATA *) &llcp_activated);
+        nfa_dm_act_conn_cback_notify (NFA_LLCP_ACTIVATED_EVT, (void *) &llcp_activated);
 
     }
     else if (event == LLCP_LINK_ACTIVATION_FAILED_EVT)
@@ -387,7 +389,7 @@ void nfa_p2p_llcp_link_cback (UINT8 event, UINT8 reason)
         }
 
         llcp_deactivated.reason = reason;
-        nfa_dm_act_conn_cback_notify (NFA_LLCP_DEACTIVATED_EVT, (tNFA_CONN_EVT_DATA *)&llcp_deactivated);
+        nfa_dm_act_conn_cback_notify (NFA_LLCP_DEACTIVATED_EVT, (void *)&llcp_deactivated);
 
         if (reason != LLCP_LINK_RF_LINK_LOSS_ERR) /* if NFC link is still up */
         {

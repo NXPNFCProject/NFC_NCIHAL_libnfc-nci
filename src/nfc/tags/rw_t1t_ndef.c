@@ -644,7 +644,7 @@ tNFC_STATUS rw_t1t_handle_read_rsp (BOOLEAN *p_notify, UINT8 *p_data)
             evt_data.status = status;
             evt_data.p_data = NULL;
             rw_t1t_handle_op_complete ();
-            (*rw_cb.p_cback) (RW_T1T_NDEF_READ_EVT, (tRW_DATA *) &evt_data);
+            (*rw_cb.p_cback) (RW_T1T_NDEF_READ_EVT, (void *) &evt_data);
         }
         break;
 
@@ -663,7 +663,7 @@ tNFC_STATUS rw_t1t_handle_read_rsp (BOOLEAN *p_notify, UINT8 *p_data)
                     tlv_data.num_bytes  = p_t1t->num_lockbytes;
                     tlv_data.status = status;
                     rw_t1t_handle_op_complete ();
-                    (*rw_cb.p_cback) (RW_T1T_TLV_DETECT_EVT, (tRW_DATA *) &tlv_data);
+                    (*rw_cb.p_cback) (RW_T1T_TLV_DETECT_EVT, (void *) &tlv_data);
                 }
                 else if (p_t1t->tlv_detect == TAG_NDEF_TLV)
                 {
@@ -687,7 +687,7 @@ tNFC_STATUS rw_t1t_handle_read_rsp (BOOLEAN *p_notify, UINT8 *p_data)
                     }
                     ndef_data.status = status;
                     rw_t1t_handle_op_complete ();
-                    (*rw_cb.p_cback) (RW_T1T_NDEF_DETECT_EVT, (tRW_DATA *)&ndef_data);
+                    (*rw_cb.p_cback) (RW_T1T_NDEF_DETECT_EVT, (void *)&ndef_data);
                 }
             }
             break;
@@ -706,7 +706,7 @@ tNFC_STATUS rw_t1t_handle_read_rsp (BOOLEAN *p_notify, UINT8 *p_data)
                 }
                 rw_t1t_handle_op_complete ();
                 /* Send response to upper layer */
-                (*rw_cb.p_cback) (RW_T1T_TLV_DETECT_EVT, (tRW_DATA *) &tlv_data);
+                (*rw_cb.p_cback) (RW_T1T_TLV_DETECT_EVT, (void *) &tlv_data);
             }
             else if (p_t1t->tlv_detect == TAG_LOCK_CTRL_TLV)
             {
@@ -719,7 +719,7 @@ tNFC_STATUS rw_t1t_handle_read_rsp (BOOLEAN *p_notify, UINT8 *p_data)
                     rw_t1t_handle_op_complete ();
 
                     /* Send Negative response to upper layer */
-                    (*rw_cb.p_cback) (RW_T1T_TLV_DETECT_EVT, (tRW_DATA *)&tlv_data);
+                    (*rw_cb.p_cback) (RW_T1T_TLV_DETECT_EVT, (void *)&tlv_data);
                 }
                 else
                 {
@@ -731,7 +731,7 @@ tNFC_STATUS rw_t1t_handle_read_rsp (BOOLEAN *p_notify, UINT8 *p_data)
                         tlv_data.status = status;
                         rw_t1t_handle_op_complete ();
 
-                        (*rw_cb.p_cback) (RW_T1T_TLV_DETECT_EVT, (tRW_DATA *) &tlv_data);
+                        (*rw_cb.p_cback) (RW_T1T_TLV_DETECT_EVT, (void *) &tlv_data);
                     }
                 }
             }
@@ -760,7 +760,7 @@ tNFC_STATUS rw_t1t_handle_read_rsp (BOOLEAN *p_notify, UINT8 *p_data)
                         /* Send Negative response to upper layer */
                         rw_t1t_handle_op_complete ();
 
-                        (*rw_cb.p_cback) (RW_T1T_NDEF_DETECT_EVT, (tRW_DATA *) &ndef_data);
+                        (*rw_cb.p_cback) (RW_T1T_NDEF_DETECT_EVT, (void *) &ndef_data);
                     }
                     else
                     {
@@ -786,7 +786,7 @@ tNFC_STATUS rw_t1t_handle_read_rsp (BOOLEAN *p_notify, UINT8 *p_data)
                             ndef_data.status = status;
                             rw_t1t_handle_op_complete ();
 
-                            (*rw_cb.p_cback) (RW_T1T_NDEF_DETECT_EVT, (tRW_DATA *)&ndef_data);
+                            (*rw_cb.p_cback) (RW_T1T_NDEF_DETECT_EVT, (void *)&ndef_data);
                         }
                     }
                 }
@@ -808,7 +808,7 @@ tNFC_STATUS rw_t1t_handle_read_rsp (BOOLEAN *p_notify, UINT8 *p_data)
                     }
                     rw_t1t_handle_op_complete ();
 
-                    (*rw_cb.p_cback) (RW_T1T_NDEF_DETECT_EVT, (tRW_DATA *) &ndef_data);
+                    (*rw_cb.p_cback) (RW_T1T_NDEF_DETECT_EVT, (void *) &ndef_data);
                 }
             }
             break;
@@ -2218,11 +2218,7 @@ static void rw_t1t_update_lock_attributes (void)
                     {
                         /* Set/clear lock_attr byte bits based on whether a particular lock bit is set or not
                          * each bit in lock_attr represents one byte in Tag read only attribute */
-#if(NXP_EXTNS == TRUE)
                         if ((p_t1t->lockbyte[num_dynamic_lock_bytes].lock_byte & rw_t1t_mask_bits[xx]) && (block_count < T1T_BLOCKS_PER_SEGMENT))
-#else
-                        if (p_t1t->lockbyte[num_dynamic_lock_bytes].lock_byte & rw_t1t_mask_bits[xx])
-#endif
                         {
                             p_t1t->lock_attr[block_count] |= 0x01 << bits_covered;
                         }

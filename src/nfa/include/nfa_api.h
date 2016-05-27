@@ -142,8 +142,8 @@ typedef UINT8 tNFA_TECHNOLOGY_MASK;
 #define NFA_PROTOCOL_ISO15693   NFC_PROTOCOL_15693
 #define NFA_PROTOCOL_B_PRIME    NFC_PROTOCOL_B_PRIME
 #define NFA_PROTOCOL_KOVIO      NFC_PROTOCOL_KOVIO
-#if (NXP_EXTNS == TRUE)
 #define NFA_PROTOCOL_MIFARE     NFC_PROTOCOL_MIFARE
+#if (NXP_EXTNS == TRUE)
 #define NFA_PROTOCOL_T3BT       NFC_PROTOCOL_T3BT
 #define NFA_NORMAL_BOOT_MODE    NFC_NORMAL_BOOT_MODE
 #define NFA_FAST_BOOT_MODE      NFC_FAST_BOOT_MODE
@@ -177,6 +177,11 @@ typedef UINT8 tNFA_PROTOCOL_MASK;
 #define NFA_DM_EMVCO_PCD_COLLISION_EVT  8   /* Collision event in case of EMV-CO Profile (Nxp)*/
 #define NFA_DM_SET_ROUTE_CONFIG_REVT    9   /* Status of EE Route config CMD (Nxp)*/
 #define NFA_DM_GET_ROUTE_CONFIG_REVT    10  /* Result of NFA_GetRouting         */
+
+#if(NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == TRUE)
+#define NFA_DM_EE_HCI_DISABLE           11  /*Status when EE HCI subsystems disabled*/
+#define NFA_DM_EE_HCI_ENABLE            12  /*Status when EE HCI susbsystems enabled*/
+#endif
 /* Reader over SWP Events*/
 #define NFA_RD_SWP_READER_REQUESTED     0
 #define NFA_RD_SWP_READER_START         1
@@ -667,9 +672,7 @@ typedef tNFC_RF_COMM_PARAMS tNFA_RF_COMM_PARAMS;
 #define NFA_INTERFACE_FRAME         NFC_INTERFACE_FRAME
 #define NFA_INTERFACE_ISO_DEP       NFC_INTERFACE_ISO_DEP
 #define NFA_INTERFACE_NFC_DEP       NFC_INTERFACE_NFC_DEP
-#if (NXP_EXTNS == TRUE)
 #define NFA_INTERFACE_MIFARE        NFC_INTERFACE_MIFARE
-#endif
 typedef tNFC_INTF_TYPE tNFA_INTF_TYPE;
 
 /*******************************************************************************
@@ -1396,6 +1399,10 @@ NFC_API extern void  NFA_EnableDtamode (tNFA_eDtaModes eDtaMode);
 **
 *******************************************************************************/
 NFC_API extern tNFA_MW_VERSION NFA_GetMwVersion ();
+#if(NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == TRUE)
+NFC_API extern void NFA_EE_HCI_Control(BOOLEAN mode);
+NFC_API extern tNFA_STATUS NFA_ResetNfcc();
+#endif
 #endif
 #ifdef __cplusplus
 }

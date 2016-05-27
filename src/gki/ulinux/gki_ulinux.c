@@ -234,6 +234,8 @@ UINT8 GKI_create_task (TASKPTR task_entry, UINT8 task_id, INT8 *taskname, UINT16
     int policy, ret = 0;
     pthread_condattr_t attr;
     pthread_attr_t attr1;
+    (void)stack;
+    (void)stacksize;
 
     pthread_condattr_init(&attr);
     pthread_condattr_setclock(&attr, CLOCK_MONOTONIC);
@@ -360,8 +362,8 @@ void GKI_shutdown(void)
 
 #if ( FALSE == GKI_PTHREAD_JOINABLE )
             i = 0;
-            while ((gki_cb.com.OSWaitEvt[task_id - 1] != 0) && (++i < 10))
-                usleep(100 * 1000);
+            while ((gki_cb.com.OSWaitEvt[task_id - 1] != 0) && (++i < 5))
+                usleep(2 * 1000);
 #else
             /* wait for proper Arnold Schwarzenegger task state */
             result = pthread_join( gki_cb.os.thread_id[task_id-1], NULL );
@@ -509,6 +511,7 @@ void GKI_run (void *p_task_id)
     int err = 0;
 #if(NXP_EXTNS == TRUE)
     UINT8 rtask = 0;
+    (void)p_task_id;
 #endif
     volatile int * p_run_cond = &gki_cb.os.no_timer_suspend;
 #if (NXP_EXTNS == TRUE)
@@ -1186,6 +1189,7 @@ void GKI_os_free (void *p_mem)
 *******************************************************************************/
 UINT8 GKI_suspend_task (UINT8 task_id)
 {
+    (void)task_id;
     GKI_TRACE_1("GKI_suspend_task %d - NOT implemented", task_id);
 
 
@@ -1212,6 +1216,8 @@ UINT8 GKI_suspend_task (UINT8 task_id)
 *******************************************************************************/
 UINT8 GKI_resume_task (UINT8 task_id)
 {
+    (void)task_id;
+
     GKI_TRACE_1("GKI_resume_task %d - NOT implemented", task_id);
 
 

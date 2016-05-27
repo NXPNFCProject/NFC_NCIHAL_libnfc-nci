@@ -57,14 +57,18 @@
 #define PHDNLDNFC_USERDATA_EEPROM_LEN     (0x0DC0U)    /* 16 bits length of user data area */
 #else
 
-#if(NFC_NXP_CHIP_TYPE == PN547C2)
-/* EEPROM offset and length value for PN547C2 */
-#define PHDNLDNFC_USERDATA_EEPROM_OFFSET  (0x023CU)    /* 16 bits offset indicating user data area start location */
-#define PHDNLDNFC_USERDATA_EEPROM_LEN     (0x0C80U)    /* 16 bits length of user data area */
-#else
+#if((NFC_NXP_CHIP_TYPE == PN548C2))
 /* EEPROM offset and length value for PN548AD */
 #define PHDNLDNFC_USERDATA_EEPROM_OFFSET  (0x02BCU)    /* 16 bits offset indicating user data area start location */
 #define PHDNLDNFC_USERDATA_EEPROM_LEN     (0x0C00U)    /* 16 bits length of user data area */
+#elif(NFC_NXP_CHIP_TYPE == PN551)
+/* EEPROM offset and length value for PN551 */
+#define PHDNLDNFC_USERDATA_EEPROM_OFFSET  (0x02BCU)    /* 16 bits offset indicating user data area start location */
+#define PHDNLDNFC_USERDATA_EEPROM_LEN     (0x0C00U)    /* 16 bits length of user data area */
+#else
+/* EEPROM offset and length value for PN547C2 */
+#define PHDNLDNFC_USERDATA_EEPROM_OFFSET  (0x023CU)    /* 16 bits offset indicating user data area start location */
+#define PHDNLDNFC_USERDATA_EEPROM_LEN     (0x0C80U)    /* 16 bits length of user data area */
 #endif
 
 #endif
@@ -663,6 +667,11 @@ static NFCSTATUS phDnldNfc_BuildFramePkt(pphDnldNfc_DlContext_t pDlContext)
         {
             wFrameLen = 0;
             wFrameLen  = (pDlContext->tCmdRspFrameInfo.dwSendlength);
+            if(wFrameLen > PHDNLDNFC_CMDRESP_MAX_BUFF_SIZE)
+            {
+                 NXPLOG_FWDNLD_D("wFrameLen exceeds the limit");
+                 return NFCSTATUS_FAILED;
+            }
 
             if(phDnldNfc_FTRaw != (pDlContext->FrameInp.Type))
             {

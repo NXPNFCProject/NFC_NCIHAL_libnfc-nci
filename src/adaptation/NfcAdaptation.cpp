@@ -41,6 +41,8 @@ extern "C"
     #include "gki.h"
     #include "nfa_api.h"
     #include "nfc_int.h"
+    #include "nfc_target.h"
+    #include "vendor_cfg.h"
 }
 #include "config.h"
 #include "android_logmsg.h"
@@ -74,13 +76,16 @@ char bcm_nfc_location[120];
 char nci_hal_module[64];
 
 static UINT8 nfa_dm_cfg[sizeof ( tNFA_DM_CFG ) ];
+static UINT8 nfa_proprietary_cfg[sizeof ( tNFA_PROPRIETARY_CFG )];
 extern tNFA_DM_CFG *p_nfa_dm_cfg;
+extern tNFA_PROPRIETARY_CFG *p_nfa_proprietary_cfg;
 extern UINT8 nfa_ee_max_ee_cfg;
 extern const UINT8  nfca_version_string [];
 extern const UINT8  nfa_version_string [];
 static UINT8 deviceHostWhiteList [NFA_HCI_MAX_HOST_IN_NETWORK];
 static tNFA_HCI_CFG jni_nfa_hci_cfg;
 extern tNFA_HCI_CFG *p_nfa_hci_cfg;
+extern BOOLEAN nfa_poll_bail_out_mode;
 
 /*******************************************************************************
 **
@@ -161,14 +166,23 @@ void NfcAdaptation::Initialize ()
     initializeProtocolLogLevel ();
 
     if ( GetStrValue ( NAME_NFA_DM_CFG, (char*)nfa_dm_cfg, sizeof ( nfa_dm_cfg ) ) )
-        p_nfa_dm_cfg = ( tNFA_DM_CFG * ) &nfa_dm_cfg[0];
+        p_nfa_dm_cfg = ( tNFA_DM_CFG * ) ((void*)&nfa_dm_cfg[0]);
 
     if ( GetNumValue ( NAME_NFA_MAX_EE_SUPPORTED, &num, sizeof ( num ) ) )
     {
         nfa_ee_max_ee_cfg = num;
         ALOGD("%s: Overriding NFA_EE_MAX_EE_SUPPORTED to use %d", func, nfa_ee_max_ee_cfg);
     }
+    if ( GetNumValue ( NAME_NFA_POLL_BAIL_OUT_MODE, &num, sizeof ( num ) ) )
+    {
+        nfa_poll_bail_out_mode = num;
+        ALOGD("%s: Overriding NFA_POLL_BAIL_OUT_MODE to use %d", func, nfa_poll_bail_out_mode);
+    }
 
+    if ( GetStrValue ( NAME_NFA_PROPRIETARY_CFG, (char*)nfa_proprietary_cfg, sizeof ( tNFA_PROPRIETARY_CFG ) ) )
+    {
+        p_nfa_proprietary_cfg = (tNFA_PROPRIETARY_CFG*)(void*)( &nfa_proprietary_cfg[0]);
+    }
     //configure device host whitelist of HCI host ID's; see specification ETSI TS 102 622 V11.1.10
     //(2012-10), section 6.1.3.1
     num = GetStrValue ( NAME_DEVICE_HOST_WHITE_LIST, (char*) deviceHostWhiteList, sizeof ( deviceHostWhiteList ) );
@@ -290,6 +304,7 @@ void NfcAdaptation::signal ()
 UINT32 NfcAdaptation::NFCA_TASK (UINT32 arg)
 {
     const char* func = "NfcAdaptation::NFCA_TASK";
+    (void)(arg);
     ALOGD ("%s: enter", func);
     GKI_run (0);
     ALOGD ("%s: exit", func);
@@ -308,6 +323,7 @@ UINT32 NfcAdaptation::NFCA_TASK (UINT32 arg)
 UINT32 NfcAdaptation::Thread (UINT32 arg)
 {
     const char* func = "NfcAdaptation::Thread";
+    (void)(arg);
     ALOGD ("%s: enter", func);
 
     {
@@ -671,7 +687,9 @@ void NfcAdaptation::DownloadFirmware ()
     static UINT8 cmd_init_nci[]  = {0x20,0x01,0x00};
     static UINT8 cmd_reset_nci_size = sizeof(cmd_reset_nci) / sizeof(UINT8);
     static UINT8 cmd_init_nci_size  = sizeof(cmd_init_nci)  / sizeof(UINT8);
+    tNFC_FWUpdate_Info_t fw_update_inf;
     UINT8 p_core_init_rsp_params;
+    UINT8 fw_dwnld_status = NFC_STATUS_FAILED;
 #endif
     HalInitialize ();
 
@@ -693,9 +711,23 @@ void NfcAdaptation::DownloadFirmware ()
     HalWrite(cmd_init_nci_size , cmd_init_nci);
     mHalCoreInitCompletedEvent.wait();
     mHalInitCompletedEvent.lock ();
-    ALOGD ("%s: try init HAL", func);
-    HalCoreInitialized (&p_core_init_rsp_params);
-    mHalInitCompletedEvent.wait ();
+
+    mHalEntryFuncs.ioctl(HAL_NFC_IOCTL_CHECK_FLASH_REQ, &fw_update_inf);
+    NFC_TRACE_DEBUG1 ("fw_update required  -> %d", fw_update_inf.fw_update_reqd);
+    if(fw_update_inf.fw_update_reqd == TRUE)
+    {
+        mHalEntryFuncs.ioctl(HAL_NFC_IOCTL_FW_DWNLD, &fw_dwnld_status);
+        if (fw_dwnld_status !=  NFC_STATUS_OK)
+        {
+            ALOGD ("%s: FW Download failed", func);
+        }
+        else
+        {
+            ALOGD ("%s: try init HAL", func);
+            HalCoreInitialized (&p_core_init_rsp_params);
+            mHalInitCompletedEvent.wait ();
+        }
+    }
 #endif
 
     mHalCloseCompletedEvent.lock ();
@@ -719,6 +751,7 @@ void NfcAdaptation::DownloadFirmware ()
 void NfcAdaptation::HalDownloadFirmwareCallback (nfc_event_t event, nfc_status_t event_status)
 {
     const char* func = "NfcAdaptation::HalDownloadFirmwareCallback";
+    (void)(event_status);
     ALOGD ("%s: event=0x%X", func, event);
     switch (event)
     {

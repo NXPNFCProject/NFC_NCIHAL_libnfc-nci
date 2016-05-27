@@ -132,13 +132,13 @@ void nfa_rw_proc_disc_evt (tNFA_DM_RF_DISC_EVT event, tNFC_DISCOVER *p_data, BOO
         msg.activate_ntf.p_activate_params  = &p_data->activate;
         msg.activate_ntf.excl_rf_not_active = excl_rf_not_active;
 
-        nfa_rw_handle_event ((BT_HDR *) &msg);
+        nfa_rw_handle_event ((void *) &msg);
         break;
 
     case NFA_DM_RF_DISC_DEACTIVATED_EVT:
         msg.hdr.event = NFA_RW_DEACTIVATE_NTF_EVT;
 
-        nfa_rw_handle_event ((BT_HDR *) &msg);
+        nfa_rw_handle_event ((void *) &msg);
         break;
 
     default:

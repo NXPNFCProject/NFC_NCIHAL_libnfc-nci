@@ -1229,6 +1229,7 @@ BOOLEAN nfa_p2p_set_llcp_cfg (tNFA_P2P_MSG *p_msg)
 *******************************************************************************/
 BOOLEAN nfa_p2p_restart_rf_discovery (tNFA_P2P_MSG *p_msg)
 {
+    (void)p_msg;
     P2P_TRACE_DEBUG0 ("nfa_p2p_restart_rf_discovery ()");
 
     nfa_dm_rf_deactivate (NFA_DEACTIVATE_TYPE_IDLE);

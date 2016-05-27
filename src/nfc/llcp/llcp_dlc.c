@@ -515,6 +515,7 @@ static tLLCP_STATUS llcp_dlsm_w4_remote_dm (tLLCP_DLCB *p_dlcb, tLLCP_DLC_EVENT 
 {
     tLLCP_STATUS         status = LLCP_STATUS_SUCCESS;
     tLLCP_SAP_CBACK_DATA data;
+    (void)p_data;
 
     switch (event)
     {
@@ -757,6 +758,7 @@ static void llcp_dlc_proc_connect_pdu (UINT8 dsap, UINT8 ssap, UINT16 length, UI
 static void llcp_dlc_proc_disc_pdu (UINT8 dsap, UINT8 ssap, UINT16 length, UINT8 *p_data)
 {
     tLLCP_DLCB *p_dlcb;
+    (void)p_data;
 
     LLCP_TRACE_DEBUG0 ("llcp_dlc_proc_disc_pdu ()");
 

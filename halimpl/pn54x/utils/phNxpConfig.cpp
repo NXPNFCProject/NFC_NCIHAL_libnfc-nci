@@ -58,7 +58,11 @@ const char transport_config_path[] = "res/";
 #endif
 
 #define config_name             "libnfc-nxp.conf"
+#if (NXP_EXTNS == TRUE)
+#define extra_config_base       "libnfc-"
+#else
 #define extra_config_base       "libnfc-nxp-"
+#endif
 #define extra_config_ext        ".conf"
 #define     IsStringValue       0x80000000
 
@@ -237,8 +241,19 @@ bool CNfcConfig::readConfig(const char* name, bool bResetContent)
             moveToList();
     }
 
-    while (!feof(fd) && fread(&c, 1, 1, fd) == 1)
+    for (;;)
     {
+        if (feof(fd) || fread(&c, 1, 1, fd) != 1)
+        {
+            if (state == BEGIN_LINE)
+                break;
+
+            // got to the EOF but not in BEGIN_LINE state so the file
+            // probably does not end with a newline, so the parser has
+            // not processed current line, simulate a newline in the file
+            c = '\n';
+        }
+
         switch (state & 0xff)
         {
         case BEGIN_LINE:

@@ -17,7 +17,7 @@
  ******************************************************************************/
 #include "bt_types.h"
 
-const UINT8 nfca_version_string[] = "NFCDROID-AOSP_L_00.01";
+const UINT8 nfca_version_string[] = "NFCDROID-AOSP_M_00.01";
 
 /*
 // The following string should be manually updated to contain the

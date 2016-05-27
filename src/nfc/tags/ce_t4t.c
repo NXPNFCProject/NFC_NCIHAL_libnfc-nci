@@ -599,8 +599,8 @@ static void ce_t4t_data_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_
 {
     BT_HDR  *p_c_apdu;
     UINT8   *p_cmd;
-    UINT8    cla, instruct, select_type = 0, length;
-    UINT16   offset, max_file_size;
+    UINT8    cla, instruct, select_type = 0;
+    UINT16   offset, max_file_size,length;
     tCE_DATA ce_data;
 
     if (event == NFC_DEACTIVATE_CEVT)
@@ -1070,6 +1070,13 @@ tNFC_STATUS CE_T4TTestSetCC (UINT16 cc_len,
                              UINT16 max_le,
                              UINT16 max_lc)
 {
+#if (CE_TEST_INCLUDED == FALSE)
+    (void)(cc_len);
+    (void)(version);
+    (void)(max_le);
+    (void)(max_lc);
+#endif
+
 #if (CE_TEST_INCLUDED == TRUE)
     tCE_T4T_MEM *p_t4t = &ce_cb.mem.t4t;
     UINT8       *p;
@@ -1141,6 +1148,15 @@ tNFC_STATUS CE_T4TTestSetNDEFCtrlTLV (UINT8  type,
                                       UINT8  read_access,
                                       UINT8  write_access)
 {
+#if (CE_TEST_INCLUDED == FALSE)
+    (void)(type);
+    (void)(length);
+    (void)(file_id);
+    (void)(max_file_size);
+    (void)(read_access);
+    (void)(write_access);
+#endif
+
 #if (CE_TEST_INCLUDED == TRUE)
     tCE_T4T_MEM *p_t4t = &ce_cb.mem.t4t;
     UINT8       *p;

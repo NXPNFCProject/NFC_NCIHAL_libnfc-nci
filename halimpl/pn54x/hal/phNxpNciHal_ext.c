@@ -211,7 +211,7 @@ NFCSTATUS phNxpNciHal_process_ext_rsp (uint8_t *p_ntf, uint16_t *p_len)
         case 0x80:
             NXPLOG_NCIHAL_D("NxpNci: Protocol = MIFARE");
             break;
-#if(NFC_NXP_CHIP_TYPE != PN547C2)
+#if((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
         case 0x81:
 #else
         case 0x8A:
@@ -304,6 +304,10 @@ NFCSTATUS phNxpNciHal_process_ext_rsp (uint8_t *p_ntf, uint16_t *p_len)
             NXPLOG_NCIHAL_D ("> Data of ISO-15693");
             p_ntf[2]--;
             (*p_len)--;
+        }
+        else
+        {
+            p_ntf[p_ntf[2]+ 2] |= 0x01;
         }
     }
     else if (p_ntf[2] == 0x02 &&
@@ -695,10 +699,10 @@ NFCSTATUS phNxpNciHal_write_ext(uint16_t *cmd_len, uint8_t *p_cmd_data,
             *cmd_len = 8;
         }
     }
-#if(NFC_NXP_CHIP_TYPE == PN547C2)
+
     if (retval == 0x01 &&
-        p_cmd_data[0] == 0x21 &&
-        p_cmd_data[1] == 0x00)
+            p_cmd_data[0] == 0x21 &&
+            p_cmd_data[1] == 0x00)
     {
         NXPLOG_NCIHAL_D ("Going through extns - Adding Mifare in RF Discovery");
         p_cmd_data[2] += 3;
@@ -711,13 +715,12 @@ NFCSTATUS phNxpNciHal_write_ext(uint16_t *cmd_len, uint8_t *p_cmd_data,
         NXPLOG_NCIHAL_D ("Going through extns - Adding Mifare in RF Discovery - END");
     }
     else
-#endif
     if (p_cmd_data[3] == 0x81 &&
             p_cmd_data[4] == 0x01 &&
             p_cmd_data[5] == 0x03)
     {
         NXPLOG_NCIHAL_D("> Going through the set host list");
-#if(NFC_NXP_CHIP_TYPE != PN547C2)
+#if((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
         *cmd_len = 8;
 
         p_cmd_data[2] = 0x05;
@@ -1059,14 +1062,14 @@ NFCSTATUS request_EEPROM(phNxpNci_EEPROM_info_t *mEEPROM_info)
         {
 
             //Clear the buffer first
-            memset(set_cfg_eeprom+setCfgStartIndex,0x00,sizeof(set_cfg_eeprom) - setCfgStartIndex);
+            memset(set_cfg_eeprom+setCfgStartIndex,0x00,(set_cfg_cmd_len - setCfgStartIndex));
 
             //copy get config data into set_cfg_eeprom
             memcpy(set_cfg_eeprom+setCfgStartIndex, nxpncihal_ctrl.p_rx_data+getCfgStartIndex, fieldLen);
             if(mEEPROM_info->update_mode == BITWISE)
             {
                 cur_value = (set_cfg_eeprom[setCfgStartIndex+memIndex] >> b_position) & 0x01;
-                if(cur_value != mEEPROM_info->buffer)
+                if(cur_value != mEEPROM_info->buffer[0])
                 {
                     update_req = TRUE;
                     if(mEEPROM_info->buffer[0]== 1)

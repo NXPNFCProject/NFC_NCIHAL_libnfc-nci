@@ -86,7 +86,6 @@ int GetNumValue(const char* name, void* p_value, unsigned long len);
 #define NAME_NFA_DTA_START_UP_VSC_CFG   "NFA_DTA_START_UP_VSC_CFG"
 #define NAME_UICC_LISTEN_TECH_MASK      "UICC_LISTEN_TECH_MASK"
 #define NAME_UICC_LISTEN_TECH_EX_MASK   "UICC_LISTEN_TECH_EXCLUDE_MASK"
-#define NAME_HOST_LISTEN_ENABLE         "HOST_LISTEN_ENABLE"
 #if (NXP_EXTNS == TRUE)
 #define NAME_APPL_DTA_MODE              "APPL_DTA_MODE"
 #define NAME_DEFAULT_AID_ROUTE          "DEFAULT_AID_ROUTE"
@@ -98,8 +97,9 @@ int GetNumValue(const char* name, void* p_value, unsigned long len);
 #define NAME_CHECK_DEFAULT_PROTO_SE_ID  "NXP_CHECK_DEFAULT_PROTO_SE_ID"
 #define NAME_NFA_DM_DISC_NTF_TIMEOUT    "NFA_DM_DISC_NTF_TIMEOUT"
 #define NAME_NXP_FWD_FUNCTIONALITY_ENABLE   "NXP_FWD_FUNCTIONALITY_ENABLE"
+#define NAME_HOST_LISTEN_TECH_MASK      "HOST_LISTEN_TECH_MASK"
 #endif
-#if(NFC_NXP_CHIP_TYPE != PN547C2)
+#if((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
 #define NAME_NXP_PRFD_TECH_SE            "NXP_PRFD_TECH_SE"
 #endif
 #define NAME_SNOOZE_MODE_CFG            "SNOOZE_MODE_CFG"
@@ -125,12 +125,16 @@ int GetNumValue(const char* name, void* p_value, unsigned long len);
 #define NAME_POWER_OFF_MODE             "POWER_OFF_MODE"
 #define NAME_GLOBAL_RESET               "DO_GLOBAL_RESET"
 #define NAME_NCI_HAL_MODULE             "NCI_HAL_MODULE"
+#define NAME_NFA_POLL_BAIL_OUT_MODE     "NFA_POLL_BAIL_OUT_MODE"
+#define NAME_NFA_PROPRIETARY_CFG        "NFA_PROPRIETARY_CFG"
+#if(NXP_EXTNS == TRUE)
 #define NAME_NXP_NFCC_STANDBY_TIMEOUT   "NXP_NFCC_STANDBY_TIMEOUT"
 #define NAME_NXP_CP_TIMEOUT             "NXP_CP_TIMEOUT"
-#if(NFC_NXP_CHIP_TYPE == PN547C2)
 #define NAME_NXP_CORE_SCRN_OFF_AUTONOMOUS_ENABLE   "NXP_CORE_SCRN_OFF_AUTONOMOUS_ENABLE"
+#if(NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == TRUE)
+#define NAME_NXP_DUAL_UICC_ENABLE       "NXP_DUAL_UICC_ENABLE"
 #endif
-
+#endif
 #define                     LPTD_PARAM_LEN (40)
 
 // default configuration
@@ -146,7 +150,7 @@ struct tUART_CONFIG {
 
 extern struct tUART_CONFIG  uartConfig;
 #define MAX_CHIPID_LEN  (16)
-void    readOptionalConfig(const char* option);
+void    readOptionalConfigExt(const char* option);
 
 /* Snooze mode configuration structure */
 typedef struct

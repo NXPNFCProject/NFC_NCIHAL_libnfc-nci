@@ -318,7 +318,6 @@ void nfc_process_quick_timer_evt (void)
         case NFC_TTYPE_RW_I93_RESPONSE:
             rw_i93_process_timeout (p_tle);
             break;
-#if(NXP_EXTNS == TRUE)
         case NFC_TTYPE_P2P_PRIO_RESPONSE:
             nfa_dm_p2p_timer_event ();
             break;
@@ -328,7 +327,6 @@ void nfc_process_quick_timer_evt (void)
         case NFC_TTYPE_P2P_PRIO_LOGIC_DEACT_NTF_TIMEOUT:
             nfa_dm_deact_ntf_timeout();
             break;
-#endif
 #if (NFC_RW_ONLY == FALSE)
         case NFC_TTYPE_CE_T4T_UPDATE:
             ce_t4t_process_timeout (p_tle);
@@ -409,6 +407,7 @@ UINT32 nfc_task (UINT32 param)
     UINT16  event;
     BT_HDR  *p_msg;
     BOOLEAN free_buf;
+    (void)param;
 
     /* Initialize the nfc control block */
     memset (&nfc_cb, 0, sizeof (tNFC_CB));

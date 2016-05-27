@@ -35,7 +35,7 @@
 /* External global variable to get FW version */
 extern uint16_t wFwVer;
 extern uint16_t wMwVer;
-#if(NFC_NXP_CHIP_TYPE == PN548C2)
+#if(NFC_NXP_CHIP_TYPE != PN547C2)
 extern uint8_t gRecFWDwnld; // flag  set to true to  indicate dummy FW download
 #endif
 /* RF Configuration structure */
@@ -180,7 +180,8 @@ static NFCSTATUS (*phNxpNciHal_dwnld_seqhandler[])(
     phNxpNciHal_fw_dnld_chk_integrity,
     NULL
 };
-#if(NFC_NXP_CHIP_TYPE == PN548C2)
+
+#if(NFC_NXP_CHIP_TYPE != PN547C2)
 /* Array of pointers to start dummy fw download seq */
 static NFCSTATUS (*phNxpNciHal_dummy_rec_dwnld_seqhandler[])(
         void* pContext, NFCSTATUS status, void* pInfo) = {
@@ -562,8 +563,13 @@ static void phNxpNciHal_fw_dnld_get_version_cb(void* pContext,
             bHwVer = (pRespBuff->pBuff[0]);
             bHwVer &= 0x0F; /* 0x0F is the mask to extract chip version */
 
-            if ((PHDNLDNFC_HWVER_MRA2_1 == bHwVer) || (PHDNLDNFC_HWVER_MRA2_2 == bHwVer) ||
-                    (PHDNLDNFC_HWVER_PN548AD_MRA1_0 == bHwVer))
+            if ((PHDNLDNFC_HWVER_MRA2_1 == bHwVer) || (PHDNLDNFC_HWVER_MRA2_2 == bHwVer)
+#if(NFC_NXP_CHIP_TYPE == PN551)
+              || (PHDNLDNFC_HWVER_PN551_MRA1_0 == bHwVer)
+#elif(NFC_NXP_CHIP_TYPE == PN548C2)
+              || (PHDNLDNFC_HWVER_PN548AD_MRA1_0 == bHwVer)
+#endif
+                )
             {
                 bExpectedLen = PHLIBNFC_IOCTL_DNLD_GETVERLEN_MRA2_1;
                 (gphNxpNciHal_fw_IoctlCtx.bChipVer) = bHwVer;
@@ -1874,11 +1880,12 @@ NFCSTATUS phNxpNciHal_fw_download_seq(uint8_t bClkSrcVal, uint8_t bClkFreqVal)
     if (NFCSTATUS_SUCCESS == phDnldNfc_InitImgInfo())
     {
         NXPLOG_FWDNLD_D("phDnldNfc_InitImgInfo:SUCCESS");
-#if(NFC_NXP_CHIP_TYPE == PN548C2)
+#if(NFC_NXP_CHIP_TYPE != PN547C2)
         if(gRecFWDwnld == TRUE)
         {
             status = phNxpNciHal_fw_seq_handler(phNxpNciHal_dummy_rec_dwnld_seqhandler);
-        }else
+        }
+        else
 #endif
         {
             status = phNxpNciHal_fw_seq_handler(phNxpNciHal_dwnld_seqhandler);
@@ -1907,8 +1914,13 @@ static
 NFCSTATUS
 phLibNfc_VerifyCrcStatus(uint8_t bCrcStatus)
 {
+#if(NFC_NXP_CHIP_TYPE == PN551)
+    uint8_t bBitPos = 1;
+    uint8_t bShiftVal = 2;
+#else
     uint8_t bBitPos = 0;
     uint8_t bShiftVal = 1;
+#endif
     NFCSTATUS wStatus = NFCSTATUS_SUCCESS;
     while(bBitPos < 7)
     {

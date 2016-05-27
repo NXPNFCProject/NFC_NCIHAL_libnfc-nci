@@ -3081,6 +3081,7 @@ static void rw_i93_data_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_
 #if (BT_TRACE_VERBOSE == TRUE)
     UINT8  begin_state   = p_i93->state;
 #endif
+    (void)conn_id;
 
     RW_TRACE_DEBUG1 ("rw_i93_data_cback () event = 0x%X", event);
 
@@ -3118,15 +3119,13 @@ static void rw_i93_data_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_
         }
         else
         {
-#if(NXP_EXTNS == TRUE)
             /* free retry buffer */
-            if ((event == NFC_DEACTIVATE_CEVT )&& p_i93->p_retry_cmd)
+            if (p_i93->p_retry_cmd)
             {
                 GKI_freebuf (p_i93->p_retry_cmd);
                 p_i93->p_retry_cmd = NULL;
                 p_i93->retry_count = 0;
             }
-#endif
             NFC_SetStaticRfCback (NULL);
             p_i93->state = RW_I93_STATE_NOT_ACTIVATED;
         }

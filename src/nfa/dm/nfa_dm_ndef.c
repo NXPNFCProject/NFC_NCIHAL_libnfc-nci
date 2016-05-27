@@ -180,7 +180,7 @@ BOOLEAN nfa_dm_ndef_reg_hdlr (tNFA_DM_MSG *p_data)
         ndef_register.status = NFA_STATUS_OK;
 
         NFA_TRACE_DEBUG1 ("NDEF handler successfully registered. Handle=0x%08x", p_reg_info->ndef_type_handle);
-        (*(p_reg_info->p_ndef_cback)) (NFA_NDEF_REGISTER_EVT, (tNFA_NDEF_EVT_DATA *) &ndef_register);
+        (*(p_reg_info->p_ndef_cback)) (NFA_NDEF_REGISTER_EVT, (void *) &ndef_register);
 
         return FALSE;       /* indicate that we will free message buffer when type_handler is deregistered */
     }
@@ -190,7 +190,7 @@ BOOLEAN nfa_dm_ndef_reg_hdlr (tNFA_DM_MSG *p_data)
         NFA_TRACE_ERROR0 ("NDEF handler failed to register.");
         ndef_register.ndef_type_handle = NFA_HANDLE_INVALID;
         ndef_register.status = NFA_STATUS_FAILED;
-        (*(p_reg_info->p_ndef_cback)) (NFA_NDEF_REGISTER_EVT, (tNFA_NDEF_EVT_DATA *) &ndef_register);
+        (*(p_reg_info->p_ndef_cback)) (NFA_NDEF_REGISTER_EVT, (void *) &ndef_register);
 
         return TRUE;
     }
@@ -389,7 +389,7 @@ void nfa_dm_ndef_handle_message (tNFA_STATUS status, UINT8 *p_msg_buf, UINT32 le
         ndef_data.ndef_type_handle = 0;     /* No ndef-handler handle, since this callback is not from RegisterNDefHandler */
         ndef_data.p_data = p_msg_buf;
         ndef_data.len = len;
-        (*p_cb->p_excl_ndef_cback) (NFA_NDEF_DATA_EVT, (tNFA_NDEF_EVT_DATA *) &ndef_data);
+        (*p_cb->p_excl_ndef_cback) (NFA_NDEF_DATA_EVT, (void *) &ndef_data);
         return;
     }
 
@@ -402,7 +402,7 @@ void nfa_dm_ndef_handle_message (tNFA_STATUS status, UINT8 *p_msg_buf, UINT32 le
             ndef_data.ndef_type_handle = p_handler->ndef_type_handle;
             ndef_data.p_data = NULL;   /* Start of record */
             ndef_data.len = 0;
-            (*p_handler->p_ndef_cback) (NFA_NDEF_DATA_EVT, (tNFA_NDEF_EVT_DATA *) &ndef_data);
+            (*p_handler->p_ndef_cback) (NFA_NDEF_DATA_EVT, (void *) &ndef_data);
         }
         return;
     }
@@ -511,7 +511,7 @@ void nfa_dm_ndef_handle_message (tNFA_STATUS status, UINT8 *p_msg_buf, UINT32 le
             }
 
             /* Notify NDEF type handler */
-            (*p_handler->p_ndef_cback) (NFA_NDEF_DATA_EVT, (tNFA_NDEF_EVT_DATA *) &ndef_data);
+            (*p_handler->p_ndef_cback) (NFA_NDEF_DATA_EVT, (void *) &ndef_data);
 
             /* Indicate that at lease one handler has received this record */
             record_handled = TRUE;
