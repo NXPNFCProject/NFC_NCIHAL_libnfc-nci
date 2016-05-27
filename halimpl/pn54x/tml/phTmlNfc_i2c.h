@@ -68,10 +68,10 @@ NFCSTATUS phTmlNfc_set_pid(void *pDevHandle, long pid);
 /*
   NFC Init will call the ioctl to register the PID with the i2c driver
 */
-#define P544_SET_NFC_SERVICE_PID _IOW(PN544_MAGIC, 0x05, long)
+#define PN544_SET_NFC_SERVICE_PID _IOW(PN544_MAGIC, 0x05, long)
 
 /*
   NFC and SPI will call the ioctl to get the i2c/spi bus access
 */
-#define P544_GET_ESE_ACCESS _IOW(PN544_MAGIC, 0x06, long)
+#define PN544_GET_ESE_ACCESS _IOW(PN544_MAGIC, 0x06, long)
 #endif

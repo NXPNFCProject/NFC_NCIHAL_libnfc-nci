@@ -409,6 +409,7 @@ static tNFA_STATUS nfa_dm_set_hce_config (tNFA_DM_DISC_TECH_PROTO_MASK tech_prot
         switch(hostListenMask)
         {
             case 0x00: //Host doesn't wants to listen
+            case 0x02: //Host wants to listen only B
                 SAK |= 0x00;
                 break;
             case 0x01: //Host wants to listen only A
@@ -417,11 +418,8 @@ static tNFA_STATUS nfa_dm_set_hce_config (tNFA_DM_DISC_TECH_PROTO_MASK tech_prot
                 else
                     SAK |= 0x00;
                 break;
-            case 0x02: //Host wants to listen only B
-                SAK |= 0x00;
-                break;
             case 0x03: //Host wants to listen AB both
-                if((uiccTechList == NFA_TECHNOLOGY_MASK_B) || (uiccTechList == 0x00))
+                if((uiccTechList & 0x03 == 0x03) || (uiccTechList == 0x00))
                     SAK |= 0x20;
                 else
                     SAK |= 0x00;
@@ -457,7 +455,7 @@ static tNFA_STATUS nfa_dm_set_hce_config (tNFA_DM_DISC_TECH_PROTO_MASK tech_prot
                     SENSB_RES |= 0x01;
                 break;
             case 0x03: //Host wants to listen AB both
-                if((uiccTechList == NFA_TECHNOLOGY_MASK_A) || (uiccTechList == 0x00))
+                if((uiccTechList & 0x03 == 0x03) || (uiccTechList == 0x00))
                     SENSB_RES |= 0x01;
                 else
                     SENSB_RES |= 0x00;

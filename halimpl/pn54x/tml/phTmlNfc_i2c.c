@@ -367,7 +367,7 @@ NFCSTATUS phTmlNfc_set_pid(void *pDevHandle, long pid)
         return NFCSTATUS_FAILED;
     }
 
-    ret = ioctl((intptr_t)pDevHandle, P544_SET_NFC_SERVICE_PID, pid);
+    ret = ioctl((intptr_t)pDevHandle, PN544_SET_NFC_SERVICE_PID, pid);
     return ret;
 }
 
@@ -478,7 +478,7 @@ NFCSTATUS phTmlNfc_get_ese_access(void *pDevHandle, long timeout)
         return NFCSTATUS_FAILED;
     }
 
-    ret = ioctl((intptr_t)pDevHandle, P544_GET_ESE_ACCESS, timeout);
+    ret = ioctl((intptr_t)pDevHandle, PN544_GET_ESE_ACCESS, timeout);
     if (ret < 0)
     {
         if (ret == -EBUSY)
