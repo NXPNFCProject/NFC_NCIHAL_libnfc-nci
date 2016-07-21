@@ -572,7 +572,6 @@ NFCSTATUS phNxpNciHal_write_ext(uint16_t *cmd_len, uint8_t *p_cmd_data,
     NFCSTATUS status = NFCSTATUS_SUCCESS;
 
     unsigned long retval = 0;
-    int isfound =  GetNxpNumValue(NAME_MIFARE_READER_ENABLE, &retval, sizeof(unsigned long));
 
     phNxpNciHal_NfcDep_cmd_ext(p_cmd_data, cmd_len);
 
