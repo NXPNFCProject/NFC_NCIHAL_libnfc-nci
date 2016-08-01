@@ -152,7 +152,7 @@ NFCSTATUS phNxpNciHal_kovio_rsp_ext(uint8_t *p_ntf, uint16_t *p_len)
     send_to_upper_kovio = 1;
     if((p_ntf[0]==0x61)&&(p_ntf[1]==0x05))
     {
-#if((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
+#if(NFC_NXP_CHIP_TYPE != PN547C2)
         if((p_ntf[5]==0x81)&&(p_ntf[6]==0x70))
 #else
         if((p_ntf[5]==0x8A)&&(p_ntf[6]==0x77))

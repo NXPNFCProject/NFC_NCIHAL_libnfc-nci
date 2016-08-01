@@ -81,8 +81,9 @@ UINT8 nci_snd_deactivate_cmd (UINT8 de_act_type );
 UINT8 nci_snd_discover_map_cmd (UINT8 num, tNCI_DISCOVER_MAPS *p_maps);
 UINT8 nci_snd_t3t_polling (UINT16 system_code, UINT8 rc, UINT8 tsn);
 UINT8 nci_snd_parameter_update_cmd (UINT8 *p_param_tlvs, UINT8 tlv_size);
-
-
+#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
+UINT8  nci_snd_pwr_nd_lnk_ctrl_cmd (UINT8 nfcee_id,UINT8 cfg_value);
+#endif
 #if ((NFC_NFCEE_INCLUDED == TRUE) && (NFC_RW_ONLY == FALSE))
 UINT8 nci_snd_nfcee_discover (UINT8 discover_action);
 UINT8 nci_snd_nfcee_mode_set (UINT8 nfcee_id, UINT8 nfcee_mode);

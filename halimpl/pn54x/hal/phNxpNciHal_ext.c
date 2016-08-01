@@ -56,6 +56,10 @@ uint16_t rom_version;
 /* local buffer to store CORE_INIT response */
 static uint32_t bCoreInitRsp[40];
 static uint32_t iCoreInitRspLen;
+
+static uint32_t bCoreRstNtf[40];
+static uint32_t iCoreRstNtfLen;
+
 extern uint32_t timeoutTimerId;
 
 extern NFCSTATUS read_retry();
@@ -211,7 +215,7 @@ NFCSTATUS phNxpNciHal_process_ext_rsp (uint8_t *p_ntf, uint16_t *p_len)
         case 0x80:
             NXPLOG_NCIHAL_D("NxpNci: Protocol = MIFARE");
             break;
-#if((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
+#if(NFC_NXP_CHIP_TYPE != PN547C2)
         case 0x81:
 #else
         case 0x8A:
@@ -336,8 +340,67 @@ NFCSTATUS phNxpNciHal_process_ext_rsp (uint8_t *p_ntf, uint16_t *p_len)
         p_ntf[4] = 0x00;
         *p_len = 5;
     }
+#if(NXP_NFCC_FORCE_NCI1_0_INIT == TRUE)
+    /*Handle NFCC2.0 in NCI2.0 Boot sequence*/
+    /*After TML sent Hard Reset, we may or may not receive this notification*/
+    else if(p_ntf[0] == 0x60 && p_ntf[1] == 0x00 &&
+            p_ntf[2] == 0x09 && p_ntf[3] == 0x01 )
+    {
+        NXPLOG_NCIHAL_D("CORE_RESET_NTF 2 reason NFCC Powered ON received !");
+    }
+    else if(p_ntf[0] == 0x40 && p_ntf[1] == 0x00 &&
+            p_ntf[2] == 0x03 && p_ntf[3] == 0x00 &&
+            p_ntf[4] == 0x10 && p_ntf[5] == 0x01 &&
+            *p_len == 0x06)
+    {
+        NXPLOG_NCIHAL_D("CORE_RESET_RSP 1 received !");
+    }
+    /*After HAL sent Soft(NCI) Reset*/
+    /*NCI2.0 Controller only will send with this response after receiving CORE_RESET_CMD*/
+    else if(p_ntf[0] == 0x40 && p_ntf[1] == 0x00 &&
+            p_ntf[2] == 0x01 && p_ntf[3] == 0x00 &&
+            *p_len == 0x04) //if CORE_RST_RESPONSE == STATUS_OK received means NCI2.0 controller else NCI1.0
+    {
+        NXPLOG_NCIHAL_D("CORE_RESET_RSP 2 received !");
+        nxpncihal_ctrl.is_wait_for_ce_ntf = TRUE;
+    }
+    else if(p_ntf[0] == 0x60 && p_ntf[1] == 0x00 &&
+            p_ntf[2] == 0x09 && p_ntf[3] == 0x02 &&
+            nxpncihal_ctrl.is_wait_for_ce_ntf)
+    {
+        NXPLOG_NCIHAL_D("CORE_RESET_NTF 2 reason Command received !");
+        int len = p_ntf[2] + 2; /*include 2 byte header*/
+        wFwVerRsp = (((uint32_t)p_ntf[len - 2])<< 16U)|(((uint32_t)p_ntf[len - 1])<< 8U)|p_ntf[len];
+        iCoreRstNtfLen = *p_len;
+        memcpy(bCoreRstNtf, p_ntf, *p_len);
+        NXPLOG_NCIHAL_D ("NxpNci> FW Version: %x.%x.%x", p_ntf[len-2], p_ntf[len-1], p_ntf[len]);
+        nxpncihal_ctrl.is_wait_for_ce_ntf = FALSE;
+        if(nxpncihal_ctrl.hal_ext_enabled == 1)
+        {
+            status = NFCSTATUS_FAILED;
+            return status;
+        }
+    }
+    else if(p_ntf[0] == 0x60 && p_ntf[1] == 0x00 &&
+            p_ntf[2] == 0x09 && p_ntf[3] == 0x00 &&
+            nxpncihal_ctrl.is_wait_for_ce_ntf)
+    {
+        NXPLOG_NCIHAL_E("CORE_RESET_NTF 2 reason Unrecoverable error received !");
+        phNxpNciHal_emergency_recovery();
+    }
+    else if(p_ntf[0] == 0x40 && p_ntf[1] == 0x01 &&
+            nxpncihal_ctrl.is_wait_for_ce_ntf)
+    {
+        NXPLOG_NCIHAL_D("CORE_INIT_RSP 2 received !");
+    }
+    /*Handle NFCC2.0 in NCI1.0 Boot sequence*/
+    else if ((p_ntf[0] == 0x40) && (p_ntf[1] == 0x01) && !nxpncihal_ctrl.is_wait_for_ce_ntf)
+    {
+#else
     else if ((p_ntf[0] == 0x40) && (p_ntf[1] == 0x01))
     {
+#endif
+        NXPLOG_NCIHAL_D("CORE_INIT_RSP 1 received !");
         int len = p_ntf[2] + 2; /*include 2 byte header*/
         wFwVerRsp= (((uint32_t)p_ntf[len - 2])<< 16U)|(((uint32_t)p_ntf[len - 1])<< 8U)|p_ntf[len];
         if(wFwVerRsp == 0)
@@ -345,8 +408,8 @@ NFCSTATUS phNxpNciHal_process_ext_rsp (uint8_t *p_ntf, uint16_t *p_len)
         iCoreInitRspLen = *p_len;
         memcpy(bCoreInitRsp, p_ntf, *p_len);
         NXPLOG_NCIHAL_D ("NxpNci> FW Version: %x.%x.%x", p_ntf[len-2], p_ntf[len-1], p_ntf[len]);
-
-        fw_maj_ver=p_ntf[len-1];
+        NXPLOG_NCIHAL_D ("NxpNci> Model id: %x", p_ntf[len-3]>>4);
+        fw_maj_ver = p_ntf[len-1];
         rom_version = p_ntf[len-2];
         /* Before FW version: 10.01.12, products are PN548c2(for model id = 0) and PN66T(for model id = 1)*/
         if(p_ntf[len-2] == 0x10)
@@ -410,6 +473,13 @@ NFCSTATUS phNxpNciHal_process_ext_rsp (uint8_t *p_ntf, uint16_t *p_len)
             /* Do Nothing */
         }
     }
+#if(NXP_NFCC_FORCE_NCI1_0_INIT == TRUE)
+    else if(p_ntf[0] == 0x60 && p_ntf[1] == 0x00 && !nxpncihal_ctrl.is_wait_for_ce_ntf)
+    {
+        NXPLOG_NCIHAL_E("CORE_RESET_NTF 1 received!");
+        phNxpNciHal_emergency_recovery();
+    }
+#endif
     else if(p_ntf[0] == 0x42 && p_ntf[1] == 0x00 && ee_disc_done == 0x01)
     {
         NXPLOG_NCIHAL_D("As done with the NFCEE discovery so setting it to zero  - NFCEE_DISCOVER_RSP");
@@ -616,7 +686,7 @@ NFCSTATUS phNxpNciHal_write_ext(uint16_t *cmd_len, uint8_t *p_cmd_data,
     NFCSTATUS status = NFCSTATUS_SUCCESS;
 
     unsigned long retval = 0;
-    int isfound =  GetNxpNumValue(NAME_MIFARE_READER_ENABLE, &retval, sizeof(unsigned long));
+    GetNxpNumValue(NAME_MIFARE_READER_ENABLE, &retval, sizeof(unsigned long));
 
     phNxpNciHal_NfcDep_cmd_ext(p_cmd_data, cmd_len);
 
@@ -720,7 +790,7 @@ NFCSTATUS phNxpNciHal_write_ext(uint16_t *cmd_len, uint8_t *p_cmd_data,
             p_cmd_data[5] == 0x03)
     {
         NXPLOG_NCIHAL_D("> Going through the set host list");
-#if((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
+#if(NFC_NXP_CHIP_TYPE != PN547C2)
         *cmd_len = 8;
 
         p_cmd_data[2] = 0x05;
@@ -943,6 +1013,123 @@ NFCSTATUS phNxpNciHal_send_ext_cmd(uint16_t cmd_len, uint8_t *p_cmd)
 }
 
 /******************************************************************************
+ * Function         phNxpNciHal_send_ext_cmd_ntf
+ *
+ * Description      This function send the extension command to NFCC. No
+ *                  response is checked by this function but it waits for
+ *                  the response. Also it can wait for notification
+ *
+ * Returns          Returns NFCSTATUS_SUCCESS if sending cmd is successful and
+ *                  response is received followed by notification.
+ *
+ ******************************************************************************/
+NFCSTATUS phNxpNciHal_send_ext_cmd_ntf(uint16_t cmd_len, uint8_t *p_cmd)
+{
+    NFCSTATUS status = NFCSTATUS_FAILED;
+
+    HAL_ENABLE_EXT();
+    nxpncihal_ctrl.cmd_len = cmd_len;
+    memcpy(nxpncihal_ctrl.p_cmd_data, p_cmd, cmd_len);
+    status = phNxpNciHal_process_ext_cmd_rsp(nxpncihal_ctrl.cmd_len, nxpncihal_ctrl.p_cmd_data);
+    if(NFCSTATUS_FAILED != status)
+    {
+        /* Create the local semaphore */
+        if (phNxpNciHal_init_cb_data(&nxpncihal_ctrl.ext_cb_data, NULL) != NFCSTATUS_SUCCESS)
+        {
+            NXPLOG_NCIHAL_D("Create ext_cb_data failed");
+            return NFCSTATUS_FAILED;
+        }
+
+        /* By default callback data status set success.
+         * This will be set failed by timer callback
+         * when timeout is there */
+        nxpncihal_ctrl.ext_cb_data.status = NFCSTATUS_SUCCESS;
+
+        /*check whether to wait for notification*/
+        if(phNxpNciHal_check_wait_for_ntf())
+        {
+            /* Start timer after writing the data*/
+            status = phOsalNfc_Timer_Start( timeoutTimerId,
+                                            HAL_EXTNS_WRITE_RSP_TIMEOUT,
+                                            &hal_extns_write_rsp_timeout_cb,
+                                            NULL );
+            if (NFCSTATUS_SUCCESS == status)
+            {
+                NXPLOG_NCIHAL_D("Response timer started");
+            }
+            else
+            {
+                NXPLOG_NCIHAL_E("Response timer not started!!!");
+                status  = NFCSTATUS_FAILED;
+                goto clean_and_return;
+            }
+
+            /* Wait for notification */
+            NXPLOG_NCIHAL_D("Waiting for notification...");
+            if (SEM_WAIT(nxpncihal_ctrl.ext_cb_data))
+            {
+                NXPLOG_NCIHAL_E("p_hal_ext->ext_cb_data.sem semaphore error");
+                goto clean_and_return;
+            }
+
+            /* Stop Timer */
+            status = phOsalNfc_Timer_Stop(timeoutTimerId);
+            if (NFCSTATUS_SUCCESS == status)
+            {
+                NXPLOG_NCIHAL_D("Response timer stopped");
+            }
+            else
+            {
+                NXPLOG_NCIHAL_E("Response timer stop ERROR!!!");
+                status  = NFCSTATUS_FAILED;
+                goto clean_and_return;
+            }
+
+            /*Checking the status if timeout happens*/
+            if(nxpncihal_ctrl.ext_cb_data.status != NFCSTATUS_SUCCESS)
+            {
+                NXPLOG_NCIHAL_E("Callback Status is failed!! Timer Expired!! Couldn't read it! 0x%x", nxpncihal_ctrl.ext_cb_data.status);
+                status  = NFCSTATUS_FAILED;
+                goto clean_and_return;
+            }
+
+            NXPLOG_NCIHAL_D("Checking notification...");
+            status = NFCSTATUS_SUCCESS;
+
+clean_and_return:
+            phNxpNciHal_cleanup_cb_data(&nxpncihal_ctrl.ext_cb_data);
+        }
+    }
+
+    HAL_DISABLE_EXT();
+
+    return status;
+}
+
+/******************************************************************************
+ * Function         phNxpNciHal_check_wait_for_ntf
+ *
+ * Description      This function checks the condition provided by the user to
+ *                  wait for notification or not.
+ *
+ * Returns          Returns TRUE/FALSE.
+ *
+ ******************************************************************************/
+bool_t phNxpNciHal_check_wait_for_ntf()
+{
+    bool_t status;
+    if(nxpncihal_ctrl.is_wait_for_ce_ntf)
+    {
+        status = TRUE;
+    }
+    else
+    {
+        status = FALSE;
+    }
+    return status;
+}
+
+/******************************************************************************
  * Function         hal_extns_write_rsp_timeout_cb
  *
  * Description      Timer call back function
@@ -1013,6 +1200,32 @@ NFCSTATUS request_EEPROM(phNxpNci_EEPROM_info_t *mEEPROM_info)
         len      = fieldLen + 4;
         addr[0]  = 0xA0;
         addr[1]  = 0x0F;
+        break;
+
+    case EEPROM_WIREDMODE_RESUME_ENABLE:
+        b_position = 0;
+        memIndex = 0x00;
+        addr[0]  = 0xFF; //To be updated actual value
+        addr[1]  = 0xFF; // To be updated actual value
+        break;
+    
+    case EEPROM_WIREDMODE_RESUME_TIMEOUT:
+        b_position = 0;
+        memIndex = 0x00;
+        addr[0]  = 0xFF; //To be updated actual value
+        addr[1]  = 0xFF; // To be updated actual value
+        break;
+    case EEPROM_ESE_SVDD_POWER:
+        b_position = 0;
+        memIndex = 0x00;
+        addr[0]  = 0xA0;
+        addr[1]  = 0xF2;
+        break;
+    case EEPROM_ESE_POWER_EXT_PMU:
+        mEEPROM_info->update_mode = BYTEWISE;
+        memIndex = 0x00;
+        addr[0]  = 0xA0;
+        addr[1]  = 0xD7;
         break;
 
     default:

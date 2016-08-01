@@ -1316,12 +1316,12 @@ char *nfa_hciu_get_event_name (UINT16 event)
     case NFA_HCI_RSP_NV_WRITE_EVT:            return ("NV_WRITE_EVT");
     case NFA_HCI_RSP_TIMEOUT_EVT:             return ("RESPONSE_TIMEOUT_EVT");
     case NFA_HCI_CHECK_QUEUE_EVT:             return ("CHECK_QUEUE");
-
+    case NFA_HCI_API_SEND_ADMIN_EVT:          return ("API_SEND_ADMIN_COMMAND_EVT");
+    case NFA_HCI_API_CONFIGURE_EVT:           return ("API_SEND_CONFIGURE_EVT");
     default:
         return ("UNKNOWN");
     }
 }
-
 /*******************************************************************************
 **
 ** Function         nfa_hciu_get_state_name
@@ -1344,6 +1344,7 @@ char *nfa_hciu_get_state_name (UINT8 state)
     case NFA_HCI_STATE_APP_DEREGISTER:       return ("APP_DEREGISTER");
     case NFA_HCI_STATE_RESTORE:              return ("RESTORE");
     case NFA_HCI_STATE_RESTORE_NETWK_ENABLE: return ("WAIT_NETWK_ENABLE_AFTER_RESTORE");
+    case NFA_HCI_STATE_NFCEE_ENABLE:         return ("WAIT_NFCEE_ENABLE");
 
     default:
         return ("UNKNOWN");
@@ -1424,6 +1425,10 @@ char *nfa_hciu_evt_2_str (UINT8 pipe_id, UINT8 evt)
         return ("EVT_POST_DATA");
     case NFA_HCI_EVT_HOT_PLUG:
         return ("EVT_HOT_PLUG");
+#if (NXP_EXTNS == TRUE)
+    case NFA_HCI_ABORT:
+        return ("EVT_ABORT");
+#endif
     default:
         return ("UNKNOWN");
     }

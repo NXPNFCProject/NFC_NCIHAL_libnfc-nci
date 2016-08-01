@@ -80,6 +80,9 @@ enum
     NFA_EE_NCI_DISC_RSP_EVT,
     NFA_EE_NCI_DISC_NTF_EVT,
     NFA_EE_NCI_MODE_SET_RSP_EVT,
+#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
+    NFA_EE_NCI_PWR_LNK_CTRL_RSP_EVT,
+#endif
     NFA_EE_NCI_CONN_EVT,
     NFA_EE_NCI_DATA_EVT,
     NFA_EE_NCI_ACTION_NTF_EVT,
@@ -90,7 +93,6 @@ enum
     NFA_EE_DISCV_TIMEOUT_EVT,
     NFA_EE_CFG_TO_NFCC_EVT,
     NFA_EE_MAX_EVT
-
 };
 
 typedef UINT16 tNFA_EE_INT_EVT;
@@ -122,7 +124,7 @@ enum
 };
 typedef UINT8 tNFA_EE_CONN_ST;
 #if(NXP_EXTNS == TRUE)
-#if((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
+#if(NFC_NXP_CHIP_TYPE != PN547C2)
 #define NFA_EE_ROUT_BUF_SIZE            720
 #else
 #define NFA_EE_ROUT_BUF_SIZE            200
@@ -146,7 +148,8 @@ typedef UINT8 tNFA_EE_CONN_ST;
 #define NFA_EE_BUFFER_FUTURE_EXT     15
 #define NFA_EE_PROTO_ROUTE_ENTRY_SIZE    5
 #define NFA_EE_TECH_ROUTE_ENTRY_SIZE    5
-#if((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
+
+#if(NFC_NXP_CHIP_TYPE != PN547C2)
 /**
  * Max Routing Table Size = 720
  * After allocating size for Technology based routing and Protocol based routing,
@@ -218,7 +221,7 @@ typedef struct
      * the aid_len is the total length of all the TLVs associated with this AID entry
      */
 #if(NXP_EXTNS == TRUE)
-#if(((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551)) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
+#if((NFC_NXP_CHIP_TYPE != PN547C2) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
     UINT8                   *aid_len;           /* the actual lengths in aid_cfg */
     UINT8                   *aid_pwr_cfg;       /* power configuration of this AID entry */
     UINT8                   *aid_rt_info;       /* route/vs info for this AID entry */
@@ -417,6 +420,15 @@ typedef struct
     tNFC_NFCEE_MODE_SET_REVT    *p_data;
 } tNFA_EE_NCI_MODE_SET;
 
+#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
+/* data type for NFA_EE_NCI_MODE_SET_RSP_EVT */
+typedef struct
+{
+    BT_HDR                      hdr;
+    tNFC_NFCEE_EE_PWR_LNK_REVT  *p_data;
+} tNFA_EE_NCI_PWR_LNK_CTRL;
+#endif
+
 /* data type for NFA_EE_NCI_WAIT_RSP_EVT */
 typedef struct
 {
@@ -468,6 +480,9 @@ typedef union
     tNFA_EE_NCI_DISC_RSP        disc_rsp;
     tNFA_EE_NCI_DISC_NTF        disc_ntf;
     tNFA_EE_NCI_MODE_SET        mode_set_rsp;
+#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
+    tNFA_EE_NCI_PWR_LNK_CTRL    pwr_lnk_ctrl_rsp;
+#endif
     tNFA_EE_NCI_WAIT_RSP        wait_rsp;
     tNFA_EE_NCI_CONN            conn;
     tNFA_EE_NCI_ACTION          act;
@@ -593,6 +608,9 @@ void nfa_ee_report_disc_done(BOOLEAN notify_sys);
 void nfa_ee_nci_disc_rsp(tNFA_EE_MSG *p_data);
 void nfa_ee_nci_disc_ntf(tNFA_EE_MSG *p_data);
 void nfa_ee_nci_mode_set_rsp(tNFA_EE_MSG *p_data);
+#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
+void nfa_ee_nci_pwr_link_ctrl_rsp(tNFA_EE_MSG *p_data);
+#endif
 void nfa_ee_nci_wait_rsp(tNFA_EE_MSG *p_data);
 void nfa_ee_nci_conn(tNFA_EE_MSG *p_data);
 void nfa_ee_nci_action_ntf(tNFA_EE_MSG *p_data);

@@ -107,8 +107,11 @@ typedef enum
     phTmlNfc_e_SetP61IdleMode, /* Set the current P61 mode of operation to Idle*/
     phTmlNfc_e_SetP61DisableMode, /* Set the ese vdd gpio to low*/
     phTmlNfc_e_SetP61EnableMode, /* Set the ese vdd gpio to high*/
-    phTmlNfc_e_RelP61Access /*Release the P61 lock*/
-
+    phTmlNfc_e_RelP61Access, /*Release the P61 lock*/
+    phTmlNfc_e_P73IsoRstMode,         /* ISO RST of P73*/
+    phTmlNfc_e_SetLegacyPowerScheme,
+    phTmlNfc_e_SetExtPMUPowerScheme,
+    phTmlNfc_e_SetPN67TPowerScheme
 #endif
 } phTmlNfc_ControlCode_t ;  /* Control code for IOCTL call */
 

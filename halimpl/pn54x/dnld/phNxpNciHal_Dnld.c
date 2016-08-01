@@ -565,14 +565,23 @@ static void phNxpNciHal_fw_dnld_get_version_cb(void* pContext,
 
             if ((PHDNLDNFC_HWVER_MRA2_1 == bHwVer) || (PHDNLDNFC_HWVER_MRA2_2 == bHwVer)
 #if(NFC_NXP_CHIP_TYPE == PN551)
-              || (PHDNLDNFC_HWVER_PN551_MRA1_0 == bHwVer)
+              || (PHDNLDNFC_HWVER_PN551_MRA1_0 == bHwVer)|| (PHDNLDNFC_HWVER_PN553_MRA1_0 == bHwVer)
 #elif(NFC_NXP_CHIP_TYPE == PN548C2)
               || (PHDNLDNFC_HWVER_PN548AD_MRA1_0 == bHwVer)
+#elif(NFC_NXP_CHIP_TYPE == PN553)
+              || (PHDNLDNFC_HWVER_PN553_MRA1_0 == bHwVer || PHDNLDNFC_HWVER_PN553_MRA1_0_UPDATED == pRespBuff->pBuff[0])
 #endif
                 )
             {
                 bExpectedLen = PHLIBNFC_IOCTL_DNLD_GETVERLEN_MRA2_1;
                 (gphNxpNciHal_fw_IoctlCtx.bChipVer) = bHwVer;
+#if(NFC_NXP_CHIP_TYPE == PN553)
+                if(PHDNLDNFC_HWVER_PN553_MRA1_0_UPDATED == pRespBuff->pBuff[0])
+                {
+                    (gphNxpNciHal_fw_IoctlCtx.bChipVer) = PHDNLDNFC_HWVER_PN553_MRA1_0_UPDATED;
+                }
+#endif
+
             }
             else if ((bHwVer >= PHDNLDNFC_HWVER_MRA1_0) && (bHwVer
                         <= PHDNLDNFC_HWVER_MRA2_0))
@@ -1914,7 +1923,7 @@ static
 NFCSTATUS
 phLibNfc_VerifyCrcStatus(uint8_t bCrcStatus)
 {
-#if(NFC_NXP_CHIP_TYPE == PN551)
+#if((NFC_NXP_CHIP_TYPE == PN551)||(NFC_NXP_CHIP_TYPE == PN553))
     uint8_t bBitPos = 1;
     uint8_t bShiftVal = 2;
 #else

@@ -360,7 +360,7 @@ static BOOLEAN rw_t4t_create_app (void)
         UINT24_TO_BE_STREAM (p, T4T_DES_EV1_NFC_APP_ID);
         UINT16_TO_BE_STREAM (p, 0x0F21);                  /*Key settings and no.of keys */
         UINT16_TO_BE_STREAM (p, 0x05E1);                  /* ISO file ID */
-        ARRAY_TO_BE_STREAM (p, df_name, sizeof(df_name));   /*DF file name */
+        ARRAY_TO_BE_STREAM (p, df_name, (int)sizeof(df_name));   /*DF file name */
         UINT8_TO_BE_STREAM (p, 0x00);                      /* Le */
         p_c_apdu->len = 20;
     }
@@ -584,7 +584,7 @@ static BOOLEAN rw_t4t_write_cc (void)
     }
     UINT24_TO_BE_STREAM(p, 0x000000);              /* Set the offset              */
     UINT24_TO_BE_STREAM(p, 0x0F0000);              /* Set available length        */
-    ARRAY_TO_BE_STREAM(p, CCFileBytes, sizeof(CCFileBytes));
+    ARRAY_TO_BE_STREAM(p, CCFileBytes, (int)sizeof(CCFileBytes));
     UINT8_TO_BE_STREAM(p,0x00);                    /* Le                         */
 
     p_c_apdu->len = 28;

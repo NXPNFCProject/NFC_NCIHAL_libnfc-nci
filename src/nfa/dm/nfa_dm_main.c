@@ -67,7 +67,7 @@ static const tNFA_SYS_REG nfa_dm_sys_reg =
 #if(NXP_EXTNS == TRUE)
 tNFA_DM_CB  nfa_dm_cb;
 #else
-tNFA_DM_CB  nfa_dm_cb = {FALSE};
+tNFA_DM_CB  nfa_dm_cb = {0, };
 #endif
 
 
@@ -90,6 +90,7 @@ const tNFA_DM_ACTION nfa_dm_action[] =
     nfa_dm_act_disable_polling,         /* NFA_DM_API_DISABLE_POLLING_EVT       */
     nfa_dm_act_enable_listening,        /* NFA_DM_API_ENABLE_LISTENING_EVT      */
     nfa_dm_act_disable_listening,       /* NFA_DM_API_DISABLE_LISTENING_EVT     */
+    nfa_dm_act_disable_passive_listening,/* NFA_DM_API_DISABLE_PASSIVE_LISTENING_EVT     */
     nfa_dm_act_pause_p2p,               /* NFA_DM_API_PAUSE_P2P_EVT             */
     nfa_dm_act_resume_p2p,              /* NFA_DM_API_RESUME_P2P_EVT            */
     nfa_dm_act_send_raw_frame,          /* NFA_DM_API_RAW_FRAME_EVT             */
@@ -597,6 +598,9 @@ static char *nfa_dm_evt_2_str (UINT16 event)
 
     case NFA_DM_API_DISABLE_LISTENING_EVT:
         return "NFA_DM_API_DISABLE_LISTENING_EVT";
+
+    case NFA_DM_API_DISABLE_PASSIVE_LISTENING_EVT:
+        return "NFA_DM_API_DISABLE_PASSIVE_LISTENING_EVT";
 
     case NFA_DM_API_PAUSE_P2P_EVT:
         return "NFA_DM_API_PAUSE_P2P_EVT";

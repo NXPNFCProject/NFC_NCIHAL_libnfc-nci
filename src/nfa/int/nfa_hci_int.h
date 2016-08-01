@@ -46,7 +46,9 @@
 #include "nfa_hci_api.h"
 
 extern BOOLEAN HCI_LOOPBACK_DEBUG;
-
+#if((NXP_EXTNS == TRUE) && (NXP_NFCC_MW_RCVRY_BLK_FW_DNLD == TRUE))
+BOOLEAN MW_RCVRY_FW_DNLD_ALLOWED;
+#endif
 /*****************************************************************************
 **  Constants and data types
 *****************************************************************************/
@@ -57,6 +59,13 @@ extern BOOLEAN HCI_LOOPBACK_DEBUG;
 
 #define NFA_HCI_SESSION_ID_LEN          8           /* HCI Session ID length */
 #define NFA_MAX_PIPES_IN_GENERIC_GATE   0x0F        /* Maximum pipes that can be created on a generic pipe  */
+
+#if (NXP_EXTNS == TRUE)
+#define NFA_HCI_HOST_TYPE_LEN          2           /* HCI Host Type length */
+#define NFA_HCI_CONTROLLER_VERSION_9   9           /* HCI controller ETSI Version 9 */
+#define NFA_HCI_CONTROLLER_VERSION_12  12          /* HCI controller ETSI Version 12 */
+#endif
+
 
 #define NFA_HCI_VERSION_SW              0x090000    /* HCI SW Version number                       */
 #define NFA_HCI_VERSION_HW              0x000000    /* HCI HW Version number                       */
@@ -74,6 +83,9 @@ extern BOOLEAN HCI_LOOPBACK_DEBUG;
 #define NFA_HCI_STATE_APP_DEREGISTER        0x06     /* Removing all pipes and gates prior to deregistering the app */
 #define NFA_HCI_STATE_RESTORE               0x07     /* HCI restore */
 #define NFA_HCI_STATE_RESTORE_NETWK_ENABLE  0x08     /* HCI is waiting for initialization of other host in the network after restore */
+#if(NXP_EXTNS == TRUE)
+#define NFA_HCI_STATE_NFCEE_ENABLE          0x09     /* HCI is waiting for NFCEE initialization */
+#endif
 
 #if(NXP_EXTNS == TRUE)
 #define NFA_HCI_MAX_RSP_WAIT_TIME           0x0C
@@ -112,6 +124,10 @@ enum
     NFA_HCI_API_ADD_STATIC_PIPE_EVT,                              /* Add a static pipe */
     NFA_HCI_API_SEND_CMD_EVT,                                     /* Send command via pipe */
     NFA_HCI_API_SEND_RSP_EVT,                                     /* Application Response to a command */
+#if(NXP_EXTNS == TRUE)
+    NFA_HCI_API_CONFIGURE_EVT,                                    /* Configure NFCEE as per ETSI 12 standards */
+    NFA_HCI_API_SEND_ADMIN_EVT,                                   /* Send a Command on Admin Pipe */
+#endif
     NFA_HCI_API_SEND_EVENT_EVT,                                   /* Send event via pipe */
 
     NFA_HCI_RSP_NV_READ_EVT,                                      /* Non volatile read complete event */
@@ -265,6 +281,21 @@ typedef struct
     UINT16              rsp_timeout;
 #endif
 } tNFA_HCI_API_SEND_EVENT_EVT;
+/* data type for tNFA_HCI_API_SEND_ADMIN_EVT */
+#if(NXP_EXTNS == TRUE)
+typedef struct
+{
+    BT_HDR              hdr;
+    tNFA_HANDLE         hci_handle;
+} tNFA_HCI_API_SEND_ADMIN_EVT;
+
+/* data type for tNFA_HCI_API_CONFIGURE_EVT */
+typedef struct
+{
+    BT_HDR              hdr;
+    UINT8               hostId;
+} tNFA_HCI_API_CONFIGURE_EVT;
+#endif
 
 /* data type for NFA_HCI_API_SEND_CMD_EVT */
 typedef struct
@@ -337,6 +368,10 @@ typedef union
     /* Internal events */
     tNFA_HCI_RSP_NV_READ_EVT            nv_read;                        /* Read Non volatile data */
     tNFA_HCI_RSP_NV_WRITE_EVT           nv_write;                       /* Write Non volatile data */
+#if (NXP_EXTNS == TRUE)
+    tNFA_HCI_API_SEND_ADMIN_EVT         send_admin_cmd;                 /* Send a command  on a Admin pipe to a host */
+    tNFA_HCI_API_CONFIGURE_EVT          config_info;                    /* Configuration of NFCEE for ETSI12 */
+#endif
 } tNFA_HCI_EVENT_DATA;
 
 /*****************************************************************************
@@ -442,6 +477,10 @@ typedef struct
     UINT8                           inst_evt;                               /* Instruction of incoming message */
     UINT8                           type_msg;                               /* Instruction type of incoming message */
     UINT8                           inst_msg;                               /* Instruction of incoming message */
+    UINT8                           host_count;                             /* no of Hosts ETSI 12 compliant */
+    UINT8                           host_id[NFA_HCI_MAX_NO_HOST_ETSI12];    /* Host id ETSI 12 compliant */
+    UINT8                           host_controller_version;                 /* no of host controller version */
+    UINT8                           current_nfcee;                      /* current Nfcee under execution  */
 #endif
     UINT8                           type;                               /* Instruction type of incoming message */
     UINT8                           inst;                               /* Instruction of incoming message */

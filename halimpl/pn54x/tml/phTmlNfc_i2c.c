@@ -367,10 +367,36 @@ NFCSTATUS phTmlNfc_set_pid(void *pDevHandle, long pid)
         return NFCSTATUS_FAILED;
     }
 
-    ret = ioctl((intptr_t)pDevHandle, PN544_SET_NFC_SERVICE_PID, pid);
+    ret = ioctl((intptr_t)pDevHandle, P544_SET_NFC_SERVICE_PID, pid);
     return ret;
 }
 
+/*******************************************************************************
+**
+** Function         phTmlNfc_set_power_scheme
+**
+** Description      This function sets the eSE power scheme in pn544 driver
+**
+** Parameters       pDevHandle     - valid device handle
+**                        pid - nfc service pid
+**
+** Returns          p61_access_state_t  - get_p61_power operation success
+**                  P61_STATE_INVALID   - get_p61_power operation failure
+**
+*******************************************************************************/
+NFCSTATUS phTmlNfc_set_power_scheme(void *pDevHandle, long id)
+{
+    int ret;
+    NXPLOG_TML_D("phTmlNfc_set_power_scheme(), id  %ld", id);
+
+    if (NULL == pDevHandle)
+    {
+        return NFCSTATUS_FAILED;
+    }
+
+    ret = ioctl((intptr_t)pDevHandle, P544_SET_POWER_SCHEME, id);
+    return ret;
+}
 /*******************************************************************************
 **
 ** Function         phTmlNfc_i2c_set_p61_power_state
@@ -478,7 +504,7 @@ NFCSTATUS phTmlNfc_get_ese_access(void *pDevHandle, long timeout)
         return NFCSTATUS_FAILED;
     }
 
-    ret = ioctl((intptr_t)pDevHandle, PN544_GET_ESE_ACCESS, timeout);
+    ret = ioctl((intptr_t)pDevHandle, P544_GET_ESE_ACCESS, timeout);
     if (ret < 0)
     {
         if (ret == -EBUSY)

@@ -327,6 +327,9 @@ void nci_proc_ee_management_rsp (BT_HDR *p_msg)
     tNFC_RESPONSE_CBACK *p_cback = nfc_cb.p_resp_cback;
     tNFC_NFCEE_DISCOVER_REVT    nfcee_discover;
     tNFC_NFCEE_MODE_SET_REVT    mode_set;
+#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
+    tNFC_NFCEE_EE_PWR_LNK_REVT  pwr_lnk_ctrl;
+#endif
     void   *p_evt = NULL;
     tNFC_RESPONSE_EVT event = NFC_NFCEE_INFO_REVT;
     UINT8   *p_old = nfc_cb.last_cmd;
@@ -360,6 +363,15 @@ void nci_proc_ee_management_rsp (BT_HDR *p_msg)
         mode_set.mode           = *p_old++;
         break;
 
+#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
+    case NCI_MSG_NFCEE_PWR_LNK_CTRL:
+        p_evt                   = (tNFC_RESPONSE *) &pwr_lnk_ctrl;
+        pwr_lnk_ctrl.status         = *pp;
+        pwr_lnk_ctrl.nfcee_id       = 0;
+        event                       = NFC_NFCEE_PWR_LNK_CTRL_REVT;
+        pwr_lnk_ctrl.nfcee_id       = *p_old++;
+        break;
+#endif
     default:
         p_cback = NULL;
         NFC_TRACE_ERROR1 ("unknown opcode:0x%x", op_code);

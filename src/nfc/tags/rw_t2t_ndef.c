@@ -285,7 +285,7 @@ static void rw_t2t_handle_cc_read_rsp (void)
 static void rw_t2t_ntf_tlv_detect_complete (tNFC_STATUS status)
 {
     tRW_T2T_CB              *p_t2t  = &rw_cb.tcb.t2t;
-    tRW_DETECT_NDEF_DATA    ndef_data = {0};
+    tRW_DETECT_NDEF_DATA    ndef_data = {0, };
     tRW_DETECT_TLV_DATA     tlv_data;
     tRW_T2T_DETECT          evt_data;
     UINT8                   xx;

@@ -2035,6 +2035,11 @@ void rw_i93_sm_read_ndef (BT_HDR *p_resp)
 
         p_i93->rw_length += p_resp->len;
     }
+    else
+    {
+        /* in case of no Ndef data included */
+        p_resp->len = 0;
+    }
 
     /* if read all of NDEF data */
     if (p_i93->rw_length >= p_i93->ndef_length)
@@ -2057,7 +2062,10 @@ void rw_i93_sm_read_ndef (BT_HDR *p_resp)
                          p_resp->len,
                          p_i93->ndef_length);
 
-        (*(rw_cb.p_cback)) (RW_I93_NDEF_READ_EVT, &rw_data);
+        if (p_resp->len > 0)
+        {
+            (*(rw_cb.p_cback)) (RW_I93_NDEF_READ_EVT, &rw_data);
+        }
 
         /* this will make read data from next block */
         p_i93->rw_offset += length;

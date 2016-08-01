@@ -80,7 +80,10 @@
 #define NFA_HCI_GET_REG_RSP_EVT                 0x14    /* Received response to read registry command   */
 #define NFA_HCI_SET_REG_RSP_EVT                 0x15    /* Received response to write registry command  */
 #define NFA_HCI_ADD_STATIC_PIPE_EVT             0x16    /* A static pipe is added                       */
-
+#if (NXP_EXTNS == TRUE)
+#define NFA_HCI_RSP_SENT_ADMIN_EVT              0x17    /* Response recvd to cmd on Admin pipe          */
+#define NFA_HCI_CONFIG_DONE_EVT                 0x18    /* Configure NFCEE                              */
+#endif
 typedef UINT8 tNFA_HCI_EVT;
 
 #define NFA_MAX_HCI_APP_NAME_LEN                0x10    /* Max application name length */
@@ -267,8 +270,20 @@ typedef struct
     UINT8               data_len;                       /* length of the registry parameter */
     UINT8               reg_data[NFA_MAX_HCI_DATA_LEN]; /* Registry parameter */
 } tNFA_HCI_REGISTRY;
-
-
+#if (NXP_EXTNS == TRUE)
+/* Data for tNFA_HCI_ADMIN_RSP_RCVD */
+typedef struct
+{
+    tNFA_STATUS     status;                             /* Status of command on Admin pipe */
+    UINT8 NoHostsPresent;                               /* No of Hosts compliant to ETSI 12 */
+    UINT8 HostIds[5];                                   /* Host Ids compliant to ETSI 12 */
+} tNFA_HCI_ADMIN_RSP_RCVD;
+/* Data for tNFA_HCI_CONFIG_RSP_RCVD */
+typedef struct
+{
+    tNFA_STATUS     status;                             /* Status for ETSI12 config for NFCEE*/
+} tNFA_HCI_CONFIG_RSP_RCVD;
+#endif
 /* Union of all hci callback structures */
 typedef union
 {
@@ -293,6 +308,10 @@ typedef union
     tNFA_HCI_INIT                   hci_init;       /* NFA_HCI_INIT_EVT               */
     tNFA_HCI_EXIT                   hci_exit;       /* NFA_HCI_EXIT_EVT               */
     tNFA_HCI_ADD_STATIC_PIPE_EVT    pipe_added;     /* NFA_HCI_ADD_STATIC_PIPE_EVT    */
+#if(NXP_EXTNS == TRUE)
+    tNFA_HCI_ADMIN_RSP_RCVD        admin_rsp_rcvd;  /* NFA_HCI_ADMIN_RSP_RCVD         */
+    tNFA_HCI_CONFIG_RSP_RCVD       config_rsp_rcvd;  /* NFA_HCI_CONFIG_RSP_RCVD       */
+#endif
 } tNFA_HCI_EVT_DATA;
 
 #if(NXP_EXTNS == TRUE)
@@ -632,6 +651,17 @@ NFC_API extern tNFA_STATUS NFA_HciDeletePipe (tNFA_HANDLE  hci_handle, UINT8 pip
 *******************************************************************************/
 NFC_API extern tNFA_STATUS NFA_HciAddStaticPipe (tNFA_HANDLE hci_handle, UINT8 host, UINT8 gate, UINT8 pipe);
 
+#if((NXP_EXTNS == TRUE) && (NXP_NFCC_MW_RCVRY_BLK_FW_DNLD == TRUE))
+/*******************************************************************************
+**
+** Function         NFA_MW_Fwdnlwd_Recovery
+**
+** Description      This function is called to make the MW_RCVRY_FW_DNLD_ALLOWED TRUE
+**                  not allowing the FW download while MW recovery.
+**
+*******************************************************************************/
+NFC_API extern BOOLEAN NFA_MW_Fwdnlwd_Recovery(BOOLEAN mw_fwdnld_recovery);
+#endif
 /*******************************************************************************
 **
 ** Function         NFA_HciDebug
@@ -640,8 +670,12 @@ NFC_API extern tNFA_STATUS NFA_HciAddStaticPipe (tNFA_HANDLE hci_handle, UINT8 h
 **
 *******************************************************************************/
 NFC_API extern void NFA_HciDebug (UINT8 action, UINT8 size, UINT8 *p_data);
-
+#if (NXP_EXTNS == TRUE)
+NFC_API extern tNFA_STATUS NFA_HciSendHostTypeListCommand (tNFA_HANDLE hci_handle);
+NFC_API extern tNFA_STATUS NFA_HciConfigureNfceeETSI12 (UINT8 hostId);
+#endif
 #if(NXP_EXTNS == TRUE)
+#if (JCOP_WA_ENABLE == TRUE)
 /*******************************************************************************
 **
 ** Function         NFA_HciW4eSETransaction_Complete
@@ -653,6 +687,7 @@ NFC_API extern void NFA_HciDebug (UINT8 action, UINT8 size, UINT8 *p_data);
 **
 *******************************************************************************/
 NFC_API extern void NFA_HciW4eSETransaction_Complete(tNFA_HCI_TRANSCV_STATE type);
+#endif
 #endif
 
 #ifdef __cplusplus

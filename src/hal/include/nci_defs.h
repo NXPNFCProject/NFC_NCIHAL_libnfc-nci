@@ -246,6 +246,9 @@ typedef UINT8 tNCI_STATUS;
  **********************************************/
 #define NCI_MSG_NFCEE_DISCOVER          0
 #define NCI_MSG_NFCEE_MODE_SET          1
+#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
+#define NCI_MSG_NFCEE_PWR_LNK_CTRL      3
+#endif
 
 /**********************************************
  * NCI Proprietary  Group       - F
@@ -373,7 +376,7 @@ typedef UINT8 tNCI_STATUS;
 #define NCI_INTERFACE_FIRST_VS          0x80
 #if (NXP_EXTNS == TRUE)
 #define NCI_INTERFACE_MIFARE            0x80
-#if((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
+#if(NFC_NXP_CHIP_TYPE != PN547C2)
 #define NCI_INTERFACE_UICC_DIRECT       0x82
 #define NCI_INTERFACE_ESE_DIRECT        0x83
 #else
@@ -395,6 +398,13 @@ typedef UINT8 tNCI_INTF_TYPE;
 #define NCI_DISCOVER_PARAM_SIZE_DEACT       0x01 /* type */
 #define NCI_DISCOVER_PARAM_SIZE_DEACT_RSP   0x01 /* Status (1 octet) */
 #define NCI_DISCOVER_PARAM_SIZE_DEACT_NTF   0x01 /* type */
+
+/**********************************************
+ * NCI RF Management / PWR AND LINK CTRl Group Params
+ **********************************************/
+#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
+#define NCI_PWR_LINK_PARAM_CMD_SIZE         0x02 /*nfcee id, nfcee_pwr_link_cfg*/
+#endif
 
 /**********************************************
  * Supported Protocols

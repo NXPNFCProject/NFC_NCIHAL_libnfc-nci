@@ -336,7 +336,39 @@ UINT8 nci_snd_nfcee_discover (UINT8 discover_action)
     nfc_ncif_send_cmd (p);
     return (NCI_STATUS_OK);
 }
+#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
+/*******************************************************************************
+**
+** Function         nci_snd_pwr_nd_lnk_ctrl_cmd
+**
+** Description      CMD for NFCC which manages the power supply and
+**                  communication links between the NFCC and its connected NFCEEs.
+**
+** Returns          status
+**
+*******************************************************************************/
+UINT8  nci_snd_pwr_nd_lnk_ctrl_cmd (UINT8 nfcee_id,UINT8 cfg_value)
+{
+     BT_HDR *p;
+     UINT8  *pp;
+     if ((p = NCI_GET_CMD_BUF (NCI_PWR_LINK_PARAM_CMD_SIZE)) == NULL)
+              return (NCI_STATUS_FAILED);
+     p->event           = BT_EVT_TO_NFC_NCI;
+     p->len             = NCI_MSG_HDR_SIZE + NCI_PWR_LINK_PARAM_CMD_SIZE;
+     p->offset          = NCI_MSG_OFFSET_SIZE;
+     p->layer_specific  = 0;
+     pp                 = (UINT8 *) (p + 1) + p->offset;
 
+     NCI_MSG_BLD_HDR0 (pp, NCI_MT_CMD, NCI_GID_EE_MANAGE);
+     NCI_MSG_BLD_HDR1 (pp, NCI_MSG_NFCEE_PWR_LNK_CTRL);
+     UINT8_TO_STREAM (pp, NCI_PWR_LINK_PARAM_CMD_SIZE);
+     UINT8_TO_STREAM (pp, nfcee_id);
+     UINT8_TO_STREAM (pp, cfg_value);
+
+     nfc_ncif_send_cmd (p);
+     return (NCI_STATUS_OK);
+}
+#endif
 /*******************************************************************************
 **
 ** Function         nci_snd_nfcee_mode_set

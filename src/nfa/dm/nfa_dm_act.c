@@ -374,6 +374,9 @@ static void nfa_dm_nfc_response_cback (tNFC_RESPONSE_EVT event, tNFC_RESPONSE *p
     case NFC_NFCEE_INFO_REVT:                    /* NFCEE Discover Notification */
     case NFC_EE_ACTION_REVT:                     /* EE Action notification */
     case NFC_NFCEE_MODE_SET_REVT:                /* NFCEE Mode Set response */
+#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
+    case NFC_NFCEE_PWR_LNK_CTRL_REVT:
+#endif
     case NFC_SET_ROUTING_REVT:                   /* Configure Routing response */
         nfa_ee_proc_evt (event, p_data);
         break;
@@ -1200,7 +1203,7 @@ BOOLEAN nfa_dm_act_enable_listening (tNFA_DM_MSG *p_data)
 
     NFA_TRACE_DEBUG0 ("nfa_dm_act_enable_listening ()");
 
-    nfa_dm_cb.flags &= ~NFA_DM_FLAGS_LISTEN_DISABLED;
+    nfa_dm_cb.flags &= (~NFA_DM_FLAGS_LISTEN_DISABLED & ~NFA_DM_FLAGS_PASSIVE_LISTEN_DISABLED);
     evt_data.status = NFA_STATUS_OK;
     nfa_dm_conn_cback_event_notify (NFA_LISTEN_ENABLED_EVT, &evt_data);
 
@@ -1226,6 +1229,28 @@ BOOLEAN nfa_dm_act_disable_listening (tNFA_DM_MSG *p_data)
     nfa_dm_cb.flags |= NFA_DM_FLAGS_LISTEN_DISABLED;
     evt_data.status = NFA_STATUS_OK;
     nfa_dm_conn_cback_event_notify (NFA_LISTEN_DISABLED_EVT, &evt_data);
+
+    return (TRUE);
+}
+
+/*******************************************************************************
+**
+** Function         nfa_dm_act_disable_passive_listening
+**
+** Description      Process disable passive listening command
+**
+** Returns          TRUE (message buffer to be freed by caller)
+**
+*******************************************************************************/
+BOOLEAN nfa_dm_act_disable_passive_listening (tNFA_DM_MSG *p_data)
+{
+    tNFA_CONN_EVT_DATA evt_data;
+
+    NFA_TRACE_DEBUG0 ("nfa_dm_act_disable_passive_listening ()");
+
+    nfa_dm_cb.flags |= NFA_DM_FLAGS_PASSIVE_LISTEN_DISABLED;
+    evt_data.status = NFA_STATUS_OK;
+    nfa_dm_conn_cback_event_notify (NFA_PASSIVE_LISTEN_DISABLED_EVT, &evt_data);
 
     return (TRUE);
 }
@@ -2147,6 +2172,10 @@ char *nfa_dm_nfc_revt_2_str (tNFC_RESPONSE_EVT event)
     case NFC_NFCC_POWER_OFF_REVT:
         return "NFC_NFCC_POWER_OFF_REVT";
 
+#if ((NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE))
+    case NFC_NFCEE_PWR_LNK_CTRL_REVT:
+        return "NFC_NFCEE_PWR_LNK_CTRL_REVT";
+#endif
     default:
         return "unknown revt";
         break;

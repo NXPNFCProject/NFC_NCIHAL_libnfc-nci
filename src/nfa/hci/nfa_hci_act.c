@@ -52,6 +52,7 @@
 #include "nfa_hci_defs.h"
 
 
+
 /* Static local functions       */
 static void nfa_hci_api_register (tNFA_HCI_EVENT_DATA *p_evt_data);
 static void nfa_hci_api_get_gate_pipe_list (tNFA_HCI_EVENT_DATA *p_evt_data);
@@ -74,6 +75,21 @@ static void nfa_hci_handle_connectivity_gate_pkt (UINT8 *p_data, UINT16 data_len
 static void nfa_hci_handle_generic_gate_cmd (UINT8 *p_data, UINT8 data_len, tNFA_HCI_DYN_GATE *p_gate, tNFA_HCI_DYN_PIPE *p_pipe);
 static void nfa_hci_handle_generic_gate_rsp (UINT8 *p_data, UINT8 data_len, tNFA_HCI_DYN_GATE *p_gate, tNFA_HCI_DYN_PIPE *p_pipe);
 static void nfa_hci_handle_generic_gate_evt (UINT8 *p_data, UINT16 data_len, tNFA_HCI_DYN_GATE *p_gate, tNFA_HCI_DYN_PIPE *p_pipe);
+
+#if (NXP_EXTNS == TRUE)
+static void nfa_hci_api_get_host_id (tNFA_HCI_EVENT_DATA *p_evt_data);
+static void nfa_hci_api_get_host_type (tNFA_HCI_EVENT_DATA *p_evt_data);
+tNFA_STATUS nfa_hci_api_get_host_type_list(tNFA_HCI_EVENT_DATA *p_evt_data);
+tNFA_STATUS nfa_hci_api_config_nfcee(tNFA_HCI_EVENT_DATA *p_evt_data);
+static void nfa_hci_api_getnoofhosts (UINT8 *p_data, UINT8 data_len);
+static void nfa_hci_handle_Nfcee_admpipe_rsp (UINT8 *p_data, UINT8 data_len);
+static void nfa_hci_handle_Nfcee_dynpipe_rsp (UINT8 pipeId,UINT8 *p_data, UINT8 data_len);
+static BOOLEAN nfa_hci_api_checkforAPDUGate(UINT8 *p_data, UINT8 data_len);
+static BOOLEAN nfa_hci_api_IspipePresent (UINT8 nfceeId,UINT8 gateId);
+static BOOLEAN nfa_hci_api_GetpipeId(UINT8 nfceeId,UINT8 gateId,UINT8 *pipeId);
+#endif
+
+
 
 
 /*******************************************************************************
@@ -128,6 +144,16 @@ void nfa_hci_check_pending_api_requests (void)
         if (nfa_hci_api_send_event (p_evt_data) == FALSE)
             b_free = FALSE;
         break;
+#if (NXP_EXTNS == TRUE)
+    case NFA_HCI_API_SEND_ADMIN_EVT:
+        if (nfa_hci_api_get_host_type_list (p_evt_data) == FALSE)
+            b_free = FALSE;
+        break;
+    case NFA_HCI_API_CONFIGURE_EVT:
+        if (nfa_hci_api_config_nfcee (p_evt_data) == FALSE)
+            b_free = FALSE;
+        break;
+#endif
     }
 
     if (b_free)
@@ -231,7 +257,14 @@ void nfa_hci_check_api_requests (void)
         case NFA_HCI_API_ADD_STATIC_PIPE_EVT:
             nfa_hci_api_add_static_pipe (p_evt_data);
             break;
-
+#if (NXP_EXTNS == TRUE)
+        case NFA_HCI_API_SEND_ADMIN_EVT:
+            nfa_hci_api_get_host_type_list (p_evt_data);
+            break;
+        case NFA_HCI_API_CONFIGURE_EVT:
+            nfa_hci_api_config_nfcee (p_evt_data);
+            break;
+#endif
         default:
             NFA_TRACE_ERROR1 ("nfa_hci_check_api_requests ()  Unknown event: 0x%04x", p_msg->event);
             break;
@@ -1309,9 +1342,18 @@ void nfa_hci_handle_admin_gate_cmd (UINT8 *p_data)
 #endif
 #endif
         )
+#if ((NXP_EXTNS == TRUE) && (NXP_BLOCK_PROPRIETARY_APDU_GATE == TRUE))
+        if(dest_gate == NFC_HCI_DEFAULT_DEST_GATE)
+        {
+            response = NFA_HCI_ANY_E_NOK;
+        }
+        else
         {
             response = nfa_hciu_add_pipe_to_static_gate (dest_gate, pipe, source_host, source_gate);
         }
+#else
+        response = nfa_hciu_add_pipe_to_static_gate (dest_gate, pipe, source_host, source_gate);
+#endif
         else
         {
             if ((pgate = nfa_hciu_find_gate_by_gid (dest_gate)) != NULL)
@@ -1407,6 +1449,11 @@ void nfa_hci_handle_admin_gate_rsp (UINT8 *p_data, UINT8 data_len)
     UINT8               host_count  = 0;
     UINT8               host_id     = 0;
     UINT32              os_tick;
+#if (NXP_EXTNS == TRUE)
+    //Terminal Host Type as ETSI12  Byte1 -Host Id Byte2 - 00
+    UINT8               terminal_host_type[NFA_HCI_HOST_TYPE_LEN] = {0x01,0x00};
+    UINT8               count=0;
+#endif
 
 #if (BT_TRACE_VERBOSE == TRUE)
     NFA_TRACE_DEBUG4 ("nfa_hci_handle_admin_gate_rsp - LastCmdSent: %s  App: 0x%04x  Gate: 0x%02x  Pipe: 0x%02x",
@@ -1430,9 +1477,23 @@ void nfa_hci_handle_admin_gate_rsp (UINT8 *p_data, UINT8 data_len)
 
         if (nfa_hci_cb.inst != NFA_HCI_ANY_OK)
         {
+
+#if (NXP_EXTNS == TRUE)
+            if(nfa_hci_cb.cmd_sent == NFA_HCI_ANY_GET_PARAMETER)
+            {
+                if (nfa_hci_cb.param_in_use == NFA_HCI_HOST_TYPE_INDEX)
+                {
+                    NFA_TRACE_DEBUG0 ("nfa_hci_handle_admin_gate_rsp - HCI Controller is ETSI 9 !!!");
+                    //Set a variable to set ETSI version of HCI Controller
+                    nfa_hci_cb.host_controller_version = NFA_HCI_CONTROLLER_VERSION_9;
+                }
+            }
+#else
             NFA_TRACE_ERROR0 ("nfa_hci_handle_admin_gate_rsp - Initialization failed");
             nfa_hci_startup_complete (NFA_STATUS_FAILED);
             return;
+#endif
+
         }
 
         switch (nfa_hci_cb.cmd_sent)
@@ -1453,12 +1514,24 @@ void nfa_hci_handle_admin_gate_rsp (UINT8 *p_data, UINT8 data_len)
 #else
             if (nfa_hci_cb.param_in_use == NFA_HCI_WHITELIST_INDEX)
             {
+                NFA_TRACE_DEBUG0 ("nfa_hci_handle_admin_gate_rsp - Set the HOST_TYPE as per ETSI 12 !!!");
+                /* Set the HOST_TYPE as per ETSI 12 */
+                nfa_hciu_send_set_param_cmd (NFA_HCI_ADMIN_PIPE, NFA_HCI_HOST_TYPE_INDEX, NFA_HCI_HOST_TYPE_LEN, &terminal_host_type);
+                return;
+            }
+
+            if (nfa_hci_cb.param_in_use == NFA_HCI_HOST_TYPE_INDEX)
+            {
+                NFA_TRACE_DEBUG0 ("nfa_hci_handle_admin_gate_rsp - HCI Controller is ETSI 12 !!!");
+                //Set a variable  to set ETSI version of HCI Controller
+                nfa_hci_cb.host_controller_version = NFA_HCI_CONTROLLER_VERSION_12;
                 if (nfa_hci_cb.b_hci_netwk_reset)
                 {
                     nfa_hci_cb.b_hci_netwk_reset = FALSE;
                    /* Session ID is reset, Set New session id */
                     memcpy (&nfa_hci_cb.cfg.admin_gate.session_id[NFA_HCI_SESSION_ID_LEN / 2], nfa_hci_cb.cfg.admin_gate.session_id, (NFA_HCI_SESSION_ID_LEN / 2));
                     os_tick = GKI_get_os_tick_count ();
+                    memset (&nfa_hci_cb.cfg, 0, sizeof (nfa_hci_cb.cfg));
                     memcpy (nfa_hci_cb.cfg.admin_gate.session_id, (UINT8 *)&os_tick, (NFA_HCI_SESSION_ID_LEN / 2));
                     nfa_hciu_send_set_param_cmd (NFA_HCI_ADMIN_PIPE, NFA_HCI_SESSION_IDENTITY_INDEX, NFA_HCI_SESSION_ID_LEN, (UINT8 *) nfa_hci_cb.cfg.admin_gate.session_id);
                 }
@@ -1487,20 +1560,17 @@ void nfa_hci_handle_admin_gate_rsp (UINT8 *p_data, UINT8 data_len)
                     nfa_hci_cb.inactive_host[host_count] = NFA_HCI_HOST_ID_UICC0 + host_count;
                     host_count++;
                 }
-
                 host_count = 0;
                 /* Collect active host in the Host Network */
                 while (host_count < data_len)
                 {
                     host_id = (UINT8) *p_data++;
-
                     if (  (host_id >= NFA_HCI_HOST_ID_UICC0)
                         &&(host_id < NFA_HCI_HOST_ID_UICC0 + NFA_HCI_MAX_HOST_IN_NETWORK)  )
                     {
                         nfa_hci_cb.inactive_host[host_id - NFA_HCI_HOST_ID_UICC0] = 0x00;
                         nfa_hci_cb.reset_host[host_id - NFA_HCI_HOST_ID_UICC0] = 0x00;
                     }
-
                     host_count++;
                 }
                 nfa_hci_startup_complete (NFA_STATUS_OK);
@@ -1526,6 +1596,7 @@ void nfa_hci_handle_admin_gate_rsp (UINT8 *p_data, UINT8 data_len)
                     /* Session ID is reset, Set New session id */
                     memcpy (&nfa_hci_cb.cfg.admin_gate.session_id[NFA_HCI_SESSION_ID_LEN / 2], nfa_hci_cb.cfg.admin_gate.session_id, (NFA_HCI_SESSION_ID_LEN / 2));
                     os_tick = GKI_get_os_tick_count ();
+                    memset (&nfa_hci_cb.cfg, 0, sizeof (nfa_hci_cb.cfg));
                     memcpy (nfa_hci_cb.cfg.admin_gate.session_id, (UINT8 *)&os_tick, (NFA_HCI_SESSION_ID_LEN / 2));
                     nfa_hciu_send_set_param_cmd (NFA_HCI_ADMIN_PIPE, NFA_HCI_SESSION_IDENTITY_INDEX, NFA_HCI_SESSION_ID_LEN, (UINT8 *) nfa_hci_cb.cfg.admin_gate.session_id);
 #else
@@ -1536,7 +1607,6 @@ void nfa_hci_handle_admin_gate_rsp (UINT8 *p_data, UINT8 data_len)
                 }
             }
             break;
-
         case NFA_HCI_ANY_OPEN_PIPE:
             nfa_hci_cb.cfg.admin_gate.pipe01_state = NFA_HCI_PIPE_OPENED;
 
@@ -1571,6 +1641,12 @@ void nfa_hci_handle_admin_gate_rsp (UINT8 *p_data, UINT8 data_len)
             break;
         }
     }
+#if(NXP_EXTNS == TRUE)
+    else if(nfa_hci_cb.hci_state == NFA_HCI_STATE_NFCEE_ENABLE)
+    {
+        nfa_hci_handle_Nfcee_admpipe_rsp(p_data,data_len);
+    }
+#endif
     else
     {
         status = (nfa_hci_cb.inst == NFA_HCI_ANY_OK) ? NFA_STATUS_OK : NFA_STATUS_FAILED;
@@ -1630,6 +1706,7 @@ void nfa_hci_handle_admin_gate_rsp (UINT8 *p_data, UINT8 data_len)
                     }
                     host_count++;
                 }
+
                 if (nfa_hciu_is_no_host_resetting ())
                     nfa_hci_check_pending_api_requests ();
                 nfa_hciu_send_to_app (NFA_HCI_HOST_LIST_EVT, &evt_data, nfa_hci_cb.app_in_use);
@@ -1644,7 +1721,6 @@ void nfa_hci_handle_admin_gate_rsp (UINT8 *p_data, UINT8 data_len)
                 STREAM_TO_UINT8 (dest_host,   p_data);
                 STREAM_TO_UINT8 (dest_gate,   p_data);
                 STREAM_TO_UINT8 (pipe,        p_data);
-
                 /* Sanity check */
                 if (source_gate != nfa_hci_cb.local_gate_in_use)
                 {
@@ -1652,11 +1728,8 @@ void nfa_hci_handle_admin_gate_rsp (UINT8 *p_data, UINT8 data_len)
                                         nfa_hci_cb.local_gate_in_use, source_gate);
                     break;
                 }
-
                 nfa_hciu_add_pipe_to_gate (pipe, source_gate, dest_host, dest_gate);
-
             }
-
             /* Tell the application his pipe was created or not */
             evt_data.created.status       = status;
             evt_data.created.pipe         = pipe;
@@ -1822,6 +1895,11 @@ void nfa_hci_handle_dyn_pipe_pkt (UINT8 pipe_id, UINT8 *p_data, UINT16 data_len)
         return;
     }
 
+    if(nfa_hci_cb.hci_state == NFA_HCI_STATE_NFCEE_ENABLE)
+    {
+        nfa_hci_handle_Nfcee_dynpipe_rsp(pipe_id,p_data,data_len);
+    }
+
     if (p_pipe->local_gate == NFA_HCI_IDENTITY_MANAGEMENT_GATE)
     {
         nfa_hci_handle_identity_mgmt_gate_pkt (p_data, p_pipe);
@@ -1869,7 +1947,6 @@ void nfa_hci_handle_dyn_pipe_pkt (UINT8 pipe_id, UINT8 *p_data, UINT16 data_len)
                 nfa_hciu_send_msg (pipe_id, NFA_HCI_RESPONSE_TYPE, NFA_HCI_ANY_E_NOK, 0, NULL);
             return;
         }
-
         /* Check if data packet is a command, response or event */
         switch (nfa_hci_cb.type)
         {
@@ -2307,3 +2384,452 @@ static void nfa_hci_handle_generic_gate_evt (UINT8 *p_data, UINT16 data_len, tNF
     /* notify NFA_HCI_EVENT_RCVD_EVT to the application */
     nfa_hciu_send_to_app (NFA_HCI_EVENT_RCVD_EVT, &evt_data, p_gate->gate_owner);
 }
+
+#if (NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         nfa_hci_api_get_host_id
+**
+** Description      action function to get the host id from HCI controller
+**
+** Returns          None
+**
+*******************************************************************************/
+static void nfa_hci_api_get_host_id (tNFA_HCI_EVENT_DATA *p_evt_data)
+{
+    UINT8               app_inx = p_evt_data->get_host_list.hci_handle & NFA_HANDLE_MASK;
+
+    nfa_hci_cb.app_in_use = p_evt_data->get_host_list.hci_handle;
+
+    /* Send Get Host List command on "Internal request" or requested by registered application with valid handle and callback function */
+    if (  (nfa_hci_cb.app_in_use == NFA_HANDLE_INVALID)
+        ||((app_inx < NFA_HCI_MAX_APP_CB) && (nfa_hci_cb.p_app_cback[app_inx] != NULL))  )
+    {
+        nfa_hciu_send_get_param_cmd (NFA_HCI_ADMIN_PIPE, NFA_HCI_HOST_ID_INDEX);
+    }
+}
+
+
+/*******************************************************************************
+**
+** Function         nfa_hci_api_get_host_type
+**
+** Description      action function to get the host type from HCI controller
+**
+** Returns          None
+**
+*******************************************************************************/
+static void nfa_hci_api_get_host_type (tNFA_HCI_EVENT_DATA *p_evt_data)
+{
+    UINT8               app_inx = p_evt_data->get_host_list.hci_handle & NFA_HANDLE_MASK;
+
+    nfa_hci_cb.app_in_use = p_evt_data->get_host_list.hci_handle;
+
+    /* Send Get Host List command on "Internal request" or requested by registered application with valid handle and callback function */
+    if (  (nfa_hci_cb.app_in_use == NFA_HANDLE_INVALID)
+        ||((app_inx < NFA_HCI_MAX_APP_CB) && (nfa_hci_cb.p_app_cback[app_inx] != NULL))  )
+    {
+        if (nfa_hci_cb.cfg.admin_gate.pipe01_state == NFA_HCI_PIPE_OPENED)
+        {
+            nfa_hciu_send_get_param_cmd (NFA_HCI_ADMIN_PIPE, NFA_HCI_HOST_TYPE_INDEX);
+        }
+    }
+}
+
+/*******************************************************************************
+**
+** Function         nfa_hci_api_get_host_type_list
+**
+** Description      action function to get the host type list from HCI controller
+**
+** Returns          Status
+**
+*******************************************************************************/
+tNFA_STATUS nfa_hci_api_get_host_type_list (tNFA_HCI_EVENT_DATA *p_evt_data)
+{
+    tNFA_STATUS         status = NFA_STATUS_FAILED;
+    tNFA_HCI_EVT_DATA   evt_data;
+    tNFA_HANDLE         app_handle;
+    NFA_TRACE_DEBUG0 ("nfa_hci_api_get_host_type_list - enter!!");
+    if((nfa_hci_cb.host_controller_version == NFA_HCI_CONTROLLER_VERSION_12) && (nfa_hci_cb.hci_state == NFA_HCI_STATE_IDLE))
+    {
+        nfa_hci_cb.hci_state = NFA_HCI_STATE_NFCEE_ENABLE;
+        NFA_TRACE_DEBUG0 ("nfa_hci_api_get_host_type_list - Sending get_host_type_list!!!");
+        if ((status = nfa_hciu_send_get_param_cmd (NFA_HCI_ADMIN_PIPE, NFA_HCI_HOST_TYPE_LIST_INDEX)) == NFA_STATUS_OK)
+        return TRUE;
+    }
+    evt_data.admin_rsp_rcvd.status = status;
+    evt_data.admin_rsp_rcvd.NoHostsPresent = 0;
+    /* Send NFA_HCI_CMD_SENT_EVT to notify failure */
+    nfa_hciu_send_to_all_apps (NFA_HCI_RSP_SENT_ADMIN_EVT, &evt_data);
+    return TRUE;
+}
+/*******************************************************************************
+**
+** Function         nfa_hci_api_config_nfcee
+**
+** Description      action function to configure NFCEE found in network as per ETSI12
+**
+** Returns          Status
+**
+*******************************************************************************/
+tNFA_STATUS nfa_hci_api_config_nfcee (tNFA_HCI_EVENT_DATA *p_evt_data)
+{
+    tNFA_STATUS         status = NFA_STATUS_FAILED;
+    tNFA_HCI_EVT_DATA   evt_data;
+    UINT8               count=0;
+    UINT8               pipeId=0;
+    BOOLEAN             bCreatepipe = FALSE;
+    NFA_TRACE_DEBUG0 ("nfa_hci_api_config_nfcee - enter!!");
+
+    if((nfa_hci_cb.host_controller_version == NFA_HCI_CONTROLLER_VERSION_12) && (nfa_hci_cb.hci_state == NFA_HCI_STATE_IDLE))
+    {
+        NFA_TRACE_DEBUG0 ("nfa_hci_api_config_nfcee -Entry");
+            if((nfa_hci_api_IspipePresent(p_evt_data->config_info.hostId,NFA_HCI_ETSI12_APDU_GATE) == FALSE))
+            {
+                nfa_hci_cb.hci_state = NFA_HCI_STATE_NFCEE_ENABLE;
+                nfa_hci_cb.current_nfcee = p_evt_data->config_info.hostId;
+                if((nfa_hci_api_IspipePresent(p_evt_data->config_info.hostId,NFA_HCI_IDENTITY_MANAGEMENT_GATE) == FALSE))
+                {
+                    NFA_TRACE_DEBUG0 ("nfa_hci_api_config_nfcee - creating Id pipe!!!");
+                    nfa_hciu_send_create_pipe_cmd (NFA_HCI_IDENTITY_MANAGEMENT_GATE, nfa_hci_cb.current_nfcee, NFA_HCI_IDENTITY_MANAGEMENT_GATE);
+                    return (NFA_STATUS_OK);
+                }
+                else
+                {
+                    NFA_TRACE_DEBUG0 ("nfa_hci_api_config_nfcee - Pipe is already present just open!!!");
+                    if(nfa_hci_api_GetpipeId(p_evt_data->config_info.hostId,NFA_HCI_IDENTITY_MANAGEMENT_GATE,&pipeId)==TRUE)
+                    {
+                        nfa_hciu_send_open_pipe_cmd (pipeId);
+                        return (NFA_STATUS_OK);
+                    }
+                }
+            }
+            else
+            {
+                NFA_TRACE_DEBUG0 ("nfa_hci_api_config_nfcee - APDU Gate is present and pipe is already created!!!");
+            }
+    }
+    NFA_TRACE_DEBUG0 ("nfa_hci_api_config_nfcee - No NFCEE Config is needed!!!");
+    evt_data.config_rsp_rcvd.status = status;
+    /* Send NFA_HCI_CMD_SENT_EVT to notify failure */
+    nfa_hciu_send_to_all_apps (NFA_HCI_CONFIG_DONE_EVT, &evt_data);
+    return TRUE;
+}
+
+/*******************************************************************************
+**
+** Function         nfa_hci_api_getnoofhosts
+**
+** Description      action function to get the host type from HCI controller
+**
+** Returns          None
+**
+*******************************************************************************/
+static void nfa_hci_api_getnoofhosts (UINT8 *p_data, UINT8 data_len)
+{
+    UINT8               noofhosts = 0;
+    UINT8               count = 0;
+    UINT8               host_id = 0;
+
+    nfa_hci_cb.host_count = host_id;
+    noofhosts = ((data_len/NFA_HCI_HOST_TYPE_LEN) - 2);
+    NFA_TRACE_DEBUG1 ("nfa_hci_api_getnoofhosts :-no of hosts in HCI Network-%d", noofhosts);
+    for(count = 0;count < data_len;count++)
+    {
+      NFA_TRACE_DEBUG2 ("nfa_hci_api_getnoofhosts :data[%d] - %d\n",count,p_data[count] );
+    }
+    for (count = 0;count < noofhosts;count++)
+    {
+       host_id = (((count +1) * NFA_HCI_HOST_TYPE_LEN)+ NFA_HCI_HOST_TYPE_LEN);
+       NFA_TRACE_DEBUG1 ("nfa_hci_api_getnoofhosts -NFA_HCI_HOST_TYPE_LIST_INDEX id -- %d !!!",host_id);
+       if((p_data[host_id] & p_data[host_id + 1]) != 0xFF)
+       {
+           if((p_data[host_id] == NFA_HCI_HOST_ID_UICC0) && (p_data[host_id + 1] == 0x00))
+           {
+               NFA_TRACE_DEBUG0 ("nfa_hci_api_getnoofhosts :- UICC !!!!" );
+               nfa_hci_cb.host_id[nfa_hci_cb.host_count] = p_data[host_id];
+               nfa_hci_cb.host_count++;
+           }
+           else if((p_data[host_id] == 0x03) && (p_data[host_id + 1] == 0x00))
+           {
+               NFA_TRACE_DEBUG0 ("nfa_hci_api_getnoofhosts :- eSE !!!!" );
+               nfa_hci_cb.host_id[nfa_hci_cb.host_count] = 0xC0;
+               nfa_hci_cb.host_count++;
+           }
+        }
+      }
+}
+/*******************************************************************************
+**
+** Function         nfa_hci_api_checkforAPDUGate
+**
+** Description      action function to get the host type from HCI controller
+**
+** Returns          None
+**
+*******************************************************************************/
+static BOOLEAN nfa_hci_api_checkforAPDUGate (UINT8 *p_data, UINT8 data_len)
+{
+    UINT8               count = 0;
+    BOOLEAN             status = FALSE;
+    for (count = 0;count < data_len;count++)
+    {
+        NFA_TRACE_DEBUG1 ("nfa_hci_api_checkforAPDUGate -Gate id -- %d !!!",p_data[count]);
+        if(p_data[count] == NFA_HCI_ETSI12_APDU_GATE)
+        {
+            NFA_TRACE_DEBUG1 ("nfa_hci_api_checkforAPDUGate -count -- %d !!!",count);
+            status = TRUE;
+            break;
+        }
+    }
+    return status;
+}
+
+/*******************************************************************************
+**
+** Function         nfa_hci_handle_Nfcee_admpipe_rsp
+**
+** Description      This function handles responses received for commands during NFCEE init
+**                  on Admin pipe
+**
+** Returns          none
+**
+*******************************************************************************/
+static void nfa_hci_handle_Nfcee_admpipe_rsp (UINT8 *p_data, UINT8 data_len)
+{
+    UINT8               source_host;
+    UINT8               source_gate = nfa_hci_cb.local_gate_in_use;
+    UINT8               dest_host   = nfa_hci_cb.remote_host_in_use;
+    UINT8               dest_gate   = nfa_hci_cb.remote_gate_in_use;
+    UINT8               pipe        = 0;
+    UINT8               count        = 0;
+    tNFA_HCI_EVT_DATA   evt_data;
+    BOOLEAN             status = FALSE;
+
+#if (BT_TRACE_VERBOSE == TRUE)
+    NFA_TRACE_DEBUG4 ("nfa_hci_handle_Nfcee_admpipe_rsp - LastCmdSent: %s  App: 0x%04x  Gate: 0x%02x  Pipe: 0x%02x",
+                       nfa_hciu_instr_2_str(nfa_hci_cb.cmd_sent), nfa_hci_cb.app_in_use, nfa_hci_cb.local_gate_in_use, nfa_hci_cb.pipe_in_use);
+#else
+    NFA_TRACE_DEBUG4 ("nfa_hci_handle_Nfcee_admpipe_rsp LastCmdSent: %u  App: 0x%04x  Gate: 0x%02x  Pipe: 0x%02x",
+                       nfa_hci_cb.cmd_sent, nfa_hci_cb.app_in_use, nfa_hci_cb.local_gate_in_use, nfa_hci_cb.pipe_in_use);
+#endif
+    if (nfa_hci_cb.inst != NFA_HCI_ANY_OK)
+    {
+        nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
+        /* Send NFA_HCI_CMD_SENT_EVT to notify failure */
+        if ((nfa_hci_cb.cmd_sent == NFA_HCI_ANY_GET_PARAMETER)&& (nfa_hci_cb.param_in_use == NFA_HCI_HOST_TYPE_LIST_INDEX))
+        {
+            evt_data.admin_rsp_rcvd.status = status;
+            evt_data.admin_rsp_rcvd.NoHostsPresent= 0;
+            nfa_hciu_send_to_all_apps (NFA_HCI_RSP_SENT_ADMIN_EVT, &evt_data);
+        }
+        else
+        {
+            evt_data.config_rsp_rcvd.status = status;
+            nfa_hciu_send_to_all_apps (NFA_HCI_CONFIG_DONE_EVT, &evt_data);
+        }
+    }
+    else if ((nfa_hci_cb.cmd_sent == NFA_HCI_ANY_GET_PARAMETER)&& (nfa_hci_cb.inst == NFA_HCI_ANY_OK))
+    {
+            if (nfa_hci_cb.param_in_use == NFA_HCI_HOST_TYPE_LIST_INDEX)
+            {
+                nfa_sys_stop_timer (&nfa_hci_cb.timer);
+                NFA_TRACE_DEBUG0 ("nfa_hci_handle_admin_gate_rsp - Received the HOST_TYPE_LIST as per ETSI 12 !!!");
+                if(data_len > 4)
+                {
+                    nfa_hci_api_getnoofhosts (p_data,data_len);
+                    NFA_TRACE_DEBUG0 ("nfa_hci_handle_admin_gate_rsp - Calling complete here !!!");
+                    evt_data.admin_rsp_rcvd.status = status;
+                    evt_data.admin_rsp_rcvd.NoHostsPresent = nfa_hci_cb.host_count;
+                    NFA_TRACE_DEBUG1 ("nfa_hci_handle_admin_gate_rsp -nfa_hci_cb.host_countt --%d !",nfa_hci_cb.host_count);
+                    if(nfa_hci_cb.host_count > 0)
+                    {
+                        for(count = 0 ; count < nfa_hci_cb.host_count ;count ++)
+                        {
+                            evt_data.admin_rsp_rcvd.HostIds[count] = nfa_hci_cb.host_id[count];
+                            NFA_TRACE_DEBUG1 ("nfa_hci_handle_admin_gate_rsp -nfa_hci_cb.host_iddd --%d !",nfa_hci_cb.host_id[count]);
+                        }
+                    }
+                    nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
+                    nfa_hciu_send_to_all_apps (NFA_HCI_RSP_SENT_ADMIN_EVT, &evt_data);
+                }
+                else
+                {
+                    NFA_TRACE_DEBUG0("nfa_hci_handle_admin_gate_rsp -No host is connected!!");
+                    nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
+                    evt_data.admin_rsp_rcvd.status = status;
+                    evt_data.admin_rsp_rcvd.NoHostsPresent= 0;
+                    nfa_hciu_send_to_all_apps (NFA_HCI_RSP_SENT_ADMIN_EVT, &evt_data);
+                }
+            }
+    }
+    else if ((nfa_hci_cb.cmd_sent == NFA_HCI_ADM_CREATE_PIPE)&& (nfa_hci_cb.inst == NFA_HCI_ANY_OK))
+    {
+        STREAM_TO_UINT8 (source_host, p_data);
+        STREAM_TO_UINT8 (source_gate, p_data);
+        STREAM_TO_UINT8 (dest_host,   p_data);
+        STREAM_TO_UINT8 (dest_gate,   p_data);
+        STREAM_TO_UINT8 (pipe,        p_data);
+
+        nfa_hciu_add_pipe_to_static_gate (source_gate,pipe, dest_host, dest_gate);
+        NFA_TRACE_DEBUG0 ("nfa_hci_handle_Nfcee_admpipe_rsp - Opening pipe!!!");
+        nfa_hciu_send_open_pipe_cmd (pipe);
+    }
+    else
+    {
+        nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
+        evt_data.config_rsp_rcvd.status = status;
+        /* Send NFA_HCI_CMD_SENT_EVT to notify failure */
+        nfa_hciu_send_to_all_apps (NFA_HCI_CONFIG_DONE_EVT, &evt_data);
+    }
+}
+/*******************************************************************************
+**
+** Function         nfa_hci_handle_Nfcee_dynpipe_rsp
+**
+** Description      This function handles response received for commands during NFCEE init
+**                   on dynamic pipe
+**
+** Returns          none
+**
+*******************************************************************************/
+static void nfa_hci_handle_Nfcee_dynpipe_rsp (UINT8 pipeId,UINT8 *p_data, UINT8 data_len)
+{
+    tNFA_HCI_DYN_PIPE   *p_pipe = nfa_hciu_find_pipe_by_pid (pipeId);
+    tNFA_HCI_DYN_GATE   *p_gate;
+    BOOLEAN             status = FALSE;
+    tNFA_HCI_EVT_DATA   evt_data;
+
+    if ((nfa_hci_cb.type == NFA_HCI_RESPONSE_TYPE)&&(nfa_hci_cb.inst != NFA_HCI_ANY_OK))
+    {
+        nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
+        evt_data.config_rsp_rcvd.status = status;
+        /* Send NFA_HCI_CMD_SENT_EVT to notify failure */
+        nfa_hciu_send_to_all_apps (NFA_HCI_CONFIG_DONE_EVT, &evt_data);
+        return;
+    }
+    if (pipeId == NULL)
+    {
+        /* Invalid pipe ID */
+        NFA_TRACE_ERROR1 ("nfa_hci_handle_Nfcee_dynpipe_rsp - Unknown pipe %d",pipeId);
+        if (nfa_hci_cb.type == NFA_HCI_COMMAND_TYPE)
+            nfa_hciu_send_msg (pipeId, NFA_HCI_RESPONSE_TYPE, NFA_HCI_ANY_E_NOK, 0, NULL);
+        evt_data.config_rsp_rcvd.status = status;
+        /* Send NFA_HCI_CMD_SENT_EVT to notify failure */
+        nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
+        nfa_hciu_send_to_all_apps (NFA_HCI_CONFIG_DONE_EVT, &evt_data);
+        return;
+    }
+    switch (nfa_hci_cb.cmd_sent)
+    {
+    case NFA_HCI_ANY_OPEN_PIPE:
+            NFA_TRACE_DEBUG0 ("nfa_hci_handle_Nfcee_dynpipe_rsp - Response received open Pipe get the Gate List on Id Gate!!!");
+            if((p_pipe-> dest_gate == NFA_HCI_IDENTITY_MANAGEMENT_GATE )&&(p_pipe-> local_gate == NFA_HCI_IDENTITY_MANAGEMENT_GATE))
+            {
+                nfa_hciu_send_get_param_cmd (pipeId, NFA_HCI_GATES_LIST_INDEX);
+            }
+            break;
+    case NFA_HCI_ANY_GET_PARAMETER:
+            if (nfa_hci_cb.param_in_use == NFA_HCI_GATES_LIST_INDEX)
+            {
+                NFA_TRACE_DEBUG0 ("nfa_hci_handle_Nfcee_dynpipe_rsp - Response received Gate List on Id Gate!!!");
+                if (data_len > 0)
+                {
+                    status = nfa_hci_api_checkforAPDUGate(p_data,data_len);
+                    if (status == TRUE)
+                    {
+                       NFA_TRACE_DEBUG0 ("nfa_hci_handle_Nfcee_dynpipe_rsp - creating APDU pipee!!!");
+                       nfa_hciu_alloc_gate(NFA_HCI_ETSI12_APDU_GATE, NFA_HANDLE_GROUP_HCI);
+                       nfa_hciu_send_create_pipe_cmd (NFA_HCI_ETSI12_APDU_GATE, nfa_hci_cb.current_nfcee, NFA_HCI_ETSI12_APDU_GATE);
+                    }
+                    else
+                    {
+                        nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
+                        evt_data.config_rsp_rcvd.status = status;
+                        /* Send NFA_HCI_CMD_SENT_EVT to notify failure */
+                        nfa_hciu_send_to_all_apps (NFA_HCI_CONFIG_DONE_EVT, &evt_data);
+                    }
+                }
+            }
+            else if(nfa_hci_cb.param_in_use == NFA_HCI_MAX_C_APDU_SIZE_INDEX)
+            {
+               //Read the parameter and save in Non volatile Memory
+               NFA_TRACE_DEBUG0 ("nfa_hci_handle_Nfcee_dynpipe_rsp - Read HCI Max Wait time!!!");
+               nfa_hciu_send_get_param_cmd (pipeId, NFA_HCI_MAX_WAIT_TIME_INDEX);
+            }
+            else if(nfa_hci_cb.param_in_use == NFA_HCI_MAX_WAIT_TIME_INDEX)
+            {
+               //Read the parameter and save in Non volatile Memory
+                evt_data.admin_rsp_rcvd.status = status;
+                nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
+                /* Send NFA_HCI_CMD_SENT_EVT to notify success */
+            }
+            break;
+    }
+    if(nfa_hci_cb.type == NFA_HCI_EVENT_TYPE )
+    {
+        if(nfa_hci_cb.inst == NFA_HCI_ABORT)
+        {
+            //display atr and read first parameter on APDU Gate
+            NFA_TRACE_DEBUG0 ("nfa_hci_handle_Nfcee_dynpipe_rsp - ATR received read APDU Size!!!");
+            nfa_hciu_send_get_param_cmd (pipeId, NFA_HCI_MAX_C_APDU_SIZE_INDEX);
+        }
+    }
+
+}
+/*******************************************************************************
+**
+** Function         nfa_hci_api_IspipePresent
+**
+** Description      Check if APDU Pipe is already present or needs to created
+**
+** Returns          None
+**
+*******************************************************************************/
+static BOOLEAN nfa_hci_api_IspipePresent (UINT8 nfceeId,UINT8 gateId)
+{
+    UINT8               count = 0;
+    BOOLEAN             status = FALSE;
+    NFA_TRACE_DEBUG0 ("nfa_hci_api_IspipePresent");
+    for (count = 0;count < NFA_HCI_MAX_PIPE_CB;count++)
+    {
+        if(((nfa_hci_cb.cfg.dyn_pipes[count].dest_host)== nfceeId) && ((nfa_hci_cb.cfg.dyn_pipes[count].dest_gate)== gateId)
+                                 &&((nfa_hci_cb.cfg.dyn_pipes[count].local_gate)== gateId))
+        {
+            NFA_TRACE_DEBUG1 ("nfa_hci_api_IspipePresent -count -- %d !!!",count);
+            status = TRUE;
+            break;
+        }
+    }
+    return status;
+}
+
+/*******************************************************************************
+**
+** Function         nfa_hci_api_GetpipeId
+**
+** Description      Check if APDU Pipe is already present or needs to created
+**
+** Returns          None
+**
+*******************************************************************************/
+static BOOLEAN nfa_hci_api_GetpipeId(UINT8 nfceeId,UINT8 gateId,UINT8 *pipeId)
+{
+    UINT8               count = 0;
+    BOOLEAN             status = FALSE;
+    NFA_TRACE_DEBUG0 ("nfa_hci_api_GetpipeId");
+    for (count = 0;count < NFA_HCI_MAX_PIPE_CB;count++)
+    {
+        if(((nfa_hci_cb.cfg.dyn_pipes[count].dest_host)== nfceeId) && ((nfa_hci_cb.cfg.dyn_pipes[count].dest_gate)== gateId)
+                                 &&((nfa_hci_cb.cfg.dyn_pipes[count].local_gate)== gateId))
+        {
+            NFA_TRACE_DEBUG1 ("nfa_hci_api_GetpipeId -count -- %d !!!",nfa_hci_cb.cfg.dyn_pipes[count].pipe_id);
+            *pipeId = nfa_hci_cb.cfg.dyn_pipes[count].pipe_id;
+            status = TRUE;
+            break;
+        }
+    }
+    return status;
+}
+#endif

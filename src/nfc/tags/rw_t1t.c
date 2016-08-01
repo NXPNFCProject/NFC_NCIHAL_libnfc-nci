@@ -278,11 +278,19 @@ void rw_t1t_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data)
         break;
 
     case NFC_DATA_CEVT:
-        if (  (p_data != NULL)
-            &&(p_data->data.status == NFC_STATUS_OK)  )
+        if (p_data != NULL)
         {
-            rw_t1t_data_cback (conn_id, event, p_data);
-            break;
+            if (p_data->data.status == NFC_STATUS_OK)
+            {
+                rw_t1t_data_cback (conn_id, event, p_data);
+                break;
+            }
+            else if (p_data->data.p_data != NULL)
+            {
+                /* Free the response buffer in case of error response */
+                GKI_freebuf ((BT_HDR *) (p_data->data.p_data));
+                p_data->data.p_data = NULL;
+            }
         }else if((p_data != NULL) && (p_data->data.p_data != NULL))
         {
         /* Free the response buffer in case of invalid response*/

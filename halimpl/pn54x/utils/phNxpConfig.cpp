@@ -73,6 +73,8 @@ using namespace::std;
 
 namespace nxp {
 
+void readOptionalConfig(const char* optional);
+
 class CNfcParam : public string
 {
 public:
@@ -476,8 +478,10 @@ CNfcConfig& CNfcConfig::GetInstance()
         strPath.assign(transport_config_path);
         strPath += config_name;
         theInstance.readConfig(strPath.c_str(), true);
+#if(NXP_EXTNS == TRUE)
+        readOptionalConfig("brcm");
+#endif
     }
-
     return theInstance;
 }
 

@@ -563,6 +563,38 @@ tNFA_STATUS NFA_DisableListening (void)
 
 /*******************************************************************************
 **
+** Function         NFA_DisablePassiveListening
+**
+** Description      Disable Passive listening
+**                  NFA_LISTEN_DISABLED_EVT will be returned after stopping listening.
+**                  This function is called to exclude listen at eSE wired mode session open.
+**
+** Note:            If RF discovery is started, NFA_StopRfDiscovery()/NFA_RF_DISCOVERY_STOPPED_EVT
+**                  should happen before calling this function
+**
+** Returns          NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_FAILED otherwise
+**
+*******************************************************************************/
+tNFA_STATUS NFA_DisablePassiveListening (void)
+{
+    BT_HDR *p_msg;
+
+    NFA_TRACE_API0 ("NFA_DisablePassiveListening ()");
+
+    if ((p_msg = (BT_HDR *) GKI_getbuf (sizeof (BT_HDR))) != NULL)
+    {
+        p_msg->event = NFA_DM_API_DISABLE_PASSIVE_LISTENING_EVT;
+
+        nfa_sys_sendmsg (p_msg);
+
+        return (NFA_STATUS_OK);
+    }
+
+    return (NFA_STATUS_FAILED);
+}
+/*******************************************************************************
+**
 ** Function         NFA_PauseP2p
 **
 ** Description      Pause P2P services.
@@ -927,7 +959,11 @@ tNFA_STATUS NFA_SendRawFrame (UINT8  *p_raw_data,
     NFA_TRACE_API1 ("NFA_SendRawFrame () data_len:%d", data_len);
 
     /* Validate parameters */
-    if ((data_len == 0) || (p_raw_data == NULL))
+#if(NXP_NFCC_EMPTY_DATA_PACKET == TRUE)
+    if (((data_len == 0 ) || (p_raw_data == NULL)) && (!(nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_LISTEN_ACTIVE && nfa_dm_cb.disc_cb.activated_protocol == NFA_PROTOCOL_T3T)))
+#else
+         if ((data_len == 0) || (p_raw_data == NULL))
+#endif
         return (NFA_STATUS_INVALID_PARAM);
 
     size = BT_HDR_SIZE + NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE + data_len;
@@ -939,7 +975,14 @@ tNFA_STATUS NFA_SendRawFrame (UINT8  *p_raw_data,
         p_msg->len    = data_len;
 
         p = (UINT8 *) (p_msg + 1) + p_msg->offset;
-        memcpy (p, p_raw_data, data_len);
+#if(NXP_NFCC_EMPTY_DATA_PACKET == TRUE)
+        if(p_raw_data != NULL)
+        {
+            memcpy (p, p_raw_data, data_len);
+        }
+#else
+         memcpy (p, p_raw_data, data_len);
+#endif
 
         nfa_sys_sendmsg (p_msg);
 
@@ -1373,7 +1416,8 @@ tNFA_MW_VERSION NFA_GetMwVersion ()
 {
     tNFA_MW_VERSION mwVer;
     mwVer.validation = ( NXP_EN_PN547C2 | (NXP_EN_PN65T << 1) | (NXP_EN_PN548C2 << 2) |
-                        (NXP_EN_PN66T << 3) | (NXP_EN_PN551 << 4) | (NXP_EN_PN67T << 5));
+                        (NXP_EN_PN66T << 3) | (NXP_EN_PN551 << 4) | (NXP_EN_PN67T << 5) |
+                        (NXP_EN_PN553 << 6) | (NXP_EN_PN80T << 7));
     mwVer.android_version = NXP_ANDROID_VER;
     NFA_TRACE_API1("0x%x:NFC MW Major Version:", NFC_NXP_MW_VERSION_MAJ);
     NFA_TRACE_API1("0x%x:NFC MW Minor Version:", NFC_NXP_MW_VERSION_MIN);

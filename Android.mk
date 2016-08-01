@@ -23,11 +23,7 @@ D_CFLAGS += -DNXP_NFCC_HCE_F=TRUE
 PN547C2 := 1
 PN548C2 := 2
 PN551   := 3
-
-NQ110 := $PN547C2
-NQ120 := $PN547C2
-NQ210 := $PN548C2
-NQ220 := $PN548C2
+PN553   := 4
 
 ifeq ($(PN547C2),1)
 D_CFLAGS += -DPN547C2=1
@@ -37,6 +33,9 @@ D_CFLAGS += -DPN548C2=2
 endif
 ifeq ($(PN551),3)
 D_CFLAGS += -DPN551=3
+endif
+ifeq ($(PN553),4)
+D_CFLAGS += -DPN553=4
 endif
 
 #### Select the JCOP OS Version ####
@@ -57,7 +56,7 @@ LOCAL_CFLAGS += -DNFC_NXP_ESE=TRUE
 endif
 
 #### Select the CHIP ####
-NXP_CHIP_TYPE := $(PN551)
+NXP_CHIP_TYPE := $(PN553)
 
 ifeq ($(NXP_CHIP_TYPE),$(PN547C2))
 D_CFLAGS += -DNFC_NXP_CHIP_TYPE=PN547C2
@@ -65,11 +64,14 @@ else ifeq ($(NXP_CHIP_TYPE),$(PN548C2))
 D_CFLAGS += -DNFC_NXP_CHIP_TYPE=PN548C2
 else ifeq ($(NXP_CHIP_TYPE),$(PN551))
 D_CFLAGS += -DNFC_NXP_CHIP_TYPE=PN551
+else ifeq ($(NXP_CHIP_TYPE),$(PN553))
+D_CFLAGS += -DNFC_NXP_CHIP_TYPE=PN553
 endif
 
 #Gemalto SE support
 D_CFLAGS += -DGEMALTO_SE_SUPPORT
 D_CFLAGS += -DNXP_UICC_ENABLE
+D_CFLAGS += -DJCOP_WA_ENABLE=FALSE
 
 #Routing Entries optimization
 D_CFLAGS += -DNFC_NXP_LISTEN_ROUTE_TBL_OPTIMIZATION=TRUE
@@ -77,6 +79,7 @@ D_CFLAGS += -DNFC_NXP_LISTEN_ROUTE_TBL_OPTIMIZATION=TRUE
 # Build shared library system/lib/libnfc-nci.so for stack code.
 
 LOCAL_ARM_MODE := arm
+###LOCAL_MULTILIB := 64
 LOCAL_MODULE := libnfc-nci
 LOCAL_SHARED_LIBRARIES := libhardware_legacy libcutils liblog libdl libhardware
 LOCAL_CFLAGS += $(D_CFLAGS)

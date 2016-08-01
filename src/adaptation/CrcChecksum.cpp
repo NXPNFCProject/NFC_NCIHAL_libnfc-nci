@@ -42,9 +42,9 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <string>
-#ifndef LOG_TAG
+
+#undef LOG_TAG
 #define LOG_TAG "NfcNciHal"
-#endif
 
 
 static const unsigned short crctab [256] =
@@ -139,7 +139,7 @@ BOOLEAN crcChecksumVerifyIntegrity (const char* filename)
         close (fileStream);
         if ((actualReadCrc == sizeof(checksum)) && (data.size() > 0))
         {
-            ALOGD ("%s: data size=%u", __FUNCTION__, data.size());
+            ALOGD ("%s: data size=%zu", __FUNCTION__, data.size());
             if (checksum == crcChecksumCompute ((const unsigned char*) data.data(), data.size()))
                 isGood = TRUE;
             else

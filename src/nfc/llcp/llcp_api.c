@@ -393,7 +393,7 @@ UINT8 LLCP_RegisterServer (UINT8           reg_sap,
 {
     UINT8  sap;
     UINT16 length;
-    tLLCP_APP_CB *p_app_cb;
+    tLLCP_APP_CB *p_app_cb = {0, };
 
     LLCP_TRACE_API3 ("LLCP_RegisterServer (): SAP:0x%x, link_type:0x%x, ServiceName:<%s>",
                      reg_sap, link_type, ((p_service_name == NULL) ? "" : p_service_name));

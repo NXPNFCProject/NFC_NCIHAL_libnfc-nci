@@ -660,7 +660,7 @@ tNFA_STATUS NFA_AddEePowerState(tNFA_HANDLE          ee_handle,
 *******************************************************************************/
 UINT16 NFA_GetAidTableSize()
 {
-#if(((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551)) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
+#if((NFC_NXP_CHIP_TYPE != PN547C2) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
     return nfa_ee_api_get_max_aid_config_length();
 #else
     return NFA_EE_MAX_AID_CFG_LEN;
@@ -680,7 +680,7 @@ UINT16 NFA_GetAidTableSize()
 UINT16 NFA_GetRemainingAidTableSize()
 {
     UINT16 size = 0;
-#if(((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551)) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
+#if((NFC_NXP_CHIP_TYPE != PN547C2) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
     size = nfa_ee_api_get_max_aid_config_length() - nfa_ee_lmrt_size();
 #else
     size = NFA_EE_MAX_AID_CFG_LEN - nfa_ee_lmrt_size();

@@ -50,6 +50,11 @@
 #include "nfc_hal_api.h"
 #include "gki.h"
 #include "vendor_cfg.h"
+#if (NXP_EXTNS == TRUE)
+#include <NXP_NFCC_Features.h>
+#include <NXP_ESE_Features.h>
+#include <NXP_Platform_Features.h>
+#endif
 /* NFC application return status codes */
 #define NFC_STATUS_OK                   NCI_STATUS_OK                   /* Command succeeded    */
 #define NFC_STATUS_REJECTED             NCI_STATUS_REJECTED             /* Command is rejected. */
@@ -78,13 +83,15 @@
 //DTA API for MW Version need to change according to release
 #define NXP_EN_PN547C2                  0
 #define NXP_EN_PN65T                    0
-#define NXP_EN_PN548C2                  1
-#define NXP_EN_PN66T                    1
-#define NXP_EN_PN551                    1
-#define NXP_EN_PN67T                    1
+#define NXP_EN_PN548C2                  0
+#define NXP_EN_PN66T                    0
+#define NXP_EN_PN551                    0
+#define NXP_EN_PN67T                    0
+#define NXP_EN_PN553                    1
+#define NXP_EN_PN80T                    1
 #define NXP_ANDROID_VER                 (4U) /* NXP android version */
-#define NFC_NXP_MW_VERSION_MAJ          (5U) /* MW Major Version */
-#define NFC_NXP_MW_VERSION_MIN          (0U) /* MW Minor Version */
+#define NFC_NXP_MW_VERSION_MAJ          (6U) /* MW Major Version */
+#define NFC_NXP_MW_VERSION_MIN          (0x0A) /* MW Minor Version */
 #endif
 /* 0xE0 ~0xFF are proprietary status codes */
 #define NFC_STATUS_CMD_STARTED          0xE3/* Command started successfully                     */
@@ -224,7 +231,8 @@ enum
     NFC_NFCC_TRANSPORT_ERR_REVT,            /* 16 NCI Tranport error            */
     NFC_NFCC_POWER_OFF_REVT,                /* 17 NFCC turned off               */
 
-    NFC_FIRST_VS_REVT                       /* First vendor-specific rsp event  */
+    NFC_FIRST_VS_REVT,                       /* First vendor-specific rsp event  */
+    NFC_NFCEE_PWR_LNK_CTRL_REVT              /* PWR LINK CTRL Event for Wired Mode standby */
 };
 typedef UINT16 tNFC_RESPONSE_EVT;
 
@@ -344,6 +352,12 @@ typedef struct
     UINT8                   nfcee_id;               /* NFCEE ID         */
     tNFC_NFCEE_MODE         mode;                   /* NFCEE mode       */
 } tNFC_NFCEE_MODE_SET_REVT;
+
+typedef struct
+{
+    tNFC_STATUS             status;                 /* The event status.*/
+    UINT8                   nfcee_id;               /* NFCEE ID         */
+} tNFC_NFCEE_EE_PWR_LNK_REVT;
 
 #define NFC_MAX_AID_LEN     NCI_MAX_AID_LEN     /* 16 */
 
@@ -560,6 +574,9 @@ typedef union
     tNFC_NFCEE_DISCOVER_REVT    nfcee_discover;
     tNFC_NFCEE_INFO_REVT        nfcee_info;
     tNFC_NFCEE_MODE_SET_REVT    mode_set;
+#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
+    tNFC_NFCEE_EE_PWR_LNK_REVT  pwr_lnk_ctrl;
+#endif
     tNFC_RF_FIELD_REVT          rf_field;
     tNFC_STATUS                 cfg_routing;
     tNFC_GET_ROUTING_REVT       get_routing;
@@ -1042,6 +1059,7 @@ NFC_API extern tNFC_STATUS NFC_NfceeDiscover (BOOLEAN discover);
 *******************************************************************************/
 NFC_API extern tNFC_STATUS NFC_NfceeModeSet (UINT8              nfcee_id,
                                              tNFC_NFCEE_MODE    mode);
+
 /*******************************************************************************
 **
 ** Function         NFC_DiscoveryMap
@@ -1414,7 +1432,7 @@ NFC_API extern void nfc_ncif_storeScreenState(UINT8 state);
 **
 *******************************************************************************/
 void NFC_EnableDisableHalLog(UINT8 type);
-#if(((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551)) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
+#if((NFC_NXP_CHIP_TYPE != PN547C2) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
 /*******************************************************************************
 **
 ** Function         nfc_ncif_getMaxRoutingTableSize
@@ -1427,6 +1445,25 @@ void NFC_EnableDisableHalLog(UINT8 type);
 NFC_API extern UINT16 nfc_ncif_getMaxRoutingTableSize();
 #endif
 #if(NFC_NXP_ESE == TRUE)
+#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
+/*******************************************************************************
+**
+** Function         NFC_Nfcee_PwrLinkCtrl
+**
+** Description      This function is called for NFCC which manages the power supply and
+**                  communication links between the NFCC and its connected NFCEEs.
+**
+** Parameters       nfcee_id   - the NFCEE ID .
+**                  cfg_value  - 0x00 ->Default Value(NFCC decides)
+**                               0x01 ->NFCEE Power Supply always On
+**                               0x03 ->NFCC to NFCEE Communication link always
+**                                      active when the NFCEE is powered on
+** Returns          tNFC_STATUS
+**
+*******************************************************************************/
+NFC_API extern  tNFC_STATUS NFC_Nfcee_PwrLinkCtrl(UINT8 nfcee_id, UINT8 cfg_value);
+#endif
+
 /*******************************************************************************
 **
 ** Function         NFC_ReqWiredAccess
@@ -1471,6 +1508,16 @@ INT32 NFC_GetP61Status (void *pdata);
 **
 *******************************************************************************/
 INT32 NFC_DisableWired (void *pdata);
+/*******************************************************************************
+**
+** Function         NFC_P73ISOReset
+**
+** Description      This function request to reset P73
+**
+** Returns          0 if api call success, else -1
+**
+*******************************************************************************/
+INT32 NFC_P73ISOReset (void *pdata);
 /*******************************************************************************
 **
 ** Function         NFC_EnableWired

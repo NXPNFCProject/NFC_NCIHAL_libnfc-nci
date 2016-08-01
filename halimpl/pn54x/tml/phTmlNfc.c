@@ -385,9 +385,11 @@ static void phTmlNfc_TmlThread(void *pParam)
                 if (-1 == dwNoBytesWrRd)
                 {
                     NXPLOG_TML_E("PN54X - Error in I2C Read.....\n");
-                    if(read_count < MAX_READ_RETRY_COUNT)
+                    if(read_count <= MAX_READ_RETRY_COUNT)
                     {
                         read_count++;
+                        /*sleep for 30/60/90/120/150 msec between each read trial incase of read error*/
+                        usleep(read_count*30*1000);
                     }
                     else
                     {
@@ -438,6 +440,11 @@ static void phTmlNfc_TmlThread(void *pParam)
                         {
                             gpphTmlNfc_Context->bWriteCbInvoked = FALSE;
                         }
+                    }
+                    if(gpphTmlNfc_Context->tWriteInfo.bThreadBusy)
+                    {
+                        NXPLOG_TML_D("Delay Read");
+                        usleep(2000); /*2ms delay to give prio to write complete */
                     }
                     /* Update the actual number of bytes read including header */
                     gpphTmlNfc_Context->tReadInfo.wLength = (uint16_t) (dwNoBytesWrRd);
@@ -1002,8 +1009,31 @@ NFCSTATUS phTmlNfc_IoCtl(phTmlNfc_ControlCode_t eControlCode)
                 break;
             }
             case phTmlNfc_e_RelP61Access:
+            {
                 wStatus = phTmlNfc_i2c_set_p61_power_state(gpphTmlNfc_Context->pDevHandle, 4);
                 break;
+            }
+            case phTmlNfc_e_P73IsoRstMode:
+            {
+                wStatus = phTmlNfc_i2c_reset(gpphTmlNfc_Context->pDevHandle, 3);
+                break;
+            }
+            case phTmlNfc_e_SetLegacyPowerScheme:
+            {
+                wStatus = phTmlNfc_set_power_scheme(gpphTmlNfc_Context->pDevHandle, 2);
+                break;
+            }
+            case phTmlNfc_e_SetExtPMUPowerScheme:
+            {
+                wStatus = phTmlNfc_set_power_scheme(gpphTmlNfc_Context->pDevHandle, 3);
+                break;
+            }
+            case phTmlNfc_e_SetPN67TPowerScheme:
+            {
+                wStatus = phTmlNfc_set_power_scheme(gpphTmlNfc_Context->pDevHandle, 1);
+                break;
+            }
+
 #endif
             default:
                 {

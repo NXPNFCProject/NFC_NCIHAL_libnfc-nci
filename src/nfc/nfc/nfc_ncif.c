@@ -83,7 +83,7 @@ static const UINT8 nfc_mpl_code_to_size[] =
 // Global Structure varibale for FW Version
 static tNFC_FW_VERSION nfc_fw_version;
 static UINT8 gScreenState = 0x0; // SCREEN ON UNLOCKED
-#if(((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551)) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
+#if((NFC_NXP_CHIP_TYPE != PN547C2) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
 static UINT16 maxRoutingTableSize;
 #endif
 uint8_t sListenActivated;
@@ -203,12 +203,18 @@ void nfc_ncif_cmd_timeout (void)
 
         if (nfc_cb.nfc_state == NFC_STATE_CORE_INIT)
         {
-            NFC_TRACE_ERROR0 ("Force FW Download !");
-            nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_CHECK_FLASH_REQ, &fw_update_inf);
-            nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_FW_DWNLD, &fw_dwnld_status);
-            NFC_TRACE_ERROR1 ("FW Download 0x%x", fw_dwnld_status);
-            if (fw_dwnld_status !=  NFC_STATUS_OK)
-                nfc_enabled (NFC_STATUS_FAILED, NULL);
+#if((NXP_EXTNS == TRUE) && (NXP_NFCC_MW_RCVRY_BLK_FW_DNLD == TRUE))
+             NFC_TRACE_ERROR0("MW recovery should abort FW download checking at time of cmd_timeout");
+#else
+             NFC_TRACE_ERROR0 ("Force FW Download !");
+             NFC_TRACE_ERROR0 ("Force FW Download !");
+             nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_CHECK_FLASH_REQ, &fw_update_inf);
+             nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_FW_DWNLD, &fw_dwnld_status);
+             NFC_TRACE_ERROR1 ("FW Download 0x%x", fw_dwnld_status);
+             if (fw_dwnld_status !=  NFC_STATUS_OK)
+                 nfc_enabled (NFC_STATUS_FAILED, NULL);
+
+#endif
         }
 
         NFC_TRACE_ERROR1 ("Last State nfa_dm_cb.disc_cb.disc_flags 0x%x", nfa_dm_cb.disc_cb.disc_flags);
@@ -1778,38 +1784,74 @@ void nfc_ncif_report_conn_close_evt (UINT8 conn_id, tNFC_STATUS status)
 *******************************************************************************/
 void nfc_ncif_proc_reset_rsp (UINT8 *p, BOOLEAN is_ntf)
 {
+    UINT8 *temp = p, len;
     UINT8 status = *p++;
+    BOOLEAN wait_for_ntf = FALSE;
 
     if (is_ntf)
     {
 #if(NXP_EXTNS == TRUE)
-        NFC_TRACE_ERROR1 ("reset notification nfc_state :0x%x ", nfc_cb.nfc_state);
-        NFC_TRACE_ERROR1 ("reset notification!!:0x%x ", status);
+#if(NXP_NFCC_FORCE_NCI1_0_INIT == TRUE)
+        if(status == 0x02)
+        {
+            NFC_TRACE_DEBUG2 ("CORE_RESET_NTF 2 reason Command Received status nfc_state : 0x%x : 0x%x", status ,nfc_cb.nfc_state);
+            wait_for_ntf = FALSE;
+            status = NCI_STATUS_OK;
+        }
+        else if(status == 0x00)
+        {
+            NFC_TRACE_DEBUG2 ("CORE_RESET_NTF 2 reason Unrecoverable Error status nfc_state : 0x%x : 0x%x", status ,nfc_cb.nfc_state);
+            core_reset_init_num_buff = TRUE;
+            nfc_ncif_cmd_timeout();
+        }
+        else
+        {
+            NFC_TRACE_DEBUG1 ("CORE_RESET_NTF 1 nfc_state :0x%x ", nfc_cb.nfc_state);
+            NFC_TRACE_DEBUG1 ("CORE_RESET_NTF 1 status :0x%x ", status);
+            core_reset_init_num_buff = TRUE;
+            nfc_ncif_cmd_timeout();
+        }
+    #else
+        NFC_TRACE_DEBUG1 ("reset notification nfc_state :0x%x ", nfc_cb.nfc_state);
+        NFC_TRACE_DEBUG1 ("reset notification!!:0x%x ", status);
         core_reset_init_num_buff = TRUE;
         nfc_ncif_cmd_timeout();
+#endif
     }
     else
     {
-        NFC_TRACE_ERROR0 ("reset notification nfc_state : #### 1");
-
-        if (nfc_cb.flags & (NFC_FL_RESTARTING|NFC_FL_POWER_CYCLE_NFCC))
-        {
-            nfc_reset_all_conn_cbs ();
-        }
-
-        /*Check NCI version only in case of reset rsp*/
-        if (!is_ntf && status == NCI_STATUS_OK)
-        {
-            if ((*p) != NCI_VERSION)
+        #if(NXP_NFCC_FORCE_NCI1_0_INIT == TRUE)
+            NFC_TRACE_DEBUG1 ("CORE_RESET_RSP 2 nfc_state :0x%x ", nfc_cb.nfc_state);
+            len = *(--temp);     //extract the no of params in reset response
+            if (nfc_cb.flags & (NFC_FL_RESTARTING|NFC_FL_POWER_CYCLE_NFCC))
             {
-                NFC_TRACE_ERROR2 ("NCI version mismatch!!:0x%02x != 0x%02x ", NCI_VERSION, *p);
-                if ((*p) < NCI_VERSION_0_F)
+                nfc_reset_all_conn_cbs ();
+            }
+            if(len == 0x01) //If response length is 01 means NCI2.0
+            {
+                wait_for_ntf = TRUE;
+            }
+        #else
+            NFC_TRACE_DEBUG1 ("reset response nfc_state :0x%x ", nfc_cb.nfc_state);
+            if (nfc_cb.flags & (NFC_FL_RESTARTING|NFC_FL_POWER_CYCLE_NFCC))
+            {
+                nfc_reset_all_conn_cbs ();
+            }
+            /*Check NCI version only in case of reset rsp*/
+            if (!is_ntf && status == NCI_STATUS_OK)
+            {
+                if ((*p) != NCI_VERSION)
                 {
-                    NFC_TRACE_ERROR0 ("NFCC version is too old");
-                    status = NCI_STATUS_FAILED;
+                    NFC_TRACE_ERROR2 ("NCI version mismatch!!:0x%02x != 0x%02x ", NCI_VERSION, *p);
+                    if ((*p) < NCI_VERSION_0_F)
+                    {
+                        NFC_TRACE_ERROR0 ("NFCC version is too old");
+                        status = NCI_STATUS_FAILED;
+                    }
                 }
             }
-        }
+        #endif
+    }
 #else
         NFC_TRACE_ERROR1 ("reset notification!!:0x%x ", status);
         /* clean up, if the state is OPEN
@@ -1828,7 +1870,7 @@ void nfc_ncif_proc_reset_rsp (UINT8 *p, BOOLEAN is_ntf)
         nfc_reset_all_conn_cbs ();
     }
 
-    if (status == NCI_STATUS_OK)
+    if (status == NCI_STATUS_OK) //Status of CORE_RESET_RESPONSE if not notification
     {
         if ((*p) != NCI_VERSION)
         {
@@ -1840,24 +1882,34 @@ void nfc_ncif_proc_reset_rsp (UINT8 *p, BOOLEAN is_ntf)
             }
         }
     }
+#endif
 
-#endif
-        if ( status == NCI_STATUS_OK)
-        {
+    if (status == NCI_STATUS_OK)
+    {
 #if(NXP_EXTNS == TRUE)
-            NFC_TRACE_ERROR0 ("reset notification sending core init");
-#endif
+#if(NXP_NFCC_FORCE_NCI1_0_INIT == TRUE)
+        if(!wait_for_ntf)
+        {
+            NFC_TRACE_DEBUG0 ("Got CORE_RESET_NTF 2 sending CORE_INIT_CMD 1");
             nci_snd_core_init ();
-        }
-        else
-        {
-            NFC_TRACE_ERROR0 ("Failed to reset NFCC");
-            nfc_enabled (status, NULL);
-        }
-#if(NXP_EXTNS == TRUE)
-    }
+         }
+         else
+         {
+            NFC_TRACE_DEBUG0 ("Waiting for CORE_RESET_NTF 2 reason CMD received");
+            /* start NFC command-timeout timer */
+            nfc_start_timer (&nfc_cb.nci_wait_rsp_timer, (UINT16)(NFC_TTYPE_NCI_WAIT_RSP), nfc_cb.nci_wait_rsp_tout);
+         }
 #endif
-}
+        NFC_TRACE_ERROR0 ("reset notification sending core init");
+#endif
+        nci_snd_core_init ();
+    }
+    else
+    {
+        NFC_TRACE_ERROR0 ("Failed to reset NFCC");
+        nfc_enabled (status, NULL);
+    }
+ }
 
 #if(NXP_EXTNS == TRUE)
 UINT8 nfc_hal_nfcc_reset(void)
@@ -1943,7 +1995,13 @@ void nfc_ncif_proc_init_rsp (BT_HDR *p_msg)
 #if(NXP_EXTNS == TRUE)
     if(NCI_STATUS_OK == status)
     {
+#if(NXP_NFCC_MW_RCVRY_BLK_FW_DNLD == TRUE)
+        //MW_FW recovery disabling at time of sig/crash/die
+        NFC_TRACE_DEBUG1 ("MW_RCVRY_FW_DNLD_ALLOWED  -> %d", MW_RCVRY_FW_DNLD_ALLOWED);
+        if(NFC_STATE_CORE_INIT == nfc_cb.nfc_state && MW_RCVRY_FW_DNLD_ALLOWED == FALSE)
+#else
         if(NFC_STATE_CORE_INIT == nfc_cb.nfc_state)
+#endif
         {
             nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_CHECK_FLASH_REQ, &fw_update_inf);
             NFC_TRACE_DEBUG1 ("fw_update required  -> %d", fw_update_inf.fw_update_reqd);
@@ -1973,12 +2031,14 @@ void nfc_ncif_proc_init_rsp (BT_HDR *p_msg)
     }
 
     fw_status = nfc_ncif_store_FWVersion(p);
-#if(((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551)) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
+#if((NFC_NXP_CHIP_TYPE != PN547C2) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
     nfc_ncif_set_MaxRoutingTableSize(p);
 #endif
     nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_FW_MW_VER_CHECK, &fw_mw_ver_status);
 #endif
 
+    /* TODO To be removed after 553 bringup */
+    fw_mw_ver_status = NCI_STATUS_OK;
     if (status == NCI_STATUS_OK
 #if(NXP_EXTNS == TRUE)
             &&
@@ -2059,7 +2119,7 @@ tNFC_STATUS nfc_ncif_store_FWVersion(UINT8 * p_buf)
                       nfc_fw_version.major_version,nfc_fw_version.minor_version);
     return status;
 }
-#if(((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551)) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
+#if((NFC_NXP_CHIP_TYPE != PN547C2) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
 /*******************************************************************************
 **
 ** Function         nfc_ncif_set_MaxRoutingTableSize
@@ -2511,6 +2571,9 @@ BOOLEAN nfc_ncif_proc_proprietary_rsp (UINT8 mt, UINT8 gid, UINT8 oid)
                 stat = FALSE;
                 break;
             case 0x09:      /*NFA_EE_ACTION_NTF*/
+                stat = FALSE;
+                break;
+            case 0x0A:      /*NFA_EE_DISCOVERY_REQ_NTF*/
                 stat = FALSE;
                 break;
             default:

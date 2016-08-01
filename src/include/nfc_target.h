@@ -52,6 +52,10 @@
 #include "bt_trace.h"
 #endif
 
+#if (NXP_EXTNS == TRUE)
+#include <NXP_NFCC_Features.h>
+#include <NXP_ESE_Features.h>
+#endif
 
 /* API macros for DLL (needed to export API functions from DLLs) */
 #define NFC_API         EXPORT_API
@@ -543,6 +547,10 @@
 #define NFA_HCI_MAX_HOST_IN_NETWORK 0x06
 #endif
 
+#if(NXP_EXTNS == TRUE)
+#define NFA_HCI_MAX_NO_HOST_ETSI12 0x03
+#endif
+
 /* Max number of Application that can be registered to NFA-HCI */
 #ifndef NFA_HCI_MAX_APP_CB
 #define NFA_HCI_MAX_APP_CB          0x05
@@ -697,7 +705,11 @@
 /* Max number of NFCEE supported */
 #ifndef NFA_EE_MAX_EE_SUPPORTED
 #if(NXP_EXTNS == TRUE)
+#if(NXP_NFCC_DYNAMIC_DUAL_UICC == TRUE)
+#define NFA_EE_MAX_EE_SUPPORTED         4 //Wait for UICC Init complete.
+#else
 #define NFA_EE_MAX_EE_SUPPORTED         3 //Wait for UICC Init complete.
+#endif
 #else
 #define NFA_EE_MAX_EE_SUPPORTED         4           /* Modified for NFC-A until we add dynamic support */
 #endif
@@ -708,7 +720,7 @@
 #if(NXP_EXTNS == TRUE)
 #define NFA_EE_MIN_AID_SIZE         (5)
 #define NFA_EE_MIN_AID_ENTRY_SIZE   (NFA_EE_MIN_AID_SIZE + 4)
-#if((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
+#if(NFC_NXP_CHIP_TYPE != PN547C2)
 #define NFA_EE_MAX_AID_ENTRIES      (50)
 #else
 #define NFA_EE_MAX_AID_ENTRIES      (20)

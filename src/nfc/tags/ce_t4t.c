@@ -717,7 +717,7 @@ static void ce_t4t_data_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_
                 BE_STREAM_TO_UINT8 (length, p_cmd); /* Le     */
 
                 /* check if valid parameters */
-                if (length <= CE_T4T_MAX_LE)
+                if ((UINT32)length <= CE_T4T_MAX_LE)
                 {
                     /* CE allows to read more than current file size but not max file size */
                     if (length + offset > max_file_size)
@@ -768,7 +768,7 @@ static void ce_t4t_data_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_
                 BE_STREAM_TO_UINT8 (length, p_cmd); /* Lc     */
 
                 /* check if valid parameters */
-                if (length <= CE_T4T_MAX_LC)
+                if ((UINT32)length <= CE_T4T_MAX_LC)
                 {
                     if (length + offset > ce_cb.mem.t4t.max_file_size)
                     {
