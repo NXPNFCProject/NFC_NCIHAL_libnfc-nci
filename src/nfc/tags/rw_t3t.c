@@ -2392,8 +2392,9 @@ void rw_t3t_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data)
         break;
 
     case NFC_DATA_CEVT:     /* check for status in tNFC_CONN */
-        if (  (p_data->data.status == NFC_STATUS_OK)
-            ||(p_data->data.status == NFC_STATUS_CONTINUE)  )
+        if (  (p_data != NULL)
+            &&(  (p_data->data.status == NFC_STATUS_OK)
+               ||(p_data->data.status == NFC_STATUS_CONTINUE)  )  )
         {
             rw_t3t_data_cback (conn_id, &(p_data->data));
             break;
@@ -2417,7 +2418,7 @@ void rw_t3t_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data)
 
         if (event == NFC_ERROR_CEVT)
             rw_t3t_process_error (NFC_STATUS_TIMEOUT);
-        else
+        else if(p_data)
             rw_t3t_process_error (p_data->status);
 #if(NXP_EXTNS == TRUE)
         if(p_data != NULL)

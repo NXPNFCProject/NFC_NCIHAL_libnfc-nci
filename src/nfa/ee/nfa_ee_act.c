@@ -2467,7 +2467,6 @@ tNFA_STATUS nfa_ee_route_add_one_ecb(tNFA_EE_ECB *p_cb, int *p_max_len, BOOLEAN 
         *proto_pp++   = NFC_PROTOCOL_NFC_DEP;
         proto_tlv_ctr++;
     }
-
 /* store  the Technology based routing entries in temporary buffer */
 for (xx = 0; xx < NFA_EE_NUM_TECH; xx++)
 {

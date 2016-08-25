@@ -30,7 +30,7 @@ static void *pFwLibHandle; /* Global firmware lib handle used in this file only 
 uint16_t wMwVer = 0; /* Middleware version no */
 uint16_t wFwVer = 0; /* Firmware version no */
 #if(NFC_NXP_CHIP_TYPE != PN547C2)
-uint8_t gRecFWDwnld; // flag set to true to indicate dummy FW download
+uint8_t gRecFWDwnld; /* flag set to true to indicate dummy FW download */
 #endif
 static pphDnldNfc_DlContext_t gpphDnldContext = NULL; /* Download contex */
 static pphDnldNfc_RspCb_t      UserCb; /* Upper layer call back function */

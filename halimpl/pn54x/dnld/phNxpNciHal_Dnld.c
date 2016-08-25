@@ -36,7 +36,7 @@
 extern uint16_t wFwVer;
 extern uint16_t wMwVer;
 #if(NFC_NXP_CHIP_TYPE != PN547C2)
-extern uint8_t gRecFWDwnld; // flag  set to true to  indicate dummy FW download
+extern uint8_t gRecFWDwnld; /* flag  set to true to  indicate dummy FW download */
 #endif
 /* RF Configuration structure */
 typedef struct phLibNfc_IoctlSetRfConfig

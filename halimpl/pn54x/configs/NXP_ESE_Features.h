@@ -17,14 +17,15 @@
 /*
  * NXP ESE features macros definitions
  */
-#if(NFC_NXP_ESE == TRUE)
+
 #ifndef NXP_ESE_FEATURES_H
 #define NXP_ESE_FEATURES_H
+
+#if(NFC_NXP_ESE == TRUE)
 
 // Reset Schemes
 #define NXP_ESE_PN67T_RESET      1
 #define NXP_ESE_APDU_GATE_RESET  2
-
 /** Dual/Triple mode priority schemes **/
 #define NXP_ESE_EXCLUSIVE_WIRED_MODE    1
 #define NXP_ESE_WIRED_MODE_RESUME       2
@@ -32,56 +33,56 @@
 
 #if(NFC_NXP_CHIP_TYPE == PN547C2)
 #define NXP_ESE_WIRED_MODE_DISABLE_DISCOVERY   TRUE
-#endif
 
-#if(NFC_NXP_CHIP_TYPE == PN551)
+#elif((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
     #define NFC_NXP_TRIPLE_MODE_PROTECTION        TRUE
-    #define NXP_ESE_FELICA_CLT                    TRUE
+    #define NXP_ESE_FELICA_CLT                    FALSE
     #define NXP_WIRED_MODE_STANDBY_PROP           TRUE
     //dual mode prio scheme
-    #define NXP_ESE_DUAL_MODE_PRIO_SCHEME        NXP_ESE_WIRED_MODE_TIMEOUT
-    //Reset scheme
-    #define NXP_ESE_RESET_METHOD                 FALSE
+    #define NXP_ESE_DUAL_MODE_PRIO_SCHEME         NXP_ESE_WIRED_MODE_TIMEOUT
+     //Reset scheme
+    #define NXP_ESE_RESET_METHOD                  FALSE
 
 #elif(NFC_NXP_CHIP_TYPE == PN553)
     #define NFC_NXP_TRIPLE_MODE_PROTECTION        FALSE
-    #define NXP_ESE_FELICA_CLT                   FALSE
-    #define NXP_ESE_WIRED_MODE_PRIO              FALSE    //eSE wired mode prio over UICC wired mode
-    #define NXP_ESE_UICC_EXCLUSIVE_WIRED_MODE    FALSE   // UICC exclusive wired mode
+    #define NXP_ESE_FELICA_CLT                    TRUE
+    #define NXP_ESE_WIRED_MODE_PRIO               FALSE
+    #define NXP_ESE_UICC_EXCLUSIVE_WIRED_MODE     FALSE    // UICC exclusive wired mode
     //dual mode prio scheme
-    #define NXP_ESE_DUAL_MODE_PRIO_SCHEME        NXP_ESE_WIRED_MODE_TIMEOUT
-    //Reset scheme
-    #define NXP_ESE_RESET_METHOD                 TRUE
-    #define NXP_ESE_POWER_MODE                   TRUE
-    #define NXP_ESE_P73_ISO_RST                  TRUE
-    #define NXP_WIRED_MODE_STANDBY               TRUE
+    #define NXP_ESE_DUAL_MODE_PRIO_SCHEME         NXP_ESE_WIRED_MODE_TIMEOUT
+    //reset scheme
+    #define NXP_ESE_RESET_METHOD                  TRUE
+    #define NXP_ESE_POWER_MODE                    TRUE
+    #define NXP_ESE_P73_ISO_RST                   TRUE
+    #define NXP_BLOCK_PROPRIETARY_APDU_GATE       FALSE
+    #define NXP_WIRED_MODE_STANDBY                TRUE
 #endif
 
-#endif                          /* end of #ifndef NXP_ESE_FEATURES_H */
-#else
+#else /*Else of #if(NFC_NXP_ESE == TRUE)*/
 
 #if(NFC_NXP_CHIP_TYPE == PN547C2)
 #define NXP_ESE_WIRED_MODE_DISABLE_DISCOVERY   FALSE
 #endif
 
-#if(NFC_NXP_CHIP_TYPE == PN551)
+#if((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
     #define NFC_NXP_TRIPLE_MODE_PROTECTION        FALSE
-    #define NXP_ESE_FELICA_CLT                    FALSE
     #define NXP_WIRED_MODE_STANDBY_PROP           FALSE
-
-    //Reset scheme
-    #define NXP_ESE_RESET_METHOD                 FALSE
+    #define NXP_ESE_FELICA_CLT                    FALSE
+     //Reset scheme
+    #define NXP_ESE_RESET_METHOD                  FALSE
 
 #elif(NFC_NXP_CHIP_TYPE == PN553)
     #define NFC_NXP_TRIPLE_MODE_PROTECTION        FALSE
     #define NXP_ESE_FELICA_CLT                   FALSE
     #define NXP_ESE_WIRED_MODE_PRIO              FALSE    //eSE wired mode prio over UICC wired mode
     #define NXP_ESE_UICC_EXCLUSIVE_WIRED_MODE    FALSE   // UICC exclusive wired mode
+    //reset scheme
+    #define NXP_ESE_RESET_METHOD                  FALSE
+    #define NXP_ESE_POWER_MODE                    FALSE
+    #define NXP_ESE_P73_ISO_RST                   FALSE
+    #define NXP_BLOCK_PROPRIETARY_APDU_GATE       FALSE
+    #define NXP_WIRED_MODE_STANDBY                FALSE
+#endif
 
-    //Reset scheme
-    #define NXP_ESE_RESET_METHOD                 FALSE
-    #define NXP_ESE_POWER_MODE                   FALSE
-    #define NXP_ESE_P73_ISO_RST                  FALSE
-    #define NXP_WIRED_MODE_STANDBY               FALSE
-#endif
-#endif
+#endif /*End of #if(NFC_NXP_ESE == TRUE)*/
+#endif /*End of #ifndef NXP_ESE_FEATURES_H */
