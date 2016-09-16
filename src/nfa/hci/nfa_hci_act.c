@@ -2725,6 +2725,11 @@ static void nfa_hci_handle_Nfcee_dynpipe_rsp (UINT8 pipeId,UINT8 *p_data, UINT8 
     {
     case NFA_HCI_ANY_OPEN_PIPE:
             NFA_TRACE_DEBUG0 ("nfa_hci_handle_Nfcee_dynpipe_rsp - Response received open Pipe get the Gate List on Id Gate!!!");
+            if(!p_pipe)
+            {
+                NFA_TRACE_ERROR1 ("nfa_hci_handle_Nfcee_dynpipe_rsp - NULL pipe for PipeId %d",pipeId);
+                break;
+            }
             if((p_pipe-> dest_gate == NFA_HCI_IDENTITY_MANAGEMENT_GATE )&&(p_pipe-> local_gate == NFA_HCI_IDENTITY_MANAGEMENT_GATE))
             {
                 nfa_hciu_send_get_param_cmd (pipeId, NFA_HCI_GATES_LIST_INDEX);

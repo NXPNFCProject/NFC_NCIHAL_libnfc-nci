@@ -354,7 +354,6 @@ void nfc_ce_t3t_set_listen_params (void)
             UINT8_TO_STREAM (p_params, NCI_PARAM_LEN_LF_T3T_ID);                     /* length */
             UINT16_TO_BE_STREAM (p_params, p_cb->listen_info[i].t3t_system_code);    /* System Code */
             ARRAY_TO_BE_STREAM (p_params,  p_cb->listen_info[i].t3t_nfcid2, NCI_RF_F_UID_LEN);
-
             /* Set mask for this ID */
             t3t_flags2_mask &= ~((UINT16) (1<<t3t_idx));
             t3t_idx++;
@@ -381,7 +380,12 @@ void nfc_ce_t3t_set_listen_params (void)
     UINT16_TO_STREAM (p_params, t3t_flags2_mask);            /* Mask of IDs to disable listening */
 #endif
     tlv_size = (UINT8) (p_params-tlv);
+
+    if(appl_dta_mode_flag == 0x01){
+        nfa_dm_cb.eDtaMode = NFA_DTA_HCEF_MODE;
+    }
     nfa_dm_check_set_config (tlv_size, (UINT8 *)tlv, FALSE);
+
 }
 
 /*******************************************************************************

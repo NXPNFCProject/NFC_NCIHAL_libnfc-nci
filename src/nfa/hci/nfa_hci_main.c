@@ -648,9 +648,7 @@ void nfa_hci_startup_complete (tNFA_STATUS status)
         nfa_hciu_send_to_all_apps (NFA_HCI_INIT_EVT, &evt_data);
         nfa_sys_cback_notify_enable_complete (NFA_ID_HCI);
     }
-#if((NXP_EXTNS == TRUE)&& \
-((NFC_NXP_CHIP_TYPE==PN551)||(NFC_NXP_CHIP_TYPE==PN553))&& \
-(NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == TRUE))
+#if((NXP_EXTNS == TRUE) && (NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == TRUE))
     if (status == NFA_STATUS_OK){
         nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
         NFA_TRACE_EVENT0 ("hci_state = NFA_HCI_STATE_IDLE");
@@ -868,9 +866,7 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
         nfa_hci_cb.hci_state = NFA_HCI_STATE_DISABLED;
         /* deregister message handler on NFA SYS */
         nfa_sys_deregister (NFA_ID_HCI);
-#if((NXP_EXTNS == TRUE)&& \
-((NFC_NXP_CHIP_TYPE==PN551)||(NFC_NXP_CHIP_TYPE==PN553))&& \
-(NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == TRUE))
+#if((NXP_EXTNS == TRUE) && (NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == TRUE))
         if(nfa_dm_cb.p_dm_cback)
         (*nfa_dm_cb.p_dm_cback)(NFA_DM_EE_HCI_DISABLE, NULL);
 #endif

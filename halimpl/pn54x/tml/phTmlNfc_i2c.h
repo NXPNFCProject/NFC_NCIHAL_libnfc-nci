@@ -80,12 +80,12 @@ NFCSTATUS phTmlNfc_rel_svdd_wait(void *pDevHandle);
 #define P544_GET_ESE_ACCESS _IOW(PN544_MAGIC, 0x06, long)
 
 /*
-  NFC will call the ioctl to release the svdd protection
-*/
-#define P544_REL_SVDD_WAIT _IOW(PN544_MAGIC, 0x07, long)
-
-/*
   NFC and SPI will call the ioctl to update the power scheme
 */
 #define P544_SET_POWER_SCHEME _IOW(PN544_MAGIC, 0x07, long)
+
+/*
+  NFC will call the ioctl to release the svdd protection
+*/
+#define P544_REL_SVDD_WAIT _IOW(PN544_MAGIC, 0x08, long)
 #endif

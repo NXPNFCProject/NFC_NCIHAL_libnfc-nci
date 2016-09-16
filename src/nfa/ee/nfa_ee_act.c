@@ -1021,31 +1021,30 @@ void nfa_ee_api_remove_aid(tNFA_EE_MSG *p_data)
         tNFA_EE_ECB *p_cb = nfa_ee_cb.ecb;
         for (xx = 0; xx < NFA_EE_MAX_EE_SUPPORTED; xx++, p_cb++)
         {
-            memset(&p_cb->aid_cfg[0],0x00, sizeof(p_cb->aid_cfg));
-
 #if((NXP_EXTNS == TRUE) && (((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551)) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE)))
+            memset(&p_cb->aid_cfg[0],0x00, max_aid_config_length);
             memset(&p_cb->aid_len[0], 0x00, max_aid_entries);
             memset(&p_cb->aid_pwr_cfg[0], 0x00, max_aid_entries);
             memset(&p_cb->aid_rt_info[0], 0x00, max_aid_entries);
 #else
+            memset(&p_cb->aid_cfg[0],0x00, sizeof(p_cb->aid_cfg));
             memset(&p_cb->aid_len[0], 0x00, NFA_EE_MAX_AID_ENTRIES);
             memset(&p_cb->aid_pwr_cfg[0], 0x00, NFA_EE_MAX_AID_ENTRIES);
             memset(&p_cb->aid_rt_info[0], 0x00, NFA_EE_MAX_AID_ENTRIES);
 #endif
-
             p_cb->aid_entries = 0;
             nfa_ee_cb.ee_cfged      |= nfa_ee_ecb_to_mask(p_cb);
         }
 
         tNFA_EE_ECB *p_ecb = &nfa_ee_cb.ecb[NFA_EE_CB_4_DH];
 
-        memset(&p_ecb->aid_cfg[0],0x00, sizeof(p_ecb->aid_cfg));
-
 #if((NXP_EXTNS == TRUE) && (((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551)) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE)))
+        memset(&p_ecb->aid_cfg[0],0x00, max_aid_config_length);
         memset(&p_ecb->aid_len[0], 0x00, max_aid_entries);
         memset(&p_ecb->aid_pwr_cfg[0], 0x00, max_aid_entries);
         memset(&p_ecb->aid_rt_info[0], 0x00, max_aid_entries);
 #else
+        memset(&p_ecb->aid_cfg[0],0x00, sizeof(p_ecb->aid_cfg));
         memset(&p_ecb->aid_len[0], 0x00, NFA_EE_MAX_AID_ENTRIES);
         memset(&p_ecb->aid_pwr_cfg[0], 0x00, NFA_EE_MAX_AID_ENTRIES);
         memset(&p_ecb->aid_rt_info[0], 0x00, NFA_EE_MAX_AID_ENTRIES);
@@ -1604,11 +1603,14 @@ void nfa_ee_nci_disc_ntf(tNFA_EE_MSG *p_data)
         }
     }
 #if(NXP_EXTNS == TRUE)
-    if((nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_NETWK_ENABLE)&&(p_cb->ee_status != NFA_EE_STATUS_ACTIVE))
+    if(p_cb)
     {
-        NFA_TRACE_DEBUG2 ("nfa_ee_nci_disc_ntf hci_state : 0x%02x  ee_status : 0x%02x",nfa_hci_cb.hci_state,p_cb->ee_status);
-        nfa_sys_stop_timer (&nfa_hci_cb.timer);
-        nfa_sys_start_timer (&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT, 150);
+        if((nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_NETWK_ENABLE)&&(p_cb->ee_status != NFA_EE_STATUS_ACTIVE))
+       {
+           NFA_TRACE_DEBUG2 ("nfa_ee_nci_disc_ntf hci_state : 0x%02x  ee_status : 0x%02x",nfa_hci_cb.hci_state,p_cb->ee_status);
+           nfa_sys_stop_timer (&nfa_hci_cb.timer);
+           nfa_sys_start_timer (&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT, 150);
+       }
     }
 #endif
 }
@@ -2344,7 +2346,23 @@ tNFA_STATUS nfa_ee_route_add_one_ecb(tNFA_EE_ECB *p_cb, int *p_max_len, BOOLEAN 
     UINT8   *p_start;
     UINT8   new_size;
     tNFA_STATUS status = NFA_STATUS_OK;
-
+#if(NXP_NFCC_ROUTING_BLOCK_BIT==TRUE)
+    UINT8 value=0x00;
+    long retlen = 0;
+    NFA_TRACE_DEBUG1 ("NAME_NXP_PROP_BLACKLIST_ROUTING enter=0x%x",value);
+    if(GetNumValue(NAME_NXP_PROP_BLACKLIST_ROUTING, (void *)&retlen, sizeof(retlen)))
+    {
+        if(retlen == 0x01)
+        {
+            value =NFA_EE_NXP_ROUTE_BLOCK_BIT;
+            NFA_TRACE_DEBUG1 ("NAME_NXP_PROP_BLACKLIST_ROUTING change=0x%x",value);
+         }
+        else
+        {
+            NFA_TRACE_DEBUG1 ("NAME_NXP_PROP_BLACKLIST_ROUTING exit=0x%x",value);
+        }
+    }
+#endif
     nfa_ee_check_set_routing (p_cb->size_mask, p_max_len, ps, p_cur_offset);
     max_tlv = (UINT8)((*p_max_len > NFA_EE_ROUT_MAX_TLV_SIZE)?NFA_EE_ROUT_MAX_TLV_SIZE:*p_max_len);
     /* use the first byte of the buffer (ps) to keep the num_tlv */
@@ -2372,12 +2390,19 @@ tNFA_STATUS nfa_ee_route_add_one_ecb(tNFA_EE_ECB *p_cb, int *p_max_len, BOOLEAN 
                 pa ++; /* EMV tag */
                 len     = *pa++; /* aid_len */
                 if(p_cb->aid_rt_info[xx] & NFA_EE_AE_NXP_PREFIX_MATCH) {
-                 //This aid is for prefix match.
-                 *pp++   = NFC_ROUTE_TAG_AID|NFA_EE_AE_NXP_PREFIX_MATCH;
+                    //This aid is for prefix match.
+                    *pp   = NFC_ROUTE_TAG_AID|NFA_EE_AE_NXP_PREFIX_MATCH;
+#if(NXP_NFCC_ROUTING_BLOCK_BIT==TRUE)
+                    *pp  |= (NFA_EE_NXP_ROUTE_BLOCK_BIT & value)?NFA_EE_NXP_ROUTE_BLOCK_BIT:0x00;
+#endif
                 } else {
-                  //This aid is for exact match.
-                  *pp++   = NFC_ROUTE_TAG_AID;
+                    //This aid is for exact match.
+                    *pp   = NFC_ROUTE_TAG_AID;
+#if(NXP_NFCC_ROUTING_BLOCK_BIT==TRUE)
+                    *pp  |= (NFA_EE_NXP_ROUTE_BLOCK_BIT & value)?NFA_EE_NXP_ROUTE_BLOCK_BIT:0x00;
+#endif
                 }
+                *pp++;
                 *pp++   = len + 2;
                 *pp++   = p_cb->aid_rt_loc[xx];
                 *pp++   = p_cb->aid_pwr_cfg[xx];
@@ -2437,7 +2462,15 @@ tNFA_STATUS nfa_ee_route_add_one_ecb(tNFA_EE_ECB *p_cb, int *p_max_len, BOOLEAN 
         }
         if (power_cfg)
         {
-            *proto_pp++   = NFC_ROUTE_TAG_PROTO;
+            *proto_pp   = NFC_ROUTE_TAG_PROTO;
+#if(NXP_NFCC_ROUTING_BLOCK_BIT==TRUE)
+            /*Setting blocking bit for ISO-DEP and ISO7816 protocol only*/
+            if(nfa_ee_proto_list[xx]==NFC_PROTOCOL_ISO_DEP || nfa_ee_proto_list[xx] == NFC_PROTOCOL_ISO7816)
+            {
+                *proto_pp  |= (NFA_EE_NXP_ROUTE_BLOCK_BIT & value)?NFA_EE_NXP_ROUTE_BLOCK_BIT:0x00;
+            }
+#endif
+            *proto_pp++;
             *proto_pp++   = 3;
             *proto_pp++   = p_cb->nfcee_id;
             *proto_pp++   = power_cfg;
@@ -2467,6 +2500,7 @@ tNFA_STATUS nfa_ee_route_add_one_ecb(tNFA_EE_ECB *p_cb, int *p_max_len, BOOLEAN 
         *proto_pp++   = NFC_PROTOCOL_NFC_DEP;
         proto_tlv_ctr++;
     }
+
 /* store  the Technology based routing entries in temporary buffer */
 for (xx = 0; xx < NFA_EE_NUM_TECH; xx++)
 {
@@ -2562,7 +2596,15 @@ for (xx = 0; xx < NFA_EE_NUM_TECH; xx++)
 
         if (power_cfg)
         {
-            *pp++   = NFC_ROUTE_TAG_PROTO;
+            *pp  = NFC_ROUTE_TAG_PROTO;
+#if(NXP_NFCC_ROUTING_BLOCK_BIT==TRUE)
+            /*Setting blocking bit for ISO-DEP and ISO7816 protocol only*/
+            if(nfa_ee_proto_list[xx]==NFC_PROTOCOL_ISO_DEP || nfa_ee_proto_list[xx] == NFC_PROTOCOL_ISO7816)
+            {
+                *pp  |= (NFA_EE_NXP_ROUTE_BLOCK_BIT & value)?NFA_EE_NXP_ROUTE_BLOCK_BIT:0x00;
+            }
+#endif
+            *pp++;
             *pp++   = 3;
             *pp++   = p_cb->nfcee_id;
             *pp++   = power_cfg;
@@ -2620,11 +2662,15 @@ for (xx = 0; xx < NFA_EE_NUM_TECH; xx++)
                 len     = *pa++; /* aid_len */
 #if(NXP_EXTNS == TRUE)
                 if(p_cb->aid_rt_info[xx] & NFA_EE_AE_NXP_PREFIX_MATCH) {
+#if(NXP_NFCC_ROUTING_BLOCK_BIT==FALSE)
                     //This aid is for prefix match.
-                    *pp++   = NFC_ROUTE_TAG_AID|NFA_EE_AE_NXP_PREFIX_MATCH;
+                    *pp++   = (NFC_ROUTE_TAG_AID|NFA_EE_AE_NXP_PREFIX_MATCH)|((NFA_EE_NXP_ROUTE_BLOCK_BIT & value)?NFA_EE_NXP_ROUTE_BLOCK_BIT:0x00);
+#endif
                 } else {
+#if(NXP_NFCC_ROUTING_BLOCK_BIT==FALSE)
                     //This aid is for exact match.
-                    *pp++   = NFC_ROUTE_TAG_AID;
+                    *pp++   = NFC_ROUTE_TAG_AID|((NFA_EE_NXP_ROUTE_BLOCK_BIT & value)?NFA_EE_NXP_ROUTE_BLOCK_BIT:0x00);
+#endif
                 }
 #else
                 *pp++   = NFC_ROUTE_TAG_AID;

@@ -27,7 +27,9 @@
 #define NXP_NFCC_MW_RCVRY_BLK_FW_DNLD   TRUE
 #define NXP_NFCC_DYNAMIC_DUAL_UICC      TRUE
 #define NXP_NFCC_FW_WA                  TRUE
-#elif(NFC_NXP_CHIP_TYPE==PN551)
+#define NXP_NFCC_ROUTING_BLOCK_BIT      TRUE
+#elif((NFC_NXP_CHIP_TYPE == PN551)||(NFC_NXP_CHIP_TYPE == PN548C2))
 #define NXP_NFCC_DYNAMIC_DUAL_UICC      FALSE
+#define NXP_NFCC_ROUTING_BLOCK_BIT_PROP TRUE
 #endif
 #endif                          /* end of #ifndef NXP_NFCC_FEATURES_H */

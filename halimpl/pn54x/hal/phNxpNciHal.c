@@ -736,7 +736,7 @@ int phNxpNciHal_open(nfc_stack_callback_t *p_cback, nfc_stack_data_callback_t *p
         NXPLOG_NCIHAL_E("malloc of nfc_dev_node failed ");
         goto clean_and_return;
     }
-    else if (!GetNxpStrValue (NAME_NXP_NFC_DEV_NODE, (char *)nfc_dev_node, sizeof (nfc_dev_node)))
+    else if (!GetNxpStrValue (NAME_NXP_NFC_DEV_NODE, (char *)nfc_dev_node, max_len))
     {
         NXPLOG_NCIHAL_E("Invalid nfc device node name keeping the default device node /dev/pn54x");
         strcpy ((char *)nfc_dev_node, "/dev/pn54x");
@@ -1370,6 +1370,26 @@ retry_core_init:
     mEEPROM_info.request_type = EEPROM_FW_DWNLD;
     mEEPROM_info.request_mode = GET_EEPROM_DATA;
     request_EEPROM(&mEEPROM_info);
+
+#if(NFC_NXP_CHIP_TYPE!=PN547C2 && (NXP_NFCC_ROUTING_BLOCK_BIT_PROP==TRUE))
+    if(isNxpConfigModified() || (fw_dwnld_flag == 0x01))
+    {
+        uint8_t value;
+        retlen = 0;
+        if(GetNxpNumValue(NAME_NXP_PROP_BLACKLIST_ROUTING, (void *)&retlen, sizeof(retlen)))
+        {
+            if(retlen == 0x00 || retlen == 0x01)
+            {
+                value = (uint8_t)retlen;
+                mEEPROM_info.buffer = &value;
+                mEEPROM_info.bufflen = sizeof(value);
+                mEEPROM_info.request_type = EEPROM_PROP_ROUTING;
+                mEEPROM_info.request_mode = SET_EEPROM_DATA;
+                status = request_EEPROM(&mEEPROM_info);
+            }
+        }
+    }
+#endif
 
 #if((NFC_NXP_CHIP_TYPE != PN547C2) && (NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME))
     if(isNxpConfigModified() || (fw_dwnld_flag == 0x01))

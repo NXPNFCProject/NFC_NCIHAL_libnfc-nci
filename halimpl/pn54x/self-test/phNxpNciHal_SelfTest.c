@@ -1433,7 +1433,7 @@ NFCSTATUS phNxpNciHal_TestMode_open (void)
         NXPLOG_NCIHAL_E("malloc of nfc_dev_node failed ");
         goto clean_and_return;
     }
-    else if (!GetNxpStrValue (NAME_NXP_NFC_DEV_NODE, (char*)nfc_dev_node, sizeof (nfc_dev_node)))
+    else if (!GetNxpStrValue (NAME_NXP_NFC_DEV_NODE, (char*)nfc_dev_node, max_len))
     {
         NXPLOG_NCIHAL_E("Invalid nfc device node name keeping the default device node /dev/pn54x");
         strcpy ((char *)nfc_dev_node, "/dev/pn54x");

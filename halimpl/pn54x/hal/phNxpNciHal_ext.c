@@ -1239,8 +1239,16 @@ NFCSTATUS request_EEPROM(phNxpNci_EEPROM_info_t *mEEPROM_info)
         addr[1]  = 0xD7;
         break;
 
+    case EEPROM_PROP_ROUTING:
+        b_position = 7;
+        memIndex = 0x00;
+        addr[0]  = 0xA0;
+        addr[1]  = 0x98;
+        break;
+
     default:
         ALOGE("No valid request information found");
+        break;
     }
 
     uint8_t get_cfg_eeprom[6] = {0x20, 0x03, //get_cfg header

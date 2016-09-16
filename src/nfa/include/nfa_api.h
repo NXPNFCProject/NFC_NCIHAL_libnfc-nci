@@ -57,7 +57,7 @@
 **  Constants and data types
 *****************************************************************************/
 
-/* Max length of Appliction ID in 7816-4 */
+/* Max length of Application ID in 7816-4 */
 #define NFA_MAX_AID_LEN     NFC_MAX_AID_LEN
 #define NFA_MIN_AID_LEN     5 /* per NCI specification */
 
@@ -278,7 +278,8 @@ typedef enum
 {
     NFA_DTA_DEFAULT_MODE=0,
     NFA_DTA_LLCP_MODE,
-    NFA_DTA_SNEP_MODE
+    NFA_DTA_SNEP_MODE,
+    NFA_DTA_HCEF_MODE
 }tNFA_eDtaModes;
 typedef struct
 {
