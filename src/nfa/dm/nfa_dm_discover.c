@@ -3407,6 +3407,13 @@ tNFA_STATUS nfa_dm_rf_deactivate (tNFA_DEACTIVATE_TYPE deactivate_type)
     }
     else
     {
+#if(NXP_EXTNS == TRUE)
+        if (nfa_dm_cb.disc_cb.kovio_tle.in_use)
+        {
+            nfa_sys_stop_timer (&nfa_dm_cb.disc_cb.kovio_tle);
+            nfa_dm_disc_kovio_timeout_cback (&nfa_dm_cb.disc_cb.kovio_tle);
+        }
+#endif
         nfa_dm_disc_sm_execute (NFA_DM_RF_DEACTIVATE_CMD, (void *) &deactivate_type);
         return NFA_STATUS_OK;
     }

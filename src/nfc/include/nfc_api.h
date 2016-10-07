@@ -83,14 +83,14 @@
 //DTA API for MW Version need to change according to release
 #define NXP_EN_PN547C2                  0
 #define NXP_EN_PN65T                    0
-#define NXP_EN_PN548C2                  0
-#define NXP_EN_PN66T                    0
-#define NXP_EN_PN551                    0
-#define NXP_EN_PN67T                    0
-#define NXP_EN_PN553                    1
-#define NXP_EN_PN80T                    1
+#define NXP_EN_PN548C2                  1
+#define NXP_EN_PN66T                    1
+#define NXP_EN_PN551                    1
+#define NXP_EN_PN67T                    1
+#define NXP_EN_PN553                    0
+#define NXP_EN_PN80T                    0
 #define NXP_ANDROID_VER                 (4U) /* NXP android version */
-#define NFC_NXP_MW_VERSION_MAJ          (7U) /* MW Major Version */
+#define NFC_NXP_MW_VERSION_MAJ          (8U) /* MW Major Version */
 #define NFC_NXP_MW_VERSION_MIN          (00) /* MW Minor Version */
 #endif
 /* 0xE0 ~0xFF are proprietary status codes */
@@ -1557,6 +1557,21 @@ INT32 NFC_GetEseAccess (void *pdata);
 INT32 NFC_RelEseAccess (void *pdata);
 
 #endif
+
+#if ((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
+/*******************************************************************************
+**
+** Function         NFC_RelSvddWait
+**
+** Description      This function release wait for svdd change
+**                  of P61. Status would be updated to pdata
+**
+** Returns          0 if api call success, else -1
+**
+*******************************************************************************/
+INT32 NFC_RelSvddWait (void *pdata);
+#endif
+
 #endif
 
 #endif

@@ -375,8 +375,13 @@ void NfcAdaptation::InitializeHalDeviceContext ()
     int ret = 0; //0 means success
     if ( !GetStrValue ( NAME_NCI_HAL_MODULE, nci_hal_module, sizeof ( nci_hal_module) ) )
     {
-        ALOGE("No HAL module specified in config, falling back to BCM2079x");
-        strlcpy (nci_hal_module, "nfc_nci.bcm2079x", sizeof(nci_hal_module));
+#if(NXP_EXTNS == TRUE)
+    ALOGE("No HAL module specified in config, falling back to pn54x");
+    strlcpy (nci_hal_module, "nfc_nci.pn54x", sizeof(nci_hal_module));
+#else
+    ALOGE("No HAL module specified in config, falling back to BCM2079x");
+    strlcpy (nci_hal_module, "nfc_nci.bcm2079x", sizeof(nci_hal_module));
+#endif
     }
     const hw_module_t* hw_module = NULL;
 

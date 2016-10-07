@@ -185,6 +185,9 @@ typedef struct
 {
     tNFA_STATUS     status;                             /* Status of delete pipe operation */
     UINT8           pipe;                               /* The dynamic pipe for delete operation */
+#if(NXP_EXTNS == TRUE)
+    UINT8           host;                               /* The host Id for delete pipe operation */
+#endif
 } tNFA_HCI_DELETE_PIPE;
 
 /* Data for NFA_HCI_HOST_LIST_EVT */

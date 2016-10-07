@@ -932,7 +932,9 @@ void nfa_hciu_remove_all_pipes_from_host (UINT8 host)
         {
             evt_data.deleted.status = NFA_STATUS_OK;
             evt_data.deleted.pipe   = pp->pipe_id;
-
+#if(NXP_EXTNS == TRUE)
+            evt_data.deleted.host = host;
+#endif
             nfa_hciu_send_to_app (NFA_HCI_DELETE_PIPE_EVT, &evt_data, pg->gate_owner);
         }
         nfa_hciu_release_pipe (pp->pipe_id);

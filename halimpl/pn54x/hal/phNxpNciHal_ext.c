@@ -61,7 +61,9 @@ static uint32_t bCoreRstNtf[40];
 static uint32_t iCoreRstNtfLen;
 
 extern uint32_t timeoutTimerId;
-
+#if ((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
+extern uint32_t gSvddSyncOff_Delay; /*default delay*/
+#endif
 extern NFCSTATUS read_retry();
 /************** HAL extension functions ***************************************/
 static void hal_extns_write_rsp_timeout_cb(uint32_t TimerId, void *pContext);
@@ -735,7 +737,16 @@ NFCSTATUS phNxpNciHal_write_ext(uint16_t *cmd_len, uint8_t *p_cmd_data,
         nxpprofile_ctrl.profile_type = NFC_FORUM_PROFILE;
         status = NFCSTATUS_SUCCESS;
     }
-
+#if ((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
+    else if (p_cmd_data[0] == 0x2F &&
+            p_cmd_data[1] == 0x31 &&
+            p_cmd_data[2] == 0x01 &&
+            p_cmd_data[3] == 0x00)
+    {
+        NXPLOG_NCIHAL_D ("SVDD Sync Off Command - delay it by %d ms", gSvddSyncOff_Delay);
+        usleep(gSvddSyncOff_Delay*1000);
+    }
+#endif
     if (nxpprofile_ctrl.profile_type == EMV_CO_PROFILE)
     {
         if (p_cmd_data[0] == 0x21 &&
@@ -1228,8 +1239,16 @@ NFCSTATUS request_EEPROM(phNxpNci_EEPROM_info_t *mEEPROM_info)
         addr[1]  = 0xD7;
         break;
 
+    case EEPROM_PROP_ROUTING:
+        b_position = 7;
+        memIndex = 0x00;
+        addr[0]  = 0xA0;
+        addr[1]  = 0x98;
+        break;
+
     default:
         ALOGE("No valid request information found");
+        break;
     }
 
     uint8_t get_cfg_eeprom[6] = {0x20, 0x03, //get_cfg header

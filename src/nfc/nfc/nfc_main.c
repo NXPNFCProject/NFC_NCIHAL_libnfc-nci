@@ -1696,6 +1696,24 @@ INT32 NFC_RelEseAccess (void *pdata)
     return (nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_P61_REL_ACCESS, pdata));
 }
 #endif
+
+#if ((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
+/*******************************************************************************
+**
+** Function         NFC_RelSvddWait
+**
+** Description      This function release wait for svdd change
+**                  of P61. Status would be updated to pdata
+**
+** Returns          0 if api call success, else -1
+**
+*******************************************************************************/
+INT32 NFC_RelSvddWait (void *pdata)
+{
+    return (nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_REL_SVDD_WAIT, pdata));
+}
+#endif
+
 #endif
 
 #if(NXP_EXTNS == TRUE)

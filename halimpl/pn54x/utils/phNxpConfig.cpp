@@ -53,6 +53,7 @@ const char alternative_config_path[] = "";
 
 #if 1
 const char transport_config_path[] = "/etc/";
+const char transit_config_path[] = "/data/nfc/";
 #else
 const char transport_config_path[] = "res/";
 #endif
@@ -104,6 +105,7 @@ public:
     bool    getValue(const char* name, unsigned short & rValue) const;
     bool    getValue(const char* name, char* pValue, long len,long* readlen) const;
     const CNfcParam*    find(const char* p_name) const;
+    void    readNxpTransitConfig(const char* fileName) const;
     void    clean();
 private:
     CNfcConfig();
@@ -111,9 +113,12 @@ private:
     void    moveFromList();
     void    moveToList();
     void    add(const CNfcParam* pParam);
+    void    dump();
+    bool    isAllowed(const char* name);
     list<const CNfcParam*> m_list;
     bool    mValidFile;
     unsigned long m_timeStamp;
+    string  mCurrentFile;
 
     unsigned long   state;
 
@@ -216,6 +221,8 @@ bool CNfcConfig::readConfig(const char* name, bool bResetContent)
     int     base = 0;
     char    c;
     int     bflag = 0;
+    mCurrentFile = name;
+
     state = BEGIN_LINE;
     /* open config file, read it into a buffer */
     if ((fd = fopen(name, "rb")) == NULL)
@@ -228,6 +235,7 @@ bool CNfcConfig::readConfig(const char* name, bool bResetContent)
         }
         return false;
     }
+    ALOGD("%s Opened %s config %s\n", __func__, (bResetContent ? "base" : "optional"), name);
     stat(name, &buf);
     if(strcmp(default_nxp_config_path, name) == 0)
     {
@@ -480,6 +488,7 @@ CNfcConfig& CNfcConfig::GetInstance()
         theInstance.readConfig(strPath.c_str(), true);
 #if(NXP_EXTNS == TRUE)
         readOptionalConfig("brcm");
+        theInstance.readNxpTransitConfig("nxpTransit");
 #endif
     }
     return theInstance;
@@ -622,6 +631,24 @@ const CNfcParam* CNfcConfig::find(const char* p_name) const
 
 /*******************************************************************************
 **
+** Function:    CNfcConfig::readNxpTransitConfig()
+**
+** Description: read Config settings from transit conf file
+**
+** Returns:     none
+**
+*******************************************************************************/
+void CNfcConfig::readNxpTransitConfig(const char* fileName) const
+{
+    string strPath;
+    strPath.assign(transit_config_path);
+    strPath += extra_config_base;
+    strPath += fileName;
+    strPath += extra_config_ext;
+    CNfcConfig::GetInstance().readConfig(strPath.c_str(), false);
+}
+/*******************************************************************************
+**
 ** Function:    CNfcConfig::clean()
 **
 ** Description: reset the setting array
@@ -655,16 +682,71 @@ void CNfcConfig::add(const CNfcParam* pParam)
         m_list.push_back(pParam);
         return;
     }
+    if((mCurrentFile.find("nxpTransit") != std::string::npos) && !isAllowed(pParam->c_str()))
+    {
+        ALOGD("%s Token restricted. Returning", __func__);
+        return;
+    }
     for (list<const CNfcParam*>::iterator it = m_list.begin(), itEnd = m_list.end(); it != itEnd; ++it)
     {
         if (**it < pParam->c_str())
             continue;
-        m_list.insert(it, pParam);
+        if (**it == pParam->c_str())
+            m_list.insert(m_list.erase(it), pParam);
+        else
+            m_list.insert(it, pParam);
+
         return;
     }
     m_list.push_back(pParam);
 }
+/*******************************************************************************
+**
+** Function:    CNfcConfig::dump()
+**
+** Description: prints all elements in the list
+**
+** Returns:     none
+**
+*******************************************************************************/
+void CNfcConfig::dump()
+{
+    ALOGD("%s Enter", __func__);
 
+    for (list<const CNfcParam*>::iterator it = m_list.begin(), itEnd = m_list.end(); it != itEnd; ++it)
+    {
+        if((*it)->str_len()>0)
+            ALOGD("%s %s \t= %s", __func__, (*it)->c_str(),(*it)->str_value());
+        else
+            ALOGD("%s %s \t= (0x%0lX)\n", __func__,(*it)->c_str(),(*it)->numValue());
+    }
+}
+/*******************************************************************************
+**
+** Function:    CNfcConfig::isAllowed()
+**
+** Description: checks if token update is allowed
+**
+** Returns:     true if allowed else false
+**
+*******************************************************************************/
+bool CNfcConfig::isAllowed(const char* name)
+{
+    string token(name);
+    bool stat = false;
+    if((token.find("P2P_LISTEN_TECH_MASK") != std::string::npos)        ||
+            (token.find("HOST_LISTEN_TECH_MASK") != std::string::npos)  ||
+            (token.find("UICC_LISTEN_TECH_MASK") != std::string::npos)  ||
+            (token.find("POLLING_TECH_MASK") != std::string::npos)      ||
+            (token.find("NXP_RF_CONF_BLK") != std::string::npos)        ||
+            (token.find("NXP_CN_TRANSIT_BLK_NUM_CHECK_ENABLE") != std::string::npos) ||
+            (token.find("NXP_FWD_FUNCTIONALITY_ENABLE") != std::string::npos))
+
+    {
+        stat = true;
+    }
+    return stat;
+}
 /*******************************************************************************
 **
 ** Function:    CNfcConfig::moveFromList()

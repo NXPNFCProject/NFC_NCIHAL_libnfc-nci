@@ -516,6 +516,41 @@ NFCSTATUS phTmlNfc_get_ese_access(void *pDevHandle, long timeout)
     return status;
 }
 
+#if ((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
+/*******************************************************************************
+**
+** Function         phTmlNfc_rel_svdd_wait
+**
+** Description
+**
+** Parameters       pDevHandle     - valid device handle
+**
+** Returns          success or failure
+**
+*******************************************************************************/
+NFCSTATUS phTmlNfc_rel_svdd_wait(void *pDevHandle)
+{
+    int ret = -1;
+    NFCSTATUS status = NFCSTATUS_SUCCESS;
+    NXPLOG_TML_D("phTmlNfc_rel_svdd_wait(), enter ");
+
+    if (NULL == pDevHandle)
+    {
+        return NFCSTATUS_FAILED;
+    }
+
+    ret = ioctl((intptr_t)pDevHandle, P544_REL_SVDD_WAIT);
+    if (ret < 0)
+    {
+        if (ret == -EBUSY)
+            ret = NFCSTATUS_BUSY;
+        else
+            ret = NFCSTATUS_FAILED;
+    }
+    NXPLOG_TML_D("phTmlNfc_rel_svdd_wait(), exit  ret %d, status %d", ret, status);
+    return status;
+}
+#endif
 #endif
 /*******************************************************************************
 **
