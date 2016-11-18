@@ -382,12 +382,14 @@ static void nfa_dm_nfc_response_cback (tNFC_RESPONSE_EVT event, tNFC_RESPONSE *p
         break;
 
     case NFC_EE_DISCOVER_REQ_REVT:               /* EE Discover Req notification */
-//        if (nfa_dm_is_active() &&
-//            (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_DISCOVERY) )
-//        {
-//            nfa_dm_rf_deactivate (NFA_DEACTIVATE_TYPE_IDLE);
-//        }
-        nfa_ee_proc_evt (event, p_data);
+#if((NFC_NXP_ESE == TRUE) && (NXP_EXTNS == TRUE) && (NXP_ESE_ETSI_READER_ENABLE != TRUE))
+       if (nfa_dm_is_active() &&
+           (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_DISCOVERY) )
+       {
+           nfa_dm_rf_deactivate (NFA_DEACTIVATE_TYPE_IDLE);
+       }
+#endif
+       nfa_ee_proc_evt (event, p_data);
         break;
 
 #endif
@@ -464,7 +466,7 @@ static void nfa_dm_nfc_response_cback (tNFC_RESPONSE_EVT event, tNFC_RESPONSE *p
         else
         {
 #endif
-#if (NFC_NXP_ESE ==  TRUE && ((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551)))
+#if ((NFC_NXP_ESE ==  TRUE) && (NXP_ESE_ETSI_READER_ENABLE == TRUE))
             conn_evt.status = p_data->status;
             nfa_dm_conn_cback_event_notify (NFA_RECOVERY_EVT, &conn_evt);
 #endif
@@ -475,6 +477,12 @@ static void nfa_dm_nfc_response_cback (tNFC_RESPONSE_EVT event, tNFC_RESPONSE *p
 
     case NFC_NFCC_TRANSPORT_ERR_REVT:
         NFA_TRACE_DEBUG1 ("flags:0x%08x", nfa_dm_cb.flags);
+#if(NXP_EXTNS == TRUE && NXP_NFCC_I2C_READ_WRITE_IMPROVEMENT == TRUE)
+        if(p_data->status == NFC_STATUS_FAILED)
+        {
+            dm_cback_data.status = p_data->status;
+        }
+#endif
         dm_cback_evt = (event == NFC_NFCC_TIMEOUT_REVT) ? NFA_DM_NFCC_TIMEOUT_EVT : NFA_DM_NFCC_TRANSPORT_ERR_EVT;
         (*nfa_dm_cb.p_dm_cback) (dm_cback_evt, NULL);
         break;
@@ -1203,7 +1211,11 @@ BOOLEAN nfa_dm_act_enable_listening (tNFA_DM_MSG *p_data)
 
     NFA_TRACE_DEBUG0 ("nfa_dm_act_enable_listening ()");
 
-    nfa_dm_cb.flags &= (~NFA_DM_FLAGS_LISTEN_DISABLED & ~NFA_DM_FLAGS_PASSIVE_LISTEN_DISABLED);
+    nfa_dm_cb.flags &= (~NFA_DM_FLAGS_LISTEN_DISABLED
+#if(NXP_EXTNS == TRUE && NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION == TRUE)
+             & ~NFA_DM_FLAGS_PASSIVE_LISTEN_DISABLED
+#endif
+    );
     evt_data.status = NFA_STATUS_OK;
     nfa_dm_conn_cback_event_notify (NFA_LISTEN_ENABLED_EVT, &evt_data);
 
@@ -1233,6 +1245,7 @@ BOOLEAN nfa_dm_act_disable_listening (tNFA_DM_MSG *p_data)
     return (TRUE);
 }
 
+#if(NXP_EXTNS == TRUE && NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION == TRUE)
 /*******************************************************************************
 **
 ** Function         nfa_dm_act_disable_passive_listening
@@ -1254,7 +1267,7 @@ BOOLEAN nfa_dm_act_disable_passive_listening (tNFA_DM_MSG *p_data)
 
     return (TRUE);
 }
-
+#endif
 /*******************************************************************************
 **
 ** Function         nfa_dm_act_pause_p2p

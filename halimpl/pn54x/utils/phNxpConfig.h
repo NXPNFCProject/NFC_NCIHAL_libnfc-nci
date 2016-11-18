@@ -110,10 +110,9 @@ int updateNxpConfigTimestamp();
 #define NAME_NXP_WIREDMODE_RESUME_TIMEOUT  "NXP_WIREDMODE_RESUME_TIMEOUT"
 #define NAME_NXP_UICC_LISTEN_TECH_MASK      "UICC_LISTEN_TECH_MASK"
 #define NAME_NXP_HOST_LISTEN_TECH_MASK      "HOST_LISTEN_TECH_MASK"
-#if ((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
+#if(NXP_ESE_SVDD_SYNC == TRUE)
 #define NAME_NXP_SVDD_SYNC_OFF_DELAY "NXP_SVDD_SYNC_OFF_DELAY"
 #endif
-#define NAME_NXP_RF_UPDATE_REQ        "NXP_RF_UPDATE_REQ"
 /* default configuration */
 #define default_storage_location "/data/nfc"
 

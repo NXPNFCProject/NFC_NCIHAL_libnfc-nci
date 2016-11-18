@@ -710,7 +710,7 @@ BOOLEAN nfa_ee_evt_hdlr (BT_HDR *p_msg)
     NFA_TRACE_DEBUG2 ("nfa_ee_evt_hdlr (): Event 0x%02x, State: %d", p_evt_data->hdr.event, nfa_ee_cb.em_state);
 #endif
 
-#if(NXP_EXTNS == TRUE)
+#if 0
     /*This is required to receive Reader Over SWP event*/
     if(p_evt_data->hdr.event == NFA_EE_NCI_DISC_NTF_EVT)
     {

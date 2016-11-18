@@ -33,6 +33,7 @@
 
 #if(NFC_NXP_CHIP_TYPE == PN547C2)
 #define NXP_ESE_WIRED_MODE_DISABLE_DISCOVERY   TRUE
+#define NXP_LEGACY_APDU_GATE                   TRUE
 
 #elif((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
     #define NFC_NXP_TRIPLE_MODE_PROTECTION        TRUE
@@ -42,6 +43,11 @@
     #define NXP_ESE_DUAL_MODE_PRIO_SCHEME         NXP_ESE_WIRED_MODE_TIMEOUT
      //Reset scheme
     #define NXP_ESE_RESET_METHOD                  FALSE
+    #define NXP_ESE_ETSI_READER_ENABLE            TRUE
+    #define NXP_ESE_SVDD_SYNC                     TRUE
+    #define NXP_LEGACY_APDU_GATE                  TRUE
+    #define NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION   TRUE
+    #define NXP_ESE_JCOP_DWNLD_PROTECTION         FALSE
 
 #elif(NFC_NXP_CHIP_TYPE == PN553)
     #define NFC_NXP_TRIPLE_MODE_PROTECTION        FALSE
@@ -49,19 +55,25 @@
     #define NXP_ESE_WIRED_MODE_PRIO               FALSE
     #define NXP_ESE_UICC_EXCLUSIVE_WIRED_MODE     FALSE    // UICC exclusive wired mode
     //dual mode prio scheme
-    #define NXP_ESE_DUAL_MODE_PRIO_SCHEME         NXP_ESE_WIRED_MODE_TIMEOUT
+    #define NXP_ESE_DUAL_MODE_PRIO_SCHEME         NXP_ESE_WIRED_MODE_RESUME
     //reset scheme
     #define NXP_ESE_RESET_METHOD                  TRUE
     #define NXP_ESE_POWER_MODE                    TRUE
     #define NXP_ESE_P73_ISO_RST                   TRUE
     #define NXP_BLOCK_PROPRIETARY_APDU_GATE       FALSE
     #define NXP_WIRED_MODE_STANDBY                TRUE
+    #define NXP_ESE_ETSI_READER_ENABLE            TRUE
+    #define NXP_ESE_SVDD_SYNC                     FALSE
+    #define NXP_LEGACY_APDU_GATE                  FALSE
+    #define NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION   FALSE
+    #define NXP_ESE_JCOP_DWNLD_PROTECTION         TRUE
 #endif
 
 #else /*Else of #if(NFC_NXP_ESE == TRUE)*/
 
 #if(NFC_NXP_CHIP_TYPE == PN547C2)
-#define NXP_ESE_WIRED_MODE_DISABLE_DISCOVERY   FALSE
+#define NXP_ESE_WIRED_MODE_DISABLE_DISCOVERY      FALSE
+#define NXP_LEGACY_APDU_GATE                      FALSE
 #endif
 
 #if((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
@@ -70,18 +82,30 @@
     #define NXP_ESE_FELICA_CLT                    FALSE
      //Reset scheme
     #define NXP_ESE_RESET_METHOD                  FALSE
+    #define NXP_ESE_ETSI_READER_ENABLE            FALSE
+    #define NXP_ESE_SVDD_SYNC                     FALSE
+    #define NXP_LEGACY_APDU_GATE                  FALSE
+    #define NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION   FALSE
+    #define NXP_ESE_DUAL_MODE_PRIO_SCHEME         NXP_ESE_WIRED_MODE_TIMEOUT
+    #define NXP_ESE_JCOP_DWNLD_PROTECTION         FALSE
 
 #elif(NFC_NXP_CHIP_TYPE == PN553)
     #define NFC_NXP_TRIPLE_MODE_PROTECTION        FALSE
-    #define NXP_ESE_FELICA_CLT                   FALSE
-    #define NXP_ESE_WIRED_MODE_PRIO              FALSE    //eSE wired mode prio over UICC wired mode
-    #define NXP_ESE_UICC_EXCLUSIVE_WIRED_MODE    FALSE   // UICC exclusive wired mode
+    #define NXP_ESE_FELICA_CLT                    FALSE
+    #define NXP_ESE_WIRED_MODE_PRIO               FALSE    //eSE wired mode prio over UICC wired mode
+    #define NXP_ESE_UICC_EXCLUSIVE_WIRED_MODE     FALSE   // UICC exclusive wired mode
     //reset scheme
     #define NXP_ESE_RESET_METHOD                  FALSE
     #define NXP_ESE_POWER_MODE                    FALSE
     #define NXP_ESE_P73_ISO_RST                   FALSE
     #define NXP_BLOCK_PROPRIETARY_APDU_GATE       FALSE
     #define NXP_WIRED_MODE_STANDBY                FALSE
+    #define NXP_ESE_ETSI_READER_ENABLE            FALSE
+    #define NXP_ESE_SVDD_SYNC                     FALSE
+    #define NXP_LEGACY_APDU_GATE                  FALSE
+    #define NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION   FALSE
+    #define NXP_ESE_DUAL_MODE_PRIO_SCHEME         NXP_ESE_WIRED_MODE_TIMEOUT
+    #define NXP_ESE_JCOP_DWNLD_PROTECTION         FALSE
 #endif
 
 #endif /*End of #if(NFC_NXP_ESE == TRUE)*/

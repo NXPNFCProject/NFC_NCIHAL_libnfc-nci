@@ -45,7 +45,11 @@ typedef void (*pphDnldNfc_RspCb_t)(void* pContext, NFCSTATUS wStatus,void* pInfo
 
 #define PHDNLDNFC_HWVER_PN551_MRA1_0         (0x08U)   /* PN551 ChipVersion MRA1.0 */
 #define PHDNLDNFC_HWVER_PN553_MRA1_0         (0x0BU)   /* PN553-NCI1.0 ChipVersion MRA1.0 */
-#define PHDNLDNFC_HWVER_PN553_MRA1_0_UPDATED (0x40U)   /* PN553-NCI1.0 updated FW*/
+/* PN553 A0 -> 0x40 hardware version
+   PN553 B0 -> 0x41
+   PN80T A0 -> 0x50
+   PN80T B0 -> 0x51 */
+#define PHDNLDNFC_HWVER_PN553_MRA1_0_UPDATED (0x40U)
 /*
  * Enum definition contains Download Life Cycle States
  */

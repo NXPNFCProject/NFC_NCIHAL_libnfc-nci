@@ -128,7 +128,18 @@ typedef UINT8 tNFA_EE_PWR_STATE;
 #define NFA_EE_STATUS_DEACTIVATING      (NFA_EE_STATUS_PENDING+NFC_NFCEE_STATUS_INACTIVE)
 typedef UINT8 tNFA_EE_STATUS;
 
-
+/* list of events for controlling DWP transceive state */
+typedef enum
+{
+    NFCC_RF_FIELD_EVT,
+    NFCC_ACTIVATED_NTF,
+    NFCC_DEACTIVATED_NTF,
+    NFCC_ACTION_NTF,
+    NFCC_CE_DATA_EVT,
+#if(NXP_EXTNS == TRUE && NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION == TRUE)
+    NFCC_RF_TIMEOUT_EVT
+#endif
+}tNFCC_EVTS_NTF;
 
 /* additional NFCEE Info */
 typedef struct

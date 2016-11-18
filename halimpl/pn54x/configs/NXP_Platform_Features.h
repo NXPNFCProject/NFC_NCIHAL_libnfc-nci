@@ -23,7 +23,18 @@
 #define NXP_PLATFORM_FEATURES_H
 
 #if(NFC_NXP_CHIP_TYPE == PN553)
-// Define the platform specific macros
-
+#undef  NXP_NFCC_RESET_RSP_LEN
+#define NXP_NFCC_RESET_RSP_LEN       (0x10U)
 #endif
+
+#if(NFC_NXP_CHIP_TYPE == PN551)
+#undef  NXP_NFCC_RESET_RSP_LEN
+#define NXP_NFCC_RESET_RSP_LEN       (0x11U)
+#endif
+
+#if(NFC_NXP_CHIP_TYPE == PN548AD)
+#undef  NXP_NFCC_RESET_RSP_LEN
+#define NXP_NFCC_RESET_RSP_LEN       (0x11U)
+#endif
+
 #endif                          /* end of #ifndef NXP_PLATFORM_FEATURES_H */

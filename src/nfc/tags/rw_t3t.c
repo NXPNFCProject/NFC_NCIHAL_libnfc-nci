@@ -2399,7 +2399,7 @@ void rw_t3t_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data)
             rw_t3t_data_cback (conn_id, &(p_data->data));
             break;
         }
-        else if (p_data->data.p_data != NULL)
+        else if ((p_data != NULL) && (p_data->data.p_data != NULL))
         {
             RW_TRACE_DEBUG2 ("rw_t3t_conn_cback: p_data->data.p_data=0x%X p_data->data.status=0x%02x", p_data->data.p_data, p_data->data.status);
             /* Free the response buffer in case of error response */

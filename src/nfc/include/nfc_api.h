@@ -80,18 +80,20 @@
 #define NFC_STATUS_EE_TIMEOUT           NCI_STATUS_EE_TIMEOUT           /* EE Timeout           */
 
 #if (NXP_EXTNS == TRUE)
+#define NFC_STATUS_WIRED_SESSION_ABORTED NCI_STATUS_WIRED_SESSION_ABORTED    /* WIRED_SESSION_ABORT error */
+#define NFC_STATUS_DWP_APDU_DROPPPED     NCI_STATUS_DWP_APDU_DROPPPED    /* FW dropped the APDU because UICC switch */
 //DTA API for MW Version need to change according to release
 #define NXP_EN_PN547C2                  0
 #define NXP_EN_PN65T                    0
-#define NXP_EN_PN548C2                  0
-#define NXP_EN_PN66T                    0
-#define NXP_EN_PN551                    0
-#define NXP_EN_PN67T                    0
+#define NXP_EN_PN548C2                  1
+#define NXP_EN_PN66T                    1
+#define NXP_EN_PN551                    1
+#define NXP_EN_PN67T                    1
 #define NXP_EN_PN553                    1
 #define NXP_EN_PN80T                    1
 #define NXP_ANDROID_VER                 (7U) /* NXP android version */
 #define NFC_NXP_MW_VERSION_MAJ          (0U) /* MW Major Version */
-#define NFC_NXP_MW_VERSION_MIN          (4U) /* MW Minor Version */
+#define NFC_NXP_MW_VERSION_MIN          (0x0D) /* MW Minor Version */
 #endif
 /* 0xE0 ~0xFF are proprietary status codes */
 #define NFC_STATUS_CMD_STARTED          0xE3/* Command started successfully                     */
@@ -118,6 +120,15 @@ typedef UINT8 tNFC_STATUS;
 #define NFC_NFCC_INIT_MAX_RETRY         2
 #define NFC_NORMAL_BOOT_MODE            0
 #define NFC_FAST_BOOT_MODE              1
+#define NXP_FEATURE_ENABLED           ((unsigned char)0x01)    /* flag to indicate NXP feature is enabled*/
+#define NXP_FEATURE_DISABLED          ((unsigned char)0x00)    /* flag to indicate NXP feature is enabled*/
+ /**********************************************
+  * NFC Config Parameter IDs defined by NXP NFC
+  **********************************************/
+#define NXP_NFC_SET_CONFIG_PARAM_EXT  ((unsigned char)0xA0)    /* NXP NFC set config extension ID*/
+#define NXP_NFC_PARAM_ID_SWP1         ((unsigned char)0xEC)    /*SWP1 parameter ID  UICC*/
+#define NXP_NFC_PARAM_ID_SWP2         ((unsigned char)0xED)    /*SWP1 parameter ID  ESE */
+#define NXP_NFC_PARAM_ID_SWP1A        ((unsigned char)0xD4)    /*SWP1 parameter ID  UICC2 */
 #endif
 
 
@@ -208,7 +219,10 @@ typedef tNCI_DISCOVER_PARAMS tNFC_DISCOVER_PARAMS;
 #define NFC_FIRST_REVT      0x5000
 #define NFC_FIRST_CEVT      0x6000
 #define NFC_FIRST_TEVT      0x8000
-
+#if (NXP_EXTNS == TRUE)
+void nfc_ncif_rffield_ntf_timeout();
+void nfc_ncif_allow_dwp_transmission();
+#endif
 /* the events reported on tNFC_RESPONSE_CBACK */
 enum
 {
@@ -245,8 +259,12 @@ enum
     NFC_ERROR_CEVT,                         /* 4  generic or interface error    */
     NFC_DATA_START_CEVT,                    /* 5  received the first fragment on RF link */
 #if (NXP_EXTNS == TRUE)
-    NFC_RF_WTX_CEVT                         /* 6  received rf wtx */
+    NFC_RF_WTX_CEVT,                        /* 6  received rf wtx */
 #endif
+#if(NFC_NXP_CHIP_TYPE != PN547C2)
+    NFC_RF_TRANSMISSION_ERROR,              /* 7 CE Error events */
+#endif
+    NFC_HCI_RESTART_TIMER
 };
 typedef UINT16 tNFC_CONN_EVT;
 
@@ -293,8 +311,17 @@ typedef struct
     UINT8           major_version;       /* Major Version */
     UINT8           minor_version;       /* Minor Version  */
 } tNFC_FW_VERSION;
-#endif
 
+#if (NXP_ESE_JCOP_DWNLD_PROTECTION == TRUE)
+typedef enum jcop_dwnld_state{
+    JCP_DWNLD_IDLE,                         /* jcop dwnld is not ongoing*/
+    JCP_DWNLD_INIT,                         /* jcop dwonload init state*/
+    JCP_DWNLD_START,                        /* download started */
+    JCP_SPI_DWNLD_COMPLETE,                 /* jcop download complete in spi interface*/
+    JCP_DWP_DWNLD_COMPLETE,                 /* jcop download complete */
+} jcop_dwnld_state_t;
+#endif
+#endif
 
 /* the data type associated with NFC_NFCEE_DISCOVER_REVT */
 typedef struct
@@ -910,7 +937,9 @@ typedef void (tNFC_CONN_CBACK) (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
 #define NFC_MAX_CONN_ID                15
 #define NFC_ILLEGAL_CONN_ID            0xFF
 #define NFC_RF_CONN_ID                 0    /* the static connection ID for RF traffic */
-
+#if(NXP_EXTNS == TRUE)
+#define NFC_NFCEE_CONN_ID              0x03    /* the connection ID for NFCEE */
+#endif
 
 
 /*************************************
@@ -1355,6 +1384,20 @@ NFC_API extern tNFC_STATUS NFC_SendVsCommand(UINT8          oid,
 *******************************************************************************/
 NFC_API extern tNFC_STATUS NFC_SendNxpNciCommand (BT_HDR        *p_data,
                                tNFC_VS_CBACK *p_cback);
+
+#if (NXP_ESE_JCOP_DWNLD_PROTECTION)
+/*******************************************************************************
+**
+** Function         NFC_SetP61Status
+**
+** Description      This function set the JCOP download
+**                  state to pn544 driver.
+**
+** Returns          0 if api call success, else -1
+**
+*******************************************************************************/
+NFC_API extern INT32 NFC_SetP61Status (void *pdata, jcop_dwnld_state_t isJcopState);
+#endif
 #endif
 
 /*******************************************************************************
@@ -1510,14 +1553,14 @@ INT32 NFC_GetP61Status (void *pdata);
 INT32 NFC_DisableWired (void *pdata);
 /*******************************************************************************
 **
-** Function         NFC_P73ISOReset
+** Function         NFC_eSEChipReset
 **
-** Description      This function request to reset P73
+** Description      This function request to reset ESE using ISO_RST feature.
 **
 ** Returns          0 if api call success, else -1
 **
 *******************************************************************************/
-INT32 NFC_P73ISOReset (void *pdata);
+INT32 NFC_eSEChipReset (void *pdata);
 /*******************************************************************************
 **
 ** Function         NFC_EnableWired
@@ -1558,7 +1601,7 @@ INT32 NFC_RelEseAccess (void *pdata);
 
 #endif
 
-#if ((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
+#if(NXP_ESE_SVDD_SYNC == TRUE)
 /*******************************************************************************
 **
 ** Function         NFC_RelSvddWait

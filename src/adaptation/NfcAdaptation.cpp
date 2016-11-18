@@ -178,6 +178,12 @@ void NfcAdaptation::Initialize ()
         nfa_ee_max_ee_cfg = num;
         ALOGD("%s: Overriding NFA_EE_MAX_EE_SUPPORTED to use %d", func, nfa_ee_max_ee_cfg);
     }
+    else
+    {
+        nfa_ee_max_ee_cfg = NFA_HCI_MAX_HOST_IN_NETWORK;
+        ALOGD("%s: NFA_EE_MAX_EE_SUPPORTED default value to use %d", func, nfa_ee_max_ee_cfg);
+    }
+
     if ( GetNumValue ( NAME_NFA_POLL_BAIL_OUT_MODE, &num, sizeof ( num ) ) )
     {
         nfa_poll_bail_out_mode = num;
@@ -563,8 +569,27 @@ int NfcAdaptation::HalIoctl (long arg, void* p_data)
     return -1;
 }
 
+/*******************************************************************************
+**
+** Function:    NfcAdaptation::HalGetFwDwnldFlag
+**
+** Description: Get FW Download Flag.
+**
+** Returns:     SUCESS or FAIL.
+**
+*******************************************************************************/
+int NfcAdaptation::HalGetFwDwnldFlag (UINT8* fwDnldRequest)
+{
+    const char* func = "NfcAdaptation::HalGetFwDwnldFlag";
+    int status = NFA_STATUS_FAILED;
+    ALOGD ("%s", func);
+    if (mHalDeviceContext)
+    {
+        status = mHalDeviceContext->check_fw_dwnld_flag(mHalDeviceContext, fwDnldRequest);
+    }
+    return status;
+}
 #endif
-
 
 /*******************************************************************************
 **
@@ -699,7 +724,7 @@ void NfcAdaptation::DownloadFirmware ()
     static UINT8 cmd_init_nci_size  = sizeof(cmd_init_nci)  / sizeof(UINT8);
     tNFC_FWUpdate_Info_t fw_update_inf;
     UINT8 p_core_init_rsp_params;
-    UINT8 fw_dwnld_status = NFC_STATUS_FAILED;
+    UINT16 fw_dwnld_status = NFC_STATUS_FAILED;
     evt_status = NFC_STATUS_FAILED;
 #endif
     HalInitialize ();

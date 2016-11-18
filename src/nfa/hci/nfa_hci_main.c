@@ -78,10 +78,10 @@ static BOOLEAN nfa_hci_evt_hdlr (BT_HDR *p_msg);
 
 static void nfa_hci_sys_enable (void);
 static void nfa_hci_sys_disable (void);
-void nfa_hci_rsp_timeout (tNFA_HCI_EVENT_DATA *p_evt_data);
 static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data);
 static void nfa_hci_set_receive_buf (UINT8 pipe);
 #if (NXP_EXTNS == TRUE)
+void nfa_hci_rsp_timeout (tNFA_HCI_EVENT_DATA *p_evt_data);
 static void nfa_hci_assemble_msg (UINT8 *p_data, UINT16 data_len, UINT8 pipe);
 static UINT8 nfa_ee_ce_p61_completed = 0x00;
 #else
@@ -162,6 +162,18 @@ void nfa_hci_ee_info_cback (tNFA_EE_DISC_STS status)
                     nfa_hciu_send_get_param_cmd (NFA_HCI_ADMIN_PIPE, NFA_HCI_HOST_LIST_INDEX);
                 }
             }
+#if(NXP_EXTNS == TRUE)
+            /* All the EE_DISC_NTF's received
+             * Avoid 4sec delay during HCI initialization
+             */
+            if (nfa_hci_cb.w4_hci_netwk_init &&
+                nfa_hci_cb.timer.in_use)
+            {
+                nfa_sys_stop_timer (&nfa_hci_cb.timer);
+                nfa_hci_cb.w4_hci_netwk_init = FALSE;
+                nfa_hciu_send_get_param_cmd (NFA_HCI_ADMIN_PIPE, NFA_HCI_HOST_LIST_INDEX);
+            }
+#endif
         }
         else if (nfa_hci_cb.num_nfcee <= 1)
         {
@@ -230,6 +242,8 @@ void nfa_hci_init (void)
     nfa_hci_cb.hci_state = NFA_HCI_STATE_STARTUP;
 #if (NXP_EXTNS == TRUE)
     nfa_ee_ce_p61_completed = 0;
+    nfa_hci_cb.bIsHciResponseTimedout = FALSE;
+    nfa_hci_cb.bIsRspPending = FALSE;
 #endif
     /* register message handler on NFA SYS */
     nfa_sys_register (NFA_ID_HCI, &nfa_hci_sys_reg);
@@ -833,7 +847,20 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
     char    buff[100];
     static  BOOLEAN is_first_chain_pkt = TRUE;
 #endif
-
+#if ((NXP_EXTNS == TRUE) && (NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME))
+    if(event == NFC_HCI_RESTART_TIMER)
+    {
+        if(nfa_hci_cb.IsHciTimerExtended)
+        {
+            nfa_sys_start_timer (&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT, NFA_HCI_EXTENDED_PKT_RSP_TIMEOUT);
+        }
+        else
+        {
+            nfa_sys_start_timer (&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT, nfa_hci_cb.hciResponseTimeout);
+        }
+        return;
+    }
+#endif
     if (event == NFC_CONN_CREATE_CEVT)
     {
         nfa_hci_cb.conn_id   = conn_id;
@@ -1105,37 +1132,33 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
 
     /* If we got a response, cancel the response timer. Also, if waiting for */
     /* a single response, we can go back to idle state                       */
-    if (
-#if (NXP_EXTNS == TRUE)
-            (pipe == NFA_HCI_APDU_PIPE) &&(
-#endif
-                    (nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_RSP)
-                    &&((nfa_hci_cb.type == NFA_HCI_RESPONSE_TYPE) || (nfa_hci_cb.w4_rsp_evt && (nfa_hci_cb.type == NFA_HCI_EVENT_TYPE)
-                    ))
-#if (NXP_EXTNS == TRUE)
-            )
-#endif
-    )
+    if ( (nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_RSP) &&
+         ((nfa_hci_cb.type == NFA_HCI_RESPONSE_TYPE) || (nfa_hci_cb.w4_rsp_evt && (nfa_hci_cb.type == NFA_HCI_EVENT_TYPE)))
+       )
     {
-        nfa_sys_stop_timer (&nfa_hci_cb.timer);
 #if (NXP_EXTNS == TRUE)
-        is_first_chain_pkt = TRUE;
-        if(nfa_hci_cb.inst == NFA_HCI_EVT_WTX)
+        if(pipe == NFA_HCI_APDU_PIPE)
         {
-            if(nfa_hci_cb.w4_rsp_evt == TRUE)
+            nfa_sys_stop_timer (&nfa_hci_cb.timer);
+            is_first_chain_pkt = TRUE;
+            if(nfa_hci_cb.inst == NFA_HCI_EVT_WTX)
             {
-                const INT32 rsp_timeout = NFA_HCI_WTX_RESP_TIMEOUT; //3-sec
-                nfa_sys_start_timer (&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT, rsp_timeout);
+                if(nfa_hci_cb.w4_rsp_evt == TRUE)
+                {
+                    const INT32 rsp_timeout = NFA_HCI_WTX_RESP_TIMEOUT; //3-sec
+                    nfa_sys_start_timer (&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT, rsp_timeout);
+                }
+            }
+            else
+            {
+                nfa_ee_ce_p61_completed = 0;
+                nfa_hci_cb.hci_state  = NFA_HCI_STATE_IDLE;
             }
         }
-        else
+#else
+        nfa_sys_stop_timer (&nfa_hci_cb.timer);
+        nfa_hci_cb.hci_state  = NFA_HCI_STATE_IDLE;
 #endif
-        {
-#if (NXP_EXTNS == TRUE)
-            nfa_ee_ce_p61_completed = 0;
-#endif
-             nfa_hci_cb.hci_state  = NFA_HCI_STATE_IDLE;
-        }
     }
 
     switch (pipe)
@@ -1168,21 +1191,18 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
         break;
     }
 
-    if (
+    if ( (nfa_hci_cb.type == NFA_HCI_RESPONSE_TYPE) || (nfa_hci_cb.w4_rsp_evt && (nfa_hci_cb.type == NFA_HCI_EVENT_TYPE)
 #if (NXP_EXTNS == TRUE)
-            (pipe == NFA_HCI_APDU_PIPE) && (
+         && (nfa_hci_cb.inst != NFA_HCI_EVT_WTX)
 #endif
-                    (nfa_hci_cb.type == NFA_HCI_RESPONSE_TYPE) || (nfa_hci_cb.w4_rsp_evt && (nfa_hci_cb.type == NFA_HCI_EVENT_TYPE)
-#if (NXP_EXTNS == TRUE)
-                            && (nfa_hci_cb.inst != NFA_HCI_EVT_WTX)
-#endif
-                    )
-#if (NXP_EXTNS == TRUE)
-            )
-#endif
-    )
+       ) )
     {
-        nfa_hci_cb.w4_rsp_evt = FALSE;
+#if (NXP_EXTNS == TRUE)
+        if(pipe == NFA_HCI_APDU_PIPE)
+#endif
+        {
+            nfa_hci_cb.w4_rsp_evt = FALSE;
+        }
     }
 
     /* Send a message to ouselves to check for anything to do */
@@ -1301,7 +1321,11 @@ void nfa_hci_rsp_timeout (tNFA_HCI_EVENT_DATA *p_evt_data)
 
     case NFA_HCI_STATE_WAIT_RSP:
         nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
-
+#if(NXP_EXTNS == TRUE)
+        nfa_hci_cb.IsChainedPacket = FALSE;
+        nfa_hci_cb.bIsHciResponseTimedout = TRUE;
+        nfa_hci_cb.bIsRspPending = FALSE;
+#endif
         if (nfa_hci_cb.w4_rsp_evt)
         {
             nfa_hci_cb.w4_rsp_evt       = FALSE;
@@ -1312,7 +1336,9 @@ void nfa_hci_rsp_timeout (tNFA_HCI_EVENT_DATA *p_evt_data)
             evt_data.rcvd_evt.p_evt_buf = NULL;
             nfa_hci_cb.rsp_buf_size     = 0;
             nfa_hci_cb.p_rsp_buf        = NULL;
-
+#if (NXP_EXTNS == TRUE)
+            evt_data.evt_sent.evt_type  = nfa_hci_cb.evt_sent.evt_type;
+#endif
             break;
         }
 

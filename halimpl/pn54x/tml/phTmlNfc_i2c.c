@@ -325,15 +325,25 @@ int phTmlNfc_i2c_write(void *pDevHandle, uint8_t * pBuffer, int nNbBytesToWrite)
 *******************************************************************************/
 int phTmlNfc_i2c_reset(void *pDevHandle, long level)
 {
-    int ret;
+    int ret = -1;
+
     NXPLOG_TML_D("phTmlNfc_i2c_reset(), VEN level %ld", level);
 
     if (NULL == pDevHandle)
     {
         return -1;
     }
-
     ret = ioctl((intptr_t)pDevHandle, PN544_SET_PWR, level);
+    if(ret < 0)
+    {
+        NXPLOG_TML_E("%s :failed errno = 0x%x", __FUNCTION__, errno);
+        if(level == 2 && errno == EBUSY)
+        {
+           notifyFwrequest = TRUE;
+        }else{
+           notifyFwrequest = FALSE;
+        }
+    }
     if(level == 2 && ret == 0)
     {
         bFwDnldFlag = TRUE;
@@ -344,6 +354,52 @@ int phTmlNfc_i2c_reset(void *pDevHandle, long level)
 }
 
 #if(NFC_NXP_ESE == TRUE)
+/*******************************************************************************
+**
+** Function         phTmlNfc_i2c_set_Jcop_dwnld_state
+**
+** Description      This function set jcop download state.
+**
+** Parameters       pDevHandle     - valid device handle
+**
+** Returns          NFCSTATUS
+**
+**
+*******************************************************************************/
+NFCSTATUS phTmlNfc_i2c_set_Jcop_dwnld_state(void *pDevHandle, long level)
+{
+    int ret = -1;
+    NFCSTATUS wStatus = NFCSTATUS_SUCCESS;
+
+    NXPLOG_TML_D("phTmlNfc_i2c_set_Jcop_dwnld_state(), level %ld", level);
+
+    if (NULL == pDevHandle)
+        return NFCSTATUS_FAILED;
+
+    ret = ioctl((intptr_t)pDevHandle, PN544_SET_DWNLD_STATUS, (unsigned long) level);
+    if(ret < 0)
+    {
+        NXPLOG_TML_E("%s : failed errno = 0x%x", __FUNCTION__, errno);
+        if(errno == -EBUSY)
+        {
+            wStatus = NFCSTATUS_BUSY;
+        }
+        else if(errno == -EBADRQC)
+        {
+            wStatus = NFCSTATUS_INVALID_FORMAT;
+        }
+        else if(errno == -EINVAL)
+        {
+            wStatus = NFCSTATUS_INVALID_PARAMETER;
+        }
+        else
+        {
+            wStatus = NFCSTATUS_FAILED;
+        }
+    }
+    return wStatus;
+}
+
 /*******************************************************************************
 **
 ** Function         phTmlNfc_set_pid
@@ -516,7 +572,7 @@ NFCSTATUS phTmlNfc_get_ese_access(void *pDevHandle, long timeout)
     return status;
 }
 
-#if ((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
+#if (NXP_ESE_SVDD_SYNC == TRUE)
 /*******************************************************************************
 **
 ** Function         phTmlNfc_rel_svdd_wait

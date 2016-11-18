@@ -339,7 +339,9 @@ tNFA_STATUS nfa_hciu_send_msg (UINT8 pipe_id, UINT8 type, UINT8 instruction, UIN
     UINT16          data_len;
     tNFA_STATUS     status = NFA_STATUS_OK;
     UINT16          max_seg_hcp_pkt_size = nfa_hci_cb.buff_size;
-
+#if (NXP_EXTNS == TRUE)
+    nfa_hci_cb.IsChainedPacket = FALSE;
+#endif
 #if (BT_TRACE_VERBOSE == TRUE)
     char    buff[100];
 
@@ -368,6 +370,9 @@ tNFA_STATUS nfa_hciu_send_msg (UINT8 pipe_id, UINT8 type, UINT8 instruction, UIN
             if (msg_len > data_len)
             {
                 *p_data++ = (NFA_HCI_MESSAGE_FRAGMENTATION << 7) | (pipe_id & 0x7F);
+#if (NXP_EXTNS == TRUE)
+                nfa_hci_cb.IsChainedPacket = TRUE;
+#endif
             }
             else
             {
@@ -421,7 +426,12 @@ tNFA_STATUS nfa_hciu_send_msg (UINT8 pipe_id, UINT8 type, UINT8 instruction, UIN
             nfa_hci_cb.hci_state = NFA_HCI_STATE_WAIT_RSP;
         nfa_sys_start_timer (&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT, p_nfa_hci_cfg->hcp_response_timeout);
     }
-
+#if (NXP_EXTNS == TRUE)
+    else if (type == NFA_HCI_EVENT_TYPE)
+    {
+        nfa_hci_cb.evt_sent.evt_type = instruction;
+    }
+#endif
     return status;
 }
 
@@ -932,7 +942,9 @@ void nfa_hciu_remove_all_pipes_from_host (UINT8 host)
         {
             evt_data.deleted.status = NFA_STATUS_OK;
             evt_data.deleted.pipe   = pp->pipe_id;
-
+#if (NXP_EXTNS == TRUE)
+            evt_data.deleted.host = host;
+#endif
             nfa_hciu_send_to_app (NFA_HCI_DELETE_PIPE_EVT, &evt_data, pg->gate_owner);
         }
         nfa_hciu_release_pipe (pp->pipe_id);

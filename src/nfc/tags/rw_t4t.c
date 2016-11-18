@@ -2074,6 +2074,9 @@ static void rw_t4t_data_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_
         }
         else if (p_t4t->state != RW_T4T_STATE_IDLE)
         {
+#if (NXP_EXTNS == TRUE)
+            rw_data.status = (tNFC_STATUS) (*(UINT8*) p_data);
+#endif
             rw_t4t_handle_error (rw_data.status, 0, 0);
         }
         else

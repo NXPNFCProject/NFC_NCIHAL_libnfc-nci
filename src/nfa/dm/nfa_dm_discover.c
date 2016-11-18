@@ -102,7 +102,7 @@ static UINT16 P2P_PRIO_LOGIC_CLEANUP_TIMEOUT = 50; /*timeout value 500 ms for p2
 static UINT16 P2P_PRIO_LOGIC_DEACT_NTF_TIMEOUT = 200; /* timeout value 2 sec waiting for deactivate ntf */
 #endif
 
-#if(NFC_NXP_ESE == TRUE && ((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551)))
+#if(NFC_NXP_ESE == TRUE && (NXP_ESE_ETSI_READER_ENABLE == TRUE))
 BOOLEAN etsi_reader_in_progress = FALSE;
 #endif
 /*******************************************************************************
@@ -133,13 +133,14 @@ static UINT8 nfa_dm_get_rf_discover_config (tNFA_DM_DISC_TECH_PROTO_MASK dm_disc
         NFA_TRACE_DEBUG1 ("nfa_dm_get_rf_discover_config () removing active listen A/B 0x%x", dm_disc_mask);
         dm_disc_mask &= ~NFA_DM_DISC_MASK_NFC_DEP;
     }
-
+#if((NXP_EXTNS == TRUE) && (NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION == TRUE))
     if (nfa_dm_cb.flags & NFA_DM_FLAGS_PASSIVE_LISTEN_DISABLED)
     {
         NFA_TRACE_DEBUG1 ("nfa_dm_get_rf_discover_config () passive listen disabled, rm listen from 0x%x", dm_disc_mask);
         dm_disc_mask &= NFA_DM_DISC_MASK_ACTIVE_LISTEN;
         dm_disc_mask |= (NFA_DM_DISC_MASK_LAA_NFC_DEP | NFA_DM_DISC_MASK_LFA_NFC_DEP);
     }
+#endif
     /* Check polling A */
     if (dm_disc_mask & ( NFA_DM_DISC_MASK_PA_T1T
                         |NFA_DM_DISC_MASK_PA_T2T
@@ -1156,7 +1157,7 @@ static void nfa_dm_disc_deact_ntf_timeout_cback (TIMER_LIST_ENT *p_tle)
     (void)p_tle;
 
     NFA_TRACE_ERROR0 ("nfa_dm_disc_deact_ntf_timeout_cback()");
-#if(NFC_NXP_ESE == TRUE && ((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551)))
+#if((NFC_NXP_ESE == TRUE) && (NXP_ESE_ETSI_READER_ENABLE == TRUE))
     if (nfc_cb.num_disc_maps == 1)
     {
     NFC_TRACE_ERROR0 ("reset Nfc..!!");
@@ -1168,7 +1169,7 @@ static void nfa_dm_disc_deact_ntf_timeout_cback (TIMER_LIST_ENT *p_tle)
     {
 #endif
         nfa_dm_disc_force_to_idle();
-#if(NFC_NXP_ESE == TRUE && ((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551)))
+#if((NFC_NXP_ESE == TRUE) && (NXP_ESE_ETSI_READER_ENABLE == TRUE))
     }
 #endif
 }
@@ -3406,6 +3407,13 @@ tNFA_STATUS nfa_dm_rf_deactivate (tNFA_DEACTIVATE_TYPE deactivate_type)
     }
     else
     {
+#if(NXP_EXTNS == TRUE)
+        if (nfa_dm_cb.disc_cb.kovio_tle.in_use)
+        {
+            nfa_sys_stop_timer (&nfa_dm_cb.disc_cb.kovio_tle);
+            nfa_dm_disc_kovio_timeout_cback (&nfa_dm_cb.disc_cb.kovio_tle);
+        }
+#endif
         nfa_dm_disc_sm_execute (NFA_DM_RF_DEACTIVATE_CMD, (void *) &deactivate_type);
         return NFA_STATUS_OK;
     }

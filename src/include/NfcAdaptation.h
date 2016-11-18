@@ -91,6 +91,7 @@ public:
     void    DownloadFirmware ();
 #if(NXP_EXTNS == TRUE)
     void MinInitialize ();
+    int HalGetFwDwnldFlag (UINT8* fwDnldRequest);
 #endif
 
 private:

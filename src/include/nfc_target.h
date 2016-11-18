@@ -272,7 +272,7 @@
 
 /* Maximum time to discover NFCEE */
 #ifndef NFA_EE_DISCV_TIMEOUT_VAL
-#define NFA_EE_DISCV_TIMEOUT_VAL    2000
+#define NFA_EE_DISCV_TIMEOUT_VAL    4000
 #endif
 
 /* Number of times reader/writer should attempt to resend a command on failure */
@@ -746,6 +746,9 @@
 *****************************************************************************/
 #ifndef HAL_WRITE
 #define HAL_WRITE(p)    {nfc_cb.p_hal->write(p->len, (UINT8 *)(p+1) + p->offset); GKI_freebuf(p);}
+#if (NXP_EXTNS == TRUE)
+#define HAL_RE_WRITE(p)    {nfc_cb.p_hal->write(p->len, (UINT8 *)(p+1) + p->offset);}
+#endif
 
 #ifdef NFC_HAL_SHARED_GKI
 

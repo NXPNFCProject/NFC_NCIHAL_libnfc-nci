@@ -159,10 +159,15 @@ void nfc_process_timer_evt (void)
                 nfc_cb.i2c_data_t.data_stored = 0;
             }
             nfc_ncif_credit_ntf_timeout();
-#endif
             break;
         }
-#if(NXP_EXTNS == TRUE)
+#if(NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME)
+        case NFC_TTYPE_NCI_WAIT_RF_FIELD_NTF:
+        {
+            nfc_ncif_rffield_ntf_timeout();
+            break;
+        }
+#endif
         case NFC_TTYPE_LISTEN_ACTIVATION:
             {
                 extern uint8_t sListenActivated;

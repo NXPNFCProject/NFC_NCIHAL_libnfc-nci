@@ -41,4 +41,5 @@ int phNxpNciHal_power_cycle(void);
 int phNxpNciHal_MinOpen(nfc_stack_callback_t *p_cback,
         nfc_stack_data_callback_t *p_data_cback);
 int phNxpNciHal_Minclose(void);
+int phNxpNciHal_getFWDownloadFlag(uint8_t* fwDnldRequest);
 #endif /* _PHNXPNCIHAL_ADAPTATION_H_ */

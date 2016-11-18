@@ -177,6 +177,25 @@ static int hal_power_cycle(const struct nfc_nci_device *p_dev)
     return retval;
 }
 
+/*******************************************************************************
+**
+** Function         hal_get_fw_dwnld_flag
+**
+** Description      Notify FW download request.
+**
+** Returns          TRUE if successful otherwise FALSE.
+**
+*******************************************************************************/
+static int hal_get_fw_dwnld_flag(const struct nfc_nci_device *p_dev, uint8_t* fwDnldRequest)
+{
+    int retval = 0;
+    pn547_dev_t* dev = (pn547_dev_t*) p_dev;
+
+    retval = phNxpNciHal_getFWDownloadFlag(fwDnldRequest);
+
+    return retval;
+}
+
 /*************************************
  * Generic device handling.
  *************************************/
@@ -236,6 +255,7 @@ static int nfc_open(const hw_module_t* module, const char* name,
             dev->nci_device.close = hal_close;
             dev->nci_device.control_granted = hal_control_granted;
             dev->nci_device.power_cycle = hal_power_cycle;
+            dev->nci_device.check_fw_dwnld_flag = hal_get_fw_dwnld_flag;
             *device = (hw_device_t*) dev;
         }
     }

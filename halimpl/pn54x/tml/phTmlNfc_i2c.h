@@ -21,6 +21,9 @@
 /* Basic type definitions */
 #include <phNfcTypes.h>
 #include <phTmlNfc.h>
+#include <NXP_ESE_Features.h>
+
+#define PN544_MAGIC 0xE9
 
 /* Function declarations */
 void phTmlNfc_i2c_close(void *pDevHandle);
@@ -29,8 +32,8 @@ int phTmlNfc_i2c_read(void *pDevHandle, uint8_t * pBuffer, int nNbBytesToRead);
 int phTmlNfc_i2c_write(void *pDevHandle,uint8_t * pBuffer, int nNbBytesToWrite);
 int phTmlNfc_i2c_reset(void *pDevHandle,long level);
 bool_t getDownloadFlag(void);
+bool_t notifyFwrequest;
 phTmlNfc_i2cfragmentation_t fragmentation_enabled;
-#define PN544_MAGIC 0xE9
 
 /*
  * PN544 power control via ioctl
@@ -38,7 +41,7 @@ phTmlNfc_i2cfragmentation_t fragmentation_enabled;
  * PN544_SET_PWR(1): power on
  * PN544_SET_PWR(2): reset and power on with firmware download enabled
  */
-#define PN544_SET_PWR    _IOW(PN544_MAGIC, 0x01, unsigned int)
+#define PN544_SET_PWR    _IOW(PN544_MAGIC, 0x01, long)
 
 #if(NFC_NXP_ESE == TRUE)
 NFCSTATUS phTmlNfc_i2c_get_p61_power_state(void *pDevHandle);
@@ -46,7 +49,8 @@ NFCSTATUS phTmlNfc_i2c_set_p61_power_state(void *pDevHandle, long arg);
 NFCSTATUS phTmlNfc_set_pid(void *pDevHandle, long pid);
 NFCSTATUS phTmlNfc_set_power_scheme(void *pDevHandle, long id);
 NFCSTATUS phTmlNfc_get_ese_access(void *pDevHandle, long timeout);
-#if ((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
+NFCSTATUS phTmlNfc_i2c_set_Jcop_dwnld_state(void *pDevHandle, long level);
+#if (NXP_ESE_SVDD_SYNC == TRUE)
 NFCSTATUS phTmlNfc_rel_svdd_wait(void *pDevHandle);
 #endif
 /*
@@ -55,19 +59,19 @@ NFCSTATUS phTmlNfc_rel_svdd_wait(void *pDevHandle);
  * level 1 = Enable power
  * level 0 = Disable power
  */
-#define P61_SET_SPI_PWR    _IOW(PN544_MAGIC, 0x02, unsigned int)
+#define P61_SET_SPI_PWR    _IOW(PN544_MAGIC, 0x02, long)
 
 /* SPI or DWP can call this ioctl to get the current
  * power state of P61
  *
 */
-#define P61_GET_PWR_STATUS    _IOR(PN544_MAGIC, 0x03, unsigned int)
+#define P61_GET_PWR_STATUS    _IOR(PN544_MAGIC, 0x03, long)
 
 /* DWP side this ioctl will be called
  * level 1 = Wired access is enabled/ongoing
  * level 0 = Wired access is disalbed/stopped
 */
-#define P61_SET_WIRED_ACCESS _IOW(PN544_MAGIC, 0x04, unsigned int)
+#define P61_SET_WIRED_ACCESS _IOW(PN544_MAGIC, 0x04, long)
 
 /*
   NFC Init will call the ioctl to register the PID with the i2c driver
@@ -83,9 +87,15 @@ NFCSTATUS phTmlNfc_rel_svdd_wait(void *pDevHandle);
   NFC and SPI will call the ioctl to update the power scheme
 */
 #define P544_SET_POWER_SCHEME _IOW(PN544_MAGIC, 0x07, long)
-
+#if (NXP_ESE_SVDD_SYNC == TRUE)
 /*
   NFC will call the ioctl to release the svdd protection
 */
 #define P544_REL_SVDD_WAIT _IOW(PN544_MAGIC, 0x08, long)
+#endif
+/* SPI or DWP can call this ioctl to set the JCOP download
+ * state of P61
+ *
+*/
+#define PN544_SET_DWNLD_STATUS    _IOW(PN544_MAGIC, 0x09, long)
 #endif

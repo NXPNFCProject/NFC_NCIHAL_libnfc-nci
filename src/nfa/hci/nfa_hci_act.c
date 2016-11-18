@@ -1099,7 +1099,9 @@ static BOOLEAN nfa_hci_api_send_event (tNFA_HCI_EVENT_DATA *p_evt_data)
                         {
                             nfa_hci_cb.w4_rsp_evt   = TRUE;
                             nfa_hci_cb.hci_state    = NFA_HCI_STATE_WAIT_RSP;
-
+#if (NXP_EXTNS == TRUE)
+                            nfa_hci_cb.hciResponseTimeout = p_evt_data->send_evt.rsp_timeout;
+#endif
                             nfa_sys_start_timer (&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT, p_evt_data->send_evt.rsp_timeout);
                         }
                         else if (p_pipe->local_gate == NFA_HCI_LOOP_BACK_GATE)
@@ -2769,6 +2771,7 @@ static void nfa_hci_handle_Nfcee_dynpipe_rsp (UINT8 pipeId,UINT8 *p_data, UINT8 
                 evt_data.admin_rsp_rcvd.status = status;
                 nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
                 /* Send NFA_HCI_CMD_SENT_EVT to notify success */
+                nfa_hciu_send_to_all_apps (NFA_HCI_CONFIG_DONE_EVT, &evt_data);
             }
             break;
     }

@@ -561,6 +561,7 @@ tNFA_STATUS NFA_DisableListening (void)
     return (NFA_STATUS_FAILED);
 }
 
+#if(NXP_EXTNS == TRUE && NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION == TRUE)
 /*******************************************************************************
 **
 ** Function         NFA_DisablePassiveListening
@@ -593,6 +594,8 @@ tNFA_STATUS NFA_DisablePassiveListening (void)
 
     return (NFA_STATUS_FAILED);
 }
+#endif
+
 /*******************************************************************************
 **
 ** Function         NFA_PauseP2p
@@ -1356,6 +1359,25 @@ UINT8 NFA_SetTraceLevel (UINT8 new_level)
     return (nfa_sys_cb.trace_level);
 }
 #if(NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         NFA_checkNfcStateBusy()
+**
+** Description      This function returns whether NFC process is busy or not
+
+**
+** Returns          if Nfc state busy return true otherwise false.
+**
+*******************************************************************************/
+BOOLEAN NFA_checkNfcStateBusy()
+{
+
+    if(nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_DISCOVERY)
+        return FALSE;
+
+    return TRUE;
+}
+
 /*******************************************************************************
 **
 ** Function       NFA_SetReaderMode

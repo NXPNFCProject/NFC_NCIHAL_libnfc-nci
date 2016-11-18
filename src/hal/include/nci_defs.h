@@ -194,7 +194,10 @@ extern "C" {
 #define NCI_STATUS_EE_TRANSMISSION_ERR  0xC1
 #define NCI_STATUS_EE_PROTOCOL_ERR      0xC2
 #define NCI_STATUS_EE_TIMEOUT           0xC3
-
+#if (NXP_EXTNS == TRUE)
+#define NCI_STATUS_WIRED_SESSION_ABORTED 0xE6
+#define NCI_STATUS_DWP_APDU_DROPPPED     0xE5  /* todo: need to place new error code when FW is readey*/
+#endif
 
 typedef UINT8 tNCI_STATUS;
 

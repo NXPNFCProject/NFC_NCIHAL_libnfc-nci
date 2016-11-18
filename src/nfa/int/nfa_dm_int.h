@@ -66,7 +66,9 @@ enum
     NFA_DM_API_DISABLE_POLLING_EVT,
     NFA_DM_API_ENABLE_LISTENING_EVT,
     NFA_DM_API_DISABLE_LISTENING_EVT,
+#if(NXP_EXTNS == TRUE && NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION == TRUE)
     NFA_DM_API_DISABLE_PASSIVE_LISTENING_EVT,
+#endif
     NFA_DM_API_PAUSE_P2P_EVT,
     NFA_DM_API_RESUME_P2P_EVT,
     NFA_DM_API_RAW_FRAME_EVT,
@@ -335,9 +337,10 @@ typedef UINT8 tNFA_DM_RF_DISC_EVT;
 #define NFA_DM_DISC_MASK_LFA_NFC_DEP            0x08000000
 #define NFA_DM_DISC_MASK_L_LEGACY               0x10000000
 #define NFA_DM_DISC_MASK_LISTEN                 0xFFFF0000
-
 #define NFA_DM_DISC_MASK_NFC_DEP                0x0C481848
+#if(NXP_EXTNS == TRUE && NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION == TRUE)
 #define NFA_DM_DISC_MASK_ACTIVE_LISTEN          0xFF00FFFF
+#endif
 
 typedef UINT32  tNFA_DM_DISC_TECH_PROTO_MASK;
 
@@ -447,7 +450,9 @@ typedef struct
 #define NFA_DM_FLAGS_LISTEN_DISABLED            0x00001000  /* NFA_DisableListening() is called and engaged                         */
 #define NFA_DM_FLAGS_P2P_PAUSED                 0x00002000  /* NFA_PauseP2p() is called and engaged                         */
 #define NFA_DM_FLAGS_POWER_OFF_SLEEP            0x00008000  /* Power Off Sleep                                                      */
+#if(NXP_EXTNS == TRUE && NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION == TRUE)
 #define NFA_DM_FLAGS_PASSIVE_LISTEN_DISABLED    0x00010000  /* NFA_DisablePassiveListening() is called and engaged                  */
+#endif
 /* stored parameters */
 typedef struct
 {
@@ -620,7 +625,9 @@ BOOLEAN nfa_dm_act_enable_polling (tNFA_DM_MSG *p_data);
 BOOLEAN nfa_dm_act_disable_polling (tNFA_DM_MSG *p_data);
 BOOLEAN nfa_dm_act_enable_listening (tNFA_DM_MSG *p_data);
 BOOLEAN nfa_dm_act_disable_listening (tNFA_DM_MSG *p_data);
+#if(NXP_EXTNS == TRUE && NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION == TRUE)
 BOOLEAN nfa_dm_act_disable_passive_listening (tNFA_DM_MSG *p_data);
+#endif
 BOOLEAN nfa_dm_act_pause_p2p (tNFA_DM_MSG *p_data);
 BOOLEAN nfa_dm_act_resume_p2p (tNFA_DM_MSG *p_data);
 BOOLEAN nfa_dm_act_send_raw_frame (tNFA_DM_MSG *p_data);

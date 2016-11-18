@@ -185,6 +185,9 @@ typedef struct
 {
     tNFA_STATUS     status;                             /* Status of delete pipe operation */
     UINT8           pipe;                               /* The dynamic pipe for delete operation */
+#if (NXP_EXTNS == TRUE)
+    UINT8           host;                               /* The host Id for delete pipe operation */
+#endif
 } tNFA_HCI_DELETE_PIPE;
 
 /* Data for NFA_HCI_HOST_LIST_EVT */
@@ -253,6 +256,9 @@ typedef struct
 typedef struct
 {
     tNFA_STATUS     status;                             /* Status of Event send operation */
+#if (NXP_EXTNS == TRUE)
+    UINT8           evt_type;
+#endif
 } tNFA_HCI_EVENT_SENT;
 
 /* Data for NFA_HCI_ADD_STATIC_PIPE_EVT */
@@ -675,7 +681,6 @@ NFC_API extern tNFA_STATUS NFA_HciSendHostTypeListCommand (tNFA_HANDLE hci_handl
 NFC_API extern tNFA_STATUS NFA_HciConfigureNfceeETSI12 (UINT8 hostId);
 #endif
 #if(NXP_EXTNS == TRUE)
-#if (JCOP_WA_ENABLE == TRUE)
 /*******************************************************************************
 **
 ** Function         NFA_HciW4eSETransaction_Complete
@@ -687,7 +692,6 @@ NFC_API extern tNFA_STATUS NFA_HciConfigureNfceeETSI12 (UINT8 hostId);
 **
 *******************************************************************************/
 NFC_API extern void NFA_HciW4eSETransaction_Complete(tNFA_HCI_TRANSCV_STATE type);
-#endif
 #endif
 
 #ifdef __cplusplus

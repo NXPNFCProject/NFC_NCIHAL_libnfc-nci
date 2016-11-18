@@ -27,7 +27,9 @@
 #define PHTMLNFC_H
 
 #include <phNfcCommon.h>
-
+#ifndef NXP_NFCC_FEATURES_H
+#include <NXP_NFCC_Features.h>
+#endif
 /*
  * Message posted by Reader thread upon
  * completion of requested operation
@@ -108,13 +110,15 @@ typedef enum
     phTmlNfc_e_SetP61DisableMode, /* Set the ese vdd gpio to low*/
     phTmlNfc_e_SetP61EnableMode, /* Set the ese vdd gpio to high*/
     phTmlNfc_e_RelP61Access, /*Release the P61 lock*/
-#if ((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
+#if (NXP_ESE_SVDD_SYNC == TRUE)
     phTmlNfc_e_RelP61SvddWait,
 #endif
-    phTmlNfc_e_P73IsoRstMode,         /* ISO RST of P73*/
+    phTmlNfc_e_eSEChipRstMode,         /* ISO RST of P73*/
     phTmlNfc_e_SetLegacyPowerScheme,
     phTmlNfc_e_SetExtPMUPowerScheme,
     phTmlNfc_e_SetPN67TPowerScheme,
+    phTmlNfc_e_SetJcopDwnldEnable,
+    phTmlNfc_e_SetJcopDwnldDisable
 #endif
 } phTmlNfc_ControlCode_t ;  /* Control code for IOCTL call */
 

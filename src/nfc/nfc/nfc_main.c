@@ -677,7 +677,7 @@ static void nfc_main_hal_cback(UINT8 event, tHAL_NFC_STATUS status)
 #else
     NFC_TRACE_DEBUG2 ("nfc_main_hal_cback event: 0x%x, status=%d", event, status);
 #endif
-#if(NXP_EXTNS == TRUE)
+#if((NXP_EXTNS == TRUE) && (NXP_NFCC_I2C_READ_WRITE_IMPROVEMENT == TRUE))
     tNFC_RESPONSE eventData;
 #endif
     switch (event)
@@ -707,7 +707,7 @@ static void nfc_main_hal_cback(UINT8 event, tHAL_NFC_STATUS status)
     case HAL_NFC_REQUEST_CONTROL_EVT:
     case HAL_NFC_RELEASE_CONTROL_EVT:
     case HAL_NFC_ERROR_EVT:
-#if(NXP_EXTNS == TRUE)
+#if((NXP_EXTNS == TRUE) && (NXP_NFCC_I2C_READ_WRITE_IMPROVEMENT == TRUE))
     case HAL_NFC_POST_MIN_INIT_CPLT_EVT:
 
         if(status == HAL_NFC_STATUS_ERR_CMD_TIMEOUT)
@@ -814,7 +814,7 @@ tNFC_STATUS NFC_Enable (tNFC_RESPONSE_CBACK *p_cback)
     /* Open HAL transport. */
     nfc_set_state (NFC_STATE_W4_HAL_OPEN);
 #if(NXP_EXTNS == TRUE)
-    UINT8 boot_mode = nfc_cb.boot_mode;
+    UINT16 boot_mode = nfc_cb.boot_mode;
     if(nfc_cb.boot_mode == NFC_FAST_BOOT_MODE)
     {
         nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_SET_BOOT_MODE,(void*)&boot_mode);
@@ -843,7 +843,7 @@ void NFC_Disable (void)
 {
     NFC_TRACE_API1 ("NFC_Disable (): nfc_state = %d", nfc_cb.nfc_state);
 #if(NXP_EXTNS == TRUE)
-    UINT8 boot_mode = NFC_NORMAL_BOOT_MODE;
+    UINT16 boot_mode = NFC_NORMAL_BOOT_MODE;
 #endif
     if ((nfc_cb.nfc_state == NFC_STATE_NONE) || (nfc_cb.nfc_state == NFC_STATE_NFCC_POWER_OFF_SLEEP))
     {
@@ -908,6 +908,10 @@ void NFC_Init (tHAL_NFC_ENTRY *p_hal_entry_tbl)
     nfc_cb.reassembly       = TRUE;
 #if(NXP_EXTNS == TRUE)
     nfc_cb.boot_mode        = p_hal_entry_cntxt->boot_mode;
+    nfc_cb.bBlockWiredMode  = FALSE;
+    nfc_cb.bRetransmitDwpPacket = FALSE;
+    nfc_cb.bIsCreditNtfRcvd = FALSE;
+    nfc_cb.temp_data = NULL;
     if(p_hal_entry_cntxt->boot_mode == NFC_NORMAL_BOOT_MODE)
     {
 #endif
@@ -1628,7 +1632,8 @@ INT32 NFC_EnableWired (void *pdata)
 {
     return (nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_P61_ENABLE_MODE, pdata));
 }
-#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
+#if (NXP_EXTNS == TRUE)
+#if (NXP_WIRED_MODE_STANDBY == TRUE)
 /*******************************************************************************
 +**
 ** Function         NFC_Nfcee_PwrLinkCtrl
@@ -1649,20 +1654,42 @@ tNFC_STATUS NFC_Nfcee_PwrLinkCtrl(UINT8 nfcee_id, UINT8 cfg_value)
      return nci_snd_pwr_nd_lnk_ctrl_cmd(nfcee_id, cfg_value);
 }
 #endif
-
+#if (NXP_ESE_JCOP_DWNLD_PROTECTION == TRUE)
 /*******************************************************************************
 **
-** Function         NFC_P73ISOReset
+** Function         NFC_SetP61Status
 **
-** Description      This function request to pn54x driver to
-**                  hard reset of P73 using ISO RST configuration.
+** Description      This function set the JCOP download
+**                  state to pn544 driver.
 **
 ** Returns          0 if api call success, else -1
 **
 *******************************************************************************/
-INT32 NFC_P73ISOReset (void *pdata)
+INT32 NFC_SetP61Status (void *pdata, jcop_dwnld_state_t isJcopState)
 {
-    return (nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_P73_ISO_RST, pdata));
+    if(isJcopState == JCP_DWNLD_START)
+        isJcopState = (nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_SET_JCP_DWNLD_ENABLE, pdata));
+    else if(isJcopState == JCP_DWP_DWNLD_COMPLETE)
+        isJcopState = (nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_SET_JCP_DWNLD_DISABLE, pdata));
+
+    return isJcopState;
+}
+#endif
+#endif
+
+/*******************************************************************************
+**
+** Function         NFC_eSEChipReset
+**
+** Description      This function request to pn54x driver to
+**                  chip reset the ESE using ISO_RST pin configuration.
+**
+** Returns          0 if api call success, else -1
+**
+*******************************************************************************/
+INT32 NFC_eSEChipReset (void *pdata)
+{
+    return (nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_ESE_CHIP_RST, pdata));
 }
 
 #if((NFC_NXP_ESE_VER == JCOP_VER_3_1) || (NFC_NXP_ESE_VER == JCOP_VER_3_2))
@@ -1697,7 +1724,7 @@ INT32 NFC_RelEseAccess (void *pdata)
 }
 #endif
 
-#if ((NFC_NXP_CHIP_TYPE == PN548C2) || (NFC_NXP_CHIP_TYPE == PN551))
+#if(NXP_ESE_SVDD_SYNC == TRUE)
 /*******************************************************************************
 **
 ** Function         NFC_RelSvddWait

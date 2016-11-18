@@ -57,7 +57,7 @@
 **  Constants and data types
 *****************************************************************************/
 
-/* Max length of Application ID in 7816-4 */
+/* Max length of Appliction ID in 7816-4 */
 #define NFA_MAX_AID_LEN     NFC_MAX_AID_LEN
 #define NFA_MIN_AID_LEN     5 /* per NCI specification */
 
@@ -98,6 +98,9 @@
 #define NFA_STATUS_BAD_LENGTH           NFC_STATUS_BAD_LENGTH     /* data len exceeds MIU                             */
 #define NFA_STATUS_BAD_HANDLE           NFC_STATUS_BAD_HANDLE     /* invalid handle                                   */
 #define NFA_STATUS_CONGESTED            NFC_STATUS_CONGESTED      /* congested                                        */
+#if (NXP_EXTNS == TRUE)
+#define NFA_STATUS_WIRED_SESSION_ABORTED  NFC_STATUS_WIRED_SESSION_ABORTED  /* WIRED_SESSION_ABORTED error */
+#endif
 typedef UINT8 tNFA_STATUS;
 
 /* Handle for NFA registrations and connections */
@@ -335,8 +338,10 @@ typedef struct
 #define NFA_CE_ESE_LISTEN_CONFIGURED_EVT        40  /* ESE Listen configured                        */
 #define NFA_ACTIVATED_UPDATE_EVT                41  /* Activated intf for updating the   tech variables */
 #define NFA_RECOVERY_EVT                        42  /*Recovery*/
-#endif
+#if(NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION == TRUE)
 #define NFA_PASSIVE_LISTEN_DISABLED_EVT         44  /* Passive Listening disabled event                     */
+#endif
+#endif
 /* NFC deactivation type */
 #define NFA_DEACTIVATE_TYPE_IDLE        NFC_DEACTIVATE_TYPE_IDLE
 #define NFA_DEACTIVATE_TYPE_SLEEP       NFC_DEACTIVATE_TYPE_SLEEP
@@ -988,6 +993,7 @@ NFC_API extern tNFA_STATUS NFA_EnableListening (void);
 *******************************************************************************/
 NFC_API extern tNFA_STATUS NFA_DisableListening (void);
 
+#if((NXP_EXTNS == TRUE) && (NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION == TRUE))
 /*******************************************************************************
 **
 ** Function         NFA_DisablePassiveListening
@@ -1004,6 +1010,7 @@ NFC_API extern tNFA_STATUS NFA_DisableListening (void);
 **
 *******************************************************************************/
 NFC_API extern tNFA_STATUS NFA_DisablePassiveListening (void);
+#endif
 
 /*******************************************************************************
 **
@@ -1417,6 +1424,18 @@ NFC_API extern void  NFA_EnableDtamode (tNFA_eDtaModes eDtaMode);
 **
 *******************************************************************************/
 NFC_API extern tNFA_MW_VERSION NFA_GetMwVersion ();
+
+/*******************************************************************************
+**
+** Function         NFA_checkNfcStateBusy()
+**
+** Description      This function returns whether NFC process is busy or not.
+**
+** Returns          if Nfc state busy return true otherwise false.
+**
++*******************************************************************************/
+NFC_API extern BOOLEAN NFA_checkNfcStateBusy();
+
 #if(NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == TRUE)
 NFC_API extern void NFA_EE_HCI_Control(BOOLEAN mode);
 NFC_API extern tNFA_STATUS NFA_ResetNfcc();

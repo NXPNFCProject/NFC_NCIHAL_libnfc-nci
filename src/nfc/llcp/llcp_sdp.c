@@ -462,7 +462,23 @@ tLLCP_STATUS llcp_sdp_proc_snl (UINT16 sdu_length, UINT8 *p)
                 p_value = p;
                 BE_STREAM_TO_UINT8 (tid, p_value);
                 sap = llcp_sdp_get_sap_by_name ((char*) p_value, (UINT8) (length - 1));
+#if(NXP_EXTNS == TRUE)
+                /* fix to pass TC_CTO_TAR_BI_03_x (x=5) test case
+                 * As per the LLCP test specification v1.2.00 by receiving erroneous SNL PDU
+                 * i'e with improper service name "urn:nfc:sn:dta-co-echo-in", the IUT should not
+                 * send any PDU except SYMM PDU*/
+                if((appl_dta_mode_flag == 1) && (sap == 0x00)){
+                    LLCP_TRACE_DEBUG1 ("llcp_sdp_proc_snl () In dta mode sap == 0x00 p_value = %s", p_value);
+                    if((length-1) == strlen(p_value)){
+                        LLCP_TRACE_DEBUG0 ("DEBUG> llcp_sdp_proc_snl () Strings are not equal");
+                        llcp_sdp_send_sdres (tid, sap);
+                    }
+                }else{
+                    llcp_sdp_send_sdres (tid, sap);
+                }
+#else
                 llcp_sdp_send_sdres (tid, sap);
+#endif
             }
             else
             {

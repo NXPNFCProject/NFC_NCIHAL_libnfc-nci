@@ -289,7 +289,7 @@ NFCSTATUS phDnldNfc_CheckIntegrity(uint8_t bChipVer, pphDnldNfc_Buff_t pCRCData,
 #elif(NFC_NXP_CHIP_TYPE == PN548C2)
               || (PHDNLDNFC_HWVER_PN548AD_MRA1_0 == bChipVer)
 #elif(NFC_NXP_CHIP_TYPE == PN553)
-              || (PHDNLDNFC_HWVER_PN553_MRA1_0 == bChipVer) || (PHDNLDNFC_HWVER_PN553_MRA1_0_UPDATED == bChipVer)
+              || (PHDNLDNFC_HWVER_PN553_MRA1_0 == bChipVer) || (PHDNLDNFC_HWVER_PN553_MRA1_0_UPDATED & bChipVer)
 #endif
                 )
             {

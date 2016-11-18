@@ -91,6 +91,7 @@ BOOLEAN MW_RCVRY_FW_DNLD_ALLOWED;
 #define NFA_HCI_MAX_RSP_WAIT_TIME           0x0C
 #define NFA_HCI_CHAIN_PKT_RSP_TIMEOUT       30000    /* After the reception of WTX, maximum response timeout value is 30 sec */
 #define NFA_HCI_WTX_RESP_TIMEOUT            3000     /* Wait time to give response timeout to application if WTX not received*/
+#define NFA_HCI_EXTENDED_PKT_RSP_TIMEOUT    30000   /* extended time out for CE deactivation*/
 #endif
 
 typedef UINT8 tNFA_HCI_STATE;
@@ -481,6 +482,12 @@ typedef struct
     UINT8                           host_id[NFA_HCI_MAX_NO_HOST_ETSI12];    /* Host id ETSI 12 compliant */
     UINT8                           host_controller_version;                 /* no of host controller version */
     UINT8                           current_nfcee;                      /* current Nfcee under execution  */
+    BOOLEAN                         IsHciTimerExtended;
+    UINT32                          hciResponseTimeout;
+    BOOLEAN                         IsChainedPacket;
+    BOOLEAN                         bIsHciResponseTimedout;
+    BOOLEAN                         bIsRspPending;
+    tNFA_HCI_EVENT_SENT             evt_sent;
 #endif
     UINT8                           type;                               /* Instruction type of incoming message */
     UINT8                           inst;                               /* Instruction of incoming message */

@@ -569,16 +569,16 @@ static void phNxpNciHal_fw_dnld_get_version_cb(void* pContext,
 #elif(NFC_NXP_CHIP_TYPE == PN548C2)
               || (PHDNLDNFC_HWVER_PN548AD_MRA1_0 == bHwVer)
 #elif(NFC_NXP_CHIP_TYPE == PN553)
-              || (PHDNLDNFC_HWVER_PN553_MRA1_0 == bHwVer || PHDNLDNFC_HWVER_PN553_MRA1_0_UPDATED == pRespBuff->pBuff[0])
+              || (PHDNLDNFC_HWVER_PN553_MRA1_0 == bHwVer || PHDNLDNFC_HWVER_PN553_MRA1_0_UPDATED & pRespBuff->pBuff[0])
 #endif
                 )
             {
                 bExpectedLen = PHLIBNFC_IOCTL_DNLD_GETVERLEN_MRA2_1;
                 (gphNxpNciHal_fw_IoctlCtx.bChipVer) = bHwVer;
 #if(NFC_NXP_CHIP_TYPE == PN553)
-                if(PHDNLDNFC_HWVER_PN553_MRA1_0_UPDATED == pRespBuff->pBuff[0])
+                if(PHDNLDNFC_HWVER_PN553_MRA1_0_UPDATED & pRespBuff->pBuff[0])
                 {
-                    (gphNxpNciHal_fw_IoctlCtx.bChipVer) = PHDNLDNFC_HWVER_PN553_MRA1_0_UPDATED;
+                    (gphNxpNciHal_fw_IoctlCtx.bChipVer) = pRespBuff->pBuff[0];
                 }
 #endif
 

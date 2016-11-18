@@ -340,12 +340,6 @@ void rw_t2t_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data)
                 p_data->data.p_data = NULL;
             }
         }
-        else if((p_data != NULL) && (p_data->data.p_data != NULL))
-        {
-        /* Free the response buffer in case of invalid response*/
-            GKI_freebuf((BT_HDR *) (p_data->data.p_data));
-            p_data->data.p_data = NULL;
-        }
         /* Data event with error status...fall through to NFC_ERROR_CEVT case */
 
     case NFC_ERROR_CEVT:

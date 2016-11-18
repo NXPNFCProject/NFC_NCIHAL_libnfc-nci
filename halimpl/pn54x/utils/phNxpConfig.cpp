@@ -740,8 +740,7 @@ bool CNfcConfig::isAllowed(const char* name)
             (token.find("POLLING_TECH_MASK") != std::string::npos)      ||
             (token.find("NXP_RF_CONF_BLK") != std::string::npos)        ||
             (token.find("NXP_CN_TRANSIT_BLK_NUM_CHECK_ENABLE") != std::string::npos) ||
-            (token.find("NXP_FWD_FUNCTIONALITY_ENABLE") != std::string::npos) ||
-            (token.find("NXP_RF_UPDATE_REQ") != std::string::npos))
+            (token.find("NXP_FWD_FUNCTIONALITY_ENABLE") != std::string::npos))
 
     {
         stat = true;
