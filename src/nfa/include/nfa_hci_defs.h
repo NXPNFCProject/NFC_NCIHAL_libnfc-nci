@@ -128,6 +128,7 @@
 #if (NXP_EXTNS == TRUE)
 #define NFA_HCI_EVT_WTX                     0x11
 #define NFA_HCI_ABORT                       0x12
+#define NFA_EVT_ABORT                       0x11 /* ETSI12 */
 #endif
 
 /* NFA HCI Connectivity gate Events */
@@ -161,6 +162,7 @@
 #if (NXP_EXTNS == TRUE)
 #define NFA_HCI_MAX_C_APDU_SIZE_INDEX       0x01
 #define NFA_HCI_MAX_WAIT_TIME_INDEX         0x02
+
 #endif
 
 #endif /* NFA_HCI_DEFS_H */

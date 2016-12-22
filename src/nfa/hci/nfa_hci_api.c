@@ -1095,40 +1095,6 @@ void NFA_HciW4eSETransaction_Complete(tNFA_HCI_TRANSCV_STATE type)
 
 /*******************************************************************************
 **
-** Function         NFA_HciSendHostTypeListCommand
-**
-** Description      This function is called to send a command on a Admin pipe
-**                  The app will be notified by NFA_HCI_CMD_SENT_EVT if an error
-**                  occurs.
-**                  When the peer host responds,the app is notified with
-**                  NFA_HCI_RSP_RCVD_EVT
-**
-** Returns          NFA_STATUS_OK if successfully initiated
-**                  NFA_STATUS_FAILED otherwise
-**
-*******************************************************************************/
-tNFA_STATUS NFA_HciSendHostTypeListCommand(tNFA_HANDLE  hci_handle)
-{
-    tNFA_HCI_API_SEND_ADMIN_EVT *p_msg;
-    NFA_TRACE_API0 ("NFA_HciSendHostTypeListCommand (): Entry");
-
-    /* Request HCI to post event data on a Admin pipe */
-    /* Register the application with HCI */
-    if (  (nfa_hci_cb.hci_state != NFA_HCI_STATE_DISABLED)
-        &&((p_msg = (tNFA_HCI_API_SEND_ADMIN_EVT *) GKI_getbuf (sizeof (tNFA_HCI_API_SEND_ADMIN_EVT))) != NULL))
-    {
-        NFA_TRACE_API1 ("NFA_HciSendHostTypeListCommand (): Entry HCI state - %d",nfa_hci_cb.hci_state);
-        p_msg->hdr.event    = NFA_HCI_API_SEND_ADMIN_EVT;
-        p_msg->hci_handle   = hci_handle;
-
-        nfa_sys_sendmsg (p_msg);
-        return (NFA_STATUS_OK);
-    }
-
-    return (NFA_STATUS_FAILED);
-}
-/*******************************************************************************
-**
 ** Function         NFA_HciConfigureNfceeETSI12
 **
 ** Description      This function is called to configure individual NFCEE to
@@ -1141,7 +1107,7 @@ tNFA_STATUS NFA_HciSendHostTypeListCommand(tNFA_HANDLE  hci_handle)
 **                  NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_HciConfigureNfceeETSI12(UINT8 hostId)
+tNFA_STATUS NFA_HciConfigureNfceeETSI12()
 {
 	tNFA_HCI_API_CONFIGURE_EVT *p_msg;
     NFA_TRACE_API0 ("NFA_HciConfigureNfceeETSI12 (): Entry");
@@ -1152,9 +1118,8 @@ tNFA_STATUS NFA_HciConfigureNfceeETSI12(UINT8 hostId)
         &&((p_msg = (tNFA_HCI_API_CONFIGURE_EVT *) GKI_getbuf (sizeof (tNFA_HCI_API_CONFIGURE_EVT))) != NULL))
     {
         NFA_TRACE_API1 ("NFA_HciConfigureNfceeETSI12 (): Entry HCI state - %d",nfa_hci_cb.hci_state);
-        p_msg->hdr.event    = NFA_HCI_API_CONFIGURE_EVT;
-        p_msg->hostId       = hostId;
-
+        p_msg->hdr.event          = NFA_HCI_API_CONFIGURE_EVT;
+        p_msg->config_nfcee_event = NFA_HCI_INIT_NFCEE_CONFIG;
         nfa_sys_sendmsg (p_msg);
         return (NFA_STATUS_OK);
     }

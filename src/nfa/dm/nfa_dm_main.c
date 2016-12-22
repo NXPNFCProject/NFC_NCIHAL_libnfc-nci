@@ -139,7 +139,9 @@ void nfa_dm_init (void)
     nfa_dm_cb.poll_disc_handle = NFA_HANDLE_INVALID;
     nfa_dm_cb.disc_cb.disc_duration = NFA_DM_DISC_DURATION_POLL;
     nfa_dm_cb.nfcc_pwr_mode    = NFA_DM_PWR_MODE_FULL;
-
+#if(NXP_EXTNS == TRUE)
+    nfa_dm_cb.selected_uicc_id = UICC1_HOST;
+#endif
     /* register message handler on NFA SYS */
     nfa_sys_register (NFA_ID_DM, &nfa_dm_sys_reg);
 }

@@ -277,6 +277,7 @@ typedef struct
     BOOLEAN             bBlockWiredMode;
     BOOLEAN             bRetransmitDwpPacket;
     BOOLEAN             bIsCreditNtfRcvd;
+    BOOLEAN             bSetmodeOnReq;
     TIMER_LIST_ENT      rf_filed_event_timeout_timer;
     BT_HDR              *temp_data;
 #endif

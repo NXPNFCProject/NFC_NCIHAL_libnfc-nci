@@ -77,7 +77,7 @@
 #define COMPILATION_MW "PN547C2"
 #endif
 /* HAL Version number (Updated as per release) */
-#define NXP_MW_VERSION_MAJ  (1U)
+#define NXP_MW_VERSION_MAJ  (2U)
 #define NXP_MW_VERSION_MIN  (0U)
 
 #define GET_EEPROM_DATA (1U)

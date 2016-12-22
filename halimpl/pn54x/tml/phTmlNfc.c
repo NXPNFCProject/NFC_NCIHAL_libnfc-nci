@@ -24,6 +24,7 @@
 #include <phDal4Nfc_messageQueueLib.h>
 #include <phTmlNfc_i2c.h>
 #include <phNxpNciHal_utils.h>
+#include <errno.h>
 #if((NFC_NXP_ESE == TRUE)&&(NXP_EXTNS == TRUE))
 #include <sys/types.h>
 long nfc_service_pid;
@@ -58,7 +59,9 @@ static void phTmlNfc_TmlThread(void *pParam);
 static void phTmlNfc_TmlWriterThread(void *pParam);
 static void phTmlNfc_ReTxTimerCb(uint32_t dwTimerId, void *pContext);
 static NFCSTATUS phTmlNfc_InitiateTimer(void);
-
+static void phTmlNfc_WaitWriteComplete(void);
+static void phTmlNfc_SignalWriteComplete(void);
+static int phTmlNfc_WaitReadInit(void);
 
 /* Function definitions */
 
@@ -129,6 +132,10 @@ NFCSTATUS phTmlNfc_Init(pphTmlNfc_Config_t pConfig)
                 gpphTmlNfc_Context->tWriteInfo.bThreadBusy = FALSE;
 
                 if(0 != sem_init(&gpphTmlNfc_Context->rxSemaphore, 0, 0))
+                {
+                    wInitStatus = NFCSTATUS_FAILED;
+                }
+                else if (0 != phTmlNfc_WaitReadInit())
                 {
                     wInitStatus = NFCSTATUS_FAILED;
                 }
@@ -431,7 +438,7 @@ static void phTmlNfc_TmlThread(void *pParam)
                 {
                     memcpy(gpphTmlNfc_Context->tReadInfo.pBuffer, temp, dwNoBytesWrRd);
                     read_count = 0;
-                    NXPLOG_TML_D("PN54X - I2C Read successful.....\n");
+                    NXPLOG_TML_D("PN54X - I2C Read successful.....len = %d\n", dwNoBytesWrRd);
                     /* This has to be reset only after a successful read */
                     gpphTmlNfc_Context->tReadInfo.bEnable = 0;
                     if ((phTmlNfc_e_EnableRetrans == gpphTmlNfc_Context->eConfig) &&
@@ -450,18 +457,9 @@ static void phTmlNfc_TmlThread(void *pParam)
                             gpphTmlNfc_Context->bWriteCbInvoked = FALSE;
                         }
                     }
-                    if(gpphTmlNfc_Context->tWriteInfo.bThreadBusy)
-                    {
-                        NXPLOG_TML_D("Delay Read");
-                        usleep(2000); /*2ms delay to give prio to write complete */
-                    }
                     /* Update the actual number of bytes read including header */
                     gpphTmlNfc_Context->tReadInfo.wLength = (uint16_t) (dwNoBytesWrRd);
-                    phNxpNciHal_print_packet("RECV", gpphTmlNfc_Context->tReadInfo.pBuffer,
-                            gpphTmlNfc_Context->tReadInfo.wLength);
-
                     dwNoBytesWrRd = PH_TMLNFC_RESET_VALUE;
-
                     /* Fill the Transaction info structure to be passed to Callback Function */
                     tTransactionInfo.wStatus = wStatus;
                     tTransactionInfo.pBuff = gpphTmlNfc_Context->tReadInfo.pBuffer;
@@ -476,8 +474,14 @@ static void phTmlNfc_TmlThread(void *pParam)
                     tMsg.pMsgData = &tDeferredInfo;
                     tMsg.Size = sizeof(tDeferredInfo);
                     NXPLOG_TML_D("PN54X - Posting read message.....\n");
+                    if((gpphTmlNfc_Context->gWriterCbflag == FALSE) &&
+                           ((gpphTmlNfc_Context->tReadInfo.pBuffer[0] & 0x60) != 0x60))
+                    {
+                        phTmlNfc_WaitWriteComplete();
+                    }
+                    phNxpNciHal_print_packet("RECV", gpphTmlNfc_Context->tReadInfo.pBuffer,
+                                                     gpphTmlNfc_Context->tReadInfo.wLength);
                     phTmlNfc_DeferredCall(gpphTmlNfc_Context->dwCallbackThreadId, &tMsg);
-
                 }
             }
             else
@@ -542,6 +546,7 @@ static void phTmlNfc_TmlWriterThread(void *pParam)
                 dwNoBytesWrRd = PH_TMLNFC_RESET_VALUE;
                 /* Write the data in the buffer onto the file */
                 NXPLOG_TML_D("PN54X - Invoking I2C Write.....\n");
+                gpphTmlNfc_Context->gWriterCbflag = FALSE;
                 dwNoBytesWrRd = phTmlNfc_i2c_write(gpphTmlNfc_Context->pDevHandle,
                         gpphTmlNfc_Context->tWriteInfo.pBuffer,
                         gpphTmlNfc_Context->tWriteInfo.wLength
@@ -612,6 +617,11 @@ static void phTmlNfc_TmlWriterThread(void *pParam)
                 {
                     NXPLOG_TML_D("PN54X - Posting Fresh Write message.....\n");
                     phTmlNfc_DeferredCall(gpphTmlNfc_Context->dwCallbackThreadId, &tMsg);
+                    if (NFCSTATUS_SUCCESS == wStatus)
+                    {
+                        gpphTmlNfc_Context->gWriterCbflag = TRUE;
+                        phTmlNfc_SignalWriteComplete();
+                    }
                 }
             }
             else
@@ -668,6 +678,8 @@ static void phTmlNfc_CleanUp(void)
     sem_destroy(&gpphTmlNfc_Context->rxSemaphore);
     sem_destroy(&gpphTmlNfc_Context->txSemaphore);
     sem_destroy(&gpphTmlNfc_Context->postMsgSemaphore);
+    pthread_mutex_destroy(&gpphTmlNfc_Context->wait_busy_lock);
+    pthread_cond_destroy(&gpphTmlNfc_Context->wait_busy_condition);
     phTmlNfc_i2c_close(gpphTmlNfc_Context->pDevHandle);
     gpphTmlNfc_Context->pDevHandle = NULL;
     /* Clear memory allocated for storing Context variables */
@@ -1167,4 +1179,96 @@ void phTmlNfc_set_fragmentation_enabled(phTmlNfc_i2cfragmentation_t result)
 phTmlNfc_i2cfragmentation_t phTmlNfc_get_fragmentation_enabled()
 {
     return  fragmentation_enabled;
+}
+
+/*******************************************************************************
+**
+** Function         phTmlNfc_WaitWriteComplete
+**
+** Description      wait function for reader thread
+**
+** Parameters       None
+**
+** Returns          None
+**
+*******************************************************************************/
+static void phTmlNfc_WaitWriteComplete(void)
+{
+    int ret = -1;
+    struct timespec absTimeout;
+    if (clock_gettime(CLOCK_MONOTONIC, &absTimeout) == -1)
+    {
+        NXPLOG_TML_E("Reader Thread clock_gettime failed");
+    }
+    else
+    {
+        pthread_mutex_lock(&gpphTmlNfc_Context->wait_busy_lock);
+        absTimeout.tv_sec += 1; /*1 second timeout*/
+        gpphTmlNfc_Context->wait_busy_flag = TRUE;
+        NXPLOG_TML_D("phTmlNfc_WaitWriteComplete - enter");
+        ret = pthread_cond_timedwait(&gpphTmlNfc_Context->wait_busy_condition,
+                &gpphTmlNfc_Context->wait_busy_lock, &absTimeout);
+        if((ret != 0) && (ret != ETIMEDOUT))
+        {
+            NXPLOG_TML_E("Reader Thread wait failed");
+        }
+        NXPLOG_TML_D("phTmlNfc_WaitWriteComplete - exit");
+        pthread_mutex_unlock(&gpphTmlNfc_Context->wait_busy_lock);
+    }
+}
+
+/*******************************************************************************
+**
+** Function         phTmlNfc_SignalWriteComplete
+**
+** Description      function to invoke reader thread
+**
+** Parameters       None
+**
+** Returns          None
+**
+*******************************************************************************/
+static void phTmlNfc_SignalWriteComplete(void)
+{
+    int ret = -1;
+    if (gpphTmlNfc_Context->wait_busy_flag == TRUE)
+    {
+        NXPLOG_TML_D("phTmlNfc_SignalWriteComplete - enter");
+        pthread_mutex_lock(&gpphTmlNfc_Context->wait_busy_lock);
+        gpphTmlNfc_Context->wait_busy_flag = FALSE;
+        ret = pthread_cond_signal(&gpphTmlNfc_Context->wait_busy_condition);
+        if(ret)
+        {
+            NXPLOG_TML_E(" phTmlNfc_SignalWriteComplete failed, error = 0x%X", ret);
+        }
+        NXPLOG_TML_D("phTmlNfc_SignalWriteComplete - exit");
+        pthread_mutex_unlock(&gpphTmlNfc_Context->wait_busy_lock);
+    }
+}
+
+/*******************************************************************************
+**
+** Function         phTmlNfc_WaitReadInit
+**
+** Description      init function for reader thread
+**
+** Parameters       None
+**
+** Returns          int
+**
+*******************************************************************************/
+static int phTmlNfc_WaitReadInit(void)
+{
+    int ret = -1;
+    pthread_condattr_t attr;
+    pthread_condattr_init (&attr);
+    pthread_condattr_setclock(&attr, CLOCK_MONOTONIC);
+    memset (&gpphTmlNfc_Context->wait_busy_condition, 0 , sizeof(gpphTmlNfc_Context->wait_busy_condition));
+    pthread_mutex_init(&gpphTmlNfc_Context->wait_busy_lock, NULL);
+    ret = pthread_cond_init (&gpphTmlNfc_Context->wait_busy_condition, &attr);
+    if(ret)
+    {
+        NXPLOG_TML_E(" phTphTmlNfc_WaitReadInit failed, error = 0x%X", ret);
+    }
+    return ret;
 }

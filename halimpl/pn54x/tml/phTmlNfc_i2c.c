@@ -599,9 +599,9 @@ NFCSTATUS phTmlNfc_rel_svdd_wait(void *pDevHandle)
     if (ret < 0)
     {
         if (ret == -EBUSY)
-            ret = NFCSTATUS_BUSY;
+            status = NFCSTATUS_BUSY;
         else
-            ret = NFCSTATUS_FAILED;
+            status = NFCSTATUS_FAILED;
     }
     NXPLOG_TML_D("phTmlNfc_rel_svdd_wait(), exit  ret %d, status %d", ret, status);
     return status;

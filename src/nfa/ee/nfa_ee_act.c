@@ -47,6 +47,7 @@
 #include "nfa_sys_int.h"
 #include "nfc_api.h"
 #include "nfa_ee_int.h"
+#include "nci_hmsgs.h"
 #if(NXP_EXTNS == TRUE)
 #include "nfa_hci_int.h"
 #endif
@@ -1255,7 +1256,7 @@ void nfa_ee_report_disc_done(BOOLEAN notify_enable_done)
             nfa_ee_report_event (p_cback, NFA_EE_DISCOVER_EVT, &evt_data);
         }
 #if(NXP_EXTNS == TRUE)
-#if (JCOP_WA_ENABLE == TRUE)
+#if (NXP_NFCEE_REMOVED_NTF_RECOVERY == TRUE)
         else
         {
             evt_data.status                         = NFA_STATUS_OK;
@@ -2155,6 +2156,10 @@ void nfa_ee_nci_disc_req_ntf(tNFA_EE_MSG *p_data)
         }
         else
         {
+#if ((NXP_EXTNS == TRUE)&&(NXP_UICC_HANDLE_CLEAR_ALL_PIPES == TRUE))
+            if(nfa_ee_cb.p_clear_all_pipes_cback)
+                (*nfa_ee_cb.p_clear_all_pipes_cback) (p_cbk->info[xx].nfcee_id);
+#endif
             if (p_cbk->info[xx].tech_n_mode == NFC_DISCOVERY_TYPE_LISTEN_A)
             {
                 p_cb->la_protocol = 0;
@@ -2875,7 +2880,9 @@ void nfa_ee_rout_timeout(tNFA_EE_MSG *p_data)
     NFA_TRACE_DEBUG0("nfa_ee_rout_timeout()");
     if (nfa_ee_need_recfg())
     {
-        /* discovery is not started */
+        /* Send deactivated to idle command if already not sent */
+        if(nfa_dm_cb.disc_cb.disc_state != NFA_DM_RFST_IDLE)
+            nci_snd_deactivate_cmd(NFC_DEACTIVATE_TYPE_IDLE);
         nfa_ee_update_rout();
     }
 
@@ -2994,7 +3001,7 @@ void nfa_ee_lmrt_to_nfcc(tNFA_EE_MSG *p_data)
         more = FALSE;
     }
 #if(NFC_NXP_CHIP_TYPE != PN547C2)
-    //find_and_resolve_tech_conflict();
+    find_and_resolve_tech_conflict();
 #endif
     /* add the routing for DH first */
     status  = NFA_STATUS_OK;

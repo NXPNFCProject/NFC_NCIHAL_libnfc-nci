@@ -21,15 +21,25 @@
 #ifndef NXP_ESE_FEATURES_H
 #define NXP_ESE_FEATURES_H
 
-#if(NFC_NXP_ESE == TRUE)
-
-// Reset Schemes
-#define NXP_ESE_PN67T_RESET      1
-#define NXP_ESE_APDU_GATE_RESET  2
 /** Dual/Triple mode priority schemes **/
 #define NXP_ESE_EXCLUSIVE_WIRED_MODE    1
 #define NXP_ESE_WIRED_MODE_RESUME       2
 #define NXP_ESE_WIRED_MODE_TIMEOUT      3
+
+/*Chip ID specific macros as per configurations file*/
+#define CHIP_ID_PN547C2            0x01
+#define CHIP_ID_PN65T              0x02
+#define CHIP_ID_PN548AD            0x03
+#define CHIP_ID_PN66T              0x04
+#define CHIP_ID_PN551              0x05
+#define CHIP_ID_PN67T              0x06
+#define CHIP_ID_PN553              0x07
+#define CHIP_ID_PN80T              0x08
+
+#if(NFC_NXP_ESE == TRUE)
+// Reset Schemes
+#define NXP_ESE_PN67T_RESET      1
+#define NXP_ESE_APDU_GATE_RESET  2
 
 #if(NFC_NXP_CHIP_TYPE == PN547C2)
 #define NXP_ESE_WIRED_MODE_DISABLE_DISCOVERY   TRUE
@@ -48,7 +58,7 @@
     #define NXP_LEGACY_APDU_GATE                  TRUE
     #define NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION   TRUE
     #define NXP_ESE_JCOP_DWNLD_PROTECTION         FALSE
-
+    #define NXP_UICC_HANDLE_CLEAR_ALL_PIPES       FALSE
 #elif(NFC_NXP_CHIP_TYPE == PN553)
     #define NFC_NXP_TRIPLE_MODE_PROTECTION        FALSE
     #define NXP_ESE_FELICA_CLT                    TRUE
@@ -67,6 +77,7 @@
     #define NXP_LEGACY_APDU_GATE                  FALSE
     #define NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION   FALSE
     #define NXP_ESE_JCOP_DWNLD_PROTECTION         TRUE
+    #define NXP_UICC_HANDLE_CLEAR_ALL_PIPES       TRUE
 #endif
 
 #else /*Else of #if(NFC_NXP_ESE == TRUE)*/
@@ -88,7 +99,7 @@
     #define NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION   FALSE
     #define NXP_ESE_DUAL_MODE_PRIO_SCHEME         NXP_ESE_WIRED_MODE_TIMEOUT
     #define NXP_ESE_JCOP_DWNLD_PROTECTION         FALSE
-
+    #define NXP_UICC_HANDLE_CLEAR_ALL_PIPES       FALSE
 #elif(NFC_NXP_CHIP_TYPE == PN553)
     #define NFC_NXP_TRIPLE_MODE_PROTECTION        FALSE
     #define NXP_ESE_FELICA_CLT                    FALSE
@@ -106,6 +117,7 @@
     #define NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION   FALSE
     #define NXP_ESE_DUAL_MODE_PRIO_SCHEME         NXP_ESE_WIRED_MODE_TIMEOUT
     #define NXP_ESE_JCOP_DWNLD_PROTECTION         FALSE
+    #define NXP_UICC_HANDLE_CLEAR_ALL_PIPES       FALSE
 #endif
 
 #endif /*End of #if(NFC_NXP_ESE == TRUE)*/

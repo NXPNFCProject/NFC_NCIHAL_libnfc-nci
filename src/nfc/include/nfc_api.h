@@ -85,14 +85,14 @@
 //DTA API for MW Version need to change according to release
 #define NXP_EN_PN547C2                  0
 #define NXP_EN_PN65T                    0
-#define NXP_EN_PN548C2                  1
-#define NXP_EN_PN66T                    1
-#define NXP_EN_PN551                    1
-#define NXP_EN_PN67T                    1
+#define NXP_EN_PN548C2                  0
+#define NXP_EN_PN66T                    0
+#define NXP_EN_PN551                    0
+#define NXP_EN_PN67T                    0
 #define NXP_EN_PN553                    1
 #define NXP_EN_PN80T                    1
 #define NXP_ANDROID_VER                 (7U) /* NXP android version */
-#define NFC_NXP_MW_VERSION_MAJ          (1U) /* MW Major Version */
+#define NFC_NXP_MW_VERSION_MAJ          (2U) /* MW Major Version */
 #define NFC_NXP_MW_VERSION_MIN          (0U) /* MW Minor Version */
 #endif
 /* 0xE0 ~0xFF are proprietary status codes */
@@ -120,18 +120,28 @@ typedef UINT8 tNFC_STATUS;
 #define NFC_NFCC_INIT_MAX_RETRY         2
 #define NFC_NORMAL_BOOT_MODE            0
 #define NFC_FAST_BOOT_MODE              1
-#define NXP_FEATURE_ENABLED           ((unsigned char)0x01)    /* flag to indicate NXP feature is enabled*/
-#define NXP_FEATURE_DISABLED          ((unsigned char)0x00)    /* flag to indicate NXP feature is enabled*/
+#define UICC1_HOST                      ((unsigned char)0x02)
+#define UICC2_HOST                      ((unsigned char)0x81)
+#define DH_HOST                         ((unsigned char)0x00)
+#define ESE_HOST                        ((unsigned char)0xC0)
+#define NXP_FEATURE_ENABLED             ((unsigned char)0x01)    /* flag to indicate NXP feature is enabled*/
+#define NXP_FEATURE_DISABLED            ((unsigned char)0x00)    /* flag to indicate NXP feature is enabled*/
  /**********************************************
   * NFC Config Parameter IDs defined by NXP NFC
   **********************************************/
-#define NXP_NFC_SET_CONFIG_PARAM_EXT  ((unsigned char)0xA0)    /* NXP NFC set config extension ID*/
-#define NXP_NFC_PARAM_ID_SWP1         ((unsigned char)0xEC)    /*SWP1 parameter ID  UICC*/
-#define NXP_NFC_PARAM_ID_SWP2         ((unsigned char)0xED)    /*SWP1 parameter ID  ESE */
-#define NXP_NFC_PARAM_ID_SWP1A        ((unsigned char)0xD4)    /*SWP1 parameter ID  UICC2 */
+#define NXP_NFC_SET_CONFIG_PARAM_EXT        ((unsigned char)0xA0)   /* NXP NFC set config extension ID*/
+#define NXP_NFC_PARAM_ID_SWP1               ((unsigned char)0xEC)   /*SWP1 parameter ID  UICC*/
+#define NXP_NFC_PARAM_ID_SWP2               ((unsigned char)0xED)   /*SWP1 parameter ID  ESE */
+#define NXP_NFC_PARAM_ID_SWP1A              ((unsigned char)0xD4)   /*SWP1 parameter ID  UICC2 */
+#define NXP_NFC_PARAM_ID_NDEF_NFCEE         ((unsigned char)0x95)   /*SWP1 parameter ID  NDEF NFCEE */
+#define NXP_NFC_PARAM_ID_RF_PARAM_UICC      ((unsigned char)0xEF)   /* UICC CE RF parameter  */
+#define NXP_NFC_PARAM_ID_RF_PARAM_ESE       ((unsigned char)0xF0)   /* ESE RF parameter   */
+#define NXP_NFC_PARAM_ID_NFCC_RF_CONFIG     ((unsigned char)0x9B)   /* NFCC RF config parameter*/
+#define NXP_NFC_PARAM_ID_RF_PARAM_UICC2     ((unsigned char)0xE8)   /* UICC2 CE RF parameter  */
+#define NXP_NFC_PARAM_SWP_SESSIONID_INT2    ((unsigned char)0xEB)   /* param for retrieveing HCI session ID for ESE */
+#define NXP_NFC_PARAM_SWP_SESSIONID_INT1    ((unsigned char)0xEA)   /* param for retrieveing HCI session ID for UICC */
+#define NXP_NFC_PARAM_SWP_SESSIONID_INT1A   ((unsigned char)0x1E)   /* param for retrieveing HCI session ID for UICC2 */
 #endif
-
-
 
 /**********************************************
  * NFC Config Parameter IDs defined by NCI
@@ -1616,7 +1626,18 @@ INT32 NFC_RelSvddWait (void *pdata);
 #endif
 
 #endif
-
+#if (NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         NFC_Queue_Is_empty
+**
+** Description      This function to get NFCEE connection ID queue information
+**
+** Returns          1 if Queue is empty else 0
+**
+*******************************************************************************/
+NFC_API extern BOOLEAN NFC_Queue_Is_empty (UINT8       conn_id);
+#endif
 #endif
 
 #ifdef __cplusplus

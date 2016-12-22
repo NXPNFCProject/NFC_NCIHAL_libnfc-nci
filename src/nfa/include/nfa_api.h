@@ -1440,6 +1440,22 @@ NFC_API extern BOOLEAN NFA_checkNfcStateBusy();
 NFC_API extern void NFA_EE_HCI_Control(BOOLEAN mode);
 NFC_API extern tNFA_STATUS NFA_ResetNfcc();
 #endif
+
+#if(NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == TRUE)
+/*******************************************************************************
+**
+** Function:        NFA_SetPreferredUiccId
+**
+** Description:     Set Preferred Uicc ID
+**                  0x02 - UICC1
+**                  0x81 - UICC2
+**
+** Returns:         none:
+**
+*******************************************************************************/
+NFC_API extern void NFA_SetPreferredUiccId(UINT8 uicc_id);
+#endif
+
 #endif
 #ifdef __cplusplus
 }

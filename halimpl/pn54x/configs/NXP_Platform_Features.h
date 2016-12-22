@@ -32,7 +32,7 @@
 #define NXP_NFCC_RESET_RSP_LEN       (0x11U)
 #endif
 
-#if(NFC_NXP_CHIP_TYPE == PN548AD)
+#if(NFC_NXP_CHIP_TYPE == PN548C2)
 #undef  NXP_NFCC_RESET_RSP_LEN
 #define NXP_NFCC_RESET_RSP_LEN       (0x11U)
 #endif

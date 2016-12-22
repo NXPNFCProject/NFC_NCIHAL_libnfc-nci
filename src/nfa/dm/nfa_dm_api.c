@@ -561,7 +561,8 @@ tNFA_STATUS NFA_DisableListening (void)
     return (NFA_STATUS_FAILED);
 }
 
-#if(NXP_EXTNS == TRUE && NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION == TRUE)
+#if (NXP_EXTNS == TRUE)
+#if (NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION == TRUE)
 /*******************************************************************************
 **
 ** Function         NFA_DisablePassiveListening
@@ -594,6 +595,25 @@ tNFA_STATUS NFA_DisablePassiveListening (void)
 
     return (NFA_STATUS_FAILED);
 }
+#endif
+
+#if(NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == TRUE)
+/*******************************************************************************
+**
+** Function:        NFA_SetPreferredUiccId
+**
+** Description:     Set Preferred Uicc ID
+**                  0x02 - UICC1
+**                  0x81 - UICC2
+**
+** Returns:         none:
+**
+*******************************************************************************/
+void NFA_SetPreferredUiccId(UINT8 uicc_id)
+{
+    nfa_dm_cb.selected_uicc_id = uicc_id;
+}
+#endif
 #endif
 
 /*******************************************************************************
@@ -1313,6 +1333,10 @@ tNFA_STATUS NFA_SendNxpNciCommand (UINT8            cmd_params_len,
                                    UINT8            *p_cmd_params,
                                    tNFA_VSC_CBACK    *p_cback)
 {
+    if(cmd_params_len == 0x00 || p_cmd_params == NULL || p_cback == NULL)
+    {
+        return (NFA_STATUS_INVALID_PARAM);
+    }
     tNFA_DM_API_SEND_VSC *p_msg;
     UINT16  size = sizeof(tNFA_DM_API_SEND_VSC) + cmd_params_len;
 

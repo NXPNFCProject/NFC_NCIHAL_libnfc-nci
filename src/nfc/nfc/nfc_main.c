@@ -912,6 +912,7 @@ void NFC_Init (tHAL_NFC_ENTRY *p_hal_entry_tbl)
     nfc_cb.bRetransmitDwpPacket = FALSE;
     nfc_cb.bIsCreditNtfRcvd = FALSE;
     nfc_cb.temp_data = NULL;
+    nfc_cb.bSetmodeOnReq = FALSE;
     if(p_hal_entry_cntxt->boot_mode == NFC_NORMAL_BOOT_MODE)
     {
 #endif
@@ -1336,7 +1337,27 @@ tNFC_STATUS NFC_FlushData (UINT8       conn_id)
 
     return status;
 }
-
+#if (NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         NFC_Queue_Is_empty
+**
+** Description      This function to get NFCEE connection ID queue information
+**
+** Returns          1 if Queue is empty else 0
+**
+*******************************************************************************/
+BOOLEAN NFC_Queue_Is_empty (UINT8       conn_id)
+{
+    tNFC_CONN_CB    *p_cb = nfc_find_conn_cb_by_conn_id (conn_id);
+    if(p_cb)
+    {
+        return (GKI_queue_is_empty(&p_cb->tx_q));
+    }
+    else
+        return FALSE;
+}
+#endif
 /*******************************************************************************
 **
 ** Function         NFC_Deactivate

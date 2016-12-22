@@ -585,6 +585,24 @@ void nfa_ee_reg_cback_enable_done (tNFA_EE_ENABLE_DONE_CBACK *p_cback)
     nfa_ee_cb.p_enable_cback = p_cback;
 }
 
+#if (NXP_EXTNS == TRUE)
+#if (NXP_UICC_HANDLE_CLEAR_ALL_PIPES == TRUE)
+/*******************************************************************************
+**
+** Function         nfa_ee_reg_cback_clear_all_pipes
+**
+** Description      Register callback to serve UICC clear all pipes ntf
+**
+** Returns          None
+**
+*******************************************************************************/
+void nfa_ee_reg_cback_clear_all_pipes (tNFA_EE_CLEAR_ALL_PIPES_CBACK *p_cback)
+{
+    nfa_ee_cb.p_clear_all_pipes_cback = p_cback;
+}
+#endif
+#endif
+
 #if (BT_TRACE_VERBOSE == TRUE)
 /*******************************************************************************
 **

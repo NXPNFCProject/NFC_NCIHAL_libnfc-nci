@@ -224,7 +224,7 @@ tNFA_STATUS NFA_CeConfigureUiccListenTech (tNFA_HANDLE ee_handle,
 #if (NFC_NFCEE_INCLUDED == TRUE)
     tNFA_CE_MSG *p_msg;
 
-    NFA_TRACE_API1 ("NFA_CeConfigureUiccListenTech () ee_handle = 0x%x", ee_handle);
+    NFA_TRACE_API2 ("NFA_CeConfigureUiccListenTech () ee_handle = 0x%x tech_mask = 0x%x", ee_handle, tech_mask);
 
     /* If tech_mask is zero, then app is disabling listening for specified uicc */
     if (tech_mask == 0)

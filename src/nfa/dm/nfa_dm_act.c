@@ -382,7 +382,7 @@ static void nfa_dm_nfc_response_cback (tNFC_RESPONSE_EVT event, tNFC_RESPONSE *p
         break;
 
     case NFC_EE_DISCOVER_REQ_REVT:               /* EE Discover Req notification */
-#if((NFC_NXP_ESE == TRUE) && (NXP_EXTNS == TRUE) && (NXP_ESE_ETSI_READER_ENABLE != TRUE))
+#if((NFC_NXP_ESE == TRUE) && (NXP_EXTNS == TRUE) && (NXP_ESE_ETSI_READER_ENABLE != TRUE) && (NXP_ESE_DWP_SPI_SYNC_ENABLE !=TRUE))
        if (nfa_dm_is_active() &&
            (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_DISCOVERY) )
        {

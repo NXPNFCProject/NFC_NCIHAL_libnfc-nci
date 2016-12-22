@@ -1413,33 +1413,17 @@ retry_core_init:
     }
 #endif
 
-    if(isNxpConfigModified() || (fw_dwnld_flag == 0x01))
-    {
-#if((NFC_NXP_CHIP_TYPE != PN547C2) && (NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME))
-        uint8_t value[] = {0x01};
-#else
-        uint8_t value[] = {0x00};
-#endif
-        uint8_t timeOutValue;
-        num = 0;
-        mEEPROM_info.buffer = &value;
-        mEEPROM_info.bufflen = sizeof(value);
-        mEEPROM_info.request_type = EEPROM_WIREDMODE_RESUME_ENABLE;
-        mEEPROM_info.request_mode = SET_EEPROM_DATA;
-        request_EEPROM(&mEEPROM_info);
-    }
-
 #if((NFC_NXP_CHIP_TYPE != PN547C2) && (NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME))
     {
         uint8_t resume_timeout_buf[NXP_WIREDMODE_RESUME_TIMEOUT_LEN];
         mEEPROM_info.request_mode = GET_EEPROM_DATA;
-        NXPLOG_NCIHAL_D("Sree Timeout value");
+        NXPLOG_NCIHAL_D("Timeout value");
         if(isNxpConfigModified() || (fw_dwnld_flag == 0x01))
         {
-            NXPLOG_NCIHAL_D("Sree1 Timeout value");
+            NXPLOG_NCIHAL_D("Timeout value - 1");
             if(GetNxpByteArrayValue(NAME_NXP_WIREDMODE_RESUME_TIMEOUT, (char *)buffer, bufflen, &retlen))
             {
-                NXPLOG_NCIHAL_D("Sree2 time out value %x %x %x %x retvalue=%d", resume_timeout_buf[0], resume_timeout_buf[1], resume_timeout_buf[2], resume_timeout_buf[3],retlen);
+                NXPLOG_NCIHAL_D("Time out value %x %x %x %x retlen=%d", buffer[0], buffer[1], buffer[2], buffer[3],retlen);
                 if(retlen>= NXP_WIREDMODE_RESUME_TIMEOUT_LEN)
                 {
                     memcpy(&resume_timeout_buf, buffer, NXP_STAG_TIMEOUT_BUF_LEN);
@@ -1450,7 +1434,7 @@ retry_core_init:
         mEEPROM_info.buffer = resume_timeout_buf;
         mEEPROM_info.bufflen = sizeof(resume_timeout_buf);
         mEEPROM_info.request_type = EEPROM_WIREDMODE_RESUME_TIMEOUT;
-        status = request_EEPROM(&mEEPROM_info);
+        request_EEPROM(&mEEPROM_info);
     }
 #endif
 
@@ -3506,9 +3490,17 @@ static void phNxpNciHal_check_factory_reset(void)
     int ret = 0;
     NFCSTATUS status = NFCSTATUS_FAILED;
     const char config_eseinfo_path[] = "/data/nfc/nfaStorage.bin1";
+#if(NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == TRUE || NXP_NFCC_DYNAMIC_DUAL_UICC == TRUE)
+    static uint8_t reset_ese_session_identity_set[] = { 0x20, 0x02, 0x22, 0x03,
+                                          0xA0, 0xEA, 0x08, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                          0xA0, 0x1E, 0x08, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                          0xA0, 0xEB, 0x08, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+#else
     static uint8_t reset_ese_session_identity_set[] = { 0x20, 0x02, 0x17, 0x02,
                                       0xA0, 0xEA, 0x08, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
                                       0xA0, 0xEB, 0x08, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+#endif
+
 #ifdef PN547C2_FACTORY_RESET_DEBUG
     static uint8_t reset_ese_session_identity[] = { 0x20, 0x03, 0x05, 0x02,
                                           0xA0, 0xEA, 0xA0, 0xEB};

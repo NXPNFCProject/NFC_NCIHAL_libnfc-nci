@@ -532,6 +532,7 @@ void nci_proc_prop_nxp_rsp (BT_HDR *p_msg)
         (*p_cback) ((tNFC_VS_EVT) (NCI_RSP_BIT|op_code), p_msg->len, p_evt);
         nfc_cb.p_vsc_cback = NULL;
     }
+    nfc_cb.nxpCbflag = FALSE;
     nfc_ncif_update_window ();
 }
 #endif

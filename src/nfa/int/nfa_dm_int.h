@@ -548,7 +548,8 @@ typedef struct
     /* NFCC power mode */
     UINT8                       nfcc_pwr_mode;          /* NFA_DM_PWR_MODE_FULL or NFA_DM_PWR_MODE_OFF_SLEEP */
 #if(NXP_EXTNS == TRUE)
-    UINT8                       eDtaMode;               /*For enable the DTA type modes. */
+    UINT8                       eDtaMode;               /* For enable the DTA type modes. */
+    UINT8                       selected_uicc_id;       /* Current selected UICC ID */
 #endif
 } tNFA_DM_CB;
 

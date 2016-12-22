@@ -705,9 +705,9 @@ NFCSTATUS phNxpNciHal_write_ext(uint16_t *cmd_len, uint8_t *p_cmd_data,
         gFelicaReaderMode = p_cmd_data[3];
         /* frame the dummy response */
         *rsp_len = 4;
-        p_rsp_data[0] = 0x00;
-        p_rsp_data[1] = 0x00;
-        p_rsp_data[2] = 0x00;
+        p_rsp_data[0] = 0x40;
+        p_rsp_data[1] = 0x03;
+        p_rsp_data[2] = 0x01;
         p_rsp_data[3] = 0x00;
         status = NFCSTATUS_FAILED;
     }
@@ -1210,13 +1210,6 @@ NFCSTATUS request_EEPROM(phNxpNci_EEPROM_info_t *mEEPROM_info)
         len      = fieldLen + 4;
         addr[0]  = 0xA0;
         addr[1]  = 0x0F;
-        break;
-
-    case EEPROM_WIREDMODE_RESUME_ENABLE:
-        b_position = 0;
-        memIndex = 0x00;
-        addr[0]  = 0xA0; //To be updated actual value
-        addr[1]  = 0x99; // To be updated actual value
         break;
 
     case EEPROM_WIREDMODE_RESUME_TIMEOUT:

@@ -45,7 +45,9 @@
 #define NFA_HCI_API_H
 
 #include "nfa_api.h"
-
+#if (NXP_EXTNS == TRUE)
+#include "nfa_ee_api.h"
+#endif
 /*****************************************************************************
 **  Constants and data types
 *****************************************************************************/
@@ -81,7 +83,7 @@
 #define NFA_HCI_SET_REG_RSP_EVT                 0x15    /* Received response to write registry command  */
 #define NFA_HCI_ADD_STATIC_PIPE_EVT             0x16    /* A static pipe is added                       */
 #if (NXP_EXTNS == TRUE)
-#define NFA_HCI_RSP_SENT_ADMIN_EVT              0x17    /* Response recvd to cmd on Admin pipe          */
+#define NFA_HCI_HOST_TYPE_LIST_READ_EVT         0x17    /**Event to read host type list*/
 #define NFA_HCI_CONFIG_DONE_EVT                 0x18    /* Configure NFCEE                              */
 #endif
 typedef UINT8 tNFA_HCI_EVT;
@@ -216,6 +218,9 @@ typedef struct
     UINT8           evt_code;                           /* HCP EVT id */
     UINT16          evt_len;                            /* HCP EVT parameter length */
     UINT8           *p_evt_buf;                         /* HCP EVT Parameter */
+#if (NXP_EXTNS == TRUE)
+    UINT8           last_SentEvtType;
+#endif
 } tNFA_HCI_EVENT_RCVD;
 
 /* Data for NFA_HCI_CMD_RCVD_EVT */
@@ -678,7 +683,7 @@ NFC_API extern BOOLEAN NFA_MW_Fwdnlwd_Recovery(BOOLEAN mw_fwdnld_recovery);
 NFC_API extern void NFA_HciDebug (UINT8 action, UINT8 size, UINT8 *p_data);
 #if (NXP_EXTNS == TRUE)
 NFC_API extern tNFA_STATUS NFA_HciSendHostTypeListCommand (tNFA_HANDLE hci_handle);
-NFC_API extern tNFA_STATUS NFA_HciConfigureNfceeETSI12 (UINT8 hostId);
+NFC_API extern tNFA_STATUS NFA_HciConfigureNfceeETSI12 ();
 #endif
 #if(NXP_EXTNS == TRUE)
 /*******************************************************************************
@@ -692,6 +697,30 @@ NFC_API extern tNFA_STATUS NFA_HciConfigureNfceeETSI12 (UINT8 hostId);
 **
 *******************************************************************************/
 NFC_API extern void NFA_HciW4eSETransaction_Complete(tNFA_HCI_TRANSCV_STATE type);
+
+/*******************************************************************************
+**
+** Function         nfa_hci_handle_nfcee_config_evt
+**
+** Description      This function handles clear all pipe and NFCEE config.
+**
+**
+** Returns          None
+**
+*******************************************************************************/
+extern void nfa_hci_handle_nfcee_config_evt(UINT16 event);
+
+/*******************************************************************************
+**
+** Function         nfa_hci_clear_all_pipe_ntf_cb
+**
+** Description      Function to handle  cmd rsp of clear all pipe
+**
+** Returns          None
+**
+*******************************************************************************/
+extern void nfa_hci_nfcee_config_rsp_handler(tNFA_HCI_EVT event, tNFA_HCI_EVT_DATA *p_evt);
+
 #endif
 
 #ifdef __cplusplus

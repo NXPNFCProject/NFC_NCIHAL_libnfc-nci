@@ -348,7 +348,8 @@ static UINT8 nfa_dm_get_sak(tNFA_DM_DISC_TECH_PROTO_MASK tech_proto_mask)
         NFA_TRACE_DEBUG2 ("%s:NXP_FWD_FUNCTIONALITY_ENABLE=0x0%lu;", __FUNCTION__, fwdEnable);
     }
 
-    tech_list = nfa_ee_get_supported_tech_list(0x02);
+    tech_list = nfa_ee_get_supported_tech_list(nfa_dm_cb.selected_uicc_id);
+
     if(hostListenMask == 0x03)
     {
         if(!fwdEnable && (tech_list == NFA_TECHNOLOGY_MASK_B))
@@ -1412,7 +1413,7 @@ void nfa_dm_start_rf_discover (void)
             NFA_TRACE_DEBUG2 ("%s:P2P_LISTEN_TECH_MASK = 0x0%X;", __FUNCTION__, p2pListenMask);
         }
 
-        tech_list = nfa_ee_get_supported_tech_list(0x02);
+        tech_list = nfa_ee_get_supported_tech_list(nfa_dm_cb.selected_uicc_id);
 
         if((fwdEnable == 0x00) || (hostListenMask == 0x00))
         {

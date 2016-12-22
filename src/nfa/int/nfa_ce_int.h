@@ -160,6 +160,7 @@ typedef union
 #define NFA_CE_LISTEN_INFO_UICC             0x00000400  /* This is a listen_info for UICC                                   */
 #if(NXP_EXTNS == TRUE)
 #define NFA_CE_LISTEN_INFO_ESE              0x00008000  /* This is a listen_info for ESE                                    */
+#define NFA_CE_LISTEN_INFO_T3T_ACTIVATE_PND 0x00010000  /* App has not been notified of ACTIVATE_EVT yet for this HCEF NFCID2 */
 #endif
 
 /* Structure for listen look up table */

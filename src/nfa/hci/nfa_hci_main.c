@@ -54,7 +54,11 @@
 #include "nfa_hci_defs.h"
 #include "trace_api.h"
 
-
+#if (NXP_EXTNS == TRUE)
+#ifndef __CONFIG_H
+#include<config.h>
+#endif
+#endif
 /*****************************************************************************
 **  Global Variables
 *****************************************************************************/
@@ -84,6 +88,7 @@ static void nfa_hci_set_receive_buf (UINT8 pipe);
 void nfa_hci_rsp_timeout (tNFA_HCI_EVENT_DATA *p_evt_data);
 static void nfa_hci_assemble_msg (UINT8 *p_data, UINT16 data_len, UINT8 pipe);
 static UINT8 nfa_ee_ce_p61_completed = 0x00;
+static void read_config_timeout_param_values();
 #else
 static void nfa_hci_assemble_msg (UINT8 *p_data, UINT16 data_len);
 #endif
@@ -112,7 +117,9 @@ static const tNFA_SYS_REG nfa_hci_sys_reg =
 void nfa_hci_ee_info_cback (tNFA_EE_DISC_STS status)
 {
     UINT8           num_nfcee = 3;
+    UINT8           xx;
     tNFA_EE_INFO    ee_info[3];
+    UINT8 host_index = 0x00;
 
     NFA_TRACE_DEBUG1 ("nfa_hci_ee_info_cback (): %d", status);
 
@@ -180,6 +187,25 @@ void nfa_hci_ee_info_cback (tNFA_EE_DISC_STS status)
             /* No UICC Host is detected, HCI NETWORK is enabled */
             nfa_hci_cb.w4_hci_netwk_init = FALSE;
         }
+#if(NXP_EXTNS == TRUE)
+        if(nfa_hci_cb.hci_state == NFA_HCI_STATE_NFCEE_ENABLE && nfa_hci_cb.nfcee_cfg.config_nfcee_state == NFA_HCI_GET_NUM_NFCEE_CONFIGURED)
+        {
+            nfa_sys_stop_timer (&nfa_hci_cb.timer);
+            /* New EE discovered , update the result*/
+            nfa_hci_cb.num_nfcee = NFA_HCI_MAX_HOST_IN_NETWORK;
+            NFA_AllEeGetInfo (&nfa_hci_cb.num_nfcee, nfa_hci_cb.hci_ee_info);
+            for ( xx = 0; xx < nfa_hci_cb.num_nfcee; xx++)
+            {
+                if ((nfa_hci_cb.hci_ee_info[xx].num_interface != 0) && (nfa_hci_cb.hci_ee_info[xx].ee_interface[0] != NCI_NFCEE_INTERFACE_HCI_ACCESS) &&
+                        nfa_hci_cb.hci_ee_info[xx].ee_status == NFA_EE_STATUS_ACTIVE && (nfa_hci_cb.hci_ee_info[xx].ee_handle != 0x410))
+                {
+                    nfa_hci_cb.nfcee_cfg.host_cb[host_index++] = nfa_hci_cb.hci_ee_info[xx].ee_handle;
+                    NFA_TRACE_DEBUG1 (" handle id   -%x",nfa_hci_cb.hci_ee_info[xx].ee_handle);
+                }
+            }
+            nfa_hci_handle_nfcee_config_evt(NFA_HCI_READ_SESSIONID);
+        }
+#endif
         break;
 
     case NFA_EE_DISC_STS_REQ:
@@ -243,7 +269,7 @@ void nfa_hci_init (void)
 #if (NXP_EXTNS == TRUE)
     nfa_ee_ce_p61_completed = 0;
     nfa_hci_cb.bIsHciResponseTimedout = FALSE;
-    nfa_hci_cb.bIsRspPending = FALSE;
+    read_config_timeout_param_values();
 #endif
     /* register message handler on NFA SYS */
     nfa_sys_register (NFA_ID_HCI, &nfa_hci_sys_reg);
@@ -542,6 +568,7 @@ void nfa_hci_dh_startup_complete (void)
     int ee_entry_index = 0;
 //NFC-INIT MACH
 #if(NXP_EXTNS == TRUE)
+    BOOLEAN  send_host_list = TRUE;
     if(nfa_hci_cb.ee_disable_disc)
     {
         if(nfa_hci_cb.hci_state == NFA_HCI_STATE_STARTUP &&
@@ -551,6 +578,7 @@ void nfa_hci_dh_startup_complete (void)
             nfa_hci_cb.w4_hci_netwk_init = FALSE;
             /* Received EE DISC REQ Ntf(s) */
             nfa_hciu_send_get_param_cmd (NFA_HCI_ADMIN_PIPE, NFA_HCI_HOST_LIST_INDEX);
+            send_host_list = FALSE;
         }
     }
 #endif
@@ -618,7 +646,10 @@ void nfa_hci_dh_startup_complete (void)
     else
     {
         /* Received EE DISC REQ Ntf(s) */
-        nfa_hciu_send_get_param_cmd (NFA_HCI_ADMIN_PIPE, NFA_HCI_HOST_LIST_INDEX);
+#if(NXP_EXTNS == TRUE)
+        if (send_host_list)
+#endif
+            nfa_hciu_send_get_param_cmd (NFA_HCI_ADMIN_PIPE, NFA_HCI_HOST_LIST_INDEX);
     }
 }
 
@@ -651,7 +682,7 @@ void nfa_hci_startup_complete (tNFA_STATUS status)
         nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
         evt_data.admin_rsp_rcvd.status = status;
         evt_data.admin_rsp_rcvd.NoHostsPresent = 0;
-        nfa_hciu_send_to_all_apps (NFA_HCI_RSP_SENT_ADMIN_EVT, &evt_data);
+        nfa_hciu_send_to_all_apps (NFA_HCI_HOST_TYPE_LIST_READ_EVT, &evt_data);
         return;
     }
 #endif
@@ -660,11 +691,18 @@ void nfa_hci_startup_complete (tNFA_STATUS status)
         evt_data.hci_init.status = status;
 
         nfa_hciu_send_to_all_apps (NFA_HCI_INIT_EVT, &evt_data);
+#if(NXP_EXTNS == TRUE)
+
+#else
         nfa_sys_cback_notify_enable_complete (NFA_ID_HCI);
+#endif
     }
-#if((NXP_EXTNS == TRUE) && (NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == TRUE))
+
+
     if (status == NFA_STATUS_OK){
         nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
+#if(NXP_EXTNS == TRUE)
+#if(NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == TRUE)
         NFA_TRACE_EVENT0 ("hci_state = NFA_HCI_STATE_IDLE");
         if((nfa_sys_cb.enable_cplt_flags == nfa_sys_cb.enable_cplt_mask)
             &&(!(nfa_sys_cb.p_enable_cback))
@@ -673,14 +711,17 @@ void nfa_hci_startup_complete (tNFA_STATUS status)
                 if((nfa_dm_cb.p_dm_cback))
                 (*nfa_dm_cb.p_dm_cback)(NFA_DM_EE_HCI_ENABLE, NULL);
             }
-        }
-#else
-    if (status == NFA_STATUS_OK)
-        nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
 #endif
-
+        nfa_hci_handle_nfcee_config_evt(NFA_HCI_GET_NUM_NFCEE_CONFIGURED);
+#endif
+    }
     else
+    {
+#if(NXP_EXTNS == TRUE)
+        nfa_hci_handle_nfcee_config_evt(NFA_HCI_NFCEE_CONFIG_COMPLETE);
+#endif
         nfa_hci_cb.hci_state = NFA_HCI_STATE_DISABLED;
+    }
 }
 
 /*******************************************************************************
@@ -872,6 +913,7 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
             nfa_hciu_alloc_gate (NFA_HCI_CONNECTIVITY_GATE,0);
         }
 
+        NFA_TRACE_ERROR1 ("nfa_hci_startup - Failed to Create Logical connection. HCI Initialization/Restore failed %d",nfa_hci_cb.cfg.admin_gate.pipe01_state);
         if (nfa_hci_cb.cfg.admin_gate.pipe01_state == NFA_HCI_PIPE_CLOSED)
         {
             /* First step in initialization/restore is to open the admin pipe */
@@ -929,7 +971,11 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
     if(nfa_hci_cb.assembling_flags & NFA_HCI_FL_CONN_PIPE)
     {
         if(pipe == NFA_HCI_CONN_ESE_PIPE ||
-                (pipe == NFA_HCI_CONN_UICC_PIPE))
+                (pipe == NFA_HCI_CONN_UICC_PIPE)
+#if(NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == TRUE)
+                ||(pipe == NFA_HCI_CONN_UICC2_PIPE)
+#endif
+        )
         {
             is_assembling_on_current_pipe = 1;
         }
@@ -953,7 +999,11 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
 
 #if (NXP_EXTNS == TRUE)
         if(pipe == NFA_HCI_CONN_ESE_PIPE ||
-                (pipe == NFA_HCI_CONN_UICC_PIPE))
+                (pipe == NFA_HCI_CONN_UICC_PIPE)
+#if(NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == TRUE)
+                ||(pipe == NFA_HCI_CONN_UICC2_PIPE)
+#endif
+        )
         {
             nfa_hci_cb.type_evt = nfa_hci_cb.type;
             nfa_hci_cb.inst_evt = nfa_hci_cb.inst;
@@ -1001,7 +1051,11 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
                     p = nfa_hci_cb.p_msg_data;
                 }
                 else if( (pipe == NFA_HCI_CONN_UICC_PIPE) ||
-                        (pipe == NFA_HCI_CONN_ESE_PIPE))
+                         (pipe == NFA_HCI_CONN_ESE_PIPE)
+#if(NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == TRUE)
+                         || (pipe == NFA_HCI_CONN_UICC2_PIPE)
+#endif
+                       )
                 {
                     nfa_hci_cb.assembling_flags &= ~NFA_HCI_FL_CONN_PIPE;
                     nfa_hci_cb.assembly_failed_flags &= ~NFA_HCI_FL_CONN_PIPE;
@@ -1021,8 +1075,12 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
         UINT8 is_assembly_failed_on_current_pipe = 0;
         if(nfa_hci_cb.assembly_failed_flags & NFA_HCI_FL_CONN_PIPE)
         {
-            if(pipe == NFA_HCI_CONN_ESE_PIPE ||
-                    (pipe == NFA_HCI_CONN_UICC_PIPE))
+            if( (pipe == NFA_HCI_CONN_ESE_PIPE) ||
+                (pipe == NFA_HCI_CONN_UICC_PIPE)
+#if(NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == TRUE)
+             || (pipe == NFA_HCI_CONN_UICC2_PIPE)
+#endif
+            )
             {
                 is_assembly_failed_on_current_pipe = 1;
             }
@@ -1068,7 +1126,11 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
                 pkt_len               = nfa_hci_cb.msg_len;
             }
             else if( (pipe == NFA_HCI_CONN_UICC_PIPE) ||
-                    (pipe == NFA_HCI_CONN_ESE_PIPE))
+                     (pipe == NFA_HCI_CONN_ESE_PIPE)
+#if(NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == TRUE)
+                   ||(pipe == NFA_HCI_CONN_UICC2_PIPE)
+#endif
+                   )
             {
                 nfa_hci_cb.assembling_flags &= ~NFA_HCI_FL_CONN_PIPE;
                 nfa_hci_cb.assembly_failed_flags &= ~NFA_HCI_FL_CONN_PIPE;
@@ -1085,7 +1147,11 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
 
 #if (NXP_EXTNS == TRUE)
     if(pipe == NFA_HCI_CONN_ESE_PIPE ||
-            (pipe == NFA_HCI_CONN_UICC_PIPE))
+                (pipe == NFA_HCI_CONN_UICC_PIPE)
+#if(NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == TRUE)
+                ||(pipe == NFA_HCI_CONN_UICC2_PIPE)
+#endif
+      )
     {
         nfa_hci_cb.type = nfa_hci_cb.type_evt;
         nfa_hci_cb.inst = nfa_hci_cb.inst_evt;
@@ -1151,7 +1217,20 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
             }
             else
             {
+                nfa_hci_cb.IsChainedPacket = FALSE;
                 nfa_ee_ce_p61_completed = 0;
+                nfa_hci_cb.hci_state  = NFA_HCI_STATE_IDLE;
+            }
+        }
+        else
+        {
+            if(!((pipe == NFA_HCI_CONN_UICC_PIPE ||(pipe == NFA_HCI_CONN_ESE_PIPE)
+#if(NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == TRUE)
+                    ||(pipe == NFA_HCI_CONN_UICC2_PIPE)
+#endif
+            ) && (nfa_hci_cb.inst_evt == NFA_HCI_EVT_TRANSACTION)))
+            {
+                nfa_sys_stop_timer (&nfa_hci_cb.timer);
                 nfa_hci_cb.hci_state  = NFA_HCI_STATE_IDLE;
             }
         }
@@ -1263,6 +1342,12 @@ void nfa_hci_rsp_timeout (tNFA_HCI_EVENT_DATA *p_evt_data)
     tNFA_HCI_EVT_DATA   evt_data;
     UINT8               delete_pipe;
     (void)p_evt_data;
+#if(NXP_EXTNS == TRUE)
+    BT_HDR              *p_buf;
+    UINT8               *p_data;
+    UINT8                temp[]={0xFF,0xFF};
+    UINT16               msg_len;
+#endif
     NFA_TRACE_EVENT2 ("nfa_hci_rsp_timeout () State: %u  Cmd: %u", nfa_hci_cb.hci_state, nfa_hci_cb.cmd_sent);
 
     evt_data.status      = NFA_STATUS_FAILED;
@@ -1318,16 +1403,64 @@ void nfa_hci_rsp_timeout (tNFA_HCI_EVENT_DATA *p_evt_data)
             nfa_hci_api_deregister (NULL);
         }
         break;
-
     case NFA_HCI_STATE_WAIT_RSP:
         nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
 #if(NXP_EXTNS == TRUE)
-        nfa_hci_cb.IsChainedPacket = FALSE;
-        nfa_hci_cb.bIsHciResponseTimedout = TRUE;
-        nfa_hci_cb.bIsRspPending = FALSE;
-#endif
         if (nfa_hci_cb.w4_rsp_evt)
         {
+
+            NFA_TRACE_DEBUG0 ("NxpNci:nfa_hci_rsp_timeout () Timeout: NFC_FlushData");
+            if(nfa_ee_nfeeid_active(NFA_HCI_HOST_ID_ESE))
+            {
+                if((nfa_hci_cb.IsChainedPacket) && (!(NFC_Queue_Is_empty(nfa_hci_cb.conn_id))))
+                {
+                    /* send the dummy packet */
+                    NFC_FlushData(nfa_hci_cb.conn_id);
+                    msg_len = (((nfa_hci_cb.hci_packet_len +1) % 2) == 0)?1:2;
+                    NFA_TRACE_DEBUG1 ("NxpNci: Queue is not empty: %d", msg_len);
+                    if((p_buf = (BT_HDR *) GKI_getpoolbuf (NFC_RW_POOL_ID)) != NULL)
+                    {
+                        p_buf->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
+                        p_data = (UINT8 *) (p_buf + 1) + p_buf->offset;
+                        *p_data++ = (NFA_HCI_NO_MESSAGE_FRAGMENTATION << 7) | (nfa_hci_cb.pipe_in_use & 0x7F);
+                        p_buf->len = 1;
+                        memcpy(p_data, &temp, msg_len);
+                        p_buf->len += msg_len;
+                        NFC_SendData(nfa_hci_cb.conn_id, p_buf);
+                        // nfa_sys_start_timer (&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT, 3000);
+                        nfa_hci_cb.hci_state = NFA_HCI_STATE_WAIT_RSP;
+                        evt = 0;
+                        nfa_hci_cb.IsChainedPacket = FALSE;
+                        nfa_hci_cb.bIsHciResponseTimedout = TRUE;
+                        break;
+                    }
+                }
+                else if (!nfa_hci_cb.IsEventAbortSent)
+                {
+                    NFC_FlushData(nfa_hci_cb.conn_id);
+                    /* send EVT_ABORT command */
+                    if((p_buf = (BT_HDR *) GKI_getpoolbuf (NFC_RW_POOL_ID)) != NULL)
+                    {
+                        NFA_TRACE_DEBUG0 ("EVT_ABORT sent");
+                        p_buf->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
+                        p_data = (UINT8 *) (p_buf + 1) + p_buf->offset;
+                        *p_data++ = (NFA_HCI_NO_MESSAGE_FRAGMENTATION << 7) | (nfa_hci_cb.pipe_in_use & 0x7F);
+                        *p_data++ =  (NFA_HCI_EVENT_TYPE << 6) | NFA_EVT_ABORT;
+                        p_buf->len = 2;
+                        NFC_SendData(nfa_hci_cb.conn_id, p_buf);
+                        nfa_sys_start_timer (&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT, 10000);
+                        nfa_hci_cb.hci_state = NFA_HCI_STATE_WAIT_RSP;
+                    }
+                    nfa_hci_cb.IsChainedPacket = FALSE;
+                    nfa_hci_cb.bIsHciResponseTimedout = TRUE;
+                    nfa_hci_cb.IsEventAbortSent = TRUE;
+                    evt = 0;
+                    break;
+                }
+            }
+            NFC_FlushData(nfa_hci_cb.conn_id);
+            nfa_hci_cb.IsEventAbortSent = FALSE;
+#endif
             nfa_hci_cb.w4_rsp_evt       = FALSE;
             evt                         = NFA_HCI_EVENT_RCVD_EVT;
             evt_data.rcvd_evt.pipe      = nfa_hci_cb.pipe_in_use;
@@ -1337,7 +1470,7 @@ void nfa_hci_rsp_timeout (tNFA_HCI_EVENT_DATA *p_evt_data)
             nfa_hci_cb.rsp_buf_size     = 0;
             nfa_hci_cb.p_rsp_buf        = NULL;
 #if (NXP_EXTNS == TRUE)
-            evt_data.evt_sent.evt_type  = nfa_hci_cb.evt_sent.evt_type;
+            evt_data.rcvd_evt.last_SentEvtType  = nfa_hci_cb.evt_sent.evt_type;
 #endif
             break;
         }
@@ -1451,7 +1584,11 @@ static void nfa_hci_set_receive_buf (UINT8 pipe)
         &&(nfa_hci_cb.type == NFA_HCI_EVENT_TYPE)  )
     {
 #if (NXP_EXTNS == TRUE)
-        if(pipe == NFA_HCI_CONN_ESE_PIPE || pipe == NFA_HCI_CONN_UICC_PIPE)
+        if(pipe == NFA_HCI_CONN_ESE_PIPE || pipe == NFA_HCI_CONN_UICC_PIPE
+#if(NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == TRUE)
+                ||(pipe == NFA_HCI_CONN_UICC2_PIPE)
+#endif
+          )
         {
             /* Connectivity or transaction events are received
              * from SE. will be assembled and sent to application.
@@ -1500,6 +1637,22 @@ static void nfa_hci_set_receive_buf (UINT8 pipe)
     nfa_hci_cb.max_msg_len = NFA_MAX_HCI_EVENT_LEN;
 }
 
+#if (NXP_EXTNS == TRUE)
+static void read_config_timeout_param_values()
+{
+    if(GetNumValue(NAME_NXP_DEFAULT_NFCEE_TIMEOUT, (void*)&nfa_hci_cb.max_hci_session_id_read_count, sizeof(nfa_hci_cb.max_hci_session_id_read_count)) == FALSE)
+    {
+        nfa_hci_cb.max_hci_session_id_read_count = NFA_HCI_MAX_SESSION_ID_RETRY_CNT; /*Default  maximum session ID read count*/
+    }
+    NFA_TRACE_DEBUG1 ("nfa_hci_init() %d",nfa_hci_cb.max_hci_session_id_read_count);
+    if(GetNumValue(NAME_NXP_DEFAULT_NFCEE_DISC_TIMEOUT, (void *)&nfa_hci_cb.max_nfcee_disc_timeout, sizeof(nfa_hci_cb.max_nfcee_disc_timeout)) == FALSE)
+    {
+        nfa_hci_cb.max_nfcee_disc_timeout = NFA_HCI_NFCEE_DISC_TIMEOUT; /*Default nfcee discover timeout*/
+    }
+    nfa_hci_cb.max_nfcee_disc_timeout = nfa_hci_cb.max_nfcee_disc_timeout * 1000;
+    NFA_TRACE_DEBUG1 ("nfa_hci_init() %d",nfa_hci_cb.max_nfcee_disc_timeout);
+}
+#endif
 /*******************************************************************************
 **
 ** Function         nfa_hci_assemble_msg
@@ -1521,12 +1674,12 @@ static void nfa_hci_assemble_msg (UINT8 *p_data, UINT16 data_len)
         if ((nfa_hci_cb.msg_len + data_len) > nfa_hci_cb.max_msg_len)
         {
             /* Fill the buffer as much it can hold */
+            NFA_TRACE_ERROR1 ("nfa_hci_assemble_msg (): Insufficient buffer to Reassemble APDU HCP packet! Dropping :%u bytes", ((nfa_hci_cb.msg_len + data_len) - nfa_hci_cb.max_msg_len));
             memcpy (&nfa_hci_cb.p_msg_data[nfa_hci_cb.msg_len], p_data, (nfa_hci_cb.max_msg_len - nfa_hci_cb.msg_len));
             nfa_hci_cb.msg_len         = nfa_hci_cb.max_msg_len;
             /* Set Reassembly failed */
             nfa_hci_cb.assembly_failed = TRUE;
             nfa_hci_cb.assembly_failed_flags |= NFA_HCI_FL_APDU_PIPE;
-            NFA_TRACE_ERROR1 ("nfa_hci_assemble_msg (): Insufficient buffer to Reassemble APDU HCP packet! Dropping :%u bytes", ((nfa_hci_cb.msg_len + data_len) - nfa_hci_cb.max_msg_len));
         }
         else
         {
@@ -1535,17 +1688,21 @@ static void nfa_hci_assemble_msg (UINT8 *p_data, UINT16 data_len)
         }
     }
     else if( (pipe == NFA_HCI_CONN_ESE_PIPE) ||
-            (pipe == NFA_HCI_CONN_UICC_PIPE))
+            (pipe == NFA_HCI_CONN_UICC_PIPE)
+#if(NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == TRUE)
+            ||(pipe == NFA_HCI_CONN_UICC2_PIPE)
+#endif
+            )
     {
         if ((nfa_hci_cb.evt_len + data_len) > nfa_hci_cb.max_evt_len)
         {
             /* Fill the buffer as much it can hold */
+            NFA_TRACE_ERROR1 ("nfa_hci_assemble_msg (): Insufficient buffer to Reassemble Event HCP packet! Dropping :%u bytes", ((nfa_hci_cb.msg_len + data_len) - nfa_hci_cb.max_msg_len));
             memcpy (&nfa_hci_cb.p_evt_data[nfa_hci_cb.evt_len], p_data, (nfa_hci_cb.max_evt_len - nfa_hci_cb.evt_len));
             nfa_hci_cb.evt_len         = nfa_hci_cb.max_evt_len;
             /* Set Reassembly failed */
             nfa_hci_cb.assembly_failed = TRUE;
             nfa_hci_cb.assembly_failed_flags |= NFA_HCI_FL_CONN_PIPE;
-            NFA_TRACE_ERROR1 ("nfa_hci_assemble_msg (): Insufficient buffer to Reassemble Event HCP packet! Dropping :%u bytes", ((nfa_hci_cb.msg_len + data_len) - nfa_hci_cb.max_msg_len));
         }
         else
         {
@@ -1653,6 +1810,12 @@ static BOOLEAN nfa_hci_evt_hdlr (BT_HDR *p_msg)
                 }
             }
             break;
+#if (NXP_EXTNS == TRUE)
+        case NFA_HCI_SESSION_ID_POLL_DELAY_TIMEOUT_EVT:
+        case NFA_HCI_NFCEE_DISCOVER_TIMEOUT_EVT:
+            nfa_hci_handle_nfcee_config_evt(NFA_HCI_READ_SESSIONID);
+            break;
+#endif
         }
     }
 

@@ -528,6 +528,10 @@ typedef UINT8 tNFA_EE_DISC_STS;
 
 typedef void (tNFA_EE_ENABLE_DONE_CBACK)(tNFA_EE_DISC_STS status);
 
+#if ((NXP_EXTNS == TRUE) && (NXP_UICC_HANDLE_CLEAR_ALL_PIPES == TRUE))
+typedef void (tNFA_EE_CLEAR_ALL_PIPES_CBACK)(UINT8 source_host);
+#endif
+
 /* NFA EE Management control block */
 typedef struct
 {
@@ -537,6 +541,11 @@ typedef struct
     tNFA_EE_CBACK        *p_ee_cback[NFA_EE_MAX_CBACKS];/* to report EE events       */
     tNFA_EE_CBACK        *p_ee_disc_cback;       /* to report EE discovery result    */
     tNFA_EE_ENABLE_DONE_CBACK *p_enable_cback;   /* callback to notify on enable done*/
+#if (NXP_EXTNS == TRUE)
+#if (NXP_UICC_HANDLE_CLEAR_ALL_PIPES == TRUE)
+    tNFA_EE_CLEAR_ALL_PIPES_CBACK *p_clear_all_pipes_cback; /* callback to notify UICC CAP */
+#endif
+#endif
     tNFA_EE_EM_STATE     em_state;               /* NFA-EE state initialized or not  */
     UINT8                wait_rsp;               /* num of NCI rsp expected (update) */
     UINT8                num_ee_expecting;       /* number of ee_info still expecting*/
@@ -608,8 +617,13 @@ void nfa_ee_report_disc_done(BOOLEAN notify_sys);
 void nfa_ee_nci_disc_rsp(tNFA_EE_MSG *p_data);
 void nfa_ee_nci_disc_ntf(tNFA_EE_MSG *p_data);
 void nfa_ee_nci_mode_set_rsp(tNFA_EE_MSG *p_data);
-#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
+#if (NXP_EXTNS == TRUE)
+#if (NXP_WIRED_MODE_STANDBY == TRUE)
 void nfa_ee_nci_pwr_link_ctrl_rsp(tNFA_EE_MSG *p_data);
+#endif
+#if (NXP_UICC_HANDLE_CLEAR_ALL_PIPES == TRUE)
+void nfa_ee_reg_cback_clear_all_pipes (tNFA_EE_CLEAR_ALL_PIPES_CBACK *p_cback);
+#endif
 #endif
 void nfa_ee_nci_wait_rsp(tNFA_EE_MSG *p_data);
 void nfa_ee_nci_conn(tNFA_EE_MSG *p_data);
