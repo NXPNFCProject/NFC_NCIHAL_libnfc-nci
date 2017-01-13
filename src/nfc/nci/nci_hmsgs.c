@@ -386,7 +386,14 @@ UINT8 nci_snd_nfcee_mode_set (UINT8 nfcee_id, UINT8 nfcee_mode)
 
     if ((p = NCI_GET_CMD_BUF (NCI_CORE_PARAM_SIZE_NFCEE_MODE_SET)) == NULL)
         return (NCI_STATUS_FAILED);
-
+#if(NXP_EXTNS == TRUE)
+    if((nfc_cb.bBlockWiredMode) && (NFCEE_ID_ESE == nfcee_id))
+    {
+        nfc_start_timer(&nfc_cb.nci_wait_setMode_Ntf_timer, (UINT16)NFC_TYPE_NCI_WAIT_SETMODE_RSP, NFC_NCI_SETMODE_NTF_TIMEOUT);
+        nfc_cb.bSetmodeOnReq = TRUE;
+        return NCI_STATUS_OK;
+    }
+#endif
     p->event            = BT_EVT_TO_NFC_NCI;
     p->len              = NCI_MSG_HDR_SIZE + NCI_CORE_PARAM_SIZE_NFCEE_MODE_SET;
     p->offset           = NCI_MSG_OFFSET_SIZE;
@@ -400,6 +407,10 @@ UINT8 nci_snd_nfcee_mode_set (UINT8 nfcee_id, UINT8 nfcee_mode)
     UINT8_TO_STREAM (pp, nfcee_mode);
 
     nfc_ncif_send_cmd (p);
+#if(NXP_EXTNS == TRUE)
+    if(NFCEE_ID_ESE == nfcee_id)
+        nfc_start_timer(&nfc_cb.nci_wait_setMode_Ntf_timer, (UINT16)NFC_TYPE_NCI_WAIT_SETMODE_NTF, NFC_NCI_SETMODE_NTF_TIMEOUT);
+#endif
     return (NCI_STATUS_OK);
 }
 #endif

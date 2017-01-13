@@ -80,8 +80,11 @@ enum
     NFA_EE_NCI_DISC_RSP_EVT,
     NFA_EE_NCI_DISC_NTF_EVT,
     NFA_EE_NCI_MODE_SET_RSP_EVT,
-#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
-    NFA_EE_NCI_PWR_LNK_CTRL_RSP_EVT,
+#if (NXP_EXTNS == TRUE)
+    NFA_EE_NCI_MODE_SET_INFO,
+#if (NXP_WIRED_MODE_STANDBY == TRUE)
+         NFA_EE_NCI_PWR_LNK_CTRL_RSP_EVT,
+#endif
 #endif
     NFA_EE_NCI_CONN_EVT,
     NFA_EE_NCI_DATA_EVT,
@@ -420,13 +423,20 @@ typedef struct
     tNFC_NFCEE_MODE_SET_REVT    *p_data;
 } tNFA_EE_NCI_MODE_SET;
 
-#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
+#if (NXP_EXTNS == TRUE)
+typedef struct
+{
+    BT_HDR                      hdr;
+    tNFC_NFCEE_MODE_SET_INFO    *p_data;
+}tNFA_EE_NCI_SET_MODE_INFO;
 /* data type for NFA_EE_NCI_MODE_SET_RSP_EVT */
+#if (NXP_WIRED_MODE_STANDBY == TRUE)
 typedef struct
 {
     BT_HDR                      hdr;
     tNFC_NFCEE_EE_PWR_LNK_REVT  *p_data;
 } tNFA_EE_NCI_PWR_LNK_CTRL;
+#endif
 #endif
 
 /* data type for NFA_EE_NCI_WAIT_RSP_EVT */
@@ -480,8 +490,11 @@ typedef union
     tNFA_EE_NCI_DISC_RSP        disc_rsp;
     tNFA_EE_NCI_DISC_NTF        disc_ntf;
     tNFA_EE_NCI_MODE_SET        mode_set_rsp;
-#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
+#if (NXP_EXTNS == TRUE)
+    tNFA_EE_NCI_SET_MODE_INFO   mode_set_info;
+#if (NXP_WIRED_MODE_STANDBY == TRUE)
     tNFA_EE_NCI_PWR_LNK_CTRL    pwr_lnk_ctrl_rsp;
+#endif
 #endif
     tNFA_EE_NCI_WAIT_RSP        wait_rsp;
     tNFA_EE_NCI_CONN            conn;
@@ -524,6 +537,9 @@ typedef UINT8 tNFA_EE_FLAGS;
 #define NFA_EE_DISC_STS_ON              0x00    /* NFCEE DISCOVER in progress       */
 #define NFA_EE_DISC_STS_OFF             0x01    /* disable NFCEE DISCOVER           */
 #define NFA_EE_DISC_STS_REQ             0x02    /* received NFCEE DISCOVER REQ NTF  */
+#if(NXP_EXTNS == TRUE)
+#define NFA_EE_MODE_SET_NTF             0x04    /* received NFCEE_MODE_SET NTF  */
+#endif
 typedef UINT8 tNFA_EE_DISC_STS;
 
 typedef void (tNFA_EE_ENABLE_DONE_CBACK)(tNFA_EE_DISC_STS status);
@@ -618,11 +634,10 @@ void nfa_ee_nci_disc_rsp(tNFA_EE_MSG *p_data);
 void nfa_ee_nci_disc_ntf(tNFA_EE_MSG *p_data);
 void nfa_ee_nci_mode_set_rsp(tNFA_EE_MSG *p_data);
 #if (NXP_EXTNS == TRUE)
+extern void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data);
+void nfa_ee_nci_set_mode_info(tNFA_EE_MSG *p_data);
 #if (NXP_WIRED_MODE_STANDBY == TRUE)
 void nfa_ee_nci_pwr_link_ctrl_rsp(tNFA_EE_MSG *p_data);
-#endif
-#if (NXP_UICC_HANDLE_CLEAR_ALL_PIPES == TRUE)
-void nfa_ee_reg_cback_clear_all_pipes (tNFA_EE_CLEAR_ALL_PIPES_CBACK *p_cback);
 #endif
 #endif
 void nfa_ee_nci_wait_rsp(tNFA_EE_MSG *p_data);
@@ -641,7 +656,6 @@ void nfa_ee_start_timer(void);
 void nfa_ee_reg_cback_enable_done (tNFA_EE_ENABLE_DONE_CBACK *p_cback);
 void nfa_ee_report_update_evt (void);
 void find_and_resolve_tech_conflict();
-
 extern void nfa_ee_proc_hci_info_cback (void);
 void nfa_ee_check_disable (void);
 BOOLEAN nfa_ee_restore_ntf_done(void);

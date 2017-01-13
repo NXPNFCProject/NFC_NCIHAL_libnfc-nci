@@ -81,7 +81,6 @@ static void nfa_hci_handle_generic_gate_evt (UINT8 *p_data, UINT16 data_len, tNF
 static void nfa_hci_api_get_host_id (tNFA_HCI_EVENT_DATA *p_evt_data);
 static void nfa_hci_api_get_host_type (tNFA_HCI_EVENT_DATA *p_evt_data);
 static tNFA_STATUS nfa_hci_api_get_host_type_list();
-static tNFA_STATUS nfa_hci_api_config_nfcee (UINT8 hostId);
 static void nfa_hci_api_getnoofhosts (UINT8 *p_data, UINT8 data_len);
 static void nfa_hci_handle_Nfcee_admpipe_rsp (UINT8 *p_data, UINT8 data_len);
 static void nfa_hci_handle_Nfcee_dynpipe_rsp (UINT8 pipeId,UINT8 *p_data, UINT8 data_len);
@@ -1281,7 +1280,9 @@ void nfa_hci_handle_pipe_open_close_cmd (tNFA_HCI_DYN_PIPE *p_pipe)
     {
         p_pipe->pipe_state = NFA_HCI_PIPE_CLOSED;
     }
-
+#if(NXP_EXTNS == TRUE)
+    nfa_hci_cb.nv_write_needed = TRUE;
+#endif
     nfa_hciu_send_msg (p_pipe->pipe_id, NFA_HCI_RESPONSE_TYPE, response, rsp_len, data);
 }
 
@@ -1326,14 +1327,6 @@ void nfa_hci_handle_admin_gate_cmd (UINT8 *p_data)
         STREAM_TO_UINT8 (dest_host,   p_data);
         STREAM_TO_UINT8 (dest_gate,   p_data);
         STREAM_TO_UINT8 (pipe,        p_data);
-
-#if ((NXP_EXTNS == TRUE ) && (NXP_UICC_HANDLE_CLEAR_ALL_PIPES == TRUE))
-        if(pipe == NFA_HCI_CONN_UICC2_PIPE)
-        {
-            /* Modify the source_host to UICC2 if the pipe id is 0x23*/
-            source_host = NFA_HCI_HOST_ID_UICC1;
-        }
-#endif
 
         if (  (dest_gate == NFA_HCI_IDENTITY_MANAGEMENT_GATE)
             ||(dest_gate == NFA_HCI_LOOP_BACK_GATE)
@@ -1398,14 +1391,7 @@ void nfa_hci_handle_admin_gate_cmd (UINT8 *p_data)
 
     case NFA_HCI_ADM_NOTIFY_ALL_PIPE_CLEARED:
         STREAM_TO_UINT8 (source_host, p_data);
-#if ((NXP_EXTNS == TRUE ) && (NXP_UICC_HANDLE_CLEAR_ALL_PIPES == TRUE))
-        if(source_host == NFA_HCI_HOST_ID_UICC0)
-        {
-            /*Register call back to handle UICC clear all pipes*/
-            nfa_ee_reg_cback_clear_all_pipes(nfa_hci_handle_clear_all_pipes_evt);
-            break;
-        }
-#endif
+
         nfa_hciu_remove_all_pipes_from_host (source_host);
 
         if (source_host == NFA_HCI_HOST_CONTROLLER)
@@ -1443,30 +1429,6 @@ void nfa_hci_handle_admin_gate_cmd (UINT8 *p_data)
 
     nfa_hciu_send_msg (NFA_HCI_ADMIN_PIPE, NFA_HCI_RESPONSE_TYPE, response, rsp_len, &data);
 }
-
-#if ((NXP_EXTNS == TRUE ) && (NXP_UICC_HANDLE_CLEAR_ALL_PIPES == TRUE))
-/*******************************************************************************
-**
-** Function         nfa_hci_handle_clear_all_pipes_evt
-**
-** Description      This function handles clear all pipes received on admin gate
-**
-** Returns          none
-**
-*******************************************************************************/
-void nfa_hci_handle_clear_all_pipes_evt(UINT8 source_host)
-{
-    NFA_TRACE_DEBUG1 ("nfa_hci_handle_clear_all_pipes_evt - source_host=0x%x", source_host);
-    nfa_ee_reg_cback_clear_all_pipes(NULL); /*Clear the callback once request is served to avoid multiple entries*/
-    nfa_hciu_remove_all_pipes_from_host (source_host);
-
-    if (  (source_host >= NFA_HCI_HOST_ID_UICC0)
-        &&(source_host < (NFA_HCI_HOST_ID_UICC0 + NFA_HCI_MAX_HOST_IN_NETWORK))  )
-    {
-        nfa_hci_cb.reset_host[source_host - NFA_HCI_HOST_ID_UICC0] = source_host;
-    }
-}
-#endif
 
 /*******************************************************************************
 **
@@ -1581,7 +1543,6 @@ void nfa_hci_handle_admin_gate_rsp (UINT8 *p_data, UINT8 data_len)
                    /* Session ID is reset, Set New session id */
                     memcpy (&nfa_hci_cb.cfg.admin_gate.session_id[NFA_HCI_SESSION_ID_LEN / 2], nfa_hci_cb.cfg.admin_gate.session_id, (NFA_HCI_SESSION_ID_LEN / 2));
                     os_tick = GKI_get_os_tick_count ();
-                    memset (&nfa_hci_cb.cfg, 0, sizeof (nfa_hci_cb.cfg));
                     memcpy (nfa_hci_cb.cfg.admin_gate.session_id, (UINT8 *)&os_tick, (NFA_HCI_SESSION_ID_LEN / 2));
                     nfa_hciu_send_set_param_cmd (NFA_HCI_ADMIN_PIPE, NFA_HCI_SESSION_IDENTITY_INDEX, NFA_HCI_SESSION_ID_LEN, (UINT8 *) nfa_hci_cb.cfg.admin_gate.session_id);
                 }
@@ -1646,7 +1607,6 @@ void nfa_hci_handle_admin_gate_rsp (UINT8 *p_data, UINT8 data_len)
                     /* Session ID is reset, Set New session id */
                     memcpy (&nfa_hci_cb.cfg.admin_gate.session_id[NFA_HCI_SESSION_ID_LEN / 2], nfa_hci_cb.cfg.admin_gate.session_id, (NFA_HCI_SESSION_ID_LEN / 2));
                     os_tick = GKI_get_os_tick_count ();
-                    memset (&nfa_hci_cb.cfg, 0, sizeof (nfa_hci_cb.cfg));
                     memcpy (nfa_hci_cb.cfg.admin_gate.session_id, (UINT8 *)&os_tick, (NFA_HCI_SESSION_ID_LEN / 2));
                     nfa_hciu_send_set_param_cmd (NFA_HCI_ADMIN_PIPE, NFA_HCI_SESSION_IDENTITY_INDEX, NFA_HCI_SESSION_ID_LEN, (UINT8 *) nfa_hci_cb.cfg.admin_gate.session_id);
 #else
@@ -1944,12 +1904,12 @@ void nfa_hci_handle_dyn_pipe_pkt (UINT8 pipe_id, UINT8 *p_data, UINT16 data_len)
             nfa_hciu_send_msg (pipe_id, NFA_HCI_RESPONSE_TYPE, NFA_HCI_ANY_E_NOK, 0, NULL);
         return;
     }
-
+#if(NXP_EXTNS == TRUE)
     if(nfa_hci_cb.hci_state == NFA_HCI_STATE_NFCEE_ENABLE)
     {
         nfa_hci_handle_Nfcee_dynpipe_rsp(pipe_id,p_data,data_len);
     }
-
+#endif
     if (p_pipe->local_gate == NFA_HCI_IDENTITY_MANAGEMENT_GATE)
     {
         nfa_hci_handle_identity_mgmt_gate_pkt (p_data, p_pipe);
@@ -2432,8 +2392,12 @@ static void nfa_hci_handle_generic_gate_evt (UINT8 *p_data, UINT16 data_len, tNF
     if(nfa_hci_cb.IsEventAbortSent)
     {
         nfa_hci_cb.IsEventAbortSent = FALSE;
-        evt_data.rcvd_evt.evt_code = nfa_hci_cb.evt_sent.evt_type;
-        evt_data.rcvd_evt.evt_len = 0;
+        if (nfa_hci_cb.evt_sent.evt_type != NFA_EVT_ABORT)
+        {
+            evt_data.rcvd_evt.evt_code = nfa_hci_cb.evt_sent.evt_type;
+            evt_data.rcvd_evt.evt_len = 0;
+        }
+
     }
 #endif
 
@@ -2590,7 +2554,11 @@ static BOOLEAN nfa_hci_handle_nfcee_config()
         if(nfa_hciu_check_nfcee_config_done(nfa_hci_cb.host_id[xx]) == FALSE)
         {
             NFC_NfceeModeSet (nfa_hci_cb.host_id[xx], NFC_MODE_ACTIVATE);
-            nfa_hci_api_config_nfcee(nfa_hci_cb.host_id[xx]);
+            nfa_hci_cb.current_nfcee = nfa_hci_cb.host_id[xx];
+            if(NFA_HCI_HOST_ID_ESE != nfa_hci_cb.host_id[xx])
+            {
+                nfa_hci_api_config_nfcee(nfa_hci_cb.current_nfcee);
+            }
             break;
         }
     }
@@ -3197,13 +3165,18 @@ static void nfa_hci_handle_Nfcee_dynpipe_rsp (UINT8 pipeId,UINT8 *p_data, UINT8 
     BOOLEAN wStatus = FALSE;
     tNFA_HCI_EVT_DATA   evt_data;
 
-    if ((nfa_hci_cb.type == NFA_HCI_RESPONSE_TYPE)&&(nfa_hci_cb.inst != NFA_HCI_ANY_OK))
+    if (nfa_hci_cb.type == NFA_HCI_RESPONSE_TYPE)
     {
-        nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
-        evt_data.config_rsp_rcvd.status = status;
-        /* Send NFA_HCI_CMD_SENT_EVT to notify failure */
-        nfa_hciu_send_to_all_apps (NFA_HCI_CONFIG_DONE_EVT, &evt_data);
-        return;
+        nfa_sys_stop_timer (&nfa_hci_cb.timer);
+        NFA_TRACE_DEBUG0("nfa_hci_handle_Nfcee_dynpipe_rsp - HCI Timer stopped!!!");
+        if(nfa_hci_cb.inst != NFA_HCI_ANY_OK)
+        {
+            nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
+            evt_data.config_rsp_rcvd.status = status;
+            /* Send NFA_HCI_CMD_SENT_EVT to notify failure */
+            nfa_hciu_send_to_all_apps (NFA_HCI_CONFIG_DONE_EVT, &evt_data);
+            return;
+        }
     }
     if (pipeId == 0x00)
     {

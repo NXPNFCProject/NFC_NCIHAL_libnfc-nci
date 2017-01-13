@@ -633,8 +633,15 @@ static void phNxpNciHal_fw_dnld_get_version_cb(void* pContext,
             {
                 wStatus = NFCSTATUS_SUCCESS;
 #if (PH_LIBNFC_ENABLE_FORCE_DOWNLOAD == 0)
-                NXPLOG_FWDNLD_D("Version Already UpToDate!!\n");
-                (gphNxpNciHal_fw_IoctlCtx.bSkipSeq) = TRUE;
+               NXPLOG_FWDNLD_D("Version Already UpToDate!!\n");
+#if(NXP_NFCC_FORCE_FW_DOWNLOAD == TRUE)
+               if((gphNxpNciHal_fw_IoctlCtx.bForceDnld) == FALSE)
+               {
+                   (gphNxpNciHal_fw_IoctlCtx.bSkipSeq) = TRUE;
+               }
+#else
+               (gphNxpNciHal_fw_IoctlCtx.bSkipSeq) = TRUE;
+#endif
 #else
                 (gphNxpNciHal_fw_IoctlCtx.bForceDnld) = TRUE;
 #endif
@@ -1082,7 +1089,11 @@ static NFCSTATUS phNxpNciHal_fw_dnld_write(void* pContext, NFCSTATUS status,
         NXPLOG_FWDNLD_E("phNxpNciHal_fw_dnld_write cb_data creation failed");
         return NFCSTATUS_FAILED;
     }
+#if(NXP_NFCC_FORCE_FW_DOWNLOAD == TRUE)
+    /* if(FALSE == (gphNxpNciHal_fw_IoctlCtx.bForceDnld)) */
+#else
     if(FALSE == (gphNxpNciHal_fw_IoctlCtx.bForceDnld))
+#endif
     {
         NXPLOG_FWDNLD_D("phNxpNciHal_fw_dnld_write - Incrementing NumDnldTrig..");
         (gphNxpNciHal_fw_IoctlCtx.bDnldInitiated) = TRUE;
@@ -1864,7 +1875,11 @@ static  NFCSTATUS phNxpNciHal_fw_dnld_complete(void* pContext,NFCSTATUS status,
 ** Returns          NFCSTATUS_SUCCESS if success
 **
 *******************************************************************************/
+#if(NXP_NFCC_FORCE_FW_DOWNLOAD == TRUE)
+NFCSTATUS phNxpNciHal_fw_download_seq(uint8_t bClkSrcVal, uint8_t bClkFreqVal, uint8_t force_fwDnld_Req)
+#else
 NFCSTATUS phNxpNciHal_fw_download_seq(uint8_t bClkSrcVal, uint8_t bClkFreqVal)
+#endif
 {
     NFCSTATUS status = NFCSTATUS_FAILED;
     phDnldNfc_Buff_t pInfo;
@@ -1885,6 +1900,13 @@ NFCSTATUS phNxpNciHal_fw_download_seq(uint8_t bClkSrcVal, uint8_t bClkFreqVal)
     (gphNxpNciHal_fw_IoctlCtx.bDnldAttempts) = 0;
     (gphNxpNciHal_fw_IoctlCtx.bClkSrcVal) = bClkSrcVal;
     (gphNxpNciHal_fw_IoctlCtx.bClkFreqVal) = bClkFreqVal;
+
+#if(NXP_NFCC_FORCE_FW_DOWNLOAD == TRUE)
+    if(force_fwDnld_Req)
+    {
+        (gphNxpNciHal_fw_IoctlCtx.bForceDnld) = TRUE;
+    }
+#endif
     /* Get firmware version */
     if (NFCSTATUS_SUCCESS == phDnldNfc_InitImgInfo())
     {

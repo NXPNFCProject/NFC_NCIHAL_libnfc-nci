@@ -161,13 +161,23 @@ void nfc_process_timer_evt (void)
             nfc_ncif_credit_ntf_timeout();
             break;
         }
-#if(NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME)
-        case NFC_TTYPE_NCI_WAIT_RF_FIELD_NTF:
+        case NFC_TYPE_NCI_WAIT_SETMODE_NTF:
         {
-            nfc_ncif_rffield_ntf_timeout();
+            nfc_ncif_modeSet_Ntf_timeout();
             break;
         }
+        case NFC_TYPE_NCI_WAIT_SETMODE_RSP:
+        {
+            nfc_ncif_modeSet_rsp_timeout();
+            break;
+        }
+#if(NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME)
+        case NFC_TTYPE_NCI_WAIT_RF_FIELD_NTF:
 #endif
+        {
+            nfc_ncif_onWiredModeHold_timeout();
+            break;
+        }
         case NFC_TTYPE_LISTEN_ACTIVATION:
             {
                 extern uint8_t sListenActivated;

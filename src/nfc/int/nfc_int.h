@@ -59,7 +59,10 @@ extern "C" {
 /****************************************************************************
 ** Internal NFC constants and definitions
 ****************************************************************************/
-
+#if(NXP_EXTNS == TRUE)
+#define NFC_NCI_SETMODE_NTF_TIMEOUT     2 /* time out for modeSet notification */
+#define NFCEE_ID_ESE                    0xC0
+#endif
 /****************************************************************************
 ** NFC_TASK definitions
 ****************************************************************************/
@@ -73,6 +76,8 @@ extern "C" {
 #if(NXP_EXTNS == TRUE)
 #define NFC_TTYPE_NCI_WAIT_DATA_NTF         2
 #define NFC_TTYPE_NCI_WAIT_RF_FIELD_NTF     3
+#define NFC_TYPE_NCI_WAIT_SETMODE_NTF       4
+#define NFC_TYPE_NCI_WAIT_SETMODE_RSP       5
 #endif
 #define NFC_TTYPE_LLCP_LINK_MANAGER         100
 #define NFC_TTYPE_LLCP_LINK_INACT           101
@@ -279,6 +284,8 @@ typedef struct
     BOOLEAN             bIsCreditNtfRcvd;
     BOOLEAN             bSetmodeOnReq;
     TIMER_LIST_ENT      rf_filed_event_timeout_timer;
+    TIMER_LIST_ENT      nci_wait_setMode_Ntf_timer;
+    BOOLEAN             bIsDwpResPending;
     BT_HDR              *temp_data;
 #endif
 } tNFC_CB;

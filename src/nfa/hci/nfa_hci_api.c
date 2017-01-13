@@ -928,7 +928,11 @@ tNFA_STATUS NFA_HciAddStaticPipe (tNFA_HANDLE hci_handle, UINT8 host, UINT8 gate
         return (NFA_STATUS_FAILED);
     }
 
-    if (gate <= NFA_HCI_LAST_HOST_SPECIFIC_GATE)
+    if ((gate <= NFA_HCI_LAST_HOST_SPECIFIC_GATE )
+#if (NXP_EXTNS == TRUE &&  (NXP_UICC_CREATE_CONNECTIVITY_PIPE == TRUE))
+        && (gate != NFA_HCI_CONNECTIVITY_GATE)
+#endif
+        )
     {
         NFA_TRACE_API1 ("NFA_HciAddStaticPipe (): Invalid Gate:0x%02x", gate);
         return (NFA_STATUS_FAILED);

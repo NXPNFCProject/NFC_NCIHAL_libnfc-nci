@@ -19,6 +19,10 @@
 #include <phNfcTypes.h>
 #include <phNfcStatus.h>
 
+#if(NXP_NFCC_FORCE_FW_DOWNLOAD == TRUE)
+NFCSTATUS phNxpNciHal_fw_download_seq(uint8_t bClkSrcVal, uint8_t bClkFreqVal,uint8_t force_fwDnld_Req);
+#else
 NFCSTATUS phNxpNciHal_fw_download_seq(uint8_t bClkSrcVal, uint8_t bClkFreqVal);
+#endif
 
 #endif /* _PHNXPNCIHAL_DNLD_H_ */

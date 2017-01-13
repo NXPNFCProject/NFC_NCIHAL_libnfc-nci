@@ -50,7 +50,6 @@ static uint8_t cmd_nfcee_setmode_enable[] = { 0x22, 0x01, 0x02, 0x01, 0x01 };
 extern uint32_t wFwVerRsp;
 /* External global variable to get FW version from FW file*/
 extern uint16_t wFwVer;
-
 uint16_t fw_maj_ver;
 uint16_t rom_version;
 /* local buffer to store CORE_INIT response */
@@ -629,7 +628,7 @@ static NFCSTATUS phNxpNciHal_process_ext_cmd_rsp(uint16_t cmd_len, uint8_t *p_cm
 
     NXPLOG_NCIHAL_D("Checking response");
 
-    if((mGetCfg_info->isGetcfg == TRUE)&&
+    if((mGetCfg_info != NULL) && (mGetCfg_info->isGetcfg == TRUE)&&
             (nxpncihal_ctrl.p_rx_data[0] == 0x40)&&
             (nxpncihal_ctrl.p_rx_data[1] == 0x03)&&
             (nxpncihal_ctrl.p_rx_data[3] == NFCSTATUS_SUCCESS))
@@ -1241,6 +1240,26 @@ NFCSTATUS request_EEPROM(phNxpNci_EEPROM_info_t *mEEPROM_info)
         addr[1]  = 0x98;
         break;
 
+    case EEPROM_ESE_SESSION_ID:
+        b_position = 0;
+        memIndex = 0x00;
+        addr[0]  = 0xA0;
+        addr[1]  = 0xEB;
+        break;
+
+    case EEPROM_SWP1_INTF:
+        b_position = 0;
+        memIndex = 0x00;
+        addr[0]  = 0xA0;
+        addr[1]  = 0xEC;
+        break;
+
+    case EEPROM_SWP1A_INTF:
+        b_position = 0;
+        memIndex = 0x00;
+        addr[0]  = 0xA0;
+        addr[1]  = 0xD4;
+        break;
     default:
         ALOGE("No valid request information found");
         break;
@@ -1369,14 +1388,19 @@ int phNxpNciHal_CheckFwRegFlashRequired(uint8_t* fw_update_req, uint8_t* rf_upda
 {
     int status = NFCSTATUS_OK;
     UNUSED(rf_update_req);
+    NXPLOG_NCIHAL_D ("phNxpNciHal_CheckFwRegFlashRequired() : enter");
     status = phDnldNfc_InitImgInfo();
-    NXPLOG_NCIHAL_D ("FW version for FW file = 0x%x", wFwVer);
-    NXPLOG_NCIHAL_D ("FW version from device = 0x%x", wFwVerRsp);
-    *fw_update_req = ((wFwVerRsp & 0x0000FFFF) != wFwVer) ?TRUE:FALSE;
+    NXPLOG_NCIHAL_D ("FW version of the libpn5xx.so binary = 0x%x", wFwVer);
+    NXPLOG_NCIHAL_D ("FW version found on the device = 0x%x", wFwVerRsp);
+    /* Consider for each chip type */
+    *fw_update_req = (((wFwVerRsp & 0x0000FFFF) != wFwVer) ? TRUE : FALSE);
+
     if(FALSE == *fw_update_req)
     {
         NXPLOG_NCIHAL_D ("FW update not required");
         phDnldNfc_ReSetHwDevHandle();
     }
+
+    NXPLOG_NCIHAL_D ("phNxpNciHal_CheckFwRegFlashRequired() : exit - status = %x ",status);
     return status;
 }

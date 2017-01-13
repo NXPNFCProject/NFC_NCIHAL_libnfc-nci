@@ -52,7 +52,9 @@
 #include "nci_hmsgs.h"
 #include "nfc_api.h"
 #include "nfc_int.h"
-
+#if (NXP_EXTNS == TRUE)
+#include "nfa_sys.h"
+#endif
 /*******************************************************************************
 **
 ** Function         nci_proc_core_rsp
@@ -327,8 +329,11 @@ void nci_proc_ee_management_rsp (BT_HDR *p_msg)
     tNFC_RESPONSE_CBACK *p_cback = nfc_cb.p_resp_cback;
     tNFC_NFCEE_DISCOVER_REVT    nfcee_discover;
     tNFC_NFCEE_MODE_SET_REVT    mode_set;
-#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
+#if (NXP_EXTNS == TRUE)
+    tNFC_NFCEE_MODE_SET_INFO    mode_set_info;
+#if(NXP_WIRED_MODE_STANDBY == TRUE)
     tNFC_NFCEE_EE_PWR_LNK_REVT  pwr_lnk_ctrl;
+#endif
 #endif
     void   *p_evt = NULL;
     tNFC_RESPONSE_EVT event = NFC_NFCEE_INFO_REVT;
@@ -403,6 +408,9 @@ void nci_proc_ee_management_ntf (BT_HDR *p_msg)
     UINT8                 yy;
     UINT8                 ee_status;
     tNFC_NFCEE_TLV        *p_tlv;
+#if(NXP_EXTNS == TRUE)
+    tNFC_NFCEE_MODE_SET_INFO    mode_set_info;
+#endif
 
     /* find the start of the NCI message and parse the NCI header */
     p   = (UINT8 *) (p_msg + 1) + p_msg->offset;
@@ -463,6 +471,23 @@ void nci_proc_ee_management_ntf (BT_HDR *p_msg)
             pp  = p += yy;
         }
     }
+#if(NXP_EXTNS == TRUE)
+    else if(op_code == NCI_MSG_NFCEE_MODE_SET)
+    {
+        nfc_stop_timer(&nfc_cb.nci_wait_setMode_Ntf_timer);
+        p_evt = (tNFC_RESPONSE *) &mode_set_info;
+        NFC_TRACE_DEBUG2 ("nci_proc_ee_management_ntf status:0x%x, nfceeid:0x%x", *pp,*(pp+1));
+        event = NFC_NFCEE_MODE_SET_INFO;
+        ee_status                   = *pp++;
+        mode_set_info.nfcee_id    = *pp++;
+        mode_set_info.status        = ee_status;
+        if((!nfc_cb.bBlockWiredMode) && (nfc_cb.bSetmodeOnReq))
+        {
+            nfc_cb.bSetmodeOnReq = FALSE;
+            nfc_ncif_allow_dwp_transmission();
+        }
+    }
+#endif
     else
     {
         p_cback = NULL;

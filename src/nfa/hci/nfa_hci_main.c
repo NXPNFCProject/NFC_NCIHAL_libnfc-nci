@@ -82,7 +82,7 @@ static BOOLEAN nfa_hci_evt_hdlr (BT_HDR *p_msg);
 
 static void nfa_hci_sys_enable (void);
 static void nfa_hci_sys_disable (void);
-static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data);
+extern void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data);
 static void nfa_hci_set_receive_buf (UINT8 pipe);
 #if (NXP_EXTNS == TRUE)
 void nfa_hci_rsp_timeout (tNFA_HCI_EVENT_DATA *p_evt_data);
@@ -207,7 +207,15 @@ void nfa_hci_ee_info_cback (tNFA_EE_DISC_STS status)
         }
 #endif
         break;
-
+#if(NXP_EXTNS == TRUE)
+    case NFA_EE_MODE_SET_NTF:
+        if(nfa_hci_cb.hci_state == NFA_HCI_STATE_NFCEE_ENABLE)
+        {
+            NFA_TRACE_DEBUG0 ("ETSI12 pipe creation configured");
+            nfa_hci_api_config_nfcee(nfa_hci_cb.current_nfcee);
+        }
+        break;
+#endif
     case NFA_EE_DISC_STS_REQ:
         nfa_hci_cb.num_ee_dis_req_ntf++;
 
@@ -877,7 +885,7 @@ static void nfa_hci_sys_disable (void)
 ** Returns          None
 **
 *******************************************************************************/
-static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data)
+void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data)
 {
     UINT8   *p;
     BT_HDR  *p_pkt = (BT_HDR *) p_data->data.p_data;
@@ -891,9 +899,10 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
 #if ((NXP_EXTNS == TRUE) && (NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME))
     if(event == NFC_HCI_RESTART_TIMER)
     {
-        if(nfa_hci_cb.IsHciTimerExtended)
+        if(nfa_hci_cb.IsHciTimerChanged)
         {
-            nfa_sys_start_timer (&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT, NFA_HCI_EXTENDED_PKT_RSP_TIMEOUT);
+            nfa_sys_start_timer (&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT, NFA_HCI_DWP_RSP_WAIT_TIMEOUT);
+            nfa_hci_cb.IsHciTimerChanged = FALSE;
         }
         else
         {
@@ -913,7 +922,6 @@ static void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p
             nfa_hciu_alloc_gate (NFA_HCI_CONNECTIVITY_GATE,0);
         }
 
-        NFA_TRACE_ERROR1 ("nfa_hci_startup - Failed to Create Logical connection. HCI Initialization/Restore failed %d",nfa_hci_cb.cfg.admin_gate.pipe01_state);
         if (nfa_hci_cb.cfg.admin_gate.pipe01_state == NFA_HCI_PIPE_CLOSED)
         {
             /* First step in initialization/restore is to open the admin pipe */
@@ -1410,6 +1418,7 @@ void nfa_hci_rsp_timeout (tNFA_HCI_EVENT_DATA *p_evt_data)
         {
 
             NFA_TRACE_DEBUG0 ("NxpNci:nfa_hci_rsp_timeout () Timeout: NFC_FlushData");
+            nfa_hci_cb.bIsHciResponseTimedout = TRUE;
             if(nfa_ee_nfeeid_active(NFA_HCI_HOST_ID_ESE))
             {
                 if((nfa_hci_cb.IsChainedPacket) && (!(NFC_Queue_Is_empty(nfa_hci_cb.conn_id))))
@@ -1431,7 +1440,6 @@ void nfa_hci_rsp_timeout (tNFA_HCI_EVENT_DATA *p_evt_data)
                         nfa_hci_cb.hci_state = NFA_HCI_STATE_WAIT_RSP;
                         evt = 0;
                         nfa_hci_cb.IsChainedPacket = FALSE;
-                        nfa_hci_cb.bIsHciResponseTimedout = TRUE;
                         break;
                     }
                 }
@@ -1452,7 +1460,6 @@ void nfa_hci_rsp_timeout (tNFA_HCI_EVENT_DATA *p_evt_data)
                         nfa_hci_cb.hci_state = NFA_HCI_STATE_WAIT_RSP;
                     }
                     nfa_hci_cb.IsChainedPacket = FALSE;
-                    nfa_hci_cb.bIsHciResponseTimedout = TRUE;
                     nfa_hci_cb.IsEventAbortSent = TRUE;
                     evt = 0;
                     break;

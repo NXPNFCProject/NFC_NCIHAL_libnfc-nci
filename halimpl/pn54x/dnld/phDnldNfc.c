@@ -895,6 +895,7 @@ NFCSTATUS phDnldNfc_InitImgInfo(void)
     if(gRecFWDwnld == TRUE)
         wStatus = phDnldNfc_LoadRecoveryFW(pathName, &pImageInfo, &ImageInfoLen);
     else
+        /* else condition */
 #endif
         wStatus = phDnldNfc_LoadFW(pathName, &pImageInfo, &ImageInfoLen);
 
@@ -909,7 +910,7 @@ NFCSTATUS phDnldNfc_InitImgInfo(void)
 
     if (wStatus != NFCSTATUS_SUCCESS)
     {
-        NXPLOG_FWDNLD_E("Error loading libpn54x_fw !!\n");
+        NXPLOG_FWDNLD_E("Error loading libpn5xx_fw.so !!!\n");
     }
 
    /* get the MW version */

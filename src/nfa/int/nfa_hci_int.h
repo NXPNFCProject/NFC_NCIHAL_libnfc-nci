@@ -97,7 +97,7 @@ BOOLEAN MW_RCVRY_FW_DNLD_ALLOWED;
 #define NFA_HCI_MAX_RSP_WAIT_TIME               0x0C
 #define NFA_HCI_CHAIN_PKT_RSP_TIMEOUT           30000    /* After the reception of WTX, maximum response timeout value is 30 sec */
 #define NFA_HCI_WTX_RESP_TIMEOUT                3000     /* Wait time to give response timeout to application if WTX not received*/
-#define NFA_HCI_EXTENDED_PKT_RSP_TIMEOUT        30000    /* extended time out for CE deactivation*/
+#define NFA_HCI_DWP_RSP_WAIT_TIMEOUT            2000   /* time out for wired mode response after RF deativation */
 #define NFA_HCI_SESSION_ID_POLL_DELAY           50       /* delay between session ID poll to check if the reset host is initilized or not */
 #define NFA_HCI_MAX_SESSION_ID_RETRY_CNT        0x0A     /* retry count for session ID poll*/
 #define NFA_HCI_NFCEE_DISC_TIMEOUT              0x02     /* NFCEE disc timeout default value in sec*/
@@ -106,7 +106,6 @@ BOOLEAN MW_RCVRY_FW_DNLD_ALLOWED;
 #define NFA_HCI_READ_SESSIONID                  0xF2     /* Event to read the session ID of all the Secure Element*/
 #define NFA_HCI_INIT_NFCEE_CONFIG               0xF3     /* Event to start ETSI 12 configuration*/
 #define NFA_HCI_NFCEE_CONFIG_COMPLETE           0xF9     /* NFCEE ETSI 12 configuration complete*/
-
 #endif
 
 typedef UINT8 tNFA_HCI_STATE;
@@ -496,7 +495,7 @@ typedef struct
     UINT8                           host_id[NFA_HCI_MAX_NO_HOST_ETSI12];    /* Host id ETSI 12 compliant */
     UINT8                           host_controller_version;                 /* no of host controller version */
     UINT8                           current_nfcee;                      /* current Nfcee under execution  */
-    BOOLEAN                         IsHciTimerExtended;
+    BOOLEAN                         IsHciTimerChanged;
     UINT32                          hciResponseTimeout;
     BOOLEAN                         IsChainedPacket;
     BOOLEAN                         bIsHciResponseTimedout;
@@ -574,6 +573,7 @@ extern BOOLEAN nfa_hciu_check_nfcee_config_done(UINT8 host_id);
 extern void nfa_hciu_set_nfceeid_config_mask(UINT8 event, UINT8 host_id);
 extern void nfa_hciu_set_nfceeid_poll_mask(UINT8 event, UINT8 host_id);
 extern BOOLEAN nfa_hciu_check_any_host_reset_pending();
+extern tNFA_STATUS nfa_hci_api_config_nfcee (UINT8 hostId);
 #if (NXP_UICC_HANDLE_CLEAR_ALL_PIPES == TRUE)
 void nfa_hci_handle_clear_all_pipes_evt(UINT8 source_host);
 #endif

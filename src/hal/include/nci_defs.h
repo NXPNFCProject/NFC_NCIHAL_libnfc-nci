@@ -197,6 +197,7 @@ extern "C" {
 #if (NXP_EXTNS == TRUE)
 #define NCI_STATUS_WIRED_SESSION_ABORTED 0xE6
 #define NCI_STATUS_DWP_APDU_DROPPPED     0xE5  /* todo: need to place new error code when FW is readey*/
+#define NCI_STATUS_ALREADY_INITIALIZED  0x0C
 #endif
 
 typedef UINT8 tNCI_STATUS;
@@ -407,6 +408,7 @@ typedef UINT8 tNCI_INTF_TYPE;
  **********************************************/
 #if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
 #define NCI_PWR_LINK_PARAM_CMD_SIZE         0x02 /*nfcee id, nfcee_pwr_link_cfg*/
+#define NCI_EE_PWR_LINK_ALWAYS_ON           0x01 /*NFCEE Power Supply always On*/
 #endif
 
 /**********************************************

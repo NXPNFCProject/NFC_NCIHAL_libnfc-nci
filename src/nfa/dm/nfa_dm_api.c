@@ -82,7 +82,7 @@ void NFA_Init(tHAL_NFC_ENTRY *p_hal_entry_tbl)
     nfa_sys_init();
     nfa_dm_init();
 #if(NXP_EXTNS == TRUE)
-    if(hal_Initcntxt.boot_mode == NFA_NORMAL_BOOT_MODE)
+    if(hal_Initcntxt.boot_mode != NFA_FAST_BOOT_MODE )
     {
 #endif
         nfa_p2p_init();

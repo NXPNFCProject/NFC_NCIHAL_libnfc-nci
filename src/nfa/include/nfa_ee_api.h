@@ -84,8 +84,11 @@ enum
     NFA_EE_ROUT_ERR_EVT,        /* Error - exceed NFCC CE Routing size                   */
     NFA_EE_NO_MEM_ERR_EVT,      /* Error - out of GKI buffers                            */
     NFA_EE_NO_CB_ERR_EVT,       /* Error - Can not find control block or wrong state     */
-#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
+#if (NXP_EXTNS == TRUE)
+    NFA_EE_SET_MODE_INFO_EVT,
+#if (NXP_WIRED_MODE_STANDBY == TRUE)
     NFA_EE_PWR_LINK_CTRL_EVT    /* NFCEE Pwr and link cotnrol command Evt                */
+#endif
 #endif
 };
 typedef UINT8 tNFA_EE_EVT;
@@ -210,14 +213,20 @@ typedef struct
     tNFA_EE_STATUS      ee_status;  /* The NFCEE status             */
 } tNFA_EE_MODE_SET;
 
-#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
+#if (NXP_EXTNS == TRUE)
+typedef struct
+{
+    tNFA_STATUS          status;
+    UINT8                nfcee_id;
+}tNFA_EE_SET_MODE_INFO;
+#if(NXP_WIRED_MODE_STANDBY == TRUE)
 typedef struct
 {
     tNFA_STATUS         status;     /* NFA_STATUS_OK is successful  */
     tNFA_EE_STATUS      ee_status;  /* The NFCEE status             */
 } tNFA_EE_PWR_LNK_CTRL;
 #endif
-
+#endif
 typedef struct
 {
     tNFA_HANDLE         ee_handle;          /* Handle of MFCEE      */
@@ -265,8 +274,11 @@ typedef union
     tNFA_EE_CONNECT         connect;
     tNFA_EE_ACTION          action;
     tNFA_EE_MODE_SET        mode_set;
-#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
+#if (NXP_EXTNS == TRUE)
+    tNFA_EE_SET_MODE_INFO    ee_set_mode_info;
+#if (NXP_WIRED_MODE_STANDBY == TRUE)
     tNFA_EE_PWR_LNK_CTRL    pwr_lnk_ctrl;
+#endif
 #endif
     tNFA_EE_INFO            new_ee;
     tNFA_EE_DISCOVER_REQ    discover_req;

@@ -82,6 +82,7 @@
 #if (NXP_EXTNS == TRUE)
 #define NFC_STATUS_WIRED_SESSION_ABORTED NCI_STATUS_WIRED_SESSION_ABORTED    /* WIRED_SESSION_ABORT error */
 #define NFC_STATUS_DWP_APDU_DROPPPED     NCI_STATUS_DWP_APDU_DROPPPED    /* FW dropped the APDU because UICC switch */
+#define NFC_STATUS_ALREADY_INITIALIZED   NCI_STATUS_ALREADY_INITIALIZED
 //DTA API for MW Version need to change according to release
 #define NXP_EN_PN547C2                  0
 #define NXP_EN_PN65T                    0
@@ -92,7 +93,7 @@
 #define NXP_EN_PN553                    1
 #define NXP_EN_PN80T                    1
 #define NXP_ANDROID_VER                 (7U) /* NXP android version */
-#define NFC_NXP_MW_VERSION_MAJ          (2U) /* MW Major Version */
+#define NFC_NXP_MW_VERSION_MAJ          (3U) /* MW Major Version */
 #define NFC_NXP_MW_VERSION_MIN          (0U) /* MW Minor Version */
 #endif
 /* 0xE0 ~0xFF are proprietary status codes */
@@ -120,6 +121,7 @@ typedef UINT8 tNFC_STATUS;
 #define NFC_NFCC_INIT_MAX_RETRY         2
 #define NFC_NORMAL_BOOT_MODE            0
 #define NFC_FAST_BOOT_MODE              1
+#define NFC_OSU_BOOT_MODE               2
 #define UICC1_HOST                      ((unsigned char)0x02)
 #define UICC2_HOST                      ((unsigned char)0x81)
 #define DH_HOST                         ((unsigned char)0x00)
@@ -230,8 +232,11 @@ typedef tNCI_DISCOVER_PARAMS tNFC_DISCOVER_PARAMS;
 #define NFC_FIRST_CEVT      0x6000
 #define NFC_FIRST_TEVT      0x8000
 #if (NXP_EXTNS == TRUE)
-void nfc_ncif_rffield_ntf_timeout();
+void nfc_ncif_onWiredModeHold_timeout();
 void nfc_ncif_allow_dwp_transmission();
+void nfc_ncif_modeSet_Ntf_timeout();
+void nfc_ncif_modeSet_rsp_timeout();
+void nfc_ncif_resume_dwp_wired_mode();
 #endif
 /* the events reported on tNFC_RESPONSE_CBACK */
 enum
@@ -257,6 +262,9 @@ enum
 
     NFC_FIRST_VS_REVT,                       /* First vendor-specific rsp event  */
     NFC_NFCEE_PWR_LNK_CTRL_REVT              /* PWR LINK CTRL Event for Wired Mode standby */
+#if (NXP_EXTNS == TRUE)
+    ,NFC_NFCEE_MODE_SET_INFO                 /*  NFCEE Mode Set Notification*/
+#endif
 };
 typedef UINT16 tNFC_RESPONSE_EVT;
 
@@ -321,6 +329,12 @@ typedef struct
     UINT8           major_version;       /* Major Version */
     UINT8           minor_version;       /* Minor Version  */
 } tNFC_FW_VERSION;
+
+typedef struct
+{
+    tNFC_STATUS             status;
+    UINT8                   nfcee_id;
+}tNFC_NFCEE_MODE_SET_INFO;
 
 #if (NXP_ESE_JCOP_DWNLD_PROTECTION == TRUE)
 typedef enum jcop_dwnld_state{
@@ -611,8 +625,11 @@ typedef union
     tNFC_NFCEE_DISCOVER_REVT    nfcee_discover;
     tNFC_NFCEE_INFO_REVT        nfcee_info;
     tNFC_NFCEE_MODE_SET_REVT    mode_set;
-#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
+#if (NXP_EXTNS == TRUE)
+    tNFC_NFCEE_MODE_SET_INFO    mode_set_info;
+#if (NXP_WIRED_MODE_STANDBY == TRUE)
     tNFC_NFCEE_EE_PWR_LNK_REVT  pwr_lnk_ctrl;
+#endif
 #endif
     tNFC_RF_FIELD_REVT          rf_field;
     tNFC_STATUS                 cfg_routing;

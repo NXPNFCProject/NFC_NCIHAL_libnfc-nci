@@ -1134,7 +1134,11 @@ void nfa_ee_api_connect(tNFA_EE_MSG *p_data)
                 p_cb->conn_st           = NFA_EE_CONN_ST_WAIT;
                 p_cb->use_interface     = p_data->connect.ee_interface;
                 evt_data.connect.status = NFC_ConnCreate(NCI_DEST_TYPE_NFCEE, p_data->connect.nfcee_id,
-                    p_data->connect.ee_interface, nfa_ee_conn_cback);
+#if(NXP_EXTNS == TRUE )
+                p_data->connect.ee_interface, nfa_hci_conn_cback);
+#else
+                p_data->connect.ee_interface, nfa_ee_conn_cback);
+#endif
                 /* report the NFA_EE_CONNECT_EVT status on the response from NFCC */
                 break;
             }
@@ -1740,7 +1744,8 @@ static void nfa_ee_report_discover_req_evt(void)
     nfa_ee_build_discover_req_evt (&evt_data);
     nfa_ee_report_event(NULL, NFA_EE_DISCOVER_REQ_EVT, (void *)&evt_data);
 }
-#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
+#if (NXP_EXTNS == TRUE)
+#if(NXP_WIRED_MODE_STANDBY == TRUE)
 /*******************************************************************************
 **
 ** Function         nfa_ee_nci_pwr_link_ctrl_rsp
@@ -1759,6 +1764,28 @@ void nfa_ee_nci_pwr_link_ctrl_rsp(tNFA_EE_MSG *p_data)
     NFA_TRACE_DEBUG1(" nfa_ee_nci_pwr_link_ctrl_rsp: status = %d ", pwr_lnk_ctrl.status);
     nfa_ee_report_event(NULL, NFA_EE_PWR_LINK_CTRL_EVT, (tNFA_EE_CBACK_DATA *)&pwr_lnk_ctrl);
 }
+#endif
+/*******************************************************************************
+**
+** Function         nfa_ee_nci_set_mode_info
+**
+** Description      Process the result for NFCEE PWR and link ctrl response
+**
+** Returns          void
+**
+*******************************************************************************/
+void nfa_ee_nci_set_mode_info(tNFA_EE_MSG *p_data)
+{
+    tNFA_EE_SET_MODE_INFO    ee_set_mode_info;
+    tNFC_NFCEE_MODE_SET_INFO  *p_rsp = p_data->mode_set_info.p_data;
+    ee_set_mode_info.status     = p_rsp->status;
+    ee_set_mode_info.nfcee_id = p_rsp->nfcee_id;
+    NFA_TRACE_DEBUG1(" nfa_ee_nci_set_mode_info: status = %d ", ee_set_mode_info.status);
+    if (nfa_ee_cb.p_enable_cback)
+        (*nfa_ee_cb.p_enable_cback) (NFA_EE_MODE_SET_NTF);
+    nfa_ee_report_event(NULL, NFA_EE_SET_MODE_INFO_EVT, (tNFA_EE_CBACK_DATA *)&ee_set_mode_info);
+}
+
 #endif
 /*******************************************************************************
 **
@@ -2156,10 +2183,6 @@ void nfa_ee_nci_disc_req_ntf(tNFA_EE_MSG *p_data)
         }
         else
         {
-#if ((NXP_EXTNS == TRUE)&&(NXP_UICC_HANDLE_CLEAR_ALL_PIPES == TRUE))
-            if(nfa_ee_cb.p_clear_all_pipes_cback)
-                (*nfa_ee_cb.p_clear_all_pipes_cback) (p_cbk->info[xx].nfcee_id);
-#endif
             if (p_cbk->info[xx].tech_n_mode == NFC_DISCOVERY_TYPE_LISTEN_A)
             {
                 p_cb->la_protocol = 0;

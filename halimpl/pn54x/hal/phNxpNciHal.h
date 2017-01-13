@@ -30,6 +30,9 @@
 #define HAL_NFC_ENABLE_I2C_FRAGMENTATION_EVT    0x07
 #define NXP_STAG_TIMEOUT_BUF_LEN                0x04 /*FIXME:TODO:remove*/
 #define NXP_WIREDMODE_RESUME_TIMEOUT_LEN        0x04
+#define NFCC_DECIDES          00
+#define POWER_ALWAYS_ON       01
+#define LINK_ALWAYS_ON        02
 #undef P2P_PRIO_LOGIC_HAL_IMP
 
 typedef void (phNxpNciHal_control_granted_callback_t)();
@@ -131,7 +134,10 @@ typedef enum {
     EEPROM_WIREDMODE_RESUME_TIMEOUT,
     EEPROM_ESE_SVDD_POWER,
     EEPROM_ESE_POWER_EXT_PMU,
-    EEPROM_PROP_ROUTING
+    EEPROM_PROP_ROUTING,
+    EEPROM_ESE_SESSION_ID,
+    EEPROM_SWP1_INTF,
+    EEPROM_SWP1A_INTF,
 }phNxpNci_EEPROM_request_type_t;
 
 typedef struct phNxpNci_EEPROM_info {
@@ -162,7 +168,8 @@ typedef enum {
 
 typedef enum {
     NFC_NORMAL_BOOT_MODE,
-    NFC_FAST_BOOT_MODE
+    NFC_FAST_BOOT_MODE,
+    NFC_OSU_BOOT_MODE
 }phNxpNciBootMode;
 /* NXP Poll Profile control structure */
 typedef struct phNxpNciProfile_Control
@@ -192,5 +199,5 @@ NFCSTATUS phNxpNciHal_send_get_cfgs();
 int phNxpNciHal_write_unlocked (uint16_t data_len, const uint8_t *p_data);
 static int phNxpNciHal_fw_mw_ver_check();
 NFCSTATUS request_EEPROM(phNxpNci_EEPROM_info_t *mEEPROM_info);
-
+NFCSTATUS phNxpNciHal_send_nfcee_pwr_cntl_cmd(uint8_t type);
 #endif /* _PHNXPNCIHAL_H_ */
