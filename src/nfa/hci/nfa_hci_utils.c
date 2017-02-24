@@ -437,7 +437,11 @@ tNFA_STATUS nfa_hciu_send_msg (UINT8 pipe_id, UINT8 type, UINT8 instruction, UIN
 #if (NXP_EXTNS == TRUE)
     else if (type == NFA_HCI_EVENT_TYPE)
     {
-        nfa_hci_cb.evt_sent.evt_type = instruction;
+        if(instruction != NFA_HCI_EVT_END_OF_APDU_SESSION &&
+           instruction != NFA_HCI_EVT_STANDBY_MODE)
+        {
+            nfa_hci_cb.evt_sent.evt_type = instruction;
+        }
     }
 #endif
     return status;
