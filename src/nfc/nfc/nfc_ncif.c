@@ -993,9 +993,11 @@ void nfc_ncif_event_status (tNFC_RESPONSE_EVT event, UINT8 status)
         nfc_cb.bBlockWiredMode = TRUE;
         p_cb = nfc_find_conn_cb_by_conn_id(nfa_hci_cb.conn_id);
         nfc_stop_timer(&nfc_cb.rf_filed_event_timeout_timer);
-        if((!nfc_cb.bIsCreditNtfRcvd) && (status == NFC_STATUS_DWP_APDU_DROPPPED))
+        if(!nfc_cb.bIsCreditNtfRcvd)
         {
             nfc_stop_timer(&nfc_cb.nci_wait_data_ntf_timer);
+            nfc_cb.bIsCreditNtfRcvd = TRUE;
+
             if((p_cb) && !p_cb->num_buff)
                 p_cb->num_buff++;
         }
