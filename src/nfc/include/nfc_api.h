@@ -94,7 +94,7 @@
 #define NXP_EN_PN80T                    1
 #define NXP_ANDROID_VER                 (7U) /* NXP android version */
 #define NFC_NXP_MW_VERSION_MAJ          (3U) /* MW Major Version */
-#define NFC_NXP_MW_VERSION_MIN          (2U) /* MW Minor Version */
+#define NFC_NXP_MW_VERSION_MIN          (3U) /* MW Minor Version */
 #endif
 /* 0xE0 ~0xFF are proprietary status codes */
 #define NFC_STATUS_CMD_STARTED          0xE3/* Command started successfully                     */
