@@ -1118,7 +1118,7 @@ tNFA_STATUS NFA_HciConfigureNfceeETSI12()
 
     /* Request HCI to post event data on a Admin pipe */
     /* Register the application with HCI */
-    if (  (nfa_hci_cb.hci_state != NFA_HCI_STATE_DISABLED)
+    if (  (nfa_hci_cb.hci_state != NFA_HCI_STATE_DISABLED) && (nfa_hci_cb.host_count != 0)
         &&((p_msg = (tNFA_HCI_API_CONFIGURE_EVT *) GKI_getbuf (sizeof (tNFA_HCI_API_CONFIGURE_EVT))) != NULL))
     {
         NFA_TRACE_API1 ("NFA_HciConfigureNfceeETSI12 (): Entry HCI state - %d",nfa_hci_cb.hci_state);
