@@ -473,12 +473,12 @@ static void phTmlNfc_TmlThread(void *pParam)
                     tMsg.eMsgType = PH_LIBNFC_DEFERREDCALL_MSG;
                     tMsg.pMsgData = &tDeferredInfo;
                     tMsg.Size = sizeof(tDeferredInfo);
-                    NXPLOG_TML_D("PN54X - Posting read message.....\n");
-                    if((gpphTmlNfc_Context->gWriterCbflag == FALSE) &&
-                           ((gpphTmlNfc_Context->tReadInfo.pBuffer[0] & 0x60) != 0x60))
+                    /*Don't wait for posting notifications. Only wait for posting responses*/
+                    if((gpphTmlNfc_Context->gWriterCbflag == FALSE) && ((gpphTmlNfc_Context->tReadInfo.pBuffer[0] & 0x60) != 0x60))
                     {
                         phTmlNfc_WaitWriteComplete();
                     }
+                    NXPLOG_TML_D("PN54X - Posting read message.....\n");
                     phNxpNciHal_print_packet("RECV", gpphTmlNfc_Context->tReadInfo.pBuffer,
                                                      gpphTmlNfc_Context->tReadInfo.wLength);
                     phTmlNfc_DeferredCall(gpphTmlNfc_Context->dwCallbackThreadId, &tMsg);
