@@ -1870,9 +1870,7 @@ void nfc_ncif_proc_ee_action (UINT8 *p, UINT16 plen)
         }
         else
         {
-            if((evt_data.act_data.trigger == NCI_EE_TRIG_RF_TECHNOLOGY) ||
-                ((evt_data.act_data.trigger == NCI_EE_TRIG_RF_PROTOCOL) &&
-                    (evt_data.act_data.param.protocol == NCI_PROTOCOL_ISO_DEP)))
+            if(evt_data.act_data.trigger == NCI_EE_TRIG_RF_TECHNOLOGY)
             {
                 nfc_cb.bBlockWiredMode = TRUE;
             }
