@@ -710,7 +710,7 @@ static NFCSTATUS phDnldNfc_BuildFramePkt(pphDnldNfc_DlContext_t pDlContext)
                     }
                 }
                 /*Check whether enough space is left for 2 bytes of CRC append*/
-                if(wFrameLen > (PHDNLDNFC_CMDRESP_MAX_BUFF_SIZE - 3))
+                if(wFrameLen > (PHDNLDNFC_CMDRESP_MAX_BUFF_SIZE - 2))
                 {
                     NXPLOG_FWDNLD_D("wFrameLen exceeds the limit");
                     return NFCSTATUS_FAILED;
