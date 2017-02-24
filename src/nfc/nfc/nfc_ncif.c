@@ -1760,14 +1760,6 @@ void nfc_ncif_proc_deactivate (UINT8 status, UINT8 deact_type, BOOLEAN is_ntf)
         GKI_freebuf (p_data);
     }
 
-#if((NXP_EXTNS == TRUE) && (NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME))
-    if((is_ntf) && (nfc_cb.bBlockWiredMode))
-    {
-        nfc_cb.bBlockWiredMode = FALSE;
-        nfc_ncif_resume_dwp_wired_mode();
-    }
-#endif
-
     if (p_cb->p_cback)
         (*p_cb->p_cback) (NFC_RF_CONN_ID, NFC_DEACTIVATE_CEVT, (tNFC_CONN *) p_deact);
 
