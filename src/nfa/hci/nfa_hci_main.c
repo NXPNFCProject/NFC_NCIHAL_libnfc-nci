@@ -1232,12 +1232,16 @@ void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data)
         }
         else
         {
-            if(!((pipe == NFA_HCI_CONN_UICC_PIPE ||(pipe == NFA_HCI_CONN_ESE_PIPE)
+            if(!((pipe == NFA_HCI_CONN_UICC_PIPE ||
+                  pipe == NFA_HCI_CONN_ESE_PIPE
 #if(NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == TRUE)
-                    ||(pipe == NFA_HCI_CONN_UICC2_PIPE)
+                  || pipe == NFA_HCI_CONN_UICC2_PIPE
 #endif
-            ) && (nfa_hci_cb.inst_evt == NFA_HCI_EVT_TRANSACTION)))
+                  ) &&
+                  (nfa_hci_cb.inst_evt == NFA_HCI_EVT_TRANSACTION ||
+                  nfa_hci_cb.inst_evt == NFA_HCI_EVT_CONNECTIVITY)))
             {
+                /*Stop timer and goto IDLE state when pipe is not connectivity but event received is connectivity*/
                 nfa_sys_stop_timer (&nfa_hci_cb.timer);
                 nfa_hci_cb.hci_state  = NFA_HCI_STATE_IDLE;
             }
