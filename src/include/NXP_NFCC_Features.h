@@ -39,6 +39,11 @@
 #define NXP_NFCEE_REMOVED_NTF_RECOVERY          TRUE
 #define NXP_NFCC_FORCE_FW_DOWNLOAD              TRUE
 #define NXP_UICC_CREATE_CONNECTIVITY_PIPE       TRUE
+#if(NFC_NXP_ESE == TRUE)
+#define NFA_EE_MAX_EE_SUPPORTED                 4
+#else
+#define NFA_EE_MAX_EE_SUPPORTED                 3
+#endif
 #elif(NFC_NXP_CHIP_TYPE == PN551)
 #define NXP_NFCC_I2C_READ_WRITE_IMPROVEMENT     TRUE
 #define NXP_NFCC_AID_MATCHING_PLATFORM_CONFIG   TRUE
@@ -52,6 +57,11 @@
 #define NXP_NFCEE_REMOVED_NTF_RECOVERY          TRUE
 #define NXP_NFCC_FORCE_FW_DOWNLOAD              FALSE
 #define NXP_UICC_CREATE_CONNECTIVITY_PIPE       FALSE
+#if(NFC_NXP_ESE == TRUE)
+#define NFA_EE_MAX_EE_SUPPORTED                 3
+#else
+#define NFA_EE_MAX_EE_SUPPORTED                 2
+#endif
 #elif(NFC_NXP_CHIP_TYPE == PN548C2)
 #define NXP_NFCC_I2C_READ_WRITE_IMPROVEMENT     TRUE
 #define NXP_NFCC_AID_MATCHING_PLATFORM_CONFIG   TRUE
@@ -65,6 +75,11 @@
 #define NXP_NFCEE_REMOVED_NTF_RECOVERY          TRUE
 #define NXP_NFCC_FORCE_FW_DOWNLOAD              FALSE
 #define NXP_UICC_CREATE_CONNECTIVITY_PIPE       FALSE
+#if(NFC_NXP_ESE == TRUE)
+#define NFA_EE_MAX_EE_SUPPORTED                 3
+#else
+#define NFA_EE_MAX_EE_SUPPORTED                 2
+#endif
 #elif(NFC_NXP_CHIP_TYPE  == PN547C2)
 #define NXP_NFCC_I2C_READ_WRITE_IMPROVEMENT     FALSE
 #define NXP_NFCC_AID_MATCHING_PLATFORM_CONFIG   TRUE
@@ -74,5 +89,10 @@
 #define NXP_NFCEE_REMOVED_NTF_RECOVERY          TRUE
 #define NXP_NFCC_FORCE_FW_DOWNLOAD              FALSE
 #define NXP_UICC_CREATE_CONNECTIVITY_PIPE       FALSE
+#if(NFC_NXP_ESE == TRUE)
+#define NFA_EE_MAX_EE_SUPPORTED                 3
+#else
+#define NFA_EE_MAX_EE_SUPPORTED                 2
+#endif
 #endif
 #endif                          /* end of #ifndef NXP_NFCC_FEATURES_H */

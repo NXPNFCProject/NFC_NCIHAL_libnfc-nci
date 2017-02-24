@@ -173,16 +173,8 @@ void NfcAdaptation::Initialize ()
     if ( GetStrValue ( NAME_NFA_DM_CFG, (char*)nfa_dm_cfg, sizeof ( nfa_dm_cfg ) ) )
         p_nfa_dm_cfg = ( tNFA_DM_CFG * ) ((void*)&nfa_dm_cfg[0]);
 
-    if ( GetNumValue ( NAME_NFA_MAX_EE_SUPPORTED, &num, sizeof ( num ) ) )
-    {
-        nfa_ee_max_ee_cfg = num;
-        ALOGD("%s: Overriding NFA_EE_MAX_EE_SUPPORTED to use %d", func, nfa_ee_max_ee_cfg);
-    }
-    else
-    {
-        nfa_ee_max_ee_cfg = NFA_HCI_MAX_HOST_IN_NETWORK;
-        ALOGD("%s: NFA_EE_MAX_EE_SUPPORTED default value to use %d", func, nfa_ee_max_ee_cfg);
-    }
+    nfa_ee_max_ee_cfg = NFA_EE_MAX_EE_SUPPORTED;
+    ALOGD("%s: NFA_EE_MAX_EE_SUPPORTED to use %d", func, nfa_ee_max_ee_cfg);
 
     if ( GetNumValue ( NAME_NFA_POLL_BAIL_OUT_MODE, &num, sizeof ( num ) ) )
     {
