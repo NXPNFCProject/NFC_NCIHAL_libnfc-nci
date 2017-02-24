@@ -366,9 +366,10 @@ UINT8 nfc_ncif_retransmit_data (tNFC_CONN_CB *p_cb, BT_HDR *p_data)
         p_cb->num_buff--;
 
     HAL_RE_WRITE(p_data);
-    if(p_cb->conn_id != NFC_RF_CONN_ID)
+    if(p_cb->conn_id == NFC_NFCEE_CONN_ID)
     {
         //Start waiting for credit ntf
+        nfc_cb.bIsCreditNtfRcvd = FALSE;
         nfc_start_timer (&nfc_cb.nci_wait_data_ntf_timer, (UINT16)(NFC_TTYPE_NCI_WAIT_DATA_NTF), NFC_NCI_WAIT_DATA_NTF_TOUT);
     }
     return NCI_STATUS_OK;
