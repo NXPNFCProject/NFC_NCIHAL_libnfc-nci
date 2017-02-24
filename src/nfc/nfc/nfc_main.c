@@ -1032,7 +1032,7 @@ tNFC_STATUS NFC_DiscoveryMap (UINT8 num, tNFC_DISCOVER_MAPS *p_maps,
 #if(NXP_NFCC_FW_WA == TRUE)
                 if ((nfc_cb.vs_interface[yy] == p_maps[xx].intf_type) || (NCI_INTERFACE_ESE_DIRECT == p_maps[xx].intf_type))
 #else
-                if ((nfc_cb.vs_interface[yy] == p_maps[xx].intf_type))
+                if (nfc_cb.vs_interface[yy] == p_maps[xx].intf_type)
 #endif
                     is_supported    = TRUE;
             }

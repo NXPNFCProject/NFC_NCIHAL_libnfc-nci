@@ -273,7 +273,7 @@ void phNxpLog_InitializeLogLevel(void)
  ******************************************************************************/
 NFCSTATUS phNxpLog_EnableDisableLogLevel(uint8_t enable)
 {
-    static nci_log_level_t prevTraceLevel = {0,};
+    static nci_log_level_t prevTraceLevel = {0, 0, 0, 0, 0, 0, 0};
     static uint8_t currState = 0x01;
     NFCSTATUS status = NFCSTATUS_FAILED;
     if(0x01 == enable && currState != 0x01)
