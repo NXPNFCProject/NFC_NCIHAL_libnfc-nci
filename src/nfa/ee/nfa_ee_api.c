@@ -614,7 +614,7 @@ tNFA_STATUS NFA_AddEePowerState(tNFA_HANDLE          ee_handle,
     p_cb = nfa_ee_find_ecb (nfcee_id);
 
     /* validate parameters */
-    if ((p_cb == NULL))
+    if (p_cb == NULL)
     {
         status = NFA_STATUS_INVALID_PARAM;
         return status;

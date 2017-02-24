@@ -370,7 +370,7 @@ static NFCSTATUS phNxpNciHal_CheckValidFwVersion(void)
 
     NXPLOG_NCIHAL_D("%s current_major_no = 0x%x", __FUNCTION__,ufw_current_major_no );
 
-    if(( ufw_current_major_no == FW_MOBILE_MAJOR_NUMBER))
+    if( ufw_current_major_no == FW_MOBILE_MAJOR_NUMBER)
     {
         status = NFCSTATUS_SUCCESS;
     }
@@ -1272,7 +1272,7 @@ int phNxpNciHal_core_initialized(uint8_t* p_core_init_rsp_params)
     long retlen = 0;
     int isfound;
     //EEPROM access variables
-    phNxpNci_EEPROM_info_t mEEPROM_info = {0};
+    phNxpNci_EEPROM_info_t mEEPROM_info = {.request_mode = 0};
     uint8_t fw_dwnld_flag = FALSE, setConfigAlways = FALSE;
 
     /* Temp fix to re-apply the proper clock setting */
@@ -1443,7 +1443,7 @@ retry_core_init:
             NXPLOG_NCIHAL_D("Timeout value - 1");
             if(GetNxpByteArrayValue(NAME_NXP_WIREDMODE_RESUME_TIMEOUT, (char *)buffer, bufflen, &retlen))
             {
-                NXPLOG_NCIHAL_D("Time out value %x %x %x %x retlen=%d", buffer[0], buffer[1], buffer[2], buffer[3],retlen);
+                NXPLOG_NCIHAL_D("Time out value %x %x %x %x retlen=%ld", buffer[0], buffer[1], buffer[2], buffer[3],retlen);
                 if(retlen>= NXP_WIREDMODE_RESUME_TIMEOUT_LEN)
                 {
                     memcpy(&resume_timeout_buf, buffer, NXP_STAG_TIMEOUT_BUF_LEN);
@@ -1856,7 +1856,7 @@ retry_core_init:
         if(status == NFCSTATUS_OK)
             swp_info_buff[1] = swp1A_intf_status;
 #endif
-        phNxpNci_EEPROM_info_t mEEPROM_info = {0};
+        phNxpNci_EEPROM_info_t mEEPROM_info = {.request_mode = 0};
         mEEPROM_info.buffer = swp_info_buff;
         mEEPROM_info.bufflen= sizeof(swp_info_buff);
         mEEPROM_info.request_type = EEPROM_RF_CFG;
@@ -1930,7 +1930,7 @@ retry_core_init:
         if(GetNxpNumValue(NAME_NXP_SWP_SWITCH_TIMEOUT, (void *)&num, sizeof(num)))
         {
             //Check the permissible range [0 - 60]
-            if(0 <= num && num <= 60)
+            if(num <= 60)
             {
                 if( 0 < num)
                 {
@@ -2334,7 +2334,7 @@ static NFCSTATUS phNxpNciHal_check_eSE_Session_Identity(void)
     }
     else
     {
-        phNxpNci_EEPROM_info_t mEEPROM_info = {0};
+        phNxpNci_EEPROM_info_t mEEPROM_info = {.request_mode = 0};
         mEEPROM_info.request_mode = GET_EEPROM_DATA;
         mEEPROM_info.request_type = EEPROM_ESE_SESSION_ID;
         mEEPROM_info.buffer = session_identity;
@@ -2745,7 +2745,7 @@ int phNxpNciHal_close(void)
     if (!(GetNxpNumValue(NAME_NXP_UICC_LISTEN_TECH_MASK, &uiccListenMask, sizeof(uiccListenMask))))
     {
         uiccListenMask = 0x07;
-        NXPLOG_NCIHAL_D ("UICC_LISTEN_TECH_MASK = 0x%0X", uiccListenMask);
+        NXPLOG_NCIHAL_D ("UICC_LISTEN_TECH_MASK = 0x%0lX", uiccListenMask);
     }
 
     if(nxpncihal_ctrl.hal_boot_mode == NFC_FAST_BOOT_MODE)
@@ -3593,7 +3593,7 @@ void phNxpNciHal_enable_i2c_fragmentation()
     static uint8_t fragmentation_enable_config_cmd[] = { 0x20, 0x02, 0x05, 0x01, 0xA0, 0x05, 0x01, 0x10};
     int isfound = 0;
     unsigned long i2c_status = 0x00;
-    long config_i2c_vlaue = 0xff;
+    unsigned long config_i2c_value = 0xff;
     /*NCI_RESET_CMD*/
     static uint8_t cmd_reset_nci[] = {0x20,0x00,0x01,0x00};
     /*NCI_INIT_CMD*/
@@ -3609,15 +3609,15 @@ void phNxpNciHal_enable_i2c_fragmentation()
     {
         if(nxpncihal_ctrl.p_rx_data[8] == 0x10)
         {
-            config_i2c_vlaue = 0x01;
+            config_i2c_value = 0x01;
             phNxpNciHal_notify_i2c_fragmentation();
             phTmlNfc_set_fragmentation_enabled(I2C_FRAGMENTATION_ENABLED);
         }
         else if(nxpncihal_ctrl.p_rx_data[8] == 0x00)
         {
-            config_i2c_vlaue = 0x00;
+            config_i2c_value = 0x00;
         }
-        if( config_i2c_vlaue == i2c_status)
+        if( config_i2c_value == i2c_status)
         {
             NXPLOG_NCIHAL_E("i2c_fragmentation_status existing");
         }
@@ -3632,7 +3632,7 @@ void phNxpNciHal_enable_i2c_fragmentation()
                     NXPLOG_NCIHAL_E("NXP fragmentation enable failed");
                 }
             }
-            else if (i2c_status == 0x00 || config_i2c_vlaue == 0xff)
+            else if (i2c_status == 0x00 || config_i2c_value == 0xff)
             {
                 fragmentation_enable_config_cmd[7] = 0x00;
                 /* NXP I2C fragmentation disabled*/

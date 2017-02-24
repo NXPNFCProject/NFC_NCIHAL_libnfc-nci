@@ -36,7 +36,7 @@
 
 /* system manager control block definition */
 #if NFA_DYNAMIC_MEMORY == FALSE
-tNFA_SYS_CB nfa_sys_cb = {0, };   /* nfa_sys control block. statically initialize 'flags' field to 0 */
+tNFA_SYS_CB nfa_sys_cb = {.flags = 0 };   /* nfa_sys control block. statically initialize 'flags' field to 0 */
 #endif
 
 /*******************************************************************************

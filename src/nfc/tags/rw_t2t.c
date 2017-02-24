@@ -84,7 +84,7 @@ static void rw_t2t_proc_data (UINT8 conn_id, tNFC_DATA_CEVT *p_data)
     BOOLEAN                 b_notify    = TRUE;
     BOOLEAN                 b_release   = TRUE;
     UINT8                   *p;
-    tRW_READ_DATA           evt_data = {0, };
+    tRW_READ_DATA           evt_data = {0, NULL};
     tT2T_CMD_RSP_INFO       *p_cmd_rsp_info = (tT2T_CMD_RSP_INFO *) rw_cb.tcb.t2t.p_cmd_rsp_info;
     tRW_DETECT_NDEF_DATA    ndef_data;
 #if (BT_TRACE_VERBOSE == TRUE)
