@@ -936,6 +936,8 @@ int phNxpNciHal_write(uint16_t data_len, const uint8_t *p_data)
     NFCSTATUS status = NFCSTATUS_FAILED;
     static phLibNfc_Message_t msg;
 
+    CONCURRENCY_LOCK();
+
     /* Create local copy of cmd_data */
     memcpy(nxpncihal_ctrl.p_cmd_data, p_data, data_len);
     nxpncihal_ctrl.cmd_len = data_len;
@@ -972,10 +974,8 @@ int phNxpNciHal_write(uint16_t data_len, const uint8_t *p_data)
         goto clean_and_return;
     }
 
-    CONCURRENCY_LOCK();
     data_len = phNxpNciHal_write_unlocked(nxpncihal_ctrl.cmd_len,
             nxpncihal_ctrl.p_cmd_data);
-    CONCURRENCY_UNLOCK();
 
     if (icode_send_eof == 1)
     {
@@ -985,6 +985,7 @@ int phNxpNciHal_write(uint16_t data_len, const uint8_t *p_data)
     }
 
     clean_and_return:
+    CONCURRENCY_UNLOCK();
     /* No data written */
     return data_len;
 }
