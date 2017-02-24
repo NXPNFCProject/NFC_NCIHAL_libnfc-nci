@@ -86,15 +86,15 @@
 //DTA API for MW Version need to change according to release
 #define NXP_EN_PN547C2                  0
 #define NXP_EN_PN65T                    0
-#define NXP_EN_PN548C2                  0
-#define NXP_EN_PN66T                    0
-#define NXP_EN_PN551                    0
-#define NXP_EN_PN67T                    0
-#define NXP_EN_PN553                    1
-#define NXP_EN_PN80T                    1
+#define NXP_EN_PN548C2                  1
+#define NXP_EN_PN66T                    1
+#define NXP_EN_PN551                    1
+#define NXP_EN_PN67T                    1
+#define NXP_EN_PN553                    0
+#define NXP_EN_PN80T                    0
 #define NXP_ANDROID_VER                 (7U) /* NXP android version */
 #define NFC_NXP_MW_VERSION_MAJ          (3U) /* MW Major Version */
-#define NFC_NXP_MW_VERSION_MIN          (3U) /* MW Minor Version */
+#define NFC_NXP_MW_VERSION_MIN          (4U) /* MW Minor Version */
 #endif
 /* 0xE0 ~0xFF are proprietary status codes */
 #define NFC_STATUS_CMD_STARTED          0xE3/* Command started successfully                     */
