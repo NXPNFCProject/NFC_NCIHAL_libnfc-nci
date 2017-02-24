@@ -710,7 +710,9 @@ void nfa_hci_startup_complete (tNFA_STATUS status)
     if (status == NFA_STATUS_OK){
         nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
 #if(NXP_EXTNS == TRUE)
+        nfa_hci_handle_nfcee_config_evt(NFA_HCI_GET_NUM_NFCEE_CONFIGURED);
 #if(NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == TRUE)
+        nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
         NFA_TRACE_EVENT0 ("hci_state = NFA_HCI_STATE_IDLE");
         if((nfa_sys_cb.enable_cplt_flags == nfa_sys_cb.enable_cplt_mask)
             &&(!(nfa_sys_cb.p_enable_cback))
@@ -720,7 +722,6 @@ void nfa_hci_startup_complete (tNFA_STATUS status)
                 (*nfa_dm_cb.p_dm_cback)(NFA_DM_EE_HCI_ENABLE, NULL);
             }
 #endif
-        nfa_hci_handle_nfcee_config_evt(NFA_HCI_GET_NUM_NFCEE_CONFIGURED);
 #endif
     }
     else
