@@ -50,6 +50,7 @@ int GetNxpStrValue(const char* name, char* p_value, unsigned long len);
 int GetNxpNumValue(const char* name, void* p_value, unsigned long len);
 int GetNxpByteArrayValue(const char* name, char* pValue,long bufflen, long *len);
 void resetNxpConfig(void);
+int isNxpRFConfigModified();
 int isNxpConfigModified();
 int updateNxpConfigTimestamp();
 

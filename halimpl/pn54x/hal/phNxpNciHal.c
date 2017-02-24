@@ -1534,7 +1534,7 @@ retry_core_init:
         phNxpNciHal_check_delete_nfaStorage_DHArea();
     }
 
-    if((TRUE == fw_dwnld_flag) || (TRUE == setConfigAlways) || isNxpConfigModified())
+    if((TRUE == fw_dwnld_flag) || (TRUE == setConfigAlways) || isNxpRFConfigModified() || isNxpConfigModified())
     {
         config_access = TRUE;
         retlen = 0;
