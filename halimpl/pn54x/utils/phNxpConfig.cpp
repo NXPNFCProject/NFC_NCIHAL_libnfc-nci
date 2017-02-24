@@ -69,6 +69,7 @@ const char transport_config_path[] = "res/";
 
 const char config_timestamp_path[] = "/data/nfc/libnfc-nxpConfigState.bin";
 const char default_nxp_config_path[] = "/etc/libnfc-nxp.conf";
+const char nxp_rf_conig_path[] = "/system/vendor/libnfc-nxp_RF.conf";
 
 using namespace::std;
 
@@ -106,6 +107,7 @@ public:
     bool    getValue(const char* name, char* pValue, long len,long* readlen) const;
     const CNfcParam*    find(const char* p_name) const;
     void    readNxpTransitConfig(const char* fileName) const;
+    void    readNxpRFConfig(const char* fileName) const;
     void    clean();
 private:
     CNfcConfig();
@@ -489,6 +491,7 @@ CNfcConfig& CNfcConfig::GetInstance()
 #if(NXP_EXTNS == TRUE)
         readOptionalConfig("brcm");
         theInstance.readNxpTransitConfig("nxpTransit");
+        theInstance.readNxpRFConfig(nxp_rf_conig_path);
 #endif
     }
     return theInstance;
@@ -647,6 +650,22 @@ void CNfcConfig::readNxpTransitConfig(const char* fileName) const
     strPath += extra_config_ext;
     CNfcConfig::GetInstance().readConfig(strPath.c_str(), false);
 }
+
+/*******************************************************************************
+**
+** Function:    CNfcConfig::readNxpRFConfig()
+**
+** Description: read Config settings from RF conf file
+**
+** Returns:     none
+**
+*******************************************************************************/
+void CNfcConfig::readNxpRFConfig(const char* fileName) const
+{
+    ALOGD("readNxpRFConfig-Enter..Reading %s",fileName);
+    CNfcConfig::GetInstance().readConfig(fileName, false);
+}
+
 /*******************************************************************************
 **
 ** Function:    CNfcConfig::clean()
