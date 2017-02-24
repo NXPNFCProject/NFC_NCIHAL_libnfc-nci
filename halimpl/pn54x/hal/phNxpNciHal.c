@@ -586,6 +586,9 @@ int phNxpNciHal_MinOpen(nfc_stack_callback_t *p_cback, nfc_stack_data_callback_t
     if (nfc_dev_node == NULL)
     {
         NXPLOG_NCIHAL_E ("malloc of nfc_dev_node failed ");
+
+        CONCURRENCY_UNLOCK();
+
         return NFCSTATUS_FAILED;
     }
     else if (!GetNxpStrValue (NAME_NXP_NFC_DEV_NODE, nfc_dev_node, max_len*sizeof(uint8_t)))
