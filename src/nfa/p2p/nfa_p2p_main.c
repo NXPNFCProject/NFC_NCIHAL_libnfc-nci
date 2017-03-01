@@ -271,7 +271,7 @@ static void nfa_p2p_update_active_listen (void)
 #if(NXP_EXTNS == TRUE)
     /*For P2P mode(Default DTA mode) open Raw channel to bypass LLCP layer. For LLCP DTA mode activate LLCP
      * Bypassing LLCP is handled in nfa_dm_poll_disc_cback*/
-    if ((appl_dta_mode_flag == 1) && (nfa_dm_cb.eDtaMode == NFA_DTA_DEFAULT_MODE))
+    if ((appl_dta_mode_flag == 1) && ((nfa_dm_cb.eDtaMode & 0x0F) == NFA_DTA_DEFAULT_MODE))
     {
         /* Configure listen technologies and protocols and register callback to NFA DM discovery */
         P2P_TRACE_DEBUG0 ("DTA mode1:Registering nfa_dm_poll_disc_cback to avoid LLCP in P2P ");
@@ -397,7 +397,7 @@ void nfa_p2p_llcp_link_cback (UINT8 event, UINT8 reason)
             {
 #if(NXP_EXTNS == TRUE)
                /*For LLCP DTA test, Deactivate to Sleep is needed to send DSL_REQ*/
-               if((appl_dta_mode_flag == 1) && (nfa_dm_cb.eDtaMode == NFA_DTA_LLCP_MODE))
+               if((appl_dta_mode_flag == 1) && ((nfa_dm_cb.eDtaMode & 0x0F) == NFA_DTA_LLCP_MODE))
                {
                    nfa_dm_rf_deactivate (NFA_DEACTIVATE_TYPE_SLEEP);
                }
@@ -654,7 +654,7 @@ void nfa_p2p_enable_listening (tNFA_SYS_ID sys_id, BOOLEAN update_wks)
 #if(NXP_EXTNS == TRUE)
         /*For P2P mode(Default DTA mode) open Raw channel to bypass LLCP layer. For LLCP DTA mode activate LLCP
          * Bypassing LLCP is handled in nfa_dm_poll_disc_cback*/
-        if ((appl_dta_mode_flag == 1) && (nfa_dm_cb.eDtaMode == NFA_DTA_DEFAULT_MODE))
+        if ((appl_dta_mode_flag == 1) && ((nfa_dm_cb.eDtaMode & 0x0F) ==  NFA_DTA_DEFAULT_MODE))
         {
             /* Configure listen technologies and protocols and register callback to NFA DM discovery */
             P2P_TRACE_DEBUG0 ("DTA mode2:Registering nfa_dm_poll_disc_cback to avoid LLCP in P2P ");

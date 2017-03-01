@@ -498,7 +498,7 @@ tNFA_STATUS nfa_dm_check_set_config (UINT8 tlv_list_len, UINT8 *p_tlv_list, BOOL
 #endif
        (updated_len || app_init)
 #if(NXP_EXTNS == TRUE)
-       && (appl_dta_mode_flag == 0x00 || nfa_dm_cb.eDtaMode == NFA_DTA_HCEF_MODE))
+       && (appl_dta_mode_flag == 0x00 || (nfa_dm_cb.eDtaMode & 0x0F) ==  NFA_DTA_HCEF_MODE))
        || ((appl_dta_mode_flag) && (app_init)))
 #endif
     {
@@ -511,8 +511,9 @@ tNFA_STATUS nfa_dm_check_set_config (UINT8 tlv_list_len, UINT8 *p_tlv_list, BOOL
 #endif
         if ((nfc_status = NFC_SetConfig (updated_len, p_tlv_list)) == NFC_STATUS_OK)
         {
-            if(nfa_dm_cb.eDtaMode == NFA_DTA_HCEF_MODE){
-                nfa_dm_cb.eDtaMode = NFA_DTA_DEFAULT_MODE;
+            if((nfa_dm_cb.eDtaMode & 0x0F) ==  NFA_DTA_HCEF_MODE){
+                nfa_dm_cb.eDtaMode &= ~NFA_DTA_HCEF_MODE;
+                nfa_dm_cb.eDtaMode |= NFA_DTA_DEFAULT_MODE;
             }
             /* Keep track of whether we will need to notify NFA_DM_SET_CONFIG_EVT on NFC_SET_CONFIG_REVT */
 

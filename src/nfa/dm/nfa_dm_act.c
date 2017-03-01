@@ -1812,7 +1812,7 @@ static void nfa_dm_poll_disc_cback (tNFA_DM_RF_DISC_EVT event, tNFC_DISCOVER *p_
             {
 #if(NXP_EXTNS == TRUE)
                 /*For P2P mode(Default DTA mode) open Raw channel to bypass LLCP layer. For LLCP DTA mode activate LLCP*/
-                if ((appl_dta_mode_flag == 1) && (nfa_dm_cb.eDtaMode == NFA_DTA_DEFAULT_MODE))
+                if ((appl_dta_mode_flag == 1) && ((nfa_dm_cb.eDtaMode & 0x0F) == NFA_DTA_DEFAULT_MODE))
                 {
                     /* Open raw channel in case of p2p for DTA testing */
                     NFC_SetStaticRfCback (nfa_dm_act_data_cback);

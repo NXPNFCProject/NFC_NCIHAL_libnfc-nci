@@ -280,10 +280,12 @@ typedef void (tNFA_DM_CBACK) (UINT8 event, tNFA_DM_CBACK_DATA *p_data);
 /* NFA Enable DTA Type Mode */
 typedef enum
 {
-    NFA_DTA_DEFAULT_MODE=0,
-    NFA_DTA_LLCP_MODE,
-    NFA_DTA_SNEP_MODE,
-    NFA_DTA_HCEF_MODE
+    NFA_DTA_DEFAULT_MODE= 0x00000001,
+    NFA_DTA_LLCP_MODE   = 0x00000002,
+    NFA_DTA_SNEP_MODE   = 0x00000003,
+    NFA_DTA_HCEF_MODE   = 0x00000004,
+    NFA_DTA_CR8 = 0x00000080,
+    NFA_DTA_CR9 = 0x00000090
 }tNFA_eDtaModes;
 typedef struct
 {

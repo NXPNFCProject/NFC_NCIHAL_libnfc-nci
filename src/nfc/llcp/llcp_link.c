@@ -49,6 +49,8 @@
 #include "llcp_int.h"
 #include "llcp_defs.h"
 #include "nfc_int.h"
+#include "nfa_sys.h"
+#include "nfa_dm_int.h"
 
 
 const UINT16 llcp_link_rwt[15] =  /* RWT = (302us)*2**WT; 302us = 256*16/fc; fc = 13.56MHz */
@@ -472,9 +474,12 @@ void llcp_link_deactivate (UINT8 reason)
      * LLC. So, after IUT receiving DISC PDU from LT(remote device), IUT shall send DISC PDU to LT.
      * appl_dta_mode_flag condition is added to fulfill above requirement
      */
+
     if (  (reason == LLCP_LINK_FRAME_ERROR)
         ||(reason == LLCP_LINK_LOCAL_INITIATED)
-        || ((appl_dta_mode_flag) && (reason == LLCP_LINK_REMOTE_INITIATED) && (llcp_cb.lcb.is_initiator == FALSE)))
+        ||((appl_dta_mode_flag) && (reason == LLCP_LINK_REMOTE_INITIATED) && (llcp_cb.lcb.is_initiator == FALSE)
+        && ((nfa_dm_cb.eDtaMode & 0xF0) == NFA_DTA_CR9)))/* Patch is only for CR9. In CR8, the IUT shall acknoweledge
+                                                                 * with SYMM for DISC PDU */
     {
         /* get rid of the data pending in NFC tx queue, so DISC PDU can be sent ASAP */
         NFC_FlushData (NFC_RF_CONN_ID);
