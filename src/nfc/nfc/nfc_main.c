@@ -1061,7 +1061,9 @@ tNFC_STATUS NFC_DiscoveryMap (UINT8 num, tNFC_DISCOVER_MAPS *p_maps,
         else
         {
             NFC_TRACE_WARNING1 ("NFC_DiscoveryMap interface=0x%x is not supported by NFCC", p_maps[xx].intf_type);
+#if(NFC_NXP_CHIP_TYPE != PN547C2)
             return NFC_STATUS_FAILED;
+#endif
         }
     }
 
