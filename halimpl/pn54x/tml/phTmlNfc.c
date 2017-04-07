@@ -1019,16 +1019,16 @@ NFCSTATUS phTmlNfc_IoCtl(phTmlNfc_ControlCode_t eControlCode)
                     break;
                 }
 #if(NFC_NXP_ESE == TRUE)
-            case phTmlNfc_e_SetJcopDwnldEnable:
-                {
-                    wStatus = phTmlNfc_i2c_set_Jcop_dwnld_state(gpphTmlNfc_Context->pDevHandle, 2);
-                    break;
-                }
-            case phTmlNfc_e_SetJcopDwnldDisable:
-                {
-                    wStatus = phTmlNfc_i2c_set_Jcop_dwnld_state(gpphTmlNfc_Context->pDevHandle, 4);
-                    break;
-                }
+           case phTmlNfc_e_SetJcopDwnldEnable:
+           {
+               wStatus = phTmlNfc_i2c_set_Jcop_dwnld_state(gpphTmlNfc_Context->pDevHandle, JCP_DWNLD_START);
+               break;
+           }
+           case phTmlNfc_e_SetJcopDwnldDisable:
+           {
+                wStatus = phTmlNfc_i2c_set_Jcop_dwnld_state(gpphTmlNfc_Context->pDevHandle, JCP_DWP_DWNLD_COMPLETE);
+                break;
+           }
             case phTmlNfc_e_SetNfcServicePid:
             {
                 wStatus = phTmlNfc_set_pid(gpphTmlNfc_Context->pDevHandle, nfc_service_pid);

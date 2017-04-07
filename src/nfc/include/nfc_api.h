@@ -344,8 +344,11 @@ typedef struct
 }tNFC_NFCEE_MODE_SET_INFO;
 
 #if (NXP_ESE_JCOP_DWNLD_PROTECTION == TRUE)
+#define ESE_STATE_JCOP_DWNLD            0x8000 /* Depicts the state of Jcop download to be matched with P61_STATE_JCP_DWNLD
+                                                  under p61_access_state_t inside pn553.h(NFCC driver header) */
+
 typedef enum jcop_dwnld_state{
-    JCP_DWNLD_IDLE,                         /* jcop dwnld is not ongoing*/
+    JCP_DWNLD_IDLE = ESE_STATE_JCOP_DWNLD,  /* jcop dwnld is not ongoing*/
     JCP_DWNLD_INIT,                         /* jcop dwonload init state*/
     JCP_DWNLD_START,                        /* download started */
     JCP_SPI_DWNLD_COMPLETE,                 /* jcop download complete in spi interface*/
