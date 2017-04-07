@@ -52,7 +52,7 @@
     #define NXP_WIRED_MODE_STANDBY                FALSE
     //dual mode prio scheme
     #define NXP_ESE_DUAL_MODE_PRIO_SCHEME         NXP_ESE_WIRED_MODE_TIMEOUT
-     //Reset scheme
+    //Reset scheme
     #define NXP_ESE_RESET_METHOD                  FALSE
     #define NXP_ESE_ETSI_READER_ENABLE            TRUE
     #define NXP_ESE_SVDD_SYNC                     TRUE
@@ -103,16 +103,18 @@
     #define NXP_ESE_RESET_METHOD                  FALSE
     #define NXP_ESE_ETSI_READER_ENABLE            FALSE
     #define NXP_ESE_SVDD_SYNC                     FALSE
+    #define NXP_ESE_DWP_SPI_SYNC_ENABLE           FALSE
     #define NXP_LEGACY_APDU_GATE                  FALSE
     #define NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION   FALSE
     #define NXP_ESE_DUAL_MODE_PRIO_SCHEME         NXP_ESE_WIRED_MODE_TIMEOUT
     #define NXP_ESE_JCOP_DWNLD_PROTECTION         FALSE
     #define NXP_UICC_HANDLE_CLEAR_ALL_PIPES       FALSE
     #define NFC_NXP_ESE_ETSI12_PROP_INIT          FALSE
+    #define NFC_NXP_GP_CONTINOUS_PROCESSING       FALSE
 #elif(NFC_NXP_CHIP_TYPE == PN553)
     #define NFC_NXP_TRIPLE_MODE_PROTECTION        FALSE
     #define NXP_ESE_FELICA_CLT                    FALSE
-    #define NXP_ESE_WIRED_MODE_PRIO               FALSE    //eSE wired mode prio over UICC wired mode
+    #define NXP_ESE_WIRED_MODE_PRIO               FALSE   // eSE wired mode prio over UICC wired mode
     #define NXP_ESE_UICC_EXCLUSIVE_WIRED_MODE     FALSE   // UICC exclusive wired mode
     //reset scheme
     #define NXP_ESE_RESET_METHOD                  FALSE
@@ -124,10 +126,12 @@
     #define NXP_ESE_SVDD_SYNC                     FALSE
     #define NXP_LEGACY_APDU_GATE                  FALSE
     #define NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION   FALSE
+    #define NXP_ESE_DWP_SPI_SYNC_ENABLE           FALSE
     #define NXP_ESE_DUAL_MODE_PRIO_SCHEME         NXP_ESE_WIRED_MODE_TIMEOUT
     #define NXP_ESE_JCOP_DWNLD_PROTECTION         FALSE
     #define NXP_UICC_HANDLE_CLEAR_ALL_PIPES       FALSE
     #define NFC_NXP_ESE_ETSI12_PROP_INIT          TRUE
+    #define NFC_NXP_GP_CONTINOUS_PROCESSING       FALSE
 #endif
 
 #endif /*End of #if(NFC_NXP_ESE == TRUE)*/
