@@ -1015,6 +1015,7 @@ void nfc_ncif_event_status (tNFC_RESPONSE_EVT event, UINT8 status)
         if(status == NFC_STATUS_WIRED_SESSION_ABORTED)
         {
             nfc_cb.bIsDwpResPending = TRUE;
+            nfa_hci_cb.IsWiredSessionAborted = TRUE;
         }
         nfa_sys_stop_timer(&nfa_hci_cb.timer);
         if(p_cb && p_cb->p_cback)

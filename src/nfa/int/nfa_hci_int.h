@@ -97,7 +97,8 @@ BOOLEAN MW_RCVRY_FW_DNLD_ALLOWED;
 #define NFA_HCI_MAX_RSP_WAIT_TIME               0x0C
 #define NFA_HCI_CHAIN_PKT_RSP_TIMEOUT           30000    /* After the reception of WTX, maximum response timeout value is 30 sec */
 #define NFA_HCI_WTX_RESP_TIMEOUT                3000     /* Wait time to give response timeout to application if WTX not received*/
-#define NFA_HCI_DWP_RSP_WAIT_TIMEOUT            2000   /* time out for wired mode response after RF deativation */
+#define NFA_HCI_DWP_RSP_WAIT_TIMEOUT            2000     /* time out for wired mode response after RF deativation */
+#define NFA_HCI_DWP_SESSION_ABORT_TIMEOUT       5000     /* time out for wired session aborted(0xE6 ntf) due to SWP switched to UICC*/
 #define NFA_HCI_SESSION_ID_POLL_DELAY           50       /* delay between session ID poll to check if the reset host is initilized or not */
 #define NFA_HCI_MAX_SESSION_ID_RETRY_CNT        0x0A     /* retry count for session ID poll*/
 #define NFA_HCI_NFCEE_DISC_TIMEOUT              0x02     /* NFCEE disc timeout default value in sec*/
@@ -497,6 +498,7 @@ typedef struct
     UINT8                           host_controller_version;                 /* no of host controller version */
     UINT8                           current_nfcee;                      /* current Nfcee under execution  */
     BOOLEAN                         IsHciTimerChanged;
+    BOOLEAN                         IsWiredSessionAborted;
     UINT32                          hciResponseTimeout;
     BOOLEAN                         IsChainedPacket;
     BOOLEAN                         bIsHciResponseTimedout;

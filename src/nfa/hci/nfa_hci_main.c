@@ -280,6 +280,9 @@ void nfa_hci_init (void)
 #if (NXP_EXTNS == TRUE)
     nfa_ee_ce_p61_completed = 0;
     nfa_hci_cb.bIsHciResponseTimedout = FALSE;
+    nfa_hci_cb.IsHciTimerChanged = FALSE;
+    nfa_hci_cb.IsWiredSessionAborted = FALSE;
+    nfa_hci_cb.IsLastEvtAbortFailed = FALSE;
     read_config_timeout_param_values();
 #endif
     /* register message handler on NFA SYS */
@@ -909,6 +912,11 @@ void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data)
             nfa_sys_start_timer (&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT, NFA_HCI_DWP_RSP_WAIT_TIMEOUT);
             nfa_hci_cb.IsHciTimerChanged = FALSE;
         }
+        else if(nfa_hci_cb.IsWiredSessionAborted)
+        {
+            nfa_sys_start_timer (&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT, NFA_HCI_DWP_SESSION_ABORT_TIMEOUT);
+            nfa_hci_cb.IsWiredSessionAborted = FALSE;
+        }
         else
         {
             nfa_sys_start_timer (&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT, nfa_hci_cb.hciResponseTimeout);
@@ -1208,7 +1216,22 @@ void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data)
         GKI_freebuf (p_pkt);
         return;
     }
+#if (NXP_EXTNS == TRUE)
+    if((pipe == NFA_HCI_APDU_PIPE) && nfa_hci_cb.IsLastEvtAbortFailed)
+    {
+        if(nfa_hci_cb.inst == NFA_HCI_ABORT)
+        {
+            nfa_hci_cb.IsLastEvtAbortFailed = FALSE;
+        }
+        if(nfa_hci_cb.evt_sent.evt_type != NFA_EVT_ABORT)
+        {
+            /*Ignore the response after rsp timeout due to ese/uicc concurrency scenarios*/
+            GKI_freebuf (p_pkt);
+            return;
+        }
+    }
 
+#endif
     /* If we got a response, cancel the response timer. Also, if waiting for */
     /* a single response, we can go back to idle state                       */
     if ( (nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_RSP) &&
@@ -1488,6 +1511,10 @@ void nfa_hci_rsp_timeout (tNFA_HCI_EVENT_DATA *p_evt_data)
                     evt = 0;
                     break;
                 }
+            }
+            if(nfa_hci_cb.IsEventAbortSent)
+            {
+                nfa_hci_cb.IsLastEvtAbortFailed = TRUE;
             }
             NFC_FlushData(nfa_hci_cb.conn_id);
             nfa_hci_cb.IsEventAbortSent = FALSE;
