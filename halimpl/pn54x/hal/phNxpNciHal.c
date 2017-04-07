@@ -2331,6 +2331,7 @@ static NFCSTATUS phNxpNciHal_check_eSE_Session_Identity(void)
     const char config_eseinfo_path[] = "/data/nfc/nfaStorage.bin1";
     static uint8_t session_identity[8] = {0x00};
     uint8_t default_session[8] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
+    uint8_t swp2_intf_status = 0x00;
     long retlen = 0;
 #if (NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == TRUE)
     static uint8_t disable_swp_intf[] = {0x20, 0x02, 0x09, 0x02, 0xA0, 0xEC, 0x01, 0x00,
@@ -2338,6 +2339,23 @@ static NFCSTATUS phNxpNciHal_check_eSE_Session_Identity(void)
 #else
     static uint8_t disable_swp_intf[] = {0x20, 0x02, 0x05, 0x01, 0xA0, 0xEC, 0x01, 0x00};
 #endif
+
+    phNxpNci_EEPROM_info_t swp_intf_info;
+    uint8_t swp_info_buff[32] = {0};
+
+    memset(&swp_intf_info,0,sizeof(swp_intf_info));
+    swp_intf_info.request_mode = GET_EEPROM_DATA;
+    swp_intf_info.request_type = EEPROM_SWP2_INTF;
+    swp_intf_info.buffer = &swp2_intf_status;
+    swp_intf_info.bufflen = sizeof(uint8_t);
+    status = request_EEPROM(&swp_intf_info);
+    NXPLOG_NCIHAL_D("%s swp2_intf_status = 0x%02X", __FUNCTION__, swp2_intf_status);
+    if((status == NFCSTATUS_OK) && (swp2_intf_status == 0x00))
+    {
+        pwr_link_required = FALSE;
+        return NFCSTATUS_SUCCESS;
+    }
+
     if (stat(config_eseinfo_path, &st) == -1)
     {
         NXPLOG_NCIHAL_D("%s file not present = %s", __FUNCTION__, config_eseinfo_path);
