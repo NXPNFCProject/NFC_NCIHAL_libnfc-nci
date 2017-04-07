@@ -1832,6 +1832,8 @@ retry_core_init:
                 goto retry_core_init;
             }
         }
+
+#if(NFC_NXP_ESE_ETSI12_PROP_INIT == TRUE)
         uint8_t swp_info_buff[2];
         uint8_t swp_intf_status = 0x00;
         uint8_t swp1A_intf_status = 0x00;
@@ -1848,6 +1850,12 @@ retry_core_init:
         status = request_EEPROM(&swp_intf_info);
         if(status == NFCSTATUS_OK)
             swp_info_buff[0] = swp_intf_status;
+        else
+        {
+            NXPLOG_NCIHAL_E("request_EEPROM error occured %d", status);
+            retry_core_init_cnt++;
+            goto retry_core_init;
+        }
 #if (NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == TRUE)
         /*Read SWP1A data*/
         memset(&swp_intf_info,0,sizeof(swp_intf_info));
@@ -1858,6 +1866,12 @@ retry_core_init:
         status = request_EEPROM(&swp_intf_info);
         if(status == NFCSTATUS_OK)
             swp_info_buff[1] = swp1A_intf_status;
+        else
+        {
+            NXPLOG_NCIHAL_E("request_EEPROM error occured %d", status);
+            retry_core_init_cnt++;
+            goto retry_core_init;
+        }
 #endif
         phNxpNci_EEPROM_info_t mEEPROM_info = {.request_mode = 0};
         mEEPROM_info.buffer = swp_info_buff;
@@ -1866,6 +1880,7 @@ retry_core_init:
         mEEPROM_info.request_mode = SET_EEPROM_DATA;
         status = request_EEPROM(&mEEPROM_info);
         NXPLOG_NCIHAL_D ("Setting value %d %d",swp_info_buff[1],swp_info_buff[0]);
+#endif //END_OF_NFC_NXP_ESE_ETSI12_PROP_INIT
 
         NXPLOG_NCIHAL_D ("Performing NAME_NXP_CORE_CONF Settings");
         retlen = 0;
