@@ -401,7 +401,9 @@ UINT8 nfc_ncif_send_data (tNFC_CONN_CB *p_cb, BT_HDR *p_data)
     if(core_reset_init_num_buff == TRUE)
     {
         NFC_TRACE_ERROR0("Reinitializing the num_buff");
-        p_cb->num_buff++;
+
+        if(!p_cb->num_buff)
+            p_cb->num_buff++;
         core_reset_init_num_buff = FALSE;
     }
 #endif
@@ -2755,6 +2757,10 @@ void nfc_ncif_proc_data (BT_HDR *p_msg)
 void nfc_ncif_credit_ntf_timeout()
 {
     NFC_TRACE_DEBUG0 ("nfc_ncif_credit_ntf_timeout : Enter");
+
+#if(NXP_EXTNS == TRUE)
+    tNFC_CONN_CB *p_cb;
+#endif
     if( get_i2c_fragmentation_enabled () == I2C_FRAGMENATATION_ENABLED)
     {
         nfc_cb.i2c_data_t.data_ntf_timeout = 1;
@@ -2767,6 +2773,18 @@ void nfc_ncif_credit_ntf_timeout()
 
         //send timeout event to upper layer
         nfa_hci_rsp_timeout (NULL);
+
+        //will be used to reset credit buffer after recovery
+        core_reset_init_num_buff = TRUE;
+#if(NXP_EXTNS == TRUE)
+        p_cb = nfc_find_conn_cb_by_conn_id(NFC_NFCEE_CONN_ID);
+        if(p_cb && (p_cb->num_buff != NFC_CONN_NO_FC) && (p_cb->num_buff == 0))
+            p_cb->num_buff++;
+
+        p_cb = nfc_find_conn_cb_by_conn_id(NFC_RF_CONN_ID);
+        if(p_cb && (p_cb->num_buff != NFC_CONN_NO_FC) && (p_cb->num_buff == 0))
+            p_cb->num_buff++;
+#endif
     }
 
     if( get_i2c_fragmentation_enabled () == I2C_FRAGMENATATION_ENABLED)
