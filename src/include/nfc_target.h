@@ -734,6 +734,10 @@
 #ifndef HAL_WRITE
 #define HAL_WRITE(p)    {nfc_cb.p_hal->write(p->len, (UINT8 *)(p+1) + p->offset); GKI_freebuf(p);}
 #if (NXP_EXTNS == TRUE)
+/*Mem alloc with 8 byte alignment*/
+#define size_align(sz)        ((((sz) - 1) | 7) + 1)
+#define HAL_MALLOC(size)      malloc(size_align((size)))
+
 #define HAL_RE_WRITE(p)    {nfc_cb.p_hal->write(p->len, (UINT8 *)(p+1) + p->offset);}
 #endif
 

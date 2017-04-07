@@ -368,7 +368,7 @@ int phTmlNfc_i2c_reset(void *pDevHandle, long level)
 *******************************************************************************/
 NFCSTATUS phTmlNfc_i2c_set_Jcop_dwnld_state(void *pDevHandle, long level)
 {
-    int ret = -1;
+    UINT32 ret = -1;
     NFCSTATUS wStatus = NFCSTATUS_SUCCESS;
 
     NXPLOG_TML_D("phTmlNfc_i2c_set_Jcop_dwnld_state(), level %ld", level);
@@ -415,7 +415,8 @@ NFCSTATUS phTmlNfc_i2c_set_Jcop_dwnld_state(void *pDevHandle, long level)
 *******************************************************************************/
 NFCSTATUS phTmlNfc_set_pid(void *pDevHandle, long pid)
 {
-    int ret;
+    NFCSTATUS wStatus = NFCSTATUS_FAILED;
+    UINT32 ret = -1;
     NXPLOG_TML_D("phTmlNfc_set_pid(), pid  %ld", pid);
 
     if (NULL == pDevHandle)
@@ -423,8 +424,11 @@ NFCSTATUS phTmlNfc_set_pid(void *pDevHandle, long pid)
         return NFCSTATUS_FAILED;
     }
 
-    ret = ioctl((intptr_t)pDevHandle, P544_SET_NFC_SERVICE_PID, pid);
-    return ret;
+    ret = (UINT32)ioctl((intptr_t)pDevHandle, P544_SET_NFC_SERVICE_PID, pid);
+    if(!ret)
+        wStatus = NFCSTATUS_SUCCESS;
+
+    return wStatus;
 }
 
 /*******************************************************************************

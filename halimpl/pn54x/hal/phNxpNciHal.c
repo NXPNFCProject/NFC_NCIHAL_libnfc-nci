@@ -582,7 +582,7 @@ int phNxpNciHal_MinOpen(nfc_stack_callback_t *p_cback, nfc_stack_data_callback_t
 
     /*Get the device node name from config file*/
     /* Read the nfc device node name */
-    nfc_dev_node = (char*) malloc (max_len * sizeof (char));
+    nfc_dev_node = (char*) nxp_malloc (max_len * sizeof (char));
     if (nfc_dev_node == NULL)
     {
         NXPLOG_NCIHAL_E ("malloc of nfc_dev_node failed ");
@@ -753,7 +753,7 @@ int phNxpNciHal_open(nfc_stack_callback_t *p_cback, nfc_stack_data_callback_t *p
     Initialising pointer variable
     */
     mGetCfg_info = NULL;
-    mGetCfg_info =  malloc(sizeof(phNxpNci_getCfg_info_t));
+    mGetCfg_info =  nxp_malloc(sizeof(phNxpNci_getCfg_info_t));
     if(mGetCfg_info == NULL)
     {
         goto clean_and_return;
@@ -761,7 +761,7 @@ int phNxpNciHal_open(nfc_stack_callback_t *p_cback, nfc_stack_data_callback_t *p
     memset(mGetCfg_info,0x00,sizeof(phNxpNci_getCfg_info_t));
 
     /* Read the nfc device node name */
-    nfc_dev_node = (uint8_t*) malloc(max_len*sizeof(uint8_t));
+    nfc_dev_node = (uint8_t*) nxp_malloc(max_len*sizeof(uint8_t));
     if(nfc_dev_node == NULL)
     {
         NXPLOG_NCIHAL_E("malloc of nfc_dev_node failed ");
@@ -1362,7 +1362,7 @@ retry_core_init:
 // recovery --end
 
 
-    buffer = (uint8_t*) malloc(bufflen*sizeof(uint8_t));
+    buffer = (uint8_t*) nxp_malloc(bufflen*sizeof(uint8_t));
     if(NULL == buffer)
     {
         return NFCSTATUS_FAILED;

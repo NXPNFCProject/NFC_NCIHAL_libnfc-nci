@@ -477,7 +477,7 @@ void nfc_main_handle_hal_evt (tNFC_HAL_EVT_MSG *p_msg)
                      * */
                     if(mGetCfg_info_main == NULL)
                     {
-                        mGetCfg_info_main = (phNxpNci_getCfg_info_t*)malloc(sizeof(phNxpNci_getCfg_info_t));
+                        mGetCfg_info_main = (phNxpNci_getCfg_info_t*)HAL_MALLOC(sizeof(phNxpNci_getCfg_info_t));
                         if(mGetCfg_info_main  != NULL)
                         {
                             memset(mGetCfg_info_main,0x00,sizeof(phNxpNci_getCfg_info_t));

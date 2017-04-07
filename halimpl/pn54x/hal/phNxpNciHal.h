@@ -35,6 +35,10 @@
 #define LINK_ALWAYS_ON        02
 #undef P2P_PRIO_LOGIC_HAL_IMP
 
+/*Mem alloc with 8 byte alignment*/
+#define size_align(sz)          ((((sz) - 1) | 7) + 1)
+#define nxp_malloc(size)      malloc(size_align((size)))
+
 typedef void (phNxpNciHal_control_granted_callback_t)();
 
 /* NCI Data */

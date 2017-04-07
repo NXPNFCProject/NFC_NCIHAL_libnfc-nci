@@ -2742,7 +2742,7 @@ tNFC_STATUS rw_t2t_format_tag (void)
     else
         tms = p_ret->tms;
 
-    memset (p_t2t->tag_data, 0, T2T_READ_DATA_LEN);
+    memset (p_t2t->tag_data, 0, sizeof(p_t2t->tag_data));
 
     if (!b_blank_tag || !p_ret->b_multi_version)
     {

@@ -328,7 +328,7 @@ void phOsalNfc_Timer_Cleanup(void)
 static void phOsalNfc_DeferredCall (void *pParams)
 {
     /* Retrieve the timer id from the parameter */
-    uint32_t dwIndex;
+    UINT32 dwIndex;
     phOsalNfc_TimerHandle_t *pTimerHandle;
     if(NULL != pParams)
     {
