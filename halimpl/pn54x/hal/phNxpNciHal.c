@@ -1296,7 +1296,9 @@ int phNxpNciHal_core_initialized(uint8_t* p_core_init_rsp_params)
     {
 retry_core_init:
         config_access = FALSE;
-        mGetCfg_info->isGetcfg = FALSE;
+        if(mGetCfg_info != NULL)
+            mGetCfg_info->isGetcfg = FALSE;
+
         if(buffer != NULL)
         {
             free(buffer);
@@ -2070,18 +2072,19 @@ retry_core_init:
             NXPLOG_NCIHAL_E("Resetting FW Dnld flag FAILED");
         }
     }
-#if(NFC_NXP_ESE ==  TRUE)
-    status = phNxpNciHal_check_eSE_Session_Identity();
-    if(status != NFCSTATUS_SUCCESS)
-    {
-        NXPLOG_NCIHAL_E("Session id/ SWP intf reset Failed");
-        retry_core_init_cnt++;
-        goto retry_core_init;
-    }
-#endif
+
     config_access = FALSE;
     if(!((*p_core_init_rsp_params > 0) && (*p_core_init_rsp_params < 4)))
     {
+#if(NFC_NXP_ESE ==  TRUE)
+        status = phNxpNciHal_check_eSE_Session_Identity();
+        if(status != NFCSTATUS_SUCCESS)
+        {
+            NXPLOG_NCIHAL_E("Session id/ SWP intf reset Failed");
+            retry_core_init_cnt++;
+            goto retry_core_init;
+        }
+#endif
         status = phNxpNciHal_send_ext_cmd(sizeof(cmd_reset_nci),cmd_reset_nci);
         if(status == NFCSTATUS_SUCCESS )
         {
@@ -2116,12 +2119,13 @@ retry_core_init:
             NXPLOG_NCIHAL_E("Send nfcee_pwrcntl cmd FAILED");
         }
     }
-#endif
+
     if(pwr_link_required == TRUE)
     {
         phNxpNciHal_send_nfcee_pwr_cntl_cmd(POWER_ALWAYS_ON|LINK_ALWAYS_ON);
         pwr_link_required = FALSE;
     }
+#endif
     if((*p_core_init_rsp_params > 0) && (*p_core_init_rsp_params < 4))
     {
         static phLibNfc_Message_t msg;

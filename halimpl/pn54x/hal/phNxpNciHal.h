@@ -138,6 +138,7 @@ typedef enum {
     EEPROM_ESE_SESSION_ID,
     EEPROM_SWP1_INTF,
     EEPROM_SWP1A_INTF,
+    EEPROM_SWP2_INTF
 }phNxpNci_EEPROM_request_type_t;
 
 typedef struct phNxpNci_EEPROM_info {
