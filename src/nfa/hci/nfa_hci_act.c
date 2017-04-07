@@ -2495,7 +2495,7 @@ tNFA_STATUS nfa_hci_api_get_host_type_list ()
 *******************************************************************************/
 tNFA_STATUS nfa_hci_api_config_nfcee (UINT8 hostId)
 {
-    tNFA_STATUS         status = NFA_STATUS_FAILED;
+    tNFA_STATUS         status = NFA_STATUS_OK;
     tNFA_HCI_EVT_DATA   evt_data;
     UINT8               count=0;
     UINT8               pipeId=0;
@@ -3070,7 +3070,7 @@ static void nfa_hci_handle_Nfcee_admpipe_rsp (UINT8 *p_data, UINT8 data_len)
     UINT8               pipe        = 0;
     UINT8               count        = 0;
     tNFA_HCI_EVT_DATA   evt_data;
-    tNFA_STATUS         status = NFA_STATUS_FAILED;
+    tNFA_STATUS         status = NFA_STATUS_OK;
 #if (BT_TRACE_VERBOSE == TRUE)
     NFA_TRACE_DEBUG4 ("nfa_hci_handle_Nfcee_admpipe_rsp - LastCmdSent: %s  App: 0x%04x  Gate: 0x%02x  Pipe: 0x%02x",
                        nfa_hciu_instr_2_str(nfa_hci_cb.cmd_sent), nfa_hci_cb.app_in_use, nfa_hci_cb.local_gate_in_use, nfa_hci_cb.pipe_in_use);
@@ -3084,13 +3084,13 @@ static void nfa_hci_handle_Nfcee_admpipe_rsp (UINT8 *p_data, UINT8 data_len)
         /* Send NFA_HCI_CMD_SENT_EVT to notify failure */
         if ((nfa_hci_cb.cmd_sent == NFA_HCI_ANY_GET_PARAMETER)&& (nfa_hci_cb.param_in_use == NFA_HCI_HOST_TYPE_LIST_INDEX))
         {
-            evt_data.admin_rsp_rcvd.status = status;
+            evt_data.admin_rsp_rcvd.status = NFA_STATUS_FAILED;
             evt_data.admin_rsp_rcvd.NoHostsPresent= 0;
             nfa_hciu_send_to_all_apps (NFA_HCI_HOST_TYPE_LIST_READ_EVT, &evt_data);
         }
         else
         {
-            evt_data.config_rsp_rcvd.status = status;
+            evt_data.config_rsp_rcvd.status = NFA_STATUS_FAILED;
             nfa_hciu_send_to_all_apps (NFA_HCI_CONFIG_DONE_EVT, &evt_data);
         }
     }
@@ -3142,7 +3142,7 @@ static void nfa_hci_handle_Nfcee_admpipe_rsp (UINT8 *p_data, UINT8 data_len)
     else
     {
         nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
-        evt_data.config_rsp_rcvd.status = status;
+        evt_data.config_rsp_rcvd.status = NFA_STATUS_FAILED;
         /* Send NFA_HCI_CMD_SENT_EVT to notify failure */
         nfa_hciu_send_to_all_apps (NFA_HCI_CONFIG_DONE_EVT, &evt_data);
     }
@@ -3220,7 +3220,7 @@ static void nfa_hci_handle_Nfcee_dynpipe_rsp (UINT8 pipeId,UINT8 *p_data, UINT8 
                     else
                     {
                         nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
-                        evt_data.config_rsp_rcvd.status = status;
+                        evt_data.config_rsp_rcvd.status = NFA_STATUS_OK;
                         /* Send NFA_HCI_CMD_SENT_EVT to notify failure */
                         nfa_hciu_send_to_all_apps (NFA_HCI_CONFIG_DONE_EVT, &evt_data);
                     }
