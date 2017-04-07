@@ -3216,6 +3216,7 @@ int phNxpNciHal_ioctl(long arg, void *p_data)
         }
         break;
     case HAL_NFC_IOCTL_SET_JCP_DWNLD_DISABLE:
+        NXPLOG_NCIHAL_D("HAL_NFC_IOCTL_SET_JCP_DWNLD_DISABLE: \n");
         status = phTmlNfc_IoCtl(phTmlNfc_e_SetJcopDwnldDisable);
         if(NFCSTATUS_FAILED != status)
         {
