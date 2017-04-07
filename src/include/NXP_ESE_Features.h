@@ -77,7 +77,7 @@
     #define NXP_WIRED_MODE_STANDBY                TRUE
     #define NXP_WIRED_MODE_STANDBY_PROP           FALSE
     #define NXP_ESE_ETSI_READER_ENABLE            TRUE
-    #define NXP_ESE_SVDD_SYNC                     FALSE
+    #define NXP_ESE_SVDD_SYNC                     TRUE
     #define NXP_ESE_DWP_SPI_SYNC_ENABLE           TRUE
     #define NXP_LEGACY_APDU_GATE                  FALSE
     #define NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION   FALSE
