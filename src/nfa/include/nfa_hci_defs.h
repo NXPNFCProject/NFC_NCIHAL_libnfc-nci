@@ -129,9 +129,6 @@
 #define NFA_HCI_EVT_WTX                     0x11
 #define NFA_HCI_ABORT                       0x12
 #define NFA_EVT_ABORT                       0x11 /* ETSI12 */
-#define NFA_HCI_EVT_END_OF_APDU_SESSION     0x21
-#define NFA_HCI_EVT_STANDBY_MODE            0x31
-#define NFA_HCI_APDU_EVT_CAPDU              0x10
 #endif
 
 /* NFA HCI Connectivity gate Events */
