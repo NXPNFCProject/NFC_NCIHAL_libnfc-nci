@@ -1089,7 +1089,7 @@ void nfc_ncif_proc_rf_field_ntf (UINT8 rf_status)
 }
 #endif
 
-#if (NXP_EXTNS == TRUE)
+#if ((NXP_EXTNS == TRUE ) && (NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME))
 /*******************************************************************************
 **
 ** Function         nfc_ncif_allow_dwp_transmission

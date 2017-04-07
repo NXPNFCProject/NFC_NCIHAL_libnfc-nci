@@ -49,6 +49,7 @@
     #define NFC_NXP_TRIPLE_MODE_PROTECTION        TRUE
     #define NXP_ESE_FELICA_CLT                    FALSE
     #define NXP_WIRED_MODE_STANDBY_PROP           TRUE
+    #define NXP_WIRED_MODE_STANDBY                FALSE
     //dual mode prio scheme
     #define NXP_ESE_DUAL_MODE_PRIO_SCHEME         NXP_ESE_WIRED_MODE_TIMEOUT
      //Reset scheme
@@ -74,6 +75,7 @@
     #define NXP_ESE_P73_ISO_RST                   TRUE
     #define NXP_BLOCK_PROPRIETARY_APDU_GATE       FALSE
     #define NXP_WIRED_MODE_STANDBY                TRUE
+    #define NXP_WIRED_MODE_STANDBY_PROP           FALSE
     #define NXP_ESE_ETSI_READER_ENABLE            TRUE
     #define NXP_ESE_SVDD_SYNC                     FALSE
     #define NXP_ESE_DWP_SPI_SYNC_ENABLE           TRUE
