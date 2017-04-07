@@ -41,13 +41,9 @@
 #define NXP_UICC_CREATE_CONNECTIVITY_PIPE       TRUE
 #if(NFC_NXP_ESE == TRUE)
 #define NXP_NFCC_SPI_FW_DOWNLOAD_SYNC           TRUE
-#if((NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == TRUE) ||\
-   (NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == TRUE) ||\
-   (NXP_NFCC_DYNAMIC_DUAL_UICC == TRUE))
 #define NFA_EE_MAX_EE_SUPPORTED                 4
 #else
 #define NFA_EE_MAX_EE_SUPPORTED                 3
-#endif
 #endif
 #elif(NFC_NXP_CHIP_TYPE == PN551)
 #define NXP_NFCC_I2C_READ_WRITE_IMPROVEMENT     TRUE
@@ -63,13 +59,9 @@
 #define NXP_NFCC_FORCE_FW_DOWNLOAD              FALSE
 #define NXP_UICC_CREATE_CONNECTIVITY_PIPE       FALSE
 #if(NFC_NXP_ESE == TRUE)
-#if((NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == TRUE) ||\
-   (NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == TRUE) ||\
-   (NXP_NFCC_DYNAMIC_DUAL_UICC == TRUE))
 #define NFA_EE_MAX_EE_SUPPORTED                 3
 #else
 #define NFA_EE_MAX_EE_SUPPORTED                 2
-#endif
 #endif
 #elif(NFC_NXP_CHIP_TYPE == PN548C2)
 #define NXP_NFCC_I2C_READ_WRITE_IMPROVEMENT     TRUE
@@ -85,13 +77,9 @@
 #define NXP_NFCC_FORCE_FW_DOWNLOAD              FALSE
 #define NXP_UICC_CREATE_CONNECTIVITY_PIPE       FALSE
 #if(NFC_NXP_ESE == TRUE)
-#if((NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == TRUE) ||\
-   (NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == TRUE) ||\
-   (NXP_NFCC_DYNAMIC_DUAL_UICC == TRUE))
 #define NFA_EE_MAX_EE_SUPPORTED                 3
 #else
 #define NFA_EE_MAX_EE_SUPPORTED                 2
-#endif
 #endif
 #elif(NFC_NXP_CHIP_TYPE  == PN547C2)
 #define NXP_NFCC_I2C_READ_WRITE_IMPROVEMENT     FALSE
@@ -103,13 +91,9 @@
 #define NXP_NFCC_FORCE_FW_DOWNLOAD              FALSE
 #define NXP_UICC_CREATE_CONNECTIVITY_PIPE       FALSE
 #if(NFC_NXP_ESE == TRUE)
-#if((NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == TRUE) ||\
-   (NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == TRUE) ||\
-   (NXP_NFCC_DYNAMIC_DUAL_UICC == TRUE))
 #define NFA_EE_MAX_EE_SUPPORTED                 3
 #else
 #define NFA_EE_MAX_EE_SUPPORTED                 2
-#endif
 #endif
 #endif
 #endif                          /* end of #ifndef NXP_NFCC_FEATURES_H */
