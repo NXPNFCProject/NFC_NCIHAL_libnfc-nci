@@ -799,9 +799,10 @@ BOOLEAN nfc_ncif_process_event (BT_HDR *p_msg)
         sListenActivated = FALSE;
     }
 
-    if ((nfc_cb.nxpCbflag == TRUE)&&(mt == NCI_MT_RSP))
+    if ((nfc_cb.nxpCbflag == TRUE)&&(nfc_ncif_proc_proprietary_rsp(mt,gid,oid) == TRUE))
     {
         nci_proc_prop_nxp_rsp(p_msg);
+        nfc_cb.nxpCbflag = FALSE;
         return (free);
     }
 #endif
@@ -2874,6 +2875,102 @@ void nfc_ncif_credit_ntf_timeout()
      nfc_ncif_cmd_timeout();
     //nci_snd_core_reset(0x00);
 }
+
+/*******************************************************************************
+**
+** Function         nfc_ncif_process_proprietary_rsp
+**
+** Description      Process the response to avoid collision
+**                  while nxpCbflag is set
+**
+** Returns          TRUE if proprietary response else FALSE
+**
+*******************************************************************************/
+
+BOOLEAN nfc_ncif_proc_proprietary_rsp (UINT8 mt, UINT8 gid, UINT8 oid)
+{
+    BOOLEAN stat = FALSE;
+    NFC_TRACE_DEBUG3 ("nfc_ncif_proc_proprietary_rsp: mt=%u, gid=%u, oid=%u", mt, gid, oid);
+    switch(mt)
+    {
+    case NCI_MT_DATA:
+        switch (gid)
+        {
+        case 0x03:
+            switch (oid)
+            {
+            case 0x00:      /*Data Response*/
+                stat = FALSE;
+                break;
+
+            default:
+                stat = TRUE;
+                break;
+            }
+            break;
+
+        default:
+            stat = TRUE;
+            break;
+        }
+        break;
+
+    case NCI_MT_NTF:
+        switch (gid)
+        {
+        case NCI_GID_CORE:
+            switch (oid)
+            {
+            case 0x00:      /*CORE_RESET_NTF*/
+            case 0x06:      /*CORE_CONN_CREDITS_NTF*/
+                stat = FALSE;
+                break;
+
+            default:
+                stat = TRUE;
+                break;
+            }
+            break;
+        case NCI_GID_RF_MANAGE:
+            switch (oid)
+            {
+            case 0x06:      /*CORE_CONN_CREDITS_NTF*/
+                stat = FALSE;
+                break;
+            case 0x09:
+                stat = FALSE;/*NFA_EE_ACTION_NTF*/
+                break;
+            default:
+                stat = TRUE;
+                break;
+            }
+            break;
+        case NCI_GID_EE_MANAGE :
+             switch (oid)
+             {
+             case 0x00:
+                  stat = FALSE;
+                  break;
+             default :
+                  stat = TRUE;
+                  break;
+             }
+                break;
+        default:
+            stat = TRUE;
+            break;
+        }
+        break;
+
+    default:
+        stat = TRUE;
+        break;
+
+    }
+    NFC_TRACE_DEBUG1 ("nfc_ncif_proc_proprietary_rsp: exit status=%u", stat);
+    return stat;
+}
+
 #endif
 
 #if((NFC_NXP_ESE == TRUE) && (NXP_EXTNS == TRUE) && (NXP_ESE_ETSI_READER_ENABLE == TRUE))

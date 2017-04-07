@@ -387,9 +387,7 @@ NFC_API extern tNFC_STATUS nfc_ncif_store_FWVersion(UINT8 * p_buf);
 #if((NFC_NXP_CHIP_TYPE != PN547C2) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
 NFC_API extern tNFC_STATUS nfc_ncif_set_MaxRoutingTableSize(UINT8 * p_buf);
 #endif
-
 NFC_API extern void nfc_ncif_update_window (void);
-
 NFC_API extern void nfc_ncif_empty_cmd_queue ();
 NFC_API extern BOOLEAN nfc_ncif_proc_proprietary_rsp (UINT8 mt, UINT8 gid, UINT8 oid);
 NFC_API extern void nfc_ncif_proc_rf_wtx_ntf (UINT8 *p, UINT16 plen);
