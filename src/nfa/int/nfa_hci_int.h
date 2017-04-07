@@ -446,6 +446,7 @@ typedef struct
 #define NFA_HCI_CONN_ESE_PIPE       0x16
 #define NFA_HCI_APDU_PIPE           0x19
 #define NFA_HCI_CONN_UICC2_PIPE     0x23                /*Connectivity pipe no of UICC2*/
+#define NFA_HCI_INIT_MAX_RETRY      20
 #endif
 /* NFA HCI control block */
 typedef struct
@@ -535,6 +536,9 @@ typedef struct
         tNFA_ADMIN_GATE_INFO        admin_gate;
         tNFA_LINK_MGMT_GATE_INFO    link_mgmt_gate;
         tNFA_ID_MGMT_GATE_INFO      id_mgmt_gate;
+#if (NXP_EXTNS == TRUE)
+        UINT8                       retry_cnt;
+#endif
     } cfg;
 
 } tNFA_HCI_CB;
@@ -568,6 +572,7 @@ extern void nfa_hci_restore_default_config (UINT8 *p_session_id);
 #if (NXP_EXTNS == TRUE)
 extern void nfa_hci_release_transcieve();
 extern void nfa_hci_network_enable();
+extern tNFA_STATUS nfa_hciu_reset_session_id(tNFA_VSC_CBACK *p_cback);
 extern tNFA_STATUS nfa_hciu_send_raw_cmd(UINT8 param_len, UINT8* p_data, tNFA_VSC_CBACK   *p_cback);
 extern BOOLEAN nfa_hciu_check_nfcee_poll_done(UINT8 host_id);
 extern BOOLEAN nfa_hciu_check_nfcee_config_done(UINT8 host_id);

@@ -3202,6 +3202,7 @@ static void nfa_hci_handle_Nfcee_dynpipe_rsp (UINT8 pipeId,UINT8 *p_data, UINT8 
             }
             if((p_pipe-> dest_gate == NFA_HCI_IDENTITY_MANAGEMENT_GATE )&&(p_pipe-> local_gate == NFA_HCI_IDENTITY_MANAGEMENT_GATE))
             {
+                p_pipe->pipe_state = NFA_HCI_PIPE_OPENED;
                 nfa_hciu_send_get_param_cmd (pipeId, NFA_HCI_GATES_LIST_INDEX);
             }
             break;

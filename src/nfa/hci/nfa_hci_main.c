@@ -56,7 +56,8 @@
 
 #if (NXP_EXTNS == TRUE)
 #ifndef __CONFIG_H
-#include<config.h>
+#include <config.h>
+#include <stdlib.h>
 #endif
 #endif
 /*****************************************************************************
@@ -88,6 +89,8 @@ static void nfa_hci_set_receive_buf (UINT8 pipe);
 void nfa_hci_rsp_timeout (tNFA_HCI_EVENT_DATA *p_evt_data);
 static void nfa_hci_assemble_msg (UINT8 *p_data, UINT16 data_len, UINT8 pipe);
 static UINT8 nfa_ee_ce_p61_completed = 0x00;
+static void nfa_hci_reset_session_rsp_cb(UINT8 event, UINT16 param_len, UINT8 *p_param);
+BOOLEAN nfa_hci_is_valid_ese_cfg(void);
 static void read_config_timeout_param_values();
 #else
 static void nfa_hci_assemble_msg (UINT8 *p_data, UINT16 data_len);
@@ -1335,7 +1338,24 @@ void nfa_hci_handle_nv_read (UINT8 block, tNFA_STATUS status)
             memcpy (session_id, (UINT8 *)&os_tick, (NFA_HCI_SESSION_ID_LEN / 2));
             nfa_hci_restore_default_config (session_id);
         }
-        nfa_hci_startup ();
+#if (NXP_EXTNS == TRUE)
+        else
+        {
+            if(!nfa_hci_is_valid_ese_cfg() && (nfa_hci_cb.cfg.retry_cnt < NFA_HCI_INIT_MAX_RETRY))
+            {
+                nfa_hci_cb.cfg.retry_cnt++;
+                NFA_TRACE_DEBUG0 (" nfa_hci_handle_nv_read; reset ese session");
+                nfa_hciu_reset_session_id(nfa_hci_reset_session_rsp_cb);
+            }
+            else
+            {
+                NXP_NFC_RESET_MSB(nfa_hci_cb.cfg.retry_cnt);
+#endif
+                nfa_hci_startup ();
+#if (NXP_EXTNS == TRUE)
+            }
+        }
+#endif
     }
 }
 
@@ -1855,6 +1875,88 @@ void nfa_hci_release_transcieve()
 
         nfa_sys_stop_timer(&nfa_hci_cb.timer);
         nfa_hci_rsp_timeout(NULL);
+    }
+}
+
+/*******************************************************************************
+**
+** Function         nfa_hci_is_valid_ese_cfg
+**
+** Description      Validate ESE control block config parameters
+**
++** Returns          TRUE/FALSE
+**
+*******************************************************************************/
+BOOLEAN nfa_hci_is_valid_ese_cfg(void)
+{
+    /* Validate Gate Control block */
+    BOOLEAN isFoundidGate = TRUE;
+    BOOLEAN isFoundEtsi12 = TRUE;
+    UINT8 xx;
+    for (xx = 0; xx < NFA_HCI_MAX_PIPE_CB; xx++)
+    {
+        if(((nfa_hci_cb.cfg.dyn_pipes[xx].dest_host)== 0xC0) && ((nfa_hci_cb.cfg.dyn_pipes[xx].dest_gate)== NFA_HCI_IDENTITY_MANAGEMENT_GATE)
+                                         &&((nfa_hci_cb.cfg.dyn_pipes[xx].local_gate)== NFA_HCI_IDENTITY_MANAGEMENT_GATE))
+        {
+            NFA_TRACE_DEBUG0 ("nfa_hci_is_valid_ese_cfg()  Validate ID Management Gate Pipe Data");
+            NFA_TRACE_DEBUG1 ("nfa_hci_is_valid_ese_cfg()  Pipe id: %u", nfa_hci_cb.cfg.dyn_pipes[xx].pipe_id);
+            NFA_TRACE_DEBUG1 ("nfa_hci_is_valid_ese_cfg()  Pipe state: %u", nfa_hci_cb.cfg.dyn_pipes[xx].pipe_state);
+            if((nfa_hci_cb.cfg.dyn_pipes[xx].pipe_id)!= 0x00)
+            {
+                NFA_TRACE_DEBUG0 ("nfa_hci_is_valid_ese_cfg()  Validate ID Management Gate Pipe State");
+                if((nfa_hci_cb.cfg.dyn_pipes[xx].pipe_state) != NFA_HCI_PIPE_OPENED)
+                {
+                    isFoundidGate = FALSE;
+                }
+            }
+        }
+        if(((nfa_hci_cb.cfg.dyn_pipes[xx].dest_host)== 0xC0) && ((nfa_hci_cb.cfg.dyn_pipes[xx].dest_gate)== NFA_HCI_ETSI12_APDU_GATE)
+                                         &&((nfa_hci_cb.cfg.dyn_pipes[xx].local_gate)== NFA_HCI_ETSI12_APDU_GATE))
+        {
+            NFA_TRACE_DEBUG0 ("nfa_hci_is_valid_ese_cfg()  Validate APDU Gate Pipe Data");
+            NFA_TRACE_DEBUG1 ("nfa_hci_is_valid_ese_cfg()  Pipe id: %u", nfa_hci_cb.cfg.dyn_pipes[xx].pipe_id);
+            NFA_TRACE_DEBUG1 ("nfa_hci_is_valid_ese_cfg()  Pipe state: %u", nfa_hci_cb.cfg.dyn_pipes[xx].pipe_state);
+            if((nfa_hci_cb.cfg.dyn_pipes[xx].pipe_id)!= 0x00)
+            {
+                NFA_TRACE_DEBUG0 ("nfa_hci_is_valid_ese_cfg()  Validate APDU Gate Pipe State");
+                if((nfa_hci_cb.cfg.dyn_pipes[xx].pipe_state) != NFA_HCI_PIPE_OPENED)
+                {
+                    isFoundEtsi12 = FALSE;
+                }
+            }
+        }
+    }
+
+    if(!(isFoundidGate && isFoundEtsi12))
+    {
+        return FALSE;
+    }
+    return TRUE;
+}
+
+/*******************************************************************************
+**
+** Function         nfa_hci_reset_session_rsp_cb
+**
+** Description      Callback function for ESE session ID reset
+**
+** Returns          None
+**
+*******************************************************************************/
+static void nfa_hci_reset_session_rsp_cb(UINT8 event, UINT16 param_len, UINT8 *p_param)
+{
+    (void)event;
+    NFA_TRACE_DEBUG2("nfa_hci_reset_session_rsp_cb: Received length data = 0x%x status = 0x%x", param_len, p_param[3]);
+
+    if(p_param[3] == NFA_STATUS_OK)
+    {
+        NXP_NFC_SET_MSB(nfa_hci_cb.cfg.retry_cnt);
+        nfa_nv_co_write ((UINT8 *)&nfa_hci_cb.cfg, sizeof (nfa_hci_cb.cfg),DH_NV_BLOCK);
+        exit(0);
+    }
+    else
+    {
+        nfa_hci_startup ();
     }
 }
 #endif

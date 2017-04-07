@@ -128,6 +128,11 @@ typedef UINT8 tNFC_STATUS;
 #define ESE_HOST                        ((unsigned char)0xC0)
 #define NXP_FEATURE_ENABLED             ((unsigned char)0x01)    /* flag to indicate NXP feature is enabled*/
 #define NXP_FEATURE_DISABLED            ((unsigned char)0x00)    /* flag to indicate NXP feature is enabled*/
+#define NXP_NFC_PARAM_SWP_SESSIONID_INT2 ((unsigned char)0xEB)
+#define NXP_NFC_PARAM_SWP_SESSION_ID_LEN 8
+#define NXP_NFC_PROP_MAX_CMD_BUF_SIZE   ((unsigned char)0x40)
+#define NXP_NFC_SET_MSB(x)              (x |= 0x80)
+#define NXP_NFC_RESET_MSB(x)            (x &= 0x7F)
  /**********************************************
   * NFC Config Parameter IDs defined by NXP NFC
   **********************************************/
