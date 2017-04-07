@@ -1873,12 +1873,6 @@ retry_core_init:
             goto retry_core_init;
         }
 #endif
-        phNxpNci_EEPROM_info_t mEEPROM_info = {.request_mode = 0};
-        mEEPROM_info.buffer = swp_info_buff;
-        mEEPROM_info.bufflen= sizeof(swp_info_buff);
-        mEEPROM_info.request_type = EEPROM_RF_CFG;
-        mEEPROM_info.request_mode = SET_EEPROM_DATA;
-        status = request_EEPROM(&mEEPROM_info);
         NXPLOG_NCIHAL_D ("Setting value %d %d",swp_info_buff[1],swp_info_buff[0]);
 #endif //END_OF_NFC_NXP_ESE_ETSI12_PROP_INIT
 
