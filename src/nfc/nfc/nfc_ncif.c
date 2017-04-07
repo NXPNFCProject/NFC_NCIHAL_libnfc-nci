@@ -994,6 +994,7 @@ void nfc_ncif_event_status (tNFC_RESPONSE_EVT event, UINT8 status)
     {
         tNFC_CONN_CB *p_cb;
         nfc_cb.bBlockWiredMode = TRUE;
+        nfc_cb.bBlkPwrlinkAndModeSetCmd  = TRUE;
         p_cb = nfc_find_conn_cb_by_conn_id(nfa_hci_cb.conn_id);
         nfc_stop_timer(&nfc_cb.rf_filed_event_timeout_timer);
         if(!nfc_cb.bIsCreditNtfRcvd)
@@ -1065,6 +1066,8 @@ void nfc_ncif_proc_rf_field_ntf (UINT8 rf_status)
     {
         NFC_TRACE_DEBUG0("nfc_ncif_proc_rf_field_ntf ON_EVT");
         nfc_cb.bBlockWiredMode = TRUE;
+        nfc_cb.bBlkPwrlinkAndModeSetCmd  = TRUE;
+        nfc_stop_timer(&nfc_cb.nci_wait_setMode_Ntf_timer); /* stop mode set Ntf timer if it is allready started */
         nfc_start_timer(&nfc_cb.rf_filed_event_timeout_timer, (UINT16)(NFC_TTYPE_NCI_WAIT_RF_FIELD_NTF), NFC_NCI_RFFIELD_EVT_TIMEOUT);
     }
     else
@@ -1150,7 +1153,6 @@ void nfc_ncif_onWiredModeHold_timeout()
     NFC_TRACE_DEBUG0("nfc_ncif_onWiredModeHold_timeout");
     if (nfc_cb.bBlockWiredMode)
     {
-        nfc_cb.bBlockWiredMode = FALSE;
         nfc_ncif_resume_dwp_wired_mode();
     }
 }
@@ -1168,10 +1170,28 @@ void nfc_ncif_resume_dwp_wired_mode()
     NFC_TRACE_DEBUG0("nfc_ncif_resume_dwp_wired_mode");
     tNFC_CONN_CB *p_cb;
     p_cb = nfc_find_conn_cb_by_conn_id(nfa_hci_cb.conn_id);
-    if((nfc_cb.bSetmodeOnReq) || (!GKI_queue_is_empty(&p_cb->tx_q)))
+    nfc_cb.bBlkPwrlinkAndModeSetCmd  = FALSE;
+    nfc_cb.bIssueModeSetCmd = FALSE;
+    if(nfc_cb.pwr_link_cmd.bPwrLinkCmdRequested)
     {
+        NFC_TRACE_DEBUG0("pwr link cmd to send");
+        nci_snd_pwr_nd_lnk_ctrl_cmd(NFCEE_ID_ESE,nfc_cb.pwr_link_cmd.param);
+        nfc_cb.pwr_link_cmd.bPwrLinkCmdRequested = FALSE;
+        if(!nfc_cb.bCeActivatedeSE)
+            nfc_cb.bIssueModeSetCmd = TRUE;
+    }
+    else if(((nfc_cb.bSetmodeOnReq) || (!GKI_queue_is_empty(&p_cb->tx_q))) && (!nfc_cb.bCeActivatedeSE))
+    {
+        NFC_TRACE_DEBUG0("mode set cmd to send");
         nfc_cb.bSetmodeOnReq = TRUE;
         nci_snd_nfcee_mode_set(NFCEE_ID_ESE, NFC_MODE_ACTIVATE);
+        nfc_start_timer(&nfc_cb.nci_wait_setMode_Ntf_timer, (UINT16)NFC_TYPE_NCI_WAIT_SETMODE_NTF, NFC_NCI_SETMODE_NTF_TIMEOUT);
+    }
+    else
+    {
+        nfc_cb.bBlockWiredMode = FALSE;
+        nfc_cb.bCeActivatedeSE = FALSE;
+        nfc_ncif_allow_dwp_transmission();
     }
 }
 /*******************************************************************************
@@ -1187,22 +1207,10 @@ void nfc_ncif_resume_dwp_wired_mode()
 void nfc_ncif_modeSet_Ntf_timeout()
 {
     NFC_TRACE_DEBUG0("nfc_ncif_modeSet_Ntf_timeout");
-    tNFC_NFCEE_MODE_SET_INFO    mode_set_info;
-    tNFC_RESPONSE_CBACK   *p_cback = nfc_cb.p_resp_cback;
-    tNFC_NFCEE_INFO_REVT  nfcee_info;
-    tNFC_RESPONSE         *p_evt   = (tNFC_RESPONSE *) &nfcee_info;
-    tNFC_RESPONSE_EVT     event    = NFC_NFCEE_INFO_REVT;
-    nfc_cb.bSetmodeOnReq = FALSE;
-    p_evt = (tNFC_RESPONSE *) &mode_set_info;
-    event = NFC_NFCEE_MODE_SET_INFO;
-    mode_set_info.nfcee_id      = NFCEE_ID_ESE;
-    mode_set_info.status        = NCI_STATUS_OK;
-    if (p_cback)
+    if (nfc_cb.bBlockWiredMode)
     {
-        (*p_cback) (event, p_evt);
-    }
-    if (!nfc_cb.bBlockWiredMode)
-    {
+        nfc_cb.bBlockWiredMode = FALSE;
+        nfc_cb.bCeActivatedeSE = FALSE;
         nfc_ncif_allow_dwp_transmission();
     }
 }
@@ -1227,11 +1235,37 @@ void nfc_ncif_modeSet_rsp_timeout()
     p_evt = (tNFC_RESPONSE *) &mode_set_info;
     event = NFC_NFCEE_MODE_SET_REVT;
     mode_set_info.nfcee_id    = NFCEE_ID_ESE;
+    mode_set_info.mode        = NFC_MODE_ACTIVATE;
     mode_set_info.status        = NCI_STATUS_OK;
     if (p_cback)
     {
         (*p_cback) (event, p_evt);
     }
+}
+/*******************************************************************************
+**
+** Function         nfc_ncif_pwr_link_rsp_timeout
+**
+** Description      This function is called when pwr link cmd is ignored due to rf session ongoing and sending fake resp
+**                  to aviod infinite wait for power link Rsp
+**
+** Returns          void
+**
+*******************************************************************************/
+void nfc_ncif_pwr_link_rsp_timeout()
+{
+    NFC_TRACE_DEBUG0("nfc_ncif_pwr_link_rsp_timeout");
+    tNFC_RESPONSE_CBACK *p_cback = nfc_cb.p_resp_cback;
+    tNFC_NFCEE_EE_PWR_LNK_REVT  pwr_lnk_ctrl;
+    tNFC_NFCEE_INFO_REVT  nfcee_info;
+    tNFC_RESPONSE_EVT event = NFC_NFCEE_INFO_REVT;
+    tNFC_RESPONSE         *p_evt   = (tNFC_RESPONSE *) &nfcee_info;
+    p_evt                   = (tNFC_RESPONSE *) &pwr_lnk_ctrl;
+    pwr_lnk_ctrl.status         = NCI_STATUS_OK;
+    pwr_lnk_ctrl.nfcee_id       = NFCEE_ID_ESE;
+    event                       = NFC_NFCEE_PWR_LNK_CTRL_REVT;
+    if (p_cback)
+        (*p_cback) (event, p_evt);
 }
 #endif
 
@@ -1641,7 +1675,6 @@ void nfc_ncif_proc_activate (UINT8 *p, UINT8 len)
 #if((NXP_EXTNS == TRUE) && (NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME))
         if(nfc_cb.bBlockWiredMode)
         {
-            nfc_cb.bBlockWiredMode = FALSE;
             nfc_ncif_resume_dwp_wired_mode();
         }
 #endif
@@ -1814,9 +1847,26 @@ void nfc_ncif_proc_ee_action (UINT8 *p, UINT16 plen)
         case NCI_EE_TRIG_7816_SELECT:
             if (data_len > NFC_MAX_AID_LEN)
                 data_len = NFC_MAX_AID_LEN;
+            NFC_TRACE_DEBUG1 ("AID len = %d", data_len);
             evt_data.act_data.param.aid.len_aid = data_len;
             STREAM_TO_ARRAY (evt_data.act_data.param.aid.aid, p, data_len);
             break;
+#if ((NXP_EXTNS == TRUE) && (NXP_NFCC_PROP_ACTN_NTF == TRUE))
+        case NCI_EE_TRIG_RF_PROT_PROP_RSP_NTF:
+        case NCI_EE_TRIG_RF_TECH_PROP_RSP_NTF:
+            if (data_len > NFC_MAX_AID_LEN)
+                data_len = NFC_MAX_AID_LEN;
+            NFC_TRACE_DEBUG1 ("AID len = %d", data_len);
+            evt_data.act_data.param.aid.len_aid = data_len;
+            STREAM_TO_ARRAY (evt_data.act_data.param.aid.aid, p, data_len);
+            plen = plen - data_len;
+            if((plen != 0) && (*p++ == NCI_EE_TRIG_PROP_RSP_NTF))
+            {
+                evt_data.act_data.nfcee_act_ntf.len_data = *p++;
+                STREAM_TO_ARRAY (&evt_data.act_data.nfcee_act_ntf.data, p, evt_data.act_data.nfcee_act_ntf.len_data);
+            }
+            break;
+#endif
         case NCI_EE_TRIG_RF_PROTOCOL:
             evt_data.act_data.param.protocol    = *p++;
             break;
@@ -1855,6 +1905,13 @@ void nfc_ncif_proc_ee_action (UINT8 *p, UINT16 plen)
                 data_len -= ulen;
             }
             break;
+#if ((NFC_NXP_NOT_OPEN_INCLUDED == TRUE) && (NXP_NFCC_PROP_ACTN_NTF == TRUE))
+         case NCI_EE_TRIG_PROP_RSP_NTF:
+            NFC_TRACE_DEBUG1("NCI_EE_TRIG_PROP_APP Data len = %d", data_len);
+            evt_data.act_data.nfcee_act_ntf.len_data = data_len;
+            STREAM_TO_ARRAY (&evt_data.act_data.nfcee_act_ntf.data, p, data_len);
+            break;
+#endif
         }
 
 #if((NXP_EXTNS == TRUE) && (NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME))
@@ -1864,6 +1921,7 @@ void nfc_ncif_proc_ee_action (UINT8 *p, UINT16 plen)
         if(evt_data.nfcee_id != 0xC0)
         {
             nfc_cb.bBlockWiredMode = TRUE;
+            nfc_cb.bBlkPwrlinkAndModeSetCmd  = TRUE;
         }
         else
         {
@@ -1873,13 +1931,12 @@ void nfc_ncif_proc_ee_action (UINT8 *p, UINT16 plen)
             }
             else if(nfc_cb.bBlockWiredMode)
             {
-                nfc_cb.bBlockWiredMode = FALSE;
+                nfc_cb.bCeActivatedeSE = TRUE;
                 nfc_ncif_resume_dwp_wired_mode();
             }
         }
 #endif
-
-        (*p_cback) (NFC_EE_ACTION_REVT, (void *) &evt_data);
+        (*p_cback) (NFC_EE_ACTION_REVT, (tNFC_RESPONSE *) &evt_data);
     }
 }
 
@@ -2643,7 +2700,6 @@ void nfc_ncif_proc_data (BT_HDR *p_msg)
 #if((NXP_EXTNS == TRUE) && (NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME))
     if((p_cb) && (cid == NFC_RF_CONN_ID) && (nfc_cb.bBlockWiredMode))
     {
-        nfc_cb.bBlockWiredMode = FALSE;
         nfc_ncif_resume_dwp_wired_mode();
     }
 #endif

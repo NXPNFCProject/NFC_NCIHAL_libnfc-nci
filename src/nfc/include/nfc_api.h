@@ -231,12 +231,13 @@ typedef tNCI_DISCOVER_PARAMS tNFC_DISCOVER_PARAMS;
 #define NFC_FIRST_REVT      0x5000
 #define NFC_FIRST_CEVT      0x6000
 #define NFC_FIRST_TEVT      0x8000
-#if (NXP_EXTNS == TRUE)
+#if ((NXP_EXTNS == TRUE) && (NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME))
 void nfc_ncif_onWiredModeHold_timeout();
 void nfc_ncif_allow_dwp_transmission();
 void nfc_ncif_modeSet_Ntf_timeout();
 void nfc_ncif_modeSet_rsp_timeout();
 void nfc_ncif_resume_dwp_wired_mode();
+void nfc_ncif_pwr_link_rsp_timeout();
 #endif
 /* the events reported on tNFC_RESPONSE_CBACK */
 enum

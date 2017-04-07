@@ -914,10 +914,13 @@ void NFC_Init (tHAL_NFC_ENTRY *p_hal_entry_tbl)
     nfc_cb.temp_data = NULL;
     nfc_cb.bSetmodeOnReq = FALSE;
     nfc_cb.bIsDwpResPending = FALSE;
-
-    if(p_hal_entry_cntxt->boot_mode == NFC_NORMAL_BOOT_MODE)
-    {
+    nfc_cb.bIssueModeSetCmd = FALSE;
+    nfc_cb.bCeActivatedeSE  = FALSE;
+    nfc_cb.pwr_link_cmd.bPwrLinkCmdRequested = FALSE;
+    nfc_cb.bBlkPwrlinkAndModeSetCmd  = FALSE;
+    if(p_hal_entry_cntxt->boot_mode != NFC_FAST_BOOT_MODE)
 #endif
+    {
         rw_init ();
         ce_init ();
         llcp_init ();

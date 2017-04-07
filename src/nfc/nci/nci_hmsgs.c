@@ -351,8 +351,20 @@ UINT8  nci_snd_pwr_nd_lnk_ctrl_cmd (UINT8 nfcee_id,UINT8 cfg_value)
 {
      BT_HDR *p;
      UINT8  *pp;
+#if (NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME)
+     if(nfc_cb.bBlkPwrlinkAndModeSetCmd)
+     {
+        NFC_TRACE_DEBUG0("pwr link cmd ignored due to RF session");
+        nfc_cb.pwr_link_cmd.bPwrLinkCmdRequested = TRUE;
+        nfc_cb.pwr_link_cmd.param = cfg_value;
+        nfc_start_quick_timer (&nfc_cb.nci_wait_pwrLinkRsp_timer, NFC_TTYPE_PWR_LINK_RSP,
+                                   ((UINT32) 100) * QUICK_TIMER_TICKS_PER_SEC / 1000);
+        return (NCI_STATUS_OK);
+     }
+#endif
      if ((p = NCI_GET_CMD_BUF (NCI_PWR_LINK_PARAM_CMD_SIZE)) == NULL)
               return (NCI_STATUS_FAILED);
+
      p->event           = BT_EVT_TO_NFC_NCI;
      p->len             = NCI_MSG_HDR_SIZE + NCI_PWR_LINK_PARAM_CMD_SIZE;
      p->offset          = NCI_MSG_OFFSET_SIZE;
@@ -384,16 +396,20 @@ UINT8 nci_snd_nfcee_mode_set (UINT8 nfcee_id, UINT8 nfcee_mode)
     BT_HDR *p;
     UINT8 *pp;
 
-    if ((p = NCI_GET_CMD_BUF (NCI_CORE_PARAM_SIZE_NFCEE_MODE_SET)) == NULL)
-        return (NCI_STATUS_FAILED);
-#if(NXP_EXTNS == TRUE)
-    if((nfc_cb.bBlockWiredMode) && (NFCEE_ID_ESE == nfcee_id))
+#if (NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME)
+    if((nfc_cb.bBlkPwrlinkAndModeSetCmd) && (NFCEE_ID_ESE == nfcee_id))
     {
-        nfc_start_timer(&nfc_cb.nci_wait_setMode_Ntf_timer, (UINT16)NFC_TYPE_NCI_WAIT_SETMODE_RSP, NFC_NCI_SETMODE_NTF_TIMEOUT);
+        NFC_TRACE_DEBUG0("mode set cmd ignored due to RF session");
+        nfc_start_quick_timer (&nfc_cb.nci_wait_pwrLinkRsp_timer, NFC_TTYPE_SET_MODE_RSP,
+                                   ((UINT32) 100) * QUICK_TIMER_TICKS_PER_SEC / 1000);
         nfc_cb.bSetmodeOnReq = TRUE;
         return NCI_STATUS_OK;
     }
 #endif
+
+    if ((p = NCI_GET_CMD_BUF (NCI_CORE_PARAM_SIZE_NFCEE_MODE_SET)) == NULL)
+        return (NCI_STATUS_FAILED);
+
     p->event            = BT_EVT_TO_NFC_NCI;
     p->len              = NCI_MSG_HDR_SIZE + NCI_CORE_PARAM_SIZE_NFCEE_MODE_SET;
     p->offset           = NCI_MSG_OFFSET_SIZE;
@@ -407,10 +423,6 @@ UINT8 nci_snd_nfcee_mode_set (UINT8 nfcee_id, UINT8 nfcee_mode)
     UINT8_TO_STREAM (pp, nfcee_mode);
 
     nfc_ncif_send_cmd (p);
-#if(NXP_EXTNS == TRUE)
-    if(NFCEE_ID_ESE == nfcee_id)
-        nfc_start_timer(&nfc_cb.nci_wait_setMode_Ntf_timer, (UINT16)NFC_TYPE_NCI_WAIT_SETMODE_NTF, NFC_NCI_SETMODE_NTF_TIMEOUT);
-#endif
     return (NCI_STATUS_OK);
 }
 #endif

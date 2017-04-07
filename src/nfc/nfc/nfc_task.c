@@ -161,11 +161,13 @@ void nfc_process_timer_evt (void)
             nfc_ncif_credit_ntf_timeout();
             break;
         }
+#if(NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME)
         case NFC_TYPE_NCI_WAIT_SETMODE_NTF:
         {
             nfc_ncif_modeSet_Ntf_timeout();
             break;
         }
+#endif
         case NFC_TYPE_NCI_WAIT_SETMODE_RSP:
         {
             nfc_ncif_modeSet_rsp_timeout();
@@ -345,6 +347,14 @@ void nfc_process_quick_timer_evt (void)
 #if (NFC_RW_ONLY == FALSE)
         case NFC_TTYPE_CE_T4T_UPDATE:
             ce_t4t_process_timeout (p_tle);
+            break;
+#endif
+#if ((NFC_NXP_NOT_OPEN_INCLUDED == TRUE) && (NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME))
+        case NFC_TTYPE_PWR_LINK_RSP:
+            nfc_ncif_pwr_link_rsp_timeout();
+            break;
+        case NFC_TTYPE_SET_MODE_RSP:
+            nfc_ncif_modeSet_rsp_timeout();
             break;
 #endif
         default:

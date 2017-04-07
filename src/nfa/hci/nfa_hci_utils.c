@@ -360,6 +360,24 @@ tNFA_STATUS nfa_hciu_send_msg (UINT8 pipe_id, UINT8 type, UINT8 instruction, UIN
     {
         nfa_hci_cb.hci_packet_len = msg_len;
         nfa_hci_cb.IsEventAbortSent = FALSE;
+        if(instruction == NFA_EVT_ABORT)
+        {
+            NFA_TRACE_DEBUG0 ("Flush the queue!!!");
+            NFC_FlushData(nfa_hci_cb.conn_id);
+        }
+        else if(nfa_hci_cb.IsLastEvtAbortFailed)
+        {
+            /* send EVT_ABORT command */
+            if((p_buf = (BT_HDR *) GKI_getpoolbuf (NFC_RW_POOL_ID)) != NULL)
+            {
+                p_buf->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
+                p_data = (UINT8 *) (p_buf + 1) + p_buf->offset;
+                *p_data++ = (NFA_HCI_NO_MESSAGE_FRAGMENTATION << 7) | (nfa_hci_cb.pipe_in_use & 0x7F);
+                *p_data++ =  (NFA_HCI_EVENT_TYPE << 6) | NFA_EVT_ABORT;
+                p_buf->len = 2;
+                NFC_SendData(nfa_hci_cb.conn_id, p_buf);
+            }
+        }
     }
 #endif
 

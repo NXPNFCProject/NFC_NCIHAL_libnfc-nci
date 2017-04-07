@@ -375,6 +375,20 @@ void nci_proc_ee_management_rsp (BT_HDR *p_msg)
         pwr_lnk_ctrl.nfcee_id       = 0;
         event                       = NFC_NFCEE_PWR_LNK_CTRL_REVT;
         pwr_lnk_ctrl.nfcee_id       = *p_old++;
+#if (NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME)
+        if(nfc_cb.bIssueModeSetCmd)
+        {
+            NFC_TRACE_DEBUG0("mode set cmd send after pwrlink cmd");
+            nfc_cb.bSetmodeOnReq = TRUE;
+            nci_snd_nfcee_mode_set(NFCEE_ID_ESE, NFC_MODE_ACTIVATE);
+            nfc_start_timer(&nfc_cb.nci_wait_setMode_Ntf_timer, (UINT16)NFC_TYPE_NCI_WAIT_SETMODE_NTF, NFC_NCI_SETMODE_NTF_TIMEOUT);
+            nfc_cb.bIssueModeSetCmd = FALSE;
+        }
+        else
+        {
+            nfc_cb.bIssueModeSetCmd = FALSE;
+        }
+#endif
         break;
 #endif
     default:
@@ -481,11 +495,15 @@ void nci_proc_ee_management_ntf (BT_HDR *p_msg)
         ee_status                   = *pp++;
         mode_set_info.nfcee_id    = *pp++;
         mode_set_info.status        = ee_status;
-        if((!nfc_cb.bBlockWiredMode) && (nfc_cb.bSetmodeOnReq))
+#if(NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME)
+        if((nfc_cb.bBlockWiredMode) && (nfc_cb.bSetmodeOnReq))
         {
             nfc_cb.bSetmodeOnReq = FALSE;
+            nfc_cb.bBlockWiredMode = FALSE;
+            nfc_cb.bCeActivatedeSE = FALSE;
             nfc_ncif_allow_dwp_transmission();
         }
+#endif
     }
 #endif
     else

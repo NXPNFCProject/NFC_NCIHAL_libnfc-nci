@@ -501,6 +501,7 @@ typedef struct
     BOOLEAN                         bIsHciResponseTimedout;
     UINT16                          hci_packet_len;
     BOOLEAN                         IsEventAbortSent;
+    BOOLEAN                         IsLastEvtAbortFailed;
     tNFA_HCI_EVENT_SENT             evt_sent;
     struct
     {
