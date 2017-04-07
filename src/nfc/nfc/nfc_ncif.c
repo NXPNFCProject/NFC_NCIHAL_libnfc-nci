@@ -1924,6 +1924,15 @@ void nfc_ncif_proc_ee_action (UINT8 *p, UINT16 plen)
         {
             nfc_cb.bBlockWiredMode = TRUE;
             nfc_cb.bBlkPwrlinkAndModeSetCmd  = TRUE;
+            if(!nfc_cb.bIsDwpResPending && nfa_hci_cb.assembling)
+            {
+                /*To faster xceive timeout when UICC-CE is activated during chained rsp rx*/
+                NFC_TRACE_DEBUG0("restarted hci timer during chained response");
+                nfa_hci_cb.IsWiredSessionAborted = TRUE;
+                nfa_sys_stop_timer(&nfa_hci_cb.timer);
+                if(p_cb && p_cb->p_cback)
+                    (*p_cb->p_cback)(nfa_hci_cb.conn_id, NFC_HCI_RESTART_TIMER, (tNFC_CONN*)&evt_data);
+            }
         }
         else
         {
