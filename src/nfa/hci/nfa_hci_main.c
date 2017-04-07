@@ -461,7 +461,7 @@ BOOLEAN nfa_hci_is_valid_cfg (void)
         }
     }
 #if(NXP_EXTNS == TRUE)
-    if (validated_gate_count != gate_count && xx < NFA_HCI_MAX_PIPE_CB)
+    if (validated_gate_count != gate_count && xx > NFA_HCI_MAX_PIPE_CB)
     {
         NFA_TRACE_EVENT1 ("nfa_hci_is_valid_cfg  Invalid Gate: %u", nfa_hci_cb.cfg.dyn_pipes[xx].local_gate);
         return FALSE;
@@ -657,6 +657,7 @@ void nfa_hci_dh_startup_complete (void)
 #if(NXP_EXTNS == TRUE)
         if (send_host_list)
 #endif
+            /* Received EE DISC REQ Ntf(s) */
             nfa_hciu_send_get_param_cmd (NFA_HCI_ADMIN_PIPE, NFA_HCI_HOST_LIST_INDEX);
     }
 }
@@ -1233,14 +1234,12 @@ void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data)
         }
         else
         {
-            if(!((pipe == NFA_HCI_CONN_UICC_PIPE ||
-                  pipe == NFA_HCI_CONN_ESE_PIPE
+            if(!((pipe == NFA_HCI_CONN_UICC_PIPE || pipe == NFA_HCI_CONN_ESE_PIPE
 #if(NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == TRUE)
                   || pipe == NFA_HCI_CONN_UICC2_PIPE
 #endif
-                  ) &&
-                  (nfa_hci_cb.inst_evt == NFA_HCI_EVT_TRANSACTION ||
-                  nfa_hci_cb.inst_evt == NFA_HCI_EVT_CONNECTIVITY)))
+                 ) && (nfa_hci_cb.inst_evt == NFA_HCI_EVT_TRANSACTION ||
+                      nfa_hci_cb.inst_evt == NFA_HCI_EVT_CONNECTIVITY)))
             {
                 /*Stop timer and goto IDLE state when pipe is not connectivity but event received is connectivity*/
                 nfa_sys_stop_timer (&nfa_hci_cb.timer);

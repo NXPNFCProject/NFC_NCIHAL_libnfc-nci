@@ -459,8 +459,12 @@ UINT8 nfc_ncif_send_data (tNFC_CONN_CB *p_cb, BT_HDR *p_data)
     /* try to send the first data packet in the tx queue  */
     p_data = (BT_HDR *)GKI_getfirst (&p_cb->tx_q);
 
-    /* post data fragment to NCIT task as credits are available */
-    while (p_data && (p_data->len >= 0) && (p_cb->num_buff > 0))
+#if(NXP_EXTNS == TRUE)
+     /* post data fragment to NCIT task as credits are available */
+     while (p_data && (p_cb->num_buff > 0))
+#else
+     while (p_data && (p_data->len >= 0) && (p_cb->num_buff > 0))
+#endif
     {
         if (p_data->len <= buffer_size)
         {

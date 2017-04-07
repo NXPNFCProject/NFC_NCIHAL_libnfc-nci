@@ -2526,6 +2526,7 @@ tNFA_STATUS nfa_hci_api_config_nfcee (UINT8 hostId)
             }
             else
             {
+                status = NFA_STATUS_OK;
                 NFA_TRACE_DEBUG0 ("nfa_hci_api_config_nfcee - APDU Gate is present and pipe is already created!!!");
             }
     }
@@ -3178,7 +3179,7 @@ static void nfa_hci_handle_Nfcee_dynpipe_rsp (UINT8 pipeId,UINT8 *p_data, UINT8 
             return;
         }
     }
-    if (pipeId == 0x00)
+    if (pipeId == NULL)
     {
         /* Invalid pipe ID */
         NFA_TRACE_ERROR1 ("nfa_hci_handle_Nfcee_dynpipe_rsp - Unknown pipe %d",pipeId);

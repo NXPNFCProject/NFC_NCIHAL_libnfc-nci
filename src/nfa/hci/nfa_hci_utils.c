@@ -292,11 +292,14 @@ tNFA_HCI_DYN_GATE *nfa_hciu_alloc_gate (UINT8 gate_id, tNFA_HANDLE app_handle)
             if (nfa_hciu_find_gate_by_gid (gate_id) == NULL)
                 break;
         }
+#if(NXP_EXTNS == TRUE)
+#else
         if (gate_id > NFA_HCI_LAST_PROP_GATE)
         {
             NFA_TRACE_ERROR2 ("nfa_hci_alloc_gate - no free Gate ID: %u  App Handle: 0x%04x", gate_id, app_handle);
             return (NULL);
         }
+#endif
     }
 
     /* Now look for a free control block */

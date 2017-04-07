@@ -430,7 +430,7 @@ static void nfa_dm_nfc_response_cback (tNFC_RESPONSE_EVT event, tNFC_RESPONSE *p
 
     case NFC_GEN_ERROR_REVT:                     /* generic error command or notification */
 #if(NXP_EXTNS == TRUE)
-        if (p_data->status == 0xE4) //STATUS_EMVCO_PCD_COLLISION
+        if (p_data->status == NXP_NFC_EMVCO_PCD_COLLISION_DETECTED) //STATUS_EMVCO_PCD_COLLISION
         {
             dm_cback_data.status = p_data->status;
             (*nfa_dm_cb.p_dm_cback) (NFA_DM_EMVCO_PCD_COLLISION_EVT, &dm_cback_data);
@@ -485,8 +485,10 @@ static void nfa_dm_nfc_response_cback (tNFC_RESPONSE_EVT event, tNFC_RESPONSE *p
         {
             dm_cback_data.status = p_data->status;
         }
-#endif
+        dm_cback_evt = NFA_DM_NFCC_TRANSPORT_ERR_EVT;
+#else
         dm_cback_evt = (event == NFC_NFCC_TIMEOUT_REVT) ? NFA_DM_NFCC_TIMEOUT_EVT : NFA_DM_NFCC_TRANSPORT_ERR_EVT;
+#endif
         (*nfa_dm_cb.p_dm_cback) (dm_cback_evt, NULL);
         break;
 

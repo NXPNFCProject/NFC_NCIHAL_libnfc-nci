@@ -2421,7 +2421,7 @@ void rw_t3t_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data)
         else if(p_data)
             rw_t3t_process_error (p_data->status);
 #if(NXP_EXTNS == TRUE)
-        if(p_data != NULL)
+        if((p_data != NULL) && (p_data->data.p_data != NULL))
         {
             RW_TRACE_DEBUG0 ("rw_t3t_conn_cback: free GKI buffer");
             GKI_freebuf ((BT_HDR *)(p_data->data.p_data));

@@ -132,13 +132,14 @@ typedef UINT8 tNFC_STATUS;
   * NFC Config Parameter IDs defined by NXP NFC
   **********************************************/
 #define NXP_NFC_SET_CONFIG_PARAM_EXT        ((unsigned char)0xA0)   /* NXP NFC set config extension ID*/
-#define NXP_NFC_PARAM_ID_SWP1               ((unsigned char)0xEC)   /*SWP1 parameter ID  UICC*/
-#define NXP_NFC_PARAM_ID_SWP2               ((unsigned char)0xED)   /*SWP1 parameter ID  ESE */
-#define NXP_NFC_PARAM_ID_SWP1A              ((unsigned char)0xD4)   /*SWP1 parameter ID  UICC2 */
-#define NXP_NFC_PARAM_ID_NDEF_NFCEE         ((unsigned char)0x95)   /*SWP1 parameter ID  NDEF NFCEE */
+#define NXP_NFC_PARAM_ID_SWP1               ((unsigned char)0xEC)   /* SWP1 parameter ID  UICC*/
+#define NXP_NFC_PARAM_ID_SWP2               ((unsigned char)0xED)   /* SWP1 parameter ID  ESE */
+#define NXP_NFC_PARAM_ID_SWP1A              ((unsigned char)0xD4)   /* SWP1 parameter ID  UICC2 */
+#define NXP_NFC_PARAM_ID_NDEF_NFCEE         ((unsigned char)0x95)   /* SWP1 parameter ID  NDEF NFCEE */
 #define NXP_NFC_PARAM_ID_RF_PARAM_UICC      ((unsigned char)0xEF)   /* UICC CE RF parameter  */
 #define NXP_NFC_PARAM_ID_RF_PARAM_ESE       ((unsigned char)0xF0)   /* ESE RF parameter   */
 #define NXP_NFC_PARAM_ID_NFCC_RF_CONFIG     ((unsigned char)0x9B)   /* NFCC RF config parameter*/
+#define NXP_NFC_EMVCO_PCD_COLLISION_DETECTED ((unsigned char)0xE4)  /* Core generic error for EMVCO collision detected */
 #define NXP_NFC_PARAM_ID_RF_PARAM_UICC2     ((unsigned char)0xE8)   /* UICC2 CE RF parameter  */
 #define NXP_NFC_PARAM_SWP_SESSIONID_INT2    ((unsigned char)0xEB)   /* param for retrieveing HCI session ID for ESE */
 #define NXP_NFC_PARAM_SWP_SESSIONID_INT1    ((unsigned char)0xEA)   /* param for retrieveing HCI session ID for UICC */
