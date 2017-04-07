@@ -167,11 +167,6 @@ void nfc_process_timer_evt (void)
             nfc_ncif_modeSet_Ntf_timeout();
             break;
         }
-        case NFC_TYPE_NCI_WAIT_SETMODE_RSP:
-        {
-            nfc_ncif_modeSet_rsp_timeout();
-            break;
-        }
         case NFC_TTYPE_NCI_WAIT_RF_FIELD_NTF:
         {
             nfc_ncif_onWiredModeHold_timeout();
