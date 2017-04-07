@@ -1905,7 +1905,7 @@ void nfc_ncif_proc_ee_action (UINT8 *p, UINT16 plen)
                 data_len -= ulen;
             }
             break;
-#if ((NFC_NXP_NOT_OPEN_INCLUDED == TRUE) && (NXP_NFCC_PROP_ACTN_NTF == TRUE))
+#if ((NXP_EXTNS == TRUE) && (NXP_NFCC_PROP_ACTN_NTF == TRUE))
          case NCI_EE_TRIG_PROP_RSP_NTF:
             NFC_TRACE_DEBUG1("NCI_EE_TRIG_PROP_APP Data len = %d", data_len);
             evt_data.act_data.nfcee_act_ntf.len_data = data_len;

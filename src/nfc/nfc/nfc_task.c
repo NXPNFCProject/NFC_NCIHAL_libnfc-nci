@@ -349,7 +349,7 @@ void nfc_process_quick_timer_evt (void)
             ce_t4t_process_timeout (p_tle);
             break;
 #endif
-#if ((NFC_NXP_NOT_OPEN_INCLUDED == TRUE) && (NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME))
+#if ((NXP_EXTNS == TRUE) && (NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME))
         case NFC_TTYPE_PWR_LINK_RSP:
             nfc_ncif_pwr_link_rsp_timeout();
             break;
