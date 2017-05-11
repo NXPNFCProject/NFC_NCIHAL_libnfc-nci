@@ -469,17 +469,18 @@ void llcp_link_deactivate (UINT8 reason)
 
     llcp_cb.overall_tx_congested = FALSE;
     llcp_cb.overall_rx_congested = FALSE;
+
     /* As per the LLCP test specification v1.2.00 for test case TC_LLC_TAR_BV_04
      * the receiving LLC shall commence sending an LLC PDU to the remote
      * LLC. So, after IUT receiving DISC PDU from LT(remote device), IUT shall send DISC PDU to LT.
-     * appl_dta_mode_flag condition is added to fulfill above requirement
+     * appl_dta_mode_flag condition is added to fulfill above requirement.
+     * Only in CR8, the IUT shall acknoweledge with SYMM for DISC PDU.
+     * For other CRx, send DISC PDU.
      */
-
     if (  (reason == LLCP_LINK_FRAME_ERROR)
         ||(reason == LLCP_LINK_LOCAL_INITIATED)
         ||((appl_dta_mode_flag) && (reason == LLCP_LINK_REMOTE_INITIATED) && (llcp_cb.lcb.is_initiator == FALSE)
-        && ((nfa_dm_cb.eDtaMode & 0xF0) == NFA_DTA_CR9)))/* Patch is only for CR9. In CR8, the IUT shall acknoweledge
-                                                                 * with SYMM for DISC PDU */
+        && ((nfa_dm_cb.eDtaMode & 0xF0) != NFA_DTA_CR8)))
     {
         /* get rid of the data pending in NFC tx queue, so DISC PDU can be sent ASAP */
         NFC_FlushData (NFC_RF_CONN_ID);
