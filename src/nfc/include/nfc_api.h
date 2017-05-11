@@ -349,10 +349,10 @@ typedef struct
 
 typedef enum jcop_dwnld_state{
     JCP_DWNLD_IDLE = ESE_STATE_JCOP_DWNLD,  /* jcop dwnld is not ongoing*/
-    JCP_DWNLD_INIT,                         /* jcop dwonload init state*/
-    JCP_DWNLD_START,                        /* download started */
-    JCP_SPI_DWNLD_COMPLETE,                 /* jcop download complete in spi interface*/
-    JCP_DWP_DWNLD_COMPLETE,                 /* jcop download complete */
+    JCP_DWNLD_INIT = 0x8010,                         /* jcop dwonload init state*/
+    JCP_DWNLD_START = 0x8020,                        /* download started */
+    JCP_SPI_DWNLD_COMPLETE = 0x8040,                 /* jcop download complete in spi interface*/
+    JCP_DWP_DWNLD_COMPLETE = 0x8080,                 /* jcop download complete */
 } jcop_dwnld_state_t;
 #endif
 #endif
