@@ -332,9 +332,26 @@ void rw_t3t_process_error (tNFC_STATUS status)
 *******************************************************************************/
 void rw_t3t_start_poll_timer (tRW_T3T_CB *p_cb)
 {
+    RW_TRACE_DEBUG1 ("%s: starting t3t poll timer", __func__);
     nfc_start_quick_timer (&p_cb->poll_timer, NFC_TTYPE_RW_T3T_RESPONSE, RW_T3T_POLL_CMD_TIMEOUT_TICKS);
 }
-
+#if (NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         rw_t3t_stop_poll_timer
+**
+** Description      Stop the timer for T3T POLL Command
+**
+** Returns          none
+**
+*******************************************************************************/
+void rw_t3t_stop_poll_timer (tRW_T3T_CB *p_cb)
+{
+    RW_TRACE_DEBUG1 ("%s: stopping t3t poll timer", __func__);
+    if(p_cb->poll_timer.in_use)
+        nfc_stop_quick_timer (&p_cb->poll_timer);
+}
+#endif
 /*******************************************************************************
 **
 ** Function         rw_t3t_handle_nci_poll_ntf
@@ -350,7 +367,11 @@ void rw_t3t_handle_nci_poll_ntf (UINT8 nci_status, UINT8 num_responses, UINT8 se
     tRW_T3T_CB *p_cb = &rw_cb.tcb.t3t;
 
     /* stop timer for poll response */
+#if (NXP_EXTNS == TRUE)
+    rw_t3t_stop_poll_timer (p_cb);
+#else
     nfc_stop_quick_timer (&p_cb->poll_timer);
+#endif
 
     /* Stop t3t timer (if started) */
     if (p_cb->flags & RW_T3T_FL_W4_PRESENCE_CHECK_POLL_RSP)
@@ -428,8 +449,6 @@ void rw_t3t_handle_get_system_codes_cplt (void)
 
     p_cb->rw_state = RW_T3T_STATE_IDLE;
     (*(rw_cb.p_cback)) (RW_T3T_GET_SYSTEM_CODES_EVT, &evt_data);
-
-
 }
 
 /*******************************************************************************

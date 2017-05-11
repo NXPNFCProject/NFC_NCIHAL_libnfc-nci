@@ -209,7 +209,6 @@ tNFC_STATUS RW_SendRawFrame (UINT8 *p_raw_data, UINT16 data_len)
             RW_TRACE_EVENT1 ("RW SENT raw frame (0x%x)", data_len);
             status = NFC_SendData (NFC_RF_CONN_ID, p_data);
         }
-
     }
     return status;
 }

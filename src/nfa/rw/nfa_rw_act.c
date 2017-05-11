@@ -2856,8 +2856,6 @@ BOOLEAN nfa_rw_activate_ntf(tNFA_RW_MSG *p_data)
 #if(NXP_EXTNS == TRUE)
     else if (NFC_PROTOCOL_T3BT == nfa_rw_cb.protocol)
     {
-
-
         activate_notify = FALSE;                    /* Delay notifying upper layer of NFA_ACTIVATED_EVT until system codes are retrieved */
         msg.op = NFA_RW_OP_T3BT_PUPI;
         nfa_rw_handle_op_req((void *)&msg);
