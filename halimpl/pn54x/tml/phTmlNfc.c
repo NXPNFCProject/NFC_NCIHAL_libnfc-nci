@@ -437,7 +437,9 @@ static void phTmlNfc_TmlThread(void *pParam)
                 else
                 {
                     memcpy(gpphTmlNfc_Context->tReadInfo.pBuffer, temp, dwNoBytesWrRd);
+#if (NXP_NFCC_I2C_READ_WRITE_IMPROVEMENT == TRUE)
                     read_count = 0;
+#endif
                     NXPLOG_TML_D("PN54X - I2C Read successful.....len = %d\n", dwNoBytesWrRd);
                     /* This has to be reset only after a successful read */
                     gpphTmlNfc_Context->tReadInfo.bEnable = 0;

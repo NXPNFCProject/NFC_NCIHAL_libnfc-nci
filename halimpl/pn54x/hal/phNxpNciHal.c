@@ -1240,6 +1240,32 @@ void read_retry()
         /* TODO: Not sure how to handle this ? */
     }
 }
+/*******************************************************************************
+**
+** Function         phNxpNciHal_check_delete_nfaStorage_DHArea
+**
+** Description      check the file and delete if present.
+**
+**
+** Returns          void
+**
+*******************************************************************************/
+void phNxpNciHal_check_delete_nfaStorage_DHArea()
+{
+    struct stat st;
+    const char config_eseinfo_path[] = "/data/nfc/nfaStorage.bin1";
+    if (stat(config_eseinfo_path, &st) == -1)
+    {
+        ALOGD("%s file not present = %s", __FUNCTION__, config_eseinfo_path);
+    }
+    else
+    {
+        ALOGD("%s file present = %s", __FUNCTION__, config_eseinfo_path);
+        remove(config_eseinfo_path);
+        ALOGD("%s Deleting the file present = %s", __FUNCTION__, config_eseinfo_path);
+    }
+}
+
 /******************************************************************************
  * Function         phNxpNciHal_core_initialized
  *
@@ -2313,7 +2339,6 @@ invoke_callback:
 #endif*/
     return NFCSTATUS_SUCCESS;
 }
-#if(NFC_NXP_CHIP_TYPE != PN547C2)
 /******************************************************************************
  * Function         phNxpNciHal_check_eSE_Session_Identity
  *
@@ -2393,7 +2418,7 @@ static NFCSTATUS phNxpNciHal_check_eSE_Session_Identity(void)
     }
     return status;
 }
-
+#if(NFC_NXP_CHIP_TYPE != PN547C2)
 /******************************************************************************
  * Function         phNxpNciHal_CheckRFCmdRespStatus
  *
@@ -2421,31 +2446,6 @@ NFCSTATUS phNxpNciHal_CheckRFCmdRespStatus()
         }
     }
     return status;
-}
-/*******************************************************************************
-**
-** Function         phNxpNciHal_check_delete_nfaStorage_DHArea
-**
-** Description      check the file and delete if present.
-**
-**
-** Returns          void
-**
-*******************************************************************************/
-void phNxpNciHal_check_delete_nfaStorage_DHArea()
-{
-    struct stat st;
-    const char config_eseinfo_path[] = "/data/nfc/nfaStorage.bin1";
-    if (stat(config_eseinfo_path, &st) == -1)
-    {
-        ALOGD("%s file not present = %s", __FUNCTION__, config_eseinfo_path);
-    }
-    else
-    {
-        ALOGD("%s file present = %s", __FUNCTION__, config_eseinfo_path);
-        remove(config_eseinfo_path);
-        ALOGD("%s Deleting the file present = %s", __FUNCTION__, config_eseinfo_path);
-    }
 }
 /******************************************************************************
  * Function         phNxpNciHalRFConfigCmdRecSequence
@@ -2844,9 +2844,7 @@ int phNxpNciHal_close(void)
     {
         NXPLOG_NCIHAL_E ("NCI_CORE_RESET: Failed");
     }
-#if (NXP_NFCC_I2C_READ_WRITE_IMPROVEMENT == TRUE)
     close_and_return:
-#endif
     if (NULL != gpphTmlNfc_Context->pDevHandle)
     {
         phNxpNciHal_close_complete(NFCSTATUS_SUCCESS);
