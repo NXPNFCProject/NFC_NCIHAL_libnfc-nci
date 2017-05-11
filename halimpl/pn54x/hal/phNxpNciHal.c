@@ -3451,13 +3451,16 @@ NFCSTATUS phNxpNciHal_set_china_region_configs(void)
     int isfound = 0;
     unsigned long rf_enable = FALSE;
     unsigned long cfg_blk_chk_enable = FALSE;
+    unsigned long cma_bypass_enable = FALSE;
     int rf_val = 0;
     int flag_send_tianjin_config=TRUE;
     int flag_send_transit_config=TRUE;
+    int flag_send_cmabypass_config=TRUE;
     uint8_t retry_cnt =0;
     int enable_bit =0;
     int enable_blk_num_chk_bit =0;
     static uint8_t get_rf_cmd[] = {0x20, 0x03,0x03, 0x01, 0xA0, 0x85};
+    NXPLOG_NCIHAL_D("phNxpNciHal_set_china_region_configs - Enter");
 
 retry_send_ext:
     if(retry_cnt > 3)
@@ -3519,6 +3522,10 @@ retry_send_ext:
         }
 #endif
     }
+    else
+    {
+        flag_send_tianjin_config = FALSE;
+    }
     /*check if china block number check is required*/
     rf_val = phNxpNciRfSet.p_rx_data[8];
     isfound = (GetNxpNumValue(NAME_NXP_CHINA_BLK_NUM_CHK_ENABLE, (void *)&cfg_blk_chk_enable, sizeof(cfg_blk_chk_enable)));
@@ -3538,8 +3545,35 @@ retry_send_ext:
             flag_send_transit_config = FALSE;  // No need to change in RF setting
         }
     }
+    else
+    {
+        flag_send_transit_config = FALSE;  // No need to change in RF setting
+    }
 
-    if(flag_send_tianjin_config || flag_send_transit_config)
+    isfound = (GetNxpNumValue(NAME_NXP_CN_TRANSIT_CMA_BYPASSMODE_ENABLE, (void *)&cma_bypass_enable, sizeof(cma_bypass_enable)));
+    if(isfound >0)
+    {
+        if(cma_bypass_enable == 0 && ((phNxpNciRfSet.p_rx_data[10] & 0x80) == 1))
+        {
+            NXPLOG_NCIHAL_D("Disable CMA_BYPASSMODE Supports EMVCo PICC Complaincy");
+            phNxpNciRfSet.p_rx_data[10] &=~0x80;        //set 24th bit of RF MISC SETTING to 0 for EMVCo PICC Complaincy support
+        }
+        else if(cma_bypass_enable == 1 && ((phNxpNciRfSet.p_rx_data[10] & 0x80) == 0))
+        {
+            NXPLOG_NCIHAL_D("Enable CMA_BYPASSMODE bypass the ISO14443-3A state machine from READY to ACTIVE and backward compatibility with MIfrae Reader ");
+            phNxpNciRfSet.p_rx_data[10] |=0x80;        //set 24th bit of RF MISC SETTING to 1 for backward compatibility with MIfrae Reader
+        }
+        else
+        {
+            flag_send_cmabypass_config = FALSE;  // No need to change in RF setting
+        }
+    }
+    else
+    {
+       flag_send_cmabypass_config = FALSE;
+    }
+
+    if(flag_send_tianjin_config || flag_send_transit_config || flag_send_cmabypass_config)
     {
         static uint8_t set_rf_cmd[] = {0x20, 0x02, 0x08, 0x01, 0xA0, 0x85, 0x04, 0x50, 0x08, 0x68, 0x00};
         memcpy(&set_rf_cmd[4],&phNxpNciRfSet.p_rx_data[5],7);
