@@ -51,6 +51,9 @@
 *****************************************************************************/
 /* 16 per ISO 7816 specification    */
 #define NFA_MAX_AID_LEN NFC_MAX_AID_LEN
+#define NFA_MAX_APDU_DATA_LEN NFC_MAX_APDU_DATA_LEN
+#define NFA_MAX_APDU_MASK_LEN NFC_MAX_APDU_MASK_LEN
+
 #define NFA_EE_HANDLE_DH (NFA_HANDLE_GROUP_EE | NFC_DH_ID)
 #if (NXP_EXTNS == TRUE)
 extern uint8_t NFA_REMOVE_ALL_AID[];
@@ -92,9 +95,11 @@ enum {
 #if (NXP_EXTNS == TRUE)
   NFA_EE_SET_MODE_INFO_EVT,
 #if (NXP_WIRED_MODE_STANDBY == true)
-  NFA_EE_PWR_LINK_CTRL_EVT /* NFCEE Pwr and link cotnrol command Evt */
+  NFA_EE_PWR_LINK_CTRL_EVT, /* NFCEE Pwr and link cotnrol command Evt */
 #endif
 #endif
+  NFA_EE_ADD_APDU_EVT,  /* The status for adding an APDU pattern to a routing table entry*/
+  NFA_EE_REMOVE_APDU_EVT /* The status for removing an APDU pattern from a routing table */
 };
 typedef uint8_t tNFA_EE_EVT;
 
@@ -528,6 +533,52 @@ extern tNFA_STATUS NFA_EeAddAidRouting(tNFA_HANDLE ee_handle, uint8_t aid_len,
 **
 *******************************************************************************/
 extern tNFA_STATUS NFA_EeRemoveAidRouting(uint8_t aid_len, uint8_t* p_aid);
+
+/*******************************************************************************
+**
+** Function         NFA_EeAddApduPatternRouting
+**
+** Description      This function is called to add an APDU pattern entry in the
+**                  listen mode routing table in NFCC. The status of this
+**                  operation is reported as the NFA_EE_ADD_APDU_EVT.
+**
+** Note:            If RF discovery is started,
+**                  NFA_StopRfDiscovery()/NFA_RF_DISCOVERY_STOPPED_EVT should
+**                  happen before calling this function
+**
+** Note:            NFA_EeUpdateNow() should be called after last NFA-EE
+**                  function to change the listen mode routing is called.
+**
+** Returns          NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_FAILED otherwise
+**                  NFA_STATUS_INVALID_PARAM If bad parameter
+**
+*******************************************************************************/
+extern tNFA_STATUS NFA_EeAddApduPatternRouting(uint8_t apdu_data_len,uint8_t* apdu_data, uint8_t apdu_mask_len,
+  uint8_t* apdu_mask, tNFA_HANDLE ee_handle, uint8_t power_state);
+
+/*******************************************************************************
+**
+** Function         NFA_EeRemoveApduPatternRouting
+**
+** Description      This function is called to remove the given APDU pattern entry from
+**                  the listen mode routing table. If the entry configures VS,
+**                  it is also removed. The status of this operation is reported
+**                  as the NFA_EE_REMOVE_APDU_EVT.
+**
+** Note:            If RF discovery is started,
+**                  NFA_StopRfDiscovery()/NFA_RF_DISCOVERY_STOPPED_EVT should
+**                  happen before calling this function
+**
+** Note:            NFA_EeUpdateNow() should be called after last NFA-EE
+**                  function to change the listen mode routing is called.
+**
+** Returns          NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_FAILED otherwise
+**                  NFA_STATUS_INVALID_PARAM If bad parameter
+**
+*******************************************************************************/
+extern tNFA_STATUS NFA_EeRemoveApduPatternRouting(uint8_t apdu_len, uint8_t* p_apdu);
 
 /*******************************************************************************
 **

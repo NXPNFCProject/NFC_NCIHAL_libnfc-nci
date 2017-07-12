@@ -61,6 +61,7 @@
 #ifndef NFA_EE_AID_CFG_TAG_NAME
 /* AID                             */
 #define NFA_EE_AID_CFG_TAG_NAME 0x4F
+
 #endif
 
 /* NFA EE events */
@@ -97,6 +98,8 @@ enum {
   NFA_EE_ROUT_TIMEOUT_EVT,
   NFA_EE_DISCV_TIMEOUT_EVT,
   NFA_EE_CFG_TO_NFCC_EVT,
+  NFA_EE_API_ADD_APDU_EVT,
+  NFA_EE_API_REMOVE_APDU_EVT,
   NFA_EE_MAX_EVT
 };
 
@@ -188,7 +191,7 @@ typedef uint8_t tNFA_EE_CONN_ST;
 #else
 #define NFA_EE_MAX_AID_CFG_LEN (510)
 #endif
-
+#define NFA_EE_TOTAL_APDU_PATTERN_SIZE 250
 /* NFA EE control block flags:
  * use to indicate an API function has changed the configuration of the
  * associated NFCEE
@@ -209,7 +212,9 @@ typedef uint8_t tNFA_EE_CONN_ST;
 #define NFA_EE_ECB_FLAGS_DISC_REQ 0x40
 /* DISC_REQ N reported before DISC N  */
 #define NFA_EE_ECB_FLAGS_ORDER 0x80
-typedef uint8_t tNFA_EE_ECB_FLAGS;
+/* APDU routing changed                */
+#define NFA_EE_ECB_FLAGS_APDU 0x0100
+typedef uint16_t tNFA_EE_ECB_FLAGS;
 
 /* part of tNFA_EE_STATUS; for internal use only  */
 /* waiting for restore to full power mode to complete */
@@ -248,7 +253,17 @@ typedef struct {
   tNFA_EE_CONN_ST conn_st;   /* connection status */
   uint8_t conn_id;           /* connection id */
   tNFA_EE_CBACK* p_ee_cback; /* the callback function */
-
+/* Each APDU entry has an associated apdu_pwr_cfg ,apdu_rt_info ,apdu_len
+ * apdu_cfg[] contains APDU and APDU mask and maybe some other VS information in TLV format
+ * The first T is always NFA_EE_APDU_CFG_TAG_NAME, the L is the actual APDU length and mask length
+ * the apdu_len is the total length of all the TLVs associated with this AID
+ * entry
+ */
+  uint8_t apdu_len[NFA_EE_MAX_APDU_PATTERN_ENTRIES]; /* the actual lengths in apdu_cfg */
+  uint8_t apdu_pwr_cfg[NFA_EE_MAX_APDU_PATTERN_ENTRIES]; /* power configuration of this APDU Pattern entry */
+  uint16_t apdu_rt_info[NFA_EE_MAX_APDU_PATTERN_ENTRIES]; /* route/vs info for this APDU PATTERN entry */
+  uint8_t apdu_cfg[NFA_EE_TOTAL_APDU_PATTERN_SIZE];     /* routing entries based on APDU PATTERN */
+  uint8_t apdu_pattern_entries;   /* The number of APDU PATTERN entries in aid_cfg */
 /* Each AID entry has an ssociated aid_len, aid_pwr_cfg, aid_rt_info.
  * aid_cfg[] contains AID and maybe some other VS information in TLV format
  * The first T is always NFA_EE_AID_CFG_TAG_NAME, the L is the actual AID length
@@ -283,7 +298,7 @@ typedef struct {
   uint8_t aid_info[NFA_EE_MAX_AID_ENTRIES]; /* route/vs info for this AID
                                                   entry */
 #endif
-  uint8_t aid_entries;   /* The number of AID entries in aid_cfg */
+  uint8_t aid_entries;
   uint8_t nfcee_id;      /* ID for this NFCEE */
   uint8_t ee_status;     /* The NFCEE status */
   uint8_t ee_old_status; /* The NFCEE status before going to low power mode */
@@ -301,6 +316,7 @@ typedef struct {
   tNFA_NFC_PROTOCOL lbp_protocol;  /* Listen B' protocol   */
   uint8_t size_mask; /* the size for technology and protocol routing */
   uint16_t size_aid; /* the size for aid routing */
+  uint16_t size_apdu;/* the size for apdu routing */
 #if (NXP_EXTNS == TRUE)
   tNFA_NFC_PROTOCOL pa_protocol; /* Passive poll A SWP Reader   */
   tNFA_NFC_PROTOCOL pb_protocol; /* Passive poll B SWP Reader   */
@@ -384,6 +400,25 @@ typedef struct {
   uint8_t aid_len;
   uint8_t* p_aid;
 } tNFA_EE_API_REMOVE_AID;
+
+/* data type for NFA_EE_API_ADD_APDU_EVT */
+typedef struct {
+  NFC_HDR hdr;
+  tNFA_EE_ECB* p_cb;
+  uint8_t nfcee_id;
+  uint8_t* p_apdu;
+  uint8_t apdu_len;
+  uint8_t* p_mask;
+  uint8_t mask_len;
+  tNFA_EE_PWR_STATE power_state;
+} tNFA_EE_API_ADD_APDU;
+
+/* data type for NFA_EE_API_REMOVE_APDU_EVT */
+typedef struct {
+  NFC_HDR hdr;
+  uint8_t apdu_len;
+  uint8_t* p_apdu;
+} tNFA_EE_API_REMOVE_APDU;
 
 /* data type for NFA_EE_API_LMRT_SIZE_EVT */
 typedef NFC_HDR tNFA_EE_API_LMRT_SIZE;
@@ -502,6 +537,8 @@ typedef union {
   tNFA_EE_API_SET_PROTO_CFG set_proto;
   tNFA_EE_API_ADD_AID add_aid;
   tNFA_EE_API_REMOVE_AID rm_aid;
+  tNFA_EE_API_ADD_APDU add_apdu;
+  tNFA_EE_API_REMOVE_APDU rm_apdu;
   tNFA_EE_API_LMRT_SIZE lmrt_size;
   tNFA_EE_API_CONNECT connect;
   tNFA_EE_API_SEND_DATA send_data;
@@ -607,6 +644,13 @@ typedef struct {
   uint8_t mode;
 } tNFA_EE_CB;
 
+/* Order of Routing entries in Routing Table */
+#define NCI_ROUTE_ORDER_AID  0x01/* AID routing order */
+#define NCI_ROUTE_ORDER_PATTERN 0x02 /* Pattern routing order*/
+#define NCI_ROUTE_ORDER_SYS_CODE 0x03/* System Code routing order*/
+#define NCI_ROUTE_ORDER_PROTOCOL 0x04/* Protocol routing order*/
+#define NCI_ROUTE_ORDER_TECHNOLOGY 0x05/* Technology routing order*/
+
 /*****************************************************************************
 **  External variables
 *****************************************************************************/
@@ -694,5 +738,6 @@ extern void nfa_ee_proc_hci_info_cback(void);
 void nfa_ee_check_disable(void);
 bool nfa_ee_restore_ntf_done(void);
 void nfa_ee_check_restore_complete(void);
-
+void nfa_ee_api_add_apdu(tNFA_EE_MSG* p_data);
+void nfa_ee_api_remove_apdu(tNFA_EE_MSG* p_data);
 #endif /* NFA_P2P_INT_H */

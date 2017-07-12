@@ -100,7 +100,9 @@ const tNFA_EE_SM_ACT nfa_ee_actions[] = {
     nfa_ee_nci_wait_rsp,     /* NFA_EE_NCI_WAIT_RSP_EVT      */
     nfa_ee_rout_timeout,     /* NFA_EE_ROUT_TIMEOUT_EVT      */
     nfa_ee_discv_timeout,    /* NFA_EE_DISCV_TIMEOUT_EVT     */
-    nfa_ee_lmrt_to_nfcc      /* NFA_EE_CFG_TO_NFCC_EVT       */
+    nfa_ee_lmrt_to_nfcc,      /* NFA_EE_CFG_TO_NFCC_EVT       */
+    nfa_ee_api_add_apdu,       /* NFA_EE_API_ADD_AID_EVT       */
+    nfa_ee_api_remove_apdu    /* NFA_EE_API_REMOVE_AID_EVT    */
 };
 
 /*******************************************************************************
@@ -703,5 +705,6 @@ bool nfa_ee_evt_hdlr(NFC_HDR* p_msg) {
     if (p_msg->event == NFA_EE_NCI_DATA_EVT)
       GKI_freebuf(p_evt_data->conn.p_data);
   }
+
   return true;
 }

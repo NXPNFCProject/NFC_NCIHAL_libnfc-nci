@@ -585,6 +585,60 @@ tNFA_STATUS NFA_EeAddAidRouting(tNFA_HANDLE ee_handle, uint8_t aid_len,
   return status;
 }
 
+/*******************************************************************************
+**
+** Function         NFA_EeAddApduPatternRouting
+**
+** Description      This function is called to add an APDU pattern entry in the
+**                  listen mode routing table in NFCC. The status of this
+**                  operation is reported as the NFA_EE_ADD_APDU_EVT.
+**
+** Note:            If RF discovery is started,
+**                  NFA_StopRfDiscovery()/NFA_RF_DISCOVERY_STOPPED_EVT should
+**                  happen before calling this function
+**
+** Note:            NFA_EeUpdateNow() should be called after last NFA-EE
+**                  function to change the listen mode routing is called.
+**
+** Returns          NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_FAILED otherwise
+**                  NFA_STATUS_INVALID_PARAM If bad parameter
+**
+*******************************************************************************/
+tNFA_STATUS NFA_EeAddApduPatternRouting(uint8_t apdu_data_len,uint8_t* apdu_data, uint8_t apdu_mask_len,
+  uint8_t* apdu_mask, tNFA_HANDLE ee_handle, uint8_t power_state) {
+  tNFA_EE_API_ADD_APDU* p_msg;
+  tNFA_STATUS status = NFA_STATUS_FAILED;
+  tNFA_EE_ECB* p_cb;
+  uint16_t size = sizeof(tNFA_EE_API_ADD_AID) + apdu_data_len + apdu_mask_len;
+  uint8_t nfcee_id = (uint8_t)(ee_handle & 0xFF);
+
+  NFA_TRACE_API1("NFA_EeAddApduRouting(): handle:<0x%x>", ee_handle);
+  p_cb = nfa_ee_find_ecb(nfcee_id);
+  if(p_cb == NULL || apdu_data_len == 0 || apdu_mask_len == 0 || apdu_data == NULL
+      || apdu_mask == NULL || apdu_data_len > NFC_MAX_APDU_DATA_LEN
+      || apdu_mask_len > NFC_MAX_APDU_MASK_LEN || apdu_data_len != apdu_mask_len) {
+    NFA_TRACE_ERROR1("Bad ee_handle or AID (len=%d)", apdu_data_len+apdu_mask_len);
+    status = NFA_STATUS_INVALID_PARAM;
+  } else {
+      p_msg = (tNFA_EE_API_ADD_APDU*)GKI_getbuf(size);
+      p_msg->hdr.event = NFA_EE_API_ADD_APDU_EVT;
+      p_msg->apdu_len = apdu_data_len;
+      p_msg->mask_len = apdu_mask_len;
+      p_msg->power_state = power_state;
+      p_msg->nfcee_id = nfcee_id;
+      p_msg->p_cb = p_cb;
+      p_msg->p_apdu = (uint8_t*)(p_msg + 1);
+      memcpy(p_msg->p_apdu, apdu_data, apdu_data_len);
+      p_msg->p_mask = (uint8_t*)(p_msg->p_apdu + apdu_data_len);
+      memcpy(p_msg->p_mask, apdu_mask, apdu_mask_len);
+      nfa_sys_sendmsg(p_msg);
+
+      status = NFA_STATUS_OK;
+  }
+  return status;
+}
+
 #if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
@@ -751,6 +805,52 @@ tNFA_STATUS NFA_EeRemoveAidRouting(uint8_t aid_len, uint8_t* p_aid) {
     }
   }
 
+  return status;
+}
+
+/*******************************************************************************
+**
+** Function         NFA_EeRemoveApduPatternRouting
+**
+** Description      This function is called to remove the given APDU entry from
+**                  the listen mode routing table. If the entry configures VS,
+**                  it is also removed. The status of this operation is reported
+**                  as the NFA_EE_REMOVE_APDU_EVT.
+**
+** Note:            If RF discovery is started,
+**                  NFA_StopRfDiscovery()/NFA_RF_DISCOVERY_STOPPED_EVT should
+**                  happen before calling this function
+**
+** Note:            NFA_EeUpdateNow() should be called after last NFA-EE
+**                  function to change the listen mode routing is called.
+**
+** Returns          NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_FAILED otherwise
+**                  NFA_STATUS_INVALID_PARAM If bad parameter
+**
+*******************************************************************************/
+tNFA_STATUS NFA_EeRemoveApduPatternRouting(uint8_t apdu_len, uint8_t* p_apdu) {
+  tNFA_EE_API_REMOVE_APDU* p_msg;
+  tNFA_STATUS status = NFA_STATUS_FAILED;
+  uint16_t size = sizeof(tNFA_EE_API_REMOVE_APDU) + apdu_len;
+
+  NFA_TRACE_API0("NFA_EeRemoveApduPatternRouting()");
+  if ((apdu_len == 0) || (p_apdu == NULL) || (apdu_len > NFC_MAX_APDU_DATA_LEN)) {
+    NFA_TRACE_ERROR0("Bad handle");
+    status = NFA_STATUS_INVALID_PARAM;
+  } else {
+    p_msg = (tNFA_EE_API_REMOVE_APDU*)GKI_getbuf(size);
+    if (p_msg != NULL) {
+      p_msg->hdr.event = NFA_EE_API_REMOVE_APDU_EVT;
+      p_msg->apdu_len = apdu_len;
+      p_msg->p_apdu = (uint8_t*)(p_msg + 1);
+      memcpy(p_msg->p_apdu, p_apdu, apdu_len);
+
+      nfa_sys_sendmsg(p_msg);
+
+      status = NFA_STATUS_OK;
+    }
+  }
   return status;
 }
 

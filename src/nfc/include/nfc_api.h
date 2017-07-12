@@ -277,6 +277,7 @@ typedef uint8_t tNFC_STATUS;
 /* Protocol based routing  */
 #define NFC_ROUTE_TAG_PROTO NCI_ROUTE_TAG_PROTO
 #define NFC_ROUTE_TAG_AID NCI_ROUTE_TAG_AID /* AID routing */
+#define NFC_ROUTE_TAG_APDU NCI_ROUTE_TAG_APDU /* APDU routing*/
 /* tag, len, 2 byte value for technology/protocol based routing */
 #define NFC_ROUTE_TLV_ENTRY_SIZE 4
 
@@ -495,7 +496,10 @@ typedef struct {
 } tNFC_NFCEE_EE_PWR_LNK_REVT;
 
 #define NFC_MAX_AID_LEN NCI_MAX_AID_LEN /* 16 */
-
+#define NFC_MIN_APDU_DATA_LEN NCI_MIN_APDU_DATA_LEN
+#define NFC_MIN_APDU_MASK_LEN NCI_MIN_APDU_MASK_LEN
+#define NFC_MAX_APDU_DATA_LEN NCI_MAX_APDU_DATA_LEN
+#define NFC_MAX_APDU_MASK_LEN NCI_MAX_APDU_MASK_LEN
 /* the data type associated with NFC_CE_GET_ROUTING_REVT */
 
 /* Max payload size  */

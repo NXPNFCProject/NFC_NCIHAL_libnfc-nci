@@ -690,7 +690,7 @@
 #define NFA_EE_MAX_AID_ENTRIES (10)
 #endif
 #endif
-
+#define NFA_EE_MAX_APDU_PATTERN_ENTRIES (5)
 /* Maximum number of callback functions can be registered through
  * NFA_EeRegister() */
 #ifndef NFA_EE_MAX_CBACKS

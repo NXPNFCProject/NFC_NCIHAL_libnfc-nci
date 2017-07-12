@@ -536,6 +536,7 @@ typedef uint8_t tNCI_DISCOVERY_TYPE;
 #define NCI_ROUTE_TAG_PROTO 0x01
 #define NCI_ROUTE_TAG_AID 0x02 /* AID routing */
 
+#define NCI_ROUTE_TAG_APDU 0x4 /* APDU routing*/
 #define NCI_ROUTE_PWR_STATE_ON 0x01 /* The device is on */
 /* The device is switched off */
 #define NCI_ROUTE_PWR_STATE_SWITCH_OFF 0x02
@@ -740,6 +741,10 @@ typedef struct { uint8_t status; } NCIP_T1T_SETHR_RSP_t;
 #endif /* NCI_GET_CMD_BUF */
 
 #define NCI_MAX_AID_LEN 16
+#define NCI_MIN_APDU_DATA_LEN 1
+#define NCI_MIN_APDU_MASK_LEN 1
+#define NCI_MAX_APDU_DATA_LEN 124
+#define NCI_MAX_APDU_MASK_LEN 124
 
 typedef struct {
   uint8_t type;
