@@ -466,6 +466,10 @@ typedef uint8_t tNCI_INTF_TYPE;
 #define NCI_DISCOVER_PARAM_SIZE_DEACT_RSP 0x01  /* Status (1 octet) */
 #define NCI_DISCOVER_PARAM_SIZE_DEACT_NTF 0x01  /* type */
 
+#define NCI_ROUTE_QUAL_MASK         0x70
+#define NCI_ROUTE_QUAL_LONG_SELECT  0x10 /* AID matching is allowed when the SELECT AID is longer */
+#define NCI_ROUTE_QUAL_SHORT_SELECT 0x20 /* AID matching is allowed when the SELECT AID is shorter */
+#define NCI_ROUTE_QUAL_BLOCK_ROUTE  0x40 /* AID is blocked in unsupported power mode */
 /**********************************************
  * NCI RF Management / PWR AND LINK CTRl Group Params
  **********************************************/

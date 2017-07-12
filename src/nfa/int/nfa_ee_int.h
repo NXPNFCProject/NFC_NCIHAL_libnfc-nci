@@ -262,6 +262,7 @@ typedef struct {
   uint8_t* aid_rt_info; /* route/vs info for this AID entry */
   uint8_t* aid_rt_loc;  /* route location info for this AID entry */
   uint8_t* aid_cfg;     /* routing entries based on AID */
+  uint8_t* aid_info;    /* AID info prefix/subset routing */
 #else
   uint8_t aid_rt_loc[NFA_EE_MAX_AID_ENTRIES]; /* route location info for this
                                                  AID entry */
@@ -279,6 +280,8 @@ typedef struct {
   uint8_t aid_rt_info[NFA_EE_MAX_AID_ENTRIES]; /* route/vs info for this AID
                                                   entry */
   uint8_t aid_cfg[NFA_EE_MAX_AID_CFG_LEN];     /* routing entries based on AID */
+  uint8_t aid_info[NFA_EE_MAX_AID_ENTRIES]; /* route/vs info for this AID
+                                                  entry */
 #endif
   uint8_t aid_entries;   /* The number of AID entries in aid_cfg */
   uint8_t nfcee_id;      /* ID for this NFCEE */
@@ -371,7 +374,7 @@ typedef struct {
   uint8_t* p_aid;
   tNFA_EE_PWR_STATE power_state;
 #if (NXP_EXTNS == TRUE)
-  uint8_t vs_info;
+  uint8_t aid_info;
 #endif
 } tNFA_EE_API_ADD_AID;
 

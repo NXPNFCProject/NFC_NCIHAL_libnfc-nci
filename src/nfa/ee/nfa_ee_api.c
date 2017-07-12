@@ -543,7 +543,7 @@ tNFA_STATUS NFA_EeAddAidRouting(tNFA_HANDLE ee_handle, uint8_t aid_len,
                                 uint8_t* p_aid, tNFA_EE_PWR_STATE power_state
 #if (NXP_EXTNS == TRUE)
                                 ,
-                                uint8_t vs_info)
+                                uint8_t aidInfo)
 #else
                                 )
 #endif
@@ -573,7 +573,7 @@ tNFA_STATUS NFA_EeAddAidRouting(tNFA_HANDLE ee_handle, uint8_t aid_len,
       p_msg->power_state = power_state;
       p_msg->p_aid = (uint8_t*)(p_msg + 1);
 #if (NXP_EXTNS == TRUE)
-      p_msg->vs_info = vs_info;
+      p_msg->aid_info = aidInfo;
 #endif
       memcpy(p_msg->p_aid, p_aid, aid_len);
 

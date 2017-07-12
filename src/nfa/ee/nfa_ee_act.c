@@ -506,17 +506,20 @@ void nfa_ee_api_register(tNFA_EE_MSG* p_data) {
     nfa_ee_cb.ecb[xx].aid_len = GKI_getbuf(max_aid_entries);
     nfa_ee_cb.ecb[xx].aid_pwr_cfg = GKI_getbuf(max_aid_entries);
     nfa_ee_cb.ecb[xx].aid_rt_info = GKI_getbuf(max_aid_entries);
-    nfa_ee_cb.ecb[xx].aid_rt_loc = GKI_getbuf(max_aid_entries);
+    nfa_ee_cb.ecb[xx].aid_rt_loc  = GKI_getbuf(max_aid_entries);
+    nfa_ee_cb.ecb[xx].aid_info    = GKI_getbuf(max_aid_entries);
     nfa_ee_cb.ecb[xx].aid_cfg = GKI_getbuf(max_aid_config_length);
     if ((NULL != nfa_ee_cb.ecb[xx].aid_len) &&
         (NULL != nfa_ee_cb.ecb[xx].aid_pwr_cfg) &&
         (NULL != nfa_ee_cb.ecb[xx].aid_rt_info) &&
         (NULL != nfa_ee_cb.ecb[xx].aid_rt_loc) &&
+        (NULL != nfa_ee_cb.ecb[xx].aid_info) &&
         (NULL != nfa_ee_cb.ecb[xx].aid_cfg)) {
       memset(nfa_ee_cb.ecb[xx].aid_len, 0, max_aid_entries);
       memset(nfa_ee_cb.ecb[xx].aid_pwr_cfg, 0, max_aid_entries);
       memset(nfa_ee_cb.ecb[xx].aid_rt_info, 0, max_aid_entries);
       memset(nfa_ee_cb.ecb[xx].aid_rt_loc, 0, max_aid_entries);
+      memset(nfa_ee_cb.ecb[xx].aid_info, 0, max_aid_entries);
       memset(nfa_ee_cb.ecb[xx].aid_cfg, 0, max_aid_config_length);
     } else {
       NFA_TRACE_ERROR0("GKI_getbuf allocation for ECB failed !");
@@ -559,6 +562,7 @@ void nfa_ee_api_deregister(tNFA_EE_MSG* p_data) {
     GKI_freebuf(nfa_ee_cb.ecb[xx].aid_pwr_cfg);
     GKI_freebuf(nfa_ee_cb.ecb[xx].aid_rt_info);
     GKI_freebuf(nfa_ee_cb.ecb[xx].aid_rt_loc);
+    GKI_freebuf(nfa_ee_cb.ecb[xx].aid_info);
     GKI_freebuf(nfa_ee_cb.ecb[xx].aid_cfg);
   }
 #endif
@@ -785,7 +789,7 @@ void nfa_ee_api_add_aid(tNFA_EE_MSG* p_data) {
 
 #if (NXP_EXTNS == TRUE)
   tNFA_EE_ECB* dh_ecb = NULL;
-  uint8_t vs_info = p_add->vs_info;
+  uint8_t aid_info = p_add->aid_info;
 #endif
   tNFA_EE_ECB* p_chk_cb;
   uint8_t* p, *p_start;
@@ -813,6 +817,7 @@ void nfa_ee_api_add_aid(tNFA_EE_MSG* p_data) {
         "nfa_ee_api_add_aid The AID entry is already in the database");
     if (p_chk_cb == p_cb) {
       p_cb->aid_rt_info[entry] |= NFA_EE_AE_ROUTE;
+      p_cb->aid_info[entry] = p_add->aid_info;
       new_size = nfa_ee_total_lmrt_size();
       if (new_size > NFC_GetLmrtSize()) {
         NFA_TRACE_ERROR1("Exceed LMRT size:%d (add ROUTE)", new_size);
@@ -820,6 +825,7 @@ void nfa_ee_api_add_aid(tNFA_EE_MSG* p_data) {
         p_cb->aid_rt_info[entry] &= ~NFA_EE_AE_ROUTE;
       } else {
         p_cb->aid_pwr_cfg[entry] = p_add->power_state;
+        p_cb->aid_info[entry] = p_add->aid_info;
       }
     } else {
       NFA_TRACE_ERROR1(
@@ -883,14 +889,13 @@ void nfa_ee_api_add_aid(tNFA_EE_MSG* p_data) {
         len = nfa_ee_find_total_aid_len(dh_ecb, 0);
         // Always use single aid_cfg buffer to keep the aid order intact.
         dh_ecb->aid_pwr_cfg[dh_ecb->aid_entries] = p_add->power_state;
-        dh_ecb->aid_rt_info[dh_ecb->aid_entries] =
-            NFA_EE_AE_ROUTE |
-            ((NFA_EE_AE_NXP_PREFIX_MATCH & vs_info) ? NFA_EE_AE_NXP_PREFIX_MATCH
-                                                    : 0x00);
+        dh_ecb->aid_rt_info[dh_ecb->aid_entries] = NFA_EE_AE_ROUTE;
         dh_ecb->aid_rt_loc[dh_ecb->aid_entries] = p_cb->nfcee_id;
+        dh_ecb->aid_info[dh_ecb->aid_entries] = p_add->aid_info;
         p = dh_ecb->aid_cfg + len;
 #else
         p_cb->aid_pwr_cfg[p_cb->aid_entries] = p_add->power_state;
+        p_cb->aid_info[p_cb->aid_entries] = p_add->aid_info;
         p_cb->aid_rt_info[p_cb->aid_entries] = NFA_EE_AE_ROUTE;
         p = p_cb->aid_cfg + len;
 #endif
@@ -979,6 +984,8 @@ void nfa_ee_api_remove_aid(tNFA_EE_MSG* p_data) {
       GKI_shiftup(&p_cb->aid_len[entry], &p_cb->aid_len[entry + 1], rest_len);
       GKI_shiftup(&p_cb->aid_pwr_cfg[entry], &p_cb->aid_pwr_cfg[entry + 1],
                   rest_len);
+      GKI_shiftup(&p_cb->aid_info[entry], &p_cb->aid_info[entry + 1],
+                  rest_len);
       GKI_shiftup(&p_cb->aid_rt_info[entry], &p_cb->aid_rt_info[entry + 1],
                   rest_len);
 #if (NXP_EXTNS == TRUE)
@@ -1008,11 +1015,13 @@ void nfa_ee_api_remove_aid(tNFA_EE_MSG* p_data) {
       memset(&p_cb->aid_len[0], 0x00, max_aid_entries);
       memset(&p_cb->aid_pwr_cfg[0], 0x00, max_aid_entries);
       memset(&p_cb->aid_rt_info[0], 0x00, max_aid_entries);
+      memset(&p_cb->aid_info[0], 0x00, max_aid_entries);
 #else
       memset(&p_cb->aid_cfg[0], 0x00, sizeof(p_cb->aid_cfg));
       memset(&p_cb->aid_len[0], 0x00, NFA_EE_MAX_AID_ENTRIES);
       memset(&p_cb->aid_pwr_cfg[0], 0x00, NFA_EE_MAX_AID_ENTRIES);
       memset(&p_cb->aid_rt_info[0], 0x00, NFA_EE_MAX_AID_ENTRIES);
+      memset(&p_cb->aid_info[0], 0x00, NFA_EE_MAX_AID_ENTRIES);
 #endif
       p_cb->aid_entries = 0;
       nfa_ee_cb.ee_cfged |= nfa_ee_ecb_to_mask(p_cb);
@@ -1027,11 +1036,13 @@ void nfa_ee_api_remove_aid(tNFA_EE_MSG* p_data) {
     memset(&p_ecb->aid_len[0], 0x00, max_aid_entries);
     memset(&p_ecb->aid_pwr_cfg[0], 0x00, max_aid_entries);
     memset(&p_ecb->aid_rt_info[0], 0x00, max_aid_entries);
+    memset(&p_ecb->aid_info[0], 0x00, max_aid_entries);
 #else
     memset(&p_ecb->aid_cfg[0], 0x00, sizeof(p_ecb->aid_cfg));
     memset(&p_ecb->aid_len[0], 0x00, NFA_EE_MAX_AID_ENTRIES);
     memset(&p_ecb->aid_pwr_cfg[0], 0x00, NFA_EE_MAX_AID_ENTRIES);
     memset(&p_ecb->aid_rt_info[0], 0x00, NFA_EE_MAX_AID_ENTRIES);
+    memset(&p_ecb->aid_info[0], 0x00, NFA_EE_MAX_AID_ENTRIES);
 #endif
     p_ecb->aid_entries = 0;
     p_cb->ecb_flags |= NFA_EE_ECB_FLAGS_AID;
@@ -1816,6 +1827,7 @@ void nfa_ee_nci_mode_set_rsp(tNFA_EE_MSG* p_data) {
     mode_set.status = p_rsp->status;
     mode_set.ee_handle = (tNFA_HANDLE)p_rsp->nfcee_id | NFA_HANDLE_GROUP_EE;
     mode_set.ee_status = p_cb->ee_status;
+
     nfa_ee_report_event(p_cb->p_ee_cback, NFA_EE_MODE_SET_EVT,
                         (void*)&mode_set);
 
@@ -2297,6 +2309,7 @@ tNFA_STATUS nfa_ee_route_add_one_ecb(tNFA_EE_ECB* p_cb, int* p_max_len,
     for (xx = 0; xx < p_cb->aid_entries; xx++) {
       /* rememebr the beginning of this AID routing entry, just in case we need
        * to put it in next command */
+      uint8_t route_qual = 0;
       p_start = pp;
       /* add one AID entry */
       if ((p_cb->aid_rt_info[xx] & NFA_EE_AE_ROUTE) &&
@@ -2306,20 +2319,15 @@ tNFA_STATUS nfa_ee_route_add_one_ecb(tNFA_EE_ECB* p_cb, int* p_max_len,
         pa = &p_cb->aid_cfg[start_offset];
         pa++;        /* EMV tag */
         len = *pa++; /* aid_len */
-        if (p_cb->aid_rt_info[xx] & NFA_EE_AE_NXP_PREFIX_MATCH) {
-          // This aid is for prefix match.
-          *pp = NFC_ROUTE_TAG_AID | NFA_EE_AE_NXP_PREFIX_MATCH;
+        if(p_cb->aid_info[xx] & NCI_ROUTE_QUAL_LONG_SELECT)
+          route_qual |= NCI_ROUTE_QUAL_LONG_SELECT;
+        if(p_cb->aid_info[xx] & NCI_ROUTE_QUAL_SHORT_SELECT)
+          route_qual |= NCI_ROUTE_QUAL_SHORT_SELECT;
+        *pp = NFC_ROUTE_TAG_AID | route_qual;
 #if (NXP_NFCC_ROUTING_BLOCK_BIT == true)
           *pp |= route_blacklist_mask;
 #endif
-        } else {
-          // This aid is for exact match.
-          *pp = NFC_ROUTE_TAG_AID;
-#if (NXP_NFCC_ROUTING_BLOCK_BIT == true)
-          *pp |= route_blacklist_mask;
-#endif
-        }
-        *pp++;
+        pp++;
         *pp++ = len + 2;
         *pp++ = p_cb->aid_rt_loc[xx];
         *pp++ = p_cb->aid_pwr_cfg[xx];
@@ -2385,7 +2393,7 @@ tNFA_STATUS nfa_ee_route_add_one_ecb(tNFA_EE_ECB* p_cb, int* p_max_len,
         *proto_pp |= route_blacklist_mask;
       }
 #endif
-      *proto_pp++;
+      proto_pp++;
       *proto_pp++ = 3;
       *proto_pp++ = p_cb->nfcee_id;
       *proto_pp++ = power_cfg;
@@ -2572,18 +2580,16 @@ tNFA_STATUS nfa_ee_route_add_one_ecb(tNFA_EE_ECB* p_cb, int* p_max_len,
         pa++;        /* EMV tag */
         len = *pa++; /* aid_len */
 #if (NXP_EXTNS == TRUE)
-        if (p_cb->aid_rt_info[xx] & NFA_EE_AE_NXP_PREFIX_MATCH) {
-#if (NXP_NFCC_ROUTING_BLOCK_BIT == false)
-          // This aid is for prefix match.
-          *pp++ = (NFC_ROUTE_TAG_AID | NFA_EE_AE_NXP_PREFIX_MATCH) |
-                  (route_blacklist_mask);
-#endif
-        } else {
-#if (NXP_NFCC_ROUTING_BLOCK_BIT == false)
+        if(p_cb->aid_info[xx] & NCI_ROUTE_QUAL_LONG_SELECT)
+          route_qual |= NCI_ROUTE_QUAL_LONG_SELECT;
+        if(p_cb->aid_info[xx] & NCI_ROUTE_QUAL_SHORT_SELECT)
+          route_qual |= NCI_ROUTE_QUAL_SHORT_SELECT;
+        *pp = NFC_ROUTE_TAG_AID | route_qual;
+#if (NXP_NFCC_ROUTING_BLOCK_BIT == true)
           // This aid is for exact match.
-          *pp++ = NFC_ROUTE_TAG_AID | (route_blacklist_mask);
+          *pp |= (route_blacklist_mask);
 #endif
-        }
+          pp++;
 #else
         *pp++ = NFC_ROUTE_TAG_AID;
 #endif
