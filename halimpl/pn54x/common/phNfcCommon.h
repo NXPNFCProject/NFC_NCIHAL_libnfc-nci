@@ -84,7 +84,7 @@
 #endif
 /* HAL Version number (Updated as per release) */
 #define NXP_MW_VERSION_MAJ (0U)
-#define NXP_MW_VERSION_MIN (7U)
+#define NXP_MW_VERSION_MIN (8U)
 
 #define GET_EEPROM_DATA (1U)
 #define SET_EEPROM_DATA (2U)
