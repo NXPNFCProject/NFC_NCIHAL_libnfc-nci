@@ -807,7 +807,8 @@ void nfa_ee_api_add_aid(tNFA_EE_MSG* p_data) {
       p_add->power_state &= ~0x08;
       p_add->power_state &= ~0x20;
       p_add->power_state |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_LOCK();
-    } else if(p_add->power_state & 0x10){
+    }
+    if(p_add->power_state & 0x10){
       p_add->power_state &= ~0x10;
       p_add->power_state |= NCI_ROUTE_PWR_STATE_SCREEN_ON_LOCK();
     }
