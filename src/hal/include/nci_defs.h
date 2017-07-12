@@ -568,6 +568,7 @@ typedef uint8_t tNCI_DISCOVERY_TYPE;
 
 #define NCI_PARAM_ID_TOTAL_DURATION 0x00
 #define NCI_PARAM_ID_CON_DEVICES_LIMIT 0x01
+#define NCI_PARAM_ID_CON_DISCOVERY_PARAM 0x02
 #define NCI_PARAM_ID_PA_BAILOUT 0x08
 #define NCI_PARAM_ID_PB_AFI 0x10
 #define NCI_PARAM_ID_PB_BAILOUT 0x11
@@ -644,6 +645,11 @@ typedef uint8_t tNCI_DISCOVERY_TYPE;
 /* (0x01 << (NCI_DISCOVERY_TYPE_LISTEN_ISO15693 & 0x0F))  */
 #define NCI_LISTEN_MASK_ISO15693 0x40
 
+#define NCI_LISTEN_DH_NFCEE_ENABLE_MASK 0x00 /* The DH-NFCEE listen is considered as a enable NFCEE */
+#define NCI_LISTEN_DH_NFCEE_DISABLE_MASK 0x02 /* The DH-NFCEE listen is considered as a disable NFCEE */
+#define NCI_POLLING_DH_DISABLE_MASK 0x00 /* The DH polling is considered as a disable NFCEE */
+#define NCI_POLLING_DH_ENABLE_MASK 0x01 /* The DH polling is considered as a enable NFCEE */
+
 /* Type A Parameters */
 #define NCI_PARAM_PLATFORM_T1T 0x0C
 #define NCI_PARAM_SEL_INFO_ISODEP 0x20
@@ -652,6 +658,8 @@ typedef uint8_t tNCI_DISCOVERY_TYPE;
  * NCI Parameter ID Lens
  **********************************************/
 #define NCI_PARAM_LEN_TOTAL_DURATION 2
+
+#define NCI_PARAM_LEN_CON_DISCOVERY_PARAM 1
 
 #define NCI_PARAM_LEN_PA_FSDI 1
 
