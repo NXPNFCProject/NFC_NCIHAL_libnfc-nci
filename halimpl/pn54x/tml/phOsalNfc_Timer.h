@@ -29,56 +29,56 @@ extern "C" {
 ************************* Include Files ****************************************
 */
 
-
 /*
  * Timer callback interface which will be called once registered timer
  * time out expires.
  *        TimerId  - Timer Id for which callback is called.
  *        pContext - Parameter to be passed to the callback function
  */
-typedef void (*pphOsalNfc_TimerCallbck_t)(uint32_t TimerId, void *pContext);
+typedef void (*pphOsalNfc_TimerCallbck_t)(uint32_t TimerId, void* pContext);
 
 /*
  * The Timer could not be created due to a
  * system error */
-#define PH_OSALNFC_TIMER_CREATE_ERROR                   (0X00E0)
+#define PH_OSALNFC_TIMER_CREATE_ERROR (0X00E0)
 
 /*
  * The Timer could not be started due to a
  * system error or invalid handle */
-#define PH_OSALNFC_TIMER_START_ERROR                    (0X00E1)
+#define PH_OSALNFC_TIMER_START_ERROR (0X00E1)
 
 /*
  * The Timer could not be stopped due to a
  * system error or invalid handle */
-#define PH_OSALNFC_TIMER_STOP_ERROR                     (0X00E2)
+#define PH_OSALNFC_TIMER_STOP_ERROR (0X00E2)
 
 /*
  * The Timer could not be deleted due to a
  * system error or invalid handle */
-#define PH_OSALNFC_TIMER_DELETE_ERROR                   (0X00E3)
+#define PH_OSALNFC_TIMER_DELETE_ERROR (0X00E3)
 
 /*
  * Invalid timer ID type.This ID used indicate timer creation is failed */
-#define PH_OSALNFC_TIMER_ID_INVALID                     (0xFFFF)
+#define PH_OSALNFC_TIMER_ID_INVALID (0xFFFF)
 
 /*
  * OSAL timer message .This message type will be posted to
  * calling application thread.*/
-#define PH_OSALNFC_TIMER_MSG                            (0x315)
+#define PH_OSALNFC_TIMER_MSG (0x315)
 
 /*
 ***************************Globals,Structure and Enumeration ******************
 */
 
 uint32_t phOsalNfc_Timer_Create(void);
-NFCSTATUS phOsalNfc_Timer_Start(uint32_t dwTimerId, uint32_t dwRegTimeCnt, pphOsalNfc_TimerCallbck_t pApplication_callback, void *pContext);
+NFCSTATUS phOsalNfc_Timer_Start(uint32_t dwTimerId, uint32_t dwRegTimeCnt,
+                                pphOsalNfc_TimerCallbck_t pApplication_callback,
+                                void* pContext);
 NFCSTATUS phOsalNfc_Timer_Stop(uint32_t dwTimerId);
 NFCSTATUS phOsalNfc_Timer_Delete(uint32_t dwTimerId);
 void phOsalNfc_Timer_Cleanup(void);
 uint32_t phUtilNfc_CheckForAvailableTimer(void);
-NFCSTATUS phOsalNfc_CheckTimerPresence(void *pObjectHandle);
-
+NFCSTATUS phOsalNfc_CheckTimerPresence(void* pObjectHandle);
 
 #ifdef __cplusplus
 }

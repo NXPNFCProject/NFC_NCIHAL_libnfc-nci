@@ -16,7 +16,6 @@
  *
  ******************************************************************************/
 
-
 /******************************************************************************
  *
  *  This file contains the main LLCP entry points
@@ -32,9 +31,7 @@
 #include "llcp_defs.h"
 #include "nfc_int.h"
 
-#if (LLCP_DYNAMIC_MEMORY == FALSE)
 tLLCP_CB llcp_cb;
-#endif
 
 /*******************************************************************************
 **
@@ -46,58 +43,65 @@ tLLCP_CB llcp_cb;
 ** Returns          void
 **
 *******************************************************************************/
-void llcp_init (void)
-{
-    UINT32 pool_count;
+void llcp_init(void) {
+  uint32_t pool_count;
 
-    memset (&llcp_cb, 0, sizeof (tLLCP_CB));
+  memset(&llcp_cb, 0, sizeof(tLLCP_CB));
 
-    llcp_cb.trace_level = LLCP_INITIAL_TRACE_LEVEL;
+  llcp_cb.trace_level = LLCP_INITIAL_TRACE_LEVEL;
 
-    LLCP_TRACE_DEBUG0 ("LLCP - llcp_init ()");
+  LLCP_TRACE_DEBUG0("LLCP - llcp_init ()");
 
-    llcp_cb.lcb.local_link_miu = (LLCP_MIU <= LLCP_MAX_MIU ? LLCP_MIU : LLCP_MAX_MIU);
-    llcp_cb.lcb.local_opt      = LLCP_OPT_VALUE;
-    llcp_cb.lcb.local_wt       = LLCP_WAITING_TIME;
-    llcp_cb.lcb.local_lto      = LLCP_LTO_VALUE;
+  llcp_cb.lcb.local_link_miu =
+      (LLCP_MIU <= LLCP_MAX_MIU ? LLCP_MIU : LLCP_MAX_MIU);
+  llcp_cb.lcb.local_opt = LLCP_OPT_VALUE;
+  llcp_cb.lcb.local_wt = LLCP_WAITING_TIME;
+  llcp_cb.lcb.local_lto = LLCP_LTO_VALUE;
 
-    llcp_cb.lcb.inact_timeout_init   = LLCP_INIT_INACTIVITY_TIMEOUT;
-    llcp_cb.lcb.inact_timeout_target = LLCP_TARGET_INACTIVITY_TIMEOUT;
-    llcp_cb.lcb.symm_delay           = LLCP_DELAY_RESP_TIME;
-    llcp_cb.lcb.data_link_timeout    = LLCP_DATA_LINK_CONNECTION_TOUT;
-    llcp_cb.lcb.delay_first_pdu_timeout = LLCP_DELAY_TIME_TO_SEND_FIRST_PDU;
+  llcp_cb.lcb.inact_timeout_init = LLCP_INIT_INACTIVITY_TIMEOUT;
+  llcp_cb.lcb.inact_timeout_target = LLCP_TARGET_INACTIVITY_TIMEOUT;
+  llcp_cb.lcb.symm_delay = LLCP_DELAY_RESP_TIME;
+  llcp_cb.lcb.data_link_timeout = LLCP_DATA_LINK_CONNECTION_TOUT;
+  llcp_cb.lcb.delay_first_pdu_timeout = LLCP_DELAY_TIME_TO_SEND_FIRST_PDU;
 
-    llcp_cb.lcb.wks  = LLCP_WKS_MASK_LM;
+  llcp_cb.lcb.wks = LLCP_WKS_MASK_LM;
 
-    /* total number of buffers for LLCP */
-    pool_count = GKI_poolcount (LLCP_POOL_ID);
+  /* total number of buffers for LLCP */
+  pool_count = GKI_poolcount(LLCP_POOL_ID);
 
-    /* number of buffers for receiving data */
-    llcp_cb.num_rx_buff = (pool_count * LLCP_RX_BUFF_RATIO) / 100;
+  /* number of buffers for receiving data */
+  llcp_cb.num_rx_buff = (pool_count * LLCP_RX_BUFF_RATIO) / 100;
 
-    /* rx congestion start/end threshold */
-    llcp_cb.overall_rx_congest_start = (UINT8) ((llcp_cb.num_rx_buff * LLCP_RX_CONGEST_START) / 100);
-    llcp_cb.overall_rx_congest_end   = (UINT8) ((llcp_cb.num_rx_buff * LLCP_RX_CONGEST_END) / 100);
+  /* rx congestion start/end threshold */
+  llcp_cb.overall_rx_congest_start =
+      (uint8_t)((llcp_cb.num_rx_buff * LLCP_RX_CONGEST_START) / 100);
+  llcp_cb.overall_rx_congest_end =
+      (uint8_t)((llcp_cb.num_rx_buff * LLCP_RX_CONGEST_END) / 100);
 
-    /* max number of buffers for receiving data on logical data link */
-    llcp_cb.max_num_ll_rx_buff = (UINT8) ((llcp_cb.num_rx_buff * LLCP_LL_RX_BUFF_LIMIT) / 100);
+  /* max number of buffers for receiving data on logical data link */
+  llcp_cb.max_num_ll_rx_buff =
+      (uint8_t)((llcp_cb.num_rx_buff * LLCP_LL_RX_BUFF_LIMIT) / 100);
 
-    LLCP_TRACE_DEBUG4 ("num_rx_buff = %d, rx_congest_start = %d, rx_congest_end = %d, max_num_ll_rx_buff = %d",
-                        llcp_cb.num_rx_buff, llcp_cb.overall_rx_congest_start,
-                        llcp_cb.overall_rx_congest_end, llcp_cb.max_num_ll_rx_buff);
+  LLCP_TRACE_DEBUG4(
+      "num_rx_buff = %d, rx_congest_start = %d, rx_congest_end = %d, "
+      "max_num_ll_rx_buff = %d",
+      llcp_cb.num_rx_buff, llcp_cb.overall_rx_congest_start,
+      llcp_cb.overall_rx_congest_end, llcp_cb.max_num_ll_rx_buff);
 
-    /* max number of buffers for transmitting data */
-    llcp_cb.max_num_tx_buff    = (UINT8) (pool_count - llcp_cb.num_rx_buff);
+  /* max number of buffers for transmitting data */
+  llcp_cb.max_num_tx_buff = (uint8_t)(pool_count - llcp_cb.num_rx_buff);
 
-    /* max number of buffers for transmitting data on logical data link */
-    llcp_cb.max_num_ll_tx_buff = (UINT8) ((llcp_cb.max_num_tx_buff * LLCP_LL_TX_BUFF_LIMIT) / 100);
+  /* max number of buffers for transmitting data on logical data link */
+  llcp_cb.max_num_ll_tx_buff =
+      (uint8_t)((llcp_cb.max_num_tx_buff * LLCP_LL_TX_BUFF_LIMIT) / 100);
 
-    LLCP_TRACE_DEBUG2 ("max_num_tx_buff = %d, max_num_ll_tx_buff = %d",
-                        llcp_cb.max_num_tx_buff, llcp_cb.max_num_ll_tx_buff);
+  LLCP_TRACE_DEBUG2("max_num_tx_buff = %d, max_num_ll_tx_buff = %d",
+                    llcp_cb.max_num_tx_buff, llcp_cb.max_num_ll_tx_buff);
 
-    llcp_cb.ll_tx_uncongest_ntf_start_sap = LLCP_SAP_SDP + 1;
+  llcp_cb.ll_tx_uncongest_ntf_start_sap = LLCP_SAP_SDP + 1;
 
-    LLCP_RegisterServer (LLCP_SAP_SDP, LLCP_LINK_TYPE_DATA_LINK_CONNECTION, "urn:nfc:sn:sdp", llcp_sdp_proc_data);
+  LLCP_RegisterServer(LLCP_SAP_SDP, LLCP_LINK_TYPE_DATA_LINK_CONNECTION,
+                      "urn:nfc:sn:sdp", llcp_sdp_proc_data);
 }
 
 /*******************************************************************************
@@ -109,26 +113,22 @@ void llcp_init (void)
 ** Returns          void
 **
 *******************************************************************************/
-void llcp_cleanup (void)
-{
-    UINT8 sap;
-    tLLCP_APP_CB *p_app_cb;
+void llcp_cleanup(void) {
+  uint8_t sap;
+  tLLCP_APP_CB* p_app_cb;
 
-    LLCP_TRACE_DEBUG0 ("LLCP - llcp_cleanup ()");
+  LLCP_TRACE_DEBUG0("LLCP - llcp_cleanup ()");
 
-    for (sap = LLCP_SAP_SDP; sap < LLCP_NUM_SAPS; sap++)
-    {
-        p_app_cb = llcp_util_get_app_cb (sap);
+  for (sap = LLCP_SAP_SDP; sap < LLCP_NUM_SAPS; sap++) {
+    p_app_cb = llcp_util_get_app_cb(sap);
 
-        if (  (p_app_cb)
-            &&(p_app_cb->p_app_cback)  )
-        {
-            LLCP_Deregister (sap);
-        }
+    if ((p_app_cb) && (p_app_cb->p_app_cback)) {
+      LLCP_Deregister(sap);
     }
+  }
 
-    nfc_stop_quick_timer (&llcp_cb.lcb.inact_timer);
-    nfc_stop_quick_timer (&llcp_cb.lcb.timer);
+  nfc_stop_quick_timer(&llcp_cb.lcb.inact_timer);
+  nfc_stop_quick_timer(&llcp_cb.lcb.timer);
 }
 
 /*******************************************************************************
@@ -140,36 +140,35 @@ void llcp_cleanup (void)
 ** Returns          void
 **
 *******************************************************************************/
-void llcp_process_timeout (TIMER_LIST_ENT *p_tle)
-{
-    UINT8 reason;
+void llcp_process_timeout(TIMER_LIST_ENT* p_tle) {
+  uint8_t reason;
 
-    LLCP_TRACE_DEBUG1 ("llcp_process_timeout: event=%d", p_tle->event);
+  LLCP_TRACE_DEBUG1("llcp_process_timeout: event=%d", p_tle->event);
 
-    switch (p_tle->event)
-    {
+  switch (p_tle->event) {
     case NFC_TTYPE_LLCP_LINK_MANAGER:
-        /* Link timeout or Symm timeout */
-        llcp_link_process_link_timeout ();
-        break;
+      /* Link timeout or Symm timeout */
+      llcp_link_process_link_timeout();
+      break;
 
     case NFC_TTYPE_LLCP_LINK_INACT:
-        /* inactivity timeout */
-        llcp_link_deactivate (LLCP_LINK_LOCAL_INITIATED);
-        break;
+      /* inactivity timeout */
+      llcp_link_deactivate(LLCP_LINK_LOCAL_INITIATED);
+      break;
 
     case NFC_TTYPE_LLCP_DATA_LINK:
-        reason = LLCP_SAP_DISCONNECT_REASON_TIMEOUT;
-        llcp_dlsm_execute ((tLLCP_DLCB *) (p_tle->param), LLCP_DLC_EVENT_TIMEOUT, &reason);
-        break;
+      reason = LLCP_SAP_DISCONNECT_REASON_TIMEOUT;
+      llcp_dlsm_execute((tLLCP_DLCB*)(p_tle->param), LLCP_DLC_EVENT_TIMEOUT,
+                        &reason);
+      break;
 
     case NFC_TTYPE_LLCP_DELAY_FIRST_PDU:
-            llcp_link_check_send_data ();
-        break;
+      llcp_link_check_send_data();
+      break;
 
     default:
-        break;
-    }
+      break;
+  }
 }
 
 /*******************************************************************************
@@ -182,10 +181,8 @@ void llcp_process_timeout (TIMER_LIST_ENT *p_tle)
 ** Returns          The new or current trace level
 **
 *******************************************************************************/
-UINT8 LLCP_SetTraceLevel (UINT8 new_level)
-{
-    if (new_level != 0xFF)
-        llcp_cb.trace_level = new_level;
+uint8_t LLCP_SetTraceLevel(uint8_t new_level) {
+  if (new_level != 0xFF) llcp_cb.trace_level = new_level;
 
-    return (llcp_cb.trace_level);
+  return (llcp_cb.trace_level);
 }

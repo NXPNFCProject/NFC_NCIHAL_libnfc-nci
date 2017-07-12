@@ -16,7 +16,6 @@
  *
  ******************************************************************************/
 
-
 /******************************************************************************
  *
  *  NFA interface for tag Reader/Writer
@@ -31,7 +30,6 @@
 /*****************************************************************************
 **  Constants
 *****************************************************************************/
-
 
 /*****************************************************************************
 **  APIs
@@ -50,8 +48,8 @@
 **                  size, etc.).
 **
 **                  It is not mandatory to call this function -  NFA_RwReadNDef
-**                  and NFA_RwWriteNDef will perform NDEF detection internally if
-**                  not performed already. This API may be called to get a
+**                  and NFA_RwWriteNDef will perform NDEF detection internally
+**                  if not performed already. This API may be called to get a
 **                  tag's NDEF size before issuing a write-request.
 **
 ** Returns:
@@ -60,23 +58,22 @@
 **                  NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwDetectNDef (void)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwDetectNDef(void) {
+  tNFA_RW_OPERATION* p_msg;
 
-    NFA_TRACE_API0 ("NFA_RwDetectNDef");
+  NFA_TRACE_API0("NFA_RwDetectNDef");
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_DETECT_NDEF;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_DETECT_NDEF;
 
-        nfa_sys_sendmsg (p_msg);
+    nfa_sys_sendmsg(p_msg);
 
-        return (NFA_STATUS_OK);
-    }
+    return (NFA_STATUS_OK);
+  }
 
-    return (NFA_STATUS_FAILED);
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -89,41 +86,40 @@ tNFA_STATUS NFA_RwDetectNDef (void)
 **                  appropriate method for the currently activated tag.
 **
 **                  Upon successful completion of NDEF detection (if performed),
-**                  a NFA_NDEF_DETECT_EVT will be sent, to notify the application
-**                  of the NDEF attributes (NDEF total memory size, current size,
-**                  etc.).
+**                  a NFA_NDEF_DETECT_EVT will be sent, to notify the
+**                  application of the NDEF attributes (NDEF total memory size,
+**                  current size, etc.).
 **
 **                  Upon receiving the NDEF message, the message will be sent to
 **                  the handler registered with NFA_RegisterNDefTypeHandler or
-**                  NFA_RequestExclusiveRfControl (if exclusive RF mode is active)
+**                  NFA_RequestExclusiveRfControl (if exclusive RF mode is
+**                  active)
 **
 ** Returns:
 **                  NFA_STATUS_OK if successfully initiated
 **                  NFC_STATUS_REFUSED if tag does not support NDEF
-**                  NFC_STATUS_NOT_INITIALIZED if NULL NDEF was detected on the tag
+**                  NFC_STATUS_NOT_INITIALIZED if NULL NDEF was detected on the
+**                  tag
 **                  NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwReadNDef (void)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwReadNDef(void) {
+  tNFA_RW_OPERATION* p_msg;
 
-    NFA_TRACE_API0 ("NFA_RwReadNDef");
+  NFA_TRACE_API0("NFA_RwReadNDef");
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_READ_NDEF;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_READ_NDEF;
 
-        nfa_sys_sendmsg (p_msg);
+    nfa_sys_sendmsg(p_msg);
 
-        return (NFA_STATUS_OK);
-    }
+    return (NFA_STATUS_OK);
+  }
 
-    return (NFA_STATUS_FAILED);
+  return (NFA_STATUS_FAILED);
 }
-
-
 
 /*******************************************************************************
 **
@@ -146,28 +142,26 @@ tNFA_STATUS NFA_RwReadNDef (void)
 **                  NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwWriteNDef (UINT8 *p_data, UINT32 len)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwWriteNDef(uint8_t* p_data, uint32_t len) {
+  tNFA_RW_OPERATION* p_msg;
 
-    NFA_TRACE_API2 ("NFA_RwWriteNDef (): ndef p_data=%08x, len: %i", p_data, len);
+  NFA_TRACE_API2("NFA_RwWriteNDef (): ndef p_data=%08x, len: %i", p_data, len);
 
-    /* Validate parameters */
-    if (p_data == NULL)
-        return (NFA_STATUS_INVALID_PARAM);
+  /* Validate parameters */
+  if (p_data == NULL) return (NFA_STATUS_INVALID_PARAM);
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        p_msg->hdr.event                = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op                       = NFA_RW_OP_WRITE_NDEF;
-        p_msg->params.write_ndef.len    = len;
-        p_msg->params.write_ndef.p_data = p_data;
-        nfa_sys_sendmsg (p_msg);
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_WRITE_NDEF;
+    p_msg->params.write_ndef.len = len;
+    p_msg->params.write_ndef.p_data = p_data;
+    nfa_sys_sendmsg(p_msg);
 
-        return (NFA_STATUS_OK);
-    }
+    return (NFA_STATUS_OK);
+  }
 
-    return (NFA_STATUS_FAILED);
+  return (NFA_STATUS_FAILED);
 }
 
 /*****************************************************************************
@@ -186,24 +180,23 @@ tNFA_STATUS NFA_RwWriteNDef (UINT8 *p_data, UINT32 len)
 **                  NFA_STATUS_FAILED otherwise
 **
 *****************************************************************************/
-tNFA_STATUS NFA_RwPresenceCheck (tNFA_RW_PRES_CHK_OPTION option)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwPresenceCheck(tNFA_RW_PRES_CHK_OPTION option) {
+  tNFA_RW_OPERATION* p_msg;
 
-    NFA_TRACE_API0 ("NFA_RwPresenceCheck");
+  NFA_TRACE_API0("NFA_RwPresenceCheck");
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_PRESENCE_CHECK;
-        p_msg->params.option    = option;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_PRESENCE_CHECK;
+    p_msg->params.option = option;
 
-        nfa_sys_sendmsg (p_msg);
+    nfa_sys_sendmsg(p_msg);
 
-        return (NFA_STATUS_OK);
-    }
+    return (NFA_STATUS_OK);
+  }
 
-    return (NFA_STATUS_FAILED);
+  return (NFA_STATUS_FAILED);
 }
 
 /*****************************************************************************
@@ -220,23 +213,22 @@ tNFA_STATUS NFA_RwPresenceCheck (tNFA_RW_PRES_CHK_OPTION option)
 **                  NFA_STATUS_FAILED otherwise
 **
 *****************************************************************************/
-tNFA_STATUS NFA_RwFormatTag (void)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwFormatTag(void) {
+  tNFA_RW_OPERATION* p_msg;
 
-    NFA_TRACE_API0 ("NFA_RwFormatTag");
+  NFA_TRACE_API0("NFA_RwFormatTag");
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16)(sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_FORMAT_TAG;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_FORMAT_TAG;
 
-        nfa_sys_sendmsg (p_msg);
+    nfa_sys_sendmsg(p_msg);
 
-        return (NFA_STATUS_OK);
-    }
+    return (NFA_STATUS_OK);
+  }
 
-    return (NFA_STATUS_FAILED);
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -256,37 +248,41 @@ tNFA_STATUS NFA_RwFormatTag (void)
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwSetTagReadOnly (BOOLEAN b_hard_lock)
-{
-    tNFA_RW_OPERATION *p_msg;
-    tNFC_PROTOCOL      protocol = nfa_rw_cb.protocol;
+tNFA_STATUS NFA_RwSetTagReadOnly(bool b_hard_lock) {
+  tNFA_RW_OPERATION* p_msg;
+  tNFC_PROTOCOL protocol = nfa_rw_cb.protocol;
 
-    if ((protocol != NFC_PROTOCOL_T1T) && (protocol != NFC_PROTOCOL_T2T) && (protocol != NFC_PROTOCOL_15693) && (protocol != NFC_PROTOCOL_ISO_DEP) && (protocol != NFC_PROTOCOL_T3T))
-    {
-        NFA_TRACE_API1 ("NFA_RwSetTagReadOnly (): Cannot Configure as read only for Protocol: %d", protocol);
-        return (NFA_STATUS_REJECTED);
-    }
+  if ((protocol != NFC_PROTOCOL_T1T) && (protocol != NFC_PROTOCOL_T2T) &&
+      (protocol != NFC_PROTOCOL_15693) && (protocol != NFC_PROTOCOL_ISO_DEP) &&
+      (protocol != NFC_PROTOCOL_T3T)) {
+    NFA_TRACE_API1(
+        "NFA_RwSetTagReadOnly (): Cannot Configure as read only for Protocol: "
+        "%d",
+        protocol);
+    return (NFA_STATUS_REJECTED);
+  }
 
-    if (  (!b_hard_lock && (protocol == NFC_PROTOCOL_15693))
-        ||(b_hard_lock && (protocol == NFC_PROTOCOL_ISO_DEP))  )
-    {
-        NFA_TRACE_API2 ("NFA_RwSetTagReadOnly (): Cannot %s for Protocol: %d", b_hard_lock ? "Hard lock" : "Soft lock", protocol);
-        return (NFA_STATUS_REJECTED);
-    }
+  if ((!b_hard_lock && (protocol == NFC_PROTOCOL_15693)) ||
+      (b_hard_lock && (protocol == NFC_PROTOCOL_ISO_DEP))) {
+    NFA_TRACE_API2("NFA_RwSetTagReadOnly (): Cannot %s for Protocol: %d",
+                   b_hard_lock ? "Hard lock" : "Soft lock", protocol);
+    return (NFA_STATUS_REJECTED);
+  }
 
-    NFA_TRACE_API1 ("NFA_RwSetTagReadOnly (): %s", b_hard_lock ? "Hard lock" : "Soft lock");
+  NFA_TRACE_API1("NFA_RwSetTagReadOnly (): %s",
+                 b_hard_lock ? "Hard lock" : "Soft lock");
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event                       = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op                              = NFA_RW_OP_SET_TAG_RO;
-        p_msg->params.set_readonly.b_hard_lock = b_hard_lock;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_SET_TAG_RO;
+    p_msg->params.set_readonly.b_hard_lock = b_hard_lock;
 
-        nfa_sys_sendmsg (p_msg);
-        return (NFA_STATUS_OK);
-    }
-    return (NFA_STATUS_FAILED);
+    nfa_sys_sendmsg(p_msg);
+    return (NFA_STATUS_OK);
+  }
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -315,49 +311,44 @@ tNFA_STATUS NFA_RwSetTagReadOnly (BOOLEAN b_hard_lock)
 **                  calling NFA_RwDetectNDef and should expect to receive
 **                  NFA_NDEF_DETECT_EVT instead of NFA_TLV_DETECT_EVT
 **
-**                  It is not mandatory to call this function -  NFA_RwDetectNDef,
-**                  NFA_RwReadNDef and NFA_RwWriteNDef will perform TLV detection
-**                  internally if not performed already. An application may call
-**                  this API to check the a tag/card-emulator's total Reserved/
+**                  It is not mandatory to call this function -
+**                  NFA_RwDetectNDef, NFA_RwReadNDef and NFA_RwWriteNDef will
+**                  perform TLV detection internally if not performed already.
+**                  An application may call this API to check the a
+**                  tag/card-emulator's total Reserved/
 **                  Lock bytes before issuing a write-request.
 **
 ** Returns:
 **                  NFA_STATUS_OK if successfully initiated
-**                  NFC_STATUS_REFUSED if tlv_type is NDEF & tag won't support NDEF
+**                  NFC_STATUS_REFUSED if tlv_type is NDEF & tag won't support
+**                  NDEF
 **                  NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwLocateTlv (UINT8 tlv_type)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwLocateTlv(uint8_t tlv_type) {
+  tNFA_RW_OPERATION* p_msg;
 
-    NFA_TRACE_API0 ("NFA_RwLocateTlv");
+  NFA_TRACE_API0("NFA_RwLocateTlv");
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
 
-        if (tlv_type == TAG_LOCK_CTRL_TLV)
-        {
-            p_msg->op = NFA_RW_OP_DETECT_LOCK_TLV;
-        }
-        else if (tlv_type == TAG_MEM_CTRL_TLV)
-        {
-            p_msg->op = NFA_RW_OP_DETECT_MEM_TLV;
-        }
-        else if (tlv_type == TAG_NDEF_TLV)
-        {
-            p_msg->op = NFA_RW_OP_DETECT_NDEF;
-        }
-        else
-            return (NFA_STATUS_FAILED);
+    if (tlv_type == TAG_LOCK_CTRL_TLV) {
+      p_msg->op = NFA_RW_OP_DETECT_LOCK_TLV;
+    } else if (tlv_type == TAG_MEM_CTRL_TLV) {
+      p_msg->op = NFA_RW_OP_DETECT_MEM_TLV;
+    } else if (tlv_type == TAG_NDEF_TLV) {
+      p_msg->op = NFA_RW_OP_DETECT_NDEF;
+    } else
+      return (NFA_STATUS_FAILED);
 
-        nfa_sys_sendmsg (p_msg);
+    nfa_sys_sendmsg(p_msg);
 
-        return (NFA_STATUS_OK);
-    }
+    return (NFA_STATUS_OK);
+  }
 
-    return (NFA_STATUS_FAILED);
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -367,29 +358,28 @@ tNFA_STATUS NFA_RwLocateTlv (UINT8 tlv_type)
 ** Description:
 **      Send a RID command to the activated Type 1 tag.
 **
-**      Data is returned to the application using the NFA_DATA_EVT. When the read
-**      operation has completed, or if an error occurs, the app will be notified with
-**      NFA_READ_CPLT_EVT.
+**      Data is returned to the application using the NFA_DATA_EVT. When the
+**      read operation has completed, or if an error occurs, the app will be
+**      notified with NFA_READ_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwT1tRid (void)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwT1tRid(void) {
+  tNFA_RW_OPERATION* p_msg;
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_T1T_RID;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_T1T_RID;
 
-        nfa_sys_sendmsg (p_msg);
-        return (NFA_STATUS_OK);
-    }
-    return (NFA_STATUS_FAILED);
+    nfa_sys_sendmsg(p_msg);
+    return (NFA_STATUS_OK);
+  }
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -399,29 +389,28 @@ tNFA_STATUS NFA_RwT1tRid (void)
 ** Description:
 **      Send a RALL command to the activated Type 1 tag.
 **
-**      Data is returned to the application using the NFA_DATA_EVT. When the read
-**      operation has completed, or if an error occurs, the app will be notified with
-**      NFA_READ_CPLT_EVT.
+**      Data is returned to the application using the NFA_DATA_EVT. When the
+**      read operation has completed, or if an error occurs, the app will be
+**      notified with NFA_READ_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwT1tReadAll (void)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwT1tReadAll(void) {
+  tNFA_RW_OPERATION* p_msg;
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_T1T_RALL;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_T1T_RALL;
 
-        nfa_sys_sendmsg (p_msg);
-        return (NFA_STATUS_OK);
-    }
-    return (NFA_STATUS_FAILED);
+    nfa_sys_sendmsg(p_msg);
+    return (NFA_STATUS_OK);
+  }
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -431,31 +420,30 @@ tNFA_STATUS NFA_RwT1tReadAll (void)
 ** Description:
 **      Send a READ command to the activated Type 1 tag.
 **
-**      Data is returned to the application using the NFA_DATA_EVT. When the read
-**      operation has completed, or if an error occurs, the app will be notified with
-**      NFA_READ_CPLT_EVT.
+**      Data is returned to the application using the NFA_DATA_EVT. When the
+**      read operation has completed, or if an error occurs, the app will be
+**      notified with NFA_READ_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwT1tRead (UINT8 block_number, UINT8 index)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwT1tRead(uint8_t block_number, uint8_t index) {
+  tNFA_RW_OPERATION* p_msg;
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event                    = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op                           = NFA_RW_OP_T1T_READ;
-        p_msg->params.t1t_read.block_number = block_number;
-        p_msg->params.t1t_read.index        = index;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_T1T_READ;
+    p_msg->params.t1t_read.block_number = block_number;
+    p_msg->params.t1t_read.index = index;
 
-        nfa_sys_sendmsg (p_msg);
-        return (NFA_STATUS_OK);
-    }
-    return (NFA_STATUS_FAILED);
+    nfa_sys_sendmsg(p_msg);
+    return (NFA_STATUS_OK);
+  }
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -465,33 +453,33 @@ tNFA_STATUS NFA_RwT1tRead (UINT8 block_number, UINT8 index)
 ** Description:
 **      Send a WRITE command to the activated Type 1 tag.
 **
-**      Data is returned to the application using the NFA_DATA_EVT. When the write
-**      operation has completed, or if an error occurs, the app will be notified with
-**      NFA_WRITE_CPLT_EVT.
+**      Data is returned to the application using the NFA_DATA_EVT. When the
+**      write operation has completed, or if an error occurs, the app will be
+**      notified with NFA_WRITE_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwT1tWrite (UINT8 block_number, UINT8 index, UINT8 data, BOOLEAN b_erase)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwT1tWrite(uint8_t block_number, uint8_t index, uint8_t data,
+                           bool b_erase) {
+  tNFA_RW_OPERATION* p_msg;
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event                     = NFA_RW_OP_REQUEST_EVT;
-        p_msg->params.t1t_write.b_erase      = b_erase;
-        p_msg->op                            = NFA_RW_OP_T1T_WRITE;
-        p_msg->params.t1t_write.block_number = block_number;
-        p_msg->params.t1t_write.index        = index;
-        p_msg->params.t1t_write.p_block_data[0] = data;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->params.t1t_write.b_erase = b_erase;
+    p_msg->op = NFA_RW_OP_T1T_WRITE;
+    p_msg->params.t1t_write.block_number = block_number;
+    p_msg->params.t1t_write.index = index;
+    p_msg->params.t1t_write.p_block_data[0] = data;
 
-        nfa_sys_sendmsg (p_msg);
-        return (NFA_STATUS_OK);
-    }
-    return (NFA_STATUS_FAILED);
+    nfa_sys_sendmsg(p_msg);
+    return (NFA_STATUS_OK);
+  }
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -501,30 +489,29 @@ tNFA_STATUS NFA_RwT1tWrite (UINT8 block_number, UINT8 index, UINT8 data, BOOLEAN
 ** Description:
 **      Send a RSEG command to the activated Type 1 tag.
 **
-**      Data is returned to the application using the NFA_DATA_EVT. When the read
-**      operation has completed, or if an error occurs, the app will be notified with
-**      NFA_READ_CPLT_EVT.
+**      Data is returned to the application using the NFA_DATA_EVT. When the
+**      read operation has completed, or if an error occurs, the app will be
+**      notified with NFA_READ_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwT1tReadSeg (UINT8 segment_number)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwT1tReadSeg(uint8_t segment_number) {
+  tNFA_RW_OPERATION* p_msg;
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event                      = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op                             = NFA_RW_OP_T1T_RSEG;
-        p_msg->params.t1t_read.segment_number = segment_number;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_T1T_RSEG;
+    p_msg->params.t1t_read.segment_number = segment_number;
 
-        nfa_sys_sendmsg (p_msg);
-        return (NFA_STATUS_OK);
-    }
-    return (NFA_STATUS_FAILED);
+    nfa_sys_sendmsg(p_msg);
+    return (NFA_STATUS_OK);
+  }
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -534,30 +521,29 @@ tNFA_STATUS NFA_RwT1tReadSeg (UINT8 segment_number)
 ** Description:
 **      Send a READ8 command to the activated Type 1 tag.
 **
-**      Data is returned to the application using the NFA_DATA_EVT. When the read
-**      operation has completed, or if an error occurs, the app will be notified with
-**      NFA_READ_CPLT_EVT.
+**      Data is returned to the application using the NFA_DATA_EVT. When the
+**      read operation has completed, or if an error occurs, the app will be
+**      notified with NFA_READ_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwT1tRead8 (UINT8 block_number)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwT1tRead8(uint8_t block_number) {
+  tNFA_RW_OPERATION* p_msg;
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event                     = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op                            = NFA_RW_OP_T1T_READ8;
-        p_msg->params.t1t_write.block_number = block_number;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_T1T_READ8;
+    p_msg->params.t1t_write.block_number = block_number;
 
-        nfa_sys_sendmsg (p_msg);
-        return (NFA_STATUS_OK);
-    }
-    return (NFA_STATUS_FAILED);
+    nfa_sys_sendmsg(p_msg);
+    return (NFA_STATUS_OK);
+  }
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -567,33 +553,33 @@ tNFA_STATUS NFA_RwT1tRead8 (UINT8 block_number)
 ** Description:
 **      Send a WRITE8_E / WRITE8_NE command to the activated Type 1 tag.
 **
-**      Data is returned to the application using the NFA_DATA_EVT. When the read
-**      operation has completed, or if an error occurs, the app will be notified with
-**      NFA_READ_CPLT_EVT.
+**      Data is returned to the application using the NFA_DATA_EVT. When the
+**      read operation has completed, or if an error occurs, the app will be
+**      notified with NFA_READ_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwT1tWrite8 (UINT8 block_number, UINT8 *p_data, BOOLEAN b_erase)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwT1tWrite8(uint8_t block_number, uint8_t* p_data,
+                            bool b_erase) {
+  tNFA_RW_OPERATION* p_msg;
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event                     = NFA_RW_OP_REQUEST_EVT;
-        p_msg->params.t1t_write.b_erase      = b_erase;
-        p_msg->op                            = NFA_RW_OP_T1T_WRITE8;
-        p_msg->params.t1t_write.block_number = block_number;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->params.t1t_write.b_erase = b_erase;
+    p_msg->op = NFA_RW_OP_T1T_WRITE8;
+    p_msg->params.t1t_write.block_number = block_number;
 
-        memcpy (p_msg->params.t1t_write.p_block_data,p_data,8);
+    memcpy(p_msg->params.t1t_write.p_block_data, p_data, 8);
 
-        nfa_sys_sendmsg (p_msg);
-        return (NFA_STATUS_OK);
-    }
-    return (NFA_STATUS_FAILED);
+    nfa_sys_sendmsg(p_msg);
+    return (NFA_STATUS_OK);
+  }
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -603,32 +589,31 @@ tNFA_STATUS NFA_RwT1tWrite8 (UINT8 block_number, UINT8 *p_data, BOOLEAN b_erase)
 ** Description:
 **      Send a READ command to the activated Type 2 tag.
 **
-**      Data is returned to the application using the NFA_DATA_EVT. When the read
-**      operation has completed, or if an error occurs, the app will be notified with
-**      NFA_READ_CPLT_EVT.
+**      Data is returned to the application using the NFA_DATA_EVT. When the
+**      read operation has completed, or if an error occurs, the app will be
+**      notified with NFA_READ_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwT2tRead (UINT8 block_number)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwT2tRead(uint8_t block_number) {
+  tNFA_RW_OPERATION* p_msg;
 
-    NFA_TRACE_API1 ("NFA_RwT2tRead (): Block to read: %d", block_number);
+  NFA_TRACE_API1("NFA_RwT2tRead (): Block to read: %d", block_number);
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event                    = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op                           = NFA_RW_OP_T2T_READ;
-        p_msg->params.t2t_read.block_number = block_number;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_T2T_READ;
+    p_msg->params.t2t_read.block_number = block_number;
 
-        nfa_sys_sendmsg (p_msg);
-        return (NFA_STATUS_OK);
-    }
-    return (NFA_STATUS_FAILED);
+    nfa_sys_sendmsg(p_msg);
+    return (NFA_STATUS_OK);
+  }
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -646,26 +631,25 @@ tNFA_STATUS NFA_RwT2tRead (UINT8 block_number)
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwT2tWrite (UINT8 block_number, UINT8 *p_data)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwT2tWrite(uint8_t block_number, uint8_t* p_data) {
+  tNFA_RW_OPERATION* p_msg;
 
-    NFA_TRACE_API1 ("NFA_RwT2tWrite (): Block to write: %d", block_number);
+  NFA_TRACE_API1("NFA_RwT2tWrite (): Block to write: %d", block_number);
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_T2T_WRITE;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_T2T_WRITE;
 
-        p_msg->params.t2t_write.block_number = block_number;
+    p_msg->params.t2t_write.block_number = block_number;
 
-        memcpy (p_msg->params.t2t_write.p_block_data,p_data,4);
+    memcpy(p_msg->params.t2t_write.p_block_data, p_data, 4);
 
-        nfa_sys_sendmsg (p_msg);
-        return (NFA_STATUS_OK);
-    }
-    return (NFA_STATUS_FAILED);
+    nfa_sys_sendmsg(p_msg);
+    return (NFA_STATUS_OK);
+  }
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -675,32 +659,31 @@ tNFA_STATUS NFA_RwT2tWrite (UINT8 block_number, UINT8 *p_data)
 ** Description:
 **      Send SECTOR SELECT command to the activated Type 2 tag.
 **
-**      When the sector select operation has completed (or if an error occurs), the
-**      app will be notified with NFA_SECTOR_SELECT_CPLT_EVT.
+**      When the sector select operation has completed (or if an error occurs),
+**      the app will be notified with NFA_SECTOR_SELECT_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwT2tSectorSelect (UINT8 sector_number)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwT2tSectorSelect(uint8_t sector_number) {
+  tNFA_RW_OPERATION* p_msg;
 
-    NFA_TRACE_API1 ("NFA_RwT2tRead (): sector to select: %d", sector_number);
+  NFA_TRACE_API1("NFA_RwT2tRead (): sector to select: %d", sector_number);
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_T2T_SECTOR_SELECT;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_T2T_SECTOR_SELECT;
 
-        p_msg->params.t2t_sector_select.sector_number = sector_number;
+    p_msg->params.t2t_sector_select.sector_number = sector_number;
 
-        nfa_sys_sendmsg (p_msg);
-        return (NFA_STATUS_OK);
-    }
-    return (NFA_STATUS_FAILED);
+    nfa_sys_sendmsg(p_msg);
+    return (NFA_STATUS_OK);
+  }
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -710,47 +693,48 @@ tNFA_STATUS NFA_RwT2tSectorSelect (UINT8 sector_number)
 ** Description:
 **      Send a CHECK (read) command to the activated Type 3 tag.
 **
-**      Data is returned to the application using the NFA_DATA_EVT. When the read
-**      operation has completed, or if an error occurs, the app will be notified with
-**      NFA_READ_CPLT_EVT.
+**      Data is returned to the application using the NFA_DATA_EVT. When the
+**      read operation has completed, or if an error occurs, the app will be
+**      notified with NFA_READ_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwT3tRead (UINT8 num_blocks, tNFA_T3T_BLOCK_DESC *t3t_blocks)
-{
-    tNFA_RW_OPERATION *p_msg;
-    UINT8 *p_block_desc;
+tNFA_STATUS NFA_RwT3tRead(uint8_t num_blocks, tNFA_T3T_BLOCK_DESC* t3t_blocks) {
+  tNFA_RW_OPERATION* p_msg;
+  uint8_t* p_block_desc;
 
-    NFA_TRACE_API1 ("NFA_RwT3tRead (): num_blocks to read: %i", num_blocks);
+  NFA_TRACE_API1("NFA_RwT3tRead (): num_blocks to read: %i", num_blocks);
 
-    /* Validate parameters */
-    if ((num_blocks == 0) || (t3t_blocks == NULL))
-        return (NFA_STATUS_INVALID_PARAM);
+  /* Validate parameters */
+  if ((num_blocks == 0) || (t3t_blocks == NULL))
+    return (NFA_STATUS_INVALID_PARAM);
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION) + (num_blocks * sizeof (tNFA_T3T_BLOCK_DESC))))) != NULL)
-    {
-        /* point to area after tNFA_RW_OPERATION */
-        p_block_desc = (UINT8 *) (p_msg+1);
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(
+      sizeof(tNFA_RW_OPERATION) + (num_blocks * sizeof(tNFA_T3T_BLOCK_DESC))));
+  if (p_msg != NULL) {
+    /* point to area after tNFA_RW_OPERATION */
+    p_block_desc = (uint8_t*)(p_msg + 1);
 
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_T3T_READ;
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_T3T_READ;
 
-        p_msg->params.t3t_read.num_blocks   = num_blocks;
-        p_msg->params.t3t_read.p_block_desc = (tNFA_T3T_BLOCK_DESC *) p_block_desc;
+    p_msg->params.t3t_read.num_blocks = num_blocks;
+    p_msg->params.t3t_read.p_block_desc = (tNFA_T3T_BLOCK_DESC*)p_block_desc;
 
-        /* Copy block descriptor list */
-        memcpy (p_block_desc, t3t_blocks, (num_blocks * sizeof (tNFA_T3T_BLOCK_DESC)));
+    /* Copy block descriptor list */
+    memcpy(p_block_desc, t3t_blocks,
+           (num_blocks * sizeof(tNFA_T3T_BLOCK_DESC)));
 
-        nfa_sys_sendmsg (p_msg);
+    nfa_sys_sendmsg(p_msg);
 
-        return (NFA_STATUS_OK);
-    }
+    return (NFA_STATUS_OK);
+  }
 
-    return (NFA_STATUS_FAILED);
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -768,43 +752,46 @@ tNFA_STATUS NFA_RwT3tRead (UINT8 num_blocks, tNFA_T3T_BLOCK_DESC *t3t_blocks)
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwT3tWrite (UINT8 num_blocks, tNFA_T3T_BLOCK_DESC *t3t_blocks,  UINT8 *p_data)
-{
-    tNFA_RW_OPERATION *p_msg;
-    UINT8 *p_block_desc, *p_data_area;
+tNFA_STATUS NFA_RwT3tWrite(uint8_t num_blocks, tNFA_T3T_BLOCK_DESC* t3t_blocks,
+                           uint8_t* p_data) {
+  tNFA_RW_OPERATION* p_msg;
+  uint8_t* p_block_desc, *p_data_area;
 
-    NFA_TRACE_API1 ("NFA_RwT3tWrite (): num_blocks to write: %i", num_blocks);
+  NFA_TRACE_API1("NFA_RwT3tWrite (): num_blocks to write: %i", num_blocks);
 
-    /* Validate parameters */
-    if ((num_blocks == 0) || (t3t_blocks == NULL) | (p_data == NULL))
-        return (NFA_STATUS_INVALID_PARAM);
+  /* Validate parameters */
+  if ((num_blocks == 0) || (t3t_blocks == NULL) | (p_data == NULL))
+    return (NFA_STATUS_INVALID_PARAM);
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION) + (num_blocks * (sizeof (tNFA_T3T_BLOCK_DESC) + 16))))) != NULL)
-    {
-        /* point to block descriptor and data areas after tNFA_RW_OPERATION */
-        p_block_desc = (UINT8 *) (p_msg+1);
-        p_data_area  = p_block_desc + (num_blocks * (sizeof (tNFA_T3T_BLOCK_DESC)));
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf(
+      (uint16_t)(sizeof(tNFA_RW_OPERATION) +
+                 (num_blocks * (sizeof(tNFA_T3T_BLOCK_DESC) + 16))));
+  if (p_msg != NULL) {
+    /* point to block descriptor and data areas after tNFA_RW_OPERATION */
+    p_block_desc = (uint8_t*)(p_msg + 1);
+    p_data_area = p_block_desc + (num_blocks * (sizeof(tNFA_T3T_BLOCK_DESC)));
 
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_T3T_WRITE;
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_T3T_WRITE;
 
-        p_msg->params.t3t_write.num_blocks   = num_blocks;
-        p_msg->params.t3t_write.p_block_desc = (tNFA_T3T_BLOCK_DESC *) p_block_desc;
-        p_msg->params.t3t_write.p_block_data = p_data_area;
+    p_msg->params.t3t_write.num_blocks = num_blocks;
+    p_msg->params.t3t_write.p_block_desc = (tNFA_T3T_BLOCK_DESC*)p_block_desc;
+    p_msg->params.t3t_write.p_block_data = p_data_area;
 
-        /* Copy block descriptor list */
-        memcpy (p_block_desc, t3t_blocks, (num_blocks * sizeof (tNFA_T3T_BLOCK_DESC)));
+    /* Copy block descriptor list */
+    memcpy(p_block_desc, t3t_blocks,
+           (num_blocks * sizeof(tNFA_T3T_BLOCK_DESC)));
 
-        /* Copy data */
-        memcpy (p_data_area, p_data, (num_blocks * 16));
+    /* Copy data */
+    memcpy(p_data_area, p_data, (num_blocks * 16));
 
-        nfa_sys_sendmsg (p_msg);
+    nfa_sys_sendmsg(p_msg);
 
-        return (NFA_STATUS_OK);
-    }
+    return (NFA_STATUS_OK);
+  }
 
-    return (NFA_STATUS_FAILED);
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -824,42 +811,38 @@ tNFA_STATUS NFA_RwT3tWrite (UINT8 num_blocks, tNFA_T3T_BLOCK_DESC *t3t_blocks,  
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwI93Inventory (BOOLEAN afi_present, UINT8 afi, UINT8 *p_uid)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwI93Inventory(bool afi_present, uint8_t afi, uint8_t* p_uid) {
+  tNFA_RW_OPERATION* p_msg;
 
-    NFA_TRACE_API2 ("NFA_RwI93Inventory (): afi_present:%d, AFI: 0x%02X", afi_present, afi);
+  NFA_TRACE_API2("NFA_RwI93Inventory (): afi_present:%d, AFI: 0x%02X",
+                 afi_present, afi);
 
-    if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693)
-    {
-        return (NFA_STATUS_WRONG_PROTOCOL);
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+    return (NFA_STATUS_WRONG_PROTOCOL);
+  }
+
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_I93_INVENTORY;
+
+    p_msg->params.i93_cmd.afi_present = afi_present;
+    p_msg->params.i93_cmd.afi = afi;
+
+    if (p_uid) {
+      p_msg->params.i93_cmd.uid_present = true;
+      memcpy(p_msg->params.i93_cmd.uid, p_uid, I93_UID_BYTE_LEN);
+    } else {
+      p_msg->params.i93_cmd.uid_present = false;
     }
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_I93_INVENTORY;
+    nfa_sys_sendmsg(p_msg);
 
-        p_msg->params.i93_cmd.afi_present = afi_present;
-        p_msg->params.i93_cmd.afi = afi;
+    return (NFA_STATUS_OK);
+  }
 
-        if (p_uid)
-        {
-            p_msg->params.i93_cmd.uid_present = TRUE;
-            memcpy (p_msg->params.i93_cmd.uid, p_uid, I93_UID_BYTE_LEN);
-        }
-        else
-        {
-            p_msg->params.i93_cmd.uid_present = FALSE;
-        }
-
-        nfa_sys_sendmsg (p_msg);
-
-        return (NFA_STATUS_OK);
-    }
-
-    return (NFA_STATUS_FAILED);
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -878,29 +861,27 @@ tNFA_STATUS NFA_RwI93Inventory (BOOLEAN afi_present, UINT8 afi, UINT8 *p_uid)
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwI93StayQuiet (void)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwI93StayQuiet(void) {
+  tNFA_RW_OPERATION* p_msg;
 
-    NFA_TRACE_API0 ("NFA_RwI93StayQuiet ()");
+  NFA_TRACE_API0("NFA_RwI93StayQuiet ()");
 
-    if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693)
-    {
-        return (NFA_STATUS_WRONG_PROTOCOL);
-    }
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+    return (NFA_STATUS_WRONG_PROTOCOL);
+  }
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_I93_STAY_QUIET;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_I93_STAY_QUIET;
 
-        nfa_sys_sendmsg (p_msg);
+    nfa_sys_sendmsg(p_msg);
 
-        return (NFA_STATUS_OK);
-    }
+    return (NFA_STATUS_OK);
+  }
 
-    return (NFA_STATUS_FAILED);
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -910,9 +891,9 @@ tNFA_STATUS NFA_RwI93StayQuiet (void)
 ** Description:
 **      Send Read Single Block command to the activated ISO 15693 tag.
 **
-**      Data is returned to the application using the NFA_DATA_EVT. When the read
-**      operation has completed, or if an error occurs, the app will be notified with
-**      NFA_I93_CMD_CPLT_EVT.
+**      Data is returned to the application using the NFA_DATA_EVT. When the
+**      read operation has completed, or if an error occurs, the app will be
+**      notified with NFA_I93_CMD_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
@@ -920,31 +901,30 @@ tNFA_STATUS NFA_RwI93StayQuiet (void)
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwI93ReadSingleBlock (UINT8 block_number)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwI93ReadSingleBlock(uint8_t block_number) {
+  tNFA_RW_OPERATION* p_msg;
 
-    NFA_TRACE_API1 ("NFA_RwI93ReadSingleBlock (): block_number: 0x%02X", block_number);
+  NFA_TRACE_API1("NFA_RwI93ReadSingleBlock (): block_number: 0x%02X",
+                 block_number);
 
-    if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693)
-    {
-        return (NFA_STATUS_WRONG_PROTOCOL);
-    }
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+    return (NFA_STATUS_WRONG_PROTOCOL);
+  }
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_I93_READ_SINGLE_BLOCK;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_I93_READ_SINGLE_BLOCK;
 
-        p_msg->params.i93_cmd.first_block_number = block_number;
+    p_msg->params.i93_cmd.first_block_number = block_number;
 
-        nfa_sys_sendmsg (p_msg);
+    nfa_sys_sendmsg(p_msg);
 
-        return (NFA_STATUS_OK);
-    }
+    return (NFA_STATUS_OK);
+  }
 
-    return (NFA_STATUS_FAILED);
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -963,42 +943,39 @@ tNFA_STATUS NFA_RwI93ReadSingleBlock (UINT8 block_number)
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwI93WriteSingleBlock (UINT8 block_number,
-                                       UINT8 *p_data)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwI93WriteSingleBlock(uint8_t block_number, uint8_t* p_data) {
+  tNFA_RW_OPERATION* p_msg;
 
-    NFA_TRACE_API1 ("NFA_RwI93WriteSingleBlock (): block_number: 0x%02X", block_number);
+  NFA_TRACE_API1("NFA_RwI93WriteSingleBlock (): block_number: 0x%02X",
+                 block_number);
 
-    if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693)
-    {
-        return (NFA_STATUS_WRONG_PROTOCOL);
-    }
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+    return (NFA_STATUS_WRONG_PROTOCOL);
+  }
 
-    /* we don't know block size of tag */
-    if (  (nfa_rw_cb.i93_block_size == 0)
-        ||(nfa_rw_cb.i93_num_block == 0)  )
-    {
-        return (NFA_STATUS_FAILED);
-    }
-
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION) + nfa_rw_cb.i93_block_size))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_I93_WRITE_SINGLE_BLOCK;
-
-        p_msg->params.i93_cmd.first_block_number = block_number;
-        p_msg->params.i93_cmd.p_data             = (UINT8*) (p_msg + 1);
-
-        memcpy (p_msg->params.i93_cmd.p_data, p_data, nfa_rw_cb.i93_block_size);
-
-        nfa_sys_sendmsg (p_msg);
-
-        return (NFA_STATUS_OK);
-    }
-
+  /* we don't know block size of tag */
+  if ((nfa_rw_cb.i93_block_size == 0) || (nfa_rw_cb.i93_num_block == 0)) {
     return (NFA_STATUS_FAILED);
+  }
+
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf(
+      (uint16_t)(sizeof(tNFA_RW_OPERATION) + nfa_rw_cb.i93_block_size));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_I93_WRITE_SINGLE_BLOCK;
+
+    p_msg->params.i93_cmd.first_block_number = block_number;
+    p_msg->params.i93_cmd.p_data = (uint8_t*)(p_msg + 1);
+
+    memcpy(p_msg->params.i93_cmd.p_data, p_data, nfa_rw_cb.i93_block_size);
+
+    nfa_sys_sendmsg(p_msg);
+
+    return (NFA_STATUS_OK);
+  }
+
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -1017,31 +994,29 @@ tNFA_STATUS NFA_RwI93WriteSingleBlock (UINT8 block_number,
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwI93LockBlock (UINT8 block_number)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwI93LockBlock(uint8_t block_number) {
+  tNFA_RW_OPERATION* p_msg;
 
-    NFA_TRACE_API1 ("NFA_RwI93LockBlock (): block_number: 0x%02X", block_number);
+  NFA_TRACE_API1("NFA_RwI93LockBlock (): block_number: 0x%02X", block_number);
 
-    if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693)
-    {
-        return (NFA_STATUS_WRONG_PROTOCOL);
-    }
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+    return (NFA_STATUS_WRONG_PROTOCOL);
+  }
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_I93_LOCK_BLOCK;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_I93_LOCK_BLOCK;
 
-        p_msg->params.i93_cmd.first_block_number = block_number;
+    p_msg->params.i93_cmd.first_block_number = block_number;
 
-        nfa_sys_sendmsg (p_msg);
+    nfa_sys_sendmsg(p_msg);
 
-        return (NFA_STATUS_OK);
-    }
+    return (NFA_STATUS_OK);
+  }
 
-    return (NFA_STATUS_FAILED);
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -1051,9 +1026,9 @@ tNFA_STATUS NFA_RwI93LockBlock (UINT8 block_number)
 ** Description:
 **      Send Read Multiple Block command to the activated ISO 15693 tag.
 **
-**      Data is returned to the application using the NFA_DATA_EVT. When the read
-**      operation has completed, or if an error occurs, the app will be notified with
-**      NFA_I93_CMD_CPLT_EVT.
+**      Data is returned to the application using the NFA_DATA_EVT. When the
+**      read operation has completed, or if an error occurs, the app will be
+**      notified with NFA_I93_CMD_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
@@ -1061,33 +1036,32 @@ tNFA_STATUS NFA_RwI93LockBlock (UINT8 block_number)
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwI93ReadMultipleBlocks (UINT8  first_block_number,
-                                         UINT16 number_blocks)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwI93ReadMultipleBlocks(uint8_t first_block_number,
+                                        uint16_t number_blocks) {
+  tNFA_RW_OPERATION* p_msg;
 
-    NFA_TRACE_API2 ("NFA_RwI93ReadMultipleBlocks(): %d, %d", first_block_number, number_blocks);
+  NFA_TRACE_API2("NFA_RwI93ReadMultipleBlocks(): %d, %d", first_block_number,
+                 number_blocks);
 
-    if ( nfa_rw_cb.protocol != NFC_PROTOCOL_15693)
-    {
-        return (NFA_STATUS_WRONG_PROTOCOL);
-    }
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+    return (NFA_STATUS_WRONG_PROTOCOL);
+  }
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_I93_READ_MULTI_BLOCK;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_I93_READ_MULTI_BLOCK;
 
-        p_msg->params.i93_cmd.first_block_number = first_block_number;
-        p_msg->params.i93_cmd.number_blocks      = number_blocks;
+    p_msg->params.i93_cmd.first_block_number = first_block_number;
+    p_msg->params.i93_cmd.number_blocks = number_blocks;
 
-        nfa_sys_sendmsg (p_msg);
+    nfa_sys_sendmsg(p_msg);
 
-        return (NFA_STATUS_OK);
-    }
+    return (NFA_STATUS_OK);
+  }
 
-    return (NFA_STATUS_FAILED);
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -1106,46 +1080,45 @@ tNFA_STATUS NFA_RwI93ReadMultipleBlocks (UINT8  first_block_number,
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwI93WriteMultipleBlocks (UINT8  first_block_number,
-                                          UINT16 number_blocks,
-                                          UINT8 *p_data)
-{
-    tNFA_RW_OPERATION *p_msg;
-    UINT16      data_length;
+tNFA_STATUS NFA_RwI93WriteMultipleBlocks(uint8_t first_block_number,
+                                         uint16_t number_blocks,
+                                         uint8_t* p_data) {
+  tNFA_RW_OPERATION* p_msg;
+  uint16_t data_length;
 
-    NFA_TRACE_API2 ("NFA_RwI93WriteMultipleBlocks (): %d, %d", first_block_number, number_blocks);
+  NFA_TRACE_API2("NFA_RwI93WriteMultipleBlocks (): %d, %d", first_block_number,
+                 number_blocks);
 
-    if ( nfa_rw_cb.protocol != NFC_PROTOCOL_15693)
-    {
-        return (NFA_STATUS_WRONG_PROTOCOL);
-    }
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+    return (NFA_STATUS_WRONG_PROTOCOL);
+  }
 
-    /* we don't know block size of tag */
-    if ((nfa_rw_cb.i93_block_size == 0) || (nfa_rw_cb.i93_num_block == 0))
-    {
-        return (NFA_STATUS_FAILED);
-    }
-
-    data_length = nfa_rw_cb.i93_block_size * number_blocks;
-
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION) + data_length))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_I93_WRITE_MULTI_BLOCK;
-
-        p_msg->params.i93_cmd.first_block_number = first_block_number;
-        p_msg->params.i93_cmd.number_blocks      = number_blocks;
-        p_msg->params.i93_cmd.p_data             = (UINT8*) (p_msg + 1);
-
-        memcpy (p_msg->params.i93_cmd.p_data, p_data, data_length);
-
-        nfa_sys_sendmsg (p_msg);
-
-        return (NFA_STATUS_OK);
-    }
-
+  /* we don't know block size of tag */
+  if ((nfa_rw_cb.i93_block_size == 0) || (nfa_rw_cb.i93_num_block == 0)) {
     return (NFA_STATUS_FAILED);
+  }
+
+  data_length = nfa_rw_cb.i93_block_size * number_blocks;
+
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf(
+      (uint16_t)(sizeof(tNFA_RW_OPERATION) + data_length));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_I93_WRITE_MULTI_BLOCK;
+
+    p_msg->params.i93_cmd.first_block_number = first_block_number;
+    p_msg->params.i93_cmd.number_blocks = number_blocks;
+    p_msg->params.i93_cmd.p_data = (uint8_t*)(p_msg + 1);
+
+    memcpy(p_msg->params.i93_cmd.p_data, p_data, data_length);
+
+    nfa_sys_sendmsg(p_msg);
+
+    return (NFA_STATUS_OK);
+  }
+
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -1169,32 +1142,32 @@ tNFA_STATUS NFA_RwI93WriteMultipleBlocks (UINT8  first_block_number,
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwI93Select (UINT8 *p_uid)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwI93Select(uint8_t* p_uid) {
+  tNFA_RW_OPERATION* p_msg;
 
-    NFA_TRACE_API3 ("NFA_RwI93Select (): UID: [%02X%02X%02X...]", *(p_uid), *(p_uid+1), *(p_uid+2));
+  NFA_TRACE_API3("NFA_RwI93Select (): UID: [%02X%02X%02X...]", *(p_uid),
+                 *(p_uid + 1), *(p_uid + 2));
 
-    if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693)
-    {
-        return (NFA_STATUS_WRONG_PROTOCOL);
-    }
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+    return (NFA_STATUS_WRONG_PROTOCOL);
+  }
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION) + I93_UID_BYTE_LEN))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_I93_SELECT;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf(
+      (uint16_t)(sizeof(tNFA_RW_OPERATION) + I93_UID_BYTE_LEN));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_I93_SELECT;
 
-        p_msg->params.i93_cmd.p_data = (UINT8 *) (p_msg + 1);
-        memcpy (p_msg->params.i93_cmd.p_data, p_uid, I93_UID_BYTE_LEN);
+    p_msg->params.i93_cmd.p_data = (uint8_t*)(p_msg + 1);
+    memcpy(p_msg->params.i93_cmd.p_data, p_uid, I93_UID_BYTE_LEN);
 
-        nfa_sys_sendmsg (p_msg);
+    nfa_sys_sendmsg(p_msg);
 
-        return (NFA_STATUS_OK);
-    }
+    return (NFA_STATUS_OK);
+  }
 
-    return (NFA_STATUS_FAILED);
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -1213,29 +1186,27 @@ tNFA_STATUS NFA_RwI93Select (UINT8 *p_uid)
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwI93ResetToReady (void)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwI93ResetToReady(void) {
+  tNFA_RW_OPERATION* p_msg;
 
-    NFA_TRACE_API0 ("NFA_RwI93ResetToReady ()");
+  NFA_TRACE_API0("NFA_RwI93ResetToReady ()");
 
-    if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693)
-    {
-        return (NFA_STATUS_WRONG_PROTOCOL);
-    }
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+    return (NFA_STATUS_WRONG_PROTOCOL);
+  }
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_I93_RESET_TO_READY;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_I93_RESET_TO_READY;
 
-        nfa_sys_sendmsg (p_msg);
+    nfa_sys_sendmsg(p_msg);
 
-        return (NFA_STATUS_OK);
-    }
+    return (NFA_STATUS_OK);
+  }
 
-    return (NFA_STATUS_FAILED);
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -1254,31 +1225,29 @@ tNFA_STATUS NFA_RwI93ResetToReady (void)
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwI93WriteAFI (UINT8 afi)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwI93WriteAFI(uint8_t afi) {
+  tNFA_RW_OPERATION* p_msg;
 
-    NFA_TRACE_API1 ("NFA_RwI93WriteAFI (): AFI: 0x%02X", afi);
+  NFA_TRACE_API1("NFA_RwI93WriteAFI (): AFI: 0x%02X", afi);
 
-    if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693)
-    {
-        return (NFA_STATUS_WRONG_PROTOCOL);
-    }
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+    return (NFA_STATUS_WRONG_PROTOCOL);
+  }
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_I93_WRITE_AFI;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_I93_WRITE_AFI;
 
-        p_msg->params.i93_cmd.afi = afi;
+    p_msg->params.i93_cmd.afi = afi;
 
-        nfa_sys_sendmsg (p_msg);
+    nfa_sys_sendmsg(p_msg);
 
-        return (NFA_STATUS_OK);
-    }
+    return (NFA_STATUS_OK);
+  }
 
-    return (NFA_STATUS_FAILED);
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -1297,29 +1266,27 @@ tNFA_STATUS NFA_RwI93WriteAFI (UINT8 afi)
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwI93LockAFI (void)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwI93LockAFI(void) {
+  tNFA_RW_OPERATION* p_msg;
 
-    NFA_TRACE_API0 ("NFA_RwI93LockAFI ()");
+  NFA_TRACE_API0("NFA_RwI93LockAFI ()");
 
-    if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693)
-    {
-        return (NFA_STATUS_WRONG_PROTOCOL);
-    }
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+    return (NFA_STATUS_WRONG_PROTOCOL);
+  }
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_I93_LOCK_AFI;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_I93_LOCK_AFI;
 
-        nfa_sys_sendmsg (p_msg);
+    nfa_sys_sendmsg(p_msg);
 
-        return (NFA_STATUS_OK);
-    }
+    return (NFA_STATUS_OK);
+  }
 
-    return (NFA_STATUS_FAILED);
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -1338,31 +1305,29 @@ tNFA_STATUS NFA_RwI93LockAFI (void)
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwI93WriteDSFID (UINT8 dsfid)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwI93WriteDSFID(uint8_t dsfid) {
+  tNFA_RW_OPERATION* p_msg;
 
-    NFA_TRACE_API1 ("NFA_RwI93WriteDSFID (): DSFID: 0x%02X", dsfid);
+  NFA_TRACE_API1("NFA_RwI93WriteDSFID (): DSFID: 0x%02X", dsfid);
 
-    if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693)
-    {
-        return (NFA_STATUS_WRONG_PROTOCOL);
-    }
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+    return (NFA_STATUS_WRONG_PROTOCOL);
+  }
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_I93_WRITE_DSFID;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_I93_WRITE_DSFID;
 
-        p_msg->params.i93_cmd.dsfid = dsfid;
+    p_msg->params.i93_cmd.dsfid = dsfid;
 
-        nfa_sys_sendmsg (p_msg);
+    nfa_sys_sendmsg(p_msg);
 
-        return (NFA_STATUS_OK);
-    }
+    return (NFA_STATUS_OK);
+  }
 
-    return (NFA_STATUS_FAILED);
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -1381,29 +1346,27 @@ tNFA_STATUS NFA_RwI93WriteDSFID (UINT8 dsfid)
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwI93LockDSFID (void)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwI93LockDSFID(void) {
+  tNFA_RW_OPERATION* p_msg;
 
-    NFA_TRACE_API0 ("NFA_RwI93LockDSFID ()");
+  NFA_TRACE_API0("NFA_RwI93LockDSFID ()");
 
-    if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693)
-    {
-        return (NFA_STATUS_WRONG_PROTOCOL);
-    }
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+    return (NFA_STATUS_WRONG_PROTOCOL);
+  }
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_I93_LOCK_DSFID;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_I93_LOCK_DSFID;
 
-        nfa_sys_sendmsg (p_msg);
+    nfa_sys_sendmsg(p_msg);
 
-        return (NFA_STATUS_OK);
-    }
+    return (NFA_STATUS_OK);
+  }
 
-    return (NFA_STATUS_FAILED);
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -1423,39 +1386,34 @@ tNFA_STATUS NFA_RwI93LockDSFID (void)
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwI93GetSysInfo (UINT8 *p_uid)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwI93GetSysInfo(uint8_t* p_uid) {
+  tNFA_RW_OPERATION* p_msg;
 
-    NFA_TRACE_API0 ("NFA_RwI93GetSysInfo ()");
+  NFA_TRACE_API0("NFA_RwI93GetSysInfo ()");
 
-    if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693)
-    {
-        return (NFA_STATUS_WRONG_PROTOCOL);
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+    return (NFA_STATUS_WRONG_PROTOCOL);
+  }
+
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_I93_GET_SYS_INFO;
+
+    if (p_uid) {
+      p_msg->params.i93_cmd.uid_present = true;
+      memcpy(p_msg->params.i93_cmd.uid, p_uid, I93_UID_BYTE_LEN);
+    } else {
+      p_msg->params.i93_cmd.uid_present = false;
     }
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_I93_GET_SYS_INFO;
+    nfa_sys_sendmsg(p_msg);
 
-        if (p_uid)
-        {
-            p_msg->params.i93_cmd.uid_present = TRUE;
-            memcpy (p_msg->params.i93_cmd.uid, p_uid, I93_UID_BYTE_LEN);
-        }
-        else
-        {
-            p_msg->params.i93_cmd.uid_present = FALSE;
-        }
+    return (NFA_STATUS_OK);
+  }
 
-        nfa_sys_sendmsg (p_msg);
-
-        return (NFA_STATUS_OK);
-    }
-
-    return (NFA_STATUS_FAILED);
+  return (NFA_STATUS_FAILED);
 }
 
 /*******************************************************************************
@@ -1463,11 +1421,12 @@ tNFA_STATUS NFA_RwI93GetSysInfo (UINT8 *p_uid)
 ** Function         NFA_RwI93GetMultiBlockSecurityStatus
 **
 ** Description:
-**      Send Get Multiple block security status command to the activated ISO 15693 tag.
+**      Send Get Multiple block security status command to the activated ISO
+**      15693 tag.
 **
-**      Data is returned to the application using the NFA_DATA_EVT. When the read
-**      operation has completed, or if an error occurs, the app will be notified with
-**      NFA_I93_CMD_CPLT_EVT.
+**      Data is returned to the application using the NFA_DATA_EVT. When the
+**      read operation has completed, or if an error occurs, the app will be
+**      notified with NFA_I93_CMD_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
@@ -1475,31 +1434,30 @@ tNFA_STATUS NFA_RwI93GetSysInfo (UINT8 *p_uid)
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwI93GetMultiBlockSecurityStatus (UINT8  first_block_number,
-                                                  UINT16 number_blocks)
-{
-    tNFA_RW_OPERATION *p_msg;
+tNFA_STATUS NFA_RwI93GetMultiBlockSecurityStatus(uint8_t first_block_number,
+                                                 uint16_t number_blocks) {
+  tNFA_RW_OPERATION* p_msg;
 
-    NFA_TRACE_API2 ("NFA_RwI93GetMultiBlockSecurityStatus(): %d, %d", first_block_number, number_blocks);
+  NFA_TRACE_API2("NFA_RwI93GetMultiBlockSecurityStatus(): %d, %d",
+                 first_block_number, number_blocks);
 
-    if ( nfa_rw_cb.protocol != NFC_PROTOCOL_15693)
-    {
-        return (NFA_STATUS_WRONG_PROTOCOL);
-    }
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+    return (NFA_STATUS_WRONG_PROTOCOL);
+  }
 
-    if ((p_msg = (tNFA_RW_OPERATION *) GKI_getbuf ((UINT16) (sizeof (tNFA_RW_OPERATION)))) != NULL)
-    {
-        /* Fill in tNFA_RW_OPERATION struct */
-        p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
-        p_msg->op        = NFA_RW_OP_I93_GET_MULTI_BLOCK_STATUS;
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != NULL) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_I93_GET_MULTI_BLOCK_STATUS;
 
-        p_msg->params.i93_cmd.first_block_number = first_block_number;
-        p_msg->params.i93_cmd.number_blocks      = number_blocks;
+    p_msg->params.i93_cmd.first_block_number = first_block_number;
+    p_msg->params.i93_cmd.number_blocks = number_blocks;
 
-        nfa_sys_sendmsg (p_msg);
+    nfa_sys_sendmsg(p_msg);
 
-        return (NFA_STATUS_OK);
-    }
+    return (NFA_STATUS_OK);
+  }
 
-    return (NFA_STATUS_FAILED);
+  return (NFA_STATUS_FAILED);
 }

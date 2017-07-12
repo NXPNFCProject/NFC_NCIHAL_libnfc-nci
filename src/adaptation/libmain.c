@@ -15,7 +15,7 @@
  *  limitations under the License.
  *
  ******************************************************************************/
-#include "OverrideLog.h"
+#include "_OverrideLog.h"
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -42,11 +42,7 @@ static const char* sNfaStorageBin = "/nfaStorage.bin";
 **                  NULL otherwise
 **
 *******************************************************************************/
-extern void *nfa_mem_co_alloc(UINT32 num_bytes)
-{
-    return malloc(num_bytes);
-}
-
+extern void* nfa_mem_co_alloc(uint32_t num_bytes) { return malloc(num_bytes); }
 
 /*******************************************************************************
 **
@@ -58,11 +54,7 @@ extern void *nfa_mem_co_alloc(UINT32 num_bytes)
 **                  Nothing
 **
 *******************************************************************************/
-extern void nfa_mem_co_free(void *pBuffer)
-{
-    free(pBuffer);
-}
-
+extern void nfa_mem_co_free(void* pBuffer) { free(pBuffer); }
 
 /*******************************************************************************
 **
@@ -79,50 +71,42 @@ extern void nfa_mem_co_free(void *pBuffer)
 **                  Note: Upon completion of the request, nfa_nv_ci_read() is
 **                        called with the buffer of data, along with the number
 **                        of bytes read into the buffer, and a status.  The
-**                        call-in function should only be called when ALL requested
-**                        bytes have been read, the end of file has been detected,
-**                        or an error has occurred.
+**                        call-in function should only be called when ALL
+**                        requested bytes have been read, the end of file has
+**                        been detected, or an error has occurred.
 **
 *******************************************************************************/
-extern void nfa_nv_co_read(UINT8 *pBuffer, UINT16 nbytes, UINT8 block)
-{
-    char filename[256], filename2[256];
+extern void nfa_nv_co_read(uint8_t* pBuffer, uint16_t nbytes, uint8_t block) {
+  char filename[256], filename2[256];
 
-    memset (filename, 0, sizeof(filename));
-    memset (filename2, 0, sizeof(filename2));
-    strcpy(filename2, bcm_nfc_location);
-    strncat(filename2, sNfaStorageBin, sizeof(filename2)-strlen(filename2)-1);
-    if (strlen(filename2) > 200)
-    {
-        ALOGE ("%s: filename too long", __FUNCTION__);
-        return;
-    }
-    sprintf (filename, "%s%u", filename2, block);
+  memset(filename, 0, sizeof(filename));
+  memset(filename2, 0, sizeof(filename2));
+  strcpy(filename2, bcm_nfc_location);
+  strncat(filename2, sNfaStorageBin, sizeof(filename2) - strlen(filename2) - 1);
+  if (strlen(filename2) > 200) {
+    ALOGE("%s: filename too long", __func__);
+    return;
+  }
+  sprintf(filename, "%s%u", filename2, block);
 
-    ALOGD ("%s: buffer len=%u; file=%s", __FUNCTION__, nbytes, filename);
-    int fileStream = open (filename, O_RDONLY);
-    if (fileStream >= 0)
-    {
-        unsigned short checksum = 0;
-        size_t actualReadCrc = read (fileStream, &checksum, sizeof(checksum));
-        size_t actualReadData = read (fileStream, pBuffer, nbytes);
-        close (fileStream);
-        if (actualReadData > 0)
-        {
-            ALOGD ("%s: data size=%zu", __FUNCTION__, actualReadData);
-            nfa_nv_ci_read (actualReadData, NFA_NV_CO_OK, block);
-        }
-        else
-        {
-            ALOGE ("%s: fail to read", __FUNCTION__);
-            nfa_nv_ci_read (0, NFA_NV_CO_FAIL, block);
-        }
+  ALOGD("%s: buffer len=%u; file=%s", __func__, nbytes, filename);
+  int fileStream = open(filename, O_RDONLY);
+  if (fileStream >= 0) {
+    unsigned short checksum = 0;
+    size_t actualReadCrc = read(fileStream, &checksum, sizeof(checksum));
+    size_t actualReadData = read(fileStream, pBuffer, nbytes);
+    close(fileStream);
+    if (actualReadData > 0) {
+      ALOGD("%s: data size=%zu", __func__, actualReadData);
+      nfa_nv_ci_read(actualReadData, NFA_NV_CO_OK, block);
+    } else {
+      ALOGE("%s: fail to read", __func__);
+      nfa_nv_ci_read(0, NFA_NV_CO_FAIL, block);
     }
-    else
-    {
-        ALOGD ("%s: fail to open", __FUNCTION__);
-        nfa_nv_ci_read (0, NFA_NV_CO_FAIL, block);
-    }
+  } else {
+    ALOGD("%s: fail to open", __func__);
+    nfa_nv_ci_read(0, NFA_NV_CO_FAIL, block);
+  }
 }
 
 /*******************************************************************************
@@ -139,51 +123,46 @@ extern void nfa_nv_co_read(UINT8 *pBuffer, UINT16 nbytes, UINT8 block)
 **
 **                  Note: Upon completion of the request, nfa_nv_ci_write() is
 **                        called with the file descriptor and the status.  The
-**                        call-in function should only be called when ALL requested
-**                        bytes have been written, or an error has been detected,
+**                        call-in function should only be called when ALL
+**                        requested bytes have been written, or an error has
+**                        been detected,
 **
 *******************************************************************************/
-extern void nfa_nv_co_write(const UINT8 *pBuffer, UINT16 nbytes, UINT8 block)
-{
-    char filename[256], filename2[256];
+extern void nfa_nv_co_write(const uint8_t* pBuffer, uint16_t nbytes,
+                            uint8_t block) {
+  char filename[256], filename2[256];
 
-    memset (filename, 0, sizeof(filename));
-    memset (filename2, 0, sizeof(filename2));
-    strcpy(filename2, bcm_nfc_location);
-    strncat(filename2, sNfaStorageBin, sizeof(filename2)-strlen(filename2)-1);
-    if (strlen(filename2) > 200)
-    {
-        ALOGE ("%s: filename too long", __FUNCTION__);
-        return;
-    }
-    sprintf (filename, "%s%u", filename2, block);
-    ALOGD ("%s: bytes=%u; file=%s", __FUNCTION__, nbytes, filename);
+  memset(filename, 0, sizeof(filename));
+  memset(filename2, 0, sizeof(filename2));
+  strcpy(filename2, bcm_nfc_location);
+  strncat(filename2, sNfaStorageBin, sizeof(filename2) - strlen(filename2) - 1);
+  if (strlen(filename2) > 200) {
+    ALOGE("%s: filename too long", __func__);
+    return;
+  }
+  sprintf(filename, "%s%u", filename2, block);
+  ALOGD("%s: bytes=%u; file=%s", __func__, nbytes, filename);
 
-    int fileStream = 0;
+  int fileStream = 0;
 
-    fileStream = open (filename, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-    if (fileStream >= 0)
-    {
-        unsigned short checksum = crcChecksumCompute (pBuffer, nbytes);
-        size_t actualWrittenCrc = write (fileStream, &checksum, sizeof(checksum));
-        size_t actualWrittenData = write (fileStream, pBuffer, nbytes);
-        ALOGD ("%s: %zu bytes written", __FUNCTION__, actualWrittenData);
-        if ((actualWrittenData == nbytes) && (actualWrittenCrc == sizeof(checksum)))
-        {
-            nfa_nv_ci_write (NFA_NV_CO_OK);
-        }
-        else
-        {
-            ALOGE ("%s: fail to write", __FUNCTION__);
-            nfa_nv_ci_write (NFA_NV_CO_FAIL);
-        }
-        close (fileStream);
+  fileStream = open(filename, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+  if (fileStream >= 0) {
+    unsigned short checksum = crcChecksumCompute(pBuffer, nbytes);
+    size_t actualWrittenCrc = write(fileStream, &checksum, sizeof(checksum));
+    size_t actualWrittenData = write(fileStream, pBuffer, nbytes);
+    ALOGD("%s: %zu bytes written", __func__, actualWrittenData);
+    if ((actualWrittenData == nbytes) &&
+        (actualWrittenCrc == sizeof(checksum))) {
+      nfa_nv_ci_write(NFA_NV_CO_OK);
+    } else {
+      ALOGE("%s: fail to write", __func__);
+      nfa_nv_ci_write(NFA_NV_CO_FAIL);
     }
-    else
-    {
-        ALOGE ("%s: fail to open, error = %d", __FUNCTION__, errno);
-        nfa_nv_ci_write (NFA_NV_CO_FAIL);
-    }
+    close(fileStream);
+  } else {
+    ALOGE("%s: fail to open, error = %d", __func__, errno);
+    nfa_nv_ci_write(NFA_NV_CO_FAIL);
+  }
 }
 
 /*******************************************************************************
@@ -197,36 +176,33 @@ extern void nfa_nv_co_write(const UINT8 *pBuffer, UINT16 nbytes, UINT8 block)
 ** Returns          none
 **
 *******************************************************************************/
-void delete_stack_non_volatile_store (BOOLEAN forceDelete)
-{
-    static BOOLEAN firstTime = TRUE;
-    char filename[256], filename2[256];
+void delete_stack_non_volatile_store(bool forceDelete) {
+  static bool firstTime = true;
+  char filename[256], filename2[256];
 
-    if ((firstTime == FALSE) && (forceDelete == FALSE))
-        return;
-    firstTime = FALSE;
+  if ((firstTime == false) && (forceDelete == false)) return;
+  firstTime = false;
 
-    ALOGD ("%s", __FUNCTION__);
+  ALOGD("%s", __func__);
 
-    memset (filename, 0, sizeof(filename));
-    memset (filename2, 0, sizeof(filename2));
-    strcpy(filename2, bcm_nfc_location);
-    strncat(filename2, sNfaStorageBin, sizeof(filename2)-strlen(filename2)-1);
-    if (strlen(filename2) > 200)
-    {
-        ALOGE ("%s: filename too long", __FUNCTION__);
-        return;
-    }
-    sprintf (filename, "%s%u", filename2, DH_NV_BLOCK);
-    remove (filename);
-    sprintf (filename, "%s%u", filename2, HC_F3_NV_BLOCK);
-    remove (filename);
-    sprintf (filename, "%s%u", filename2, HC_F4_NV_BLOCK);
-    remove (filename);
-    sprintf (filename, "%s%u", filename2, HC_F2_NV_BLOCK);
-    remove (filename);
-    sprintf (filename, "%s%u", filename2, HC_F5_NV_BLOCK);
-    remove (filename);
+  memset(filename, 0, sizeof(filename));
+  memset(filename2, 0, sizeof(filename2));
+  strcpy(filename2, bcm_nfc_location);
+  strncat(filename2, sNfaStorageBin, sizeof(filename2) - strlen(filename2) - 1);
+  if (strlen(filename2) > 200) {
+    ALOGE("%s: filename too long", __func__);
+    return;
+  }
+  sprintf(filename, "%s%u", filename2, DH_NV_BLOCK);
+  remove(filename);
+  sprintf(filename, "%s%u", filename2, HC_F3_NV_BLOCK);
+  remove(filename);
+  sprintf(filename, "%s%u", filename2, HC_F4_NV_BLOCK);
+  remove(filename);
+  sprintf(filename, "%s%u", filename2, HC_F2_NV_BLOCK);
+  remove(filename);
+  sprintf(filename, "%s%u", filename2, HC_F5_NV_BLOCK);
+  remove(filename);
 }
 
 /*******************************************************************************
@@ -240,42 +216,34 @@ void delete_stack_non_volatile_store (BOOLEAN forceDelete)
 ** Returns          none
 **
 *******************************************************************************/
-void verify_stack_non_volatile_store ()
-{
-    ALOGD ("%s", __FUNCTION__);
-    char filename[256], filename2[256];
-    BOOLEAN isValid = FALSE;
+void verify_stack_non_volatile_store() {
+  ALOGD("%s", __func__);
+  char filename[256], filename2[256];
+  bool isValid = false;
 
-    memset (filename, 0, sizeof(filename));
-    memset (filename2, 0, sizeof(filename2));
-    strcpy(filename2, bcm_nfc_location);
-    strncat(filename2, sNfaStorageBin, sizeof(filename2)-strlen(filename2)-1);
-    if (strlen(filename2) > 200)
-    {
-        ALOGE ("%s: filename too long", __FUNCTION__);
-        return;
-    }
+  memset(filename, 0, sizeof(filename));
+  memset(filename2, 0, sizeof(filename2));
+  strcpy(filename2, bcm_nfc_location);
+  strncat(filename2, sNfaStorageBin, sizeof(filename2) - strlen(filename2) - 1);
+  if (strlen(filename2) > 200) {
+    ALOGE("%s: filename too long", __func__);
+    return;
+  }
 
-    sprintf (filename, "%s%u", filename2, DH_NV_BLOCK);
-    if (crcChecksumVerifyIntegrity (filename))
-    {
-        sprintf (filename, "%s%u", filename2, HC_F3_NV_BLOCK);
-        if (crcChecksumVerifyIntegrity (filename))
-        {
-            sprintf (filename, "%s%u", filename2, HC_F4_NV_BLOCK);
-            if (crcChecksumVerifyIntegrity (filename))
-            {
-                sprintf (filename, "%s%u", filename2, HC_F2_NV_BLOCK);
-                if (crcChecksumVerifyIntegrity (filename))
-                {
-                    sprintf (filename, "%s%u", filename2, HC_F5_NV_BLOCK);
-                    if (crcChecksumVerifyIntegrity (filename))
-                        isValid = TRUE;
-                }
-            }
+  sprintf(filename, "%s%u", filename2, DH_NV_BLOCK);
+  if (crcChecksumVerifyIntegrity(filename)) {
+    sprintf(filename, "%s%u", filename2, HC_F3_NV_BLOCK);
+    if (crcChecksumVerifyIntegrity(filename)) {
+      sprintf(filename, "%s%u", filename2, HC_F4_NV_BLOCK);
+      if (crcChecksumVerifyIntegrity(filename)) {
+        sprintf(filename, "%s%u", filename2, HC_F2_NV_BLOCK);
+        if (crcChecksumVerifyIntegrity(filename)) {
+          sprintf(filename, "%s%u", filename2, HC_F5_NV_BLOCK);
+          if (crcChecksumVerifyIntegrity(filename)) isValid = true;
         }
+      }
     }
+  }
 
-    if (isValid == FALSE)
-        delete_stack_non_volatile_store (TRUE);
+  if (isValid == false) delete_stack_non_volatile_store(true);
 }

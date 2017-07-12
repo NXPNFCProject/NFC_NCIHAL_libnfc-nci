@@ -16,7 +16,6 @@
  *
  ******************************************************************************/
 
-
 /******************************************************************************
  *
  *  Protocol timer services (taken from bta ptim)
@@ -40,11 +39,10 @@
 ** Returns          void
 **
 *******************************************************************************/
-void nfa_sys_ptim_init (tPTIM_CB *p_cb, UINT16 period, UINT8 timer_id)
-{
-    GKI_init_timer_list (&p_cb->timer_queue);
-    p_cb->period = period;
-    p_cb->timer_id = timer_id;
+void nfa_sys_ptim_init(tPTIM_CB* p_cb, uint16_t period, uint8_t timer_id) {
+  GKI_init_timer_list(&p_cb->timer_queue);
+  p_cb->period = period;
+  p_cb->timer_id = timer_id;
 }
 
 /*******************************************************************************
@@ -58,64 +56,57 @@ void nfa_sys_ptim_init (tPTIM_CB *p_cb, UINT16 period, UINT8 timer_id)
 ** Returns          void
 **
 *******************************************************************************/
-void nfa_sys_ptim_timer_update (tPTIM_CB *p_cb)
-{
-    TIMER_LIST_ENT *p_tle;
-    BT_HDR *p_msg;
-    UINT32 new_ticks_count;
-    INT32  period_in_ticks;
+void nfa_sys_ptim_timer_update(tPTIM_CB* p_cb) {
+  TIMER_LIST_ENT* p_tle;
+  NFC_HDR* p_msg;
+  uint32_t new_ticks_count;
+  int32_t period_in_ticks;
 
-    /* To handle the case when the function is called less frequently than the period
-       we must convert determine the number of ticks since the last update, then
-       convert back to milliseconds before updating timer list */
-    new_ticks_count = GKI_get_tick_count ();
+  /* To handle the case when the function is called less frequently than the
+     period
+     we must convert determine the number of ticks since the last update, then
+     convert back to milliseconds before updating timer list */
+  new_ticks_count = GKI_get_tick_count();
 
-    /* Check for wrapped condition */
-    if (new_ticks_count >= p_cb->last_gki_ticks)
-    {
-        period_in_ticks = (INT32) (new_ticks_count - p_cb->last_gki_ticks);
+  /* Check for wrapped condition */
+  if (new_ticks_count >= p_cb->last_gki_ticks) {
+    period_in_ticks = (int32_t)(new_ticks_count - p_cb->last_gki_ticks);
+  } else {
+    period_in_ticks = (int32_t)(((uint32_t)0xffffffff - p_cb->last_gki_ticks) +
+                                new_ticks_count + 1);
+  }
+
+  /* update timer list */
+  GKI_update_timer_list(&p_cb->timer_queue, GKI_TICKS_TO_MS(period_in_ticks));
+
+  p_cb->last_gki_ticks = new_ticks_count;
+
+  /* while there are expired timers */
+  while ((p_cb->timer_queue.p_first) &&
+         (p_cb->timer_queue.p_first->ticks <= 0)) {
+    /* removed expired timer from list */
+    p_tle = p_cb->timer_queue.p_first;
+    NFA_TRACE_DEBUG1("nfa_sys_ptim_timer_update expired: %08x", p_tle);
+    GKI_remove_from_timer_list(&p_cb->timer_queue, p_tle);
+
+    /* call timer callback */
+    if (p_tle->p_cback) {
+      (*p_tle->p_cback)(p_tle);
+    } else if (p_tle->event) {
+      p_msg = (NFC_HDR*)GKI_getbuf(sizeof(NFC_HDR));
+      if (p_msg != NULL) {
+        p_msg->event = p_tle->event;
+        p_msg->layer_specific = 0;
+        nfa_sys_sendmsg(p_msg);
+      }
     }
-    else
-    {
-        period_in_ticks = (INT32) (((UINT32) 0xffffffff - p_cb->last_gki_ticks)
-                            + new_ticks_count + 1);
-    }
+  }
 
-    /* update timer list */
-    GKI_update_timer_list (&p_cb->timer_queue, GKI_TICKS_TO_MS (period_in_ticks));
-
-    p_cb->last_gki_ticks = new_ticks_count;
-
-    /* while there are expired timers */
-    while ((p_cb->timer_queue.p_first) && (p_cb->timer_queue.p_first->ticks <= 0))
-    {
-        /* removed expired timer from list */
-        p_tle = p_cb->timer_queue.p_first;
-        NFA_TRACE_DEBUG1 ("nfa_sys_ptim_timer_update expired: %08x", p_tle);
-        GKI_remove_from_timer_list (&p_cb->timer_queue, p_tle);
-
-        /* call timer callback */
-        if (p_tle->p_cback)
-        {
-            (*p_tle->p_cback) (p_tle);
-        }
-        else if (p_tle->event)
-        {
-            if ((p_msg = (BT_HDR *) GKI_getbuf (sizeof (BT_HDR))) != NULL)
-            {
-                p_msg->event = p_tle->event;
-                p_msg->layer_specific = 0;
-                nfa_sys_sendmsg (p_msg);
-            }
-        }
-    }
-
-    /* if timer list is empty stop periodic GKI timer */
-    if (p_cb->timer_queue.p_first == NULL)
-    {
-        NFA_TRACE_DEBUG0 ("ptim timer stop");
-        GKI_stop_timer (p_cb->timer_id);
-    }
+  /* if timer list is empty stop periodic GKI timer */
+  if (p_cb->timer_queue.p_first == NULL) {
+    NFA_TRACE_DEBUG0("ptim timer stop");
+    GKI_stop_timer(p_cb->timer_id);
+  }
 }
 
 /*******************************************************************************
@@ -128,24 +119,23 @@ void nfa_sys_ptim_timer_update (tPTIM_CB *p_cb)
 ** Returns          void
 **
 *******************************************************************************/
-void nfa_sys_ptim_start_timer (tPTIM_CB *p_cb, TIMER_LIST_ENT *p_tle, UINT16 type, INT32 timeout)
-{
-    NFA_TRACE_DEBUG1 ("nfa_sys_ptim_start_timer %08x", p_tle);
+void nfa_sys_ptim_start_timer(tPTIM_CB* p_cb, TIMER_LIST_ENT* p_tle,
+                              uint16_t type, int32_t timeout) {
+  NFA_TRACE_DEBUG1("nfa_sys_ptim_start_timer %08x", p_tle);
 
-    /* if timer list is currently empty, start periodic GKI timer */
-    if (p_cb->timer_queue.p_first == NULL)
-    {
-        NFA_TRACE_DEBUG0 ("ptim timer start");
-        p_cb->last_gki_ticks = GKI_get_tick_count ();
-        GKI_start_timer (p_cb->timer_id, GKI_MS_TO_TICKS (p_cb->period), TRUE);
-    }
+  /* if timer list is currently empty, start periodic GKI timer */
+  if (p_cb->timer_queue.p_first == NULL) {
+    NFA_TRACE_DEBUG0("ptim timer start");
+    p_cb->last_gki_ticks = GKI_get_tick_count();
+    GKI_start_timer(p_cb->timer_id, GKI_MS_TO_TICKS(p_cb->period), true);
+  }
 
-    GKI_remove_from_timer_list (&p_cb->timer_queue, p_tle);
+  GKI_remove_from_timer_list(&p_cb->timer_queue, p_tle);
 
-    p_tle->event = type;
-    p_tle->ticks = timeout;
+  p_tle->event = type;
+  p_tle->ticks = timeout;
 
-    GKI_add_to_timer_list (&p_cb->timer_queue, p_tle);
+  GKI_add_to_timer_list(&p_cb->timer_queue, p_tle);
 }
 
 /*******************************************************************************
@@ -157,16 +147,14 @@ void nfa_sys_ptim_start_timer (tPTIM_CB *p_cb, TIMER_LIST_ENT *p_tle, UINT16 typ
 ** Returns          void
 **
 *******************************************************************************/
-void nfa_sys_ptim_stop_timer (tPTIM_CB *p_cb, TIMER_LIST_ENT *p_tle)
-{
-    NFA_TRACE_DEBUG1 ("nfa_sys_ptim_stop_timer %08x", p_tle);
+void nfa_sys_ptim_stop_timer(tPTIM_CB* p_cb, TIMER_LIST_ENT* p_tle) {
+  NFA_TRACE_DEBUG1("nfa_sys_ptim_stop_timer %08x", p_tle);
 
-    GKI_remove_from_timer_list (&p_cb->timer_queue, p_tle);
+  GKI_remove_from_timer_list(&p_cb->timer_queue, p_tle);
 
-    /* if timer list is empty stop periodic GKI timer */
-    if (p_cb->timer_queue.p_first == NULL)
-    {
-        NFA_TRACE_DEBUG0 ("ptim timer stop");
-        GKI_stop_timer (p_cb->timer_id);
-    }
+  /* if timer list is empty stop periodic GKI timer */
+  if (p_cb->timer_queue.p_first == NULL) {
+    NFA_TRACE_DEBUG0("ptim timer stop");
+    GKI_stop_timer(p_cb->timer_id);
+  }
 }

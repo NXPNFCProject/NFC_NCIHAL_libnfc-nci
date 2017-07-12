@@ -16,65 +16,69 @@
 
 /******************************************************************************
  *
- *  This file contains compile-time configurable constants for vendor specific proprietary protocols
+ *  This file contains compile-time configurable constants for vendor specific
+ *proprietary protocols
  *
  ******************************************************************************/
 #ifndef __NFC_VENDOR_CFG_H__
 #define __NFC_VENDOR_CFG_H__
 
-/* compile-time configuration structure for proprietary protocol and discovery value */
-typedef struct
-{
-    UINT8 pro_protocol_18092_active;
-    UINT8 pro_protocol_b_prime;
-    UINT8 pro_protocol_dual;
-    UINT8 pro_protocol_15693;
-    UINT8 pro_protocol_kovio;
-    UINT8 pro_protocol_mfc;
+/* compile-time configuration structure for proprietary protocol and discovery
+ * value */
+typedef struct {
+  uint8_t pro_protocol_18092_active;
+  uint8_t pro_protocol_b_prime;
+  uint8_t pro_protocol_dual;
+  uint8_t pro_protocol_15693;
+  uint8_t pro_protocol_kovio;
+  uint8_t pro_protocol_mfc;
 
-    UINT8 pro_discovery_kovio_poll;
-    UINT8 pro_discovery_b_prime_poll;
-    UINT8 pro_discovery_b_prime_listen;
+  uint8_t pro_discovery_kovio_poll;
+  uint8_t pro_discovery_b_prime_poll;
+  uint8_t pro_discovery_b_prime_listen;
 } tNFA_PROPRIETARY_CFG;
 
+extern tNFA_PROPRIETARY_CFG* p_nfa_proprietary_cfg;
 
-extern tNFA_PROPRIETARY_CFG *p_nfa_proprietary_cfg;
-
- /**********************************************
- * Proprietary Protocols
- **********************************************/
+/**********************************************
+* Proprietary Protocols
+**********************************************/
 #ifndef NCI_PROTOCOL_18092_ACTIVE
-#define NCI_PROTOCOL_18092_ACTIVE       (p_nfa_proprietary_cfg->pro_protocol_18092_active)
+#define NCI_PROTOCOL_18092_ACTIVE \
+  (p_nfa_proprietary_cfg->pro_protocol_18092_active)
 #endif
 #ifndef NCI_PROTOCOL_B_PRIME
-#define NCI_PROTOCOL_B_PRIME            (p_nfa_proprietary_cfg->pro_protocol_b_prime)
+#define NCI_PROTOCOL_B_PRIME (p_nfa_proprietary_cfg->pro_protocol_b_prime)
 #endif
 #ifndef NCI_PROTOCOL_DUAL
-#define NCI_PROTOCOL_DUAL               (p_nfa_proprietary_cfg->pro_protocol_dual)
+#define NCI_PROTOCOL_DUAL (p_nfa_proprietary_cfg->pro_protocol_dual)
 #endif
 #ifndef NCI_PROTOCOL_15693
-#define NCI_PROTOCOL_15693              (p_nfa_proprietary_cfg->pro_protocol_15693)
+#define NCI_PROTOCOL_15693 (p_nfa_proprietary_cfg->pro_protocol_15693)
 #endif
 #ifndef NCI_PROTOCOL_KOVIO
-#define NCI_PROTOCOL_KOVIO              (p_nfa_proprietary_cfg->pro_protocol_kovio)
+#define NCI_PROTOCOL_KOVIO (p_nfa_proprietary_cfg->pro_protocol_kovio)
 #endif
 #ifndef NCI_PROTOCOL_MIFARE
-#define NCI_PROTOCOL_MIFARE             (p_nfa_proprietary_cfg->pro_protocol_mfc)
+#define NCI_PROTOCOL_MIFARE (p_nfa_proprietary_cfg->pro_protocol_mfc)
 #endif
 
- /**********************************************
- * Proprietary Discovery technology and mode
- **********************************************/
+/**********************************************
+* Proprietary Discovery technology and mode
+**********************************************/
 #ifndef NCI_DISCOVERY_TYPE_POLL_KOVIO
-#define NCI_DISCOVERY_TYPE_POLL_KOVIO           (p_nfa_proprietary_cfg->pro_discovery_kovio_poll)
+#define NCI_DISCOVERY_TYPE_POLL_KOVIO \
+  (p_nfa_proprietary_cfg->pro_discovery_kovio_poll)
 #endif
 
 #ifndef NCI_DISCOVERY_TYPE_POLL_B_PRIME
-#define NCI_DISCOVERY_TYPE_POLL_B_PRIME         (p_nfa_proprietary_cfg->pro_discovery_b_prime_poll)
+#define NCI_DISCOVERY_TYPE_POLL_B_PRIME \
+  (p_nfa_proprietary_cfg->pro_discovery_b_prime_poll)
 #endif
 
 #ifndef NCI_DISCOVERY_TYPE_LISTEN_B_PRIME
-#define NCI_DISCOVERY_TYPE_LISTEN_B_PRIME       (p_nfa_proprietary_cfg->pro_discovery_b_prime_listen)
+#define NCI_DISCOVERY_TYPE_LISTEN_B_PRIME \
+  (p_nfa_proprietary_cfg->pro_discovery_b_prime_listen)
 #endif
 
 #endif /* __NFC_VENDOR_CFG_H__ */

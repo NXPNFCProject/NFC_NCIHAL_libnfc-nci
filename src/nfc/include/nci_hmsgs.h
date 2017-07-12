@@ -35,7 +35,6 @@
  *
  ******************************************************************************/
 
-
 /******************************************************************************
  *
  *  defines NCI interface messages (for DH)
@@ -48,51 +47,55 @@
 extern "C" {
 #endif
 
+#include "nfc_types.h"
 #include "nci_defs.h"
 
+#include <stdbool.h>
 
-BOOLEAN nci_proc_core_rsp (BT_HDR *p_msg);
-void nci_proc_rf_management_rsp (BT_HDR *p_msg);
-void nci_proc_ee_management_rsp (BT_HDR *p_msg);
-void nci_proc_core_ntf (BT_HDR *p_msg);
-void nci_proc_rf_management_ntf (BT_HDR *p_msg);
-void nci_proc_ee_management_ntf (BT_HDR *p_msg);
-void nci_proc_prop_rsp (BT_HDR *p_msg);
-#if(NXP_EXTNS == TRUE)
-void nci_proc_prop_nxp_rsp (BT_HDR *p_msg);
+bool nci_proc_core_rsp(NFC_HDR* p_msg);
+void nci_proc_rf_management_rsp(NFC_HDR* p_msg);
+void nci_proc_ee_management_rsp(NFC_HDR* p_msg);
+void nci_proc_core_ntf(NFC_HDR* p_msg);
+void nci_proc_rf_management_ntf(NFC_HDR* p_msg);
+void nci_proc_ee_management_ntf(NFC_HDR* p_msg);
+void nci_proc_prop_rsp(NFC_HDR* p_msg);
+#if (NXP_EXTNS == TRUE)
+void nci_proc_prop_nxp_rsp(NFC_HDR* p_msg);
+uint8_t nci_snd_iso_dep_nak_presence_check_cmd();
 #endif
-void nci_proc_prop_ntf (BT_HDR *p_msg);
+void nci_proc_prop_ntf(NFC_HDR* p_msg);
 
+uint8_t nci_snd_core_reset(uint8_t reset_type);
+uint8_t nci_snd_core_init(uint8_t nci_version);
+uint8_t nci_snd_core_get_config(uint8_t* param_ids, uint8_t num_ids);
+uint8_t nci_snd_core_set_config(uint8_t* p_param_tlvs, uint8_t tlv_size);
 
-UINT8 nci_snd_core_reset (UINT8 reset_type);
-UINT8 nci_snd_core_init (void);
-UINT8 nci_snd_core_get_config (UINT8 *param_ids, UINT8 num_ids);
-UINT8 nci_snd_core_set_config (UINT8 *p_param_tlvs, UINT8 tlv_size);
+uint8_t nci_snd_core_conn_create(uint8_t dest_type, uint8_t num_tlv,
+                                 uint8_t tlv_size, uint8_t* p_param_tlvs);
+uint8_t nci_snd_core_conn_close(uint8_t conn_id);
 
-UINT8 nci_snd_core_conn_create (UINT8 dest_type, UINT8 num_tlv, UINT8 tlv_size, UINT8 *p_param_tlvs);
-UINT8 nci_snd_core_conn_close (UINT8 conn_id);
+uint8_t nci_snd_discover_cmd(uint8_t num, tNCI_DISCOVER_PARAMS* p_param);
 
-
-
-UINT8 nci_snd_discover_cmd (UINT8 num, tNCI_DISCOVER_PARAMS *p_param);
-
-UINT8 nci_snd_discover_select_cmd (UINT8 rf_disc_id, UINT8 protocol, UINT8 rf_interface);
-UINT8 nci_snd_deactivate_cmd (UINT8 de_act_type );
-UINT8 nci_snd_discover_map_cmd (UINT8 num, tNCI_DISCOVER_MAPS *p_maps);
-UINT8 nci_snd_t3t_polling (UINT16 system_code, UINT8 rc, UINT8 tsn);
-UINT8 nci_snd_parameter_update_cmd (UINT8 *p_param_tlvs, UINT8 tlv_size);
-#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == TRUE)
-UINT8  nci_snd_pwr_nd_lnk_ctrl_cmd (UINT8 nfcee_id,UINT8 cfg_value);
+uint8_t nci_snd_discover_select_cmd(uint8_t rf_disc_id, uint8_t protocol,
+                                    uint8_t rf_interface);
+uint8_t nci_snd_deactivate_cmd(uint8_t de_act_type);
+uint8_t nci_snd_discover_map_cmd(uint8_t num, tNCI_DISCOVER_MAPS* p_maps);
+uint8_t nci_snd_t3t_polling(uint16_t system_code, uint8_t rc, uint8_t tsn);
+uint8_t nci_snd_parameter_update_cmd(uint8_t* p_param_tlvs, uint8_t tlv_size);
+#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == true)
+uint8_t nci_snd_pwr_nd_lnk_ctrl_cmd(uint8_t nfcee_id, uint8_t cfg_value);
 #endif
-#if ((NFC_NFCEE_INCLUDED == TRUE) && (NFC_RW_ONLY == FALSE))
-UINT8 nci_snd_nfcee_discover (UINT8 discover_action);
-UINT8 nci_snd_nfcee_mode_set (UINT8 nfcee_id, UINT8 nfcee_mode);
-UINT8 nci_snd_set_routing_cmd (BOOLEAN more, UINT8 num_tlv, UINT8 tlv_size, UINT8 *p_param_tlvs);
-UINT8 nci_snd_get_routing_cmd (void);
+#if ((NFC_NFCEE_INCLUDED == true) && (NFC_RW_ONLY == false))
+uint8_t nci_snd_nfcee_discover(uint8_t discover_action);
+uint8_t nci_snd_nfcee_mode_set(uint8_t nfcee_id, uint8_t nfcee_mode);
+uint8_t nci_snd_set_routing_cmd(bool more, uint8_t num_tlv, uint8_t tlv_size,
+                                uint8_t* p_param_tlvs);
+uint8_t nci_snd_get_routing_cmd(void);
+uint8_t nci_snd_nfcee_power_link_control (uint8_t nfcee_id, uint8_t pl_config);
 #endif
-
+uint8_t nci_snd_core_set_power_sub_state(uint8_t screen_state);
 #ifdef __cplusplus
 }
 #endif
 
-#endif  /* NFC_NCI_MSGS_H */
+#endif /* NFC_NCI_MSGS_H */

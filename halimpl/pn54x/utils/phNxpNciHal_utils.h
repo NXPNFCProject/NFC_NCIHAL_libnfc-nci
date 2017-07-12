@@ -45,50 +45,47 @@
 /********************* Definitions and structures *****************************/
 
 /* List structures */
-struct listNode
-{
-    void* pData;
-    struct listNode* pNext;
+struct listNode {
+  void* pData;
+  struct listNode* pNext;
 };
 
-struct listHead
-{
-    struct listNode* pFirst;
-    pthread_mutex_t mutex;
+struct listHead {
+  struct listNode* pFirst;
+  pthread_mutex_t mutex;
 };
-
 
 /* Semaphore handling structure */
-typedef struct phNxpNciHal_Sem
-{
-    /* Semaphore used to wait for callback */
-    sem_t sem;
+typedef struct phNxpNciHal_Sem {
+  /* Semaphore used to wait for callback */
+  sem_t sem;
 
-    /* Used to store the status sent by the callback */
-    NFCSTATUS status;
+  /* Used to store the status sent by the callback */
+  NFCSTATUS status;
 
-    /* Used to provide a local context to the callback */
-    void* pContext;
+  /* Used to provide a local context to the callback */
+  void* pContext;
 
 } phNxpNciHal_Sem_t;
 
 /* Semaphore helper macros */
-#define SEM_WAIT(cb_data) ((sem_wait(&((cb_data).sem)) == 0)?0:(errno==EINTR)?sem_wait(&((cb_data).sem)):-1)
-
+#define SEM_WAIT(cb_data)                                                   \
+  ((sem_wait(&((cb_data).sem)) == 0) ? 0 : (errno == EINTR)                 \
+                                               ? sem_wait(&((cb_data).sem)) \
+                                               : -1)
 
 #define SEM_POST(p_cb_data) sem_post(&((p_cb_data)->sem))
 
 /* Semaphore and mutex monitor */
-typedef struct phNxpNciHal_Monitor
-{
-    /* Mutex protecting native library against reentrance */
-    pthread_mutex_t reentrance_mutex;
+typedef struct phNxpNciHal_Monitor {
+  /* Mutex protecting native library against reentrance */
+  pthread_mutex_t reentrance_mutex;
 
-    /* Mutex protecting native library against concurrency */
-    pthread_mutex_t concurrency_mutex;
+  /* Mutex protecting native library against concurrency */
+  pthread_mutex_t concurrency_mutex;
 
-    /* List used to track pending semaphores waiting for callback */
-    struct listHead sem_list;
+  /* List used to track pending semaphores waiting for callback */
+  struct listHead sem_list;
 
 } phNxpNciHal_Monitor_t;
 
@@ -105,19 +102,27 @@ void listDump(struct listHead* pList);
 phNxpNciHal_Monitor_t* phNxpNciHal_init_monitor(void);
 void phNxpNciHal_cleanup_monitor(void);
 phNxpNciHal_Monitor_t* phNxpNciHal_get_monitor(void);
-NFCSTATUS phNxpNciHal_init_cb_data(phNxpNciHal_Sem_t *pCallbackData,
-        void *pContext);
+NFCSTATUS phNxpNciHal_init_cb_data(phNxpNciHal_Sem_t* pCallbackData,
+                                   void* pContext);
 void phNxpNciHal_cleanup_cb_data(phNxpNciHal_Sem_t* pCallbackData);
 void phNxpNciHal_releaseall_cb_data(void);
-void phNxpNciHal_print_packet(const char *pString, const uint8_t *p_data,
-        uint16_t len);
+void phNxpNciHal_print_packet(const char* pString, const uint8_t* p_data,
+                              uint16_t len);
 void phNxpNciHal_emergency_recovery(void);
 
 /* Lock unlock helper macros */
 /* Lock unlock helper macros */
-#define REENTRANCE_LOCK()      if (phNxpNciHal_get_monitor()) pthread_mutex_lock(&phNxpNciHal_get_monitor()->reentrance_mutex)
-#define REENTRANCE_UNLOCK()    if (phNxpNciHal_get_monitor()) pthread_mutex_unlock(&phNxpNciHal_get_monitor()->reentrance_mutex)
-#define CONCURRENCY_LOCK()     if (phNxpNciHal_get_monitor()) pthread_mutex_lock(&phNxpNciHal_get_monitor()->concurrency_mutex)
-#define CONCURRENCY_UNLOCK()   if (phNxpNciHal_get_monitor()) pthread_mutex_unlock(&phNxpNciHal_get_monitor()->concurrency_mutex)
+#define REENTRANCE_LOCK()        \
+  if (phNxpNciHal_get_monitor()) \
+  pthread_mutex_lock(&phNxpNciHal_get_monitor()->reentrance_mutex)
+#define REENTRANCE_UNLOCK()      \
+  if (phNxpNciHal_get_monitor()) \
+  pthread_mutex_unlock(&phNxpNciHal_get_monitor()->reentrance_mutex)
+#define CONCURRENCY_LOCK()       \
+  if (phNxpNciHal_get_monitor()) \
+  pthread_mutex_lock(&phNxpNciHal_get_monitor()->concurrency_mutex)
+#define CONCURRENCY_UNLOCK()     \
+  if (phNxpNciHal_get_monitor()) \
+  pthread_mutex_unlock(&phNxpNciHal_get_monitor()->concurrency_mutex)
 
 #endif /* _PHNXPNCIHAL_UTILS_H_ */

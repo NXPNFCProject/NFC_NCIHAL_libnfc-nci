@@ -16,7 +16,6 @@
  *
  ******************************************************************************/
 
-
 /******************************************************************************
  *
  *  This is the interface file for non valtile memory call-in functions.
@@ -25,17 +24,16 @@
 #ifndef NFC_HAL_NV_CI_H
 #define NFC_HAL_NV_CI_H
 
-#if (defined(NFC_HAL_HCI_INCLUDED) && (NFC_HAL_HCI_INCLUDED == TRUE))
+#include "nfc_hal_target.h"
+#if (NFC_HAL_HCI_INCLUDED == true)
 
 #include "nfc_hal_nv_co.h"
-
 
 /*****************************************************************************
 **  Function Declarations
 *****************************************************************************/
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /*******************************************************************************
@@ -56,21 +54,22 @@ extern "C"
 ** Returns          void
 **
 *******************************************************************************/
-void nfc_hal_nv_ci_write (tNFC_HAL_NV_CO_STATUS status);
+void nfc_hal_nv_ci_write(tNFC_HAL_NV_CO_STATUS status);
 
 /*******************************************************************************
 **
 ** Function         nfc_hal_nv_ci_read
 **
-** Description      This function sends an event to NCIT indicating the phone has
-**                  read in the requested amount of data specified in the
-**                  nfa_nv_co_read () call-out function.  It should only be called
-**                  when the requested number of bytes has been read.
+** Description      This function sends an event to NCIT indicating the phone
+**                  has read in the requested amount of data specified in the
+**                  nfa_nv_co_read () call-out function.  It should only be
+**                  called when the requested number of bytes has been read.
 **
 ** Parameters       num_bytes_read - number of bytes read into the buffer
 **                      specified in the read callout-function.
 **                  status - NFC_HAL_NV_CO_OK if full buffer of data,
-**                           NFC_HAL_NV_CO_EOF if the end of file has been reached,
+**                           NFC_HAL_NV_CO_EOF if the end of file has been
+**                           reached,
 **                           NFC_HAL_NV_CO_FAIL if an error has occurred.
 **                  evt - Used Internally by NFA -> MUST be same value passed
 **                       in call-out function.
@@ -78,10 +77,8 @@ void nfc_hal_nv_ci_write (tNFC_HAL_NV_CO_STATUS status);
 ** Returns          void
 **
 *******************************************************************************/
-void nfc_hal_nv_ci_read (UINT16                  num_bytes_read,
-                         tNFC_HAL_NV_CO_STATUS   status,
-                         UINT8                   block);
-
+void nfc_hal_nv_ci_read(uint16_t num_bytes_read, tNFC_HAL_NV_CO_STATUS status,
+                        uint8_t block);
 
 #ifdef __cplusplus
 }

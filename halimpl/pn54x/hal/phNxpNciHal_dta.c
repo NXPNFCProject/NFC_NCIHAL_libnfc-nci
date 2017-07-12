@@ -18,7 +18,7 @@
 #include <phNxpConfig.h>
 
 /*********************** Global Variables *************************************/
-static phNxpDta_Control_t nxpdta_ctrl = {0,0,0};
+static phNxpDta_Control_t nxpdta_ctrl = {0, 0, 0};
 
 /*******************************************************************************
 **
@@ -28,13 +28,12 @@ static phNxpDta_Control_t nxpdta_ctrl = {0,0,0};
 **                  HAL in DTA mode
 **
 *******************************************************************************/
-void phNxpEnable_DtaMode (uint16_t pattern_no)
-{
-    nxpdta_ctrl.dta_ctrl_flag = FALSE;
-    nxpdta_ctrl.dta_t1t_flag = FALSE;
-    nxpdta_ctrl.dta_pattern_no = pattern_no;
-    ALOGD(">>>>DTA - Mode is enabled");
-    nxpdta_ctrl.dta_ctrl_flag = TRUE;
+void phNxpEnable_DtaMode(uint16_t pattern_no) {
+  nxpdta_ctrl.dta_ctrl_flag = false;
+  nxpdta_ctrl.dta_t1t_flag = false;
+  nxpdta_ctrl.dta_pattern_no = pattern_no;
+  ALOGD(">>>>DTA - Mode is enabled");
+  nxpdta_ctrl.dta_ctrl_flag = true;
 }
 
 /*******************************************************************************
@@ -44,11 +43,10 @@ void phNxpEnable_DtaMode (uint16_t pattern_no)
 ** Description      This function disable DTA mode
 **
 *******************************************************************************/
-void phNxpDisable_DtaMode (void)
-{
-    nxpdta_ctrl.dta_ctrl_flag = FALSE;
-    nxpdta_ctrl.dta_t1t_flag = FALSE;
-    NXPLOG_NCIHAL_D(">>>>DTA - Mode is Disabled");
+void phNxpDisable_DtaMode(void) {
+  nxpdta_ctrl.dta_ctrl_flag = false;
+  nxpdta_ctrl.dta_t1t_flag = false;
+  NXPLOG_NCIHAL_D(">>>>DTA - Mode is Disabled");
 }
 
 /******************************************************************************
@@ -56,13 +54,10 @@ void phNxpDisable_DtaMode (void)
  *
  * Description      This function checks the DTA mode is enable or not.
  *
- * Returns          It returns TRUE if DTA enabled otherwise FALSE
+ * Returns          It returns true if DTA enabled otherwise false
  *
  ******************************************************************************/
-NFCSTATUS phNxpDta_IsEnable(void)
-{
-    return nxpdta_ctrl.dta_ctrl_flag;
-}
+NFCSTATUS phNxpDta_IsEnable(void) { return nxpdta_ctrl.dta_ctrl_flag; }
 
 /******************************************************************************
  * Function         phNxpDta_T1TEnable
@@ -71,10 +66,7 @@ NFCSTATUS phNxpDta_IsEnable(void)
  *
  *
  ******************************************************************************/
-void phNxpDta_T1TEnable(void)
-{
-    nxpdta_ctrl.dta_t1t_flag = TRUE;
-}
+void phNxpDta_T1TEnable(void) { nxpdta_ctrl.dta_t1t_flag = true; }
 /******************************************************************************
  * Function         phNxpNHal_DtaUpdate
  *
@@ -87,174 +79,153 @@ void phNxpDta_T1TEnable(void)
  *
  ******************************************************************************/
 
-NFCSTATUS phNxpNHal_DtaUpdate(uint16_t *cmd_len, uint8_t *p_cmd_data,
-        uint16_t *rsp_len, uint8_t *p_rsp_data)
-{
-    NFCSTATUS status = NFCSTATUS_SUCCESS;
+NFCSTATUS phNxpNHal_DtaUpdate(uint16_t* cmd_len, uint8_t* p_cmd_data,
+                              uint16_t* rsp_len, uint8_t* p_rsp_data) {
+  NFCSTATUS status = NFCSTATUS_SUCCESS;
 
-    if (nxpdta_ctrl.dta_ctrl_flag == TRUE)
-    {
-        // DTA: Block the set config command with general bytes */
-        if (p_cmd_data[0] == 0x20 && p_cmd_data[1] == 0x02 &&
-             p_cmd_data[2] == 0x17 && p_cmd_data[3] == 0x01 &&
-             p_cmd_data[4] == 0x29 && p_cmd_data[5] == 0x14 )
+  if (nxpdta_ctrl.dta_ctrl_flag == true) {
+    // DTA: Block the set config command with general bytes */
+    if (p_cmd_data[0] == 0x20 && p_cmd_data[1] == 0x02 &&
+        p_cmd_data[2] == 0x17 && p_cmd_data[3] == 0x01 &&
+        p_cmd_data[4] == 0x29 && p_cmd_data[5] == 0x14) {
+      *rsp_len = 5;
+      NXPLOG_NCIHAL_D(">>>>DTA - Block set config command");
+      phNxpNciHal_print_packet("DTASEND", p_cmd_data, *cmd_len);
+
+      p_rsp_data[0] = 0x40;
+      p_rsp_data[1] = 0x02;
+      p_rsp_data[2] = 0x02;
+      p_rsp_data[3] = 0x00;
+      p_rsp_data[4] = 0x00;
+
+      phNxpNciHal_print_packet("DTARECV", p_rsp_data, 5);
+
+      status = NFCSTATUS_FAILED;
+      NXPLOG_NCIHAL_D("DTA - Block set config command END");
+
+    } else if (p_cmd_data[0] == 0x21 && p_cmd_data[1] == 0x08 &&
+               p_cmd_data[2] == 0x04 && p_cmd_data[3] == 0xFF &&
+               p_cmd_data[4] == 0xFF) {
+      NXPLOG_NCIHAL_D(">>>>DTA Change Felica system code");
+      *rsp_len = 4;
+      p_rsp_data[0] = 0x41;
+      p_rsp_data[1] = 0x08;
+      p_rsp_data[2] = 0x01;
+      p_rsp_data[3] = 0x00;
+      status = NFCSTATUS_FAILED;
+
+      phNxpNciHal_print_packet("DTARECV", p_rsp_data, 4);
+    } else if (p_cmd_data[0] == 0x20 && p_cmd_data[1] == 0x02 &&
+               p_cmd_data[2] == 0x10 && p_cmd_data[3] == 0x05 &&
+               p_cmd_data[10] == 0x32 && p_cmd_data[12] == 0x00) {
+      NXPLOG_NCIHAL_D(">>>>DTA Update LA_SEL_INFO param");
+
+      p_cmd_data[12] = 0x40;
+      p_cmd_data[18] = 0x02;
+      status = NFCSTATUS_SUCCESS;
+    } else if (p_cmd_data[0] == 0x20 && p_cmd_data[1] == 0x02 &&
+               p_cmd_data[2] == 0x0D && p_cmd_data[3] == 0x04 &&
+               p_cmd_data[10] == 0x32 && p_cmd_data[12] == 0x00) {
+      NXPLOG_NCIHAL_D(">>>>DTA Blocking dirty set config");
+      *rsp_len = 5;
+      p_rsp_data[0] = 0x40;
+      p_rsp_data[1] = 0x02;
+      p_rsp_data[2] = 0x02;
+      p_rsp_data[3] = 0x00;
+      p_rsp_data[4] = 0x00;
+      status = NFCSTATUS_FAILED;
+      phNxpNciHal_print_packet("DTARECV", p_rsp_data, 5);
+    } else if (p_cmd_data[0] == 0x21 && p_cmd_data[1] == 0x03) {
+      NXPLOG_NCIHAL_D(">>>>DTA Add NFC-F listen tech params");
+      p_cmd_data[2] += 6;
+      p_cmd_data[3] += 3;
+      p_cmd_data[*cmd_len] = 0x80;
+      p_cmd_data[*cmd_len + 1] = 0x01;
+      p_cmd_data[*cmd_len + 2] = 0x82;
+      p_cmd_data[*cmd_len + 3] = 0x01;
+      p_cmd_data[*cmd_len + 4] = 0x85;
+      p_cmd_data[*cmd_len + 5] = 0x01;
+
+      *cmd_len += 6;
+      status = NFCSTATUS_SUCCESS;
+    } else if (p_cmd_data[0] == 0x20 && p_cmd_data[1] == 0x02 &&
+               p_cmd_data[2] == 0x0D && p_cmd_data[3] == 0x04 &&
+               p_cmd_data[10] == 0x32 && p_cmd_data[12] == 0x20 &&
+               nxpdta_ctrl.dta_pattern_no == 0x1000) {
+      NXPLOG_NCIHAL_D(">>>>DTA Blocking dirty set config for analog testing");
+      *rsp_len = 5;
+      p_rsp_data[0] = 0x40;
+      p_rsp_data[1] = 0x02;
+      p_rsp_data[2] = 0x02;
+      p_rsp_data[3] = 0x00;
+      p_rsp_data[4] = 0x00;
+      status = NFCSTATUS_FAILED;
+      phNxpNciHal_print_packet("DTARECV", p_rsp_data, 5);
+    } else if (p_cmd_data[0] == 0x20 && p_cmd_data[1] == 0x02 &&
+               p_cmd_data[2] == 0x0D && p_cmd_data[3] == 0x04 &&
+               p_cmd_data[4] == 0x32 && p_cmd_data[5] == 0x01 &&
+               p_cmd_data[6] == 0x00) {
+      NXPLOG_NCIHAL_D(">>>>DTA Blocking dirty set config");
+      *rsp_len = 5;
+      p_rsp_data[0] = 0x40;
+      p_rsp_data[1] = 0x02;
+      p_rsp_data[2] = 0x02;
+      p_rsp_data[3] = 0x00;
+      p_rsp_data[4] = 0x00;
+      status = NFCSTATUS_FAILED;
+      phNxpNciHal_print_packet("DTARECV", p_rsp_data, 5);
+    } else if (p_cmd_data[0] == 0x20 && p_cmd_data[1] == 0x02 &&
+               p_cmd_data[2] == 0x04 && p_cmd_data[3] == 0x01 &&
+               p_cmd_data[4] == 0x50 && p_cmd_data[5] == 0x01 &&
+               p_cmd_data[6] == 0x00 && nxpdta_ctrl.dta_pattern_no == 0x1000) {
+      NXPLOG_NCIHAL_D(">>>>DTA Blocking dirty set config for analog testing");
+      *rsp_len = 5;
+      p_rsp_data[0] = 0x40;
+      p_rsp_data[1] = 0x02;
+      p_rsp_data[2] = 0x02;
+      p_rsp_data[3] = 0x00;
+      p_rsp_data[4] = 0x00;
+      status = NFCSTATUS_FAILED;
+      phNxpNciHal_print_packet("DTARECV", p_rsp_data, 5);
+    } else {
+    }
+    if (nxpdta_ctrl.dta_t1t_flag == true) {
+      if (p_cmd_data[2] == 0x07 && p_cmd_data[3] == 0x78 &&
+          p_cmd_data[4] == 0x00 && p_cmd_data[5] == 0x00) {
+        /*if (nxpdta_ctrl.dta_pattern_no == 0)
         {
-            *rsp_len = 5;
-            NXPLOG_NCIHAL_D(">>>>DTA - Block set config command");
-            phNxpNciHal_print_packet("DTASEND", p_cmd_data, *cmd_len);
+          NXPLOG_NCIHAL_D(">>>>DTA - T1T modification block RID command Custom
+        Response (pattern 0)");
+          phNxpNciHal_print_packet("DTASEND", p_cmd_data, *cmd_len);
+          *rsp_len = 10;
+          p_rsp_data[0] = 0x00;
+          p_rsp_data[1] = 0x00;
+          p_rsp_data[2] = 0x07;
+          p_rsp_data[3] = 0x12;
+          p_rsp_data[4] = 0x49;
+          p_rsp_data[5] = 0x00;
+          p_rsp_data[6] = 0x00;
+          p_rsp_data[7] = 0x00;
+          p_rsp_data[8] = 0x00;
+          p_rsp_data[9] = 0x00;
 
-            p_rsp_data[0] = 0x40;
-            p_rsp_data[1] = 0x02;
-            p_rsp_data[2] = 0x02;
-            p_rsp_data[3] = 0x00;
-            p_rsp_data[4] = 0x00;
+          status = NFCSTATUS_FAILED;
 
-            phNxpNciHal_print_packet("DTARECV", p_rsp_data, 5);
-
-            status = NFCSTATUS_FAILED;
-            NXPLOG_NCIHAL_D("DTA - Block set config command END");
-
-        }
-        else if (p_cmd_data[0] == 0x21 && p_cmd_data[1] == 0x08 && p_cmd_data[2] == 0x04
-                 && p_cmd_data[3] == 0xFF && p_cmd_data[4] == 0xFF)
-        {
-            NXPLOG_NCIHAL_D(">>>>DTA Change Felica system code");
-            *rsp_len = 4;
-            p_rsp_data[0] = 0x41;
-            p_rsp_data[1] = 0x08;
-            p_rsp_data[2] = 0x01;
-            p_rsp_data[3] = 0x00;
-            status = NFCSTATUS_FAILED;
-
-            phNxpNciHal_print_packet("DTARECV", p_rsp_data, 4);
-        }
-        else if (p_cmd_data[0] == 0x20 && p_cmd_data[1] == 0x02 &&
-             p_cmd_data[2] == 0x10 && p_cmd_data[3] == 0x05 &&
-             p_cmd_data[10] == 0x32 && p_cmd_data[12] == 0x00)
-        {
-            NXPLOG_NCIHAL_D(">>>>DTA Update LA_SEL_INFO param");
-
-            p_cmd_data[12] = 0x40;
-            p_cmd_data[18] = 0x02;
-        status = NFCSTATUS_SUCCESS;
-        }
-       else if (p_cmd_data[0] == 0x20 && p_cmd_data[1] == 0x02 &&
-                p_cmd_data[2] == 0x0D && p_cmd_data[3] == 0x04 &&
-                p_cmd_data[10] == 0x32 && p_cmd_data[12] == 0x00)
-        {
-            NXPLOG_NCIHAL_D(">>>>DTA Blocking dirty set config");
-            *rsp_len = 5;
-            p_rsp_data[0] = 0x40;
-            p_rsp_data[1] = 0x02;
-            p_rsp_data[2] = 0x02;
-            p_rsp_data[3] = 0x00;
-            p_rsp_data[4] = 0x00;
-            status = NFCSTATUS_FAILED;
-            phNxpNciHal_print_packet("DTARECV", p_rsp_data, 5);
-        }
-       else if(p_cmd_data[0] == 0x21 &&
-            p_cmd_data[1] == 0x03 )
-       {
-           NXPLOG_NCIHAL_D(">>>>DTA Add NFC-F listen tech params");
-           p_cmd_data[2] += 6;
-           p_cmd_data[3] += 3;
-           p_cmd_data[*cmd_len] = 0x80;
-           p_cmd_data[*cmd_len + 1] = 0x01;
-           p_cmd_data[*cmd_len + 2] = 0x82;
-           p_cmd_data[*cmd_len + 3] = 0x01;
-           p_cmd_data[*cmd_len + 4] = 0x85;
-           p_cmd_data[*cmd_len + 5] = 0x01;
-
-           *cmd_len += 6;
-           status = NFCSTATUS_SUCCESS;
-        }
-        else if (p_cmd_data[0] == 0x20 && p_cmd_data[1] == 0x02 &&
-                 p_cmd_data[2] == 0x0D && p_cmd_data[3] == 0x04 &&
-                 p_cmd_data[10] == 0x32 && p_cmd_data[12] == 0x20 &&
-                 nxpdta_ctrl.dta_pattern_no == 0x1000)
-        {
-            NXPLOG_NCIHAL_D(">>>>DTA Blocking dirty set config for analog testing");
-            *rsp_len = 5;
-            p_rsp_data[0] = 0x40;
-            p_rsp_data[1] = 0x02;
-            p_rsp_data[2] = 0x02;
-            p_rsp_data[3] = 0x00;
-            p_rsp_data[4] = 0x00;
-            status = NFCSTATUS_FAILED;
-            phNxpNciHal_print_packet("DTARECV", p_rsp_data, 5);
-        }
-        else if (p_cmd_data[0] == 0x20 && p_cmd_data[1] == 0x02 &&
-                 p_cmd_data[2] == 0x0D && p_cmd_data[3] == 0x04 &&
-                 p_cmd_data[4] == 0x32 && p_cmd_data[5] == 0x01 &&
-                 p_cmd_data[6] == 0x00)
-        {
-            NXPLOG_NCIHAL_D(">>>>DTA Blocking dirty set config");
-            *rsp_len = 5;
-            p_rsp_data[0] = 0x40;
-            p_rsp_data[1] = 0x02;
-            p_rsp_data[2] = 0x02;
-            p_rsp_data[3] = 0x00;
-            p_rsp_data[4] = 0x00;
-            status = NFCSTATUS_FAILED;
-            phNxpNciHal_print_packet("DTARECV", p_rsp_data, 5);
-        }
-        else if (p_cmd_data[0] == 0x20 && p_cmd_data[1] == 0x02 &&
-                 p_cmd_data[2] == 0x04 && p_cmd_data[3] == 0x01 &&
-                 p_cmd_data[4] == 0x50 && p_cmd_data[5] == 0x01 &&
-                 p_cmd_data[6] == 0x00 && nxpdta_ctrl.dta_pattern_no == 0x1000)
-        {
-            NXPLOG_NCIHAL_D(">>>>DTA Blocking dirty set config for analog testing");
-            *rsp_len = 5;
-            p_rsp_data[0] = 0x40;
-            p_rsp_data[1] = 0x02;
-            p_rsp_data[2] = 0x02;
-            p_rsp_data[3] = 0x00;
-            p_rsp_data[4] = 0x00;
-            status = NFCSTATUS_FAILED;
-            phNxpNciHal_print_packet("DTARECV", p_rsp_data, 5);
+          phNxpNciHal_print_packet("DTARECV", p_rsp_data, *rsp_len);
         }
         else
-        {
+        {*/
+        NXPLOG_NCIHAL_D("Change RID command's UID echo bytes to 0");
 
-        }
-        if (nxpdta_ctrl.dta_t1t_flag == TRUE)
-        {
-
-           if (p_cmd_data[2] == 0x07 && p_cmd_data[3] == 0x78 && p_cmd_data[4] ==0x00 &&  p_cmd_data[5] == 0x00)
-           {
-             /*if (nxpdta_ctrl.dta_pattern_no == 0)
-             {
-               NXPLOG_NCIHAL_D(">>>>DTA - T1T modification block RID command Custom Response (pattern 0)");
-               phNxpNciHal_print_packet("DTASEND", p_cmd_data, *cmd_len);
-               *rsp_len = 10;
-               p_rsp_data[0] = 0x00;
-               p_rsp_data[1] = 0x00;
-               p_rsp_data[2] = 0x07;
-               p_rsp_data[3] = 0x12;
-               p_rsp_data[4] = 0x49;
-               p_rsp_data[5] = 0x00;
-               p_rsp_data[6] = 0x00;
-               p_rsp_data[7] = 0x00;
-               p_rsp_data[8] = 0x00;
-               p_rsp_data[9] = 0x00;
-
-               status = NFCSTATUS_FAILED;
-
-               phNxpNciHal_print_packet("DTARECV", p_rsp_data, *rsp_len);
-             }
-             else
-             {*/
-               NXPLOG_NCIHAL_D("Change RID command's UID echo bytes to 0");
-
-               nxpdta_ctrl.dta_t1t_flag = FALSE;
-               p_cmd_data[6] = 0x00;
-               p_cmd_data[7] = 0x00;
-               p_cmd_data[8] = 0x00;
-               p_cmd_data[9] = 0x00;
-               status = NFCSTATUS_SUCCESS;
-             /*}*/
-          }
+        nxpdta_ctrl.dta_t1t_flag = false;
+        p_cmd_data[6] = 0x00;
+        p_cmd_data[7] = 0x00;
+        p_cmd_data[8] = 0x00;
+        p_cmd_data[9] = 0x00;
+        status = NFCSTATUS_SUCCESS;
+        /*}*/
       }
     }
-    return status;
+  }
+  return status;
 }

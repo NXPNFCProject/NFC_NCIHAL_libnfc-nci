@@ -17,7 +17,7 @@
  ******************************************************************************/
 #include "bt_types.h"
 
-const UINT8 nfca_version_string[] = "NFCDROID-AOSP_M_00.01";
+const uint8_t nfca_version_string[] = "NFCDROID-AOSP_M_00.01";
 
 /*
 // The following string should be manually updated to contain the
@@ -25,4 +25,4 @@ const UINT8 nfca_version_string[] = "NFCDROID-AOSP_M_00.01";
 //
 // NOTE: IF additional branches are used add a "+" at the end of the string
 */
-const UINT8 nfa_version_string[] =  "NFA_PI_1.03.66+";
+const uint8_t nfa_version_string[] = "NFA_PI_1.03.66+";

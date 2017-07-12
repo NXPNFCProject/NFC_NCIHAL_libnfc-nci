@@ -35,7 +35,6 @@
  *
  ******************************************************************************/
 
-
 /******************************************************************************
  *
  *  This is the private interface file for the NFA EE.
@@ -50,112 +49,114 @@
 /*****************************************************************************
 **  Constants and data types
 *****************************************************************************/
-#define NFA_EE_DEBUG            BT_TRACE_VERBOSE
-#define NFA_EE_NUM_ECBS         (NFA_EE_MAX_EE_SUPPORTED+1) /* the number of tNFA_EE_ECBs (for NFCEEs and DH) */
-#define NFA_EE_CB_4_DH          NFA_EE_MAX_EE_SUPPORTED     /* The index for DH in nfa_ee_cb.ee_cb[] */
-#define NFA_EE_INVALID          0xFF
-#define NFA_EE_MAX_TECH_ROUTE   4 /* only A, B, F, Bprime are supported by UICC now */
+#define NFA_EE_DEBUG BT_TRACE_VERBOSE
+/* the number of tNFA_EE_ECBs (for NFCEEs and DH) */
+#define NFA_EE_NUM_ECBS (NFA_EE_MAX_EE_SUPPORTED + 1)
+/* The index for DH in nfa_ee_cb.ee_cb[] */
+#define NFA_EE_CB_4_DH NFA_EE_MAX_EE_SUPPORTED
+#define NFA_EE_INVALID 0xFF
+/* only A, B, F, Bprime are supported by UICC now */
+#define NFA_EE_MAX_TECH_ROUTE 4
 
 #ifndef NFA_EE_AID_CFG_TAG_NAME
-#define NFA_EE_AID_CFG_TAG_NAME         0x4F /* AID                             */
+/* AID                             */
+#define NFA_EE_AID_CFG_TAG_NAME 0x4F
 #endif
 
 /* NFA EE events */
-enum
-{
-    NFA_EE_API_DISCOVER_EVT  = NFA_SYS_EVT_START(NFA_ID_EE),
-    NFA_EE_API_REGISTER_EVT,
-    NFA_EE_API_DEREGISTER_EVT,
-    NFA_EE_API_MODE_SET_EVT,
-    NFA_EE_API_SET_TECH_CFG_EVT,
-    NFA_EE_API_SET_PROTO_CFG_EVT,
-    NFA_EE_API_ADD_AID_EVT,
-    NFA_EE_API_REMOVE_AID_EVT,
-    NFA_EE_API_LMRT_SIZE_EVT,
-    NFA_EE_API_UPDATE_NOW_EVT,
-    NFA_EE_API_CONNECT_EVT,
-    NFA_EE_API_SEND_DATA_EVT,
-    NFA_EE_API_DISCONNECT_EVT,
+enum {
+  NFA_EE_API_DISCOVER_EVT = NFA_SYS_EVT_START(NFA_ID_EE),
+  NFA_EE_API_REGISTER_EVT,
+  NFA_EE_API_DEREGISTER_EVT,
+  NFA_EE_API_MODE_SET_EVT,
+  NFA_EE_API_SET_TECH_CFG_EVT,
+  NFA_EE_API_SET_PROTO_CFG_EVT,
+  NFA_EE_API_ADD_AID_EVT,
+  NFA_EE_API_REMOVE_AID_EVT,
+  NFA_EE_API_LMRT_SIZE_EVT,
+  NFA_EE_API_UPDATE_NOW_EVT,
+  NFA_EE_API_CONNECT_EVT,
+  NFA_EE_API_SEND_DATA_EVT,
+  NFA_EE_API_DISCONNECT_EVT,
 
-    NFA_EE_NCI_DISC_RSP_EVT,
-    NFA_EE_NCI_DISC_NTF_EVT,
-    NFA_EE_NCI_MODE_SET_RSP_EVT,
+  NFA_EE_NCI_DISC_RSP_EVT,
+  NFA_EE_NCI_DISC_NTF_EVT,
+  NFA_EE_NCI_MODE_SET_RSP_EVT,
 #if (NXP_EXTNS == TRUE)
-    NFA_EE_NCI_MODE_SET_INFO,
-#if (NXP_WIRED_MODE_STANDBY == TRUE)
-         NFA_EE_NCI_PWR_LNK_CTRL_RSP_EVT,
+  NFA_EE_NCI_MODE_SET_INFO,
+#if (NXP_WIRED_MODE_STANDBY == true)
+  NFA_EE_NCI_PWR_LNK_CTRL_RSP_EVT,
 #endif
 #endif
-    NFA_EE_NCI_CONN_EVT,
-    NFA_EE_NCI_DATA_EVT,
-    NFA_EE_NCI_ACTION_NTF_EVT,
-    NFA_EE_NCI_DISC_REQ_NTF_EVT,
-    NFA_EE_NCI_WAIT_RSP_EVT,
+  NFA_EE_NCI_CONN_EVT,
+  NFA_EE_NCI_DATA_EVT,
+  NFA_EE_NCI_ACTION_NTF_EVT,
+  NFA_EE_NCI_DISC_REQ_NTF_EVT,
+  NFA_EE_NCI_WAIT_RSP_EVT,
 
-    NFA_EE_ROUT_TIMEOUT_EVT,
-    NFA_EE_DISCV_TIMEOUT_EVT,
-    NFA_EE_CFG_TO_NFCC_EVT,
-    NFA_EE_MAX_EVT
+  NFA_EE_ROUT_TIMEOUT_EVT,
+  NFA_EE_DISCV_TIMEOUT_EVT,
+  NFA_EE_CFG_TO_NFCC_EVT,
+  NFA_EE_MAX_EVT
 };
 
-typedef UINT16 tNFA_EE_INT_EVT;
-#define NFA_EE_AE_ROUTE             0x80        /* for listen mode routing table*/
-#define NFA_EE_AE_VS                0x40
-
+typedef uint16_t tNFA_EE_INT_EVT;
+/* for listen mode routing table*/
+#define NFA_EE_AE_ROUTE 0x80
+#define NFA_EE_AE_VS 0x40
 
 /* NFA EE Management state */
-enum
-{
-    NFA_EE_EM_STATE_INIT = 0,
-    NFA_EE_EM_STATE_INIT_DONE,
-    NFA_EE_EM_STATE_RESTORING,
-    NFA_EE_EM_STATE_DISABLING,
-    NFA_EE_EM_STATE_DISABLED,
+enum {
+  NFA_EE_EM_STATE_INIT = 0,
+  NFA_EE_EM_STATE_INIT_DONE,
+  NFA_EE_EM_STATE_RESTORING,
+  NFA_EE_EM_STATE_DISABLING,
+  NFA_EE_EM_STATE_DISABLED,
 
-    NFA_EE_EM_STATE_MAX
+  NFA_EE_EM_STATE_MAX
 };
-typedef UINT8 tNFA_EE_EM_STATE;
+typedef uint8_t tNFA_EE_EM_STATE;
 
 /* NFA EE connection status */
-enum
-{
-    NFA_EE_CONN_ST_NONE,    /* not connected */
-    NFA_EE_CONN_ST_WAIT,    /* connection is initiated; waiting for ack */
-    NFA_EE_CONN_ST_CONN,    /* connected; can send/receive data */
-    NFA_EE_CONN_ST_DISC,    /* disconnecting; waiting for ack */
-    NFA_EE_CONN_ST_MAX
+enum {
+  NFA_EE_CONN_ST_NONE, /* not connected */
+  NFA_EE_CONN_ST_WAIT, /* connection is initiated; waiting for ack */
+  NFA_EE_CONN_ST_CONN, /* connected; can send/receive data */
+  NFA_EE_CONN_ST_DISC, /* disconnecting; waiting for ack */
+  NFA_EE_CONN_ST_MAX
 };
-typedef UINT8 tNFA_EE_CONN_ST;
-#if(NXP_EXTNS == TRUE)
-#if(NFC_NXP_CHIP_TYPE != PN547C2)
-#define NFA_EE_ROUT_BUF_SIZE            720
+typedef uint8_t tNFA_EE_CONN_ST;
+#if (NXP_EXTNS == TRUE)
+#if (NFC_NXP_CHIP_TYPE != PN547C2)
+#define NFA_EE_ROUT_BUF_SIZE 720
 #else
-#define NFA_EE_ROUT_BUF_SIZE            200
+#define NFA_EE_ROUT_BUF_SIZE 200
 #endif
 #else
-#define NFA_EE_ROUT_BUF_SIZE            540
+#define NFA_EE_ROUT_BUF_SIZE 540
 #endif
 
-#define NFA_EE_ROUT_MAX_TLV_SIZE        0xFD
+#define NFA_EE_ROUT_MAX_TLV_SIZE 0xFD
 
-#if(NXP_EXTNS == TRUE)
-#define NFA_EE_NUM_PROTO     6
+#if (NXP_EXTNS == TRUE)
+#define NFA_EE_NUM_PROTO 6
 #else
-#define NFA_EE_NUM_PROTO     5
+#define NFA_EE_NUM_PROTO 5
 #endif
 
-#define NFA_EE_NUM_TECH     3
-#if(NXP_EXTNS == TRUE)
+#define NFA_EE_NUM_TECH 3
+#if (NXP_EXTNS == TRUE)
 #define NFA_UICC_ID 0x02
-#define NFA_ESE_ID  0xC0
-#define NFA_EE_BUFFER_FUTURE_EXT     15
-#define NFA_EE_PROTO_ROUTE_ENTRY_SIZE    5
-#define NFA_EE_TECH_ROUTE_ENTRY_SIZE    5
+#define NFA_ESE_ID 0xC0
+#define NFA_EE_BUFFER_FUTURE_EXT 15
+#define NFA_EE_PROTO_ROUTE_ENTRY_SIZE 5
+#define NFA_EE_TECH_ROUTE_ENTRY_SIZE 5
 
-#if(NFC_NXP_CHIP_TYPE != PN547C2)
+#if (NFC_NXP_CHIP_TYPE != PN547C2)
 /**
  * Max Routing Table Size = 720
- * After allocating size for Technology based routing and Protocol based routing,
+ * After allocating size for Technology based routing and Protocol based
+ *routing,
  * the remaining size can be used for AID based routing
  *
  * Size for 1 Technology route entry = 5 bytes (includes Type(1 byte),
@@ -164,412 +165,443 @@ typedef UINT8 tNFA_EE_CONN_ST;
  *
  * Size for 1 Protocol route entry = 5 bytes (includes Type(1 byte),
  * Length (1 byte), Value (3 bytes - Power state, Tech Type, Location)
- * TOTAL PROTOCOL ROUTE SIZE = 5 * 6 = 30 (Protocols ISO-DEP, NFC-DEP, ISO-7816, T1T, T2T, T3T)
+ * TOTAL PROTOCOL ROUTE SIZE = 5 * 6 = 30 (Protocols ISO-DEP, NFC-DEP, ISO-7816,
+ *T1T, T2T, T3T)
  *
  * SIZE FOR AID = 720 - 15 - 30 = 675
  * BUFFER for future extensions = 15
  * TOTAL SIZE FOR AID = 675 - 15 = 660
  */
-#define NFA_EE_TOTAL_TECH_ROUTE_SIZE     (NFA_EE_PROTO_ROUTE_ENTRY_SIZE * NFA_EE_NUM_TECH)
-#define NFA_EE_TOTAL_PROTO_ROUTE_SIZE     (NFA_EE_PROTO_ROUTE_ENTRY_SIZE * NFA_EE_NUM_PROTO)
+#define NFA_EE_TOTAL_TECH_ROUTE_SIZE \
+  (NFA_EE_PROTO_ROUTE_ENTRY_SIZE * NFA_EE_NUM_TECH)
+#define NFA_EE_TOTAL_PROTO_ROUTE_SIZE \
+  (NFA_EE_PROTO_ROUTE_ENTRY_SIZE * NFA_EE_NUM_PROTO)
 
-#define NFA_EE_TOTAL_PROTO_TECH_FUTURE_EXT_ROUTE_SIZE     (NFA_EE_TOTAL_TECH_ROUTE_SIZE + NFA_EE_TOTAL_PROTO_ROUTE_SIZE + NFA_EE_BUFFER_FUTURE_EXT)
-#define NFA_EE_MAX_AID_CFG_LEN  (NFA_EE_ROUT_BUF_SIZE - NFA_EE_TOTAL_PROTO_TECH_FUTURE_EXT_ROUTE_SIZE)
+#define NFA_EE_TOTAL_PROTO_TECH_FUTURE_EXT_ROUTE_SIZE             \
+  (NFA_EE_TOTAL_TECH_ROUTE_SIZE + NFA_EE_TOTAL_PROTO_ROUTE_SIZE + \
+   NFA_EE_BUFFER_FUTURE_EXT)
+#define NFA_EE_MAX_AID_CFG_LEN \
+  (NFA_EE_ROUT_BUF_SIZE - NFA_EE_TOTAL_PROTO_TECH_FUTURE_EXT_ROUTE_SIZE)
 #else
-#define NFA_EE_MAX_AID_CFG_LEN  (160)
+#define NFA_EE_MAX_AID_CFG_LEN (160)
 #endif
 #else
-#define NFA_EE_MAX_AID_CFG_LEN  (510)
+#define NFA_EE_MAX_AID_CFG_LEN (510)
 #endif
 
 /* NFA EE control block flags:
- * use to indicate an API function has changed the configuration of the associated NFCEE
+ * use to indicate an API function has changed the configuration of the
+ * associated NFCEE
  * The flags are cleared when the routing table/VS is updated */
-#define NFA_EE_ECB_FLAGS_TECH       0x02      /* technology routing changed         */
-#define NFA_EE_ECB_FLAGS_PROTO      0x04      /* protocol routing changed           */
-#define NFA_EE_ECB_FLAGS_AID        0x08      /* AID routing changed                */
-#define NFA_EE_ECB_FLAGS_VS         0x10      /* VS changed                         */
-#define NFA_EE_ECB_FLAGS_RESTORE    0x20      /* Restore related                    */
-#define NFA_EE_ECB_FLAGS_ROUTING    0x0E      /* routing flags changed              */
-#define NFA_EE_ECB_FLAGS_DISC_REQ   0x40      /* NFCEE Discover Request NTF is set  */
-#define NFA_EE_ECB_FLAGS_ORDER      0x80      /* DISC_REQ N reported before DISC N  */
-typedef UINT8 tNFA_EE_ECB_FLAGS;
+/* technology routing changed         */
+#define NFA_EE_ECB_FLAGS_TECH 0x02
+/* protocol routing changed           */
+#define NFA_EE_ECB_FLAGS_PROTO 0x04
+/* AID routing changed                */
+#define NFA_EE_ECB_FLAGS_AID 0x08
+/* VS changed                         */
+#define NFA_EE_ECB_FLAGS_VS 0x10
+/* Restore related                    */
+#define NFA_EE_ECB_FLAGS_RESTORE 0x20
+/* routing flags changed              */
+#define NFA_EE_ECB_FLAGS_ROUTING 0x0E
+/* NFCEE Discover Request NTF is set  */
+#define NFA_EE_ECB_FLAGS_DISC_REQ 0x40
+/* DISC_REQ N reported before DISC N  */
+#define NFA_EE_ECB_FLAGS_ORDER 0x80
+typedef uint8_t tNFA_EE_ECB_FLAGS;
 
 /* part of tNFA_EE_STATUS; for internal use only  */
-#define NFA_EE_STATUS_RESTORING 0x20      /* waiting for restore to full power mode to complete */
-#define NFA_EE_STATUS_INT_MASK  0x20      /* this bit is in ee_status for internal use only */
+/* waiting for restore to full power mode to complete */
+#define NFA_EE_STATUS_RESTORING 0x20
+/* this bit is in ee_status for internal use only */
+#define NFA_EE_STATUS_INT_MASK 0x20
 
 /* NFA-EE information for a particular NFCEE Entity (including DH) */
-typedef struct
-{
-    tNFA_TECHNOLOGY_MASK    tech_switch_on;     /* default routing - technologies switch_on  */
-    tNFA_TECHNOLOGY_MASK    tech_switch_off;    /* default routing - technologies switch_off */
-    tNFA_TECHNOLOGY_MASK    tech_battery_off;   /* default routing - technologies battery_off*/
-    tNFA_PROTOCOL_MASK      proto_switch_on;    /* default routing - protocols switch_on     */
-    tNFA_PROTOCOL_MASK      proto_switch_off;   /* default routing - protocols switch_off    */
-    tNFA_PROTOCOL_MASK      proto_battery_off;  /* default routing - protocols battery_off   */
-#if(NXP_EXTNS == TRUE)
-    tNFA_PROTOCOL_MASK      proto_screen_lock;   /* default routing - protocols screen_lock    */
-    tNFA_PROTOCOL_MASK      proto_screen_off;  /* default routing - protocols screen_off  */
-    tNFA_TECHNOLOGY_MASK    tech_screen_lock;    /* default routing - technologies screen_lock*/
-    tNFA_TECHNOLOGY_MASK    tech_screen_off;   /* default routing - technologies screen_off*/
+typedef struct {
+  tNFA_TECHNOLOGY_MASK
+      tech_switch_on; /* default routing - technologies switch_on  */
+  tNFA_TECHNOLOGY_MASK
+      tech_switch_off; /* default routing - technologies switch_off */
+  tNFA_TECHNOLOGY_MASK
+      tech_battery_off; /* default routing - technologies battery_off*/
+  tNFA_PROTOCOL_MASK
+      proto_switch_on; /* default routing - protocols switch_on     */
+  tNFA_PROTOCOL_MASK
+      proto_switch_off; /* default routing - protocols switch_off    */
+  tNFA_PROTOCOL_MASK
+      proto_battery_off; /* default routing - protocols battery_off   */
+#if (NXP_EXTNS == TRUE)
+  tNFA_PROTOCOL_MASK
+      proto_screen_lock; /* default routing - protocols screen_lock    */
+  tNFA_PROTOCOL_MASK
+      proto_screen_off; /* default routing - protocols screen_off  */
+  tNFA_PROTOCOL_MASK
+      proto_screen_off_lock; /* default routing - protocols screen_off  */
+  tNFA_TECHNOLOGY_MASK
+      tech_screen_lock; /* default routing - technologies screen_lock*/
+  tNFA_TECHNOLOGY_MASK
+      tech_screen_off; /* default routing - technologies screen_off*/
+  tNFA_TECHNOLOGY_MASK
+      tech_screen_off_lock; /* default routing - technologies screen_off*/
 #endif
-    tNFA_EE_CONN_ST         conn_st;            /* connection status */
-    UINT8                   conn_id;            /* connection id */
-    tNFA_EE_CBACK           *p_ee_cback;        /* the callback function */
+  tNFA_EE_CONN_ST conn_st;   /* connection status */
+  uint8_t conn_id;           /* connection id */
+  tNFA_EE_CBACK* p_ee_cback; /* the callback function */
 
-    /* Each AID entry has an ssociated aid_len, aid_pwr_cfg, aid_rt_info.
-     * aid_cfg[] contains AID and maybe some other VS information in TLV format
-     * The first T is always NFA_EE_AID_CFG_TAG_NAME, the L is the actual AID length
-     * the aid_len is the total length of all the TLVs associated with this AID entry
-     */
-#if(NXP_EXTNS == TRUE)
-#if((NFC_NXP_CHIP_TYPE != PN547C2) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
-    UINT8                   *aid_len;           /* the actual lengths in aid_cfg */
-    UINT8                   *aid_pwr_cfg;       /* power configuration of this AID entry */
-    UINT8                   *aid_rt_info;       /* route/vs info for this AID entry */
-    UINT8                   *aid_rt_loc;         /* route location info for this AID entry */
-    UINT8                   *aid_cfg;            /* routing entries based on AID */
+/* Each AID entry has an ssociated aid_len, aid_pwr_cfg, aid_rt_info.
+ * aid_cfg[] contains AID and maybe some other VS information in TLV format
+ * The first T is always NFA_EE_AID_CFG_TAG_NAME, the L is the actual AID length
+ * the aid_len is the total length of all the TLVs associated with this AID
+ * entry
+ */
+#if (NXP_EXTNS == TRUE)
+#if ((NFC_NXP_CHIP_TYPE != PN547C2) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
+  uint8_t* aid_len;     /* the actual lengths in aid_cfg */
+  uint8_t* aid_pwr_cfg; /* power configuration of this AID entry */
+  uint8_t* aid_rt_info; /* route/vs info for this AID entry */
+  uint8_t* aid_rt_loc;  /* route location info for this AID entry */
+  uint8_t* aid_cfg;     /* routing entries based on AID */
 #else
-    UINT8                   aid_rt_loc[NFA_EE_MAX_AID_ENTRIES];/* route location info for this AID entry */
-    UINT8                   aid_len[NFA_EE_MAX_AID_ENTRIES];/* the actual lengths in aid_cfg */
-    UINT8                   aid_pwr_cfg[NFA_EE_MAX_AID_ENTRIES];/* power configuration of this AID entry */
-    UINT8                   aid_rt_info[NFA_EE_MAX_AID_ENTRIES];/* route/vs info for this AID entry */
-    UINT8                   aid_cfg[NFA_EE_MAX_AID_CFG_LEN];/* routing entries based on AID */
+  uint8_t aid_rt_loc[NFA_EE_MAX_AID_ENTRIES]; /* route location info for this
+                                                 AID entry */
+  uint8_t aid_len[NFA_EE_MAX_AID_ENTRIES]; /* the actual lengths in aid_cfg */
+  uint8_t aid_pwr_cfg[NFA_EE_MAX_AID_ENTRIES]; /* power configuration of this
+                                                  AID entry */
+  uint8_t aid_rt_info[NFA_EE_MAX_AID_ENTRIES]; /* route/vs info for this AID
+                                                  entry */
+  uint8_t aid_cfg[NFA_EE_MAX_AID_CFG_LEN];     /* routing entries based on AID */
 #endif
 #else
-    UINT8                   aid_len[NFA_EE_MAX_AID_ENTRIES];/* the actual lengths in aid_cfg */
-    UINT8                   aid_pwr_cfg[NFA_EE_MAX_AID_ENTRIES];/* power configuration of this AID entry */
-    UINT8                   aid_rt_info[NFA_EE_MAX_AID_ENTRIES];/* route/vs info for this AID entry */
-    UINT8                   aid_cfg[NFA_EE_MAX_AID_CFG_LEN];/* routing entries based on AID */
+  uint8_t aid_len[NFA_EE_MAX_AID_ENTRIES]; /* the actual lengths in aid_cfg */
+  uint8_t aid_pwr_cfg[NFA_EE_MAX_AID_ENTRIES]; /* power configuration of this
+                                                  AID entry */
+  uint8_t aid_rt_info[NFA_EE_MAX_AID_ENTRIES]; /* route/vs info for this AID
+                                                  entry */
+  uint8_t aid_cfg[NFA_EE_MAX_AID_CFG_LEN];     /* routing entries based on AID */
 #endif
-    UINT8                   aid_entries;        /* The number of AID entries in aid_cfg */
-    UINT8                   nfcee_id;           /* ID for this NFCEE */
-    UINT8                   ee_status;          /* The NFCEE status */
-    UINT8                   ee_old_status;      /* The NFCEE status before going to low power mode */
-    tNFA_EE_INTERFACE       ee_interface[NFC_MAX_EE_INTERFACE];/* NFCEE supported interface */
-    tNFA_EE_TLV             ee_tlv[NFC_MAX_EE_TLVS];/* the TLV */
-    UINT8                   num_interface;      /* number of Target interface */
-    UINT8                   num_tlvs;           /* number of TLVs */
-    tNFA_EE_ECB_FLAGS       ecb_flags;          /* the flags of this control block */
-    tNFA_EE_INTERFACE       use_interface;      /* NFCEE interface used for the connection */
-    tNFA_NFC_PROTOCOL       la_protocol;        /* Listen A protocol    */
-    tNFA_NFC_PROTOCOL       lb_protocol;        /* Listen B protocol    */
-    tNFA_NFC_PROTOCOL       lf_protocol;        /* Listen F protocol    */
-    tNFA_NFC_PROTOCOL       lbp_protocol;       /* Listen B' protocol   */
-    UINT8                   size_mask;          /* the size for technology and protocol routing */
-    UINT16                  size_aid;           /* the size for aid routing */
-#if(NXP_EXTNS == TRUE)
-    tNFA_NFC_PROTOCOL       pa_protocol;        /* Passive poll A SWP Reader   */
-    tNFA_NFC_PROTOCOL       pb_protocol;        /* Passive poll B SWP Reader   */
-    UINT8                   ee_req_op;          /* add or remove req ntf*/
+  uint8_t aid_entries;   /* The number of AID entries in aid_cfg */
+  uint8_t nfcee_id;      /* ID for this NFCEE */
+  uint8_t ee_status;     /* The NFCEE status */
+  uint8_t ee_old_status; /* The NFCEE status before going to low power mode */
+  tNFA_EE_INTERFACE
+      ee_interface[NFC_MAX_EE_INTERFACE]; /* NFCEE supported interface */
+  tNFA_EE_TLV ee_tlv[NFC_MAX_EE_TLVS];    /* the TLV */
+  uint8_t num_interface;                  /* number of Target interface */
+  uint8_t num_tlvs;                       /* number of TLVs */
+  uint8_t ee_power_supply_status; /* power supply of NFCEE*/
+  tNFA_EE_ECB_FLAGS ecb_flags;            /* the flags of this control block */
+  tNFA_EE_INTERFACE use_interface; /* NFCEE interface used for the connection */
+  tNFA_NFC_PROTOCOL la_protocol;   /* Listen A protocol    */
+  tNFA_NFC_PROTOCOL lb_protocol;   /* Listen B protocol    */
+  tNFA_NFC_PROTOCOL lf_protocol;   /* Listen F protocol    */
+  tNFA_NFC_PROTOCOL lbp_protocol;  /* Listen B' protocol   */
+  uint8_t size_mask; /* the size for technology and protocol routing */
+  uint16_t size_aid; /* the size for aid routing */
+#if (NXP_EXTNS == TRUE)
+  tNFA_NFC_PROTOCOL pa_protocol; /* Passive poll A SWP Reader   */
+  tNFA_NFC_PROTOCOL pb_protocol; /* Passive poll B SWP Reader   */
+  uint8_t ee_req_op;             /* add or remove req ntf*/
 #endif
 } tNFA_EE_ECB;
 
 /* data type for NFA_EE_API_DISCOVER_EVT */
-typedef struct
-{
-    BT_HDR              hdr;
-    tNFA_EE_CBACK       *p_cback;
+typedef struct {
+  NFC_HDR hdr;
+  tNFA_EE_CBACK* p_cback;
 } tNFA_EE_API_DISCOVER;
 
 /* data type for NFA_EE_API_REGISTER_EVT */
-typedef struct
-{
-    BT_HDR              hdr;
-    tNFA_EE_CBACK       *p_cback;
+typedef struct {
+  NFC_HDR hdr;
+  tNFA_EE_CBACK* p_cback;
 } tNFA_EE_API_REGISTER;
 
 /* data type for NFA_EE_API_DEREGISTER_EVT */
-typedef struct
-{
-    BT_HDR              hdr;
-    int                 index;
+typedef struct {
+  NFC_HDR hdr;
+  int index;
 } tNFA_EE_API_DEREGISTER;
 
 /* data type for NFA_EE_API_MODE_SET_EVT */
-typedef struct
-{
-    BT_HDR              hdr;
-    tNFA_EE_ECB        *p_cb;
-    UINT8               nfcee_id;
-    UINT8               mode;
+typedef struct {
+  NFC_HDR hdr;
+  tNFA_EE_ECB* p_cb;
+  uint8_t nfcee_id;
+  uint8_t mode;
 } tNFA_EE_API_MODE_SET;
 
 /* data type for NFA_EE_API_SET_TECH_CFG_EVT */
-typedef struct
-{
-    BT_HDR                  hdr;
-    tNFA_EE_ECB            *p_cb;
-    UINT8                   nfcee_id;
-    tNFA_TECHNOLOGY_MASK    technologies_switch_on;
-    tNFA_TECHNOLOGY_MASK    technologies_switch_off;
-    tNFA_TECHNOLOGY_MASK    technologies_battery_off;
-#if(NXP_EXTNS == TRUE)
-    tNFA_TECHNOLOGY_MASK    technologies_screen_lock;
-    tNFA_TECHNOLOGY_MASK    technologies_screen_off;
+typedef struct {
+  NFC_HDR hdr;
+  tNFA_EE_ECB* p_cb;
+  uint8_t nfcee_id;
+  tNFA_TECHNOLOGY_MASK technologies_switch_on;
+  tNFA_TECHNOLOGY_MASK technologies_switch_off;
+  tNFA_TECHNOLOGY_MASK technologies_battery_off;
+#if (NXP_EXTNS == TRUE)
+  tNFA_TECHNOLOGY_MASK technologies_screen_lock;
+  tNFA_TECHNOLOGY_MASK technologies_screen_off;
+  tNFA_TECHNOLOGY_MASK technologies_screen_off_lock;
 #endif
 } tNFA_EE_API_SET_TECH_CFG;
 
 /* data type for NFA_EE_API_SET_PROTO_CFG_EVT */
-typedef struct
-{
-    BT_HDR              hdr;
-    tNFA_EE_ECB        *p_cb;
-    UINT8               nfcee_id;
-    tNFA_PROTOCOL_MASK  protocols_switch_on;
-    tNFA_PROTOCOL_MASK  protocols_switch_off;
-    tNFA_PROTOCOL_MASK  protocols_battery_off;
-#if(NXP_EXTNS == TRUE)
-    tNFA_PROTOCOL_MASK  protocols_screen_lock;
-    tNFA_PROTOCOL_MASK  protocols_screen_off;
+typedef struct {
+  NFC_HDR hdr;
+  tNFA_EE_ECB* p_cb;
+  uint8_t nfcee_id;
+  tNFA_PROTOCOL_MASK protocols_switch_on;
+  tNFA_PROTOCOL_MASK protocols_switch_off;
+  tNFA_PROTOCOL_MASK protocols_battery_off;
+#if (NXP_EXTNS == TRUE)
+  tNFA_PROTOCOL_MASK protocols_screen_lock;
+  tNFA_PROTOCOL_MASK protocols_screen_off;
+  tNFA_PROTOCOL_MASK protocols_screen_off_lock;
 #endif
 
 } tNFA_EE_API_SET_PROTO_CFG;
 
 /* data type for NFA_EE_API_ADD_AID_EVT */
-typedef struct
-{
-    BT_HDR              hdr;
-    tNFA_EE_ECB        *p_cb;
-    UINT8               nfcee_id;
-    UINT8               aid_len;
-    UINT8               *p_aid;
-    tNFA_EE_PWR_STATE   power_state;
-#if(NXP_EXTNS == TRUE)
-    UINT8               vs_info;
+typedef struct {
+  NFC_HDR hdr;
+  tNFA_EE_ECB* p_cb;
+  uint8_t nfcee_id;
+  uint8_t aid_len;
+  uint8_t* p_aid;
+  tNFA_EE_PWR_STATE power_state;
+#if (NXP_EXTNS == TRUE)
+  uint8_t vs_info;
 #endif
 } tNFA_EE_API_ADD_AID;
 
 /* data type for NFA_EE_API_REMOVE_AID_EVT */
-typedef struct
-{
-    BT_HDR              hdr;
-    UINT8               aid_len;
-    UINT8               *p_aid;
+typedef struct {
+  NFC_HDR hdr;
+  uint8_t aid_len;
+  uint8_t* p_aid;
 } tNFA_EE_API_REMOVE_AID;
 
 /* data type for NFA_EE_API_LMRT_SIZE_EVT */
-typedef  BT_HDR tNFA_EE_API_LMRT_SIZE;
+typedef NFC_HDR tNFA_EE_API_LMRT_SIZE;
 
 /* data type for NFA_EE_API_CONNECT_EVT */
-typedef struct
-{
-    BT_HDR              hdr;
-    tNFA_EE_ECB        *p_cb;
-    UINT8               nfcee_id;
-    UINT8               ee_interface;
-    tNFA_EE_CBACK       *p_cback;
+typedef struct {
+  NFC_HDR hdr;
+  tNFA_EE_ECB* p_cb;
+  uint8_t nfcee_id;
+  uint8_t ee_interface;
+  tNFA_EE_CBACK* p_cback;
 } tNFA_EE_API_CONNECT;
 
 /* data type for NFA_EE_API_SEND_DATA_EVT */
-typedef struct
-{
-    BT_HDR              hdr;
-    tNFA_EE_ECB        *p_cb;
-    UINT8               nfcee_id;
-    UINT16              data_len;
-    UINT8               *p_data;
+typedef struct {
+  NFC_HDR hdr;
+  tNFA_EE_ECB* p_cb;
+  uint8_t nfcee_id;
+  uint16_t data_len;
+  uint8_t* p_data;
 } tNFA_EE_API_SEND_DATA;
 
 /* data type for NFA_EE_API_DISCONNECT_EVT */
-typedef struct
-{
-    BT_HDR              hdr;
-    tNFA_EE_ECB        *p_cb;
-    UINT8               nfcee_id;
+typedef struct {
+  NFC_HDR hdr;
+  tNFA_EE_ECB* p_cb;
+  uint8_t nfcee_id;
 } tNFA_EE_API_DISCONNECT;
 
-
-typedef struct
-{
-    BT_HDR              hdr;
-    tNFC_STATUS         status;                 /* The event status. */
+typedef struct {
+  NFC_HDR hdr;
+  tNFC_STATUS status; /* The event status. */
 } tNFA_EE_MSG_STATUS;
 
-/* common data type for internal events with nfa_ee_use_cfg_cb[] as TRUE */
-typedef struct
-{
-    BT_HDR              hdr;
-    tNFA_EE_ECB        *p_cb;
-    UINT8               nfcee_id;
+/* common data type for internal events with nfa_ee_use_cfg_cb[] as true */
+typedef struct {
+  NFC_HDR hdr;
+  tNFA_EE_ECB* p_cb;
+  uint8_t nfcee_id;
 } tNFA_EE_CFG_HDR;
 
 /* data type for tNFC_RESPONSE_EVT */
-typedef struct
-{
-    BT_HDR                      hdr;
-    void                        *p_data;
+typedef struct {
+  NFC_HDR hdr;
+  void* p_data;
 } tNFA_EE_NCI_RESPONSE;
 
 /* data type for NFA_EE_NCI_DISC_RSP_EVT */
-typedef struct
-{
-    BT_HDR                      hdr;
-    tNFC_NFCEE_DISCOVER_REVT    *p_data;
+typedef struct {
+  NFC_HDR hdr;
+  tNFC_NFCEE_DISCOVER_REVT* p_data;
 } tNFA_EE_NCI_DISC_RSP;
 
 /* data type for NFA_EE_NCI_DISC_NTF_EVT */
-typedef struct
-{
-    BT_HDR                      hdr;
-    tNFC_NFCEE_INFO_REVT        *p_data;
+typedef struct {
+  NFC_HDR hdr;
+  tNFC_NFCEE_INFO_REVT* p_data;
 } tNFA_EE_NCI_DISC_NTF;
 
 /* data type for NFA_EE_NCI_MODE_SET_RSP_EVT */
-typedef struct
-{
-    BT_HDR                      hdr;
-    tNFC_NFCEE_MODE_SET_REVT    *p_data;
+typedef struct {
+  NFC_HDR hdr;
+  tNFC_NFCEE_MODE_SET_REVT* p_data;
 } tNFA_EE_NCI_MODE_SET;
 
 #if (NXP_EXTNS == TRUE)
-typedef struct
-{
-    BT_HDR                      hdr;
-    tNFC_NFCEE_MODE_SET_INFO    *p_data;
-}tNFA_EE_NCI_SET_MODE_INFO;
+typedef struct {
+  NFC_HDR hdr;
+  tNFC_NFCEE_MODE_SET_INFO* p_data;
+} tNFA_EE_NCI_SET_MODE_INFO;
 /* data type for NFA_EE_NCI_MODE_SET_RSP_EVT */
-#if (NXP_WIRED_MODE_STANDBY == TRUE)
-typedef struct
-{
-    BT_HDR                      hdr;
-    tNFC_NFCEE_EE_PWR_LNK_REVT  *p_data;
+#if (NXP_WIRED_MODE_STANDBY == true)
+typedef struct {
+  NFC_HDR hdr;
+  tNFC_NFCEE_EE_PWR_LNK_REVT* p_data;
 } tNFA_EE_NCI_PWR_LNK_CTRL;
 #endif
 #endif
 
 /* data type for NFA_EE_NCI_WAIT_RSP_EVT */
-typedef struct
-{
-    BT_HDR                      hdr;
-    void                        *p_data;
-    UINT8                       opcode;
+typedef struct {
+  NFC_HDR hdr;
+  void* p_data;
+  uint8_t opcode;
 } tNFA_EE_NCI_WAIT_RSP;
 
 /* data type for NFA_EE_NCI_CONN_EVT and NFA_EE_NCI_DATA_EVT */
-typedef struct
-{
-    BT_HDR                      hdr;
-    UINT8                       conn_id;
-    tNFC_CONN_EVT               event;
-    tNFC_CONN                   *p_data;
+typedef struct {
+  NFC_HDR hdr;
+  uint8_t conn_id;
+  tNFC_CONN_EVT event;
+  tNFC_CONN* p_data;
 } tNFA_EE_NCI_CONN;
 
 /* data type for NFA_EE_NCI_ACTION_NTF_EVT */
-typedef struct
-{
-    BT_HDR                      hdr;
-    tNFC_EE_ACTION_REVT         *p_data;
+typedef struct {
+  NFC_HDR hdr;
+  tNFC_EE_ACTION_REVT* p_data;
 } tNFA_EE_NCI_ACTION;
 
 /* data type for NFA_EE_NCI_DISC_REQ_NTF_EVT */
-typedef struct
-{
-    BT_HDR                      hdr;
-    tNFC_EE_DISCOVER_REQ_REVT   *p_data;
+typedef struct {
+  NFC_HDR hdr;
+  tNFC_EE_DISCOVER_REQ_REVT* p_data;
 } tNFA_EE_NCI_DISC_REQ;
 
 /* union of all event data types */
-typedef union
-{
-    BT_HDR                      hdr;
-    tNFA_EE_CFG_HDR             cfg_hdr;
-    tNFA_EE_API_DISCOVER        ee_discover;
-    tNFA_EE_API_REGISTER        ee_register;
-    tNFA_EE_API_DEREGISTER      deregister;
-    tNFA_EE_API_MODE_SET        mode_set;
-    tNFA_EE_API_SET_TECH_CFG    set_tech;
-    tNFA_EE_API_SET_PROTO_CFG   set_proto;
-    tNFA_EE_API_ADD_AID         add_aid;
-    tNFA_EE_API_REMOVE_AID      rm_aid;
-    tNFA_EE_API_LMRT_SIZE       lmrt_size;
-    tNFA_EE_API_CONNECT         connect;
-    tNFA_EE_API_SEND_DATA       send_data;
-    tNFA_EE_API_DISCONNECT      disconnect;
-    tNFA_EE_NCI_DISC_RSP        disc_rsp;
-    tNFA_EE_NCI_DISC_NTF        disc_ntf;
-    tNFA_EE_NCI_MODE_SET        mode_set_rsp;
+typedef union {
+  NFC_HDR hdr;
+  tNFA_EE_CFG_HDR cfg_hdr;
+  tNFA_EE_API_DISCOVER ee_discover;
+  tNFA_EE_API_REGISTER ee_register;
+  tNFA_EE_API_DEREGISTER deregister;
+  tNFA_EE_API_MODE_SET mode_set;
+  tNFA_EE_API_SET_TECH_CFG set_tech;
+  tNFA_EE_API_SET_PROTO_CFG set_proto;
+  tNFA_EE_API_ADD_AID add_aid;
+  tNFA_EE_API_REMOVE_AID rm_aid;
+  tNFA_EE_API_LMRT_SIZE lmrt_size;
+  tNFA_EE_API_CONNECT connect;
+  tNFA_EE_API_SEND_DATA send_data;
+  tNFA_EE_API_DISCONNECT disconnect;
+  tNFA_EE_NCI_DISC_RSP disc_rsp;
+  tNFA_EE_NCI_DISC_NTF disc_ntf;
+  tNFA_EE_NCI_MODE_SET mode_set_rsp;
 #if (NXP_EXTNS == TRUE)
-    tNFA_EE_NCI_SET_MODE_INFO   mode_set_info;
-#if (NXP_WIRED_MODE_STANDBY == TRUE)
-    tNFA_EE_NCI_PWR_LNK_CTRL    pwr_lnk_ctrl_rsp;
+  tNFA_EE_NCI_SET_MODE_INFO mode_set_info;
+#if (NXP_WIRED_MODE_STANDBY == true)
+  tNFA_EE_NCI_PWR_LNK_CTRL pwr_lnk_ctrl_rsp;
 #endif
 #endif
-    tNFA_EE_NCI_WAIT_RSP        wait_rsp;
-    tNFA_EE_NCI_CONN            conn;
-    tNFA_EE_NCI_ACTION          act;
-    tNFA_EE_NCI_DISC_REQ        disc_req;
+  tNFA_EE_NCI_WAIT_RSP wait_rsp;
+  tNFA_EE_NCI_CONN conn;
+  tNFA_EE_NCI_ACTION act;
+  tNFA_EE_NCI_DISC_REQ disc_req;
 } tNFA_EE_MSG;
 
 /* type for State Machine (SM) action functions */
-typedef void (*tNFA_EE_SM_ACT)(tNFA_EE_MSG *p_data);
+typedef void (*tNFA_EE_SM_ACT)(tNFA_EE_MSG* p_data);
 
 /*****************************************************************************
 **  control block
 *****************************************************************************/
-#define NFA_EE_CFGED_UPDATE_NOW         0x80
-#define NFA_EE_CFGED_OFF_ROUTING        0x40    /* either switch off or battery off is configured */
+#define NFA_EE_CFGED_UPDATE_NOW 0x80
+/* either switch off or battery off is configured */
+#define NFA_EE_CFGED_OFF_ROUTING 0x40
 
 /* the following status are the definition used in ee_cfg_sts */
-#define NFA_EE_STS_CHANGED_ROUTING      0x01
-#define NFA_EE_STS_CHANGED_VS           0x02
-#define NFA_EE_STS_CHANGED              0x0f
-#define NFA_EE_STS_PREV_ROUTING         0x10
-#define NFA_EE_STS_PREV                 0xf0
+#define NFA_EE_STS_CHANGED_ROUTING 0x01
+#define NFA_EE_STS_CHANGED_VS 0x02
+#define NFA_EE_STS_CHANGED 0x0f
+#define NFA_EE_STS_PREV_ROUTING 0x10
+#define NFA_EE_STS_PREV 0xf0
 
+/* need to report NFA_EE_UPDATED_EVT */
+#define NFA_EE_WAIT_UPDATE 0x10
+/* waiting for the rsp of set routing commands */
+#define NFA_EE_WAIT_UPDATE_RSP 0x20
+#define NFA_EE_WAIT_UPDATE_ALL 0xF0
 
-#define NFA_EE_WAIT_UPDATE              0x10    /* need to report NFA_EE_UPDATED_EVT */
-#define NFA_EE_WAIT_UPDATE_RSP          0x20    /* waiting for the rsp of set routing commands */
-#define NFA_EE_WAIT_UPDATE_ALL          0xF0
+typedef uint8_t tNFA_EE_WAIT;
 
-typedef UINT8 tNFA_EE_WAIT;
-
-#define NFA_EE_FLAG_WAIT_HCI            0x01    /* set this bit when waiting for HCI to finish the initialization process in NFA_EE_EM_STATE_RESTORING */
-#define NFA_EE_FLAG_NOTIFY_HCI          0x02    /* set this bit when EE needs to notify the p_enable_cback at the end of NFCEE discover process in NFA_EE_EM_STATE_RESTORING */
-#define NFA_EE_FLAG_WAIT_DISCONN        0x04    /* set this bit when gracefully disable with outstanding NCI connections */
-#if(NXP_EXTNS == TRUE)
-#define NFA_EE_FLAG_CFG_NFC_DEP         0x05    /* set this bit when NFC-DEP is configured in the routing table */
+/* set this bit when waiting for HCI to finish the initialization process in
+ * NFA_EE_EM_STATE_RESTORING */
+#define NFA_EE_FLAG_WAIT_HCI 0x01
+/* set this bit when EE needs to notify the p_enable_cback at the end of NFCEE
+ * discover process in NFA_EE_EM_STATE_RESTORING */
+#define NFA_EE_FLAG_NOTIFY_HCI 0x02
+/* set this bit when gracefully disable with outstanding NCI connections */
+#define NFA_EE_FLAG_WAIT_DISCONN 0x04
+#if (NXP_EXTNS == TRUE)
+/* set this bit when NFC-DEP is configured in the routing table */
+#define NFA_EE_FLAG_CFG_NFC_DEP 0x05
 #endif
-typedef UINT8 tNFA_EE_FLAGS;
+typedef uint8_t tNFA_EE_FLAGS;
 
-
-#define NFA_EE_DISC_STS_ON              0x00    /* NFCEE DISCOVER in progress       */
-#define NFA_EE_DISC_STS_OFF             0x01    /* disable NFCEE DISCOVER           */
-#define NFA_EE_DISC_STS_REQ             0x02    /* received NFCEE DISCOVER REQ NTF  */
-#if(NXP_EXTNS == TRUE)
-#define NFA_EE_MODE_SET_NTF             0x04    /* received NFCEE_MODE_SET NTF  */
+/* NFCEE DISCOVER in progress       */
+#define NFA_EE_DISC_STS_ON 0x00
+/* disable NFCEE DISCOVER           */
+#define NFA_EE_DISC_STS_OFF 0x01
+/* received NFCEE DISCOVER REQ NTF  */
+#define NFA_EE_DISC_STS_REQ 0x02
+/* received NFA_EE_MODE_SET_COMPLETE  */
+#define NFA_EE_MODE_SET_COMPLETE 0x03
+#if (NXP_EXTNS == TRUE)
+/* received NFCEE_MODE_SET NTF  */
+#define NFA_EE_MODE_SET_NTF 0x04
 #endif
-typedef UINT8 tNFA_EE_DISC_STS;
+typedef uint8_t tNFA_EE_DISC_STS;
 
-typedef void (tNFA_EE_ENABLE_DONE_CBACK)(tNFA_EE_DISC_STS status);
+typedef void(tNFA_EE_ENABLE_DONE_CBACK)(tNFA_EE_DISC_STS status);
 
-#if ((NXP_EXTNS == TRUE) && (NXP_UICC_HANDLE_CLEAR_ALL_PIPES == TRUE))
-typedef void (tNFA_EE_CLEAR_ALL_PIPES_CBACK)(UINT8 source_host);
+#if ((NXP_EXTNS == TRUE) && (NXP_UICC_HANDLE_CLEAR_ALL_PIPES == true))
+typedef void(tNFA_EE_CLEAR_ALL_PIPES_CBACK)(uint8_t source_host);
 #endif
 
 /* NFA EE Management control block */
-typedef struct
-{
-    tNFA_EE_ECB          ecb[NFA_EE_NUM_ECBS];   /* control block for DH and NFCEEs  */
-    TIMER_LIST_ENT       timer;                  /* timer to send info to NFCC       */
-    TIMER_LIST_ENT       discv_timer;            /* timer to end NFCEE discovery     */
-    tNFA_EE_CBACK        *p_ee_cback[NFA_EE_MAX_CBACKS];/* to report EE events       */
-    tNFA_EE_CBACK        *p_ee_disc_cback;       /* to report EE discovery result    */
-    tNFA_EE_ENABLE_DONE_CBACK *p_enable_cback;   /* callback to notify on enable done*/
+typedef struct {
+  tNFA_EE_ECB ecb[NFA_EE_NUM_ECBS]; /* control block for DH and NFCEEs  */
+  TIMER_LIST_ENT timer;             /* timer to send info to NFCC       */
+  TIMER_LIST_ENT discv_timer;       /* timer to end NFCEE discovery     */
+  tNFA_EE_CBACK* p_ee_cback[NFA_EE_MAX_CBACKS]; /* to report EE events       */
+  tNFA_EE_CBACK* p_ee_disc_cback; /* to report EE discovery result    */
+  tNFA_EE_ENABLE_DONE_CBACK*
+      p_enable_cback; /* callback to notify on enable done*/
 #if (NXP_EXTNS == TRUE)
-#if (NXP_UICC_HANDLE_CLEAR_ALL_PIPES == TRUE)
-    tNFA_EE_CLEAR_ALL_PIPES_CBACK *p_clear_all_pipes_cback; /* callback to notify UICC CAP */
+#if (NXP_UICC_HANDLE_CLEAR_ALL_PIPES == true)
+  tNFA_EE_CLEAR_ALL_PIPES_CBACK*
+      p_clear_all_pipes_cback; /* callback to notify UICC CAP */
 #endif
 #endif
-    tNFA_EE_EM_STATE     em_state;               /* NFA-EE state initialized or not  */
-    UINT8                wait_rsp;               /* num of NCI rsp expected (update) */
-    UINT8                num_ee_expecting;       /* number of ee_info still expecting*/
-    UINT8                cur_ee;                 /* the number of ee_info in cb      */
-    UINT8                ee_cfged;               /* the bit mask of configured ECBs  */
-    UINT8                ee_cfg_sts;             /* configuration status             */
-    tNFA_EE_WAIT         ee_wait_evt;            /* Pending event(s) to be reported  */
-    tNFA_EE_FLAGS        ee_flags;               /* flags                            */
+  tNFA_EE_EM_STATE em_state; /* NFA-EE state initialized or not  */
+  uint8_t wait_rsp;          /* num of NCI rsp expected (update) */
+  uint8_t num_ee_expecting;  /* number of ee_info still expecting*/
+  uint8_t cur_ee;            /* the number of ee_info in cb      */
+  uint8_t ee_cfged;          /* the bit mask of configured ECBs  */
+  uint8_t ee_cfg_sts;        /* configuration status             */
+  tNFA_EE_WAIT ee_wait_evt;  /* Pending event(s) to be reported  */
+  tNFA_EE_FLAGS ee_flags;    /* flags                            */
+  uint8_t nfcee_id;
+  uint8_t mode;
 } tNFA_EE_CB;
 
 /*****************************************************************************
@@ -577,89 +609,87 @@ typedef struct
 *****************************************************************************/
 
 /* NFA EE control block */
-#if NFA_DYNAMIC_MEMORY == FALSE
+
 extern tNFA_EE_CB nfa_ee_cb;
-#else
-extern tNFA_EE_CB *nfa_ee_cb_ptr;
-#define nfa_ee_cb (*nfa_ee_cb_ptr)
-#endif
-#if(NXP_EXTNS == TRUE)
-extern BOOLEAN gNfaProvisionMode;
+#if (NXP_EXTNS == TRUE)
+extern bool gNfaProvisionMode;
 #endif
 
 /*****************************************************************************
 **  External functions
 *****************************************************************************/
 /* function prototypes - exported from nfa_ee_main.c */
-void nfa_ee_sys_enable (void);
-void nfa_ee_sys_disable (void);
+void nfa_ee_sys_enable(void);
+void nfa_ee_sys_disable(void);
 
 /* event handler function type */
-BOOLEAN nfa_ee_evt_hdlr (BT_HDR *p_msg);
-void nfa_ee_proc_nfcc_power_mode (UINT8 nfcc_power_mode);
-#if (NFC_NFCEE_INCLUDED == TRUE)
-void nfa_ee_get_tech_route (UINT8 power_state, UINT8 *p_handles);
+bool nfa_ee_evt_hdlr(NFC_HDR* p_msg);
+void nfa_ee_proc_nfcc_power_mode(uint8_t nfcc_power_mode);
+#if (NFC_NFCEE_INCLUDED == true)
+void nfa_ee_get_tech_route(uint8_t power_state, uint8_t* p_handles);
 #endif
-void nfa_ee_proc_evt(tNFC_RESPONSE_EVT event, void *p_data);
-tNFA_EE_ECB * nfa_ee_find_ecb (UINT8 nfcee_id);
-tNFA_EE_ECB * nfa_ee_find_ecb_by_conn_id (UINT8 conn_id);
-#if(NXP_EXTNS == TRUE)
-UINT16 nfa_ee_lmrt_size();
-UINT8 nfa_ee_get_supported_tech_list(UINT8 nfcee_id);
-BOOLEAN nfa_ee_nfeeid_active(UINT8 nfee_id);
-UINT8 NFA_check_p61_CL_Activated();
-UINT16 nfa_ee_find_max_aid_config_length();
-UINT16 nfa_ee_api_get_max_aid_config_length();
+void nfa_ee_proc_evt(tNFC_RESPONSE_EVT event, void* p_data);
+tNFA_EE_ECB* nfa_ee_find_ecb(uint8_t nfcee_id);
+tNFA_EE_ECB* nfa_ee_find_ecb_by_conn_id(uint8_t conn_id);
+#if (NXP_EXTNS == TRUE)
+uint16_t nfa_ee_lmrt_size();
+uint8_t nfa_ee_get_supported_tech_list(uint8_t nfcee_id);
+bool nfa_ee_nfeeid_active(uint8_t nfee_id);
+uint8_t NFA_check_p61_CL_Activated();
+uint16_t nfa_ee_find_max_aid_config_length();
+uint16_t nfa_ee_api_get_max_aid_config_length();
 #endif
-UINT8 nfa_ee_ecb_to_mask (tNFA_EE_ECB *p_cb);
-void nfa_ee_restore_one_ecb (tNFA_EE_ECB *p_cb);
-BOOLEAN nfa_ee_is_active (tNFA_HANDLE nfcee_id);
+uint8_t nfa_ee_ecb_to_mask(tNFA_EE_ECB* p_cb);
+void nfa_ee_restore_one_ecb(tNFA_EE_ECB* p_cb);
+bool nfa_ee_is_active(tNFA_HANDLE nfcee_id);
 
 /* Action function prototypes - nfa_ee_act.c */
-void nfa_ee_api_discover(tNFA_EE_MSG *p_data);
-void nfa_ee_api_register(tNFA_EE_MSG *p_data);
-void nfa_ee_api_deregister(tNFA_EE_MSG *p_data);
-void nfa_ee_api_mode_set(tNFA_EE_MSG *p_data);
-void nfa_ee_api_set_tech_cfg(tNFA_EE_MSG *p_data);
-void nfa_ee_api_set_proto_cfg(tNFA_EE_MSG *p_data);
-void nfa_ee_api_add_aid(tNFA_EE_MSG *p_data);
-void nfa_ee_api_remove_aid(tNFA_EE_MSG *p_data);
-void nfa_ee_api_lmrt_size(tNFA_EE_MSG *p_data);
-void nfa_ee_api_update_now(tNFA_EE_MSG *p_data);
-void nfa_ee_api_connect(tNFA_EE_MSG *p_data);
-void nfa_ee_api_send_data(tNFA_EE_MSG *p_data);
-void nfa_ee_api_disconnect(tNFA_EE_MSG *p_data);
-void nfa_ee_report_disc_done(BOOLEAN notify_sys);
-void nfa_ee_nci_disc_rsp(tNFA_EE_MSG *p_data);
-void nfa_ee_nci_disc_ntf(tNFA_EE_MSG *p_data);
-void nfa_ee_nci_mode_set_rsp(tNFA_EE_MSG *p_data);
+void nfa_ee_api_discover(tNFA_EE_MSG* p_data);
+void nfa_ee_api_register(tNFA_EE_MSG* p_data);
+void nfa_ee_api_deregister(tNFA_EE_MSG* p_data);
+void nfa_ee_api_mode_set(tNFA_EE_MSG* p_data);
+void nfa_ee_api_set_tech_cfg(tNFA_EE_MSG* p_data);
+void nfa_ee_api_set_proto_cfg(tNFA_EE_MSG* p_data);
+void nfa_ee_api_add_aid(tNFA_EE_MSG* p_data);
+void nfa_ee_api_remove_aid(tNFA_EE_MSG* p_data);
+void nfa_ee_api_lmrt_size(tNFA_EE_MSG* p_data);
+void nfa_ee_api_update_now(tNFA_EE_MSG* p_data);
+void nfa_ee_api_connect(tNFA_EE_MSG* p_data);
+void nfa_ee_api_send_data(tNFA_EE_MSG* p_data);
+void nfa_ee_api_disconnect(tNFA_EE_MSG* p_data);
+void nfa_ee_report_disc_done(bool notify_sys);
+void nfa_ee_nci_disc_rsp(tNFA_EE_MSG* p_data);
+void nfa_ee_nci_disc_ntf(tNFA_EE_MSG* p_data);
+void nfa_ee_nci_mode_set_rsp(tNFA_EE_MSG* p_data);
 #if (NXP_EXTNS == TRUE)
-extern void nfa_hci_conn_cback (UINT8 conn_id, tNFC_CONN_EVT event, tNFC_CONN *p_data);
-void nfa_ee_nci_set_mode_info(tNFA_EE_MSG *p_data);
-#if (NXP_WIRED_MODE_STANDBY == TRUE)
-void nfa_ee_nci_pwr_link_ctrl_rsp(tNFA_EE_MSG *p_data);
+extern void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
+                               tNFC_CONN* p_data);
+void nfa_ee_nci_set_mode_info(tNFA_EE_MSG* p_data);
+#if (NXP_WIRED_MODE_STANDBY == true)
+void nfa_ee_nci_pwr_link_ctrl_rsp(tNFA_EE_MSG* p_data);
 #endif
 #endif
-void nfa_ee_nci_wait_rsp(tNFA_EE_MSG *p_data);
-void nfa_ee_nci_conn(tNFA_EE_MSG *p_data);
-void nfa_ee_nci_action_ntf(tNFA_EE_MSG *p_data);
-void nfa_ee_nci_disc_req_ntf(tNFA_EE_MSG *p_data);
-void nfa_ee_rout_timeout(tNFA_EE_MSG *p_data);
-void nfa_ee_discv_timeout(tNFA_EE_MSG *p_data);
-void nfa_ee_lmrt_to_nfcc(tNFA_EE_MSG *p_data);
+void nfa_ee_nci_wait_rsp(tNFA_EE_MSG* p_data);
+void nfa_ee_nci_conn(tNFA_EE_MSG* p_data);
+void nfa_ee_nci_action_ntf(tNFA_EE_MSG* p_data);
+void nfa_ee_nci_disc_req_ntf(tNFA_EE_MSG* p_data);
+void nfa_ee_rout_timeout(tNFA_EE_MSG* p_data);
+void nfa_ee_discv_timeout(tNFA_EE_MSG* p_data);
+void nfa_ee_lmrt_to_nfcc(tNFA_EE_MSG* p_data);
 void nfa_ee_update_rout(void);
-void nfa_ee_report_event(tNFA_EE_CBACK *p_cback, tNFA_EE_EVT event, tNFA_EE_CBACK_DATA *p_data);
-tNFA_EE_ECB * nfa_ee_find_aid_offset(UINT8 aid_len, UINT8 *p_aid, int *p_offset, int *p_entry);
+void nfa_ee_report_event(tNFA_EE_CBACK* p_cback, tNFA_EE_EVT event,
+                         tNFA_EE_CBACK_DATA* p_data);
+tNFA_EE_ECB* nfa_ee_find_aid_offset(uint8_t aid_len, uint8_t* p_aid,
+                                    int* p_offset, int* p_entry);
 void nfa_ee_remove_labels(void);
-int nfa_ee_find_total_aid_len(tNFA_EE_ECB *p_cb, int start_entry);
+int nfa_ee_find_total_aid_len(tNFA_EE_ECB* p_cb, int start_entry);
 void nfa_ee_start_timer(void);
-void nfa_ee_reg_cback_enable_done (tNFA_EE_ENABLE_DONE_CBACK *p_cback);
-void nfa_ee_report_update_evt (void);
+void nfa_ee_reg_cback_enable_done(tNFA_EE_ENABLE_DONE_CBACK* p_cback);
+void nfa_ee_report_update_evt(void);
 void find_and_resolve_tech_conflict();
-extern void nfa_ee_proc_hci_info_cback (void);
-void nfa_ee_check_disable (void);
-BOOLEAN nfa_ee_restore_ntf_done(void);
+extern void nfa_ee_proc_hci_info_cback(void);
+void nfa_ee_check_disable(void);
+bool nfa_ee_restore_ntf_done(void);
 void nfa_ee_check_restore_complete(void);
-
 
 #endif /* NFA_P2P_INT_H */

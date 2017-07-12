@@ -16,7 +16,6 @@
  *
  ******************************************************************************/
 
-
 /******************************************************************************
  *
  *  This is the interface file for non valtile memory call-in functions.
@@ -32,28 +31,25 @@
 *****************************************************************************/
 
 /* Read Ready Event */
-typedef struct
-{
-    BT_HDR            hdr;
-    tNFA_NV_CO_STATUS status;
-    int               fd;
-    UINT16            num_read;
+typedef struct {
+  NFC_HDR hdr;
+  tNFA_NV_CO_STATUS status;
+  int fd;
+  uint16_t num_read;
 } tNFA_NV_CI_READ_EVT;
 
 /* Write Ready Event */
-typedef struct
-{
-    BT_HDR            hdr;
-    tNFA_NV_CO_STATUS status;
-    int               fd;
+typedef struct {
+  NFC_HDR hdr;
+  tNFA_NV_CO_STATUS status;
+  int fd;
 } tNFA_NV_CI_WRITE_EVT;
 
 /*****************************************************************************
 **  Function Declarations
 *****************************************************************************/
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /*******************************************************************************
@@ -74,7 +70,7 @@ extern "C"
 ** Returns          void
 **
 *******************************************************************************/
-NFC_API extern void nfa_nv_ci_write (tNFA_NV_CO_STATUS status);
+extern void nfa_nv_ci_write(tNFA_NV_CO_STATUS status);
 
 /*******************************************************************************
 **
@@ -82,8 +78,8 @@ NFC_API extern void nfa_nv_ci_write (tNFA_NV_CO_STATUS status);
 **
 ** Description      This function sends an event to NFA indicating the phone has
 **                  read in the requested amount of data specified in the
-**                  nfa_nv_co_read () call-out function.  It should only be called
-**                  when the requested number of bytes has been read.
+**                  nfa_nv_co_read () call-out function.  It should only be
+**                  called when the requested number of bytes has been read.
 **
 ** Parameters       num_bytes_read - number of bytes read into the buffer
 **                      specified in the read callout-function.
@@ -96,10 +92,8 @@ NFC_API extern void nfa_nv_ci_write (tNFA_NV_CO_STATUS status);
 ** Returns          void
 **
 *******************************************************************************/
-NFC_API extern void nfa_nv_ci_read (UINT16            num_bytes_read,
-                                    tNFA_NV_CO_STATUS status,
-                                    UINT8             block);
-
+extern void nfa_nv_ci_read(uint16_t num_bytes_read, tNFA_NV_CO_STATUS status,
+                           uint8_t block);
 
 #ifdef __cplusplus
 }

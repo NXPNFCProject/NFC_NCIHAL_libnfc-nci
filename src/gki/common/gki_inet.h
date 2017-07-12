@@ -20,13 +20,13 @@
 
 #include "data_types.h"
 
-#define htons   ntohs
-#define htonl   ntohl
+#define htons ntohs
+#define htonl ntohl
 
 #define htonets nettohs
 #define htonetl nettohl
 
-#if BIG_ENDIAN == TRUE
+#if (BIG_ENDIAN == true)
 #define ntohs(n) (n)
 #define ntohl(n) (n)
 #define ntoh6(n) (n)
@@ -34,13 +34,14 @@
 #define nettohs(n) (n)
 #define nettohl(n) (n)
 #else
-extern UINT16 ntohs(UINT16 n);
-extern UINT32 ntohl(UINT32 n);
-extern UINT8 *ntoh6(UINT8 *p);
+extern uint16_t ntohs(uint16_t n);
+extern uint32_t ntohl(uint32_t n);
+extern uint8_t* ntoh6(uint8_t* p);
 
-#define nettohs(n) ((UINT16)((((n) << 8) & 0xff00) | (((n) >> 8) & 0x00ff)))
-#define nettohl(n) ((((n) & 0x000000ff) << 24) | (((n) << 8) & 0x00ff0000) | \
-                   (((n) >> 8) & 0x0000ff00) | (((n) >> 24) & 0x000000ff))
+#define nettohs(n) ((uint16_t)((((n) << 8) & 0xff00) | (((n) >> 8) & 0x00ff)))
+#define nettohl(n)                                        \
+  ((((n)&0x000000ff) << 24) | (((n) << 8) & 0x00ff0000) | \
+   (((n) >> 8) & 0x0000ff00) | (((n) >> 24) & 0x000000ff))
 #endif
 
 #endif /* GKI_INET_H */

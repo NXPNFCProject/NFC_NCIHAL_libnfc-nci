@@ -19,21 +19,22 @@
 #include <stdarg.h>
 #include <errno.h>
 
-#define GKI_DEBUG   FALSE
+#define GKI_DEBUG false
 
-#include <pthread.h>  /* must be 1st header defined  */
+#include <pthread.h> /* must be 1st header defined  */
 #include <time.h>
 #include "gki_int.h"
 #include "gki_target.h"
+#include "bt_trace.h"
 
 /* Temp android logging...move to android tgt config file */
 
 #ifndef LINUX_NATIVE
 #include <cutils/log.h>
 #else
-#define LOGV(format, ...)  fprintf (stdout, LOG_TAG format, ## __VA_ARGS__)
-#define LOGE(format, ...)  fprintf (stderr, LOG_TAG format, ## __VA_ARGS__)
-#define LOGI(format, ...)  fprintf (stdout, LOG_TAG format, ## __VA_ARGS__)
+#define LOGV(format, ...) fprintf(stdout, LOG_TAG format, ##__VA_ARGS__)
+#define LOGE(format, ...) fprintf(stderr, LOG_TAG format, ##__VA_ARGS__)
+#define LOGI(format, ...) fprintf(stdout, LOG_TAG format, ##__VA_ARGS__)
 
 #define SCHED_NORMAL 0
 #define SCHED_FIFO 1
@@ -44,21 +45,18 @@
 
 /* Define the structure that holds the GKI variables
 */
-#if GKI_DYNAMIC_MEMORY == FALSE
-tGKI_CB   gki_cb;
-#endif
+tGKI_CB gki_cb;
 
 #define NANOSEC_PER_MILLISEC (1000000)
-#define NSEC_PER_SEC (1000*NANOSEC_PER_MILLISEC)
+#define NSEC_PER_SEC (1000 * NANOSEC_PER_MILLISEC)
 
 /* works only for 1ms to 1000ms heart beat ranges */
-#define LINUX_SEC (1000/TICKS_PER_SEC)
+#define LINUX_SEC (1000 / TICKS_PER_SEC)
 // #define GKI_TICK_TIMER_DEBUG
 
-#define LOCK(m)  pthread_mutex_lock(&m)
+#define LOCK(m) pthread_mutex_lock(&m)
 #define UNLOCK(m) pthread_mutex_unlock(&m)
 #define INIT(m) pthread_mutex_init(&m, NULL)
-
 
 /* this kind of mutex go into tGKI_OS control block!!!! */
 /* static pthread_mutex_t GKI_sched_mutex; */
@@ -68,24 +66,18 @@ static pthread_mutex_t gki_timer_update_mutex;
 static pthread_cond_t   gki_timer_update_cond;
 */
 #ifdef NO_GKI_RUN_RETURN
-static pthread_t            timer_thread_id = 0;
+static pthread_t timer_thread_id = 0;
 #endif
 #if (NXP_EXTNS == TRUE)
-UINT8 gki_buf_init_done = FALSE;
-#endif
-/* For Android */
-
-#ifndef GKI_SHUTDOWN_EVT
-#define GKI_SHUTDOWN_EVT    APPL_EVT_7
+uint8_t gki_buf_init_done = false;
 #endif
 
-typedef struct
-{
-    UINT8 task_id;          /* GKI task id */
-    TASKPTR task_entry;     /* Task entry function*/
-    UINT32 params;          /* Extra params to pass to task entry function */
-    pthread_cond_t* pCond;  /* for android*/
-    pthread_mutex_t* pMutex;  /* for android*/
+typedef struct {
+  uint8_t task_id;         /* GKI task id */
+  TASKPTR task_entry;      /* Task entry function*/
+  uintptr_t params;        /* Extra params to pass to task entry function */
+  pthread_cond_t* pCond;   /* for android*/
+  pthread_mutex_t* pMutex; /* for android*/
 } gki_pthread_info_t;
 gki_pthread_info_t gki_pthread_info[GKI_MAX_TASKS];
 
@@ -100,37 +92,36 @@ static struct tms buffer;
 ** Returns          void
 **
 *******************************************************************************/
-void gki_task_entry(UINT32 params)
-{
-    pthread_t thread_id = pthread_self();
-    gki_pthread_info_t *p_pthread_info = (gki_pthread_info_t *)params;
-    GKI_TRACE_5("gki_task_entry task_id=%i, thread_id=%x/%x, pCond/pMutex=%x/%x", p_pthread_info->task_id,
-                gki_cb.os.thread_id[p_pthread_info->task_id], pthread_self(),
-                p_pthread_info->pCond, p_pthread_info->pMutex);
+void gki_task_entry(uintptr_t params) {
+  pthread_t thread_id = pthread_self();
+  gki_pthread_info_t* p_pthread_info = (gki_pthread_info_t*)params;
+  GKI_TRACE_5("gki_task_entry task_id=%i, thread_id=%x/%x, pCond/pMutex=%x/%x",
+              p_pthread_info->task_id,
+              gki_cb.os.thread_id[p_pthread_info->task_id], pthread_self(),
+              p_pthread_info->pCond, p_pthread_info->pMutex);
 
-    gki_cb.os.thread_id[p_pthread_info->task_id] = thread_id;
-    /* Call the actual thread entry point */
-    (p_pthread_info->task_entry)(p_pthread_info->params);
+  gki_cb.os.thread_id[p_pthread_info->task_id] = thread_id;
+  /* Call the actual thread entry point */
+  (p_pthread_info->task_entry)(p_pthread_info->params);
 
-    GKI_TRACE_1("gki_task task_id=%i terminating", p_pthread_info->task_id);
-    gki_cb.os.thread_id[p_pthread_info->task_id] = 0;
+  GKI_TRACE_ERROR_1("gki_task task_id=%i terminating", p_pthread_info->task_id);
+  gki_cb.os.thread_id[p_pthread_info->task_id] = 0;
 
-    pthread_exit(0);    /* GKI tasks have no return value */
+  return;
 }
 /* end android */
 
 #ifndef ANDROID
-void GKI_TRACE(char *fmt, ...)
-{
-    LOCK(gki_cb.os.GKI_trace_mutex);
-    va_list ap;
+void GKI_TRACE(char* fmt, ...) {
+  LOCK(gki_cb.os.GKI_trace_mutex);
+  va_list ap;
 
-    va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
-    fprintf(stderr, "\n");
+  va_start(ap, fmt);
+  vfprintf(stderr, fmt, ap);
+  fprintf(stderr, "\n");
 
-    va_end(ap);
-    UNLOCK(gki_cb.os.GKI_trace_mutex);
+  va_end(ap);
+  UNLOCK(gki_cb.os.GKI_trace_mutex);
 }
 #endif
 
@@ -145,66 +136,63 @@ void GKI_TRACE(char *fmt, ...)
 **
 *******************************************************************************/
 
-void GKI_init(void)
-{
-    pthread_mutexattr_t attr;
-    tGKI_OS             *p_os;
+void GKI_init(void) {
+  pthread_mutexattr_t attr;
+  tGKI_OS* p_os;
 #if (NXP_EXTNS == TRUE)
-    /* Added to avoid re-initialization of memory pool (memory leak) */
-    if(!gki_buf_init_done)
-    {
-        memset (&gki_cb, 0, sizeof (gki_cb));
-        gki_buffer_init();
-        gki_buf_init_done = TRUE;
-    }
-#else
-    memset (&gki_cb, 0, sizeof (gki_cb));
+  /* Added to avoid re-initialization of memory pool (memory leak) */
+  if (!gki_buf_init_done) {
+    memset(&gki_cb, 0, sizeof(gki_cb));
     gki_buffer_init();
+    gki_buf_init_done = true;
+  }
+#else
+  memset(&gki_cb, 0, sizeof(gki_cb));
+  gki_buffer_init();
 #endif
 
-    gki_timers_init();
-    gki_cb.com.OSTicks = (UINT32) times(&buffer);
+  gki_timers_init();
+  gki_cb.com.OSTicks = (uint32_t)times(&buffer);
 
-    pthread_mutexattr_init(&attr);
+  pthread_mutexattr_init(&attr);
 
 #ifndef __CYGWIN__
-    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
+  pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
 #endif
-    p_os = &gki_cb.os;
-    pthread_mutex_init(&p_os->GKI_mutex, &attr);
-    /* pthread_mutex_init(&GKI_sched_mutex, NULL); */
-#if (GKI_DEBUG == TRUE)
-    pthread_mutex_init(&p_os->GKI_trace_mutex, NULL);
+  p_os = &gki_cb.os;
+  pthread_mutex_init(&p_os->GKI_mutex, &attr);
+/* pthread_mutex_init(&GKI_sched_mutex, NULL); */
+#if (GKI_DEBUG == true)
+  pthread_mutex_init(&p_os->GKI_trace_mutex, NULL);
 #endif
-    /* pthread_mutex_init(&thread_delay_mutex, NULL); */  /* used in GKI_delay */
-    /* pthread_cond_init (&thread_delay_cond, NULL); */
+  /* pthread_mutex_init(&thread_delay_mutex, NULL); */ /* used in GKI_delay */
+  /* pthread_cond_init (&thread_delay_cond, NULL); */
 
-    /* Initialiase GKI_timer_update suspend variables & mutexes to be in running state.
-     * this works too even if GKI_NO_TICK_STOP is defined in btld.txt */
-    p_os->no_timer_suspend = GKI_TIMER_TICK_RUN_COND;
-    pthread_mutex_init(&p_os->gki_timer_mutex, NULL);
-    pthread_cond_init(&p_os->gki_timer_cond, NULL);
+  /* Initialiase GKI_timer_update suspend variables & mutexes to be in running
+   * state.
+   * this works too even if GKI_NO_TICK_STOP is defined in btld.txt */
+  p_os->no_timer_suspend = GKI_TIMER_TICK_RUN_COND;
+  pthread_mutex_init(&p_os->gki_timer_mutex, NULL);
+  pthread_cond_init(&p_os->gki_timer_cond, NULL);
 #if (NXP_EXTNS == TRUE)
-    pthread_mutexattr_destroy(&attr);
+  pthread_mutexattr_destroy(&attr);
 #endif
 }
-
 
 /*******************************************************************************
 **
 ** Function         GKI_get_os_tick_count
 **
-** Description      This function is called to retrieve the native OS system tick.
+** Description      This function is called to retrieve the native OS system
+**                  tick.
 **
 ** Returns          Tick count of native OS.
 **
 *******************************************************************************/
-UINT32 GKI_get_os_tick_count(void)
-{
-
-    /* TODO - add any OS specific code here
-    **/
-    return (gki_cb.com.OSTicks);
+uint32_t GKI_get_os_tick_count(void) {
+  /* TODO - add any OS specific code here
+  **/
+  return (gki_cb.com.OSTicks);
 }
 
 /*******************************************************************************
@@ -213,11 +201,14 @@ UINT32 GKI_get_os_tick_count(void)
 **
 ** Description      This function is called to create a new OSS task.
 **
-** Parameters:      task_entry  - (input) pointer to the entry function of the task
+** Parameters:      task_entry  - (input) pointer to the entry function of the
+**                                        task
 **                  task_id     - (input) Task id is mapped to priority
 **                  taskname    - (input) name given to the task
-**                  stack       - (input) pointer to the top of the stack (highest memory location)
-**                  stacksize   - (input) size of the stack allocated for the task
+**                  stack       - (input) pointer to the top of the stack
+**                                        (highest memory location)
+**                  stacksize   - (input) size of the stack allocated for the
+**                                        task
 **
 ** Returns          GKI_SUCCESS if all OK, GKI_FAILURE if any problem
 **
@@ -226,107 +217,101 @@ UINT32 GKI_get_os_tick_count(void)
 **                  of the function prototype.
 **
 *******************************************************************************/
-UINT8 GKI_create_task (TASKPTR task_entry, UINT8 task_id, INT8 *taskname, UINT16 *stack, UINT16 stacksize, void* pCondVar, void* pMutex)
-{
-    UINT16  i;
-    UINT8   *p;
-    struct sched_param param;
-    int policy, ret = 0;
-    pthread_condattr_t attr;
-    pthread_attr_t attr1;
-    (void)stack;
-    (void)stacksize;
+uint8_t GKI_create_task(TASKPTR task_entry, uint8_t task_id, int8_t* taskname,
+                        uint16_t* stack, uint16_t stacksize, void* pCondVar,
+                        void* pMutex) {
+  uint16_t i;
+  uint8_t* p;
+  struct sched_param param;
+  int policy, ret = 0;
+  pthread_condattr_t attr;
+  pthread_attr_t attr1;
+  (void)stack;
+  (void)stacksize;
 
-    pthread_condattr_init(&attr);
-    pthread_condattr_setclock(&attr, CLOCK_MONOTONIC);
-    GKI_TRACE_5 ("GKI_create_task func=0x%x  id=%d  name=%s  stack=0x%x  stackSize=%d", task_entry, task_id, taskname, stack, stacksize);
+  pthread_condattr_init(&attr);
+  pthread_condattr_setclock(&attr, CLOCK_MONOTONIC);
+  GKI_TRACE_5(
+      "GKI_create_task func=0x%x  id=%d  name=%s  stack=0x%x  stackSize=%d",
+      task_entry, task_id, taskname, stack, stacksize);
 
-    if (task_id >= GKI_MAX_TASKS)
-    {
-        GKI_TRACE_0("Error! task ID > max task allowed");
-        return (GKI_FAILURE);
-    }
+  if (task_id >= GKI_MAX_TASKS) {
+    GKI_TRACE_0("Error! task ID > max task allowed");
+    return (GKI_FAILURE);
+  }
 
+  gki_cb.com.OSRdyTbl[task_id] = TASK_READY;
+  gki_cb.com.OSTName[task_id] = taskname;
+  gki_cb.com.OSWaitTmr[task_id] = 0;
+  gki_cb.com.OSWaitEvt[task_id] = 0;
 
-    gki_cb.com.OSRdyTbl[task_id]    = TASK_READY;
-    gki_cb.com.OSTName[task_id]     = taskname;
-    gki_cb.com.OSWaitTmr[task_id]   = 0;
-    gki_cb.com.OSWaitEvt[task_id]   = 0;
+  /* Initialize mutex and condition variable objects for events and timeouts */
+  pthread_mutex_init(&gki_cb.os.thread_evt_mutex[task_id], NULL);
+  pthread_cond_init(&gki_cb.os.thread_evt_cond[task_id], &attr);
+  pthread_mutex_init(&gki_cb.os.thread_timeout_mutex[task_id], NULL);
+  pthread_cond_init(&gki_cb.os.thread_timeout_cond[task_id], &attr);
 
-    /* Initialize mutex and condition variable objects for events and timeouts */
-    pthread_mutex_init(&gki_cb.os.thread_evt_mutex[task_id], NULL);
-    pthread_cond_init (&gki_cb.os.thread_evt_cond[task_id], &attr);
-    pthread_mutex_init(&gki_cb.os.thread_timeout_mutex[task_id], NULL);
-    pthread_cond_init (&gki_cb.os.thread_timeout_cond[task_id], &attr);
+  pthread_attr_init(&attr1);
+/* by default, pthread creates a joinable thread */
+#if (false == GKI_PTHREAD_JOINABLE)
+  pthread_attr_setdetachstate(&attr1, PTHREAD_CREATE_DETACHED);
 
-    pthread_attr_init(&attr1);
-    /* by default, pthread creates a joinable thread */
-#if ( FALSE == GKI_PTHREAD_JOINABLE )
-    pthread_attr_setdetachstate(&attr1, PTHREAD_CREATE_DETACHED);
-
-    GKI_TRACE_3("GKI creating task %i, pCond/pMutex=%x/%x", task_id, pCondVar, pMutex);
+  GKI_TRACE_3("GKI creating task %i, pCond/pMutex=%x/%x", task_id, pCondVar,
+              pMutex);
 #else
-    GKI_TRACE_1("GKI creating JOINABLE task %i", task_id);
+  GKI_TRACE_1("GKI creating JOINABLE task %i", task_id);
 #endif
 
-    /* On Android, the new tasks starts running before 'gki_cb.os.thread_id[task_id]' is initialized */
-    /* Pass task_id to new task so it can initialize gki_cb.os.thread_id[task_id] for it calls GKI_wait */
-    gki_pthread_info[task_id].task_id = task_id;
-    gki_pthread_info[task_id].task_entry = task_entry;
-    gki_pthread_info[task_id].params = 0;
-    gki_pthread_info[task_id].pCond = (pthread_cond_t*)pCondVar;
-    gki_pthread_info[task_id].pMutex = (pthread_mutex_t*)pMutex;
+  /* On Android, the new tasks starts running before
+   * 'gki_cb.os.thread_id[task_id]' is initialized */
+  /* Pass task_id to new task so it can initialize gki_cb.os.thread_id[task_id]
+   * for it calls GKI_wait */
+  gki_pthread_info[task_id].task_id = task_id;
+  gki_pthread_info[task_id].task_entry = task_entry;
+  gki_pthread_info[task_id].params = 0;
+  gki_pthread_info[task_id].pCond = (pthread_cond_t*)pCondVar;
+  gki_pthread_info[task_id].pMutex = (pthread_mutex_t*)pMutex;
 
-    ret = pthread_create( &gki_cb.os.thread_id[task_id],
-              &attr1,
-              (void *)gki_task_entry,
-              &gki_pthread_info[task_id]);
+  ret = pthread_create(&gki_cb.os.thread_id[task_id], &attr1,
+                       (void*)gki_task_entry, &gki_pthread_info[task_id]);
 #if (NXP_EXTNS == TRUE)
-    pthread_attr_destroy(&attr1);
-    pthread_condattr_destroy(&attr);
+  pthread_attr_destroy(&attr1);
+  pthread_condattr_destroy(&attr);
 #endif
-    if (ret != 0)
+  if (ret != 0) {
+    GKI_TRACE_2("pthread_create failed(%d), %s!", ret, taskname);
+    return GKI_FAILURE;
+  }
+
+  if (pthread_getschedparam(gki_cb.os.thread_id[task_id], &policy, &param) ==
+      0) {
+#if (PBS_SQL_TASK == true)
+    if (task_id == PBS_SQL_TASK) {
+      GKI_TRACE_0("PBS SQL lowest priority task");
+      policy = SCHED_NORMAL;
+    } else
+#endif
     {
-         GKI_TRACE_2("pthread_create failed(%d), %s!", ret, taskname);
-         return GKI_FAILURE;
+      policy = SCHED_RR;
+      param.sched_priority = 30 - task_id - 2;
     }
+    pthread_setschedparam(gki_cb.os.thread_id[task_id], policy, &param);
+  }
 
-    if(pthread_getschedparam(gki_cb.os.thread_id[task_id], &policy, &param)==0)
-    {
-#if defined(PBS_SQL_TASK)
-         if (task_id == PBS_SQL_TASK)
-         {
-             GKI_TRACE_0("PBS SQL lowest priority task");
-             policy = SCHED_NORMAL;
-         }
-         else
-#endif
-         {
-             policy = SCHED_RR;
-             param.sched_priority = 30 - task_id - 2;
-         }
-         pthread_setschedparam(gki_cb.os.thread_id[task_id], policy, &param);
-     }
+  GKI_TRACE_6("Leaving GKI_create_task %x %d %x %s %x %d", task_entry, task_id,
+              gki_cb.os.thread_id[task_id], taskname, stack, stacksize);
 
-    GKI_TRACE_6( "Leaving GKI_create_task %x %d %x %s %x %d",
-              task_entry,
-              task_id,
-              gki_cb.os.thread_id[task_id],
-              taskname,
-              stack,
-              stacksize);
-
-    return (GKI_SUCCESS);
+  return (GKI_SUCCESS);
 }
 
 /*******************************************************************************
 **
 ** Function         GKI_shutdown
 **
-** Description      shutdowns the GKI tasks/threads in from max task id to 0 and frees
-**                  pthread resources!
-**                  IMPORTANT: in case of join method, GKI_shutdown must be called outside
-**                  a GKI thread context!
+** Description      shutdowns the GKI tasks/threads in from max task id to 0 and
+**                  frees pthread resources!
+**                  IMPORTANT: in case of join method, GKI_shutdown must be
+**                  called outside a GKI thread context!
 **
 ** Returns          void
 **
@@ -336,72 +321,69 @@ UINT8 GKI_create_task (TASKPTR task_entry, UINT8 task_id, INT8 *taskname, UINT16
 extern int acquire_wake_lock(int lock, const char* id);
 extern int release_wake_lock(const char* id);
 
-void GKI_shutdown(void)
-{
-    UINT8 task_id;
-    volatile int    *p_run_cond = &gki_cb.os.no_timer_suspend;
-    int     oldCOnd = 0;
-#if ( FALSE == GKI_PTHREAD_JOINABLE )
-    int i = 0;
+void GKI_shutdown(void) {
+  uint8_t task_id;
+  volatile int* p_run_cond = &gki_cb.os.no_timer_suspend;
+  int oldCOnd = 0;
+#if (false == GKI_PTHREAD_JOINABLE)
+  int i = 0;
 #else
-    int result;
+  int result;
 #endif
 
-    /* release threads and set as TASK_DEAD. going from low to high priority fixes
-     * GKI_exception problem due to btu->hci sleep request events  */
-    for (task_id = GKI_MAX_TASKS; task_id > 0; task_id--)
-    {
-        if (gki_cb.com.OSRdyTbl[task_id - 1] != TASK_DEAD)
-        {
-            gki_cb.com.OSRdyTbl[task_id - 1] = TASK_DEAD;
+  /* release threads and set as TASK_DEAD. going from low to high priority fixes
+   * GKI_exception problem due to btu->hci sleep request events  */
+  for (task_id = GKI_MAX_TASKS; task_id > 0; task_id--) {
+    if (gki_cb.com.OSRdyTbl[task_id - 1] != TASK_DEAD) {
+      gki_cb.com.OSRdyTbl[task_id - 1] = TASK_DEAD;
 
-            /* paranoi settings, make sure that we do not execute any mailbox events */
-            gki_cb.com.OSWaitEvt[task_id-1] &= ~(TASK_MBOX_0_EVT_MASK|TASK_MBOX_1_EVT_MASK|
-                                                TASK_MBOX_2_EVT_MASK|TASK_MBOX_3_EVT_MASK);
-            GKI_send_event(task_id - 1, EVENT_MASK(GKI_SHUTDOWN_EVT));
+      /* paranoi settings, make sure that we do not execute any mailbox events
+       */
+      gki_cb.com.OSWaitEvt[task_id - 1] &=
+          ~(TASK_MBOX_0_EVT_MASK | TASK_MBOX_1_EVT_MASK | TASK_MBOX_2_EVT_MASK |
+            TASK_MBOX_3_EVT_MASK);
+      GKI_send_event(task_id - 1, EVENT_MASK(GKI_SHUTDOWN_EVT));
 
-#if ( FALSE == GKI_PTHREAD_JOINABLE )
-            i = 0;
-            while ((gki_cb.com.OSWaitEvt[task_id - 1] != 0) && (++i < 5))
-                usleep(2 * 1000);
+#if (false == GKI_PTHREAD_JOINABLE)
+      i = 0;
+      while ((gki_cb.com.OSWaitEvt[task_id - 1] != 0) && (++i < 5))
+        usleep(2 * 1000);
 #else
-            /* wait for proper Arnold Schwarzenegger task state */
-            result = pthread_join( gki_cb.os.thread_id[task_id-1], NULL );
-            if ( result < 0 )
-            {
-                GKI_TRACE_1( "pthread_join() FAILED: result: %d", result );
-            }
+      /* wait for proper Arnold Schwarzenegger task state */
+      result = pthread_join(gki_cb.os.thread_id[task_id - 1], NULL);
+      if (result < 0) {
+        GKI_TRACE_1("pthread_join() FAILED: result: %d", result);
+      }
 #endif
-            GKI_TRACE_1( "GKI_shutdown(): task %s dead", gki_cb.com.OSTName[task_id]);
-            GKI_exit_task(task_id - 1);
-        }
+      GKI_TRACE_1("GKI_shutdown(): task %s dead", gki_cb.com.OSTName[task_id]);
+      GKI_exit_task(task_id - 1);
     }
+  }
 
-    /* Destroy mutex and condition variable objects */
-    pthread_mutex_destroy(&gki_cb.os.GKI_mutex);
-    /*    pthread_mutex_destroy(&GKI_sched_mutex); */
-#if (GKI_DEBUG == TRUE)
-    pthread_mutex_destroy(&gki_cb.os.GKI_trace_mutex);
+  /* Destroy mutex and condition variable objects */
+  pthread_mutex_destroy(&gki_cb.os.GKI_mutex);
+/*    pthread_mutex_destroy(&GKI_sched_mutex); */
+#if (GKI_DEBUG == true)
+  pthread_mutex_destroy(&gki_cb.os.GKI_trace_mutex);
 #endif
-    /*    pthread_mutex_destroy(&thread_delay_mutex);
-     pthread_cond_destroy (&thread_delay_cond); */
-#if ( FALSE == GKI_PTHREAD_JOINABLE )
-    i = 0;
+/*    pthread_mutex_destroy(&thread_delay_mutex);
+ pthread_cond_destroy (&thread_delay_cond); */
+#if (false == GKI_PTHREAD_JOINABLE)
+  i = 0;
 #endif
 
 #ifdef NO_GKI_RUN_RETURN
-    shutdown_timer = 1;
+  shutdown_timer = 1;
 #endif
-    if (gki_cb.os.gki_timer_wake_lock_on)
-    {
-        GKI_TRACE_0("GKI_shutdown :  release_wake_lock(brcm_btld)");
-        release_wake_lock(WAKE_LOCK_ID);
-        gki_cb.os.gki_timer_wake_lock_on = 0;
-    }
-    oldCOnd = *p_run_cond;
-    *p_run_cond = GKI_TIMER_TICK_EXIT_COND;
-    if (oldCOnd == GKI_TIMER_TICK_STOP_COND)
-        pthread_cond_signal( &gki_cb.os.gki_timer_cond );
+  if (gki_cb.os.gki_timer_wake_lock_on) {
+    GKI_TRACE_0("GKI_shutdown :  release_wake_lock(brcm_btld)");
+    release_wake_lock(WAKE_LOCK_ID);
+    gki_cb.os.gki_timer_wake_lock_on = 0;
+  }
+  oldCOnd = *p_run_cond;
+  *p_run_cond = GKI_TIMER_TICK_EXIT_COND;
+  if (oldCOnd == GKI_TIMER_TICK_STOP_COND)
+    pthread_cond_signal(&gki_cb.os.gki_timer_cond);
 }
 
 /*******************************************************************************
@@ -410,46 +392,46 @@ void GKI_shutdown(void)
  **
  ** Description     This function runs a task
  **
- ** Parameters:     start: TRUE start system tick (again), FALSE stop
+ ** Parameters:     start: true start system tick (again), false stop
  **
  ** Returns         void
  **
- *********************************************************************************/
-void gki_system_tick_start_stop_cback(BOOLEAN start)
-{
-    tGKI_OS         *p_os = &gki_cb.os;
-    volatile int    *p_run_cond = &p_os->no_timer_suspend;
-    static volatile int wake_lock_count;
-    if ( FALSE == start )
-    {
-        /* this can lead to a race condition. however as we only read this variable in the timer loop
-         * we should be fine with this approach. otherwise uncomment below mutexes.
-         */
-        /* GKI_disable(); */
-        *p_run_cond = GKI_TIMER_TICK_STOP_COND;
-        /* GKI_enable(); */
+ ******************************************************************************/
+void gki_system_tick_start_stop_cback(bool start) {
+  tGKI_OS* p_os = &gki_cb.os;
+  volatile int* p_run_cond = &p_os->no_timer_suspend;
+  static volatile int wake_lock_count;
+  if (false == start) {
+    /* this can lead to a race condition. however as we only read this variable
+     * in the timer loop
+     * we should be fine with this approach. otherwise uncomment below mutexes.
+     */
+    /* GKI_disable(); */
+    *p_run_cond = GKI_TIMER_TICK_STOP_COND;
+/* GKI_enable(); */
 #ifdef GKI_TICK_TIMER_DEBUG
-        BT_TRACE_1( TRACE_LAYER_HCI, TRACE_TYPE_DEBUG, ">>> STOP GKI_timer_update(), wake_lock_count:%d", --wake_lock_count);
+    BT_TRACE_1(TRACE_LAYER_HCI, TRACE_TYPE_DEBUG,
+               ">>> STOP GKI_timer_update(), wake_lock_count:%d",
+               --wake_lock_count);
 #endif
-        release_wake_lock(WAKE_LOCK_ID);
-        gki_cb.os.gki_timer_wake_lock_on = 0;
-    }
-    else
-    {
-        /* restart GKI_timer_update() loop */
-        acquire_wake_lock(PARTIAL_WAKE_LOCK, WAKE_LOCK_ID);
-        gki_cb.os.gki_timer_wake_lock_on = 1;
-        *p_run_cond = GKI_TIMER_TICK_RUN_COND;
-        pthread_mutex_lock( &p_os->gki_timer_mutex );
-        pthread_cond_signal( &p_os->gki_timer_cond );
-        pthread_mutex_unlock( &p_os->gki_timer_mutex );
+    release_wake_lock(WAKE_LOCK_ID);
+    gki_cb.os.gki_timer_wake_lock_on = 0;
+  } else {
+    /* restart GKI_timer_update() loop */
+    acquire_wake_lock(PARTIAL_WAKE_LOCK, WAKE_LOCK_ID);
+    gki_cb.os.gki_timer_wake_lock_on = 1;
+    *p_run_cond = GKI_TIMER_TICK_RUN_COND;
+    pthread_mutex_lock(&p_os->gki_timer_mutex);
+    pthread_cond_signal(&p_os->gki_timer_cond);
+    pthread_mutex_unlock(&p_os->gki_timer_mutex);
 
 #ifdef GKI_TICK_TIMER_DEBUG
-        BT_TRACE_1( TRACE_LAYER_HCI, TRACE_TYPE_DEBUG, ">>> START GKI_timer_update(), wake_lock_count:%d", ++wake_lock_count );
+    BT_TRACE_1(TRACE_LAYER_HCI, TRACE_TYPE_DEBUG,
+               ">>> START GKI_timer_update(), wake_lock_count:%d",
+               ++wake_lock_count);
 #endif
-    }
+  }
 }
-
 
 /*******************************************************************************
 **
@@ -461,31 +443,28 @@ void gki_system_tick_start_stop_cback(BOOLEAN start)
 **
 ** Returns          void
 **
-*********************************************************************************/
+*******************************************************************************/
 #ifdef NO_GKI_RUN_RETURN
-void timer_thread(signed long id)
-{
-    GKI_TRACE_1("%s enter", __func__);
-    struct timespec delay;
-    int timeout = 1000;  /* 10  ms per system tick  */
-    int err;
+void timer_thread(signed long id) {
+  GKI_TRACE_1("%s enter", __func__);
+  struct timespec delay;
+  int timeout = 1000; /* 10  ms per system tick  */
+  int err;
 
-    while(!shutdown_timer)
-    {
-        delay.tv_sec = timeout / 1000;
-        delay.tv_nsec = 1000 * 1000 * (timeout%1000);
+  while (!shutdown_timer) {
+    delay.tv_sec = timeout / 1000;
+    delay.tv_nsec = 1000 * 1000 * (timeout % 1000);
 
-        /* [u]sleep can't be used because it uses SIGALRM */
+    /* [u]sleep can't be used because it uses SIGALRM */
 
-        do
-        {
-            err = nanosleep(&delay, &delay);
-        } while (err < 0 && errno ==EINTR);
+    do {
+      err = nanosleep(&delay, &delay);
+    } while (err < 0 && errno == EINTR);
 
-        GKI_timer_update(1);
-    }
-    GKI_TRACE_1("%s exit", __func__);
-    pthread_exit(NULL);
+    GKI_timer_update(1);
+  }
+  GKI_TRACE_ERROR_1("%s exit", __func__);
+  return;
 }
 #endif
 
@@ -503,113 +482,107 @@ void timer_thread(signed long id)
 **                  starting a task is a 2-step process. Most OS's do it in
 **                  one step, If your OS does it in one step, this function
 **                  should be empty.
-*********************************************************************************/
-void GKI_run (void *p_task_id)
-{
-    GKI_TRACE_1("%s enter", __func__);
-    struct timespec delay;
-    int err = 0;
-#if(NXP_EXTNS == TRUE)
-    UINT8 rtask = 0;
-    (void)p_task_id;
-#endif
-    volatile int * p_run_cond = &gki_cb.os.no_timer_suspend;
+*******************************************************************************/
+void GKI_run(void* p_task_id) {
+  GKI_TRACE_1("%s enter", __func__);
+  struct timespec delay;
+  int err = 0;
 #if (NXP_EXTNS == TRUE)
-    int ret = 0;
+  uint8_t rtask = 0;
+  (void)p_task_id;
+#endif
+  volatile int* p_run_cond = &gki_cb.os.no_timer_suspend;
+#if (NXP_EXTNS == TRUE)
+  int ret = 0;
 #endif
 #ifndef GKI_NO_TICK_STOP
-    /* register start stop function which disable timer loop in GKI_run() when no timers are
-     * in any GKI/BTA/BTU this should save power when BTLD is idle! */
-    GKI_timer_queue_register_callback( gki_system_tick_start_stop_cback );
-    APPL_TRACE_DEBUG0( "GKI_run(): Start/Stop GKI_timer_update_registered!" );
+  /* register start stop function which disable timer loop in GKI_run() when no
+   * timers are
+   * in any GKI/BTA/BTU this should save power when BTLD is idle! */
+  GKI_timer_queue_register_callback(gki_system_tick_start_stop_cback);
+  APPL_TRACE_DEBUG0("GKI_run(): Start/Stop GKI_timer_update_registered!");
 #endif
 
 #ifdef NO_GKI_RUN_RETURN
-    GKI_TRACE_0("GKI_run == NO_GKI_RUN_RETURN");
-    pthread_attr_t timer_attr;
+  GKI_TRACE_0("GKI_run == NO_GKI_RUN_RETURN");
+  pthread_attr_t timer_attr;
 
-    shutdown_timer = 0;
+  shutdown_timer = 0;
 
-    pthread_attr_init(&timer_attr);
-    pthread_attr_setdetachstate(&timer_attr, PTHREAD_CREATE_DETACHED);
+  pthread_attr_init(&timer_attr);
+  pthread_attr_setdetachstate(&timer_attr, PTHREAD_CREATE_DETACHED);
 #if (NXP_EXTNS == TRUE)
-    ret = pthread_create( &timer_thread_id,
-            &timer_attr,
-            timer_thread,
-            NULL);
-    pthread_attr_destroy(&timer_attr);
-    if (ret != 0)
+  ret = pthread_create(&timer_thread_id, &timer_attr, timer_thread, NULL);
+  pthread_attr_destroy(&timer_attr);
+  if (ret != 0)
 #else
-    if (pthread_create( &timer_thread_id,
-              &timer_attr,
-              timer_thread,
-              NULL) != 0 )
+  if (pthread_create(&timer_thread_id, &timer_attr, timer_thread, NULL) != 0)
 #endif
-    {
-        GKI_TRACE_0("GKI_run: pthread_create failed to create timer_thread!");
-        return GKI_FAILURE;
+  {
+    GKI_TRACE_0("GKI_run: pthread_create failed to create timer_thread!");
+    return GKI_FAILURE;
+  }
+#else
+  GKI_TRACE_2("GKI_run, run_cond(%x)=%d ", p_run_cond, *p_run_cond);
+#if (NXP_EXTNS == TRUE)
+  rtask = GKI_get_taskid();
+#endif
+  for (; GKI_TIMER_TICK_EXIT_COND != *p_run_cond;) {
+    do {
+      /* adjust hear bit tick in btld by changning TICKS_PER_SEC!!!!! this
+       * formula works only for
+       * 1-1000ms heart beat units! */
+      delay.tv_sec = LINUX_SEC / 1000;
+      delay.tv_nsec = 1000 * 1000 * (LINUX_SEC % 1000);
+
+      /* [u]sleep can't be used because it uses SIGALRM */
+      do {
+        err = nanosleep(&delay, &delay);
+      } while (err < 0 && errno == EINTR);
+
+      if (GKI_TIMER_TICK_RUN_COND != *p_run_cond) break;  // GKI has shutdown
+
+      /* the unit should be alsways 1 (1 tick). only if you vary for some reason
+       * heart beat tick
+       * e.g. power saving you may want to provide more ticks
+       */
+      GKI_timer_update(1);
+      /* BT_TRACE_2( TRACE_LAYER_HCI, TRACE_TYPE_DEBUG, "update: tv_sec: %d,
+       * tv_nsec: %d", delay.tv_sec, delay.tv_nsec ); */
+    } while (GKI_TIMER_TICK_RUN_COND == *p_run_cond);
+
+/* currently on reason to exit above loop is no_timer_suspend ==
+ * GKI_TIMER_TICK_STOP_COND
+ * block timer main thread till re-armed by  */
+#ifdef GKI_TICK_TIMER_DEBUG
+    BT_TRACE_0(TRACE_LAYER_HCI, TRACE_TYPE_DEBUG,
+               ">>> SUSPENDED GKI_timer_update()");
+#endif
+#if (NXP_EXTNS == TRUE)
+    if (gki_cb.com.OSRdyTbl[rtask] == TASK_DEAD) {
+      gki_cb.com.OSWaitEvt[rtask] = 0;
+      BT_TRACE_1(TRACE_LAYER_HCI, TRACE_TYPE_DEBUG,
+                 "GKI TASK_DEAD received. exit thread %d...", rtask);
+      gki_cb.os.thread_id[rtask] = 0;
     }
-#else
-    GKI_TRACE_2("GKI_run, run_cond(%x)=%d ", p_run_cond, *p_run_cond);
-#if(NXP_EXTNS == TRUE)
-    rtask = GKI_get_taskid();
 #endif
-    for (;GKI_TIMER_TICK_EXIT_COND != *p_run_cond;)
-    {
-        do
-        {
-            /* adjust hear bit tick in btld by changning TICKS_PER_SEC!!!!! this formula works only for
-             * 1-1000ms heart beat units! */
-            delay.tv_sec = LINUX_SEC / 1000;
-            delay.tv_nsec = 1000 * 1000 * (LINUX_SEC % 1000);
-
-            /* [u]sleep can't be used because it uses SIGALRM */
-            do
-            {
-                err = nanosleep(&delay, &delay);
-            } while (err < 0 && errno == EINTR);
-
-            if (GKI_TIMER_TICK_RUN_COND != *p_run_cond)
-                break; //GKI has shutdown
-
-            /* the unit should be alsways 1 (1 tick). only if you vary for some reason heart beat tick
-             * e.g. power saving you may want to provide more ticks
-             */
-            GKI_timer_update( 1 );
-            /* BT_TRACE_2( TRACE_LAYER_HCI, TRACE_TYPE_DEBUG, "update: tv_sec: %d, tv_nsec: %d", delay.tv_sec, delay.tv_nsec ); */
-        } while ( GKI_TIMER_TICK_RUN_COND == *p_run_cond);
-
-        /* currently on reason to exit above loop is no_timer_suspend == GKI_TIMER_TICK_STOP_COND
-         * block timer main thread till re-armed by  */
-#ifdef GKI_TICK_TIMER_DEBUG
-        BT_TRACE_0( TRACE_LAYER_HCI, TRACE_TYPE_DEBUG, ">>> SUSPENDED GKI_timer_update()" );
-#endif
-#if(NXP_EXTNS == TRUE)
-        if (gki_cb.com.OSRdyTbl[rtask] == TASK_DEAD)
-        {
-            gki_cb.com.OSWaitEvt[rtask] = 0;
-            BT_TRACE_1( TRACE_LAYER_HCI, TRACE_TYPE_DEBUG, "GKI TASK_DEAD received. exit thread %d...", rtask );
-            gki_cb.os.thread_id[rtask] = 0;
-        }
-#endif
-        if (GKI_TIMER_TICK_EXIT_COND != *p_run_cond) {
-            GKI_TRACE_1("%s waiting timer mutex", __func__);
-            pthread_mutex_lock( &gki_cb.os.gki_timer_mutex );
-            pthread_cond_wait( &gki_cb.os.gki_timer_cond, &gki_cb.os.gki_timer_mutex );
-            pthread_mutex_unlock( &gki_cb.os.gki_timer_mutex );
-            GKI_TRACE_1("%s exited timer mutex", __func__);
-        }
-        /* potentially we need to adjust os gki_cb.com.OSTicks */
+    if (GKI_TIMER_TICK_EXIT_COND != *p_run_cond) {
+      GKI_TRACE_1("%s waiting timer mutex", __func__);
+      pthread_mutex_lock(&gki_cb.os.gki_timer_mutex);
+      pthread_cond_wait(&gki_cb.os.gki_timer_cond, &gki_cb.os.gki_timer_mutex);
+      pthread_mutex_unlock(&gki_cb.os.gki_timer_mutex);
+      GKI_TRACE_1("%s exited timer mutex", __func__);
+    }
+/* potentially we need to adjust os gki_cb.com.OSTicks */
 
 #ifdef GKI_TICK_TIMER_DEBUG
-        BT_TRACE_1( TRACE_LAYER_HCI, TRACE_TYPE_DEBUG, ">>> RESTARTED GKI_timer_update(): run_cond: %d",
-                    *p_run_cond );
+    BT_TRACE_1(TRACE_LAYER_HCI, TRACE_TYPE_DEBUG,
+               ">>> RESTARTED GKI_timer_update(): run_cond: %d", *p_run_cond);
 #endif
-    } /* for */
+  } /* for */
 #endif
-    GKI_TRACE_1("%s exit", __func__);
+  GKI_TRACE_1("%s exit", __func__);
 }
-
 
 /*******************************************************************************
 **
@@ -625,22 +598,18 @@ void GKI_run (void *p_task_id)
 **                  put specific code here.
 **
 *******************************************************************************/
-void GKI_stop (void)
-{
-    UINT8 task_id;
+void GKI_stop(void) {
+  uint8_t task_id;
 
-    /*  gki_queue_timer_cback(FALSE); */
-    /* TODO - add code here if needed*/
+  /*  gki_queue_timer_cback(false); */
+  /* TODO - add code here if needed*/
 
-    for(task_id = 0; task_id<GKI_MAX_TASKS; task_id++)
-    {
-        if(gki_cb.com.OSRdyTbl[task_id] != TASK_DEAD)
-        {
-            GKI_exit_task(task_id);
-        }
+  for (task_id = 0; task_id < GKI_MAX_TASKS; task_id++) {
+    if (gki_cb.com.OSRdyTbl[task_id] != TASK_DEAD) {
+      GKI_exit_task(task_id);
     }
+  }
 }
-
 
 /*******************************************************************************
 **
@@ -658,37 +627,39 @@ void GKI_stop (void)
 ** Returns          the event mask of received events or zero if timeout
 **
 *******************************************************************************/
-UINT16 GKI_wait (UINT16 flag, UINT32 timeout)
-{
-    UINT16 evt;
-    UINT8 rtask;
-    struct timespec abstime = { 0, 0 };
-    int sec;
-    int nano_sec;
+uint16_t GKI_wait(uint16_t flag, uint32_t timeout) {
+  uint16_t evt;
+  uint8_t rtask;
+  struct timespec abstime = {0, 0};
+  int sec;
+  int nano_sec;
 
-    rtask = GKI_get_taskid();
-    GKI_TRACE_3("GKI_wait %d %x %d", rtask, flag, timeout);
-    if (rtask >= GKI_MAX_TASKS) {
-        pthread_exit(NULL);
-        return 0;
-    }
+  rtask = GKI_get_taskid();
+  GKI_TRACE_3("GKI_wait %d %x %d", rtask, flag, timeout);
+  if (rtask >= GKI_MAX_TASKS) {
+    GKI_TRACE_ERROR_3("%s() Exiting thread; rtask %d >= %d", __func__, rtask,
+                      GKI_MAX_TASKS);
+    return EVENT_MASK(GKI_SHUTDOWN_EVT);
+  }
 
-    gki_pthread_info_t* p_pthread_info = &gki_pthread_info[rtask];
-    if (p_pthread_info->pCond != NULL && p_pthread_info->pMutex != NULL) {
-        int ret;
-        GKI_TRACE_3("GKI_wait task=%i, pCond/pMutex = %x/%x", rtask, p_pthread_info->pCond, p_pthread_info->pMutex);
-        ret = pthread_mutex_lock(p_pthread_info->pMutex);
-        ret = pthread_cond_signal(p_pthread_info->pCond);
-        ret = pthread_mutex_unlock(p_pthread_info->pMutex);
-        p_pthread_info->pMutex = NULL;
-        p_pthread_info->pCond = NULL;
-    }
-    gki_cb.com.OSWaitForEvt[rtask] = flag;
+  gki_pthread_info_t* p_pthread_info = &gki_pthread_info[rtask];
+  if (p_pthread_info->pCond != NULL && p_pthread_info->pMutex != NULL) {
+    int ret;
+    GKI_TRACE_3("GKI_wait task=%i, pCond/pMutex = %x/%x", rtask,
+                p_pthread_info->pCond, p_pthread_info->pMutex);
+    ret = pthread_mutex_lock(p_pthread_info->pMutex);
+    ret = pthread_cond_signal(p_pthread_info->pCond);
+    ret = pthread_mutex_unlock(p_pthread_info->pMutex);
+    p_pthread_info->pMutex = NULL;
+    p_pthread_info->pCond = NULL;
+  }
+  gki_cb.com.OSWaitForEvt[rtask] = flag;
 
-    /* protect OSWaitEvt[rtask] from modification from an other thread */
-    pthread_mutex_lock(&gki_cb.os.thread_evt_mutex[rtask]);
+  /* protect OSWaitEvt[rtask] from modification from an other thread */
+  pthread_mutex_lock(&gki_cb.os.thread_evt_mutex[rtask]);
 
-#if 0 /* for clean scheduling we probably should always call pthread_cond_wait() */
+#if 0 /* for clean scheduling we probably should always call \
+         pthread_cond_wait() */
     /* Check if anything in any of the mailboxes. There is a potential race condition where OSTaskQFirst[rtask]
      has been modified. however this should only result in addtional call to  pthread_cond_wait() but as
      the cond is met, it will exit immediately (depending on schedulling) */
@@ -702,88 +673,89 @@ UINT16 GKI_wait (UINT16 flag, UINT32 timeout)
     gki_cb.com.OSWaitEvt[rtask] |= TASK_MBOX_3_EVT_MASK;
 #endif
 
-    if (!(gki_cb.com.OSWaitEvt[rtask] & flag))
-    {
-        if (timeout)
-        {
-            //            timeout = GKI_MS_TO_TICKS(timeout);     /* convert from milliseconds to ticks */
+  if (!(gki_cb.com.OSWaitEvt[rtask] & flag)) {
+    if (timeout) {
+      //            timeout = GKI_MS_TO_TICKS(timeout);     /* convert from
+      //            milliseconds to ticks */
 
-            /* get current system time */
-            //            clock_gettime(CLOCK_MONOTONIC, &currSysTime);
-            //            abstime.tv_sec = currSysTime.time;
-            //            abstime.tv_nsec = NANOSEC_PER_MILLISEC * currSysTime.millitm;
-            clock_gettime(CLOCK_MONOTONIC, &abstime);
+      /* get current system time */
+      //            clock_gettime(CLOCK_MONOTONIC, &currSysTime);
+      //            abstime.tv_sec = currSysTime.time;
+      //            abstime.tv_nsec = NANOSEC_PER_MILLISEC *
+      //            currSysTime.millitm;
+      clock_gettime(CLOCK_MONOTONIC, &abstime);
 
-            /* add timeout */
-            sec = timeout / 1000;
-            nano_sec = (timeout % 1000) * NANOSEC_PER_MILLISEC;
-            abstime.tv_nsec += nano_sec;
-            if (abstime.tv_nsec > NSEC_PER_SEC)
-            {
-                abstime.tv_sec += (abstime.tv_nsec / NSEC_PER_SEC);
-                abstime.tv_nsec = abstime.tv_nsec % NSEC_PER_SEC;
-            }
-            abstime.tv_sec += sec;
+      /* add timeout */
+      sec = timeout / 1000;
+      nano_sec = (timeout % 1000) * NANOSEC_PER_MILLISEC;
+      abstime.tv_nsec += nano_sec;
+      if (abstime.tv_nsec > NSEC_PER_SEC) {
+        abstime.tv_sec += (abstime.tv_nsec / NSEC_PER_SEC);
+        abstime.tv_nsec = abstime.tv_nsec % NSEC_PER_SEC;
+      }
+      abstime.tv_sec += sec;
 
-            pthread_cond_timedwait(&gki_cb.os.thread_evt_cond[rtask],
-                    &gki_cb.os.thread_evt_mutex[rtask], &abstime);
+      pthread_cond_timedwait(&gki_cb.os.thread_evt_cond[rtask],
+                             &gki_cb.os.thread_evt_mutex[rtask], &abstime);
 
-        }
-        else
-        {
-            pthread_cond_wait(&gki_cb.os.thread_evt_cond[rtask], &gki_cb.os.thread_evt_mutex[rtask]);
-        }
-
-        /* TODO: check, this is probably neither not needed depending on phtread_cond_wait() implementation,
-         e.g. it looks like it is implemented as a counter in which case multiple cond_signal
-         should NOT be lost! */
-        // we are waking up after waiting for some events, so refresh variables
-        // no need to call GKI_disable() here as we know that we will have some events as we've been waking up after condition pending or timeout
-        if (gki_cb.com.OSTaskQFirst[rtask][0])
-            gki_cb.com.OSWaitEvt[rtask] |= TASK_MBOX_0_EVT_MASK;
-        if (gki_cb.com.OSTaskQFirst[rtask][1])
-            gki_cb.com.OSWaitEvt[rtask] |= TASK_MBOX_1_EVT_MASK;
-        if (gki_cb.com.OSTaskQFirst[rtask][2])
-            gki_cb.com.OSWaitEvt[rtask] |= TASK_MBOX_2_EVT_MASK;
-        if (gki_cb.com.OSTaskQFirst[rtask][3])
-            gki_cb.com.OSWaitEvt[rtask] |= TASK_MBOX_3_EVT_MASK;
-
-        if (gki_cb.com.OSRdyTbl[rtask] == TASK_DEAD)
-        {
-            gki_cb.com.OSWaitEvt[rtask] = 0;
-            /* unlock thread_evt_mutex as pthread_cond_wait() does auto lock when cond is met */
-            pthread_mutex_unlock(&gki_cb.os.thread_evt_mutex[rtask]);
-            BT_TRACE_1( TRACE_LAYER_HCI, TRACE_TYPE_DEBUG, "GKI TASK_DEAD received. exit thread %d...", rtask );
-
-            gki_cb.os.thread_id[rtask] = 0;
-            pthread_exit(NULL);
-            return (EVENT_MASK(GKI_SHUTDOWN_EVT));
-        }
+    } else {
+      pthread_cond_wait(&gki_cb.os.thread_evt_cond[rtask],
+                        &gki_cb.os.thread_evt_mutex[rtask]);
     }
 
-    /* Clear the wait for event mask */
-    gki_cb.com.OSWaitForEvt[rtask] = 0;
+    /* TODO: check, this is probably neither not needed depending on
+     phtread_cond_wait() implementation,
+     e.g. it looks like it is implemented as a counter in which case multiple
+     cond_signal
+     should NOT be lost! */
+    // we are waking up after waiting for some events, so refresh variables
+    // no need to call GKI_disable() here as we know that we will have some
+    // events as we've been waking up after condition pending or timeout
+    if (gki_cb.com.OSTaskQFirst[rtask][0])
+      gki_cb.com.OSWaitEvt[rtask] |= TASK_MBOX_0_EVT_MASK;
+    if (gki_cb.com.OSTaskQFirst[rtask][1])
+      gki_cb.com.OSWaitEvt[rtask] |= TASK_MBOX_1_EVT_MASK;
+    if (gki_cb.com.OSTaskQFirst[rtask][2])
+      gki_cb.com.OSWaitEvt[rtask] |= TASK_MBOX_2_EVT_MASK;
+    if (gki_cb.com.OSTaskQFirst[rtask][3])
+      gki_cb.com.OSWaitEvt[rtask] |= TASK_MBOX_3_EVT_MASK;
 
-    /* Return only those bits which user wants... */
-    evt = gki_cb.com.OSWaitEvt[rtask] & flag;
+    if (gki_cb.com.OSRdyTbl[rtask] == TASK_DEAD) {
+      gki_cb.com.OSWaitEvt[rtask] = 0;
+      /* unlock thread_evt_mutex as pthread_cond_wait() does auto lock when cond
+       * is met */
+      pthread_mutex_unlock(&gki_cb.os.thread_evt_mutex[rtask]);
+      GKI_TRACE_ERROR_1("GKI TASK_DEAD received. exit thread %d...", rtask);
 
-    /* Clear only those bits which user wants... */
-    gki_cb.com.OSWaitEvt[rtask] &= ~flag;
+      gki_cb.os.thread_id[rtask] = 0;
+      return (EVENT_MASK(GKI_SHUTDOWN_EVT));
+    }
+  }
 
-    /* unlock thread_evt_mutex as pthread_cond_wait() does auto lock mutex when cond is met */
-    pthread_mutex_unlock(&gki_cb.os.thread_evt_mutex[rtask]);
-    GKI_TRACE_4("GKI_wait %d %x %d %x resumed", rtask, flag, timeout, evt);
+  /* Clear the wait for event mask */
+  gki_cb.com.OSWaitForEvt[rtask] = 0;
 
-    return (evt);
+  /* Return only those bits which user wants... */
+  evt = gki_cb.com.OSWaitEvt[rtask] & flag;
+
+  /* Clear only those bits which user wants... */
+  gki_cb.com.OSWaitEvt[rtask] &= ~flag;
+
+  /* unlock thread_evt_mutex as pthread_cond_wait() does auto lock mutex when
+   * cond is met */
+  pthread_mutex_unlock(&gki_cb.os.thread_evt_mutex[rtask]);
+  GKI_TRACE_4("GKI_wait %d %x %d %x resumed", rtask, flag, timeout, evt);
+
+  return (evt);
 }
-
 
 /*******************************************************************************
 **
 ** Function         GKI_delay
 **
 ** Description      This function is called by tasks to sleep unconditionally
-**                  for a specified amount of time. The duration is in milliseconds
+**                  for a specified amount of time. The duration is in
+**                  milliseconds
 **
 ** Parameters:      timeout -    (input) the duration in milliseconds
 **
@@ -791,36 +763,33 @@ UINT16 GKI_wait (UINT16 flag, UINT32 timeout)
 **
 *******************************************************************************/
 
-void GKI_delay (UINT32 timeout)
-{
-    UINT8 rtask = GKI_get_taskid();
-    struct timespec delay;
-    int err;
+void GKI_delay(uint32_t timeout) {
+  uint8_t rtask = GKI_get_taskid();
+  struct timespec delay;
+  int err;
 
-    GKI_TRACE_2("GKI_delay %d %d", rtask, timeout);
+  GKI_TRACE_2("GKI_delay %d %d", rtask, timeout);
 
-    delay.tv_sec = timeout / 1000;
-    delay.tv_nsec = 1000 * 1000 * (timeout%1000);
+  delay.tv_sec = timeout / 1000;
+  delay.tv_nsec = 1000 * 1000 * (timeout % 1000);
 
-    /* [u]sleep can't be used because it uses SIGALRM */
+  /* [u]sleep can't be used because it uses SIGALRM */
 
-    do {
-        err = nanosleep(&delay, &delay);
-    } while (err < 0 && errno ==EINTR);
+  do {
+    err = nanosleep(&delay, &delay);
+  } while (err < 0 && errno == EINTR);
 
-    /* Check if task was killed while sleeping */
-    /* NOTE
-    **      if you do not implement task killing, you do not
-    **      need this check.
-    */
-    if (rtask && gki_cb.com.OSRdyTbl[rtask] == TASK_DEAD)
-    {
-    }
+  /* Check if task was killed while sleeping */
+  /* NOTE
+  **      if you do not implement task killing, you do not
+  **      need this check.
+  */
+  if (rtask && gki_cb.com.OSRdyTbl[rtask] == TASK_DEAD) {
+  }
 
-    GKI_TRACE_2("GKI_delay %d %d done", rtask, timeout);
-    return;
+  GKI_TRACE_2("GKI_delay %d %d done", rtask, timeout);
+  return;
 }
-
 
 /*******************************************************************************
 **
@@ -829,45 +798,43 @@ void GKI_delay (UINT32 timeout)
 ** Description      This function is called by tasks to send events to other
 **                  tasks. Tasks can also send events to themselves.
 **
-** Parameters:      task_id -  (input) The id of the task to which the event has to
-**                  be sent
+** Parameters:      task_id -  (input) The id of the task to which the event has
+**                                     to be sent
 **                  event   -  (input) The event that has to be sent
 **
 **
 ** Returns          GKI_SUCCESS if all OK, else GKI_FAILURE
 **
 *******************************************************************************/
-UINT8 GKI_send_event (UINT8 task_id, UINT16 event)
-{
-    GKI_TRACE_2("GKI_send_event %d %x", task_id, event);
+uint8_t GKI_send_event(uint8_t task_id, uint16_t event) {
+  GKI_TRACE_2("GKI_send_event %d %x", task_id, event);
 
-    /* use efficient coding to avoid pipeline stalls */
-    if (task_id < GKI_MAX_TASKS)
-    {
-        /* protect OSWaitEvt[task_id] from manipulation in GKI_wait() */
-        pthread_mutex_lock(&gki_cb.os.thread_evt_mutex[task_id]);
+  /* use efficient coding to avoid pipeline stalls */
+  if (task_id < GKI_MAX_TASKS) {
+    /* protect OSWaitEvt[task_id] from manipulation in GKI_wait() */
+    pthread_mutex_lock(&gki_cb.os.thread_evt_mutex[task_id]);
 
-        /* Set the event bit */
-        gki_cb.com.OSWaitEvt[task_id] |= event;
+    /* Set the event bit */
+    gki_cb.com.OSWaitEvt[task_id] |= event;
 
-        pthread_cond_signal(&gki_cb.os.thread_evt_cond[task_id]);
+    pthread_cond_signal(&gki_cb.os.thread_evt_cond[task_id]);
 
-        pthread_mutex_unlock(&gki_cb.os.thread_evt_mutex[task_id]);
+    pthread_mutex_unlock(&gki_cb.os.thread_evt_mutex[task_id]);
 
-        GKI_TRACE_2("GKI_send_event %d %x done", task_id, event);
-        return ( GKI_SUCCESS );
-    }
-    return (GKI_FAILURE);
+    GKI_TRACE_2("GKI_send_event %d %x done", task_id, event);
+    return (GKI_SUCCESS);
+  }
+  return (GKI_FAILURE);
 }
-
 
 /*******************************************************************************
 **
 ** Function         GKI_isend_event
 **
 ** Description      This function is called from ISRs to send events to other
-**                  tasks. The only difference between this function and GKI_send_event
-**                  is that this function assumes interrupts are already disabled.
+**                  tasks. The only difference between this function and
+**                  GKI_send_event is that this function assumes interrupts are
+**                  already disabled.
 **
 ** Parameters:      task_id -  (input) The destination task Id for the event.
 **                  event   -  (input) The event flag
@@ -880,14 +847,11 @@ UINT8 GKI_send_event (UINT8 task_id, UINT16 event)
 **                  body of the function.
 **
 *******************************************************************************/
-UINT8 GKI_isend_event (UINT8 task_id, UINT16 event)
-{
-
-    GKI_TRACE_2("GKI_isend_event %d %x", task_id, event);
-    GKI_TRACE_2("GKI_isend_event %d %x done", task_id, event);
-    return    GKI_send_event(task_id, event);
+uint8_t GKI_isend_event(uint8_t task_id, uint16_t event) {
+  GKI_TRACE_2("GKI_isend_event %d %x", task_id, event);
+  GKI_TRACE_2("GKI_isend_event %d %x done", task_id, event);
+  return GKI_send_event(task_id, event);
 }
-
 
 /*******************************************************************************
 **
@@ -897,36 +861,35 @@ UINT8 GKI_isend_event (UINT8 task_id, UINT16 event)
 **
 ** Returns          task ID
 **
-** NOTE             The Widcomm upper stack and profiles may run as a single task.
-**                  If you only have one GKI task, then you can hard-code this
-**                  function to return a '1'. Otherwise, you should have some
-**                  OS-specific method to determine the current task.
+** NOTE             The Widcomm upper stack and profiles may run as a single
+**                  task. If you only have one GKI task, then you can hard-code
+**                  this function to return a '1'. Otherwise, you should have
+**                  some OS-specific method to determine the current task.
 **
 *******************************************************************************/
-UINT8 GKI_get_taskid (void)
-{
-    int i;
+uint8_t GKI_get_taskid(void) {
+  int i;
 
-    pthread_t thread_id = pthread_self( );
-    for (i = 0; i < GKI_MAX_TASKS; i++) {
-        if (gki_cb.os.thread_id[i] == thread_id) {
-            GKI_TRACE_2("GKI_get_taskid %x %d done", thread_id, i);
-            return(i);
-        }
+  pthread_t thread_id = pthread_self();
+  for (i = 0; i < GKI_MAX_TASKS; i++) {
+    if (gki_cb.os.thread_id[i] == thread_id) {
+      GKI_TRACE_2("GKI_get_taskid %x %d done", thread_id, i);
+      return (i);
     }
+  }
 
-    GKI_TRACE_1("GKI_get_taskid: thread id = %x, task id = -1", thread_id);
+  GKI_TRACE_1("GKI_get_taskid: thread id = %x, task id = -1", thread_id);
 
-    return(-1);
+  return (-1);
 }
 
 /*******************************************************************************
 **
 ** Function         GKI_map_taskname
 **
-** Description      This function gets the task name of the taskid passed as arg.
-**                  If GKI_MAX_TASKS is passed as arg the currently running task
-**                  name is returned
+** Description      This function gets the task name of the taskid passed as
+**                  arg. If GKI_MAX_TASKS is passed as arg the currently running
+**                  task name is returned
 **
 ** Parameters:      task_id -  (input) The id of the task whose name is being
 **                  sought. GKI_MAX_TASKS is passed to get the name of the
@@ -937,25 +900,19 @@ UINT8 GKI_get_taskid (void)
 ** NOTE             this function needs no customization
 **
 *******************************************************************************/
-INT8 *GKI_map_taskname (UINT8 task_id)
-{
-    GKI_TRACE_1("GKI_map_taskname %d", task_id);
+int8_t* GKI_map_taskname(uint8_t task_id) {
+  GKI_TRACE_1("GKI_map_taskname %d", task_id);
 
-    if (task_id < GKI_MAX_TASKS)
-    {
-        GKI_TRACE_2("GKI_map_taskname %d %s done", task_id, gki_cb.com.OSTName[task_id]);
-         return (gki_cb.com.OSTName[task_id]);
-    }
-    else if (task_id == GKI_MAX_TASKS )
-    {
-        return (gki_cb.com.OSTName[GKI_get_taskid()]);
-    }
-    else
-    {
-        return (INT8*) "BAD";
-    }
+  if (task_id < GKI_MAX_TASKS) {
+    GKI_TRACE_2("GKI_map_taskname %d %s done", task_id,
+                gki_cb.com.OSTName[task_id]);
+    return (gki_cb.com.OSTName[task_id]);
+  } else if (task_id == GKI_MAX_TASKS) {
+    return (gki_cb.com.OSTName[GKI_get_taskid()]);
+  } else {
+    return (int8_t*)"BAD";
+  }
 }
-
 
 /*******************************************************************************
 **
@@ -966,15 +923,14 @@ INT8 *GKI_map_taskname (UINT8 task_id)
 ** Returns          void
 **
 *******************************************************************************/
-void GKI_enable (void)
-{
-    GKI_TRACE_0("GKI_enable");
-    pthread_mutex_unlock(&gki_cb.os.GKI_mutex);
-/*  pthread_mutex_xx is nesting save, no need for this: already_disabled = 0; */
-    GKI_TRACE_0("Leaving GKI_enable");
-    return;
+void GKI_enable(void) {
+  GKI_TRACE_0("GKI_enable");
+  pthread_mutex_unlock(&gki_cb.os.GKI_mutex);
+  /*  pthread_mutex_xx is nesting save, no need for this: already_disabled = 0;
+   */
+  GKI_TRACE_0("Leaving GKI_enable");
+  return;
 }
-
 
 /*******************************************************************************
 **
@@ -986,18 +942,17 @@ void GKI_enable (void)
 **
 *******************************************************************************/
 
-void GKI_disable (void)
-{
-    //GKI_TRACE_0("GKI_disable");
+void GKI_disable(void) {
+  // GKI_TRACE_0("GKI_disable");
 
-/*  pthread_mutex_xx is nesting save, no need for this: if (!already_disabled) {
-    already_disabled = 1; */
-            pthread_mutex_lock(&gki_cb.os.GKI_mutex);
-/*  } */
-    //GKI_TRACE_0("Leaving GKI_disable");
-    return;
+  /*  pthread_mutex_xx is nesting save, no need for this: if (!already_disabled)
+     {
+      already_disabled = 1; */
+  pthread_mutex_lock(&gki_cb.os.GKI_mutex);
+  /*  } */
+  // GKI_TRACE_0("Leaving GKI_disable");
+  return;
 }
-
 
 /*******************************************************************************
 **
@@ -1013,48 +968,44 @@ void GKI_disable (void)
 **
 *******************************************************************************/
 
-void GKI_exception (UINT16 code, char *msg)
-{
-    UINT8 task_id;
-    int i = 0;
+void GKI_exception(uint16_t code, char* msg) {
+  uint8_t task_id;
+  int i = 0;
 
-    GKI_TRACE_ERROR_0( "GKI_exception(): Task State Table");
+  GKI_TRACE_ERROR_0("GKI_exception(): Task State Table");
 
-    for(task_id = 0; task_id < GKI_MAX_TASKS; task_id++)
-    {
-        GKI_TRACE_ERROR_3( "TASK ID [%d] task name [%s] state [%d]",
-                         task_id,
-                         gki_cb.com.OSTName[task_id],
-                         gki_cb.com.OSRdyTbl[task_id]);
-    }
+  for (task_id = 0; task_id < GKI_MAX_TASKS; task_id++) {
+    GKI_TRACE_ERROR_3("TASK ID [%d] task name [%s] state [%d]", task_id,
+                      gki_cb.com.OSTName[task_id],
+                      gki_cb.com.OSRdyTbl[task_id]);
+  }
 
-    GKI_TRACE_ERROR_2("GKI_exception %d %s", code, msg);
-    GKI_TRACE_ERROR_0( "********************************************************************");
-    GKI_TRACE_ERROR_2( "* GKI_exception(): %d %s", code, msg);
-    GKI_TRACE_ERROR_0( "********************************************************************");
+  GKI_TRACE_ERROR_2("GKI_exception %d %s", code, msg);
+  GKI_TRACE_ERROR_0(
+      "********************************************************************");
+  GKI_TRACE_ERROR_2("* GKI_exception(): %d %s", code, msg);
+  GKI_TRACE_ERROR_0(
+      "********************************************************************");
 
-#if (GKI_DEBUG == TRUE)
-    GKI_disable();
+#if (GKI_DEBUG == true)
+  GKI_disable();
 
-    if (gki_cb.com.ExceptionCnt < GKI_MAX_EXCEPTION)
-    {
-        EXCEPTION_T *pExp;
+  if (gki_cb.com.ExceptionCnt < GKI_MAX_EXCEPTION) {
+    EXCEPTION_T* pExp;
 
-        pExp =  &gki_cb.com.Exception[gki_cb.com.ExceptionCnt++];
-        pExp->type = code;
-        pExp->taskid = GKI_get_taskid();
-        strncpy((char *)pExp->msg, msg, GKI_MAX_EXCEPTION_MSGLEN - 1);
-    }
+    pExp = &gki_cb.com.Exception[gki_cb.com.ExceptionCnt++];
+    pExp->type = code;
+    pExp->taskid = GKI_get_taskid();
+    strncpy((char*)pExp->msg, msg, GKI_MAX_EXCEPTION_MSGLEN - 1);
+  }
 
-    GKI_enable();
+  GKI_enable();
 #endif
 
-    GKI_TRACE_ERROR_2("GKI_exception %d %s done", code, msg);
+  GKI_TRACE_ERROR_2("GKI_exception %d %s done", code, msg);
 
-
-    return;
+  return;
 }
-
 
 /*******************************************************************************
 **
@@ -1071,41 +1022,39 @@ void GKI_exception (UINT16 code, char *msg)
 ** NOTE             This function is only called by OBEX.
 **
 *******************************************************************************/
-INT8 *GKI_get_time_stamp (INT8 *tbuf)
-{
-    UINT32 ms_time;
-    UINT32 s_time;
-    UINT32 m_time;
-    UINT32 h_time;
-    INT8   *p_out = tbuf;
+int8_t* GKI_get_time_stamp(int8_t* tbuf) {
+  uint32_t ms_time;
+  uint32_t s_time;
+  uint32_t m_time;
+  uint32_t h_time;
+  int8_t* p_out = tbuf;
 
-    gki_cb.com.OSTicks = (UINT32) times(&buffer);
-    ms_time = GKI_TICKS_TO_MS(gki_cb.com.OSTicks);
-    s_time  = ms_time/100;   /* 100 Ticks per second */
-    m_time  = s_time/60;
-    h_time  = m_time/60;
+  gki_cb.com.OSTicks = (uint32_t)times(&buffer);
+  ms_time = GKI_TICKS_TO_MS(gki_cb.com.OSTicks);
+  s_time = ms_time / 100; /* 100 Ticks per second */
+  m_time = s_time / 60;
+  h_time = m_time / 60;
 
-    ms_time -= s_time*100;
-    s_time  -= m_time*60;
-    m_time  -= h_time*60;
+  ms_time -= s_time * 100;
+  s_time -= m_time * 60;
+  m_time -= h_time * 60;
 
-    *p_out++ = (INT8)((h_time / 10) + '0');
-    *p_out++ = (INT8)((h_time % 10) + '0');
-    *p_out++ = ':';
-    *p_out++ = (INT8)((m_time / 10) + '0');
-    *p_out++ = (INT8)((m_time % 10) + '0');
-    *p_out++ = ':';
-    *p_out++ = (INT8)((s_time / 10) + '0');
-    *p_out++ = (INT8)((s_time % 10) + '0');
-    *p_out++ = ':';
-    *p_out++ = (INT8)((ms_time / 10) + '0');
-    *p_out++ = (INT8)((ms_time % 10) + '0');
-    *p_out++ = ':';
-    *p_out   = 0;
+  *p_out++ = (int8_t)((h_time / 10) + '0');
+  *p_out++ = (int8_t)((h_time % 10) + '0');
+  *p_out++ = ':';
+  *p_out++ = (int8_t)((m_time / 10) + '0');
+  *p_out++ = (int8_t)((m_time % 10) + '0');
+  *p_out++ = ':';
+  *p_out++ = (int8_t)((s_time / 10) + '0');
+  *p_out++ = (int8_t)((s_time % 10) + '0');
+  *p_out++ = ':';
+  *p_out++ = (int8_t)((ms_time / 10) + '0');
+  *p_out++ = (int8_t)((ms_time % 10) + '0');
+  *p_out++ = ':';
+  *p_out = 0;
 
-    return (tbuf);
+  return (tbuf);
 }
-
 
 /*******************************************************************************
 **
@@ -1122,11 +1071,10 @@ INT8 *GKI_get_time_stamp (INT8 *tbuf)
 **                  can tell GKI the pool to use by calling this function.
 **
 *******************************************************************************/
-void GKI_register_mempool (void *p_mem)
-{
-    gki_cb.com.p_user_mempool = p_mem;
+void GKI_register_mempool(void* p_mem) {
+  gki_cb.com.p_user_mempool = p_mem;
 
-    return;
+  return;
 }
 
 /*******************************************************************************
@@ -1141,13 +1089,10 @@ void GKI_register_mempool (void *p_mem)
 ** Returns          the address of the memory allocated, or NULL if failed
 **
 ** NOTE             This function is called by the Widcomm stack when
-**                  dynamic memory allocation is used. (see dyn_mem.h)
+**                  dynamic memory allocation is used.
 **
 *******************************************************************************/
-void *GKI_os_malloc (UINT32 size)
-{
-    return (malloc(size));
-}
+void* GKI_os_malloc(uint32_t size) { return (malloc(size)); }
 
 /*******************************************************************************
 **
@@ -1164,13 +1109,10 @@ void *GKI_os_malloc (UINT32 size)
 **                  profiles. It is only called from within GKI if dynamic
 **
 *******************************************************************************/
-void GKI_os_free (void *p_mem)
-{
-    if(p_mem != NULL)
-        free(p_mem);
-    return;
+void GKI_os_free(void* p_mem) {
+  if (p_mem != NULL) free(p_mem);
+  return;
 }
-
 
 /*******************************************************************************
 **
@@ -1183,21 +1125,18 @@ void GKI_os_free (void *p_mem)
 ** Returns          GKI_SUCCESS if all OK, else GKI_FAILURE
 **
 ** NOTE             This function is NOT called by the Widcomm stack and
-**                  profiles. If you want to implement task suspension capability,
-**                  put specific code here.
+**                  profiles. If you want to implement task suspension
+**                  capability, put specific code here.
 **
 *******************************************************************************/
-UINT8 GKI_suspend_task (UINT8 task_id)
-{
-    (void)task_id;
-    GKI_TRACE_1("GKI_suspend_task %d - NOT implemented", task_id);
+uint8_t GKI_suspend_task(uint8_t task_id) {
+  (void)task_id;
+  GKI_TRACE_1("GKI_suspend_task %d - NOT implemented", task_id);
 
+  GKI_TRACE_1("GKI_suspend_task %d done", task_id);
 
-    GKI_TRACE_1("GKI_suspend_task %d done", task_id);
-
-    return (GKI_SUCCESS);
+  return (GKI_SUCCESS);
 }
-
 
 /*******************************************************************************
 **
@@ -1210,22 +1149,19 @@ UINT8 GKI_suspend_task (UINT8 task_id)
 ** Returns          GKI_SUCCESS if all OK
 **
 ** NOTE             This function is NOT called by the Widcomm stack and
-**                  profiles. If you want to implement task suspension capability,
-**                  put specific code here.
+**                  profiles. If you want to implement task suspension
+**                  capability, put specific code here.
 **
 *******************************************************************************/
-UINT8 GKI_resume_task (UINT8 task_id)
-{
-    (void)task_id;
+uint8_t GKI_resume_task(uint8_t task_id) {
+  (void)task_id;
 
-    GKI_TRACE_1("GKI_resume_task %d - NOT implemented", task_id);
+  GKI_TRACE_1("GKI_resume_task %d - NOT implemented", task_id);
 
+  GKI_TRACE_1("GKI_resume_task %d done", task_id);
 
-    GKI_TRACE_1("GKI_resume_task %d done", task_id);
-
-    return (GKI_SUCCESS);
+  return (GKI_SUCCESS);
 }
-
 
 /*******************************************************************************
 **
@@ -1242,25 +1178,23 @@ UINT8 GKI_resume_task (UINT8 task_id)
 **                  put specific code here to kill a task.
 **
 *******************************************************************************/
-void GKI_exit_task (UINT8 task_id)
-{
-    GKI_disable();
-    gki_cb.com.OSRdyTbl[task_id] = TASK_DEAD;
+void GKI_exit_task(uint8_t task_id) {
+  GKI_disable();
+  gki_cb.com.OSRdyTbl[task_id] = TASK_DEAD;
 
-    /* Destroy mutex and condition variable objects */
-    pthread_mutex_destroy(&gki_cb.os.thread_evt_mutex[task_id]);
-    pthread_cond_destroy (&gki_cb.os.thread_evt_cond[task_id]);
-    pthread_mutex_destroy(&gki_cb.os.thread_timeout_mutex[task_id]);
-    pthread_cond_destroy (&gki_cb.os.thread_timeout_cond[task_id]);
+  /* Destroy mutex and condition variable objects */
+  pthread_mutex_destroy(&gki_cb.os.thread_evt_mutex[task_id]);
+  pthread_cond_destroy(&gki_cb.os.thread_evt_cond[task_id]);
+  pthread_mutex_destroy(&gki_cb.os.thread_timeout_mutex[task_id]);
+  pthread_cond_destroy(&gki_cb.os.thread_timeout_cond[task_id]);
 
-    GKI_enable();
+  GKI_enable();
 
-    //GKI_send_event(task_id, EVENT_MASK(GKI_SHUTDOWN_EVT));
+  // GKI_send_event(task_id, EVENT_MASK(GKI_SHUTDOWN_EVT));
 
-    GKI_TRACE_1("GKI_exit_task %d done", task_id);
-    return;
+  GKI_TRACE_1("GKI_exit_task %d done", task_id);
+  return;
 }
-
 
 /*******************************************************************************
 **
@@ -1276,19 +1210,18 @@ void GKI_exit_task (UINT8 task_id)
 **                  put code here to tell the OS to disable context switching.
 **
 *******************************************************************************/
-void GKI_sched_lock(void)
-{
-    GKI_TRACE_0("GKI_sched_lock");
-    GKI_disable ();
-    return;
+void GKI_sched_lock(void) {
+  GKI_TRACE_0("GKI_sched_lock");
+  GKI_disable();
+  return;
 }
-
 
 /*******************************************************************************
 **
 ** Function         GKI_sched_unlock
 **
-** Description      This function is called by tasks to enable scheduler switching.
+** Description      This function is called by tasks to enable scheduler
+**                  switching.
 **
 ** Returns          void
 **
@@ -1297,10 +1230,9 @@ void GKI_sched_lock(void)
 **                  put code here to tell the OS to re-enable context switching.
 **
 *******************************************************************************/
-void GKI_sched_unlock(void)
-{
-    GKI_TRACE_0("GKI_sched_unlock");
-    GKI_enable ();
+void GKI_sched_unlock(void) {
+  GKI_TRACE_0("GKI_sched_unlock");
+  GKI_enable();
 }
 
 /*******************************************************************************
@@ -1310,14 +1242,12 @@ void GKI_sched_unlock(void)
 ** Description      shift memory down (to make space to insert a record)
 **
 *******************************************************************************/
-void GKI_shiftdown (UINT8 *p_mem, UINT32 len, UINT32 shift_amount)
-{
-    register UINT8 *ps = p_mem + len - 1;
-    register UINT8 *pd = ps + shift_amount;
-    register UINT32 xx;
+void GKI_shiftdown(uint8_t* p_mem, uint32_t len, uint32_t shift_amount) {
+  register uint8_t* ps = p_mem + len - 1;
+  register uint8_t* pd = ps + shift_amount;
+  register uint32_t xx;
 
-    for (xx = 0; xx < len; xx++)
-        *pd-- = *ps--;
+  for (xx = 0; xx < len; xx++) *pd-- = *ps--;
 }
 
 /*******************************************************************************
@@ -1327,12 +1257,10 @@ void GKI_shiftdown (UINT8 *p_mem, UINT32 len, UINT32 shift_amount)
 ** Description      shift memory up (to delete a record)
 **
 *******************************************************************************/
-void GKI_shiftup (UINT8 *p_dest, UINT8 *p_src, UINT32 len)
-{
-    register UINT8 *ps = p_src;
-    register UINT8 *pd = p_dest;
-    register UINT32 xx;
+void GKI_shiftup(uint8_t* p_dest, uint8_t* p_src, uint32_t len) {
+  register uint8_t* ps = p_src;
+  register uint8_t* pd = p_dest;
+  register uint32_t xx;
 
-    for (xx = 0; xx < len; xx++)
-        *pd++ = *ps++;
+  for (xx = 0; xx < len; xx++) *pd++ = *ps++;
 }

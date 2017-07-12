@@ -34,49 +34,54 @@
  *  limitations under the License.
  *
  ******************************************************************************/
- /* Decode NFC packets and print them to ADB log.
- * If protocol decoder is not present, then decode packets into hex numbers.
- ******************************************************************************/
+/* Decode NFC packets and print them to ADB log.
+* If protocol decoder is not present, then decode packets into hex numbers.
+******************************************************************************/
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-
 #include "data_types.h"
+#include "nfc_types.h"
 
-
-#define DISP_NCI    ProtoDispAdapterDisplayNciPacket
-void ProtoDispAdapterDisplayNciPacket (UINT8* nciPacket, UINT16 nciPacketLen, BOOLEAN is_recv);
-void ProtoDispAdapterUseRawOutput (BOOLEAN isUseRaw);
-void ScrLog (UINT32 trace_set_mask, const char* fmt_str, ...);
-void LogMsg (UINT32 trace_set_mask, const char *fmt_str, ...);
-void LogMsg_0 (UINT32 trace_set_mask, const char *p_str);
-void LogMsg_1 (UINT32 trace_set_mask, const char *fmt_str, UINT32 p1);
-void LogMsg_2 (UINT32 trace_set_mask, const char *fmt_str, UINT32 p1, UINT32 p2);
-void LogMsg_3 (UINT32 trace_set_mask, const char *fmt_str, UINT32 p1, UINT32 p2, UINT32 p3);
-void LogMsg_4 (UINT32 trace_set_mask, const char *fmt_str, UINT32 p1, UINT32 p2, UINT32 p3, UINT32 p4);
-void LogMsg_5 (UINT32 trace_set_mask, const char *fmt_str, UINT32 p1, UINT32 p2, UINT32 p3, UINT32 p4, UINT32 p5);
-void LogMsg_6 (UINT32 trace_set_mask, const char *fmt_str, UINT32 p1, UINT32 p2, UINT32 p3, UINT32 p4, UINT32 p5, UINT32 p6);
-UINT8* scru_dump_hex (UINT8* p, char* pTitle, UINT32 len, UINT32 layer, UINT32 type);
+#define DISP_NCI ProtoDispAdapterDisplayNciPacket
+void ProtoDispAdapterDisplayNciPacket(uint8_t* nciPacket, uint16_t nciPacketLen,
+                                      bool is_recv);
+void ProtoDispAdapterUseRawOutput(bool isUseRaw);
+void ScrLog(uint32_t trace_set_mask, const char* fmt_str, ...);
+void LogMsg(uint32_t trace_set_mask, const char* fmt_str, ...);
+void LogMsg_0(uint32_t trace_set_mask, const char* p_str);
+void LogMsg_1(uint32_t trace_set_mask, const char* fmt_str, uintptr_t p1);
+void LogMsg_2(uint32_t trace_set_mask, const char* fmt_str, uintptr_t p1,
+              uintptr_t p2);
+void LogMsg_3(uint32_t trace_set_mask, const char* fmt_str, uintptr_t p1,
+              uintptr_t p2, uintptr_t p3);
+void LogMsg_4(uint32_t trace_set_mask, const char* fmt_str, uintptr_t p1,
+              uintptr_t p2, uintptr_t p3, uintptr_t p4);
+void LogMsg_5(uint32_t trace_set_mask, const char* fmt_str, uintptr_t p1,
+              uintptr_t p2, uintptr_t p3, uintptr_t p4, uintptr_t p5);
+void LogMsg_6(uint32_t trace_set_mask, const char* fmt_str, uintptr_t p1,
+              uintptr_t p2, uintptr_t p3, uintptr_t p4, uintptr_t p5,
+              uintptr_t p6);
+uint8_t* scru_dump_hex(uint8_t* p, char* pTitle, uint32_t len, uint32_t layer,
+                       uint32_t type);
 void BTDISP_LOCK_LOG();
 void BTDISP_UNLOCK_LOG();
 void BTDISP_INIT_LOCK();
 void BTDISP_UNINIT_LOCK();
-void DispHciCmd (BT_HDR* p_buf);
-void DispHciEvt (BT_HDR* p_buf);
-void DispLLCP (BT_HDR *p_buf, BOOLEAN is_recv);
-void DispHcp (UINT8 *data, UINT16 len, BOOLEAN is_recv);
-void DispSNEP (UINT8 local_sap, UINT8 remote_sap, BT_HDR *p_buf, BOOLEAN is_first, BOOLEAN is_rx);
-void DispCHO (UINT8 *pMsg, UINT32 MsgLen, BOOLEAN is_rx);
-void DispT3TagMessage(BT_HDR *p_msg, BOOLEAN is_rx);
-void DispRWT4Tags (BT_HDR *p_buf, BOOLEAN is_rx);
-void DispCET4Tags (BT_HDR *p_buf, BOOLEAN is_rx);
-void DispRWI93Tag (BT_HDR *p_buf, BOOLEAN is_rx, UINT8 command_to_respond);
-void DispNDEFMsg (UINT8 *pMsg, UINT32 MsgLen, BOOLEAN is_recv);
-
-
+void DispHciCmd(NFC_HDR* p_buf);
+void DispHciEvt(NFC_HDR* p_buf);
+void DispLLCP(NFC_HDR* p_buf, bool is_recv);
+void DispHcp(uint8_t* data, uint16_t len, bool is_recv);
+void DispSNEP(uint8_t local_sap, uint8_t remote_sap, NFC_HDR* p_buf,
+              bool is_first, bool is_rx);
+void DispCHO(uint8_t* pMsg, uint32_t MsgLen, bool is_rx);
+void DispT3TagMessage(NFC_HDR* p_msg, bool is_rx);
+void DispRWT4Tags(NFC_HDR* p_buf, bool is_rx);
+void DispCET4Tags(NFC_HDR* p_buf, bool is_rx);
+void DispRWI93Tag(NFC_HDR* p_buf, bool is_rx, uint8_t command_to_respond);
+void DispNDEFMsg(uint8_t* pMsg, uint32_t MsgLen, bool is_recv);
 
 #ifdef __cplusplus
 };

@@ -17,11 +17,11 @@
  ******************************************************************************/
 #pragma once
 
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 /*******************************************************************************
 **
@@ -32,8 +32,7 @@ extern "C" {
 ** Returns          2-byte checksum.
 **
 *******************************************************************************/
-unsigned short crcChecksumCompute (const unsigned char *buffer, int bufferLen);
-
+unsigned short crcChecksumCompute(const unsigned char* buffer, int bufferLen);
 
 /*******************************************************************************
 **
@@ -45,8 +44,7 @@ unsigned short crcChecksumCompute (const unsigned char *buffer, int bufferLen);
 ** Returns          True if file is good.
 **
 *******************************************************************************/
-BOOLEAN crcChecksumVerifyIntegrity (const char* filename);
-
+bool crcChecksumVerifyIntegrity(const char* filename);
 
 #ifdef __cplusplus
 }

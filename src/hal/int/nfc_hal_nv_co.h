@@ -16,7 +16,6 @@
  *
  ******************************************************************************/
 
-
 /******************************************************************************
  *
  *  This is the interface file for storing nv data
@@ -25,39 +24,41 @@
 #ifndef NFC_HAL_NV_CO_H
 #define NFC_HAL_NV_CO_H
 
-#if (NFC_HAL_HCI_INCLUDED == TRUE)
+#include "nfc_hal_target.h"
+#if (NFC_HAL_HCI_INCLUDED == true)
 
 #include <time.h>
-
 
 /*****************************************************************************
 **  Constants and Data Types
 *****************************************************************************/
 
-
 /**************************
 **  Common Definitions
 ***************************/
 
-/* Status codes returned by call-out functions, or in call-in functions as status */
-#define NFC_HAL_NV_CO_OK            0x00
-#define NFC_HAL_NV_CO_FAIL          0x01 /* Used to pass all other errors */
-#define NFC_HAL_NV_CO_EACCES        0x02
-#define NFC_HAL_NV_CO_ENOTEMPTY     0x03
-#define NFC_HAL_NV_CO_EOF           0x04
-#define NFC_HAL_NV_CO_EODIR         0x05
-#define NFC_HAL_NV_CO_ENOSPACE      0x06 /* Returned in nfa_nv_ci_open if no room */
-#define NFC_HAL_NV_CO_EIS_DIR       0x07
-#define NFC_HAL_NV_CO_RESUME        0x08 /* used in nfa_nv_ci_open, on resume */
-#define NFC_HAL_NV_CO_NONE          0x09 /* used in nfa_nv_ci_open, on resume (no file to resume) */
+/* Status codes returned by call-out functions, or in call-in functions as
+ * status */
+#define NFC_HAL_NV_CO_OK 0x00
+#define NFC_HAL_NV_CO_FAIL 0x01 /* Used to pass all other errors */
+#define NFC_HAL_NV_CO_EACCES 0x02
+#define NFC_HAL_NV_CO_ENOTEMPTY 0x03
+#define NFC_HAL_NV_CO_EOF 0x04
+#define NFC_HAL_NV_CO_EODIR 0x05
+/* Returned in nfa_nv_ci_open if no room */
+#define NFC_HAL_NV_CO_ENOSPACE 0x06
+#define NFC_HAL_NV_CO_EIS_DIR 0x07
+#define NFC_HAL_NV_CO_RESUME 0x08 /* used in nfa_nv_ci_open, on resume */
+/* used in nfa_nv_ci_open, on resume (no file to resume) */
+#define NFC_HAL_NV_CO_NONE 0x09
 
-typedef UINT8 tNFC_HAL_NV_CO_STATUS;
+typedef uint8_t tNFC_HAL_NV_CO_STATUS;
 
-#define  DH_NV_BLOCK            0x01
-#define  HC_F3_NV_BLOCK         0x02
-#define  HC_F4_NV_BLOCK         0x03
-#define  HC_F2_NV_BLOCK         0x04
-#define  HC_F5_NV_BLOCK         0x05
+#define DH_NV_BLOCK 0x01
+#define HC_F3_NV_BLOCK 0x02
+#define HC_F4_NV_BLOCK 0x03
+#define HC_F2_NV_BLOCK 0x04
+#define HC_F5_NV_BLOCK 0x05
 
 /*****************************************************************************
 **  Function Declarations
@@ -81,12 +82,12 @@ typedef UINT8 tNFC_HAL_NV_CO_STATUS;
 **                  Note: Upon completion of the request, nfa_nv_ci_read () is
 **                        called with the buffer of data, along with the number
 **                        of bytes read into the buffer, and a status.  The
-**                        call-in function should only be called when ALL requested
-**                        bytes have been read, the end of file has been detected,
-**                        or an error has occurred.
+**                        call-in function should only be called when ALL
+**                        requested bytes have been read, the end of file has
+**                        been detected, or an error has occurred.
 **
 *******************************************************************************/
-void nfc_hal_nv_co_read (UINT8 *p_buf, UINT16 nbytes, UINT8 block);
+void nfc_hal_nv_co_read(uint8_t* p_buf, uint16_t nbytes, uint8_t block);
 
 /*******************************************************************************
 **
@@ -101,15 +102,17 @@ void nfc_hal_nv_co_read (UINT8 *p_buf, UINT16 nbytes, UINT8 block);
 ** Returns          void
 **
 **                  Note: Upon completion of the request, nfa_nv_ci_write () is
-**                        called with the file descriptor and the status.  The
-**                        call-in function should only be called when ALL requested
-**                        bytes have been written, or an error has been detected,
+**                        called with the file descriptor and the status. The
+**                        call-in function should only be called when ALL
+**                        requested bytes have been written, or an error has
+**                        been detected,
 **
 *******************************************************************************/
-void nfc_hal_nv_co_write (const UINT8 *p_buf, UINT16 nbytes, UINT8 block);
+void nfc_hal_nv_co_write(const uint8_t* p_buf, uint16_t nbytes, uint8_t block);
 
-extern void nfa_nv_ci_read (UINT16 num_bytes_read, tNFA_NV_CO_STATUS status, UINT8 block);
-extern void nfa_nv_ci_write (tNFA_NV_CO_STATUS status);
+extern void nfa_nv_ci_read(uint16_t num_bytes_read, tNFA_NV_CO_STATUS status,
+                           uint8_t block);
+extern void nfa_nv_ci_write(tNFA_NV_CO_STATUS status);
 
 #endif /* NFC_HAL_HCI_INCLUDED */
 #endif /* NFC_HAL_NV_CO_H */

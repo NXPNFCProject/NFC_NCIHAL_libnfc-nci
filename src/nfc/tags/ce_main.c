@@ -16,7 +16,6 @@
  *
  ******************************************************************************/
 
-
 /******************************************************************************
  *
  *  This file contains functions that interface with the NFC NCI transport.
@@ -28,24 +27,22 @@
 #include "nfc_target.h"
 #include "bt_types.h"
 
-#if (NFC_INCLUDED == TRUE)
 #include "nfc_api.h"
 #include "nci_hmsgs.h"
 #include "ce_api.h"
 #include "ce_int.h"
 #include "gki.h"
 
-tCE_CB  ce_cb;
+tCE_CB ce_cb;
 
 /*******************************************************************************
 *******************************************************************************/
-void ce_init (void)
-{
-    memset (&ce_cb, 0, sizeof (tCE_CB));
-    ce_cb.trace_level = NFC_INITIAL_TRACE_LEVEL;
+void ce_init(void) {
+  memset(&ce_cb, 0, sizeof(tCE_CB));
+  ce_cb.trace_level = NFC_INITIAL_TRACE_LEVEL;
 
-    /* Initialize tag-specific fields of ce control block */
-    ce_t3t_init ();
+  /* Initialize tag-specific fields of ce control block */
+  ce_t3t_init();
 }
 
 /*******************************************************************************
@@ -57,28 +54,24 @@ void ce_init (void)
 ** Returns          tNFC_STATUS
 **
 *******************************************************************************/
-tNFC_STATUS CE_SendRawFrame (UINT8 *p_raw_data, UINT16 data_len)
-{
-    tNFC_STATUS status = NFC_STATUS_FAILED;
-    BT_HDR  *p_data;
-    UINT8   *p;
+tNFC_STATUS CE_SendRawFrame(uint8_t* p_raw_data, uint16_t data_len) {
+  tNFC_STATUS status = NFC_STATUS_FAILED;
+  NFC_HDR* p_data;
+  uint8_t* p;
 
-    if (ce_cb.p_cback)
-    {
-        /* a valid opcode for RW */
-        p_data = (BT_HDR *) GKI_getpoolbuf (NFC_RW_POOL_ID);
-        if (p_data)
-        {
-            p_data->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
-            p = (UINT8 *) (p_data + 1) + p_data->offset;
-            memcpy (p, p_raw_data, data_len);
-            p_data->len = data_len;
-            CE_TRACE_EVENT1 ("CE SENT raw frame (0x%x)", data_len);
-            status = NFC_SendData (NFC_RF_CONN_ID, p_data);
-        }
-
+  if (ce_cb.p_cback) {
+    /* a valid opcode for RW */
+    p_data = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID);
+    if (p_data) {
+      p_data->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
+      p = (uint8_t*)(p_data + 1) + p_data->offset;
+      memcpy(p, p_raw_data, data_len);
+      p_data->len = data_len;
+      CE_TRACE_EVENT1("CE SENT raw frame (0x%x)", data_len);
+      status = NFC_SendData(NFC_RF_CONN_ID, p_data);
     }
-    return status;
+  }
+  return status;
 }
 
 /*******************************************************************************
@@ -90,42 +83,42 @@ tNFC_STATUS CE_SendRawFrame (UINT8 *p_raw_data, UINT16 data_len)
 ** Returns          tNFC_STATUS
 **
 *******************************************************************************/
-tNFC_STATUS CE_SetActivatedTagType (tNFC_ACTIVATE_DEVT *p_activate_params, UINT16 t3t_system_code, tCE_CBACK *p_cback)
-{
-    tNFC_STATUS status = NFC_STATUS_FAILED;
-    tNFC_PROTOCOL protocol = p_activate_params->protocol;
+tNFC_STATUS CE_SetActivatedTagType(tNFC_ACTIVATE_DEVT* p_activate_params,
+                                   uint16_t t3t_system_code,
+                                   tCE_CBACK* p_cback) {
+  tNFC_STATUS status = NFC_STATUS_FAILED;
+  tNFC_PROTOCOL protocol = p_activate_params->protocol;
 
-    CE_TRACE_API1 ("CE_SetActivatedTagType protocol:%d", protocol);
+  CE_TRACE_API1("CE_SetActivatedTagType protocol:%d", protocol);
 
-    switch (protocol)
-    {
+  switch (protocol) {
     case NFC_PROTOCOL_T1T:
     case NFC_PROTOCOL_T2T:
-        return NFC_STATUS_FAILED;
+      return NFC_STATUS_FAILED;
 
-    case NFC_PROTOCOL_T3T:   /* Type3Tag    - NFC-F */
-        /* store callback function before NFC_SetStaticRfCback () */
-        ce_cb.p_cback  = p_cback;
-        status = ce_select_t3t (t3t_system_code, p_activate_params->rf_tech_param.param.lf.nfcid2);
-        break;
+    case NFC_PROTOCOL_T3T: /* Type3Tag    - NFC-F */
+      /* store callback function before NFC_SetStaticRfCback () */
+      ce_cb.p_cback = p_cback;
+      status = ce_select_t3t(t3t_system_code,
+                             p_activate_params->rf_tech_param.param.lf.nfcid2);
+      break;
 
-    case NFC_PROTOCOL_ISO_DEP:     /* ISODEP/4A,4B- NFC-A or NFC-B */
-        /* store callback function before NFC_SetStaticRfCback () */
-        ce_cb.p_cback  = p_cback;
-        status = ce_select_t4t ();
-        break;
+    case NFC_PROTOCOL_ISO_DEP: /* ISODEP/4A,4B- NFC-A or NFC-B */
+      /* store callback function before NFC_SetStaticRfCback () */
+      ce_cb.p_cback = p_cback;
+      status = ce_select_t4t();
+      break;
 
     default:
-        CE_TRACE_ERROR0 ("CE_SetActivatedTagType Invalid protocol");
-        return NFC_STATUS_FAILED;
-    }
+      CE_TRACE_ERROR0("CE_SetActivatedTagType Invalid protocol");
+      return NFC_STATUS_FAILED;
+  }
 
-    if (status != NFC_STATUS_OK)
-    {
-        NFC_SetStaticRfCback (NULL);
-        ce_cb.p_cback  = NULL;
-    }
-    return status;
+  if (status != NFC_STATUS_OK) {
+    NFC_SetStaticRfCback(NULL);
+    ce_cb.p_cback = NULL;
+  }
+  return status;
 }
 
 /*******************************************************************************
@@ -139,12 +132,8 @@ tNFC_STATUS CE_SetActivatedTagType (tNFC_ACTIVATE_DEVT *p_activate_params, UINT1
 ** Returns          The new or current trace level
 **
 *******************************************************************************/
-UINT8 CE_SetTraceLevel (UINT8 new_level)
-{
-    if (new_level != 0xFF)
-        ce_cb.trace_level = new_level;
+uint8_t CE_SetTraceLevel(uint8_t new_level) {
+  if (new_level != 0xFF) ce_cb.trace_level = new_level;
 
-    return (ce_cb.trace_level);
+  return (ce_cb.trace_level);
 }
-
-#endif /* NFC_INCLUDED == TRUE */

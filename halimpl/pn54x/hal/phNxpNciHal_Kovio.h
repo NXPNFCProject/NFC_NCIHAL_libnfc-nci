@@ -20,7 +20,7 @@
 #include <phTmlNfc.h>
 #include <string.h>
 
-extern NFCSTATUS  phNxpNciHal_kovio_rsp_ext(uint8_t *p_ntf, uint16_t *p_len);
+extern NFCSTATUS phNxpNciHal_kovio_rsp_ext(uint8_t* p_ntf, uint16_t* p_len);
 extern void phNxpNciHal_clean_Kovio_Ext();
 
 #endif /* _PHNXPNCIHAL_KOVIO_H_ */

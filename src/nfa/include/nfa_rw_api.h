@@ -49,35 +49,31 @@
 /*****************************************************************************
 **  Constants and data types
 *****************************************************************************/
-enum
-{
-    NFA_RW_PRES_CHK_DEFAULT,    /* The default behavior             */
-    NFA_RW_PRES_CHK_I_BLOCK,    /* Empty I Block                    */
-    NFA_RW_PRES_CHK_RESET,      /* Deactivate to Sleep; Re-activate */
-    NFA_RW_PRES_CHK_RB_CH0,     /* ReadBinary on Channel 0          */
-    NFA_RW_PRES_CHK_RB_CH3      /* ReadBinary on Channel 3          */
+enum {
+  NFA_RW_PRES_CHK_DEFAULT, /* The default behavior             */
+  NFA_RW_PRES_CHK_I_BLOCK, /* Empty I Block                    */
+  NFA_RW_PRES_CHK_RESET,   /* Deactivate to Sleep; Re-activate */
+  NFA_RW_PRES_CHK_RB_CH0,  /* ReadBinary on Channel 0          */
+  NFA_RW_PRES_CHK_RB_CH3,   /* ReadBinary on Channel 3          */
+  NFA_RW_PRES_CHK_ISO_DEP_NAK /*presence check command ISO-DEP NAK as per NCI2.0*/
 };
-typedef UINT8 tNFA_RW_PRES_CHK_OPTION;
+typedef uint8_t tNFA_RW_PRES_CHK_OPTION;
 
 /*****************************************************************************
 **  NFA T3T Constants and definitions
 *****************************************************************************/
 
 /* Block descriptor. (For non-NDEF read/write */
-typedef struct
-{
-    UINT16  service_code;       /* Service code for the block   */
-    UINT16  block_number;       /* Block number.                */
+typedef struct {
+  uint16_t service_code; /* Service code for the block   */
+  uint16_t block_number; /* Block number.                */
 } tNFA_T3T_BLOCK_DESC;
-
-
 
 /*****************************************************************************
 **  External Function Declarations
 *****************************************************************************/
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /*******************************************************************************
@@ -93,8 +89,8 @@ extern "C"
 **                  size, etc.).
 **
 **                  It is not mandatory to call this function -  NFA_RwReadNDef
-**                  and NFA_RwWriteNDef will perform NDEF detection internally if
-**                  not performed already. This API may be called to get a
+**                  and NFA_RwWriteNDef will perform NDEF detection internally
+**                  if not performed already. This API may be called to get a
 **                  tag's NDEF size before issuing a write-request.
 **
 ** Returns:
@@ -103,7 +99,7 @@ extern "C"
 **                  NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwDetectNDef (void);
+extern tNFA_STATUS NFA_RwDetectNDef(void);
 
 /*******************************************************************************
 **
@@ -115,23 +111,25 @@ NFC_API extern tNFA_STATUS NFA_RwDetectNDef (void);
 **                  appropriate method for the currently activated tag.
 **
 **                  Upon successful completion of NDEF detection (if performed),
-**                  a NFA_NDEF_DETECT_EVT will be sent, to notify the application
-**                  of the NDEF attributes (NDEF total memory size, current size,
-**                  etc.).
+**                  a NFA_NDEF_DETECT_EVT will be sent, to notify the
+**                  application of the NDEF attributes (NDEF total memory size,
+**                  current size, etc.).
 **
 **                  Upon receiving the NDEF message, the message will be sent to
 **                  the handler registered with NFA_RegisterNDefTypeHandler or
-**                  NFA_RequestExclusiveRfControl (if exclusive RF mode is active)
+**                  NFA_RequestExclusiveRfControl (if exclusive RF mode is
+**                  active)
 **
 **
 ** Returns:
 **                  NFA_STATUS_OK if successfully initiated
 **                  NFC_STATUS_REFUSED if tag does not support NDEF
-**                  NFC_STATUS_NOT_INITIALIZED if NULL NDEF was detected on the tag
+**                  NFC_STATUS_NOT_INITIALIZED if NULL NDEF was detected on the
+**                  tag
 **                  NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwReadNDef (void);
+extern tNFA_STATUS NFA_RwReadNDef(void);
 
 /*******************************************************************************
 **
@@ -154,8 +152,7 @@ NFC_API extern tNFA_STATUS NFA_RwReadNDef (void);
 **                  NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwWriteNDef (UINT8 *p_data, UINT32 len);
-
+extern tNFA_STATUS NFA_RwWriteNDef(uint8_t* p_data, uint32_t len);
 
 /*****************************************************************************
 **
@@ -173,7 +170,7 @@ NFC_API extern tNFA_STATUS NFA_RwWriteNDef (UINT8 *p_data, UINT32 len);
 **                  NFA_STATUS_FAILED otherwise
 **
 *****************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwPresenceCheck (tNFA_RW_PRES_CHK_OPTION option);
+extern tNFA_STATUS NFA_RwPresenceCheck(tNFA_RW_PRES_CHK_OPTION option);
 
 /*****************************************************************************
 **
@@ -190,12 +187,11 @@ NFC_API extern tNFA_STATUS NFA_RwPresenceCheck (tNFA_RW_PRES_CHK_OPTION option);
 **                  NFA_STATUS_FAILED otherwise
 **
 *****************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwFormatTag (void);
+extern tNFA_STATUS NFA_RwFormatTag(void);
 
 /*******************************************************************************
 ** LEGACY / PROPRIETARY TAG READ AND WRITE APIs
 *******************************************************************************/
-
 
 /*******************************************************************************
 **
@@ -218,19 +214,21 @@ NFC_API extern tNFA_STATUS NFA_RwFormatTag (void);
 **                  calling NFA_RwDetectNDef and should expect to receive
 **                  NFA_NDEF_DETECT_EVT instead of NFA_TLV_DETECT_EVT
 **
-**                  It is not mandatory to call this function -  NFA_RwDetectNDef,
-**                  NFA_RwReadNDef and NFA_RwWriteNDef will perform TLV detection
-**                  internally if not performed already. An application may call
-**                  this API to check the a tag/card-emulator's total Reserved/
-**                  Lock bytes before issuing a write-request.
+**                  It is not mandatory to call this function -
+**                  NFA_RwDetectNDef, NFA_RwReadNDef and NFA_RwWriteNDef will
+**                  perform TLV detection internally if not performed already.
+**                  An application may call this API to check the a
+**                  tag/card-emulator's total Reserved/ Lock bytes before
+**                  issuing a write-request.
 **
 ** Returns:
 **                  NFA_STATUS_OK if successfully initiated
-**                  NFC_STATUS_REFUSED if tlv_type is NDEF & tag won't support NDEF
+**                  NFC_STATUS_REFUSED if tlv_type is NDEF & tag won't support
+**                  NDEF
 **                  NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwLocateTlv (UINT8 tlv_type);
+extern tNFA_STATUS NFA_RwLocateTlv(uint8_t tlv_type);
 
 /*******************************************************************************
 **
@@ -249,7 +247,7 @@ NFC_API extern tNFA_STATUS NFA_RwLocateTlv (UINT8 tlv_type);
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwSetTagReadOnly (BOOLEAN b_hard_lock);
+extern tNFA_STATUS NFA_RwSetTagReadOnly(bool b_hard_lock);
 
 /*******************************************************************************
 **
@@ -258,9 +256,9 @@ NFC_API extern tNFA_STATUS NFA_RwSetTagReadOnly (BOOLEAN b_hard_lock);
 ** Description:
 **      Send a RID command to the activated Type 1 tag.
 **
-**      Data is returned to the application using the NFA_DATA_EVT. When the read
-**      operation has completed, or if an error occurs, the app will be notified with
-**      NFA_READ_CPLT_EVT.
+**      Data is returned to the application using the NFA_DATA_EVT. When the
+**      read operation has completed, or if an error occurs, the app will be
+**      notified with NFA_READ_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
@@ -268,7 +266,7 @@ NFC_API extern tNFA_STATUS NFA_RwSetTagReadOnly (BOOLEAN b_hard_lock);
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwT1tRid (void);
+extern tNFA_STATUS NFA_RwT1tRid(void);
 
 /*******************************************************************************
 **
@@ -277,9 +275,9 @@ NFC_API extern tNFA_STATUS NFA_RwT1tRid (void);
 ** Description:
 **      Send a RALL command to the activated Type 1 tag.
 **
-**      Data is returned to the application using the NFA_DATA_EVT. When the read
-**      operation has completed, or if an error occurs, the app will be notified with
-**      NFA_READ_CPLT_EVT.
+**      Data is returned to the application using the NFA_DATA_EVT. When the
+**      read operation has completed, or if an error occurs, the app will be
+**      notified with NFA_READ_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
@@ -287,7 +285,7 @@ NFC_API extern tNFA_STATUS NFA_RwT1tRid (void);
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwT1tReadAll (void);
+extern tNFA_STATUS NFA_RwT1tReadAll(void);
 
 /*******************************************************************************
 **
@@ -296,9 +294,9 @@ NFC_API extern tNFA_STATUS NFA_RwT1tReadAll (void);
 ** Description:
 **      Send a READ command to the activated Type 1 tag.
 **
-**      Data is returned to the application using the NFA_DATA_EVT. When the read
-**      operation has completed, or if an error occurs, the app will be notified with
-**      NFA_READ_CPLT_EVT.
+**      Data is returned to the application using the NFA_DATA_EVT. When the
+**      read operation has completed, or if an error occurs, the app will be
+**      notified with NFA_READ_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
@@ -306,7 +304,7 @@ NFC_API extern tNFA_STATUS NFA_RwT1tReadAll (void);
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwT1tRead (UINT8 block_number, UINT8 index);
+extern tNFA_STATUS NFA_RwT1tRead(uint8_t block_number, uint8_t index);
 
 /*******************************************************************************
 **
@@ -315,9 +313,9 @@ NFC_API extern tNFA_STATUS NFA_RwT1tRead (UINT8 block_number, UINT8 index);
 ** Description:
 **      Send a WRITE command to the activated Type 1 tag.
 **
-**      Data is returned to the application using the NFA_DATA_EVT. When the write
-**      operation has completed, or if an error occurs, the app will be notified with
-**      NFA_WRITE_CPLT_EVT.
+**      Data is returned to the application using the NFA_DATA_EVT. When the
+**      write operation has completed, or if an error occurs, the app will be
+**      notified with NFA_WRITE_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
@@ -325,10 +323,8 @@ NFC_API extern tNFA_STATUS NFA_RwT1tRead (UINT8 block_number, UINT8 index);
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwT1tWrite (UINT8    block_number,
-                                           UINT8    index,
-                                           UINT8    data,
-                                           BOOLEAN  b_erase);
+extern tNFA_STATUS NFA_RwT1tWrite(uint8_t block_number, uint8_t index,
+                                  uint8_t data, bool b_erase);
 
 /*******************************************************************************
 **
@@ -337,9 +333,9 @@ NFC_API extern tNFA_STATUS NFA_RwT1tWrite (UINT8    block_number,
 ** Description:
 **      Send a RSEG command to the activated Type 1 tag.
 **
-**      Data is returned to the application using the NFA_DATA_EVT. When the read
-**      operation has completed, or if an error occurs, the app will be notified with
-**      NFA_READ_CPLT_EVT.
+**      Data is returned to the application using the NFA_DATA_EVT. When the
+**      read operation has completed, or if an error occurs, the app will be
+**      notified with NFA_READ_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
@@ -347,7 +343,7 @@ NFC_API extern tNFA_STATUS NFA_RwT1tWrite (UINT8    block_number,
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwT1tReadSeg (UINT8 segment_number);
+extern tNFA_STATUS NFA_RwT1tReadSeg(uint8_t segment_number);
 
 /*******************************************************************************
 **
@@ -356,9 +352,9 @@ NFC_API extern tNFA_STATUS NFA_RwT1tReadSeg (UINT8 segment_number);
 ** Description:
 **      Send a READ8 command to the activated Type 1 tag.
 **
-**      Data is returned to the application using the NFA_DATA_EVT. When the read
-**      operation has completed, or if an error occurs, the app will be notified with
-**      NFA_READ_CPLT_EVT.
+**      Data is returned to the application using the NFA_DATA_EVT. When the
+**      read operation has completed, or if an error occurs, the app will be
+**      notified with NFA_READ_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
@@ -366,7 +362,7 @@ NFC_API extern tNFA_STATUS NFA_RwT1tReadSeg (UINT8 segment_number);
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwT1tRead8 (UINT8 block_number);
+extern tNFA_STATUS NFA_RwT1tRead8(uint8_t block_number);
 
 /*******************************************************************************
 **
@@ -375,9 +371,9 @@ NFC_API extern tNFA_STATUS NFA_RwT1tRead8 (UINT8 block_number);
 ** Description:
 **      Send a WRITE8_E / WRITE8_NE command to the activated Type 1 tag.
 **
-**      Data is returned to the application using the NFA_DATA_EVT. When the read
-**      operation has completed, or if an error occurs, the app will be notified with
-**      NFA_READ_CPLT_EVT.
+**      Data is returned to the application using the NFA_DATA_EVT. When the
+**      read operation has completed, or if an error occurs, the app will be
+**      notified with NFA_READ_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
@@ -385,9 +381,8 @@ NFC_API extern tNFA_STATUS NFA_RwT1tRead8 (UINT8 block_number);
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwT1tWrite8 (UINT8   block_number,
-                                            UINT8  *p_data,
-                                            BOOLEAN b_erase);
+extern tNFA_STATUS NFA_RwT1tWrite8(uint8_t block_number, uint8_t* p_data,
+                                   bool b_erase);
 
 /*******************************************************************************
 **
@@ -396,9 +391,9 @@ NFC_API extern tNFA_STATUS NFA_RwT1tWrite8 (UINT8   block_number,
 ** Description:
 **      Send a READ command to the activated Type 2 tag.
 **
-**      Data is returned to the application using the NFA_DATA_EVT. When the read
-**      operation has completed, or if an error occurs, the app will be notified with
-**      NFA_READ_CPLT_EVT.
+**      Data is returned to the application using the NFA_DATA_EVT. When the
+**      read operation has completed, or if an error occurs, the app will be
+**      notified with NFA_READ_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
@@ -406,7 +401,7 @@ NFC_API extern tNFA_STATUS NFA_RwT1tWrite8 (UINT8   block_number,
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwT2tRead (UINT8 block_number);
+extern tNFA_STATUS NFA_RwT2tRead(uint8_t block_number);
 
 /*******************************************************************************
 **
@@ -424,7 +419,7 @@ NFC_API extern tNFA_STATUS NFA_RwT2tRead (UINT8 block_number);
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwT2tWrite (UINT8 block_number,  UINT8 *p_data);
+extern tNFA_STATUS NFA_RwT2tWrite(uint8_t block_number, uint8_t* p_data);
 
 /*******************************************************************************
 **
@@ -433,8 +428,8 @@ NFC_API extern tNFA_STATUS NFA_RwT2tWrite (UINT8 block_number,  UINT8 *p_data);
 ** Description:
 **      Send SECTOR SELECT command to the activated Type 2 tag.
 **
-**      When the sector select operation has completed (or if an error occurs), the
-**      app will be notified with NFA_SECTOR_SELECT_CPLT_EVT.
+**      When the sector select operation has completed (or if an error occurs),
+**      the app will be notified with NFA_SECTOR_SELECT_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
@@ -442,7 +437,7 @@ NFC_API extern tNFA_STATUS NFA_RwT2tWrite (UINT8 block_number,  UINT8 *p_data);
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwT2tSectorSelect (UINT8 sector_number);
+extern tNFA_STATUS NFA_RwT2tSectorSelect(uint8_t sector_number);
 
 /*******************************************************************************
 **
@@ -451,9 +446,9 @@ NFC_API extern tNFA_STATUS NFA_RwT2tSectorSelect (UINT8 sector_number);
 ** Description:
 **      Send a CHECK (read) command to the activated Type 3 tag.
 **
-**      Data is returned to the application using the NFA_RW_DATA_EVT. When the read
-**      operation has completed, or if an error occurs, the app will be notified with
-**      NFA_READ_CPLT_EVT.
+**      Data is returned to the application using the NFA_RW_DATA_EVT. When the
+**      read operation has completed, or if an error occurs, the app will be
+**      notified with NFA_READ_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
@@ -461,8 +456,8 @@ NFC_API extern tNFA_STATUS NFA_RwT2tSectorSelect (UINT8 sector_number);
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwT3tRead (UINT8                num_blocks,
-                                          tNFA_T3T_BLOCK_DESC *t3t_blocks);
+extern tNFA_STATUS NFA_RwT3tRead(uint8_t num_blocks,
+                                 tNFA_T3T_BLOCK_DESC* t3t_blocks);
 
 /*******************************************************************************
 **
@@ -480,9 +475,9 @@ NFC_API extern tNFA_STATUS NFA_RwT3tRead (UINT8                num_blocks,
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwT3tWrite (UINT8                num_blocks,
-                                           tNFA_T3T_BLOCK_DESC *t3t_blocks,
-                                           UINT8               *p_data);
+extern tNFA_STATUS NFA_RwT3tWrite(uint8_t num_blocks,
+                                  tNFA_T3T_BLOCK_DESC* t3t_blocks,
+                                  uint8_t* p_data);
 
 /*******************************************************************************
 **
@@ -501,7 +496,8 @@ NFC_API extern tNFA_STATUS NFA_RwT3tWrite (UINT8                num_blocks,
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwI93Inventory (BOOLEAN afi_present, UINT8 afi, UINT8 *p_uid);
+extern tNFA_STATUS NFA_RwI93Inventory(bool afi_present, uint8_t afi,
+                                      uint8_t* p_uid);
 
 /*******************************************************************************
 **
@@ -519,7 +515,7 @@ NFC_API extern tNFA_STATUS NFA_RwI93Inventory (BOOLEAN afi_present, UINT8 afi, U
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwI93StayQuiet (void);
+extern tNFA_STATUS NFA_RwI93StayQuiet(void);
 
 /*******************************************************************************
 **
@@ -528,9 +524,9 @@ NFC_API extern tNFA_STATUS NFA_RwI93StayQuiet (void);
 ** Description:
 **      Send Read Single Block command to the activated ISO 15693 tag.
 **
-**      Data is returned to the application using the NFA_DATA_EVT. When the read
-**      operation has completed, or if an error occurs, the app will be notified with
-**      NFA_I93_CMD_CPLT_EVT.
+**      Data is returned to the application using the NFA_DATA_EVT. When the
+**      read operation has completed, or if an error occurs, the app will be
+**      notified with NFA_I93_CMD_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
@@ -538,7 +534,7 @@ NFC_API extern tNFA_STATUS NFA_RwI93StayQuiet (void);
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwI93ReadSingleBlock (UINT8 block_number);
+extern tNFA_STATUS NFA_RwI93ReadSingleBlock(uint8_t block_number);
 
 /*******************************************************************************
 **
@@ -556,8 +552,8 @@ NFC_API extern tNFA_STATUS NFA_RwI93ReadSingleBlock (UINT8 block_number);
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwI93WriteSingleBlock (UINT8 block_number,
-                                                      UINT8 *p_data);
+extern tNFA_STATUS NFA_RwI93WriteSingleBlock(uint8_t block_number,
+                                             uint8_t* p_data);
 
 /*******************************************************************************
 **
@@ -575,7 +571,7 @@ NFC_API extern tNFA_STATUS NFA_RwI93WriteSingleBlock (UINT8 block_number,
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwI93LockBlock (UINT8 block_number);
+extern tNFA_STATUS NFA_RwI93LockBlock(uint8_t block_number);
 
 /*******************************************************************************
 **
@@ -584,9 +580,9 @@ NFC_API extern tNFA_STATUS NFA_RwI93LockBlock (UINT8 block_number);
 ** Description:
 **      Send Read Multiple Block command to the activated ISO 15693 tag.
 **
-**      Data is returned to the application using the NFA_DATA_EVT. When the read
-**      operation has completed, or if an error occurs, the app will be notified with
-**      NFA_I93_CMD_CPLT_EVT.
+**      Data is returned to the application using the NFA_DATA_EVT. When the
+**      read operation has completed, or if an error occurs, the app will be
+**      notified with NFA_I93_CMD_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
@@ -594,8 +590,8 @@ NFC_API extern tNFA_STATUS NFA_RwI93LockBlock (UINT8 block_number);
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwI93ReadMultipleBlocks (UINT8  first_block_number,
-                                                        UINT16 number_blocks);
+extern tNFA_STATUS NFA_RwI93ReadMultipleBlocks(uint8_t first_block_number,
+                                               uint16_t number_blocks);
 
 /*******************************************************************************
 **
@@ -613,9 +609,9 @@ NFC_API extern tNFA_STATUS NFA_RwI93ReadMultipleBlocks (UINT8  first_block_numbe
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwI93WriteMultipleBlocks (UINT8  first_block_number,
-                                                         UINT16 number_blocks,
-                                                         UINT8  *p_data);
+extern tNFA_STATUS NFA_RwI93WriteMultipleBlocks(uint8_t first_block_number,
+                                                uint16_t number_blocks,
+                                                uint8_t* p_data);
 
 /*******************************************************************************
 **
@@ -638,7 +634,7 @@ NFC_API extern tNFA_STATUS NFA_RwI93WriteMultipleBlocks (UINT8  first_block_numb
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwI93Select (UINT8 *p_uid);
+extern tNFA_STATUS NFA_RwI93Select(uint8_t* p_uid);
 
 /*******************************************************************************
 **
@@ -656,7 +652,7 @@ NFC_API extern tNFA_STATUS NFA_RwI93Select (UINT8 *p_uid);
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwI93ResetToReady (void);
+extern tNFA_STATUS NFA_RwI93ResetToReady(void);
 
 /*******************************************************************************
 **
@@ -674,7 +670,7 @@ NFC_API extern tNFA_STATUS NFA_RwI93ResetToReady (void);
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwI93WriteAFI (UINT8 afi);
+extern tNFA_STATUS NFA_RwI93WriteAFI(uint8_t afi);
 
 /*******************************************************************************
 **
@@ -692,7 +688,7 @@ NFC_API extern tNFA_STATUS NFA_RwI93WriteAFI (UINT8 afi);
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwI93LockAFI (void);
+extern tNFA_STATUS NFA_RwI93LockAFI(void);
 
 /*******************************************************************************
 **
@@ -710,7 +706,7 @@ NFC_API extern tNFA_STATUS NFA_RwI93LockAFI (void);
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwI93WriteDSFID (UINT8 dsfid);
+extern tNFA_STATUS NFA_RwI93WriteDSFID(uint8_t dsfid);
 
 /*******************************************************************************
 **
@@ -728,7 +724,7 @@ NFC_API extern tNFA_STATUS NFA_RwI93WriteDSFID (UINT8 dsfid);
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwI93LockDSFID (void);
+extern tNFA_STATUS NFA_RwI93LockDSFID(void);
 
 /*******************************************************************************
 **
@@ -747,18 +743,19 @@ NFC_API extern tNFA_STATUS NFA_RwI93LockDSFID (void);
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwI93GetSysInfo (UINT8 *p_uid);
+extern tNFA_STATUS NFA_RwI93GetSysInfo(uint8_t* p_uid);
 
 /*******************************************************************************
 **
 ** Function         NFA_RwI93GetMultiBlockSecurityStatus
 **
 ** Description:
-**      Send Get Multiple block security status command to the activated ISO 15693 tag.
+**      Send Get Multiple block security status command to the activated ISO
+**      15693 tag.
 **
-**      Data is returned to the application using the NFA_DATA_EVT. When the read
-**      operation has completed, or if an error occurs, the app will be notified with
-**      NFA_I93_CMD_CPLT_EVT.
+**      Data is returned to the application using the NFA_DATA_EVT. When the
+**      read operation has completed, or if an error occurs, the app will be
+**      notified with NFA_I93_CMD_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
@@ -766,8 +763,8 @@ NFC_API extern tNFA_STATUS NFA_RwI93GetSysInfo (UINT8 *p_uid);
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-NFC_API extern tNFA_STATUS NFA_RwI93GetMultiBlockSecurityStatus (UINT8  first_block_number,
-                                                                 UINT16 number_blocks);
+extern tNFA_STATUS NFA_RwI93GetMultiBlockSecurityStatus(
+    uint8_t first_block_number, uint16_t number_blocks);
 #if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
@@ -779,7 +776,7 @@ NFC_API extern tNFA_STATUS NFA_RwI93GetMultiBlockSecurityStatus (UINT8  first_bl
 ** Returns:
 **      void
 *******************************************************************************/
-NFC_API extern void NFA_SetReconnectState (BOOLEAN flag);
+extern void NFA_SetReconnectState(bool flag);
 
 /*******************************************************************************
 **
@@ -791,7 +788,7 @@ NFC_API extern void NFA_SetReconnectState (BOOLEAN flag);
 ** Returns:
 **      void
 *******************************************************************************/
-NFC_API extern void NFA_SetEmvCoState (BOOLEAN flag);
+extern void NFA_SetEmvCoState(bool flag);
 
 #endif
 
