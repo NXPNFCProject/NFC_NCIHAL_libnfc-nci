@@ -3281,7 +3281,7 @@ void nfa_ee_route_add_one_ecb_by_route_order(tNFA_EE_ECB* p_cb,int rout_type ,in
                     }
                     *pp++ = NFC_ROUTE_TAG_AID | route_blacklist_mask | route_qual;
                     *pp++ = len + 2;
-                    *pp++ = p_cb->nfcee_id;
+                    *pp++ = p_cb->aid_rt_loc[xx];
                     *pp++ = p_cb->aid_pwr_cfg[xx];
                     /* copy the AID */
                     memcpy(pp, pa, len);
@@ -3330,7 +3330,7 @@ void nfa_ee_route_add_one_ecb_by_route_order(tNFA_EE_ECB* p_cb,int rout_type ,in
                     len = *pa++; /* aid_len */
                     *pp++ = NFC_ROUTE_TAG_APDU;
                     *pp++ = len + 2;
-                    *pp++ = p_cb->nfcee_id;
+                    *pp++ = (p_cb->apdu_rt_info[xx] >> NFA_EE_APDU_ROUTE_MASK);
                     *pp++ = p_cb->aid_pwr_cfg[xx];
                     /* copy the AID */
                     memcpy(pp, pa, len);

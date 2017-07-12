@@ -192,6 +192,7 @@ typedef uint8_t tNFA_EE_CONN_ST;
 #define NFA_EE_MAX_AID_CFG_LEN (510)
 #endif
 #define NFA_EE_TOTAL_APDU_PATTERN_SIZE 250
+#define NFA_EE_APDU_ROUTE_MASK 8 /* APDU route location mask*/
 /* NFA EE control block flags:
  * use to indicate an API function has changed the configuration of the
  * associated NFCEE
