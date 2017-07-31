@@ -45,6 +45,7 @@
 #include "nfa_sys_int.h"
 #include "nfa_dm_int.h"
 #include "nfa_ee_int.h"
+#include "config.h"
 
 extern void nfa_ee_vs_cback(tNFC_VS_EVT event, NFC_HDR* p_data);
 /*****************************************************************************
@@ -147,6 +148,22 @@ void nfa_ee_init(void) {
 **
 *******************************************************************************/
 void nfa_ee_sys_enable(void) {
+
+  unsigned long retlen = 0;
+
+  NFA_TRACE_DEBUG1("%s", __func__);
+
+  nfa_ee_cb.route_block_control = 0x00;
+
+  if (GetNumValue(NAME_NFA_BLOCK_ROUTE, (void*)&retlen, sizeof(retlen))) {
+    if ((retlen == 0x01) && ((NFC_GetNCIVersion() == NCI_VERSION_2_0)
+        || (NXP_NFCC_ROUTING_BLOCK_BIT == true))) {
+      nfa_ee_cb.route_block_control = NCI_ROUTE_QUAL_BLOCK_ROUTE;
+      NFA_TRACE_DEBUG1("nfa_ee_cb.route_block_control=0x%x",
+                       nfa_ee_cb.route_block_control);
+    }
+  }
+
   if (nfa_ee_max_ee_cfg) {
     /* collect NFCEE information */
     NFC_NfceeDiscover(true);

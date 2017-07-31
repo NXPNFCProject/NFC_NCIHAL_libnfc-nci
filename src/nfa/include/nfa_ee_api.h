@@ -61,9 +61,6 @@ extern uint8_t NFA_REMOVE_ALL_AID[];
 extern uint8_t nfa_ee_ce_route_strict_disable;
 extern uint8_t nfa_ee_ce_p61_active;
 #define NFA_EE_AE_NXP_PREFIX_MATCH (0x10)
-#if (NXP_NFCC_ROUTING_BLOCK_BIT == true)
-#define NFA_EE_NXP_ROUTE_BLOCK_BIT (0x40)
-#endif
 #endif
 
 /* NFA EE callback events */

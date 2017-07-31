@@ -420,7 +420,7 @@ static void nfa_ee_add_proto_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
       /* Applying Route Block for ISO DEP Protocol, so that AIDs
        * which are not in the routing table can also be blocked */
       if (nfa_ee_proto_mask_list[xx] == NFA_PROTOCOL_MASK_ISO_DEP) {
-        proto_tag = NFC_ROUTE_TAG_PROTO;
+        proto_tag = NFC_ROUTE_TAG_PROTO | nfa_ee_cb.route_block_control;
 
         /* Enable screen on lock power state for ISO-DEP protocol to
            enable HCE screen lock */
@@ -493,7 +493,7 @@ static void nfa_ee_add_aid_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
         }
 
         uint8_t tag =
-            NFC_ROUTE_TAG_AID | route_qual;
+            NFC_ROUTE_TAG_AID | nfa_ee_cb.route_block_control | route_qual;;
 
         add_route_aid_tlv(&pp, pa, p_cb->aid_rt_loc[xx], p_cb->aid_pwr_cfg[xx], tag);
       }
@@ -2909,23 +2909,6 @@ tNFA_STATUS nfa_ee_route_add_one_ecb(tNFA_EE_ECB* p_cb, int* p_max_len,
   uint8_t new_size;
   tNFA_STATUS status = NFA_STATUS_OK;
 
-#if (NXP_NFCC_ROUTING_BLOCK_BIT == true)
-  uint8_t route_blacklist_mask = 0x00;
-  long retlen = 0;
-  NFA_TRACE_DEBUG1("NAME_NXP_PROP_BLACKLIST_ROUTING enter=0x%x",
-                   route_blacklist_mask);
-  if (GetNumValue(NAME_NXP_PROP_BLACKLIST_ROUTING, (void*)&retlen,
-                  sizeof(retlen))) {
-    if (retlen == 0x01) {
-      route_blacklist_mask = NFA_EE_NXP_ROUTE_BLOCK_BIT;
-      NFA_TRACE_DEBUG1("NAME_NXP_PROP_BLACKLIST_ROUTING change=0x%x",
-                       route_blacklist_mask);
-    } else {
-      NFA_TRACE_DEBUG1("NAME_NXP_PROP_BLACKLIST_ROUTING exit=0x%x",
-                       route_blacklist_mask);
-    }
-  }
-#endif
   nfa_ee_check_set_routing(p_cb->size_mask, p_max_len, ps, p_cur_offset);
   max_tlv = (uint8_t)((*p_max_len > NFA_EE_ROUT_MAX_TLV_SIZE)
                           ? NFA_EE_ROUT_MAX_TLV_SIZE
@@ -2963,9 +2946,6 @@ tNFA_STATUS nfa_ee_route_add_one_ecb(tNFA_EE_ECB* p_cb, int* p_max_len,
         if(p_cb->aid_info[xx] & NCI_ROUTE_QUAL_SHORT_SELECT)
           route_qual |= NCI_ROUTE_QUAL_SHORT_SELECT;
         *pp = NFC_ROUTE_TAG_AID | route_qual;
-#if (NXP_NFCC_ROUTING_BLOCK_BIT == true)
-          *pp |= route_blacklist_mask;
-#endif
          pp++;
         *pp++ = len + 2;
         *pp++ = p_cb->aid_rt_loc[xx];
@@ -3025,13 +3005,6 @@ tNFA_STATUS nfa_ee_route_add_one_ecb(tNFA_EE_ECB* p_cb, int* p_max_len,
     }
     if (power_cfg) {
       *proto_pp = NFC_ROUTE_TAG_PROTO;
-#if (NXP_NFCC_ROUTING_BLOCK_BIT == true)
-      /*Setting blocking bit for ISO-DEP and ISO7816 protocol only*/
-      if (nfa_ee_proto_list[xx] == NFC_PROTOCOL_ISO_DEP ||
-          nfa_ee_proto_list[xx] == NFC_PROTOCOL_ISO7816) {
-        *proto_pp |= route_blacklist_mask;
-      }
-#endif
       proto_pp++;
       *proto_pp++ = 3;
       *proto_pp++ = p_cb->nfcee_id;
@@ -3154,13 +3127,6 @@ tNFA_STATUS nfa_ee_route_add_one_ecb(tNFA_EE_ECB* p_cb, int* p_max_len,
 
     if (power_cfg) {
       *pp = NFC_ROUTE_TAG_PROTO;
-#if (NXP_NFCC_ROUTING_BLOCK_BIT == true)
-      /*Setting blocking bit for ISO-DEP and ISO7816 protocol only*/
-      if (nfa_ee_proto_list[xx] == NFC_PROTOCOL_ISO_DEP ||
-          nfa_ee_proto_list[xx] == NFC_PROTOCOL_ISO7816) {
-        *pp |= route_blacklist_mask;
-      }
-#endif
       *pp++;
       *pp++ = 3;
       *pp++ = p_cb->nfcee_id;
@@ -3224,11 +3190,7 @@ tNFA_STATUS nfa_ee_route_add_one_ecb(tNFA_EE_ECB* p_cb, int* p_max_len,
         if(p_cb->aid_info[xx] & NCI_ROUTE_QUAL_SHORT_SELECT)
           route_qual |= NCI_ROUTE_QUAL_SHORT_SELECT;
         *pp = NFC_ROUTE_TAG_AID | route_qual;
-#if (NXP_NFCC_ROUTING_BLOCK_BIT == true)
-          // This aid is for exact match.
-          *pp |= (route_blacklist_mask);
-#endif
-          pp++;
+         pp++;
 #else
         *pp++ = NFC_ROUTE_TAG_AID;
 #endif

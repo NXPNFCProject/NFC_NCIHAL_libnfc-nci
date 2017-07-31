@@ -646,6 +646,7 @@ typedef struct {
   tNFA_EE_FLAGS ee_flags;    /* flags                            */
   uint8_t nfcee_id;
   uint8_t mode;
+  uint8_t route_block_control; /* controls route block feature   */
 } tNFA_EE_CB;
 
 /* Order of Routing entries in Routing Table */
