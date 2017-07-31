@@ -200,7 +200,7 @@ void NfcAdaptation::Initialize() {
   }
   if (!GetStrValue(NAME_NFA_STORAGE, bcm_nfc_location,
                    sizeof(bcm_nfc_location))) {
-    strlcpy(bcm_nfc_location, "/data/nfc", sizeof(bcm_nfc_location));
+    strlcpy(bcm_nfc_location, "/data/vendor/nfc", sizeof(bcm_nfc_location));
   }
 
   initializeProtocolLogLevel();

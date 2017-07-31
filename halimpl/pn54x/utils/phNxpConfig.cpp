@@ -53,7 +53,7 @@ const char alternative_config_path[] = "";
 
 #if 1
 const char* transport_config_paths[] = {"/odm/etc/", "/vendor/etc/", "/etc/"};
-const char transit_config_path[] = "/data/nfc/libnfc-nxpTransit.conf";
+const char transit_config_path[] = "/data/vendor/nfc/libnfc-nxpTransit.conf";
 #else
 const char* transport_config_paths[] = {"res/"};
 #endif

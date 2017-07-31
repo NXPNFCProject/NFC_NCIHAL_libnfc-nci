@@ -115,7 +115,5 @@ int updateNxpConfigTimestamp();
 #if (NXP_ESE_SVDD_SYNC == true)
 #define NAME_NXP_SVDD_SYNC_OFF_DELAY "NXP_SVDD_SYNC_OFF_DELAY"
 #endif
-/* default configuration */
-#define default_storage_location "/data/vendor/nfc"
 
 #endif

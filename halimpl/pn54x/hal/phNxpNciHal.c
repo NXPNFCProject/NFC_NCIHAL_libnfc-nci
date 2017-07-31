@@ -1230,7 +1230,7 @@ void read_retry() {
 *******************************************************************************/
 void phNxpNciHal_check_delete_nfaStorage_DHArea() {
   struct stat st;
-  const char config_eseinfo_path[] = "/data/nfc/nfaStorage.bin1";
+  const char config_eseinfo_path[] = "/data/vendor/nfc/nfaStorage.bin1";
   if (stat(config_eseinfo_path, &st) == -1) {
     ALOGD("%s file not present = %s", __func__, config_eseinfo_path);
   } else {
@@ -2299,7 +2299,7 @@ static NFCSTATUS phNxpNciHal_check_eSE_Session_Identity(void) {
   struct stat st;
   int ret = 0;
   NFCSTATUS status = NFCSTATUS_FAILED;
-  const char config_eseinfo_path[] = "/data/nfc/nfaStorage.bin1";
+  const char config_eseinfo_path[] = "/data/vendor/nfc/nfaStorage.bin1";
   static uint8_t session_identity[8] = {0x00};
   uint8_t default_session[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
   uint8_t swp2_intf_status = 0x00;
@@ -3504,7 +3504,7 @@ static void phNxpNciHal_check_factory_reset(void) {
   struct stat st;
   int ret = 0;
   NFCSTATUS status = NFCSTATUS_FAILED;
-  const char config_eseinfo_path[] = "/data/nfc/nfaStorage.bin1";
+  const char config_eseinfo_path[] = "/data/vendor/nfc/nfaStorage.bin1";
 #if (NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == true || \
      NXP_NFCC_DYNAMIC_DUAL_UICC == true)
   static uint8_t reset_ese_session_identity_set[] = {

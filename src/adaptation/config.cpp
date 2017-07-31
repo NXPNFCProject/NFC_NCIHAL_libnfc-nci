@@ -50,7 +50,7 @@ const int transport_config_path_size =
     (sizeof(transport_config_paths) / sizeof(transport_config_paths[0]));
 
 #if (NXP_EXTNS == TRUE)
-const char transit_config_path[] = "/data/nfc/";
+const char transit_config_path[] = "/data/vendor/nfc/";
 #endif
 
 #define config_name "libnfc-brcm.conf"
