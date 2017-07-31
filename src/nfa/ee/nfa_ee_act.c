@@ -3603,9 +3603,6 @@ void nfa_ee_lmrt_to_nfcc(tNFA_EE_MSG* p_data) {
       }
     }
   }
-  if (last_active == NFA_EE_INVALID) {
-    more = false;
-  }
 #if (NFC_NXP_CHIP_TYPE != PN547C2)
   find_and_resolve_tech_conflict();
 #endif
@@ -3635,6 +3632,9 @@ void nfa_ee_lmrt_to_nfcc(tNFA_EE_MSG* p_data) {
               more, p, &cur_offset);
   }
 #else
+  if (last_active == NFA_EE_INVALID) {
+    more = false;
+  }
   status = nfa_ee_route_add_one_ecb(&nfa_ee_cb.ecb[NFA_EE_CB_4_DH], &max_len,
                                     more, p, &cur_offset);
 
