@@ -767,7 +767,11 @@ void nfa_ee_api_mode_set(tNFA_EE_MSG* p_data) {
       && (p_cb->ee_status != NFA_EE_STATUS_REMOVED)
 #endif
           )
+#if (NXP_EXTNS == TRUE)
+    p_cb->ee_status = NFA_EE_STATUS_ACTIVE;
+#else
     p_cb->ee_status = NFA_EE_STATUS_PENDING | NFA_EE_STATUS_ACTIVE;
+#endif
   else {
 #if (NXP_EXTNS == TRUE)
     if (p_cb->ee_status != NFA_EE_STATUS_REMOVED)
