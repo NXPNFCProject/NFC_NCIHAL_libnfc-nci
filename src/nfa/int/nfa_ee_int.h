@@ -262,7 +262,8 @@ typedef struct {
  */
   uint8_t apdu_len[NFA_EE_MAX_APDU_PATTERN_ENTRIES]; /* the actual lengths in apdu_cfg */
   uint8_t apdu_pwr_cfg[NFA_EE_MAX_APDU_PATTERN_ENTRIES]; /* power configuration of this APDU Pattern entry */
-  uint16_t apdu_rt_info[NFA_EE_MAX_APDU_PATTERN_ENTRIES]; /* route/vs info for this APDU PATTERN entry */
+  uint8_t apdu_rt_info[NFA_EE_MAX_APDU_PATTERN_ENTRIES]; /* route/vs info for this APDU PATTERN entry */
+  uint8_t apdu_rt_loc[NFA_EE_MAX_APDU_PATTERN_ENTRIES];/* route location info for this APDU Pattern entry */
   uint8_t apdu_cfg[NFA_EE_TOTAL_APDU_PATTERN_SIZE];     /* routing entries based on APDU PATTERN */
   uint8_t apdu_pattern_entries;   /* The number of APDU PATTERN entries in aid_cfg */
 /* Each AID entry has an ssociated aid_len, aid_pwr_cfg, aid_rt_info.

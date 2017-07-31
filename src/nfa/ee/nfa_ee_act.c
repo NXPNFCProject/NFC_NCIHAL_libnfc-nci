@@ -532,47 +532,52 @@ static void nfa_ee_add_apdu_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
     uint8_t max_tlv;
 
     /* add the AID routing */
-    if (p_cb->apdu_pattern_entries) {
-      start_offset = 0;
-      for (xx = 0; xx < p_cb->apdu_pattern_entries; xx++) {
-          p_start = pp;
-          /* add one AID entry */
-          if (p_cb->apdu_rt_info[xx] & NFA_EE_AE_ROUTE) {
-              num_tlv++;
-              pa = &p_cb->apdu_cfg[start_offset];
-              pa++;        /* EMV tag */
-              len = *pa++; /* aid_len */
-              *pp++ = NFC_ROUTE_TAG_APDU;
-              *pp++ = len + 2;
-              *pp++ = (p_cb->apdu_rt_info[xx] >> NFA_EE_APDU_ROUTE_MASK);
-              *pp++ = p_cb->aid_pwr_cfg[xx];
-              /* copy the AID */
-              memcpy(pp, pa, len);
-              pp += len;
+          if (p_cb->apdu_pattern_entries) {
+            start_offset = 0;
+            for (xx = 0; xx < p_cb->apdu_pattern_entries; xx++) {
+                p_start = pp;
+                /* add one APDU entry */
+                if (p_cb->apdu_rt_info[xx] & NFA_EE_AE_ROUTE) {
+                    num_tlv++;
+                    pa = &p_cb->apdu_cfg[start_offset];
+                    pa++;        /* EMV tag */
+                    len = *pa++; /* apdu_len */
+                    *pp++ = NFC_ROUTE_TAG_APDU;
+                    *pp++ = len + 2;
+                    *pp++ = (p_cb->apdu_rt_info[xx] >> NFA_EE_APDU_ROUTE_MASK);
+                    NFA_TRACE_DEBUG1("nfa_ee_route_add_one_ecb_by_route_order p_cb->apdu_rt_info[xx] %x", p_cb->apdu_rt_info[xx]);
+                    *pp++ = p_cb->apdu_pwr_cfg[xx];
+                    /* copy the APDU */
+                    memcpy(pp, pa, len);
+                    pp += len;
+                }
+                start_offset += p_cb->apdu_len[xx];
+                new_size = (uint8_t)(pp - p_start);
+                NFA_TRACE_DEBUG1("nfa_ee_route_add_one_ecb_by_route_order --before num_tlv:- %d", num_tlv);
+                NFA_TRACE_DEBUG1("nfa_ee_route_add_one_ecb_by_route_order --before new_size:- %d",new_size);
+                nfa_ee_check_set_routing(new_size, p_max_len, ps, p_cur_offset);
+                if (*ps == 0) {
+                  /* just sent routing command, update local */
+                  *ps = 1;
+                   num_tlv = *ps;
+                   *p_cur_offset = new_size;
+                   pp = ps + 1;
+                   p = pp;
+                   tlv_size = (uint8_t)*p_cur_offset;
+                   max_tlv = (uint8_t)((*p_max_len > NFA_EE_ROUT_MAX_TLV_SIZE)
+                                        ? NFA_EE_ROUT_MAX_TLV_SIZE
+                                        : *p_max_len);
+                   memcpy(p, p_start, new_size);
+                   pp += new_size;
+                   } else {
+                    /* add the new entry */
+                     *ps = num_tlv;
+                     *p_cur_offset += new_size;
+                }
+            }
+            NFA_TRACE_DEBUG1("nfa_ee_route_add_one_ecb_by_route_order --num_tlv:- %d", num_tlv);
+            NFA_TRACE_DEBUG1("nfa_ee_route_add_one_ecb_by_route_order --new_size:- %d",new_size);
           }
-      }
-      start_offset += p_cb->aid_len[xx];
-      new_size = (uint8_t)(pp - p_start);
-      nfa_ee_check_set_routing(new_size, p_max_len, ps, p_cur_offset);
-      if (*ps == 0) {
-        /* just sent routing command, update local */
-        *ps = 1;
-         num_tlv = *ps;
-         *p_cur_offset = new_size;
-         pp = ps + 1;
-         p = pp;
-         tlv_size = (uint8_t)*p_cur_offset;
-         max_tlv = (uint8_t)((*p_max_len > NFA_EE_ROUT_MAX_TLV_SIZE)
-                              ? NFA_EE_ROUT_MAX_TLV_SIZE
-                              : *p_max_len);
-         memcpy(p, p_start, new_size);
-         pp += new_size;
-         } else {
-          /* add the new entry */
-           *ps = num_tlv;
-           *p_cur_offset += new_size;
-      }
-    }
 }
 /*******************************************************************************
 **
@@ -751,7 +756,7 @@ tNFA_EE_ECB* nfa_ee_find_apdu_offset(uint8_t apdu_len, uint8_t* p_apdu,
     if (p_ecb->apdu_pattern_entries) {
       offset = 0;
       for (xx = 0; xx < p_ecb->apdu_pattern_entries; xx++) {
-        if ((p_ecb->apdu_cfg[offset + apdu_len_offset] == apdu_len) &&
+        if (((p_ecb->apdu_cfg[offset + apdu_len_offset]/2) == apdu_len) &&
             (memcmp(&p_ecb->apdu_cfg[offset + apdu_len_offset + 1], p_apdu,
                     apdu_len) == 0)) {
           p_ret = p_ecb;
@@ -1565,11 +1570,12 @@ void nfa_ee_api_add_apdu(tNFA_EE_MSG* p_data) {
         apdu_len = nfa_ee_find_total_apdu_len(dh_ecb, 0);
         // Always use single apdu_cfg buffer to keep the apdu order intact.
         dh_ecb->apdu_pwr_cfg[dh_ecb->apdu_pattern_entries] = p_add->power_state;
-        dh_ecb->apdu_rt_info[dh_ecb->apdu_pattern_entries] = NFA_EE_AE_ROUTE | (p_cb->nfcee_id << 8);
+        dh_ecb->apdu_rt_info[dh_ecb->apdu_pattern_entries] = NFA_EE_AE_ROUTE;
+        dh_ecb->apdu_rt_loc[dh_ecb->apdu_pattern_entries] = p_cb->nfcee_id;
         p = dh_ecb->apdu_cfg + apdu_len;
 #else
         p_cb->apdu_pwr_cfg[p_cb->apdu_pattern_entries] = p_add->power_state;
-        p_cb->apdu_rt_info[p_cb->apdu_pattern_entries] = NFA_EE_AE_ROUTE | (p_cb->nfcee_id << 8);
+        p_cb->apdu_rt_info[p_cb->apdu_pattern_entries] = NFA_EE_AE_ROUTE;
         p = p_cb->apdu_cfg + apdu_len;
 #endif
 
@@ -1653,7 +1659,9 @@ void nfa_ee_api_remove_apdu(tNFA_EE_MSG* p_data) {
       GKI_shiftup(&p_cb->apdu_pwr_cfg[entry], &p_cb->apdu_pwr_cfg[entry + 1],
                  rest_len);
       GKI_shiftup(&p_cb->apdu_rt_info[entry], &p_cb->apdu_rt_info[entry + 1],
-                      rest_len * 2);
+                      rest_len);
+      GKI_shiftup(&p_cb->apdu_rt_loc[entry], &p_cb->apdu_rt_loc[entry + 1],
+                      rest_len);
     }
     /* else the last entry, just reduce the apdu_entries by 1 */
     p_cb->apdu_pattern_entries--;
@@ -1673,6 +1681,7 @@ void nfa_ee_api_remove_apdu(tNFA_EE_MSG* p_data) {
         memset(&nfa_ee_cb.ecb[xx].apdu_len[0], 0x00, NFA_EE_MAX_APDU_PATTERN_ENTRIES);
         memset(&nfa_ee_cb.ecb[xx].apdu_pwr_cfg[0], 0x00, NFA_EE_MAX_APDU_PATTERN_ENTRIES);
         memset(&nfa_ee_cb.ecb[xx].apdu_rt_info[0], 0x00, NFA_EE_MAX_APDU_PATTERN_ENTRIES);
+        memset(&nfa_ee_cb.ecb[xx].apdu_rt_loc[0], 0x00, NFA_EE_MAX_APDU_PATTERN_ENTRIES);
         nfa_ee_cb.ecb[xx].apdu_pattern_entries = 0;
         nfa_ee_cb.ecb[xx].ecb_flags |= NFA_EE_ECB_FLAGS_APDU;
         nfa_ee_cb.ee_cfged |= nfa_ee_ecb_to_mask(&nfa_ee_cb.ecb[xx]);
