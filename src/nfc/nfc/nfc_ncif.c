@@ -2902,6 +2902,8 @@ bool nfc_ncif_proc_proprietary_rsp(uint8_t mt, uint8_t gid, uint8_t oid) {
         case NCI_GID_EE_MANAGE:
           switch (oid) {
             case 0x00:
+            case 0x01:
+            /*FALL_THRU: NFCEE_MODE_SET_NTF*/
               stat = false;
               break;
             default:
