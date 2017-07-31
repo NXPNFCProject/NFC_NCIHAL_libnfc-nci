@@ -686,9 +686,16 @@ void nfa_hci_startup_complete(tNFA_STATUS status) {
 #if (NXP_EXTNS == TRUE)
   else if (nfa_hci_cb.hci_state == NFA_HCI_STATE_NFCEE_ENABLE) {
     nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
-    evt_data.admin_rsp_rcvd.status = status;
-    evt_data.admin_rsp_rcvd.NoHostsPresent = 0;
-    nfa_hciu_send_to_all_apps(NFA_HCI_HOST_TYPE_LIST_READ_EVT, &evt_data);
+
+    if(nfa_hci_cb.cmd_sent == NFA_HCI_ANY_GET_PARAMETER &&
+      nfa_hci_cb.param_in_use == NFA_HCI_HOST_LIST_INDEX){
+
+        evt_data.admin_rsp_rcvd.NoHostsPresent = 0;
+    }
+    else{
+      evt_data.admin_rsp_rcvd.status = status;
+      nfa_hciu_send_to_all_apps (NFA_HCI_CONFIG_DONE_EVT, &evt_data);
+    }
     return;
   }
 #endif

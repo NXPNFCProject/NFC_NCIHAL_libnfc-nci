@@ -1875,6 +1875,7 @@ void nfa_hci_handle_dyn_pipe_pkt(uint8_t pipe_id, uint8_t* p_data,
                                  uint16_t data_len) {
   tNFA_HCI_DYN_PIPE* p_pipe = nfa_hciu_find_pipe_by_pid(pipe_id);
   tNFA_HCI_DYN_GATE* p_gate;
+  tNFA_HCI_EVT_DATA  evt_data;
 
   if (p_pipe == NULL) {
     /* Invalid pipe ID */
@@ -1882,6 +1883,14 @@ void nfa_hci_handle_dyn_pipe_pkt(uint8_t pipe_id, uint8_t* p_data,
     if (nfa_hci_cb.type == NFA_HCI_COMMAND_TYPE)
       nfa_hciu_send_msg(pipe_id, NFA_HCI_RESPONSE_TYPE, NFA_HCI_ANY_E_NOK, 0,
                         NULL);
+#if(NXP_EXTNS == TRUE)
+    if(nfa_hci_cb.hci_state == NFA_HCI_STATE_NFCEE_ENABLE){
+      nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
+      evt_data.config_rsp_rcvd.status = NFA_STATUS_FAILED;
+      /*Notify failure*/
+      nfa_hciu_send_to_all_apps(NFA_HCI_CONFIG_DONE_EVT, &evt_data);
+    }
+#endif
     return;
   }
 #if (NXP_EXTNS == TRUE)
@@ -2464,6 +2473,7 @@ tNFA_STATUS nfa_hci_api_config_nfcee(uint8_t hostId) {
   uint8_t pipeId = 0;
   bool bCreatepipe = false;
   NFA_TRACE_DEBUG0("nfa_hci_api_config_nfcee - enter!!");
+
   nfa_hciu_set_nfceeid_config_mask(NFA_HCI_SET_CONFIG_EVENT, hostId);
   if ((nfa_hci_cb.host_controller_version == NFA_HCI_CONTROLLER_VERSION_12) &&
       (nfa_hci_cb.hci_state == NFA_HCI_STATE_NFCEE_ENABLE)) {
@@ -2471,22 +2481,11 @@ tNFA_STATUS nfa_hci_api_config_nfcee(uint8_t hostId) {
     if ((nfa_hci_api_IspipePresent(hostId, NFA_HCI_ETSI12_APDU_GATE) ==
          false)) {
       nfa_hci_cb.current_nfcee = hostId;
-      if ((nfa_hci_api_IspipePresent(
-               hostId, NFA_HCI_IDENTITY_MANAGEMENT_GATE) == false)) {
-        NFA_TRACE_DEBUG0("nfa_hci_api_config_nfcee - creating Id pipe!!!");
-        nfa_hciu_send_create_pipe_cmd(NFA_HCI_IDENTITY_MANAGEMENT_GATE,
-                                      nfa_hci_cb.current_nfcee,
-                                      NFA_HCI_IDENTITY_MANAGEMENT_GATE);
-        return (NFA_STATUS_OK);
-      } else {
-        NFA_TRACE_DEBUG0(
-            "nfa_hci_api_config_nfcee - Pipe is already present just open!!!");
-        if (nfa_hci_api_GetpipeId(hostId, NFA_HCI_IDENTITY_MANAGEMENT_GATE,
-                                  &pipeId) == true) {
-          nfa_hciu_send_open_pipe_cmd(pipeId);
-          return (NFA_STATUS_OK);
-        }
-      }
+      NFA_TRACE_DEBUG0 ("nfa_hci_api_config_nfcee - creating APDU gate pipe!!!");
+      nfa_hciu_alloc_gate(NFA_HCI_ETSI12_APDU_GATE, NFA_HANDLE_GROUP_HCI);
+      nfa_hciu_send_create_pipe_cmd (NFA_HCI_ETSI12_APDU_GATE, nfa_hci_cb.current_nfcee, NFA_HCI_ETSI12_APDU_GATE);
+
+      return (NFA_STATUS_OK);
     } else {
       status = NFA_STATUS_OK;
       NFA_TRACE_DEBUG0(
@@ -3024,6 +3023,9 @@ static void nfa_hci_handle_Nfcee_admpipe_rsp(uint8_t* p_data,
       nfa_hci_cb.pipe_in_use);
 #endif
   if (nfa_hci_cb.inst != NFA_HCI_ANY_OK) {
+
+    nfa_sys_stop_timer(&nfa_hci_cb.timer);
+
     nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
     /* Send NFA_HCI_CMD_SENT_EVT to notify failure */
     if ((nfa_hci_cb.cmd_sent == NFA_HCI_ANY_GET_PARAMETER) &&
@@ -3186,7 +3188,9 @@ static void nfa_hci_handle_Nfcee_dynpipe_rsp(uint8_t pipeId, uint8_t* p_data,
       // display atr and read first parameter on APDU Gate
       NFA_TRACE_DEBUG0(
           "nfa_hci_handle_Nfcee_dynpipe_rsp - ATR received read APDU Size!!!");
-      nfa_hciu_send_get_param_cmd(pipeId, NFA_HCI_MAX_C_APDU_SIZE_INDEX);
+      evt_data.admin_rsp_rcvd.status = NFA_STATUS_OK;
+      nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
+      nfa_hciu_send_to_all_apps(NFA_HCI_CONFIG_DONE_EVT, &evt_data);
     }
   }
 }
