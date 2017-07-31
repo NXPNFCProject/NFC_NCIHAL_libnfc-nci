@@ -322,7 +322,7 @@ int phTmlNfc_i2c_reset(void* pDevHandle, long level) {
 **
 *******************************************************************************/
 NFCSTATUS phTmlNfc_i2c_set_Jcop_dwnld_state(void* pDevHandle, long level) {
-  uint32_t ret = -1;
+  int32_t ret = -1;
   NFCSTATUS wStatus = NFCSTATUS_SUCCESS;
 
   NXPLOG_TML_D("phTmlNfc_i2c_set_Jcop_dwnld_state(), level %ld", level);
