@@ -490,8 +490,20 @@ void nfa_ee_sys_disable(void) {
       if (nfa_sys_is_graceful_disable()) {
         /* Disconnect NCI connection on graceful shutdown */
         msg.disconnect.p_cb = p_cb;
+#if(NXP_EXTNS == TRUE)
+        if(p_cb->conn_id == 0x03){
+            msg.conn.conn_id = p_cb->conn_id;
+            msg.conn.event = NFC_CONN_CLOSE_CEVT;
+            nfa_ee_nci_conn(&msg);
+        }
+        else{
+            nfa_ee_api_disconnect (&msg);
+            nfa_ee_cb.num_ee_expecting++;
+        }
+#else
         nfa_ee_api_disconnect(&msg);
         nfa_ee_cb.num_ee_expecting++;
+#endif
       } else {
         /* fake NFA_EE_DISCONNECT_EVT on ungraceful shutdown */
         msg.conn.conn_id = p_cb->conn_id;
@@ -516,6 +528,22 @@ void nfa_ee_sys_disable(void) {
   if (nfa_ee_cb.em_state == NFA_EE_EM_STATE_DISABLED)
     nfa_sys_deregister(NFA_ID_EE);
 }
+#if(NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         nfa_ee_connectionClosed
+**
+** Description      Check if EE's HCI connection is closed or not
+**
+** Returns          EE connection closed status
+**
+*******************************************************************************/
+uint8_t nfa_ee_connectionClosed(void)
+{
+
+  return (!(nfa_ee_cb.ee_flags & NFA_EE_HCI_CONN_CLOSE));
+}
+#endif
 
 /*******************************************************************************
 **

@@ -596,6 +596,9 @@ typedef uint8_t tNFA_EE_WAIT;
 /* set this bit when NFC-DEP is configured in the routing table */
 #define NFA_EE_FLAG_CFG_NFC_DEP 0x05
 #endif
+#if(NXP_EXTNS == TRUE)
+#define NFA_EE_HCI_CONN_CLOSE  0x8
+#endif
 typedef uint8_t tNFA_EE_FLAGS;
 
 /* NFCEE DISCOVER in progress       */
@@ -686,6 +689,7 @@ bool nfa_ee_nfeeid_active(uint8_t nfee_id);
 uint8_t NFA_check_p61_CL_Activated();
 uint16_t nfa_ee_find_max_aid_config_length();
 uint16_t nfa_ee_api_get_max_aid_config_length();
+extern uint8_t nfa_ee_connectionClosed();
 #endif
 uint8_t nfa_ee_ecb_to_mask(tNFA_EE_ECB* p_cb);
 void nfa_ee_restore_one_ecb(tNFA_EE_ECB* p_cb);

@@ -946,6 +946,13 @@ void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   }
 #endif
   if (event == NFC_CONN_CREATE_CEVT) {
+#if(NXP_EXTNS == TRUE)
+    tNFA_EE_MSG p_msgdata;
+    p_msgdata.conn.conn_id = conn_id;
+    p_msgdata.conn.event = event;
+    p_msgdata.conn.p_data = p_data;
+    nfa_ee_nci_conn(&p_msgdata);
+#endif
     nfa_hci_cb.conn_id = conn_id;
     nfa_hci_cb.buff_size = p_data->conn_create.buff_size;
 
@@ -953,6 +960,12 @@ void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
       nfa_hci_cb.w4_hci_netwk_init = true;
       nfa_hciu_alloc_gate(NFA_HCI_CONNECTIVITY_GATE, 0);
     }
+#if(NXP_EXTNS == TRUE)
+    if (nfa_hci_cb.hci_state == NFA_HCI_STATE_DISABLED){
+      nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
+      return;
+    }
+#endif
 
     if (nfa_hci_cb.cfg.admin_gate.pipe01_state == NFA_HCI_PIPE_CLOSED) {
       /* First step in initialization/restore is to open the admin pipe */
@@ -969,13 +982,21 @@ void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
 #endif
     }
   } else if (event == NFC_CONN_CLOSE_CEVT) {
-    nfa_hci_cb.conn_id = 0;
-    nfa_hci_cb.hci_state = NFA_HCI_STATE_DISABLED;
-    /* deregister message handler on NFA SYS */
-    nfa_sys_deregister(NFA_ID_HCI);
-#if ((NXP_EXTNS == TRUE) && (NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == true))
-    if (nfa_dm_cb.p_dm_cback)
-      (*nfa_dm_cb.p_dm_cback)(NFA_DM_EE_HCI_DISABLE, NULL);
+      nfa_hci_cb.conn_id = 0;
+      nfa_hci_cb.hci_state = NFA_HCI_STATE_DISABLED;
+#if(NXP_EXTNS == TRUE)
+      if(nfa_ee_connectionClosed())
+#endif
+      /* deregister message handler on NFA SYS */
+        nfa_sys_deregister (NFA_ID_HCI);
+      NFA_TRACE_DEBUG0("NFC_CONN_CLOSE_CEVT handled");
+
+#if(NXP_EXTNS == TRUE)
+      tNFA_EE_MSG p_msgdata;
+      p_msgdata.conn.conn_id = conn_id;
+      p_msgdata.conn.event = event;
+      p_msgdata.conn.p_data = p_data;
+      nfa_ee_nci_conn(&p_msgdata);
 #endif
   }
 
