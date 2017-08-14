@@ -904,16 +904,19 @@ void nfa_ee_api_register(tNFA_EE_MSG* p_data) {
           nfa_ee_cb.ecb[xx].aid_pwr_cfg = GKI_getbuf(max_aid_entries);
           nfa_ee_cb.ecb[xx].aid_rt_info = GKI_getbuf(max_aid_entries);
           nfa_ee_cb.ecb[xx].aid_rt_loc = GKI_getbuf(max_aid_entries);
+          nfa_ee_cb.ecb[xx].aid_info    = GKI_getbuf(max_aid_entries);
           nfa_ee_cb.ecb[xx].aid_cfg = GKI_getbuf(max_aid_config_length);
           if ((NULL != nfa_ee_cb.ecb[xx].aid_len) &&
                   (NULL != nfa_ee_cb.ecb[xx].aid_pwr_cfg) &&
                   (NULL != nfa_ee_cb.ecb[xx].aid_rt_info) &&
                   (NULL != nfa_ee_cb.ecb[xx].aid_rt_loc) &&
+                  (NULL != nfa_ee_cb.ecb[xx].aid_info) &&
                   (NULL != nfa_ee_cb.ecb[xx].aid_cfg)) {
               memset(nfa_ee_cb.ecb[xx].aid_len, 0, max_aid_entries);
               memset(nfa_ee_cb.ecb[xx].aid_pwr_cfg, 0, max_aid_entries);
               memset(nfa_ee_cb.ecb[xx].aid_rt_info, 0, max_aid_entries);
               memset(nfa_ee_cb.ecb[xx].aid_rt_loc, 0, max_aid_entries);
+              memset(nfa_ee_cb.ecb[xx].aid_info, 0, max_aid_entries);
               memset(nfa_ee_cb.ecb[xx].aid_cfg, 0, max_aid_config_length);
           } else {
               NFA_TRACE_ERROR0("GKI_getbuf allocation for ECB failed !");
@@ -966,6 +969,7 @@ void nfa_ee_api_deregister(tNFA_EE_MSG* p_data) {
           GKI_freebuf(nfa_ee_cb.ecb[xx].aid_pwr_cfg);
           GKI_freebuf(nfa_ee_cb.ecb[xx].aid_rt_info);
           GKI_freebuf(nfa_ee_cb.ecb[xx].aid_rt_loc);
+          GKI_freebuf(nfa_ee_cb.ecb[xx].aid_info);
           GKI_freebuf(nfa_ee_cb.ecb[xx].aid_cfg);
       }
   }
@@ -1427,6 +1431,7 @@ void nfa_ee_api_remove_aid(tNFA_EE_MSG* p_data) {
             memset(&p_cb->aid_cfg[0], 0x00, max_aid_config_length);
             memset(&p_cb->aid_len[0], 0x00, max_aid_entries);
             memset(&p_cb->aid_pwr_cfg[0], 0x00, max_aid_entries);
+            memset(&p_cb->aid_info[0], 0x00, max_aid_entries);
             memset(&p_cb->aid_rt_info[0], 0x00, max_aid_entries);
         }
         else {
@@ -1454,6 +1459,7 @@ void nfa_ee_api_remove_aid(tNFA_EE_MSG* p_data) {
         memset(&p_ecb->aid_cfg[0], 0x00, max_aid_config_length);
         memset(&p_ecb->aid_len[0], 0x00, max_aid_entries);
         memset(&p_ecb->aid_pwr_cfg[0], 0x00, max_aid_entries);
+        memset(&p_ecb->aid_info[0], 0x00, max_aid_entries);
         memset(&p_ecb->aid_rt_info[0], 0x00, max_aid_entries);
     }
     else {
