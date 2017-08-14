@@ -472,7 +472,6 @@ static void nfa_ee_add_aid_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
       uint8_t* p_start = pp;
       /* add one AID entry */
       if (p_cb->aid_rt_info[xx] & NFA_EE_AE_ROUTE) {
-        num_tlv++;
         uint8_t* pa = &p_cb->aid_cfg[start_offset];
 
         NFA_TRACE_DEBUG2("%s -  p_cb->aid_info%x", __func__,
@@ -489,14 +488,18 @@ static void nfa_ee_add_aid_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
         }
 
         uint8_t tag =
-            NFC_ROUTE_TAG_AID | nfa_ee_cb.route_block_control | route_qual;;
-
-        add_route_aid_tlv(&pp, pa, p_cb->aid_rt_loc[xx], p_cb->aid_pwr_cfg[xx], tag);
+            NFC_ROUTE_TAG_AID | nfa_ee_cb.route_block_control | route_qual;
+            if(nfa_ee_is_active(p_cb->aid_rt_loc[xx]|NFA_HANDLE_GROUP_EE)) {
+                add_route_aid_tlv(&pp, pa, p_cb->aid_rt_loc[xx], p_cb->aid_pwr_cfg[xx], tag);
+                num_tlv++;
+            } else {
+                NFA_TRACE_DEBUG2("%s -  ignoring route loc%x", __func__,p_cb->aid_rt_loc[xx]);
+            }
       }
       start_offset += p_cb->aid_len[xx];
       uint8_t new_size = (uint8_t)(pp - p_start);
       nfa_ee_check_set_routing(new_size, p_max_len, ps, p_cur_offset);
-      if (*ps == 0) {
+      if (*ps == 0 && (num_tlv > 0x00)) {
         /* just sent routing command, update local */
         *ps = 1;
         num_tlv = *ps;
