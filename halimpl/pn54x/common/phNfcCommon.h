@@ -35,7 +35,7 @@
 
 /* HAL Version number (Updated as per release) */
 #define NXP_MW_VERSION_MAJ (0x00)
-#define NXP_MW_VERSION_MIN (0x0E)
+#define NXP_MW_VERSION_MIN (0x0F)
 
 #define GET_EEPROM_DATA (1U)
 #define SET_EEPROM_DATA (2U)
