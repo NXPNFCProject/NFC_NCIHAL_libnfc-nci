@@ -24,7 +24,7 @@ tNFC_chipType capability::chipType = pn80T;
 capability::capability(){}
 
 capability* capability::getInstance() {
-    if (NULL != instance) {
+    if (NULL == instance) {
         instance = new capability();
     }
     return instance;
