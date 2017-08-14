@@ -1223,7 +1223,7 @@ void nfa_ee_api_add_aid(tNFA_EE_MSG* p_data) {
     if((p_add->power_state & 0x08) || (p_add->power_state & 0x20)) {
       p_add->power_state &= ~0x08;
       p_add->power_state &= ~0x20;
-      p_add->power_state |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_LOCK();
+      p_add->power_state |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_UNLOCK();
     }
     if(p_add->power_state & 0x10){
       p_add->power_state &= ~0x10;
@@ -1523,7 +1523,7 @@ void nfa_ee_api_add_apdu(tNFA_EE_MSG* p_data) {
     if((p_add->power_state & 0x08) || (p_add->power_state & 0x20)) {
       p_add->power_state &= ~0x08;
       p_add->power_state &= ~0x20;
-      p_add->power_state |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_LOCK();
+      p_add->power_state |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_UNLOCK();
     } else if(p_add->power_state & 0x10){
       p_add->power_state &= ~0x10;
       p_add->power_state |= NCI_ROUTE_PWR_STATE_SCREEN_ON_LOCK();
