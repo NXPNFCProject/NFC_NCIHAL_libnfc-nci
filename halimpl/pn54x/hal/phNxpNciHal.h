@@ -116,6 +116,7 @@ typedef struct phNxpNciHal_Control {
   uint8_t read_retry_cnt;
   phNxpNciInfo_t nci_info;
   uint8_t hal_boot_mode;
+  tNFC_chipType chipType;
 } phNxpNciHal_Control_t;
 
 typedef struct {

@@ -3708,8 +3708,8 @@ int phNxpNciHal_getFWDownloadFlag(uint8_t* fwDnldRequest) {
 ** Returns          none
 *******************************************************************************/
 void phNxpNciHal_configFeatureList(uint8_t* init_rsp, uint16_t rsp_len) {
-    tNFC_chipType chipType = 0;
-    chipType = configChipType(init_rsp,rsp_len);
+    nxpncihal_ctrl.chipType = configChipType(init_rsp,rsp_len);
+    tNFC_chipType chipType = nxpncihal_ctrl.chipType;
     CONFIGURE_FEATURELIST(chipType);
     NXPLOG_NCIHAL_D("NFC_GetFeatureList ()chipType = %d", chipType);
 }
@@ -3725,6 +3725,6 @@ void phNxpNciHal_configFeatureList(uint8_t* init_rsp, uint16_t rsp_len) {
 ** Returns          chipType
 *******************************************************************************/
 tNFC_chipType phNxpNciHal_getChipType() {
-    return getChipType();
+    return nxpncihal_ctrl.chipType;
 }
 
