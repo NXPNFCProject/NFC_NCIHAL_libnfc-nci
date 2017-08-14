@@ -122,6 +122,7 @@ class NfcAdaptation {
   static tHAL_NFC_DATA_CBACK* mHalDataCallback;
   static ThreadCondVar mHalOpenCompletedEvent;
   static ThreadCondVar mHalCloseCompletedEvent;
+  static ThreadCondVar mHalIoctlEvent;
   static android::sp<android::hardware::nfc::V1_0::INfc> mHal;
   static android::sp<vendor::nxp::nxpnfc::V1_0::INxpNfc> mHalNxpNfc;
   static android::hardware::nfc::V1_0::INfcClientCallback* mCallback;
