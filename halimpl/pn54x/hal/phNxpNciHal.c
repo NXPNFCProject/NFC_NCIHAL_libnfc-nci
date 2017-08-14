@@ -775,24 +775,12 @@ int phNxpNciHal_open(nfc_stack_callback_t* p_cback,
       wConfigStatus = NFCSTATUS_FAILED;
       goto clean_and_return;
     }
-#if (NXP_NFCC_FORCE_NCI1_0_INIT == true)
-    status = phNxpNciHal_send_ext_cmd(sizeof(cmd_init_nci), cmd_init_nci);
-#else
-    status = phNxpNciHal_send_ext_cmd(sizeof(cmd_init_nci2_0), cmd_init_nci2_0);
-    if (status == NFCSTATUS_SUCCESS) {
-      if (nxpncihal_ctrl.nci_info.nci_version != NCI_VERSION_2_0) {
-        NXPLOG_NCIHAL_E("Chip is in NCI1.0 mode reset the chip again");
-        status = phNxpNciHal_send_ext_cmd(sizeof(cmd_reset_nci), cmd_reset_nci);
-        if(status == NFCSTATUS_SUCCESS) {
-          if(nxpncihal_ctrl.nci_info.nci_version == NCI_VERSION_2_0) {
-            status = phNxpNciHal_send_ext_cmd(sizeof(cmd_init_nci2_0), cmd_init_nci2_0);
-          } else {
-            status = phNxpNciHal_send_ext_cmd(sizeof(cmd_init_nci), cmd_init_nci);
-          }
-        }
-      }
+    if(nxpncihal_ctrl.nci_info.nci_version == NCI_VERSION_2_0) {
+        status = phNxpNciHal_send_ext_cmd(sizeof(cmd_init_nci2_0), cmd_init_nci2_0);
+    } else {
+        status = phNxpNciHal_send_ext_cmd(sizeof(cmd_init_nci), cmd_init_nci);
     }
-#endif
+
     if (status != NFCSTATUS_SUCCESS) {
       NXPLOG_NCIHAL_E("NCI_CORE_INIT : Failed");
       if (init_retry_cnt < 3) {
@@ -1126,9 +1114,9 @@ static void phNxpNciHal_read_complete(void* pContext,
                                  &nxpncihal_ctrl.rx_data_len);
 #if (NXP_NFCC_FORCE_NCI1_0_INIT == true)
     /* Notification Checking */
-    if ((nxpncihal_ctrl.hal_ext_enabled == 1) &&
+    if (nfcFL.nfccFL._NFCC_FORCE_NCI1_0_INIT && ((nxpncihal_ctrl.hal_ext_enabled == 1) &&
         (nxpncihal_ctrl.p_rx_data[0x00] == 0x60) &&
-        (nxpncihal_ctrl.p_rx_data[0x03] == 0x02)) {
+        (nxpncihal_ctrl.p_rx_data[0x03] == 0x02))) {
       nxpncihal_ctrl.ext_cb_data.status = NFCSTATUS_SUCCESS;
       SEM_POST(&(nxpncihal_ctrl.ext_cb_data));
     } else
@@ -3713,8 +3701,9 @@ int phNxpNciHal_getFWDownloadFlag(uint8_t* fwDnldRequest) {
 ** Description      Configures the featureList based on chip type
 **                  HW Version information number will provide chipType.
 **                  HW Version can be obtained from CORE_INIT_RESPONSE(NCI 1.0)
+**                  or CORE_RST_NTF(NCI 2.0)
 **
-** Parameters       CORE_INIT_RESPONSE, len
+** Parameters       CORE_INIT_RESPONSE/CORE_RST_NTF, len
 **
 ** Returns          none
 *******************************************************************************/

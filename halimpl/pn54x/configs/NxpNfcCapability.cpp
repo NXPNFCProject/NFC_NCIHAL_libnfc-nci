@@ -30,10 +30,13 @@ capability* capability::getInstance() {
     return instance;
 }
 
-tNFC_chipType capability::processChipType(uint8_t* init_rsp, uint16_t rsp_len) {
-    if(offsetHwVersion < rsp_len) {
-        ALOGD ("%s HwVersion : 0x%02x", __func__,init_rsp[offsetHwVersion]);
-        switch(init_rsp[offsetHwVersion]){
+tNFC_chipType capability::processChipType(uint8_t* msg, uint16_t msg_len) {
+    if(msg[0] == 0x60 && msg[1] == 00) {
+        chipType = pn81T;
+    }
+    else if(offsetHwVersion < msg_len) {
+        ALOGD ("%s HwVersion : 0x%02x", __func__,msg[offsetHwVersion]);
+        switch(msg[offsetHwVersion]){
 
         case 0x40 : //PN553 A0
         case 0x41 : //PN553 B0
@@ -66,14 +69,14 @@ tNFC_chipType capability::processChipType(uint8_t* init_rsp, uint16_t rsp_len) {
         }
     }
     else {
-        ALOGD ("%s Wrong rsp_len. Setting Default ChiptType pn80T",__func__);
+        ALOGD ("%s Wrong msg_len. Setting Default ChiptType pn80T",__func__);
         chipType = pn80T;
     }
     return chipType;
 }
 
-extern "C" tNFC_chipType configChipType(uint8_t* init_rsp, uint16_t rsp_len) {
-    return pConfigFL->processChipType(init_rsp,rsp_len);
+extern "C" tNFC_chipType configChipType(uint8_t* msg, uint16_t msg_len) {
+    return pConfigFL->processChipType(msg,msg_len);
 }
 
 extern "C" tNFC_chipType getChipType() {

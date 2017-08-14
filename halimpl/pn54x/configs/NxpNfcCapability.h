@@ -39,13 +39,15 @@ tNFC_chipType getChipType ();
 **
 ** Function         configChipType
 **
-** Description      Finds chiptType by processing buffer
+** Description      Finds chiptType by processing msg buffer
 **
-** Parameters       buffer, buffer length
+** Parameters       msg, len
+**                  msg : CORE_INIT_RESPONSE (NCI 1.0)
+**                           CORE_RST_NTF (NCI 2.0)
 **
 ** Returns          chipType
 *******************************************************************************/
-tNFC_chipType configChipType(uint8_t* init_rsp, uint16_t rsp_len);
+tNFC_chipType configChipType(uint8_t* msg, uint16_t msg_len);
 #ifdef __cplusplus
 };
 
@@ -57,7 +59,7 @@ private:
 public:
     static tNFC_chipType chipType;
     static capability* getInstance();
-    tNFC_chipType processChipType(uint8_t* init_rsp, uint16_t rsp_len);
+    tNFC_chipType processChipType(uint8_t* msg, uint16_t msg_len);
 };
 
 #endif

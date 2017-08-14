@@ -1924,6 +1924,18 @@ void NFC_GetFeatureList() {
     }
     CONFIGURE_FEATURELIST(chipType);
     NFC_TRACE_API1("NFC_GetFeatureList ()chipType = %d", chipType);
+
+}
+
+/*******************************************************************************
+ **
+ ** Function         NFC_GetChipType
+ **
+ ** Description      Gets the chipType initialized during bootup
+ **
+ *******************************************************************************/
+tNFC_chipType NFC_GetChipType() {
+    return chipType;
 }
 
 #if (BT_TRACE_VERBOSE == true)

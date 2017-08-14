@@ -227,8 +227,9 @@ NFCSTATUS phNxpNciHal_send_nfcee_pwr_cntl_cmd(uint8_t type);
 ** Description      Configures the featureList based on chip type
 **                  HW Version information number will provide chipType.
 **                  HW Version can be obtained from CORE_INIT_RESPONSE(NCI 1.0)
+**                  or CORE_RST_NTF(NCI 2.0)
 **
-** Parameters       CORE_INIT_RESPONSE, len
+** Parameters       CORE_INIT_RESPONSE/CORE_RST_NTF, len
 **
 ** Returns          none
 *******************************************************************************/

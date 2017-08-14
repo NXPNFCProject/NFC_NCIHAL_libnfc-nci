@@ -60,7 +60,7 @@
 #define NFA_MAX_AID_LEN NFC_MAX_AID_LEN
 #define NFA_MIN_AID_LEN 5 /* per NCI specification */
 /* Result of NFA_SetPowerSubState */
-#define NFA_DM_SET_POWER_SUB_STATE_EVT 11
+#define NFA_DM_SET_POWER_SUB_STATE_EVT 13
 /* NFA API return status codes */
 /* Command succeeded    */
 #define NFA_STATUS_OK NCI_STATUS_OK
