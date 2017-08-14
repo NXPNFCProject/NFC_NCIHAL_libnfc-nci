@@ -530,11 +530,11 @@ typedef uint8_t tNCI_DISCOVERY_TYPE;
 #define NCI_ROUTE_PWR_STATE_BATT_OFF 0x04
 #if (NXP_EXTNS == TRUE)
 /* The device is screen off Unlock mode */
-#define NCI_ROUTE_PWR_STATE_SCREEN_OFF_UNLOCK()   ((NFC_GetNCIVersion() == NCI_VERSION_2_0)?0x08:0x00)
+#define NCI_ROUTE_PWR_STATE_SCREEN_OFF_UNLOCK()   ((NFC_GetNCIVersion() == NCI_VERSION_2_0)?0x08:0x80)
 /* The device is screen on lock mode */
 #define NCI_ROUTE_PWR_STATE_SCREEN_ON_LOCK()    ((NFC_GetNCIVersion() == NCI_VERSION_2_0)?0x10:0x40)
 /* The device is screen off lock mode */
-#define NCI_ROUTE_PWR_STATE_SCREEN_OFF_LOCK()   ((NFC_GetNCIVersion() == NCI_VERSION_2_0)?0x20:0x80)
+#define NCI_ROUTE_PWR_STATE_SCREEN_OFF_LOCK()   ((NFC_GetNCIVersion() == NCI_VERSION_2_0)?0x20:0x00)
 #endif
 /* Hardware / Registration Identification  */
 #define NCI_NFCEE_TAG_HW_ID 0x00

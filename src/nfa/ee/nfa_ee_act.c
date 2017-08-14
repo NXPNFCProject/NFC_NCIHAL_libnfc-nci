@@ -415,7 +415,7 @@ static void nfa_ee_add_proto_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
     if (power_cfg) {
       /* Applying Route Block for ISO DEP Protocol, so that AIDs
        * which are not in the routing table can also be blocked */
-      if (nfa_ee_proto_mask_list[xx] == NFA_PROTOCOL_MASK_ISO_DEP) {
+      if (nfa_ee_proto_mask_list[xx] == NFA_PROTOCOL_MASK_ISO_DEP||nfa_ee_proto_mask_list[xx] == NFC_PROTOCOL_MASK_ISO7816) {
         proto_tag = NFC_ROUTE_TAG_PROTO | nfa_ee_cb.route_block_control;
 
         /* Enable screen on lock power state for ISO-DEP protocol to
