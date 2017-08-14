@@ -779,10 +779,20 @@ int phNxpNciHal_open(nfc_stack_callback_t* p_cback,
         status = phNxpNciHal_send_ext_cmd(sizeof(cmd_init_nci2_0), cmd_init_nci2_0);
     } else {
         status = phNxpNciHal_send_ext_cmd(sizeof(cmd_init_nci), cmd_init_nci);
+        if(status == NFCSTATUS_SUCCESS && (nfcFL.chipType == pn557)) {
+            NXPLOG_NCIHAL_E("Chip is in NCI1.0 mode reset the chip to 2.0 mode");
+            status = phNxpNciHal_send_ext_cmd(sizeof(cmd_reset_nci), cmd_reset_nci);
+            if(status == NFCSTATUS_SUCCESS) {
+                status = phNxpNciHal_send_ext_cmd(sizeof(cmd_init_nci2_0), cmd_init_nci2_0);
+                if(status == NFCSTATUS_SUCCESS) {
+                    goto init_retry;
+                }
+            }
+        }
     }
 
     if (status != NFCSTATUS_SUCCESS) {
-      NXPLOG_NCIHAL_E("NCI_CORE_INIT : Failed");
+      NXPLOG_NCIHAL_E("COMMAND Failed");
       if (init_retry_cnt < 3) {
         init_retry_cnt++;
         (void)phNxpNciHal_power_cycle();

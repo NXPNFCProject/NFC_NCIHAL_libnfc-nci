@@ -31,46 +31,49 @@ capability* capability::getInstance() {
 }
 
 tNFC_chipType capability::processChipType(uint8_t* msg, uint16_t msg_len) {
-    if(msg[0] == 0x60 && msg[1] == 00) {
-        chipType = pn81T;
-    }
-    else if(offsetHwVersion < msg_len) {
-        ALOGD ("%s HwVersion : 0x%02x", __func__,msg[offsetHwVersion]);
-        switch(msg[offsetHwVersion]){
+    if((msg != NULL) && (msg_len != 0)) {
+        if((msg[0] == 0x60 && msg[1] == 00) ||
+                ((offsetFwVersion < msg_len) && (msg[offsetFwVersion] == 0x12))) {
+            chipType = pn81T;
+        }
+        else if(offsetHwVersion < msg_len) {
+            ALOGD ("%s HwVersion : 0x%02x", __func__,msg[offsetHwVersion]);
+            switch(msg[offsetHwVersion]){
 
-        case 0x40 : //PN553 A0
-        case 0x41 : //PN553 B0
-            chipType = pn553;
-            break;
+            case 0x40 : //PN553 A0
+            case 0x41 : //PN553 B0
+                chipType = pn553;
+                break;
 
-        case 0x50 : //PN553 A0 + P73
-        case 0x51 : //PN553 B0 + P73
-            chipType = pn80T;
-            break;
+            case 0x50 : //PN553 A0 + P73
+            case 0x51 : //PN553 B0 + P73
+                chipType = pn80T;
+                break;
 
-        case 0x98 :
-            chipType = pn551;
-            break;
+            case 0x98 :
+                chipType = pn551;
+                break;
 
-        case 0xA8 :
-            chipType = pn67T;
-            break;
+            case 0xA8 :
+                chipType = pn67T;
+                break;
 
-        case 0x28 :
-            chipType = pn548C2;
-            break;
+            case 0x28 :
+                chipType = pn548C2;
+                break;
 
-        case 0x18 :
-            chipType = pn66T;
-            break;
+            case 0x18 :
+                chipType = pn66T;
+                break;
 
-        default :
+            default :
+                chipType = pn80T;
+            }
+        }
+        else {
+            ALOGD ("%s Wrong msg_len. Setting Default ChiptType pn80T",__func__);
             chipType = pn80T;
         }
-    }
-    else {
-        ALOGD ("%s Wrong msg_len. Setting Default ChiptType pn80T",__func__);
-        chipType = pn80T;
     }
     return chipType;
 }

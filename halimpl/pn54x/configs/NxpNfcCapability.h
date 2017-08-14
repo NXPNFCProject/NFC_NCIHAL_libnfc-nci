@@ -55,6 +55,7 @@ class capability {
 private:
     static capability* instance;
     const uint16_t offsetHwVersion = 24;
+    const uint16_t offsetFwVersion = 25;
     capability();
 public:
     static tNFC_chipType chipType;
