@@ -338,7 +338,7 @@ static void nfa_dm_nfc_response_cback(tNFC_RESPONSE_EVT event,
 
   switch (event) {
     case NFC_ENABLE_REVT: /* 0  Enable event */
-
+        nfa_ee_max_ee_cfg = nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED;
       /* NFC stack enabled. Enable nfa sub-systems */
       if (p_data->enable.status == NFC_STATUS_OK) {
         if (nfa_ee_max_ee_cfg != 0) {

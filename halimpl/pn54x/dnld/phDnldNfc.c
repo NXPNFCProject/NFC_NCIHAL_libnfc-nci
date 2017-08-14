@@ -831,10 +831,10 @@ NFCSTATUS phDnldNfc_LoadRecInfo(void) {
   phDnldNfc_SetHwDevHandle();
   if ((nfcFL.chipType != pn547C2) && (gRecFWDwnld == true)) {
       wStatus =
-              phDnldNfc_LoadRecoveryFW(PLATFORM_LIB_PATH,
+              phDnldNfc_LoadRecoveryFW(nfcFL.nfcMwFL._PLATFORM_LIB_PATH,
                       &pImageInfo, &ImageInfoLen);
   } else {
-      wStatus = phDnldNfc_LoadFW(PLATFORM_LIB_PATH,
+      wStatus = phDnldNfc_LoadFW(nfcFL.nfcMwFL._PLATFORM_LIB_PATH,
               &pImageInfo, &ImageInfoLen);
   }
   if ((pImageInfo == NULL) || (ImageInfoLen == 0)) {
@@ -891,10 +891,10 @@ NFCSTATUS phDnldNfc_LoadPKInfo(void) {
 /* load the PKU image library */
   if ((nfcFL.chipType != pn547C2) && (gRecFWDwnld == true)) {
       wStatus =
-              phDnldNfc_LoadRecoveryFW(PKU_LIB_PATH,
+              phDnldNfc_LoadRecoveryFW(nfcFL.nfcMwFL._PKU_LIB_PATH,
                       &pImageInfo, &ImageInfoLen);
   } else {
-      wStatus = phDnldNfc_LoadFW(PKU_LIB_PATH,
+      wStatus = phDnldNfc_LoadFW(nfcFL.nfcMwFL._PKU_LIB_PATH,
               &pImageInfo, &ImageInfoLen);
   }
   if ((pImageInfo == NULL) || (ImageInfoLen == 0)) {
