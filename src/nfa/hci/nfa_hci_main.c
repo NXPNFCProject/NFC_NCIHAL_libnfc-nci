@@ -1796,31 +1796,31 @@ static bool nfa_hci_evt_hdlr(NFC_HDR* p_msg) {
       case NFA_HCI_RSP_TIMEOUT_EVT:
 #if (NXP_EXTNS == TRUE)
           if(nfcFL.nfcNxpEse) {
-#if (JCOP_WA_ENABLE == TRUE)
-              if (nfa_ee_ce_p61_completed != 0) {
-                  NFA_TRACE_EVENT0(
-                          "nfa_hci_evt_hdlr Restart timer expired for wired transceive");
-                  nfa_ee_ce_p61_completed = 0;
-              } else {
-                  uint32_t p61_access_status = 0x0000;
-                  if (NFC_GetP61Status((void*)&p61_access_status) < 0) {
+              if(nfcFL.eseFL._JCOP_WA_ENABLE) {
+                  if (nfa_ee_ce_p61_completed != 0) {
                       NFA_TRACE_EVENT0(
-                              "nfa_hci_evt_hdlr : Check dual mode : NFC_GetP61Status failed");
+                              "nfa_hci_evt_hdlr Restart timer expired for wired transceive");
+                      nfa_ee_ce_p61_completed = 0;
                   } else {
-                      if (((p61_access_status == 0x400) ||
-                              (p61_access_status == 0x1000)) &&
-                              (NFA_check_p61_CL_Activated() != 0)) {
+                      uint32_t p61_access_status = 0x0000;
+                      if (NFC_GetP61Status((void*)&p61_access_status) < 0) {
                           NFA_TRACE_EVENT0(
-                                  "nfa_hci_evt_hdlr Restart timer for wired transceive");
-                          nfa_sys_start_timer(&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT,
-                                  NFA_HCI_WTX_RESP_TIMEOUT);
-                          /*situation occurred*/
-                          nfa_ee_ce_p61_completed = 1;
-                          break;
+                                  "nfa_hci_evt_hdlr : Check dual mode : NFC_GetP61Status failed");
+                      } else {
+                          if (((p61_access_status == 0x400) ||
+                                  (p61_access_status == 0x1000)) &&
+                                  (NFA_check_p61_CL_Activated() != 0)) {
+                              NFA_TRACE_EVENT0(
+                                      "nfa_hci_evt_hdlr Restart timer for wired transceive");
+                              nfa_sys_start_timer(&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT,
+                                      NFA_HCI_WTX_RESP_TIMEOUT);
+                              /*situation occurred*/
+                              nfa_ee_ce_p61_completed = 1;
+                              break;
+                          }
                       }
                   }
               }
-#endif
           }
 #endif
         nfa_hci_rsp_timeout((tNFA_HCI_EVENT_DATA*)p_msg);

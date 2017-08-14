@@ -27,12 +27,6 @@
 
 #ifndef PHTMLNFC_H
 #define PHTMLNFC_H
-#ifndef NXP_NFCC_FEATURES_H
-#include <NXP_NFCC_Features.h>
-#endif
-#ifndef NXP_ESE_FEATURES_H
-#include <NXP_ESE_Features.h>
-#endif
 #include <phNfcCommon.h>
 
 /*

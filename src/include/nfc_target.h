@@ -51,11 +51,6 @@
 #include "bt_trace.h"
 #endif
 
-/*#if (NXP_EXTNS == TRUE)
-#include <NXP_NFCC_Features.h>
-#include <NXP_ESE_Features.h>
-#endif*/
-
 #ifndef USERIAL_DEBUG
 #define USERIAL_DEBUG false
 #endif

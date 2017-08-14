@@ -793,7 +793,7 @@ NFCSTATUS phNxpNciHal_write_ext(uint16_t* cmd_len, uint8_t* p_cmd_data,
   } else if (p_cmd_data[3] == 0x81 && p_cmd_data[4] == 0x01 &&
              p_cmd_data[5] == 0x03) {
     NXPLOG_NCIHAL_D("> Going through the set host list");
-    if(nfcFL.chipType != PN547C2) {
+    if(nfcFL.chipType != pn547C2) {
         *cmd_len = 8;
 
         p_cmd_data[2] = 0x05;

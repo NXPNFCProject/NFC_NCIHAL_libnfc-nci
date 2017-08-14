@@ -50,13 +50,7 @@
 #include "nfc_hal_api.h"
 #include "gki.h"
 #include "vendor_cfg.h"
-#if (NXP_EXTNS == TRUE)
-/*
-#include <NXP_NFCC_Features.h>
-#include <NXP_ESE_Features.h>
-#include <NXP_Platform_Features.h>
-*/
-#endif
+
 /* NFC application return status codes */
 /* Command succeeded    */
 #define NFC_STATUS_OK NCI_STATUS_OK

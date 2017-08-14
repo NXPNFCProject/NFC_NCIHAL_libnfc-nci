@@ -38,9 +38,6 @@
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
-#ifndef NXP_NFCC_FEATURES_H
-#include "NXP_NFCC_Features.h"
-#endif
 #ifdef __cplusplus
 extern "C" {
 #endif

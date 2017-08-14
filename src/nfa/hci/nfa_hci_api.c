@@ -1020,7 +1020,7 @@ void NFA_HciDebug(uint8_t action, uint8_t size, uint8_t* p_data) {
       break;
   }
 }
-#if ((NXP_EXTNS == TRUE) && (NXP_NFCC_MW_RCVRY_BLK_FW_DNLD == true))
+#if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         NFA_MW_Fwdnlwd_Recovery
@@ -1045,8 +1045,7 @@ bool NFA_MW_Fwdnlwd_Recovery(bool mw_fwdnld_recovery) {
     }
     return mw_fwdnld_recovery;
 }
-#endif
-#if (NXP_EXTNS == TRUE)
+
 /*******************************************************************************
 **
 ** Function         NFA_HciW4eSETransaction_Complete

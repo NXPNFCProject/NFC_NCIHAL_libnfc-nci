@@ -33,55 +33,6 @@
 #include <phDal4Nfc_messageQueueLib.h>
 #include <phNfcCompId.h>
 
-#define FW_DLL_ROOT_DIR "/system/vendor/firmware/"
-#define FW_DLL_EXTENSION ".so"
-
-#if (NFC_NXP_CHIP_TYPE == PN548C2)
-
-/* Actual FW library name*/
-#define FW_LIB_PATH FW_DLL_ROOT_DIR "libpn548ad_fw" FW_DLL_EXTENSION
-/* Restore Corrupted PLL Setttings/etc */
-#define PLATFORM_LIB_PATH \
-  FW_DLL_ROOT_DIR "libpn548ad_fw_platform" FW_DLL_EXTENSION
-/* Upgrade the public Key */
-#define PKU_LIB_PATH FW_DLL_ROOT_DIR "libpn548ad_fw_pku" FW_DLL_EXTENSION
-#elif(NFC_NXP_CHIP_TYPE == PN551)
-/* Actual FW library name*/
-#define FW_LIB_PATH FLASH_CONF_ROOT_DIR "libpn551_fw" FW_DLL_EXTENSION
-/* Restore Corrupted PLL Settings/etc */
-#define PLATFORM_LIB_PATH \
-  FW_DLL_ROOT_DIR "libpn551_fw_platform" FW_DLL_EXTENSION
-/* Upgrade the public Key */
-#define PKU_LIB_PATH FW_DLL_ROOT_DIR "libpn551_fw_pku" FW_DLL_EXTENSION
-#elif(NFC_NXP_CHIP_TYPE == PN553)
-/* Actual FW library name*/
-#define FW_LIB_PATH FLASH_CONF_ROOT_DIR "libpn553tc_fw" FW_DLL_EXTENSION
-/* Restore Corrupted PLL Settings/etc */
-#define PLATFORM_LIB_PATH \
-  FW_DLL_ROOT_DIR "libpn553tc_fw_platform" FW_DLL_EXTENSION
-/* Upgrade the public Key */
-#define PKU_LIB_PATH FW_DLL_ROOT_DIR "libpn553tc_fw_pku" FW_DLL_EXTENSION
-#else
-/* Actual FW library name*/
-#define FW_LIB_PATH FW_DLL_ROOT_DIR "libpn547_fw" FW_DLL_EXTENSION
-/* Restore Corrupted PLL Settings/etc */
-#define PLATFORM_LIB_PATH \
-  FW_DLL_ROOT_DIR "libpn547_fw_platform" FW_DLL_EXTENSION
-/* Upgrade the public Key */
-#define PKU_LIB_PATH FW_DLL_ROOT_DIR "libpn547_fw_pku" FW_DLL_EXTENSION
-#endif
-
-#if (NFC_NXP_CHIP_TYPE == PN548C2)
-#define COMPILATION_MW "PN548C2"
-#elif(NFC_NXP_CHIP_TYPE == PN551)
-#define COMPILATION_MW "PN551"
-#elif(NFC_NXP_CHIP_TYPE == PN553)
-#define COMPILATION_MW "PN553"
-#elif(NFC_NXP_CHIP_TYPE == PN557)
-#define COMPILATION_MW "PN557"
-#else
-#define COMPILATION_MW "PN547C2"
-#endif
 /* HAL Version number (Updated as per release) */
 #define NXP_MW_VERSION_MAJ (0x00)
 #define NXP_MW_VERSION_MIN (0x0E)

@@ -21,13 +21,13 @@
 #include <pthread.h>
 #include <phOsalNfc_Timer.h>
 #include <phNxpConfig.h>
-#include <NXP_NFCC_Features.h>
-#include <NXP_Platform_Features.h>
 
 /* Timeout value to wait for response from PN54X */
 #define HAL_WRITE_RSP_TIMEOUT (2000)
 #define HAL_WRITE_MAX_RETRY (10)
 #define CORE_INIT_NCI2_0 false
+
+#define NXP_NFCC_RESET_RSP_LEN (0x10U) //for PN553 (0x10U) else (0x11U)
 
 /******************* Structures and definitions *******************************/
 

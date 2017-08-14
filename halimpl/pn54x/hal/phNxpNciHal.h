@@ -18,11 +18,7 @@
 
 #include <hardware/nfc.h>
 #include <phNxpNciHal_utils.h>
-#include <NXP_ESE_Features.h>
-#ifndef NXP_NFCC_FEATURES_H
-#include <NXP_NFCC_Features.h>
 #include "NxpNfcCapability.h"
-#endif
 #include "nfc_hal_api.h"
 
 /********************* Definitions and structures *****************************/

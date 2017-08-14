@@ -1760,7 +1760,6 @@ int32_t NFC_eSEChipReset(void* pdata) {
   return status;
 }
 
-#if ((NFC_NXP_ESE_VER == JCOP_VER_3_1) || (NFC_NXP_ESE_VER == JCOP_VER_3_2))
 /*******************************************************************************
 **
 ** Function         NFC_GetEseAccess
@@ -1773,11 +1772,18 @@ int32_t NFC_eSEChipReset(void* pdata) {
 **
 *******************************************************************************/
 int32_t NFC_GetEseAccess(void* pdata) {
-  nfc_nci_IoctlInOutData_t inpOutData;
-  int32_t status;
-  inpOutData.inp.data.timeoutMilliSec = *(uint32_t*)pdata;
-  status = nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_P61_GET_ACCESS, &inpOutData);
-  return status;
+    int32_t status;
+    if((nfcFL.eseFL._NXP_ESE_VER != JCOP_VER_3_1) &&
+            (nfcFL.eseFL._NXP_ESE_VER != JCOP_VER_3_2)) {
+        NFC_TRACE_API0("NFC_GetEseAccess NXP_ESE_VER !="
+                "JCOP_VER_3_1 or JCOP_VER_3_2 . Returning");
+        return status;
+    }
+    nfc_nci_IoctlInOutData_t inpOutData;
+
+    inpOutData.inp.data.timeoutMilliSec = *(uint32_t*)pdata;
+    status = nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_P61_GET_ACCESS, &inpOutData);
+    return status;
 }
 /*******************************************************************************
 **
@@ -1790,13 +1796,19 @@ int32_t NFC_GetEseAccess(void* pdata) {
 **
 *******************************************************************************/
 int32_t NFC_RelEseAccess(void* pdata) {
-  nfc_nci_IoctlInOutData_t inpOutData;
-  int32_t status;
-  status = nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_P61_REL_ACCESS, &inpOutData);
-  *(tNFC_STATUS*)pdata = inpOutData.out.data.status;
-  return status;
+    int32_t status;
+    if((nfcFL.eseFL._NXP_ESE_VER != JCOP_VER_3_1) &&
+            (nfcFL.eseFL._NXP_ESE_VER != JCOP_VER_3_2)) {
+        NFC_TRACE_API0("NFC_RelEseAccess NXP_ESE_VER !="
+                "JCOP_VER_3_1 or JCOP_VER_3_2 . Returning");
+        return status;
+    }
+    nfc_nci_IoctlInOutData_t inpOutData;
+
+    status = nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_P61_REL_ACCESS, &inpOutData);
+    *(tNFC_STATUS*)pdata = inpOutData.out.data.status;
+    return status;
 }
-#endif
 
 /*******************************************************************************
 **

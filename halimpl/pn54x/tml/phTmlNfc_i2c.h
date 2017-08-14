@@ -21,7 +21,6 @@
 /* Basic type definitions */
 #include <phNfcTypes.h>
 #include <phTmlNfc.h>
-#include <NXP_ESE_Features.h>
 
 #define PN544_MAGIC 0xE9
 
@@ -50,9 +49,7 @@ NFCSTATUS phTmlNfc_set_pid(void* pDevHandle, long pid);
 NFCSTATUS phTmlNfc_set_power_scheme(void* pDevHandle, long id);
 NFCSTATUS phTmlNfc_get_ese_access(void* pDevHandle, long timeout);
 NFCSTATUS phTmlNfc_i2c_set_Jcop_dwnld_state(void* pDevHandle, long level);
-#if (NXP_ESE_SVDD_SYNC == true)
 NFCSTATUS phTmlNfc_rel_svdd_wait(void* pDevHandle);
-#endif
 /*
  * SPI Request NFCC to enable p61 power, only in param
  * Only for SPI
