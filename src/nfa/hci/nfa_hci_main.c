@@ -277,7 +277,6 @@ void nfa_hci_init(void) {
 
   /* initialize control block */
   memset(&nfa_hci_cb, 0, sizeof(tNFA_HCI_CB));
-
   nfa_hci_cb.hci_state = NFA_HCI_STATE_STARTUP;
   nfa_hci_cb.num_nfcee = NFA_HCI_MAX_HOST_IN_NETWORK;
 #if (NXP_EXTNS == TRUE)
@@ -675,7 +674,6 @@ void nfa_hci_startup_complete(tNFA_STATUS status) {
   tNFA_HCI_EVT_DATA evt_data;
 
   NFA_TRACE_EVENT1("nfa_hci_startup_complete (): Status: %u", status);
-
   nfa_sys_stop_timer(&nfa_hci_cb.timer);
 
   if ((nfa_hci_cb.hci_state == NFA_HCI_STATE_RESTORE) ||
@@ -714,15 +712,15 @@ void nfa_hci_startup_complete(tNFA_STATUS status) {
     nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
 #if (NXP_EXTNS == TRUE)
     nfa_hci_handle_nfcee_config_evt(NFA_HCI_GET_NUM_NFCEE_CONFIGURED);
-#if (NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == true)
-    nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
-    NFA_TRACE_EVENT0("hci_state = NFA_HCI_STATE_IDLE");
-    if ((nfa_sys_cb.enable_cplt_flags == nfa_sys_cb.enable_cplt_mask) &&
-        (!(nfa_sys_cb.p_enable_cback))) {
-      if ((nfa_dm_cb.p_dm_cback))
-        (*nfa_dm_cb.p_dm_cback)(NFA_DM_EE_HCI_ENABLE, NULL);
+    if(nfcFL.nfccFL._NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH) {
+        nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
+        NFA_TRACE_EVENT0("hci_state = NFA_HCI_STATE_IDLE");
+        if ((nfa_sys_cb.enable_cplt_flags == nfa_sys_cb.enable_cplt_mask) &&
+                (!(nfa_sys_cb.p_enable_cback))) {
+            if ((nfa_dm_cb.p_dm_cback))
+                (*nfa_dm_cb.p_dm_cback)(NFA_DM_EE_HCI_ENABLE, NULL);
+        }
     }
-#endif
 #endif
   } else {
 #if (NXP_EXTNS == TRUE)
@@ -778,6 +776,8 @@ void nfa_hci_startup(void) {
   uint8_t target_handle;
   uint8_t count = 0;
   bool found = false;
+
+  nfa_ee_max_ee_cfg = nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED;
 
   if (HCI_LOOPBACK_DEBUG) {
       /* First step in initialization is to open the admin pipe */
@@ -927,22 +927,24 @@ void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   char buff[100];
   static bool is_first_chain_pkt = true;
 #endif
-#if ((NXP_EXTNS == TRUE) && \
-     (NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME))
-  if (event == NFC_HCI_RESTART_TIMER) {
-    if (nfa_hci_cb.IsHciTimerChanged) {
-      nfa_sys_start_timer(&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT,
-                          NFA_HCI_DWP_RSP_WAIT_TIMEOUT);
-      nfa_hci_cb.IsHciTimerChanged = false;
-    } else if (nfa_hci_cb.IsWiredSessionAborted) {
-      nfa_sys_start_timer(&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT,
-                          NFA_HCI_DWP_SESSION_ABORT_TIMEOUT);
-      nfa_hci_cb.IsWiredSessionAborted = false;
-    } else {
-      nfa_sys_start_timer(&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT,
-                          nfa_hci_cb.hciResponseTimeout);
-    }
-    return;
+#if (NXP_EXTNS == TRUE)
+  if(nfcFL.eseFL._ESE_DUAL_MODE_PRIO_SCHEME ==
+          nfcFL.eseFL._ESE_WIRED_MODE_RESUME) {
+      if (event == NFC_HCI_RESTART_TIMER) {
+          if (nfa_hci_cb.IsHciTimerChanged) {
+              nfa_sys_start_timer(&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT,
+                      NFA_HCI_DWP_RSP_WAIT_TIMEOUT);
+              nfa_hci_cb.IsHciTimerChanged = false;
+          } else if (nfa_hci_cb.IsWiredSessionAborted) {
+              nfa_sys_start_timer(&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT,
+                      NFA_HCI_DWP_SESSION_ABORT_TIMEOUT);
+              nfa_hci_cb.IsWiredSessionAborted = false;
+          } else {
+              nfa_sys_start_timer(&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT,
+                      nfa_hci_cb.hciResponseTimeout);
+          }
+          return;
+      }
   }
 #endif
   if (event == NFC_CONN_CREATE_CEVT) {
@@ -1028,10 +1030,8 @@ void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
 
   if (nfa_hci_cb.assembling_flags & NFA_HCI_FL_CONN_PIPE) {
     if (pipe == NFA_HCI_CONN_ESE_PIPE || (pipe == NFA_HCI_CONN_UICC_PIPE)
-#if (NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == true)
-        || (pipe == NFA_HCI_CONN_UICC2_PIPE)
-#endif
-            ) {
+        || ((nfcFL.nfccFL._NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH) &&
+                (pipe == NFA_HCI_CONN_UICC2_PIPE))) {
       is_assembling_on_current_pipe = 1;
     }
   } else if (nfa_hci_cb.assembling_flags & NFA_HCI_FL_APDU_PIPE) {
@@ -1051,15 +1051,13 @@ void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
 
 #if (NXP_EXTNS == TRUE)
     if (pipe == NFA_HCI_CONN_ESE_PIPE || (pipe == NFA_HCI_CONN_UICC_PIPE)
-#if (NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == true)
-        || (pipe == NFA_HCI_CONN_UICC2_PIPE)
-#endif
-            ) {
-      nfa_hci_cb.type_evt = nfa_hci_cb.type;
-      nfa_hci_cb.inst_evt = nfa_hci_cb.inst;
+        || ((nfcFL.nfccFL._NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH) &&
+                (pipe == NFA_HCI_CONN_UICC2_PIPE))) {
+        nfa_hci_cb.type_evt = nfa_hci_cb.type;
+        nfa_hci_cb.inst_evt = nfa_hci_cb.inst;
     } else if (pipe == NFA_HCI_APDU_PIPE) {
-      nfa_hci_cb.type_msg = nfa_hci_cb.type;
-      nfa_hci_cb.inst_msg = nfa_hci_cb.inst;
+        nfa_hci_cb.type_msg = nfa_hci_cb.type;
+        nfa_hci_cb.inst_msg = nfa_hci_cb.inst;
     }
 #endif
     if (pkt_len != 0) pkt_len--;
@@ -1093,15 +1091,13 @@ void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
 
           p = nfa_hci_cb.p_msg_data;
         } else if ((pipe == NFA_HCI_CONN_UICC_PIPE) ||
-                   (pipe == NFA_HCI_CONN_ESE_PIPE)
-#if (NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == true)
-                   || (pipe == NFA_HCI_CONN_UICC2_PIPE)
-#endif
-                       ) {
-          nfa_hci_cb.assembling_flags &= ~NFA_HCI_FL_CONN_PIPE;
-          nfa_hci_cb.assembly_failed_flags &= ~NFA_HCI_FL_CONN_PIPE;
+                (pipe == NFA_HCI_CONN_ESE_PIPE)
+                || ((nfcFL.nfccFL._NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH) &&
+                        (pipe == NFA_HCI_CONN_UICC2_PIPE))) {
+            nfa_hci_cb.assembling_flags &= ~NFA_HCI_FL_CONN_PIPE;
+            nfa_hci_cb.assembly_failed_flags &= ~NFA_HCI_FL_CONN_PIPE;
 
-          p = nfa_hci_cb.p_evt_data;
+            p = nfa_hci_cb.p_evt_data;
         }
 #else
         nfa_hci_assemble_msg(p, pkt_len);
@@ -1113,13 +1109,11 @@ void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
 #if (NXP_EXTNS == TRUE)
     uint8_t is_assembly_failed_on_current_pipe = 0;
     if (nfa_hci_cb.assembly_failed_flags & NFA_HCI_FL_CONN_PIPE) {
-      if ((pipe == NFA_HCI_CONN_ESE_PIPE) || (pipe == NFA_HCI_CONN_UICC_PIPE)
-#if (NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == true)
-          || (pipe == NFA_HCI_CONN_UICC2_PIPE)
-#endif
-              ) {
-        is_assembly_failed_on_current_pipe = 1;
-      }
+        if ((pipe == NFA_HCI_CONN_ESE_PIPE) || (pipe == NFA_HCI_CONN_UICC_PIPE)
+                || ((nfcFL.nfccFL._NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH) &&
+                        (pipe == NFA_HCI_CONN_UICC2_PIPE))) {
+            is_assembly_failed_on_current_pipe = 1;
+        }
     } else if (nfa_hci_cb.assembly_failed_flags & NFA_HCI_FL_APDU_PIPE) {
       if (pipe == NFA_HCI_APDU_PIPE) {
         is_assembly_failed_on_current_pipe = 1;
@@ -1158,11 +1152,9 @@ void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
         p = nfa_hci_cb.p_msg_data;
         pkt_len = nfa_hci_cb.msg_len;
       } else if ((pipe == NFA_HCI_CONN_UICC_PIPE) ||
-                 (pipe == NFA_HCI_CONN_ESE_PIPE)
-#if (NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == true)
-                 || (pipe == NFA_HCI_CONN_UICC2_PIPE)
-#endif
-                     ) {
+              (pipe == NFA_HCI_CONN_ESE_PIPE)
+              || ((nfcFL.nfccFL._NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH) &&
+                      (pipe == NFA_HCI_CONN_UICC2_PIPE))) {
         nfa_hci_cb.assembling_flags &= ~NFA_HCI_FL_CONN_PIPE;
         nfa_hci_cb.assembly_failed_flags &= ~NFA_HCI_FL_CONN_PIPE;
 
@@ -1178,15 +1170,13 @@ void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
 
 #if (NXP_EXTNS == TRUE)
   if (pipe == NFA_HCI_CONN_ESE_PIPE || (pipe == NFA_HCI_CONN_UICC_PIPE)
-#if (NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == true)
-      || (pipe == NFA_HCI_CONN_UICC2_PIPE)
-#endif
-          ) {
-    nfa_hci_cb.type = nfa_hci_cb.type_evt;
-    nfa_hci_cb.inst = nfa_hci_cb.inst_evt;
+          || ((nfcFL.nfccFL._NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH) &&
+                  (pipe == NFA_HCI_CONN_UICC2_PIPE))) {
+      nfa_hci_cb.type = nfa_hci_cb.type_evt;
+      nfa_hci_cb.inst = nfa_hci_cb.inst_evt;
   } else if (pipe == NFA_HCI_APDU_PIPE) {
-    nfa_hci_cb.type = nfa_hci_cb.type_msg;
-    nfa_hci_cb.inst = nfa_hci_cb.inst_msg;
+      nfa_hci_cb.type = nfa_hci_cb.type_msg;
+      nfa_hci_cb.inst = nfa_hci_cb.inst_msg;
   }
 #endif
 
@@ -1262,18 +1252,16 @@ void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
         nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
       }
     } else {
-      if (!((pipe == NFA_HCI_CONN_UICC_PIPE || pipe == NFA_HCI_CONN_ESE_PIPE
-#if (NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == true)
-             || pipe == NFA_HCI_CONN_UICC2_PIPE
-#endif
-             ) &&
-            (nfa_hci_cb.inst_evt == NFA_HCI_EVT_TRANSACTION ||
-             nfa_hci_cb.inst_evt == NFA_HCI_EVT_CONNECTIVITY))) {
-        /*Stop timer and goto IDLE state when pipe is not connectivity but event
-         * received is connectivity*/
-        nfa_sys_stop_timer(&nfa_hci_cb.timer);
-        nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
-      }
+        if (!((pipe == NFA_HCI_CONN_UICC_PIPE || pipe == NFA_HCI_CONN_ESE_PIPE
+                || ((nfcFL.nfccFL._NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH) &&
+                        (pipe == NFA_HCI_CONN_UICC2_PIPE))) &&
+                (nfa_hci_cb.inst_evt == NFA_HCI_EVT_TRANSACTION ||
+                        nfa_hci_cb.inst_evt == NFA_HCI_EVT_CONNECTIVITY))) {
+            /*Stop timer and goto IDLE state when pipe is not connectivity but event
+             * received is connectivity*/
+            nfa_sys_stop_timer(&nfa_hci_cb.timer);
+            nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
+        }
     }
 #else
     nfa_sys_stop_timer(&nfa_hci_cb.timer);
@@ -1634,19 +1622,17 @@ static void nfa_hci_set_receive_buf(uint8_t pipe) {
   if ((pipe >= NFA_HCI_FIRST_DYNAMIC_PIPE) &&
       (nfa_hci_cb.type == NFA_HCI_EVENT_TYPE)) {
 #if (NXP_EXTNS == TRUE)
-    if (pipe == NFA_HCI_CONN_ESE_PIPE || pipe == NFA_HCI_CONN_UICC_PIPE
-#if (NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == true)
-        || (pipe == NFA_HCI_CONN_UICC2_PIPE)
-#endif
-            ) {
-      /* Connectivity or transaction events are received
-       * from SE. will be assembled and sent to application.
-       * */
-      nfa_hci_cb.assembling_flags |= NFA_HCI_FL_CONN_PIPE;
-      nfa_hci_cb.p_evt_data = nfa_hci_cb.evt_data;
-      nfa_hci_cb.max_evt_len = NFA_MAX_HCI_EVENT_LEN;
-      return;
-    } else if (pipe == NFA_HCI_APDU_PIPE) {
+      if (pipe == NFA_HCI_CONN_ESE_PIPE || pipe == NFA_HCI_CONN_UICC_PIPE
+              || ((nfcFL.nfccFL._NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH) &&
+                      (pipe == NFA_HCI_CONN_UICC2_PIPE))) {
+          /* Connectivity or transaction events are received
+           * from SE. will be assembled and sent to application.
+           * */
+          nfa_hci_cb.assembling_flags |= NFA_HCI_FL_CONN_PIPE;
+          nfa_hci_cb.p_evt_data = nfa_hci_cb.evt_data;
+          nfa_hci_cb.max_evt_len = NFA_MAX_HCI_EVENT_LEN;
+          return;
+      } else if (pipe == NFA_HCI_APDU_PIPE) {
       /* Here APDU response is received, for the APDU
        * sent from JNI layer using transceive.
        * */
@@ -1732,10 +1718,8 @@ static void nfa_hci_assemble_msg(uint8_t* p_data, uint16_t data_len)
       nfa_hci_cb.msg_len += data_len;
     }
   } else if ((pipe == NFA_HCI_CONN_ESE_PIPE) || (pipe == NFA_HCI_CONN_UICC_PIPE)
-#if (NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == true)
-             || (pipe == NFA_HCI_CONN_UICC2_PIPE)
-#endif
-                 ) {
+          || ((nfcFL.nfccFL._NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH) &&
+                  (pipe == NFA_HCI_CONN_UICC2_PIPE))) {
     if ((nfa_hci_cb.evt_len + data_len) > nfa_hci_cb.max_evt_len) {
       /* Fill the buffer as much it can hold */
       NFA_TRACE_ERROR1(
@@ -1810,32 +1794,34 @@ static bool nfa_hci_evt_hdlr(NFC_HDR* p_msg) {
         break;
 
       case NFA_HCI_RSP_TIMEOUT_EVT:
-#if ((NXP_EXTNS == TRUE) && (NFC_NXP_ESE == TRUE))
+#if (NXP_EXTNS == TRUE)
+          if(nfcFL.nfcNxpEse) {
 #if (JCOP_WA_ENABLE == TRUE)
-        if (nfa_ee_ce_p61_completed != 0) {
-          NFA_TRACE_EVENT0(
-              "nfa_hci_evt_hdlr Restart timer expired for wired transceive");
-          nfa_ee_ce_p61_completed = 0;
-        } else {
-          uint32_t p61_access_status = 0x0000;
-          if (NFC_GetP61Status((void*)&p61_access_status) < 0) {
-            NFA_TRACE_EVENT0(
-                "nfa_hci_evt_hdlr : Check dual mode : NFC_GetP61Status failed");
-          } else {
-            if (((p61_access_status == 0x400) ||
-                 (p61_access_status == 0x1000)) &&
-                (NFA_check_p61_CL_Activated() != 0)) {
-              NFA_TRACE_EVENT0(
-                  "nfa_hci_evt_hdlr Restart timer for wired transceive");
-              nfa_sys_start_timer(&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT,
+              if (nfa_ee_ce_p61_completed != 0) {
+                  NFA_TRACE_EVENT0(
+                          "nfa_hci_evt_hdlr Restart timer expired for wired transceive");
+                  nfa_ee_ce_p61_completed = 0;
+              } else {
+                  uint32_t p61_access_status = 0x0000;
+                  if (NFC_GetP61Status((void*)&p61_access_status) < 0) {
+                      NFA_TRACE_EVENT0(
+                              "nfa_hci_evt_hdlr : Check dual mode : NFC_GetP61Status failed");
+                  } else {
+                      if (((p61_access_status == 0x400) ||
+                              (p61_access_status == 0x1000)) &&
+                              (NFA_check_p61_CL_Activated() != 0)) {
+                          NFA_TRACE_EVENT0(
+                                  "nfa_hci_evt_hdlr Restart timer for wired transceive");
+                          nfa_sys_start_timer(&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT,
                                   NFA_HCI_WTX_RESP_TIMEOUT);
-              /*situation occurred*/
-              nfa_ee_ce_p61_completed = 1;
-              break;
-            }
-          }
-        }
+                          /*situation occurred*/
+                          nfa_ee_ce_p61_completed = 1;
+                          break;
+                      }
+                  }
+              }
 #endif
+          }
 #endif
         nfa_hci_rsp_timeout((tNFA_HCI_EVENT_DATA*)p_msg);
         break;

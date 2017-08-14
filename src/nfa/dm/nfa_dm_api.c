@@ -102,6 +102,7 @@ void NFA_Init(tHAL_NFC_ENTRY* p_hal_entry_tbl) {
 #else
   NFC_Init(p_hal_entry_tbl);
 #endif
+  nfa_ee_max_ee_cfg == nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED;
 }
 
 /*******************************************************************************
@@ -605,7 +606,6 @@ tNFA_STATUS NFA_DisableListening(void) {
 }
 
 #if (NXP_EXTNS == TRUE)
-#if (NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION == true)
 /*******************************************************************************
 **
 ** Function         NFA_DisablePassiveListening
@@ -625,6 +625,12 @@ tNFA_STATUS NFA_DisableListening(void) {
 **
 *******************************************************************************/
 tNFA_STATUS NFA_DisablePassiveListening(void) {
+    NFA_TRACE_API0("NFA_DisablePassiveListening ()");
+    if(!nfcFL.eseFL._NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION) {
+        NFA_TRACE_DEBUG0(" NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION"
+                " feature is not available!!");
+        return (NFA_STATUS_FAILED);
+    }
   NFC_HDR* p_msg;
 
   NFA_TRACE_API0("NFA_DisablePassiveListening ()");
@@ -639,9 +645,7 @@ tNFA_STATUS NFA_DisablePassiveListening(void) {
 
   return (NFA_STATUS_FAILED);
 }
-#endif
 
-#if (NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == true)
 /*******************************************************************************
 **
 ** Function:        NFA_SetPreferredUiccId
@@ -654,9 +658,14 @@ tNFA_STATUS NFA_DisablePassiveListening(void) {
 **
 *******************************************************************************/
 void NFA_SetPreferredUiccId(uint8_t uicc_id) {
-  nfa_dm_cb.selected_uicc_id = uicc_id;
+    NFA_TRACE_API0("NFA_SetPreferredUiccId ()");
+    if(!nfcFL.nfccFL._NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH) {
+        NFA_TRACE_DEBUG0("NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH"
+                " feature is not available!!");
+        return;
+    }
+    nfa_dm_cb.selected_uicc_id = uicc_id;
 }
-#endif
 #endif
 
 /*******************************************************************************
@@ -1033,15 +1042,14 @@ tNFA_STATUS NFA_SendRawFrame(uint8_t* p_raw_data, uint16_t data_len,
   NFA_TRACE_API1("NFA_SendRawFrame () data_len:%d", data_len);
 
 /* Validate parameters */
-#if (NXP_NFCC_EMPTY_DATA_PACKET == true)
-  if (((data_len == 0) || (p_raw_data == NULL)) &&
-      (!(nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_LISTEN_ACTIVE &&
-         nfa_dm_cb.disc_cb.activated_protocol == NFA_PROTOCOL_T3T)))
-#else
-  if ((data_len == 0) || (p_raw_data == NULL))
-#endif
-    return (NFA_STATUS_INVALID_PARAM);
-
+  if ((nfcFL.nfccFL._NXP_NFCC_EMPTY_DATA_PACKET &&
+          (((data_len == 0) || (p_raw_data == NULL)) &&
+                  (!(nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_LISTEN_ACTIVE &&
+                          nfa_dm_cb.disc_cb.activated_protocol ==
+                                  NFA_PROTOCOL_T3T)))) ||
+          ((data_len == 0) || (p_raw_data == NULL))) {
+      return (NFA_STATUS_INVALID_PARAM);
+  }
   size = NFC_HDR_SIZE + NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE + data_len;
   p_msg = (NFC_HDR*)GKI_getbuf(size);
   if (p_msg != NULL) {
@@ -1051,13 +1059,14 @@ tNFA_STATUS NFA_SendRawFrame(uint8_t* p_raw_data, uint16_t data_len,
     p_msg->len = data_len;
 
     p = (uint8_t*)(p_msg + 1) + p_msg->offset;
-#if (NXP_NFCC_EMPTY_DATA_PACKET == true)
-    if (p_raw_data != NULL) {
-      memcpy(p, p_raw_data, data_len);
+    if (nfcFL.nfccFL._NXP_NFCC_EMPTY_DATA_PACKET) {
+        if (p_raw_data != NULL) {
+            memcpy(p, p_raw_data, data_len);
+        }
     }
-#else
-    memcpy(p, p_raw_data, data_len);
-#endif
+    else {
+        memcpy(p, p_raw_data, data_len);
+    }
 
     nfa_sys_sendmsg(p_msg);
 
@@ -1251,7 +1260,6 @@ tNFA_STATUS NFA_PowerOffSleepMode(bool start_stop) {
   NFC_HDR* p_msg;
 
   NFA_TRACE_API1("NFA_PowerOffSleepState () start_stop=%d", start_stop);
-
   if (nfa_dm_cb.flags & NFA_DM_FLAGS_SETTING_PWR_MODE) {
     NFA_TRACE_ERROR0(
         "NFA_PowerOffSleepState (): NFA DM is busy to update power mode");
@@ -1503,7 +1511,6 @@ tNFA_MW_VERSION NFA_GetMwVersion() {
   return mwVer;
 }
 
-#if (NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == true)
 /*******************************************************************************
 **
 ** Function:        NFA_ResetNfcc
@@ -1515,6 +1522,12 @@ tNFA_MW_VERSION NFA_GetMwVersion() {
 **
 *******************************************************************************/
 tNFA_STATUS NFA_ResetNfcc() {
+    NFA_TRACE_DEBUG0("NFA_ResetNfcc()");
+    if(!nfcFL.nfccFL._NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH) {
+        NFA_TRACE_DEBUG0("NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH"
+                " feature is not available!!");
+        return (NFA_STATUS_FAILED);
+    }
   tNFA_STATUS status = NFA_STATUS_FAILED;
   status = nfc_ncif_reset_nfcc();
   return status;
@@ -1533,6 +1546,12 @@ tNFA_STATUS NFA_ResetNfcc() {
 **
 *******************************************************************************/
 void NFA_EE_HCI_Control(bool flagEnable) {
+    NFA_TRACE_DEBUG0("NFA_EE_HCI_Control()");
+    if(!nfcFL.nfccFL._NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH) {
+        NFA_TRACE_DEBUG0("NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH"
+                " feature is not available!!");
+        return;
+    }
   uint8_t id[2] = {NFA_ID_HCI, NFA_ID_EE};
   uint8_t i = 0;
   if (!flagEnable) {
@@ -1564,7 +1583,6 @@ void NFA_EE_HCI_Control(bool flagEnable) {
     }
   }
 }
-#endif
 #endif
 
 /*******************************************************************************

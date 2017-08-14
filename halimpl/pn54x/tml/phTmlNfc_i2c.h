@@ -44,7 +44,6 @@ phTmlNfc_i2cfragmentation_t fragmentation_enabled;
  */
 #define PN544_SET_PWR _IOW(PN544_MAGIC, 0x01, long)
 
-#if (NFC_NXP_ESE == TRUE)
 NFCSTATUS phTmlNfc_i2c_get_p61_power_state(void* pDevHandle);
 NFCSTATUS phTmlNfc_i2c_set_p61_power_state(void* pDevHandle, long arg);
 NFCSTATUS phTmlNfc_set_pid(void* pDevHandle, long pid);
@@ -88,15 +87,12 @@ NFCSTATUS phTmlNfc_rel_svdd_wait(void* pDevHandle);
   NFC and SPI will call the ioctl to update the power scheme
 */
 #define P544_SET_POWER_SCHEME _IOW(PN544_MAGIC, 0x07, long)
-#if (NXP_ESE_SVDD_SYNC == true)
 /*
   NFC will call the ioctl to release the svdd protection
 */
 #define P544_REL_SVDD_WAIT _IOW(PN544_MAGIC, 0x08, long)
-#endif
 /* SPI or DWP can call this ioctl to set the JCOP download
  * state of P61
  *
 */
 #define PN544_SET_DWNLD_STATUS _IOW(PN544_MAGIC, 0x09, long)
-#endif

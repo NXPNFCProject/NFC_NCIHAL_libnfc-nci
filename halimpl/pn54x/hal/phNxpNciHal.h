@@ -21,6 +21,7 @@
 #include <NXP_ESE_Features.h>
 #ifndef NXP_NFCC_FEATURES_H
 #include <NXP_NFCC_Features.h>
+#include "NxpNfcCapability.h"
 #endif
 #include "nfc_hal_api.h"
 
@@ -222,4 +223,30 @@ int phNxpNciHal_write_unlocked(uint16_t data_len, const uint8_t* p_data);
 static int phNxpNciHal_fw_mw_ver_check();
 NFCSTATUS request_EEPROM(phNxpNci_EEPROM_info_t* mEEPROM_info);
 NFCSTATUS phNxpNciHal_send_nfcee_pwr_cntl_cmd(uint8_t type);
+
+/*******************************************************************************
+**
+** Function         phNxpNciHal_configFeatureList
+**
+** Description      Configures the featureList based on chip type
+**                  HW Version information number will provide chipType.
+**                  HW Version can be obtained from CORE_INIT_RESPONSE(NCI 1.0)
+**
+** Parameters       CORE_INIT_RESPONSE, len
+**
+** Returns          none
+*******************************************************************************/
+void phNxpNciHal_configFeatureList(uint8_t* init_rsp, uint16_t rsp_len);
+
+/*******************************************************************************
+**
+** Function         phNxpNciHal_getChipType
+**
+** Description      Gets the chipType which is configured during bootup
+**
+** Parameters       none
+**
+** Returns          chipType
+*******************************************************************************/
+tNFC_chipType phNxpNciHal_getChipType();
 #endif /* _PHNXPNCIHAL_H_ */

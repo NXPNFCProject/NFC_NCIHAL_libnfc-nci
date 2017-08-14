@@ -17,7 +17,6 @@
 /*
  * NXP NFCC features macros definitions
  */
-
 #ifndef NXP_NFCC_FEATURES_H
 #define NXP_NFCC_FEATURES_H
 /*Flags common to all chip types*/

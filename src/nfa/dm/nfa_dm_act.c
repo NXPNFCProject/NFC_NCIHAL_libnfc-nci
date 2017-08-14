@@ -421,23 +421,26 @@ static void nfa_dm_nfc_response_cback(tNFC_RESPONSE_EVT event,
     case NFC_EE_ACTION_REVT:      /* EE Action notification */
     case NFC_NFCEE_MODE_SET_REVT: /* NFCEE Mode Set response */
 #if (NXP_EXTNS == TRUE)
-    case NFC_NFCEE_MODE_SET_INFO:
-#if (NXP_WIRED_MODE_STANDBY == true)
     case NFC_NFCEE_PWR_LNK_CTRL_REVT:
-#endif
+        if(!nfcFL.eseFL._WIRED_MODE_STANDBY) {
+            break;
+        }
+    case NFC_NFCEE_MODE_SET_INFO:
 #endif
     case NFC_SET_ROUTING_REVT: /* Configure Routing response */
       nfa_ee_proc_evt(event, p_data);
       break;
 
     case NFC_EE_DISCOVER_REQ_REVT: /* EE Discover Req notification */
-#if ((NFC_NXP_ESE == TRUE) && (NXP_EXTNS == TRUE) && \
-     (NXP_ESE_ETSI_READER_ENABLE != true) &&         \
-     (NXP_ESE_DWP_SPI_SYNC_ENABLE != true))
-      if (nfa_dm_is_active() &&
-          (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_DISCOVERY)) {
-        nfa_dm_rf_deactivate(NFA_DEACTIVATE_TYPE_IDLE);
-      }
+#if(NXP_EXTNS == TRUE)
+        if((nfcFL.nfcNxpEse) &&
+                (!nfcFL.eseFL._ESE_ETSI_READER_ENABLE) &&
+                (!nfcFL.eseFL._ESE_DWP_SPI_SYNC_ENABLE)) {
+            if (nfa_dm_is_active() &&
+                    (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_DISCOVERY)) {
+                nfa_dm_rf_deactivate(NFA_DEACTIVATE_TYPE_IDLE);
+            }
+        }
 #endif
       nfa_ee_proc_evt(event, p_data);
       break;
@@ -505,27 +508,27 @@ static void nfa_dm_nfc_response_cback(tNFC_RESPONSE_EVT event,
 
     case NFC_NFCC_TIMEOUT_REVT:
 #if (NXP_EXTNS == TRUE)
-      if (p_data->status == NFC_STATUS_FAILED) {
-        dm_cback_data.status = p_data->status;
-        (*nfa_dm_cb.p_dm_cback)(NFA_DM_NFCC_TIMEOUT_EVT, &dm_cback_data);
-      } else {
+        if (p_data->status == NFC_STATUS_FAILED) {
+            dm_cback_data.status = p_data->status;
+            (*nfa_dm_cb.p_dm_cback)(NFA_DM_NFCC_TIMEOUT_EVT, &dm_cback_data);
+        }
+        else if (nfcFL.nfcNxpEse &&
+                nfcFL.eseFL._ESE_ETSI_READER_ENABLE) {
+            conn_evt.status = p_data->status;
+            nfa_dm_conn_cback_event_notify(NFA_RECOVERY_EVT, &conn_evt);
+        }
 #endif
-#if ((NFC_NXP_ESE == TRUE) && (NXP_ESE_ETSI_READER_ENABLE == true))
-        conn_evt.status = p_data->status;
-        nfa_dm_conn_cback_event_notify(NFA_RECOVERY_EVT, &conn_evt);
-#endif
-#if (NXP_EXTNS == TRUE)
-      }
-#endif
-      break;
+        break;
 
     case NFC_NFCC_TRANSPORT_ERR_REVT:
       NFA_TRACE_DEBUG1("flags:0x%08x", nfa_dm_cb.flags);
-#if (NXP_EXTNS == TRUE && NXP_NFCC_I2C_READ_WRITE_IMPROVEMENT == true)
-      if (p_data->status == NFC_STATUS_FAILED) {
-        dm_cback_data.status = p_data->status;
+#if (NXP_EXTNS == TRUE)
+      if(nfcFL.nfccFL._NFCC_I2C_READ_WRITE_IMPROVEMENT) {
+          if (p_data->status == NFC_STATUS_FAILED) {
+              dm_cback_data.status = p_data->status;
+          }
+          dm_cback_evt = NFA_DM_NFCC_TRANSPORT_ERR_EVT;
       }
-      dm_cback_evt = NFA_DM_NFCC_TRANSPORT_ERR_EVT;
 #else
       dm_cback_evt = (event == NFC_NFCC_TIMEOUT_REVT)
                          ? NFA_DM_NFCC_TIMEOUT_EVT
@@ -1189,12 +1192,12 @@ bool nfa_dm_act_enable_listening(tNFA_DM_MSG* p_data) {
 
   NFA_TRACE_DEBUG0("nfa_dm_act_enable_listening ()");
 
-  nfa_dm_cb.flags &= (~NFA_DM_FLAGS_LISTEN_DISABLED
-#if (NXP_EXTNS == TRUE && \
-     NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION == true)
-                      & ~NFA_DM_FLAGS_PASSIVE_LISTEN_DISABLED
+  nfa_dm_cb.flags &= ~NFA_DM_FLAGS_LISTEN_DISABLED;
+#if (NXP_EXTNS == TRUE)
+  if(nfcFL.eseFL._NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION) {
+      nfa_dm_cb.flags &= ~NFA_DM_FLAGS_PASSIVE_LISTEN_DISABLED;
+  }
 #endif
-                      );
   evt_data.status = NFA_STATUS_OK;
   nfa_dm_conn_cback_event_notify(NFA_LISTEN_ENABLED_EVT, &evt_data);
 
@@ -1223,8 +1226,7 @@ bool nfa_dm_act_disable_listening(tNFA_DM_MSG* p_data) {
   return (true);
 }
 
-#if (NXP_EXTNS == TRUE && \
-     NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION == true)
+#if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         nfa_dm_act_disable_passive_listening
@@ -1235,6 +1237,10 @@ bool nfa_dm_act_disable_listening(tNFA_DM_MSG* p_data) {
 **
 *******************************************************************************/
 bool nfa_dm_act_disable_passive_listening(tNFA_DM_MSG* p_data) {
+    if(!nfcFL.eseFL._NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION) {
+        NFA_TRACE_DEBUG0("NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION feature is not available!!");
+        return false;
+    }
   tNFA_CONN_EVT_DATA evt_data;
 
   NFA_TRACE_DEBUG0("nfa_dm_act_disable_passive_listening ()");
@@ -2065,9 +2071,11 @@ char* nfa_dm_nfc_revt_2_str(tNFC_RESPONSE_EVT event) {
     case NFC_NFCC_POWER_OFF_REVT:
       return "NFC_NFCC_POWER_OFF_REVT";
 
-#if ((NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == true))
+#if (NXP_EXTNS == TRUE)
     case NFC_NFCEE_PWR_LNK_CTRL_REVT:
-      return "NFC_NFCEE_PWR_LNK_CTRL_REVT";
+        if(nfcFL.eseFL._WIRED_MODE_STANDBY) {
+            return "NFC_NFCEE_PWR_LNK_CTRL_REVT";
+        }
 #endif
     default:
       return "unknown revt";

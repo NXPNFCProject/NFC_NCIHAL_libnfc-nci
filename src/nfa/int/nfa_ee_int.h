@@ -85,9 +85,7 @@ enum {
   NFA_EE_NCI_MODE_SET_RSP_EVT,
 #if (NXP_EXTNS == TRUE)
   NFA_EE_NCI_MODE_SET_INFO,
-#if (NXP_WIRED_MODE_STANDBY == true)
   NFA_EE_NCI_PWR_LNK_CTRL_RSP_EVT,
-#endif
 #endif
   NFA_EE_NCI_CONN_EVT,
   NFA_EE_NCI_DATA_EVT,
@@ -130,11 +128,8 @@ enum {
 };
 typedef uint8_t tNFA_EE_CONN_ST;
 #if (NXP_EXTNS == TRUE)
-#if (NFC_NXP_CHIP_TYPE != PN547C2)
 #define NFA_EE_ROUT_BUF_SIZE 720
-#else
-#define NFA_EE_ROUT_BUF_SIZE 200
-#endif
+#define NFA_EE_ROUT_BUF_SIZE_STAT 200
 #else
 #define NFA_EE_ROUT_BUF_SIZE 540
 #endif
@@ -155,7 +150,6 @@ typedef uint8_t tNFA_EE_CONN_ST;
 #define NFA_EE_PROTO_ROUTE_ENTRY_SIZE 5
 #define NFA_EE_TECH_ROUTE_ENTRY_SIZE 5
 
-#if (NFC_NXP_CHIP_TYPE != PN547C2)
 /**
  * Max Routing Table Size = 720
  * After allocating size for Technology based routing and Protocol based
@@ -185,9 +179,7 @@ typedef uint8_t tNFA_EE_CONN_ST;
    NFA_EE_BUFFER_FUTURE_EXT)
 #define NFA_EE_MAX_AID_CFG_LEN \
   (NFA_EE_ROUT_BUF_SIZE - NFA_EE_TOTAL_PROTO_TECH_FUTURE_EXT_ROUTE_SIZE)
-#else
-#define NFA_EE_MAX_AID_CFG_LEN (160)
-#endif
+#define NFA_EE_MAX_AID_CFG_LEN_STAT (160)
 #else
 #define NFA_EE_MAX_AID_CFG_LEN (510)
 #endif
@@ -273,23 +265,20 @@ typedef struct {
  * entry
  */
 #if (NXP_EXTNS == TRUE)
-#if ((NFC_NXP_CHIP_TYPE != PN547C2) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
   uint8_t* aid_len;     /* the actual lengths in aid_cfg */
   uint8_t* aid_pwr_cfg; /* power configuration of this AID entry */
   uint8_t* aid_rt_info; /* route/vs info for this AID entry */
   uint8_t* aid_rt_loc;  /* route location info for this AID entry */
   uint8_t* aid_cfg;     /* routing entries based on AID */
   uint8_t* aid_info;    /* AID info prefix/subset routing */
-#else
-  uint8_t aid_rt_loc[NFA_EE_MAX_AID_ENTRIES]; /* route location info for this
-                                                 AID entry */
-  uint8_t aid_len[NFA_EE_MAX_AID_ENTRIES]; /* the actual lengths in aid_cfg */
-  uint8_t aid_pwr_cfg[NFA_EE_MAX_AID_ENTRIES]; /* power configuration of this
-                                                  AID entry */
-  uint8_t aid_rt_info[NFA_EE_MAX_AID_ENTRIES]; /* route/vs info for this AID
-                                                  entry */
-  uint8_t aid_cfg[NFA_EE_MAX_AID_CFG_LEN];     /* routing entries based on AID */
-#endif
+  uint8_t aid_rt_loc_stat[NFA_EE_MAX_AID_ENTRIES]; /* route location info for this
+                                                    AID entry */
+  uint8_t aid_len_stat[NFA_EE_MAX_AID_ENTRIES]; /* the actual lengths in aid_cfg */
+  uint8_t aid_pwr_cfg_stat[NFA_EE_MAX_AID_ENTRIES]; /* power configuration of this
+                                                     AID entry */
+  uint8_t aid_rt_info_stat[NFA_EE_MAX_AID_ENTRIES]; /* route/vs info for this AID
+                                                     entry */
+  uint8_t aid_cfg_stat[NFA_EE_MAX_AID_CFG_LEN];     /* routing entries based on AID */
 #else
   uint8_t aid_len[NFA_EE_MAX_AID_ENTRIES]; /* the actual lengths in aid_cfg */
   uint8_t aid_pwr_cfg[NFA_EE_MAX_AID_ENTRIES]; /* power configuration of this
@@ -492,12 +481,10 @@ typedef struct {
   tNFC_NFCEE_MODE_SET_INFO* p_data;
 } tNFA_EE_NCI_SET_MODE_INFO;
 /* data type for NFA_EE_NCI_MODE_SET_RSP_EVT */
-#if (NXP_WIRED_MODE_STANDBY == true)
 typedef struct {
   NFC_HDR hdr;
   tNFC_NFCEE_EE_PWR_LNK_REVT* p_data;
 } tNFA_EE_NCI_PWR_LNK_CTRL;
-#endif
 #endif
 
 /* data type for NFA_EE_NCI_WAIT_RSP_EVT */
@@ -550,9 +537,7 @@ typedef union {
   tNFA_EE_NCI_MODE_SET mode_set_rsp;
 #if (NXP_EXTNS == TRUE)
   tNFA_EE_NCI_SET_MODE_INFO mode_set_info;
-#if (NXP_WIRED_MODE_STANDBY == true)
   tNFA_EE_NCI_PWR_LNK_CTRL pwr_lnk_ctrl_rsp;
-#endif
 #endif
   tNFA_EE_NCI_WAIT_RSP wait_rsp;
   tNFA_EE_NCI_CONN conn;
@@ -618,7 +603,7 @@ typedef uint8_t tNFA_EE_DISC_STS;
 
 typedef void(tNFA_EE_ENABLE_DONE_CBACK)(tNFA_EE_DISC_STS status);
 
-#if ((NXP_EXTNS == TRUE) && (NXP_UICC_HANDLE_CLEAR_ALL_PIPES == true))
+#if (NXP_EXTNS == TRUE)
 typedef void(tNFA_EE_CLEAR_ALL_PIPES_CBACK)(uint8_t source_host);
 #endif
 
@@ -632,10 +617,8 @@ typedef struct {
   tNFA_EE_ENABLE_DONE_CBACK*
       p_enable_cback; /* callback to notify on enable done*/
 #if (NXP_EXTNS == TRUE)
-#if (NXP_UICC_HANDLE_CLEAR_ALL_PIPES == true)
   tNFA_EE_CLEAR_ALL_PIPES_CBACK*
       p_clear_all_pipes_cback; /* callback to notify UICC CAP */
-#endif
 #endif
   tNFA_EE_EM_STATE em_state; /* NFA-EE state initialized or not  */
   uint8_t wait_rsp;          /* num of NCI rsp expected (update) */
@@ -719,9 +702,7 @@ void nfa_ee_nci_mode_set_rsp(tNFA_EE_MSG* p_data);
 extern void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
                                tNFC_CONN* p_data);
 void nfa_ee_nci_set_mode_info(tNFA_EE_MSG* p_data);
-#if (NXP_WIRED_MODE_STANDBY == true)
 void nfa_ee_nci_pwr_link_ctrl_rsp(tNFA_EE_MSG* p_data);
-#endif
 #endif
 void nfa_ee_nci_wait_rsp(tNFA_EE_MSG* p_data);
 void nfa_ee_nci_conn(tNFA_EE_MSG* p_data);

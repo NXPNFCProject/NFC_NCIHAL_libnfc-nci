@@ -90,9 +90,7 @@ const tNFA_EE_SM_ACT nfa_ee_actions[] = {
     nfa_ee_nci_mode_set_rsp,  /* NFA_EE_NCI_MODE_SET_RSP_EVT  */
 #if (NXP_EXTNS == TRUE)
     nfa_ee_nci_set_mode_info, /* NFA_EE_NCI_MODE_SET_INFO*/
-#if (NXP_WIRED_MODE_STANDBY == true)
     nfa_ee_nci_pwr_link_ctrl_rsp, /*NFA_EE_NCI_PWR_LNK_CTRL_RSP_EVT*/
-#endif
 #endif
     nfa_ee_nci_conn,         /* NFA_EE_NCI_CONN_EVT          */
     nfa_ee_nci_conn,         /* NFA_EE_NCI_DATA_EVT          */
@@ -157,7 +155,7 @@ void nfa_ee_sys_enable(void) {
 
   if (GetNumValue(NAME_NFA_BLOCK_ROUTE, (void*)&retlen, sizeof(retlen))) {
     if ((retlen == 0x01) && ((NFC_GetNCIVersion() == NCI_VERSION_2_0)
-        || (NXP_NFCC_ROUTING_BLOCK_BIT == true))) {
+        || (nfcFL.nfccFL._NFCC_ROUTING_BLOCK_BIT == true))) {
       nfa_ee_cb.route_block_control = NCI_ROUTE_QUAL_BLOCK_ROUTE;
       NFA_TRACE_DEBUG1("nfa_ee_cb.route_block_control=0x%x",
                        nfa_ee_cb.route_block_control);
@@ -255,7 +253,7 @@ void nfa_ee_proc_nfcc_power_mode(uint8_t nfcc_power_mode) {
   if (nfcc_power_mode == NFA_DM_PWR_MODE_FULL) {
     if (nfa_ee_max_ee_cfg) {
       p_cb = nfa_ee_cb.ecb;
-      for (xx = 0; xx < NFA_EE_MAX_EE_SUPPORTED; xx++, p_cb++) {
+      for (xx = 0; xx < nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED; xx++, p_cb++) {
         p_cb->ee_old_status = 0;
         if (xx >= nfa_ee_cb.cur_ee) p_cb->nfcee_id = NFA_EE_INVALID;
 
@@ -315,7 +313,7 @@ void nfa_ee_proc_hci_info_cback(void) {
   nfa_ee_cb.ee_flags &= ~NFA_EE_FLAG_WAIT_HCI;
 
   p_cb = nfa_ee_cb.ecb;
-  for (xx = 0; xx < NFA_EE_MAX_EE_SUPPORTED; xx++, p_cb++) {
+  for (xx = 0; xx < nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED; xx++, p_cb++) {
     /* NCI spec says: An NFCEE_DISCOVER_NTF that contains a Protocol type of
      * "HCI Access"
      * SHALL NOT contain any other additional Protocol
@@ -382,11 +380,11 @@ void nfa_ee_proc_evt(tNFC_RESPONSE_EVT event, void* p_data) {
     case NFC_NFCEE_MODE_SET_INFO:
       int_event = NFA_EE_NCI_MODE_SET_INFO;
       break;
-#if (NXP_WIRED_MODE_STANDBY == true)
     case NFC_NFCEE_PWR_LNK_CTRL_REVT: /* 6  NFCEE PWR LNK CTRL response */
-      int_event = NFA_EE_NCI_PWR_LNK_CTRL_RSP_EVT;
+        if(nfcFL.eseFL._WIRED_MODE_STANDBY) {
+            int_event = NFA_EE_NCI_PWR_LNK_CTRL_RSP_EVT;
+        }
       break;
-#endif
 #endif
   }
 
@@ -438,7 +436,7 @@ tNFA_EE_ECB* nfa_ee_find_ecb(uint8_t nfcee_id) {
     p_ret = &nfa_ee_cb.ecb[NFA_EE_CB_4_DH];
   } else {
     p_cb = nfa_ee_cb.ecb;
-    for (xx = 0; xx < NFA_EE_MAX_EE_SUPPORTED; xx++, p_cb++) {
+    for (xx = 0; xx < nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED; xx++, p_cb++) {
       if (nfcee_id == p_cb->nfcee_id) {
         p_ret = p_cb;
         break;
@@ -665,10 +663,13 @@ static char* nfa_ee_sm_evt_2_str(uint16_t event) {
 #if (NXP_EXTNS == TRUE)
     case NFA_EE_NCI_MODE_SET_INFO:
       return "NFA_EE_NCI_MODE_SET_INFO";
-#if (NXP_WIRED_MODE_STANDBY == true)
     case NFA_EE_NCI_PWR_LNK_CTRL_RSP_EVT:
-      return "NCI_PWR_LNK_CTRL";
-#endif
+        if(nfcFL.eseFL._WIRED_MODE_STANDBY) {
+            return "NCI_PWR_LNK_CTRL";
+        }
+        else {
+            return "Unknown";
+        }
 #endif
     case NFA_EE_NCI_CONN_EVT:
       return "NCI_CONN";

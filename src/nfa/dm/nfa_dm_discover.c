@@ -111,7 +111,7 @@ static uint16_t P2P_PRIO_LOGIC_DEACT_NTF_TIMEOUT =
     200; /* timeout value 2 sec waiting for deactivate ntf */
 #endif
 
-#if (NFC_NXP_ESE == TRUE && (NXP_ESE_ETSI_READER_ENABLE == true))
+#if (NXP_EXTNS == TRUE)
 bool etsi_reader_in_progress = false;
 #endif
 /*******************************************************************************
@@ -145,9 +145,9 @@ static uint8_t nfa_dm_get_rf_discover_config(
         dm_disc_mask);
     dm_disc_mask &= ~NFA_DM_DISC_MASK_NFC_DEP;
   }
-#if ((NXP_EXTNS == TRUE) && \
-     (NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION == true))
-  if (nfa_dm_cb.flags & NFA_DM_FLAGS_PASSIVE_LISTEN_DISABLED) {
+#if (NXP_EXTNS == TRUE)
+  if (nfcFL.eseFL._NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION &&
+          (nfa_dm_cb.flags & NFA_DM_FLAGS_PASSIVE_LISTEN_DISABLED)) {
     NFA_TRACE_DEBUG1(
         "nfa_dm_get_rf_discover_config () passive listen disabled, rm listen "
         "from 0x%x",
@@ -1052,21 +1052,18 @@ static tNFC_STATUS nfa_dm_disc_force_to_idle(void) {
 **
 *******************************************************************************/
 static void nfa_dm_disc_deact_ntf_timeout_cback(TIMER_LIST_ENT* p_tle) {
-  (void)p_tle;
+    (void)p_tle;
 
-  NFA_TRACE_ERROR0("nfa_dm_disc_deact_ntf_timeout_cback()");
-#if ((NFC_NXP_ESE == TRUE) && (NXP_ESE_ETSI_READER_ENABLE == true))
-  if (nfc_cb.num_disc_maps == 1) {
-    NFC_TRACE_ERROR0("reset Nfc..!!");
-    etsi_reader_in_progress = true;
-    nfc_ncif_cmd_timeout();
+    NFA_TRACE_ERROR0("nfa_dm_disc_deact_ntf_timeout_cback()");
+    if (nfcFL.nfcNxpEse && nfcFL.eseFL._ESE_ETSI_READER_ENABLE &&
+            (nfc_cb.num_disc_maps == 1)) {
+        NFC_TRACE_ERROR0("reset Nfc..!!");
+        etsi_reader_in_progress = true;
+        nfc_ncif_cmd_timeout();
 
-  } else {
-#endif
-    nfa_dm_disc_force_to_idle();
-#if ((NFC_NXP_ESE == TRUE) && (NXP_ESE_ETSI_READER_ENABLE == true))
-  }
-#endif
+    } else {
+        nfa_dm_disc_force_to_idle();
+    }
 }
 
 /*******************************************************************************
@@ -1587,8 +1584,8 @@ static tNFA_STATUS nfa_dm_disc_notify_activation(tNFC_DISCOVER* p_data) {
    * 1. Pass this info to JNI as START_READER_EVT.
    * return (NFA_STATUS_OK)
    */
-  if (p_data->activate.intf_param.type == NCI_INTERFACE_UICC_DIRECT ||
-      p_data->activate.intf_param.type == NCI_INTERFACE_ESE_DIRECT) {
+  if (p_data->activate.intf_param.type == nfcFL.nfcMwFL._NCI_INTERFACE_UICC_DIRECT ||
+      p_data->activate.intf_param.type == nfcFL.nfcMwFL._NCI_INTERFACE_ESE_DIRECT) {
     for (xx = 0; xx < NFA_DM_DISC_NUM_ENTRIES; xx++) {
       if ((nfa_dm_cb.disc_cb.entry[xx].in_use)
 #if (NXP_EXTNS != TRUE)
@@ -2311,9 +2308,9 @@ static void nfa_dm_disc_sm_discovery(tNFA_DM_RF_DISC_SM_EVENT event,
          * set new state NFA_DM_RFST_POLL_ACTIVE
          * */
         else if (p_data->nfc_discover.activate.intf_param.type ==
-                     NCI_INTERFACE_UICC_DIRECT ||
+                nfcFL.nfcMwFL._NCI_INTERFACE_UICC_DIRECT ||
                  p_data->nfc_discover.activate.intf_param.type ==
-                     NCI_INTERFACE_ESE_DIRECT) {
+                         nfcFL.nfcMwFL._NCI_INTERFACE_ESE_DIRECT) {
           nfa_dm_disc_new_state(NFA_DM_RFST_POLL_ACTIVE);
         }
 #endif
@@ -3354,7 +3351,7 @@ bool nfa_dm_p2p_prio_logic(uint8_t event, uint8_t* p, uint8_t event_type) {
     NFA_TRACE_DEBUG1("nfa_dm_p2p_prio_logic event_type = 0x%x", event_type);
 
 #if (NXP_EXTNS == TRUE)
-    if (type == NCI_INTERFACE_UICC_DIRECT || type == NCI_INTERFACE_ESE_DIRECT) {
+    if (type == nfcFL.nfcMwFL._NCI_INTERFACE_UICC_DIRECT || type == nfcFL.nfcMwFL._NCI_INTERFACE_ESE_DIRECT) {
       NFA_TRACE_DEBUG0("Disable the p2p prio logic RDR_SWP");
       return true;
     }

@@ -82,7 +82,7 @@ uint8_t nci_snd_deactivate_cmd(uint8_t de_act_type);
 uint8_t nci_snd_discover_map_cmd(uint8_t num, tNCI_DISCOVER_MAPS* p_maps);
 uint8_t nci_snd_t3t_polling(uint16_t system_code, uint8_t rc, uint8_t tsn);
 uint8_t nci_snd_parameter_update_cmd(uint8_t* p_param_tlvs, uint8_t tlv_size);
-#if (NXP_EXTNS == TRUE) && (NXP_WIRED_MODE_STANDBY == true)
+#if (NXP_EXTNS == TRUE)
 uint8_t nci_snd_pwr_nd_lnk_ctrl_cmd(uint8_t nfcee_id, uint8_t cfg_value);
 #endif
 #if ((NFC_NFCEE_INCLUDED == true) && (NFC_RW_ONLY == false))

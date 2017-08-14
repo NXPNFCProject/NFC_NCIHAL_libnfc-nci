@@ -51,10 +51,10 @@
 #include "bt_trace.h"
 #endif
 
-#if (NXP_EXTNS == TRUE)
+/*#if (NXP_EXTNS == TRUE)
 #include <NXP_NFCC_Features.h>
 #include <NXP_ESE_Features.h>
-#endif
+#endif*/
 
 #ifndef USERIAL_DEBUG
 #define USERIAL_DEBUG false
@@ -677,19 +677,15 @@
 #endif
 
 /* Maximum number of AID entries per target_handle  */
-#ifndef NFA_EE_MAX_AID_ENTRIES
 #if (NXP_EXTNS == TRUE)
 #define NFA_EE_MIN_AID_SIZE (5)
 #define NFA_EE_MIN_AID_ENTRY_SIZE (NFA_EE_MIN_AID_SIZE + 4)
-#if (NFC_NXP_CHIP_TYPE != PN547C2)
+
 #define NFA_EE_MAX_AID_ENTRIES (50)
-#else
-#define NFA_EE_MAX_AID_ENTRIES (20)
-#endif
 #else
 #define NFA_EE_MAX_AID_ENTRIES (10)
 #endif
-#endif
+
 #define NFA_EE_MAX_APDU_PATTERN_ENTRIES (5)
 /* Maximum number of callback functions can be registered through
  * NFA_EeRegister() */

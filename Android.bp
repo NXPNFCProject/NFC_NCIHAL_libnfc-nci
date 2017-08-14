@@ -12,6 +12,7 @@ cc_library_shared {
         "halimpl/pn54x/tml/*.c",
         "halimpl/pn54x/utils/*.c",
         "halimpl/pn54x/utils/*.cpp",
+        "halimpl/pn54x/configs/*.cpp",
         "halimpl/pn54x/nfc_nci.c"
     ],
     shared_libs: [
@@ -31,6 +32,7 @@ cc_library_shared {
         "halimpl/pn54x/self-test",
         "halimpl/pn54x/tml",
         "halimpl/pn54x/utils",
+        "halimpl/pn54x/configs",
         "src/hal/include",
         "src/hal/int",
         "src/nfc/include",

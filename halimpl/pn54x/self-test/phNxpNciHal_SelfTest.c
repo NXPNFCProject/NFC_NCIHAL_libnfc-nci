@@ -79,15 +79,11 @@ static uint8_t st_validator_testAntenna_AgcVal_FixedNfcLd(
 static uint8_t st_validator_testAntenna_AgcVal_Differential(
     nci_data_t* exp, phTmlNfc_TransactInfo_t* act);
 
-#if (NFC_NXP_CHIP_TYPE != PN547C2)
 NFCSTATUS phNxpNciHal_getPrbsCmd(phNxpNfc_PrbsType_t prbs_type,
                                  phNxpNfc_PrbsHwType_t hw_prbs_type,
                                  uint8_t tech, uint8_t bitrate,
                                  uint8_t* prbs_cmd, uint8_t prbs_cmd_len);
-#else
-NFCSTATUS phNxpNciHal_getPrbsCmd(uint8_t tech, uint8_t bitrate,
-                                 uint8_t* prbs_cmd, uint8_t prbs_cmd_len);
-#endif
+
 /* Test data to validate SWP line 2*/
 static nci_test_data_t swp2_test_data[] = {
     {{
@@ -1477,27 +1473,23 @@ NFCSTATUS phNxpNciHal_SwpTest(uint8_t swp_line) {
  **
  ******************************************************************************/
 
-#if (NFC_NXP_CHIP_TYPE != PN547C2)
 NFCSTATUS phNxpNciHal_PrbsTestStart(phNxpNfc_PrbsType_t prbs_type,
                                     phNxpNfc_PrbsHwType_t hw_prbs_type,
                                     phNxpNfc_Tech_t tech,
                                     phNxpNfc_Bitrate_t bitrate)
-#else
-NFCSTATUS phNxpNciHal_PrbsTestStart(phNxpNfc_Tech_t tech,
-                                    phNxpNfc_Bitrate_t bitrate)
-#endif
 {
   NFCSTATUS status = NFCSTATUS_FAILED;
 
   nci_test_data_t prbs_cmd_data;
 
-#if (NFC_NXP_CHIP_TYPE != PN547C2)
   uint8_t rsp_cmd_info[] = {0x4F, 0x30, 0x01, 0x00};
-  prbs_cmd_data.cmd.len = 0x09;
-#else
-  uint8_t rsp_cmd_info[] = {0x4F, 0x30, 0x01, 0x00};
-  prbs_cmd_data.cmd.len = 0x07;
-#endif
+
+  if(nfcFL.chipType != pn547C2) {
+      prbs_cmd_data.cmd.len = 0x09;
+  }
+  else {
+      prbs_cmd_data.cmd.len = 0x07;
+  }
 
   memcpy(prbs_cmd_data.exp_rsp.p_data, &rsp_cmd_info[0], sizeof(rsp_cmd_info));
   prbs_cmd_data.exp_rsp.len = sizeof(rsp_cmd_info);
@@ -1512,14 +1504,15 @@ NFCSTATUS phNxpNciHal_PrbsTestStart(phNxpNfc_Tech_t tech,
 
 //    [NCI] -> [0x2F 0x30 0x04 0x00 0x00 0x01 0xFF]
 
-#if (NFC_NXP_CHIP_TYPE != PN547C2)
-  status =
-      phNxpNciHal_getPrbsCmd(prbs_type, hw_prbs_type, tech, bitrate,
-                             prbs_cmd_data.cmd.p_data, prbs_cmd_data.cmd.len);
-#else
-  status = phNxpNciHal_getPrbsCmd(tech, bitrate, prbs_cmd_data.cmd.p_data,
-                                  prbs_cmd_data.cmd.len);
-#endif
+  if(nfcFL.chipType != pn547C2) {
+      status =
+              phNxpNciHal_getPrbsCmd(prbs_type, hw_prbs_type, tech, bitrate,
+                      prbs_cmd_data.cmd.p_data, prbs_cmd_data.cmd.len);
+  }
+  else {
+      status = phNxpNciHal_getPrbsCmd(0,0,tech, bitrate, prbs_cmd_data.cmd.p_data,
+              prbs_cmd_data.cmd.len);
+  }
 
   if (status == NFCSTATUS_FAILED) {
     // Invalid Param.
@@ -1591,15 +1584,11 @@ NFCSTATUS phNxpNciHal_PrbsTestStop() {
 ** Returns          NFCSTATUS_SUCCESS if successful,otherwise NFCSTATUS_FAILED.
 **
 *******************************************************************************/
-#if (NFC_NXP_CHIP_TYPE != PN547C2)
 NFCSTATUS phNxpNciHal_getPrbsCmd(phNxpNfc_PrbsType_t prbs_type,
                                  phNxpNfc_PrbsHwType_t hw_prbs_type,
                                  uint8_t tech, uint8_t bitrate,
                                  uint8_t* prbs_cmd, uint8_t prbs_cmd_len)
-#else
-NFCSTATUS phNxpNciHal_getPrbsCmd(uint8_t tech, uint8_t bitrate,
-                                 uint8_t* prbs_cmd, uint8_t prbs_cmd_len)
-#endif
+
 {
   NFCSTATUS status = NFCSTATUS_SUCCESS;
   int position_tech_param = 0;
@@ -1608,39 +1597,36 @@ NFCSTATUS phNxpNciHal_getPrbsCmd(uint8_t tech, uint8_t bitrate,
   NXPLOG_NCIHAL_D("phNxpNciHal_getPrbsCmd - tech 0x%x bitrate = 0x%x", tech,
                   bitrate);
   if (NULL == prbs_cmd ||
-#if (NFC_NXP_CHIP_TYPE != PN547C2)
-      prbs_cmd_len != 0x09)
-#else
-      prbs_cmd_len != 0x07)
-#endif
+          ((nfcFL.chipType != pn547C2) && (prbs_cmd_len != 0x09)) ||
+          ((nfcFL.chipType == pn547C2) && (prbs_cmd_len != 0x07)))
   {
-    return status;
+      return status;
   }
 
   prbs_cmd[0] = 0x2F;
   prbs_cmd[1] = 0x30;
-#if (NFC_NXP_CHIP_TYPE != PN547C2)
-  prbs_cmd[2] = 0x06;
-  prbs_cmd[3] = (uint8_t)prbs_type;
-  // 0xFF Error value used for validation.
-  prbs_cmd[4] = (uint8_t)hw_prbs_type;
-  prbs_cmd[5] = 0xFF;  // TECH
-  prbs_cmd[6] = 0xFF;  // BITRATE
-  prbs_cmd[7] = 0x01;
-  prbs_cmd[8] = 0xFF;
-  position_tech_param = 5;
-  position_bit_param = 6;
-#else
-  prbs_cmd[2] = 0x04;
-  // 0xFF Error value used for validation.
-  prbs_cmd[3] = 0xFF;  // TECH
-  // 0xFF Error value used for validation.
-  prbs_cmd[4] = 0xFF;  // BITRATE
-  prbs_cmd[5] = 0x01;
-  prbs_cmd[6] = 0xFF;
-  position_tech_param = 3;
-  position_bit_param = 4;
-#endif
+  if(nfcFL.chipType != pn547C2) {
+      prbs_cmd[2] = 0x06;
+      prbs_cmd[3] = (uint8_t)prbs_type;
+      // 0xFF Error value used for validation.
+      prbs_cmd[4] = (uint8_t)hw_prbs_type;
+      prbs_cmd[5] = 0xFF;  // TECH
+      prbs_cmd[6] = 0xFF;  // BITRATE
+      prbs_cmd[7] = 0x01;
+      prbs_cmd[8] = 0xFF;
+      position_tech_param = 5;
+      position_bit_param = 6;
+  } else {
+      prbs_cmd[2] = 0x04;
+      // 0xFF Error value used for validation.
+      prbs_cmd[3] = 0xFF;  // TECH
+      // 0xFF Error value used for validation.
+      prbs_cmd[4] = 0xFF;  // BITRATE
+      prbs_cmd[5] = 0x01;
+      prbs_cmd[6] = 0xFF;
+      position_tech_param = 3;
+      position_bit_param = 4;
+  }
 
   switch (tech) {
     case NFC_RF_TECHNOLOGY_A:
@@ -1844,20 +1830,18 @@ NFCSTATUS phNxpNciHal_AntennaSelfTest(phAntenna_St_Resp_t* phAntenna_St_Resp) {
   }
 
   if (status == NFCSTATUS_SUCCESS) {
-    if ((gtxldo_status == NFCSTATUS_SUCCESS) &&
-        (gagc_value_status == NFCSTATUS_SUCCESS) &&
-        (gagc_nfcld_status == NFCSTATUS_SUCCESS)
-#if (NXP_HW_ANTENNA_LOOP4_SELF_TEST == true)
-        && (gagc_differential_status == NFCSTATUS_SUCCESS)
-#endif
-            ) {
-      antenna_st_status = NFCSTATUS_SUCCESS;
-      NXPLOG_NCIHAL_D("phNxpNciHal_AntennaSelfTest - SUCESS\n");
-    } else {
-      NXPLOG_NCIHAL_D("phNxpNciHal_AntennaSelfTest - FAILED\n");
-    }
+      if ((gtxldo_status == NFCSTATUS_SUCCESS) &&
+              (gagc_value_status == NFCSTATUS_SUCCESS) &&
+              (gagc_nfcld_status == NFCSTATUS_SUCCESS)
+              && ((nfcFL.nfccFL._HW_ANTENNA_LOOP4_SELF_TEST) &&
+                      (gagc_differential_status == NFCSTATUS_SUCCESS))) {
+          antenna_st_status = NFCSTATUS_SUCCESS;
+          NXPLOG_NCIHAL_D("phNxpNciHal_AntennaSelfTest - SUCESS\n");
+      } else {
+          NXPLOG_NCIHAL_D("phNxpNciHal_AntennaSelfTest - FAILED\n");
+      }
   } else {
-    NXPLOG_NCIHAL_D("phNxpNciHal_AntennaSelfTest - FAILED\n");
+      NXPLOG_NCIHAL_D("phNxpNciHal_AntennaSelfTest - FAILED\n");
   }
 
   NXPLOG_NCIHAL_D("phNxpNciHal_AntennaSelfTest - end\n");

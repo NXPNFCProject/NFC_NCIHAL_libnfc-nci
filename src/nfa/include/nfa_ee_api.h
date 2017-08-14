@@ -91,9 +91,7 @@ enum {
   NFA_EE_NO_CB_ERR_EVT, /* Error - Can not find control block or wrong state */
 #if (NXP_EXTNS == TRUE)
   NFA_EE_SET_MODE_INFO_EVT,
-#if (NXP_WIRED_MODE_STANDBY == true)
   NFA_EE_PWR_LINK_CTRL_EVT, /* NFCEE Pwr and link cotnrol command Evt */
-#endif
 #endif
   NFA_EE_ADD_APDU_EVT,  /* The status for adding an APDU pattern to a routing table entry*/
   NFA_EE_REMOVE_APDU_EVT /* The status for removing an APDU pattern from a routing table */
@@ -164,8 +162,7 @@ typedef enum {
   NFCC_DEACTIVATED_NTF,
   NFCC_ACTION_NTF,
   NFCC_CE_DATA_EVT,
-#if (NXP_EXTNS == TRUE && \
-     NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION == true)
+#if (NXP_EXTNS == TRUE)
   NFCC_RF_TIMEOUT_EVT
 #endif
 } tNFCC_EVTS_NTF;
@@ -246,12 +243,10 @@ typedef struct {
   tNFA_STATUS status;
   uint8_t nfcee_id;
 } tNFA_EE_SET_MODE_INFO;
-#if (NXP_WIRED_MODE_STANDBY == true)
 typedef struct {
   tNFA_STATUS status;       /* NFA_STATUS_OK is successful  */
   tNFA_EE_STATUS ee_status; /* The NFCEE status             */
 } tNFA_EE_PWR_LNK_CTRL;
-#endif
 #endif
 typedef struct {
   tNFA_HANDLE ee_handle;          /* Handle of MFCEE      */
@@ -300,9 +295,7 @@ typedef union {
   tNFA_EE_MODE_SET mode_set;
 #if (NXP_EXTNS == TRUE)
   tNFA_EE_SET_MODE_INFO ee_set_mode_info;
-#if (NXP_WIRED_MODE_STANDBY == true)
   tNFA_EE_PWR_LNK_CTRL pwr_lnk_ctrl;
-#endif
 #endif
   tNFA_EE_INFO new_ee;
   tNFA_EE_DISCOVER_REQ discover_req;

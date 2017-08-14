@@ -241,13 +241,11 @@ typedef uint8_t tNFA_PROTOCOL_MASK;
 #define NFA_DM_SET_ROUTE_CONFIG_REVT 9
 /* Result of NFA_GetRouting         */
 #define NFA_DM_GET_ROUTE_CONFIG_REVT 10
-
-#if (NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == true)
 /*Status when EE HCI subsystems disabled*/
 #define NFA_DM_EE_HCI_DISABLE 11
 /*Status when EE HCI susbsystems enabled*/
 #define NFA_DM_EE_HCI_ENABLE 12
-#endif
+
 /* Reader over SWP Events*/
 #define NFA_RD_SWP_READER_REQUESTED 0
 #define NFA_RD_SWP_READER_START 1
@@ -478,10 +476,8 @@ typedef struct {
 /* Activated intf for updating the   tech variables */
 #define NFA_ACTIVATED_UPDATE_EVT 41
 #define NFA_RECOVERY_EVT 42 /*Recovery*/
-#if (NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION == true)
 /* Passive Listening disabled event */
 #define NFA_PASSIVE_LISTEN_DISABLED_EVT 44
-#endif
 #endif
 /* NFC deactivation type */
 #define NFA_DEACTIVATE_TYPE_IDLE NFC_DEACTIVATE_TYPE_IDLE
@@ -1146,8 +1142,7 @@ extern tNFA_STATUS NFA_EnableListening(void);
 *******************************************************************************/
 extern tNFA_STATUS NFA_DisableListening(void);
 
-#if ((NXP_EXTNS == TRUE) && \
-     (NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION == true))
+#if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         NFA_DisablePassiveListening
@@ -1643,12 +1638,9 @@ extern tNFA_MW_VERSION NFA_GetMwVersion();
 +*******************************************************************************/
 extern bool NFA_checkNfcStateBusy();
 
-#if (NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == true)
 extern void NFA_EE_HCI_Control(bool mode);
 extern tNFA_STATUS NFA_ResetNfcc();
-#endif
 
-#if (NFC_NXP_STAT_DUAL_UICC_WO_EXT_SWITCH == true)
 /*******************************************************************************
 **
 ** Function:        NFA_SetPreferredUiccId
@@ -1661,7 +1653,6 @@ extern tNFA_STATUS NFA_ResetNfcc();
 **
 *******************************************************************************/
 extern void NFA_SetPreferredUiccId(uint8_t uicc_id);
-#endif
 
 #endif
 

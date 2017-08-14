@@ -53,7 +53,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /****************************************************************************
  ** Internal NFC constants and definitions
  ****************************************************************************/
@@ -101,8 +100,7 @@ extern "C" {
 #define NFC_TTYPE_VS_BASE 200
 /* time out for modeSet notification */
 #define NFC_SETMODE_NTF_TIMEOUT     2
-#if ((NXP_EXTNS == TRUE) && \
-     (NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME))
+#if (NXP_EXTNS == TRUE)
 /* Added for sending fave pwr link response to JNI since pwrlink cmd has been
                                                   ignored due to RF CE session
    */
@@ -134,7 +132,7 @@ enum {
   I2C_FRAGMENATATION_ENABLED, /*i2c fragmentation_enabled           */
   I2C_FRAGMENTATION_DISABLED  /*i2c_fragmentation_disabled          */
 };
-#if ((NXP_EXTNS == TRUE) && (NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == true))
+#if (NXP_EXTNS == TRUE)
 /*Get or Set swp activation state for UICC*/
 typedef enum {
   GET_UICC_CONFIG = 0x01, /*get swp activation state for UICC  */
@@ -414,9 +412,7 @@ extern void nfc_ncif_proc_data(NFC_HDR* p_msg);
 #if (NXP_EXTNS == TRUE)
 extern uint8_t nfc_ncif_retransmit_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data);
 extern tNFC_STATUS nfc_ncif_store_FWVersion(uint8_t* p_buf);
-#if ((NFC_NXP_CHIP_TYPE != PN547C2) && (NFC_NXP_AID_MAX_SIZE_DYN == TRUE))
 extern tNFC_STATUS nfc_ncif_set_MaxRoutingTableSize(uint8_t* p_buf);
-#endif
 extern void nfc_ncif_proc_isodep_nak_presence_check_status (uint8_t status, bool is_ntf);
 extern void nfc_ncif_update_window(void);
 extern void nfc_ncif_empty_cmd_queue();

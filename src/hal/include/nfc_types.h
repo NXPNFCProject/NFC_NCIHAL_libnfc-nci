@@ -18,7 +18,7 @@
 
 #ifndef NFC_TYPES_H
 #define NFC_TYPES_H
-
+#include "Nxp_Features.h"
 /****************************************************************************
 ** NFC_HDR header definition for NFC messages
 *****************************************************************************/

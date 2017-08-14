@@ -111,10 +111,7 @@ typedef enum {
   phTmlNfc_e_ResetDevice = PH_TMLNFC_RESETDEVICE, /* Reset the device */
   phTmlNfc_e_EnableDownloadMode, /* Do the hardware setting to enter into
                                     download mode */
-  phTmlNfc_e_EnableNormalMode /* Hardware setting for normal mode of operation
-                                 */
-#if (NFC_NXP_ESE == TRUE)
-  ,
+  phTmlNfc_e_EnableNormalMode, /* Hardware setting for normal mode of operation*/
   phTmlNfc_e_SetNfcServicePid, /* Register the Nfc service PID with the driver
                                   */
   phTmlNfc_e_GetP61PwrMode,    /* Get the current P61 mode of operation */
@@ -127,15 +124,10 @@ typedef enum {
   phTmlNfc_e_RelP61Access,      /*Release the P61 lock*/
   phTmlNfc_e_SetLegacyPowerScheme,
   phTmlNfc_e_SetExtPMUPowerScheme,
-  phTmlNfc_e_SetPN67TPowerScheme
-#if (NXP_ESE_SVDD_SYNC == true)
-  ,
-  phTmlNfc_e_RelP61SvddWait
-#endif
-  ,
+  phTmlNfc_e_SetPN67TPowerScheme,
+  phTmlNfc_e_RelP61SvddWait,
   phTmlNfc_e_SetJcopDwnldEnable,
   phTmlNfc_e_SetJcopDwnldDisable
-#endif
 } phTmlNfc_ControlCode_t; /* Control code for IOCTL call */
 
 /*

@@ -42,8 +42,10 @@
 tNFC_CONN_CB* nfc_alloc_conn_cb(tNFC_CONN_CBACK* p_cback) {
   int xx, max = NCI_MAX_CONN_CBS;
   tNFC_CONN_CB* p_conn_cb = NULL;
-#if ((NXP_EXTNS == TRUE) && (NFC_NXP_CHIP_TYPE != PN547C2))
-
+#if (NXP_EXTNS == TRUE)
+  if(nfcFL.chipType != pn547C2) {
+      NFC_CHECK_MAX_CONN();
+  }
 #else
   NFC_CHECK_MAX_CONN();
 #endif

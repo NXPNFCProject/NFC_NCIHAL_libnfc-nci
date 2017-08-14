@@ -53,7 +53,7 @@ extern uint8_t HCI_LOOPBACK_DEBUG;
 #define NFA_HCI_DEBUG_ON 0x01
 #define NFA_HCI_DEBUG_OFF 0x00
 
-#if ((NXP_EXTNS == TRUE) && (NXP_NFCC_MW_RCVRY_BLK_FW_DNLD == true))
+#if (NXP_EXTNS == TRUE)
 bool MW_RCVRY_FW_DNLD_ALLOWED;
 #endif
 /*****************************************************************************
@@ -627,9 +627,7 @@ extern void nfa_hciu_set_nfceeid_config_mask(uint8_t event, uint8_t host_id);
 extern void nfa_hciu_set_nfceeid_poll_mask(uint8_t event, uint8_t host_id);
 extern bool nfa_hciu_check_any_host_reset_pending();
 extern tNFA_STATUS nfa_hci_api_config_nfcee(uint8_t hostId);
-#if (NXP_UICC_HANDLE_CLEAR_ALL_PIPES == true)
 void nfa_hci_handle_clear_all_pipes_evt(uint8_t source_host);
-#endif
 #endif
 
 /* Action functions in nfa_hci_act.c

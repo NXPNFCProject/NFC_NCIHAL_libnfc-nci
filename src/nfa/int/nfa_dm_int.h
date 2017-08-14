@@ -64,8 +64,7 @@ enum {
   NFA_DM_API_DISABLE_POLLING_EVT,
   NFA_DM_API_ENABLE_LISTENING_EVT,
   NFA_DM_API_DISABLE_LISTENING_EVT,
-#if (NXP_EXTNS == TRUE && \
-     NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION == true)
+#if (NXP_EXTNS == TRUE)
   NFA_DM_API_DISABLE_PASSIVE_LISTENING_EVT,
 #endif
   NFA_DM_API_PAUSE_P2P_EVT,
@@ -335,8 +334,7 @@ typedef uint8_t tNFA_DM_RF_DISC_EVT;
 #define NFA_DM_DISC_MASK_L_LEGACY 0x10000000
 #define NFA_DM_DISC_MASK_LISTEN 0xFFFF0000
 #define NFA_DM_DISC_MASK_NFC_DEP 0x0C481848
-#if (NXP_EXTNS == TRUE && \
-     NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION == true)
+#if (NXP_EXTNS == TRUE)
 #define NFA_DM_DISC_MASK_ACTIVE_LISTEN 0xFF00FFFF
 #endif
 
@@ -475,8 +473,7 @@ typedef struct {
 #define NFA_DM_FLAGS_P2P_PAUSED 0x00002000
 /* Power Off Sleep                                                      */
 #define NFA_DM_FLAGS_POWER_OFF_SLEEP 0x00008000
-#if (NXP_EXTNS == TRUE && \
-     NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION == true)
+#if (NXP_EXTNS == TRUE)
 /* NFA_DisablePassiveListening() is called and engaged                  */
 #define NFA_DM_FLAGS_PASSIVE_LISTEN_DISABLED 0x00010000
 #endif
@@ -652,8 +649,7 @@ bool nfa_dm_act_enable_polling(tNFA_DM_MSG* p_data);
 bool nfa_dm_act_disable_polling(tNFA_DM_MSG* p_data);
 bool nfa_dm_act_enable_listening(tNFA_DM_MSG* p_data);
 bool nfa_dm_act_disable_listening(tNFA_DM_MSG* p_data);
-#if (NXP_EXTNS == TRUE && \
-     NXP_NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION == true)
+#if (NXP_EXTNS == TRUE)
 bool nfa_dm_act_disable_passive_listening(tNFA_DM_MSG* p_data);
 #endif
 bool nfa_dm_act_pause_p2p(tNFA_DM_MSG* p_data);
@@ -727,7 +723,7 @@ void nfa_dm_deact_ntf_timeout();
 char* nfa_dm_nfc_revt_2_str(tNFC_RESPONSE_EVT event);
 #endif
 
-#if ((NXP_EXTNS == TRUE) && (NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH == true))
+#if (NXP_EXTNS == TRUE)
 tNFC_STATUS nfc_ncif_reset_nfcc();
 #endif
 #endif /* NFA_DM_INT_H */

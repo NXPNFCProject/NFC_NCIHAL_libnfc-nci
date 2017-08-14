@@ -1278,22 +1278,26 @@ void nfa_hci_handle_admin_gate_cmd(uint8_t* p_data) {
       if ((dest_gate == NFA_HCI_IDENTITY_MANAGEMENT_GATE) ||
           (dest_gate == NFA_HCI_LOOP_BACK_GATE)
 #if (NXP_EXTNS == TRUE)
-#ifdef GEMALTO_SE_SUPPORT
-          || (dest_gate == NFC_HCI_DEFAULT_DEST_GATE) ||
-          (dest_gate == NFA_HCI_CONNECTIVITY_GATE)
-#endif
+          || ((nfcFL.nfccFL._GEMALTO_SE_SUPPORT) && ((dest_gate == NFC_HCI_DEFAULT_DEST_GATE) ||
+          (dest_gate == NFA_HCI_CONNECTIVITY_GATE)))
 #endif
               )
-#if ((NXP_EXTNS == TRUE) && (NXP_BLOCK_PROPRIETARY_APDU_GATE == true))
-        if (dest_gate == NFC_HCI_DEFAULT_DEST_GATE) {
-          response = NFA_HCI_ANY_E_NOK;
-        } else {
-          response = nfa_hciu_add_pipe_to_static_gate(dest_gate, pipe,
-                                                      source_host, source_gate);
-        }
+#if (NXP_EXTNS == TRUE)
+          if(nfcFL.eseFL._BLOCK_PROPRIETARY_APDU_GATE) {
+              if (dest_gate == NFC_HCI_DEFAULT_DEST_GATE) {
+                  response = NFA_HCI_ANY_E_NOK;
+              } else {
+                  response = nfa_hciu_add_pipe_to_static_gate(dest_gate, pipe,
+                          source_host, source_gate);
+              }
+          }
+          else{
+              response = nfa_hciu_add_pipe_to_static_gate(dest_gate, pipe,
+                      source_host, source_gate);
+          }
 #else
-        response = nfa_hciu_add_pipe_to_static_gate(dest_gate, pipe,
-                                                    source_host, source_gate);
+    response = nfa_hciu_add_pipe_to_static_gate(dest_gate, pipe,
+            source_host, source_gate);
 #endif
       else {
         if ((pgate = nfa_hciu_find_gate_by_gid(dest_gate)) != NULL) {
@@ -1906,8 +1910,8 @@ void nfa_hci_handle_dyn_pipe_pkt(uint8_t pipe_id, uint8_t* p_data,
     nfa_hci_handle_connectivity_gate_pkt(p_data, data_len, p_pipe);
   }
 #if (NXP_EXTNS == TRUE)
-#ifdef GEMALTO_SE_SUPPORT
-  else if (p_pipe->local_gate == NFC_HCI_DEFAULT_DEST_GATE) {
+  else if ((nfcFL.nfccFL._GEMALTO_SE_SUPPORT) &&
+          (p_pipe->local_gate == NFC_HCI_DEFAULT_DEST_GATE)) {
     /* Check if data packet is a command, response or event */
     p_gate = nfa_hci_cb.cfg.dyn_gates;
     p_gate->gate_owner = 0x0800;
@@ -1928,7 +1932,6 @@ void nfa_hci_handle_dyn_pipe_pkt(uint8_t pipe_id, uint8_t* p_data,
         break;
     }
   }
-#endif
 #endif
   else {
     p_gate = nfa_hciu_find_gate_by_gid(p_pipe->local_gate);
@@ -2554,17 +2557,11 @@ static tNFA_STATUS nfa_hci_get_num_nfcee_configured() {
   UINT8_TO_STREAM(p, NXP_NFC_PARAM_ID_SWP2);
   (*num_param)++;
 
-#if (NXP_NFCC_DYNAMIC_DUAL_UICC == true)
+if(nfcFL.nfccFL._NFCC_DYNAMIC_DUAL_UICC) {
   UINT8_TO_STREAM(p, NXP_NFC_SET_CONFIG_PARAM_EXT);
   UINT8_TO_STREAM(p, NXP_NFC_PARAM_ID_SWP1A);
   (*num_param)++;
-#endif
-
-#if (NXP_NFCEE_NDEF_ENABLE == true)
-  UINT8_TO_STREAM(p, NXP_NFC_SET_CONFIG_PARAM_EXT);
-  UINT8_TO_STREAM(p, NXP_NFC_PARAM_ID_NDEF_NFCEE);
-  (*num_param)++;
-#endif
+}
 
   *parm_len = (p - num_param);
   if (*num_param != 0x00) {

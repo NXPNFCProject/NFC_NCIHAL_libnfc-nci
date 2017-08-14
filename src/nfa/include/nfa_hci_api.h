@@ -672,7 +672,7 @@ extern tNFA_STATUS NFA_HciDeletePipe(tNFA_HANDLE hci_handle, uint8_t pipe);
 extern tNFA_STATUS NFA_HciAddStaticPipe(tNFA_HANDLE hci_handle, uint8_t host,
                                         uint8_t gate, uint8_t pipe);
 
-#if ((NXP_EXTNS == TRUE) && (NXP_NFCC_MW_RCVRY_BLK_FW_DNLD == true))
+#if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         NFA_MW_Fwdnlwd_Recovery

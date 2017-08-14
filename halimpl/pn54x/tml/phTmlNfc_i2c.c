@@ -308,7 +308,6 @@ int phTmlNfc_i2c_reset(void* pDevHandle, long level) {
   return ret;
 }
 
-#if (NFC_NXP_ESE == TRUE)
 /*******************************************************************************
 **
 ** Function         phTmlNfc_i2c_set_Jcop_dwnld_state
@@ -322,6 +321,11 @@ int phTmlNfc_i2c_reset(void* pDevHandle, long level) {
 **
 *******************************************************************************/
 NFCSTATUS phTmlNfc_i2c_set_Jcop_dwnld_state(void* pDevHandle, long level) {
+    NXPLOG_TML_D("phTmlNfc_i2c_set_Jcop_dwnld_state()");
+    if(!nfcFL.nfcNxpEse) {
+        NXPLOG_TML_D("NxpEse not available. Returning");
+        return NFCSTATUS_FAILED;
+    }
   int32_t ret = -1;
   NFCSTATUS wStatus = NFCSTATUS_SUCCESS;
 
@@ -360,6 +364,11 @@ NFCSTATUS phTmlNfc_i2c_set_Jcop_dwnld_state(void* pDevHandle, long level) {
 **
 *******************************************************************************/
 NFCSTATUS phTmlNfc_set_pid(void* pDevHandle, long pid) {
+    NXPLOG_TML_D("phTmlNfc_set_pid()");
+        if(!nfcFL.nfcNxpEse) {
+            NXPLOG_TML_D("NxpEse not available. Returning");
+            return NFCSTATUS_FAILED;
+        }
   NFCSTATUS wStatus = NFCSTATUS_FAILED;
   uint32_t ret = -1;
   NXPLOG_TML_D("phTmlNfc_set_pid(), pid  %ld", pid);
@@ -388,6 +397,11 @@ NFCSTATUS phTmlNfc_set_pid(void* pDevHandle, long pid) {
 **
 *******************************************************************************/
 NFCSTATUS phTmlNfc_set_power_scheme(void* pDevHandle, long id) {
+    NXPLOG_TML_D("phTmlNfc_set_power_scheme()");
+    if(!nfcFL.nfcNxpEse) {
+        NXPLOG_TML_D("NxpEse not available. Returning");
+        return NFCSTATUS_FAILED;
+    }
   int ret;
   NXPLOG_TML_D("phTmlNfc_set_power_scheme(), id  %ld", id);
 
@@ -411,6 +425,11 @@ NFCSTATUS phTmlNfc_set_power_scheme(void* pDevHandle, long id) {
 **
 *******************************************************************************/
 NFCSTATUS phTmlNfc_i2c_set_p61_power_state(void* pDevHandle, long level) {
+    NXPLOG_TML_D("phTmlNfc_i2c_set_p61_power_state()");
+    if(!nfcFL.nfcNxpEse) {
+        NXPLOG_TML_D("NxpEse not available. Returning");
+        return NFCSTATUS_FAILED;
+    }
   int ret = -1;
   NFCSTATUS wStatus = NFCSTATUS_FAILED;
 
@@ -451,6 +470,11 @@ NFCSTATUS phTmlNfc_i2c_set_p61_power_state(void* pDevHandle, long level) {
 **
 *******************************************************************************/
 NFCSTATUS phTmlNfc_i2c_get_p61_power_state(void* pDevHandle) {
+    NXPLOG_TML_D("phTmlNfc_i2c_get_p61_power_state()");
+    if(!nfcFL.nfcNxpEse) {
+        NXPLOG_TML_D("NxpEse not available. Returning");
+        return NFCSTATUS_FAILED;
+    }
   int ret;
   NFCSTATUS wStatus = NFCSTATUS_FAILED;
   p61_access_state_t p61_current_state = P61_STATE_INVALID;
@@ -481,6 +505,11 @@ NFCSTATUS phTmlNfc_i2c_get_p61_power_state(void* pDevHandle) {
 **
 *******************************************************************************/
 NFCSTATUS phTmlNfc_get_ese_access(void* pDevHandle, long timeout) {
+    NXPLOG_TML_D("phTmlNfc_get_ese_access()");
+    if(!nfcFL.nfcNxpEse) {
+        NXPLOG_TML_D("NxpEse not available. Returning");
+        return NFCSTATUS_FAILED;
+    }
   int ret = -1;
   NFCSTATUS status = NFCSTATUS_SUCCESS;
   NXPLOG_TML_D("phTmlNfc_get_ese_access(), enter timeout  %ld", timeout);
@@ -501,7 +530,6 @@ NFCSTATUS phTmlNfc_get_ese_access(void* pDevHandle, long timeout) {
   return status;
 }
 
-#if (NXP_ESE_SVDD_SYNC == true)
 /*******************************************************************************
 **
 ** Function         phTmlNfc_rel_svdd_wait
@@ -514,6 +542,11 @@ NFCSTATUS phTmlNfc_get_ese_access(void* pDevHandle, long timeout) {
 **
 *******************************************************************************/
 NFCSTATUS phTmlNfc_rel_svdd_wait(void* pDevHandle) {
+    NXPLOG_TML_D("phTmlNfc_rel_svdd_wait()");
+    if(!nfcFL.nfcNxpEse && !nfcFL.eseFL._ESE_SVDD_SYNC) {
+        NXPLOG_TML_D("NxpEse and ESE_SVDD_SYNC not available. Returning");
+        return NFCSTATUS_FAILED;
+    }
   int ret = -1;
   NFCSTATUS status = NFCSTATUS_SUCCESS;
   NXPLOG_TML_D("phTmlNfc_rel_svdd_wait(), enter ");
@@ -533,8 +566,7 @@ NFCSTATUS phTmlNfc_rel_svdd_wait(void* pDevHandle) {
                status);
   return status;
 }
-#endif
-#endif
+
 /*******************************************************************************
 **
 ** Function         getDownloadFlag

@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include "Nxp_Features.h"
 
 #ifndef true
 #define true (0x01) /* Logical True Value */
@@ -304,7 +305,7 @@ typedef struct phNfc_sTransceiveInfo {
                        */
   uint8_t bWordCount;  /* Number of words to be read or written */
 } phNfc_sTransceiveInfo_t;
-#if ((NFC_NXP_ESE == TRUE) && (NXP_EXTNS == TRUE))
+#if (NXP_EXTNS == TRUE)
 typedef enum p61_access_state {
   P61_STATE_INVALID = 0x0000,
   P61_STATE_IDLE = 0x0100,         /* p61 is free to use */

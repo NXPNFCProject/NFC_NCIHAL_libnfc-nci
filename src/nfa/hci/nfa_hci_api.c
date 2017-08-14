@@ -913,8 +913,9 @@ tNFA_STATUS NFA_HciAddStaticPipe(tNFA_HANDLE hci_handle, uint8_t host,
   }
 
   if ((gate <= NFA_HCI_LAST_HOST_SPECIFIC_GATE)
-#if (NXP_EXTNS == TRUE && (NXP_UICC_CREATE_CONNECTIVITY_PIPE == true))
-      && (gate != NFA_HCI_CONNECTIVITY_GATE)
+#if (NXP_EXTNS == TRUE)
+      && ((nfcFL.nfccFL._UICC_CREATE_CONNECTIVITY_PIPE) &&
+              (gate != NFA_HCI_CONNECTIVITY_GATE))
 #endif
           ) {
     NFA_TRACE_API1("NFA_HciAddStaticPipe (): Invalid Gate:0x%02x", gate);
@@ -1032,12 +1033,17 @@ void NFA_HciDebug(uint8_t action, uint8_t size, uint8_t* p_data) {
 **
 *******************************************************************************/
 bool NFA_MW_Fwdnlwd_Recovery(bool mw_fwdnld_recovery) {
-  if (mw_fwdnld_recovery) {
-    MW_RCVRY_FW_DNLD_ALLOWED = true;
-  } else {
-    MW_RCVRY_FW_DNLD_ALLOWED = false;
-  }
-  return mw_fwdnld_recovery;
+    if(!nfcFL.nfccFL._NFCC_MW_RCVRY_BLK_FW_DNLD) {
+        NFA_TRACE_API0("NFA_MW_Fwdnlwd_Recovery"
+                "  NFCC_MW_RCVRY_BLK_FW_DNLD not available. Returning");
+        return false;
+    }
+    if (mw_fwdnld_recovery) {
+        MW_RCVRY_FW_DNLD_ALLOWED = true;
+    } else {
+        MW_RCVRY_FW_DNLD_ALLOWED = false;
+    }
+    return mw_fwdnld_recovery;
 }
 #endif
 #if (NXP_EXTNS == TRUE)

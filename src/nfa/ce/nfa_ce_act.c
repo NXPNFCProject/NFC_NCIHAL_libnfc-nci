@@ -387,10 +387,11 @@ void nfc_ce_t3t_set_listen_params(void) {
   /* For NCI draft 22+, the polarity of NFC_PMID_LF_T3T_FLAGS2 is flipped */
   t3t_flags2_mask = ~t3t_flags2_mask;
 
-#if (NFC_NXP_CHIP_TYPE != PN547C2)
-  NFA_TRACE_DEBUG0(" LF_T3T_FLAGS swap for NCI specification compliance");
-  t3t_flags2_mask = ((t3t_flags2_mask >> 8) | (t3t_flags2_mask << 8));
-#endif
+
+  if(nfcFL.chipType != pn547C2) {
+      NFA_TRACE_DEBUG0(" LF_T3T_FLAGS swap for NCI specification compliance");
+      t3t_flags2_mask = ((t3t_flags2_mask >> 8) | (t3t_flags2_mask << 8));
+  }
 
   UINT8_TO_STREAM(p_params, NFC_PMID_LF_T3T_FLAGS2);      /* type */
   UINT8_TO_STREAM(p_params, NCI_PARAM_LEN_LF_T3T_FLAGS2); /* length */
@@ -892,8 +893,8 @@ bool nfa_ce_activate_ntf(tNFA_CE_MSG* p_ce_msg) {
          sizeof(tNFC_ACTIVATE_DEVT));
 
 #if (NXP_EXTNS == TRUE)
-  if (p_cb->activation_params.intf_param.type == NCI_INTERFACE_UICC_DIRECT ||
-      p_cb->activation_params.intf_param.type == NCI_INTERFACE_ESE_DIRECT) {
+  if (p_cb->activation_params.intf_param.type == nfcFL.nfcMwFL._NCI_INTERFACE_UICC_DIRECT ||
+      p_cb->activation_params.intf_param.type == nfcFL.nfcMwFL._NCI_INTERFACE_ESE_DIRECT) {
     memcpy(&(conn_evt.activated.activate_ntf), &p_cb->activation_params,
            sizeof(tNFC_ACTIVATE_DEVT));
     for (i = 0; i < NFA_CE_LISTEN_INFO_IDX_INVALID; i++) {

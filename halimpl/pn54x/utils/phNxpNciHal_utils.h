@@ -42,6 +42,7 @@
 #include <phNfcStatus.h>
 #include <assert.h>
 #include <errno.h>
+
 /********************* Definitions and structures *****************************/
 
 /* List structures */
