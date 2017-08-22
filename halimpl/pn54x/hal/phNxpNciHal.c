@@ -46,7 +46,7 @@ static uint8_t read_failed_disable_nfc = false;
 static uint8_t pwr_link_required = false;
 static uint8_t config_access = false;
 static uint8_t config_success = true;
-static NFCSTATUS phNxpNciHal_FwDwnld(void);
+static NFCSTATUS phNxpNciHal_FwDwnld(uint16_t aType);
 static NFCSTATUS phNxpNciHal_SendCmd(uint8_t cmd_len, uint8_t* pcmd_buff);
 static void phNxpNciHal_check_delete_nfaStorage_DHArea();
 /* NCI HAL Control structure */
@@ -448,12 +448,15 @@ static void phNxpNciHal_get_clk_freq(void) {
  *                  In case of failure returns other failure value.
  *
  ******************************************************************************/
-static NFCSTATUS phNxpNciHal_FwDwnld(void) {
-  NFCSTATUS status = NFCSTATUS_SUCCESS, wConfigStatus = NFCSTATUS_SUCCESS;
-  if (wFwVerRsp == 0) {
-    phDnldNfc_InitImgInfo();
-  }
-  status = phNxpNciHal_CheckValidFwVersion();
+static NFCSTATUS phNxpNciHal_FwDwnld(uint16_t aType) {
+   NFCSTATUS status = NFCSTATUS_SUCCESS;
+
+   if(aType != NFC_STATUS_NOT_INITIALIZED) {
+   if (wFwVerRsp == 0) {
+            phDnldNfc_InitImgInfo();
+        }
+        status= phNxpNciHal_CheckValidFwVersion();
+   }
   if (NFCSTATUS_SUCCESS == status) {
     NXPLOG_NCIHAL_D("Found Valid Firmware Type");
     status = phNxpNciHal_fw_download();
@@ -762,6 +765,8 @@ int phNxpNciHal_open(nfc_stack_callback_t* p_cback,
     if ((status != NFCSTATUS_SUCCESS) &&
         (nxpncihal_ctrl.retry_cnt >= MAX_RETRY_COUNT)) {
       NXPLOG_NCIHAL_E("NFCC not coming out from Standby");
+      NXPLOG_NCIHAL_E("Trying Force FW download");
+      goto force_download;
       wConfigStatus = NFCSTATUS_FAILED;
     } else if (status != NFCSTATUS_SUCCESS) {
       NXPLOG_NCIHAL_E("NCI_CORE_RESET: Failed");
@@ -807,6 +812,11 @@ int phNxpNciHal_open(nfc_stack_callback_t* p_cback,
   phNxpNciHal_open_complete(wConfigStatus);
 
   return wConfigStatus;
+
+force_download:
+  wFwVerRsp = 0;
+  phNxpNciHal_FwDwnld(NFC_STATUS_NOT_INITIALIZED);
+  goto init_retry;
 
 clean_and_return:
   CONCURRENCY_UNLOCK();
@@ -3086,7 +3096,7 @@ int phNxpNciHal_ioctl(long arg, void* p_data) {
       }
       break;
     case HAL_NFC_IOCTL_FW_DWNLD:
-      status = phNxpNciHal_FwDwnld();
+      status = phNxpNciHal_FwDwnld(*(uint16_t*)p_data);
       pInpOutData->out.data.fwDwnldStatus = (uint16_t)status;
       if (NFCSTATUS_SUCCESS == status) {
         ret = 0;
