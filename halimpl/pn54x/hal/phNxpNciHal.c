@@ -2066,7 +2066,7 @@ int phNxpNciHal_core_initialized(uint8_t* p_core_init_rsp_params) {
    }
 
     // Set the proper screen state
-    switch (p_core_init_rsp_params[255]) {
+    switch (p_core_init_rsp_params[295]) {
       case 0x0:
       case 0x8:
         NXPLOG_NCIHAL_E("Last Screen State Sent = 0x0");
@@ -2148,16 +2148,8 @@ int phNxpNciHal_core_initialized(uint8_t* p_core_init_rsp_params) {
     }
 
     NXPLOG_NCIHAL_E("Sending last command for Recovery ");
-    /*
-     * Field 35 will have total length of command HDR(2) + Length(1) + Cmd data(n).
-     * - 36,37 - HDR(2).
-     * - 38    - Length(1).
-     * If length of last command is 0 then it doesn't need to send last command.
-     * Field 35 - 38 will be 0x03 (HDR(2) + Length(1)) in all valid cases.
-     * This extra check is added to avoid sending corrupt data as command.
-     */
-    if ((p_core_init_rsp_params[35] > 0)&&
-            (p_core_init_rsp_params[35] - p_core_init_rsp_params[38] == 0x03)) {
+
+    if (p_core_init_rsp_params[35] == 1) {
       if (!((p_core_init_rsp_params[36] == 0x21) &&
             (p_core_init_rsp_params[37] == 0x03) &&
             (*(p_core_init_rsp_params + 1) == 0x01)) &&
@@ -2170,8 +2162,7 @@ int phNxpNciHal_core_initialized(uint8_t* p_core_init_rsp_params) {
       // if the last command is deactivate to idle and RF status is also idle ,
       // no need to execute the command .
       {
-        tmp_len = p_core_init_rsp_params[35];
-
+          tmp_len = p_core_init_rsp_params[38] + 3; //Field 38 gives length of data + 3 - header and length field
         /* Check for NXP ext before sending write */
         status = phNxpNciHal_write_ext(
             &tmp_len, (uint8_t*)&p_core_init_rsp_params[36],
@@ -2191,10 +2182,8 @@ int phNxpNciHal_core_initialized(uint8_t* p_core_init_rsp_params) {
           return NFCSTATUS_SUCCESS;
         }
 
-        p_core_init_rsp_params[35] = (uint8_t)tmp_len;
-
         status = phNxpNciHal_send_ext_cmd(
-            p_core_init_rsp_params[35], (uint8_t*)&p_core_init_rsp_params[36]);
+                tmp_len, (uint8_t*)&p_core_init_rsp_params[36]);
         if (status != NFCSTATUS_SUCCESS) {
           NXPLOG_NCIHAL_E("Sending last command for Recovery Failed");
           retry_core_init_cnt++;
