@@ -94,10 +94,9 @@ static void gki_init_free_queue(uint8_t id, uint16_t size, uint16_t total,
       hdr = (BUFFER_HDR_T*)((uint8_t*)hdr + act_size);
       hdr1->p_next = hdr;
     }
-    if (hdr1 != NULL) {
-      hdr1->p_next = NULL;
-      p_cb->freeq[id].p_last = hdr1;
-    }
+    if (hdr1 != NULL) hdr = hdr1;
+    hdr->p_next = NULL;
+    p_cb->freeq[id].p_last = hdr;
   }
   return;
 }
