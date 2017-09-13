@@ -1337,7 +1337,9 @@ int phNxpNciHal_core_initialized(uint8_t* p_core_init_rsp_params) {
       }
   }
   config_access = false;
+  if(nfcFL.eseFL._EXCLUDE_NV_MEM_DEPENDENCY == false) {
   phNxpNciHal_check_factory_reset();
+  }
 
 #ifdef FW_DWNLD_FLAG
   mEEPROM_info.buffer = &fw_dwnld_flag;

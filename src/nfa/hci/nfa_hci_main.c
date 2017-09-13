@@ -877,6 +877,13 @@ void nfa_hci_network_enable(void) {
         found = true;
         if (ee_info[count].ee_status == NFA_EE_STATUS_INACTIVE) {
           NFC_NfceeModeSet(target_handle, NFC_MODE_ACTIVATE);
+          /*HCI network is Inactive wait*/
+                nfa_hci_cb.w4_hci_netwk_init = true;
+            }
+            else
+            {
+                /*HCI network is already active*/
+                nfa_hci_cb.w4_hci_netwk_init = false;
         }
       }
       count++;
@@ -1365,6 +1372,11 @@ void nfa_hci_handle_nv_read(uint8_t block, tNFA_STATUS status) {
                   NFA_HCI_SESSION_ID_LEN))) ||
         (!(memcmp(nfa_hci_cb.cfg.admin_gate.session_id, reset_session,
                   NFA_HCI_SESSION_ID_LEN)))) {
+#if (NXP_EXTNS == TRUE)
+      if(nfcFL.eseFL._EXCLUDE_NV_MEM_DEPENDENCY == true) {
+        nfa_hci_getApduAndConnectivity_PipeStatus();
+      }
+#endif
       nfa_hci_cb.b_hci_netwk_reset = true;
       /* Set a new session id so that we clear all pipes later after seeing a
        * difference with the HC Session ID */
