@@ -117,7 +117,7 @@ static void phNxpNciHal_core_MinInitialized_complete(NFCSTATUS status);
 static NFCSTATUS phNxpNciHal_set_Boot_Mode(uint8_t mode);
 NFCSTATUS phNxpNciHal_check_clock_config(void);
 NFCSTATUS phNxpNciHal_set_china_region_configs(void);
-static void phNxpNciHal_configLxDebug(void);
+static void phNxpNciHal_configNciParser(void);
 static NFCSTATUS phNxpNciHalRFConfigCmdRecSequence();
 static NFCSTATUS phNxpNciHal_CheckRFCmdRespStatus();
 int check_config_parameter();
@@ -2206,7 +2206,7 @@ int phNxpNciHal_core_initialized(uint8_t* p_core_init_rsp_params) {
     }
   }
 
-  phNxpNciHal_configLxDebug();
+  phNxpNciHal_configNciParser();
 
   retry_core_init_cnt = 0;
 
@@ -3759,7 +3759,7 @@ tNFC_chipType phNxpNciHal_getChipType() {
 **
 ** Returns          void
 *******************************************************************************/
-void phNxpNciHal_configLxDebug(void)
+void phNxpNciHal_configNciParser(void)
 {
     NFCSTATUS status = NFCSTATUS_SUCCESS;
     unsigned long num = 0;
@@ -3808,19 +3808,24 @@ void phNxpNciHal_configLxDebug(void)
         {
             NXPLOG_NCIHAL_E("Set lxDebug config failed");
         }
-        else {
-            // try initializing parser
-            NXPLOG_NCIHAL_D("Try Init Parser gParserCreated:%d",gParserCreated);
-            if(!gParserCreated && (cmd_lxdebug[7] != 0x00))
-                gParserCreated = phNxpNciHal_initParser();
+    }
 
-            if(gParserCreated) {
-                NXPLOG_NCIHAL_D("Parser Initialized Successfully");
-                phNxpNciHal_parsePacket(cmd_lxdebug,sizeof(cmd_lxdebug)/sizeof(cmd_lxdebug[0]));
-            }
-            else {
-                NXPLOG_NCIHAL_E("Parser Library Not Available");
-            }
+    // try initializing parser library
+    NXPLOG_NCIHAL_D("Try Init Parser gParserCreated:%d",gParserCreated);
+
+    if(!gParserCreated) {
+        gParserCreated = phNxpNciHal_initParser();
+    } else {
+        NXPLOG_NCIHAL_D("Parser Already Initialized");
+    }
+
+    if(gParserCreated) {
+        NXPLOG_NCIHAL_D("Parser Initialized Successfully");
+        if(isfound) {
+            NXPLOG_NCIHAL_D("Setting lxdebug levels in library");
+            phNxpNciHal_parsePacket(cmd_lxdebug,sizeof(cmd_lxdebug)/sizeof(cmd_lxdebug[0]));
         }
+    } else {
+        NXPLOG_NCIHAL_E("Parser Library Not Available");
     }
 }

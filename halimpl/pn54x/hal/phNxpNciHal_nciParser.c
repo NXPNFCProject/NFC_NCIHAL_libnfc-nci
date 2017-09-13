@@ -21,25 +21,25 @@
 
 #include "phNxpLog.h"
 
-typedef void* tNCI_PARSER_OBJECT;
+typedef void* tNCI_PARSER_INSTANCE;
+typedef void* tNCI_PARSER_LIB_HANDLE;
 
 typedef struct {
-    tNCI_PARSER_OBJECT    pvHandle;
-    tNCI_PARSER_FUNCTIONS sEntryFuncs;
+    tNCI_PARSER_INSTANCE   pvInstance;
+    tNCI_PARSER_LIB_HANDLE pvHandle;
+    tNCI_PARSER_FUNCTIONS  sEntryFuncs;
 } sParserContext_t;
 
-sParserContext_t sParserContext;
+static sParserContext_t sParserContext;
 
 unsigned char
 phNxpNciHal_initParser() {
 
-    char *error;
-    void *lib_handle;
     sParserContext_t *psContext = &sParserContext;
 
     memset(&psContext->sEntryFuncs,0,sizeof(psContext->sEntryFuncs));
 
-    psContext->pvHandle = NULL;
+    psContext->pvInstance = NULL;
     psContext->sEntryFuncs.createParser = NULL;
     psContext->sEntryFuncs.initParser = NULL;
     psContext->sEntryFuncs.deinitParser = NULL;
@@ -49,53 +49,53 @@ phNxpNciHal_initParser() {
 
     NXPLOG_NCIHAL_D("%s: enter", __FUNCTION__);
 
-    lib_handle = dlopen(NXP_NCI_PARSER_PATH, RTLD_NOW);
-    if (!lib_handle)
+    psContext->pvHandle = dlopen(NXP_NCI_PARSER_PATH, RTLD_NOW);
+    if (!psContext->pvHandle)
     {
         NXPLOG_NCIHAL_E("%s: dlopen failed !!!", __FUNCTION__);
         return FALSE;
     }
 
-    psContext->sEntryFuncs.createParser = dlsym(lib_handle, "native_createParser");
+    psContext->sEntryFuncs.createParser = dlsym(psContext->pvHandle, "native_createParser");
     if (psContext->sEntryFuncs.createParser == NULL)
     {
         NXPLOG_NCIHAL_E("%s: dlsym native_createParser failed !!!", __FUNCTION__);
         return FALSE;
     }
 
-    psContext->sEntryFuncs.destroyParser = dlsym(lib_handle, "native_destroyParser");
+    psContext->sEntryFuncs.destroyParser = dlsym(psContext->pvHandle, "native_destroyParser");
     if (psContext->sEntryFuncs.destroyParser == NULL)
     {
         NXPLOG_NCIHAL_E("%s: dlsym native_destroyParser failed !!!", __FUNCTION__);
         return FALSE;
     }
 
-    psContext->sEntryFuncs.initParser = dlsym(lib_handle, "native_initParser");
+    psContext->sEntryFuncs.initParser = dlsym(psContext->pvHandle, "native_initParser");
     if (psContext->sEntryFuncs.initParser == NULL)
     {
         NXPLOG_NCIHAL_E("%s: dlsym native_initParser failed !!!", __FUNCTION__);
         return FALSE;
     }
 
-    psContext->sEntryFuncs.deinitParser = dlsym(lib_handle, "native_deinitParser");
+    psContext->sEntryFuncs.deinitParser = dlsym(psContext->pvHandle, "native_deinitParser");
     if (psContext->sEntryFuncs.deinitParser == NULL)
     {
         NXPLOG_NCIHAL_E("%s: dlsym native_deinitParser failed !!!", __FUNCTION__);
         return FALSE;
     }
 
-    psContext->sEntryFuncs.parsePacket = dlsym(lib_handle, "native_parseNciMsg");
+    psContext->sEntryFuncs.parsePacket = dlsym(psContext->pvHandle, "native_parseNciMsg");
     if (psContext->sEntryFuncs.parsePacket == NULL)
     {
         NXPLOG_NCIHAL_E("%s: dlsym native_parseNciMsg failed !!!", __FUNCTION__);
         return FALSE;
     }
 
-    psContext->pvHandle = (*(psContext->sEntryFuncs.createParser))();
+    psContext->pvInstance = (*(psContext->sEntryFuncs.createParser))();
 
-    if(psContext->pvHandle != NULL)
+    if(psContext->pvInstance != NULL)
     {
-        (*(psContext->sEntryFuncs.initParser))(psContext->pvHandle);
+        (*(psContext->sEntryFuncs.initParser))(psContext->pvInstance);
     }
     else
     {
@@ -121,9 +121,9 @@ phNxpNciHal_parsePacket(unsigned char *pNciPkt, unsigned short pktLen) {
         return;
     }
 
-    if(psContext->pvHandle != NULL)
+    if(psContext->pvInstance != NULL)
     {
-        (*(psContext->sEntryFuncs.parsePacket))(psContext->pvHandle, pNciPkt, pktLen);
+        (*(psContext->sEntryFuncs.parsePacket))(psContext->pvInstance, pNciPkt, pktLen);
     }
     else
     {
@@ -138,15 +138,20 @@ void phNxpNciHal_deinitParser() {
 
     NXPLOG_NCIHAL_D("%s: enter", __FUNCTION__);
 
-    if(psContext->pvHandle != NULL)
+    if(psContext->pvInstance != NULL)
     {
-        (*(psContext->sEntryFuncs.deinitParser))(psContext->pvHandle);
+        (*(psContext->sEntryFuncs.deinitParser))(psContext->pvInstance);
 
-        (*(psContext->sEntryFuncs.destroyParser))(psContext->pvHandle);
+        (*(psContext->sEntryFuncs.destroyParser))(psContext->pvInstance);
     }
     else
     {
         NXPLOG_NCIHAL_E("Invalid Handle");
+    }
+
+    if(psContext->pvHandle != NULL)
+    {
+        dlclose(psContext->pvHandle);
     }
 
     NXPLOG_NCIHAL_D("%s: exit", __FUNCTION__);
