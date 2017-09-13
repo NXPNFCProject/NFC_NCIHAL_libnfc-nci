@@ -745,6 +745,11 @@ void nfa_hci_startup_complete(tNFA_STATUS status) {
        nfa_hci_handle_nfcee_config_evt(NFA_HCI_NFCEE_CONFIG_COMPLETE);
 #endif
     nfa_hci_cb.hci_state = NFA_HCI_STATE_DISABLED;
+#if (NXP_EXTNS == true)
+    if(nfcFL.eseFL._EXCLUDE_NV_MEM_DEPENDENCY == false) {
+      nfa_hci_getApduAndConnectivity_PipeStatus();
+    }
+#endif
   }
 }
 
