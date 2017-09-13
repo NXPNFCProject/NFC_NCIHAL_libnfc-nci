@@ -2101,12 +2101,14 @@ void nfc_ncif_proc_reset_rsp(uint8_t* p, bool is_ntf) {
                       ": 0x%x",
                       status, nfc_cb.nfc_state);
               core_reset_init_num_buff = true;
-              nfc_ncif_cmd_timeout();
+              if(nfa_dm_is_active())
+                  nfc_ncif_cmd_timeout();
           } else {
               NFC_TRACE_DEBUG1("CORE_RESET_NTF 1 nfc_state :0x%x ", nfc_cb.nfc_state);
               NFC_TRACE_DEBUG1("CORE_RESET_NTF 1 status :0x%x ", status);
               core_reset_init_num_buff = true;
-              nfc_ncif_cmd_timeout();
+              if(nfa_dm_is_active())
+                  nfc_ncif_cmd_timeout();
           }
       }
       else {
@@ -2127,7 +2129,8 @@ void nfc_ncif_proc_reset_rsp(uint8_t* p, bool is_ntf) {
               /* CORE_RESET_NTF received error case , trigger recovery*/
               NFC_TRACE_DEBUG2 ("CORE_RESET_NTF Received status nfc_state : 0x%x : 0x%x",
                       status ,nfc_cb.nfc_state);
-              nfc_ncif_cmd_timeout();
+              if(nfa_dm_is_active())
+                  nfc_ncif_cmd_timeout();
               status = NCI_STATUS_FAILED;
           }
       }
@@ -2239,6 +2242,11 @@ void nfc_ncif_proc_reset_rsp(uint8_t* p, bool is_ntf) {
   } else {
     if(!core_reset_init_num_buff)
         {
+            if(!nfa_dm_is_active())
+            {
+                status = NCI_STATUS_NOT_INITIALIZED;
+                NFC_Disable();
+            }
             NFC_TRACE_ERROR0 ("Failed to reset NFCC");
             nfc_enabled (status, NULL);
         }
