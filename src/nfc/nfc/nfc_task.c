@@ -360,6 +360,12 @@ void nfc_process_quick_timer_evt(void) {
 void nfc_task_shutdown_nfcc(void) {
   NFC_HDR* p_msg;
 
+#if (NXP_EXTNS == TRUE)
+ if(nfcFL.eseFL._ESE_DUAL_MODE_PRIO_SCHEME == nfcFL.eseFL._ESE_WIRED_MODE_RESUME) {
+     nfc_stop_timer(&nfc_cb.rf_filed_event_timeout_timer);
+ }
+#endif
+
   /* Free any messages still in the mbox */
   while ((p_msg = (NFC_HDR*)GKI_read_mbox(NFC_MBOX_ID)) != NULL) {
     GKI_freebuf(p_msg);
