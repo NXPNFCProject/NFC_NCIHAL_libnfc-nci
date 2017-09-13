@@ -981,6 +981,7 @@ void nfc_ncif_event_status(tNFC_RESPONSE_EVT event, uint8_t status) {
     }
     if (status == NFC_STATUS_WIRED_SESSION_ABORTED) {
       nfc_cb.bIsDwpResPending = true;
+      nfa_hci_cb.IsWiredSessionAborted = true;
     }
     nfa_sys_stop_timer(&nfa_hci_cb.timer);
     if (p_cb && p_cb->p_cback)
@@ -1867,6 +1868,16 @@ void nfc_ncif_proc_ee_action(uint8_t* p, uint16_t plen) {
         if (evt_data.nfcee_id != 0xC0) {
             nfc_cb.bBlockWiredMode = true;
             nfc_cb.bBlkPwrlinkAndModeSetCmd = true;
+            if (!nfc_cb.bIsDwpResPending && nfa_hci_cb.assembling) {
+                    /* To faster transceive time out when CE is activated with UICC during
+                     * chained response being received*/
+                    NFC_TRACE_DEBUG0("restarted hci timer during chained response");
+                    nfa_hci_cb.IsWiredSessionAborted = true;
+                    nfa_sys_stop_timer(&nfa_hci_cb.timer);
+                    if (p_cb && p_cb->p_cback)
+                      (*p_cb->p_cback)(nfa_hci_cb.conn_id, NFC_HCI_RESTART_TIMER,
+                              (tNFC_CONN*)&evt_data);
+            }
         } else {
             if (evt_data.act_data.trigger == NCI_EE_TRIG_RF_TECHNOLOGY) {
                 nfc_cb.bBlockWiredMode = true;
