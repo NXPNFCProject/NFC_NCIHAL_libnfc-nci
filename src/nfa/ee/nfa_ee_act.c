@@ -981,7 +981,20 @@ void nfa_ee_api_deregister(tNFA_EE_MSG* p_data) {
   nfa_ee_cb.p_ee_cback[index] = NULL;
   if (p_cback) (*p_cback)(NFA_EE_DEREGISTER_EVT, &evt_data);
 }
-
+/*******************************************************************************
+**
+** Function         nfa_ee_api_power_link_set
+**
+** Description      process power link command request
+**
+** Returns          void
+**
+*******************************************************************************/
+void nfa_ee_api_power_link_set(tNFA_EE_MSG* p_data) {
+    tNFA_EE_ECB* p_cb = p_data->cfg_hdr.p_cb;
+    NFC_Nfcee_PwrLinkCtrl(p_data->pwr_lnk_ctrl_set.nfcee_id, p_data->pwr_lnk_ctrl_set.cfg_value);
+    return;
+}
 /*******************************************************************************
 **
 ** Function         nfa_ee_api_mode_set

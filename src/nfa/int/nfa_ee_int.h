@@ -85,6 +85,7 @@ enum {
   NFA_EE_NCI_MODE_SET_RSP_EVT,
 #if (NXP_EXTNS == TRUE)
   NFA_EE_NCI_MODE_SET_INFO,
+  NFA_EE_NCI_PWR_LNK_CTRL_SET_EVT,
   NFA_EE_NCI_PWR_LNK_CTRL_RSP_EVT,
 #endif
   NFA_EE_NCI_CONN_EVT,
@@ -342,6 +343,12 @@ typedef struct {
   uint8_t nfcee_id;
   uint8_t mode;
 } tNFA_EE_API_MODE_SET;
+/* data type for NFA_EE_API_POWER_LINK_EVT */
+typedef struct {
+  NFC_HDR hdr;
+  uint8_t nfcee_id;
+  uint8_t cfg_value;
+} tNFA_EE_API_POWER_LINK_EVT;
 
 /* data type for NFA_EE_API_SET_TECH_CFG_EVT */
 typedef struct {
@@ -546,6 +553,7 @@ typedef union {
   tNFA_EE_NCI_MODE_SET mode_set_rsp;
 #if (NXP_EXTNS == TRUE)
   tNFA_EE_NCI_SET_MODE_INFO mode_set_info;
+  tNFA_EE_API_POWER_LINK_EVT pwr_lnk_ctrl_set;
   tNFA_EE_NCI_PWR_LNK_CTRL pwr_lnk_ctrl_rsp;
 #endif
   tNFA_EE_NCI_WAIT_RSP wait_rsp;
@@ -697,6 +705,7 @@ void nfa_ee_api_discover(tNFA_EE_MSG* p_data);
 void nfa_ee_api_register(tNFA_EE_MSG* p_data);
 void nfa_ee_api_deregister(tNFA_EE_MSG* p_data);
 void nfa_ee_api_mode_set(tNFA_EE_MSG* p_data);
+void nfa_ee_api_power_link_set(tNFA_EE_MSG* p_data);
 void nfa_ee_api_set_tech_cfg(tNFA_EE_MSG* p_data);
 void nfa_ee_api_set_proto_cfg(tNFA_EE_MSG* p_data);
 void nfa_ee_api_add_aid(tNFA_EE_MSG* p_data);

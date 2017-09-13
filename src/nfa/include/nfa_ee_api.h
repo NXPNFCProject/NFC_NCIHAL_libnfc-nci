@@ -387,7 +387,18 @@ extern tNFA_STATUS NFA_EeRegister(tNFA_EE_CBACK* p_cback);
 **
 *******************************************************************************/
 extern tNFA_STATUS NFA_EeDeregister(tNFA_EE_CBACK* p_cback);
-
+/*******************************************************************************
+**
+** Function         NFA_SendPowerLinkCommand
+**
+** Description      This function sends the power link control command
+**
+** Returns          NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_FAILED otherwise
+**                  NFA_STATUS_INVALID_PARAM If bad parameter
+**
+*******************************************************************************/
+extern tNFA_STATUS NFA_SendPowerLinkCommand(uint8_t nfcee_id, uint8_t cfg_value);
 /*******************************************************************************
 **
 ** Function         NFA_EeModeSet

@@ -90,6 +90,7 @@ const tNFA_EE_SM_ACT nfa_ee_actions[] = {
     nfa_ee_nci_mode_set_rsp,  /* NFA_EE_NCI_MODE_SET_RSP_EVT  */
 #if (NXP_EXTNS == TRUE)
     nfa_ee_nci_set_mode_info, /* NFA_EE_NCI_MODE_SET_INFO*/
+	nfa_ee_api_power_link_set, /* NFA_EE_NCI_PWR_LNK_CTRL_SET_EVT */
     nfa_ee_nci_pwr_link_ctrl_rsp, /*NFA_EE_NCI_PWR_LNK_CTRL_RSP_EVT*/
 #endif
     nfa_ee_nci_conn,         /* NFA_EE_NCI_CONN_EVT          */
@@ -668,6 +669,8 @@ static char* nfa_ee_sm_evt_2_str(uint16_t event) {
 #if (NXP_EXTNS == TRUE)
     case NFA_EE_NCI_MODE_SET_INFO:
       return "NFA_EE_NCI_MODE_SET_INFO";
+	case NFA_EE_NCI_PWR_LNK_CTRL_SET_EVT:
+      return "NFA_EE_NCI_PWR_LNK_CTRL_SET_EVT,";
     case NFA_EE_NCI_PWR_LNK_CTRL_RSP_EVT:
         if(nfcFL.eseFL._WIRED_MODE_STANDBY) {
             return "NCI_PWR_LNK_CTRL";
