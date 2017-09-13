@@ -2733,13 +2733,26 @@ static void rw_i93_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
 #endif
   (void)conn_id;
 
-  RW_TRACE_DEBUG1("rw_i93_data_cback () event = 0x%X", event);
+  if(p_data == NULL) {
+       RW_TRACE_ERROR0 ("rw_i93_data_cback (): p_data is NULL");
+       return;
+    }
 
-  if ((event == NFC_DEACTIVATE_CEVT) || (event == NFC_ERROR_CEVT)||
-          ((event == NFC_DATA_CEVT)&&(p_data->status != NFC_STATUS_OK))) {
+  RW_TRACE_DEBUG2 ("rw_i93_data_cback () event = 0x%X 0x%X", event, p_data->status);
+
+  if ((event == NFC_DEACTIVATE_CEVT) || (event == NFC_ERROR_CEVT)
+#if (NXP_EXTNS == TRUE)
+          || ((event == NFC_DATA_CEVT)&&(p_data->status != NFC_STATUS_OK))
+#endif
+    )
+  {
     nfc_stop_quick_timer(&p_i93->timer);
-
-    if (event == NFC_ERROR_CEVT) {
+#if(NXP_EXTNS == TRUE)
+        if ((event == NFC_ERROR_CEVT) || (p_data->status != NFC_STATUS_OK))
+#else
+    if (event == NFC_ERROR_CEVT)
+#endif
+    {
       if ((p_i93->retry_count < RW_MAX_RETRIES) && (p_i93->p_retry_cmd)) {
         p_i93->retry_count++;
 

@@ -271,6 +271,7 @@ NFCSTATUS phNxpNciHal_process_ext_rsp(uint8_t* p_ntf, uint16_t* p_len) {
     }
     if(nxpncihal_ctrl.nci_info.nci_version != NCI_VERSION_2_0)
     {
+#if 0 /* this is work around added initially. not required now */
       if (p_ntf[p_ntf[2] + 2] == 0x00) {
         NXPLOG_NCIHAL_D("> Data of ISO-15693");
         p_ntf[2]--;
@@ -278,6 +279,7 @@ NFCSTATUS phNxpNciHal_process_ext_rsp(uint8_t* p_ntf, uint16_t* p_len) {
       } else {
         p_ntf[p_ntf[2] + 2] |= 0x01;
       }
+#endif
     }
   } else if (p_ntf[2] == 0x02 && p_ntf[1] == 0x00 && icode_detected == 1) {
     NXPLOG_NCIHAL_D("> ICODE EOF response do not send to upper layer");

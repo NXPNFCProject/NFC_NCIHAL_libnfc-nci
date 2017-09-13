@@ -2679,6 +2679,14 @@ void nfc_data_event(tNFC_CONN_CB* p_cb) {
           data_cevt.status = *(p + p_evt->offset + p_evt->len);
         }
       }
+#if(NXP_EXTNS == TRUE)
+        if(p_cb->act_protocol == NCI_PROTOCOL_15693)
+        {
+            p_evt->len--;
+            p = (uint8_t *) (p_evt + 1);
+            data_cevt.status = *(p + p_evt->offset + p_evt->len);
+        }
+#endif
       (*p_cb->p_cback)(p_cb->conn_id, NFC_DATA_CEVT, (void*)&data_cevt);
       p_evt = NULL;
     }
