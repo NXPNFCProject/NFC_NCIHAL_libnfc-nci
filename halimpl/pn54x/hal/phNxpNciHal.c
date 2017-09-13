@@ -2392,18 +2392,7 @@ NFCSTATUS phNxpNciHalRFConfigCmdRecSequence() {
     phDnldNfc_InitImgInfo();
     if (NFCSTATUS_SUCCESS == phNxpNciHal_CheckValidFwVersion()) {
       status = phNxpNciHal_fw_download();
-      if (status == NFCSTATUS_SUCCESS) {
-        status = phTmlNfc_Read(
-            nxpncihal_ctrl.p_cmd_data, NCI_MAX_DATA_LEN,
-            (pphTmlNfc_TransactCompletionCb_t)&phNxpNciHal_read_complete, NULL);
-        if (status != NFCSTATUS_PENDING) {
-          NXPLOG_NCIHAL_E("TML Read status error status = %x", status);
-          status = phTmlNfc_Shutdown();
-          status = NFCSTATUS_FAILED;
-          break;
-        }
-      } else {
-        status = NFCSTATUS_FAILED;
+      if (status == NFCSTATUS_FAILED) {
         break;
       }
     }
