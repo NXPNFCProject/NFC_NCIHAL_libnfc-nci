@@ -1894,6 +1894,7 @@ void nfc_ncif_proc_ee_action(uint8_t* p, uint16_t plen) {
                 nfc_cb.bCeActivatedeSE = true;
                 nfc_ncif_resume_dwp_wired_mode();
             }
+            nfc_main_flush_cmd_queue();
         }
     }
 #endif
@@ -2236,8 +2237,11 @@ void nfc_ncif_proc_reset_rsp(uint8_t* p, bool is_ntf) {
     nci_snd_core_init();
 #endif
   } else {
-    NFC_TRACE_ERROR0("Failed to reset NFCC");
-    nfc_enabled(status, NULL);
+    if(!core_reset_init_num_buff)
+        {
+            NFC_TRACE_ERROR0 ("Failed to reset NFCC");
+            nfc_enabled (status, NULL);
+        }
   }
 }
 

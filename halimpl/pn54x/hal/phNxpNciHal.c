@@ -1209,6 +1209,8 @@ int phNxpNciHal_core_initialized(uint8_t* p_core_init_rsp_params) {
   long bufflen = 260;
   long retlen = 0;
   unsigned long num = 0;
+  static uint8_t  init_param;
+  init_param = *p_core_init_rsp_params;
   phNxpNci_EEPROM_info_t mEEPROM_info = {.request_mode = 0};
   static uint8_t android_l_aid_matching_mode_on_cmd[] = {
       0x20, 0x02, 0x05, 0x01, 0xA0, 0x91, 0x01, 0x01};
@@ -1226,6 +1228,7 @@ int phNxpNciHal_core_initialized(uint8_t* p_core_init_rsp_params) {
   /*MW recovery -- begins*/
   if ((*p_core_init_rsp_params > 0) && (*p_core_init_rsp_params < 4)) {
   retry_core_init:
+    *p_core_init_rsp_params = init_param;
     config_access = false;
     if (mGetCfg_info != NULL) {
       mGetCfg_info->isGetcfg = false;
