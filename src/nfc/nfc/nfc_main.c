@@ -1858,6 +1858,30 @@ int32_t NFC_SetNfcServicePid() {
     }
   return setPidStatus;
 }
+/*******************************************************************************
+**
+** Function         NFC_ResetNfcServicePid
+**
+** Description      This function request to pn54x driver to
+**                  update NFC service process ID for signalling.
+**
+** Returns          0 if api call success, else -1
+**
+*******************************************************************************/
+int32_t NFC_ResetNfcServicePid()
+{
+    tNFC_STATUS setPidStatus = NFC_STATUS_OK;
+    nfc_nci_IoctlInOutData_t inpOutData;
+    inpOutData.inp.data.nfcServicePid = 0;
+    setPidStatus = nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_SET_NFC_SERVICE_PID,
+                                       (void*)&inpOutData);
+    if (setPidStatus == NFC_STATUS_OK) {
+      NFC_TRACE_API0("nfc service set pid done");
+    } else {
+      NFC_TRACE_API0("nfc service set pid failed");
+    }
+    return setPidStatus;
+}
 #endif
 /*******************************************************************************
 **

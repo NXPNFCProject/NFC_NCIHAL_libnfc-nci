@@ -1702,7 +1702,17 @@ int32_t NFC_EnableWired(void* pdata);
 **
 *******************************************************************************/
 int32_t NFC_SetNfcServicePid();
-
+/*******************************************************************************
+**
+** Function         NFC_ResetNfcServicePid
+**
+** Description      This function request to pn54x driver to
+**                  reset NFC service process ID for signalling.
+**
+** Returns          0 if api call success, else -1
+**
+*******************************************************************************/
+int32_t NFC_ResetNfcServicePid();
 /*******************************************************************************
 **
 ** Function         NFC_GetEseAccess
