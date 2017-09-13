@@ -503,7 +503,6 @@ int phNxpNciHal_MinOpen(nfc_stack_callback_t* p_cback,
   uint8_t cmd_reset_nci[] = {0x20, 0x00, 0x01, 0x01};
   /*NCI_INIT_CMD*/
   uint8_t cmd_init_nci[] = {0x20, 0x01, 0x00};
-  static uint8_t  cmd_lxdebug[] = { 0x20, 0x02, 0x06, 0x01, 0xA0, 0x1D, 0x02, 0x00, 0x00 };
   uint8_t boot_mode = nxpncihal_ctrl.hal_boot_mode;
   char* nfc_dev_node = NULL;
   const uint16_t max_len = 260;
@@ -2719,6 +2718,7 @@ int phNxpNciHal_close(void) {
   if(gParserCreated)
     {
         phNxpNciHal_deinitParser();
+        gParserCreated = FALSE;
     }
 close_and_return:
 
@@ -3772,36 +3772,36 @@ void phNxpNciHal_configLxDebug(void)
     {
         if(num == 0x00)
         {
-            ALOGD("Disable LxDebug");
+            NXPLOG_NCIHAL_D("Disable LxDebug");
         }
         else if(num == 0x01)
         {
-            ALOGD("Enable L1 RF NTF debugs");
+            NXPLOG_NCIHAL_D("Enable L1 RF NTF debugs");
             cmd_lxdebug[7] = 0x10;
         }
         else if(num == 0x02)
         {
-            ALOGD("Enable L2 RF NTF debugs");
+            NXPLOG_NCIHAL_D("Enable L2 RF NTF debugs");
             cmd_lxdebug[7] = 0x01;
         }
         else if(num == 0x03)
         {
-            ALOGD("Enable L1 & L2 RF NTF debugs");
+            NXPLOG_NCIHAL_D("Enable L1 & L2 RF NTF debugs");
             cmd_lxdebug[7] = 0x31;
         }
         else if(num == 0x04)
         {
-            ALOGD("Enable L1 & L2 & RSSI NTF debugs");
+            NXPLOG_NCIHAL_D("Enable L1 & L2 & RSSI NTF debugs");
             cmd_lxdebug[7] = 0x31;
             cmd_lxdebug[8] = 0x01;
         }
         else if(num == 0x05)
         {
-            ALOGD("Enable L2 & Felica RF NTF debugs");
+            NXPLOG_NCIHAL_D("Enable L2 & Felica RF NTF debugs");
             cmd_lxdebug[7] = 0x03;
         }
         else
-            ALOGE("Invalid Level, Disable LxDebug");
+            NXPLOG_NCIHAL_E("Invalid Level, Disable LxDebug");
 
         status = phNxpNciHal_send_ext_cmd(sizeof(cmd_lxdebug)/sizeof(cmd_lxdebug[0]),cmd_lxdebug);
         if (status != NFCSTATUS_SUCCESS)
@@ -3810,15 +3810,16 @@ void phNxpNciHal_configLxDebug(void)
         }
         else {
             // try initializing parser
+            NXPLOG_NCIHAL_D("Try Init Parser gParserCreated:%d",gParserCreated);
             if(!gParserCreated && (cmd_lxdebug[7] != 0x00))
                 gParserCreated = phNxpNciHal_initParser();
 
             if(gParserCreated) {
-                phNxpNciHal_parsePacket(cmd_lxdebug,sizeof(cmd_lxdebug)/sizeof(cmd_lxdebug[0]));
                 NXPLOG_NCIHAL_D("Parser Initialized Successfully");
+                phNxpNciHal_parsePacket(cmd_lxdebug,sizeof(cmd_lxdebug)/sizeof(cmd_lxdebug[0]));
             }
             else {
-                NXPLOG_NCIHAL_E("Parser Not Available");
+                NXPLOG_NCIHAL_E("Parser Library Not Available");
             }
         }
     }

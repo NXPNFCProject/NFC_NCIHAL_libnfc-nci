@@ -49,7 +49,7 @@ phNxpNciHal_initParser() {
 
     NXPLOG_NCIHAL_D("%s: enter", __FUNCTION__);
 
-    lib_handle = dlopen(NXP_NCI_PARSER_PATH, RTLD_LAZY);
+    lib_handle = dlopen(NXP_NCI_PARSER_PATH, RTLD_NOW);
     if (!lib_handle)
     {
         NXPLOG_NCIHAL_E("%s: dlopen failed !!!", __FUNCTION__);

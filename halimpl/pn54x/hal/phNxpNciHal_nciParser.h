@@ -24,7 +24,7 @@
 #define NXP_NCI_PARSER_PATH "/system/lib64/libnxp_nciparser.so"
 
 typedef void* (*tHAL_API_NATIVE_CREATE_PARSER)();
-typedef void* (*tHAL_API_NATIVE_DESTROY_PARSER)(void*);
+typedef void  (*tHAL_API_NATIVE_DESTROY_PARSER)(void*);
 typedef void  (*tHAL_API_NATIVE_INIT_PARSER)(void*);
 typedef void  (*tHAL_API_NATIVE_DEINIT_PARSER)(void*);
 typedef void  (*tHAL_API_NATIVE_PARSE_PACKET)(void*,unsigned char *, unsigned short);
