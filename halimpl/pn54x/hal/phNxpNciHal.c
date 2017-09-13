@@ -27,6 +27,7 @@
 #include <phNxpNciHal_NfcDepSWPrio.h>
 #include <phNxpNciHal_Kovio.h>
 #include <phTmlNfc_i2c.h>
+#include "phNxpNciHal_nciParser.h"
 /*********************** Global Variables *************************************/
 #define PN547C2_CLOCK_SETTING
 #undef PN547C2_FACTORY_RESET_DEBUG
@@ -65,6 +66,7 @@ extern int phNxpNciHal_CheckFwRegFlashRequired(uint8_t* fw_update_req,
 phNxpNci_getCfg_info_t* mGetCfg_info = NULL;
 uint32_t gSvddSyncOff_Delay = 10;
 bool_t force_fw_download_req = false;
+bool_t gParserCreated = FALSE;
 /* global variable to get FW version from NCI response*/
 uint32_t wFwVerRsp;
 /* External global variable to get FW version */
@@ -115,6 +117,7 @@ static void phNxpNciHal_core_MinInitialized_complete(NFCSTATUS status);
 static NFCSTATUS phNxpNciHal_set_Boot_Mode(uint8_t mode);
 NFCSTATUS phNxpNciHal_check_clock_config(void);
 NFCSTATUS phNxpNciHal_set_china_region_configs(void);
+static void phNxpNciHal_configLxDebug(void);
 static NFCSTATUS phNxpNciHalRFConfigCmdRecSequence();
 static NFCSTATUS phNxpNciHal_CheckRFCmdRespStatus();
 int check_config_parameter();
@@ -500,6 +503,7 @@ int phNxpNciHal_MinOpen(nfc_stack_callback_t* p_cback,
   uint8_t cmd_reset_nci[] = {0x20, 0x00, 0x01, 0x01};
   /*NCI_INIT_CMD*/
   uint8_t cmd_init_nci[] = {0x20, 0x01, 0x00};
+  static uint8_t  cmd_lxdebug[] = { 0x20, 0x02, 0x06, 0x01, 0xA0, 0x1D, 0x02, 0x00, 0x00 };
   uint8_t boot_mode = nxpncihal_ctrl.hal_boot_mode;
   char* nfc_dev_node = NULL;
   const uint16_t max_len = 260;
@@ -2203,6 +2207,8 @@ int phNxpNciHal_core_initialized(uint8_t* p_core_init_rsp_params) {
     }
   }
 
+  phNxpNciHal_configLxDebug();
+
   retry_core_init_cnt = 0;
 
   if (buffer) {
@@ -2705,9 +2711,15 @@ int phNxpNciHal_close(void) {
 
   status =
       phNxpNciHal_send_ext_cmd(sizeof(cmd_core_reset_nci), cmd_core_reset_nci);
+
   if (status != NFCSTATUS_SUCCESS) {
     NXPLOG_NCIHAL_E("NCI_CORE_RESET: Failed");
   }
+
+  if(gParserCreated)
+    {
+        phNxpNciHal_deinitParser();
+    }
 close_and_return:
 
   if (NULL != gpphTmlNfc_Context->pDevHandle) {
@@ -3737,3 +3749,77 @@ tNFC_chipType phNxpNciHal_getChipType() {
     return nxpncihal_ctrl.chipType;
 }
 
+/*******************************************************************************
+**
+** Function         phNxpNciHal_configLxDebug(void)
+**
+** Description      Helper function to configure LxDebug modes
+**
+** Parameters       none
+**
+** Returns          void
+*******************************************************************************/
+void phNxpNciHal_configLxDebug(void)
+{
+    NFCSTATUS status = NFCSTATUS_SUCCESS;
+    unsigned long num = 0;
+    uint8_t  isfound = 0;
+    static uint8_t cmd_lxdebug[] = { 0x20, 0x02, 0x06, 0x01, 0xA0, 0x1D, 0x02, 0x00, 0x00 };
+
+    isfound = GetNxpNumValue(NAME_NXP_CORE_PROP_SYSTEM_DEBUG, &num, sizeof(num));
+
+    if(isfound > 0)
+    {
+        if(num == 0x00)
+        {
+            ALOGD("Disable LxDebug");
+        }
+        else if(num == 0x01)
+        {
+            ALOGD("Enable L1 RF NTF debugs");
+            cmd_lxdebug[7] = 0x10;
+        }
+        else if(num == 0x02)
+        {
+            ALOGD("Enable L2 RF NTF debugs");
+            cmd_lxdebug[7] = 0x01;
+        }
+        else if(num == 0x03)
+        {
+            ALOGD("Enable L1 & L2 RF NTF debugs");
+            cmd_lxdebug[7] = 0x31;
+        }
+        else if(num == 0x04)
+        {
+            ALOGD("Enable L1 & L2 & RSSI NTF debugs");
+            cmd_lxdebug[7] = 0x31;
+            cmd_lxdebug[8] = 0x01;
+        }
+        else if(num == 0x05)
+        {
+            ALOGD("Enable L2 & Felica RF NTF debugs");
+            cmd_lxdebug[7] = 0x03;
+        }
+        else
+            ALOGE("Invalid Level, Disable LxDebug");
+
+        status = phNxpNciHal_send_ext_cmd(sizeof(cmd_lxdebug)/sizeof(cmd_lxdebug[0]),cmd_lxdebug);
+        if (status != NFCSTATUS_SUCCESS)
+        {
+            NXPLOG_NCIHAL_E("Set lxDebug config failed");
+        }
+        else {
+            // try initializing parser
+            if(!gParserCreated && (cmd_lxdebug[7] != 0x00))
+                gParserCreated = phNxpNciHal_initParser();
+
+            if(gParserCreated) {
+                phNxpNciHal_parsePacket(cmd_lxdebug,sizeof(cmd_lxdebug)/sizeof(cmd_lxdebug[0]));
+                NXPLOG_NCIHAL_D("Parser Initialized Successfully");
+            }
+            else {
+                NXPLOG_NCIHAL_E("Parser Not Available");
+            }
+        }
+    }
+}
