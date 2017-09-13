@@ -583,19 +583,22 @@ tNFA_STATUS NFA_EeAddAidRouting(tNFA_HANDLE ee_handle, uint8_t aid_len,
   uint16_t size = sizeof(tNFA_EE_API_ADD_AID) + aid_len;
   uint8_t nfcee_id = (uint8_t)(ee_handle & 0xFF);
   tNFA_EE_ECB* p_cb;
-
   NFA_TRACE_API1("NFA_EeAddAidRouting(): handle:<0x%x>", ee_handle);
   p_cb = nfa_ee_find_ecb(nfcee_id);
 
   /* validate parameters - make sure the AID is in valid length range */
-  if ((p_cb == NULL) || (aid_len == 0) || (p_aid == NULL) ||
-      (aid_len < NFA_MIN_AID_LEN) || (aid_len > NFA_MAX_AID_LEN)) {
+  if ((p_cb == NULL) || ((NFA_GetNCIVersion() == NCI_VERSION_2_0) && (aid_len != 0) && (p_aid == NULL)) ||
+          ((NFA_GetNCIVersion() != NCI_VERSION_2_0) &&
+                  ((aid_len == 0) || (p_aid == NULL) || (aid_len < NFA_MIN_AID_LEN))) ||
+                  (aid_len > NFA_MAX_AID_LEN)) {
     NFA_TRACE_ERROR1("Bad ee_handle or AID (len=%d)", aid_len);
     status = NFA_STATUS_INVALID_PARAM;
   } else {
     p_msg = (tNFA_EE_API_ADD_AID*)GKI_getbuf(size);
     if (p_msg != NULL) {
-      NFA_TRACE_DEBUG2("aid:<%02x%02x>", p_aid[0], p_aid[1]);
+        if(p_aid != NULL) {
+            NFA_TRACE_DEBUG2("aid:<%02x%02x>", p_aid[0], p_aid[1]);
+        }
       p_msg->hdr.event = NFA_EE_API_ADD_AID_EVT;
       p_msg->nfcee_id = nfcee_id;
       p_msg->p_cb = p_cb;
@@ -605,8 +608,9 @@ tNFA_STATUS NFA_EeAddAidRouting(tNFA_HANDLE ee_handle, uint8_t aid_len,
 #if (NXP_EXTNS == TRUE)
       p_msg->aid_info = aidInfo;
 #endif
+      if(p_aid != NULL) {
       memcpy(p_msg->p_aid, p_aid, aid_len);
-
+      }
       nfa_sys_sendmsg(p_msg);
 
       status = NFA_STATUS_OK;
