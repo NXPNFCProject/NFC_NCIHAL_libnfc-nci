@@ -47,6 +47,10 @@
 **
 *******************************************************************************/
 tNFC_STATUS NFC_NfceeDiscover(bool discover) {
+  if(nfc_cb.flags & NFC_FL_WAIT_MODE_SET_NTF) {
+    NFC_TRACE_ERROR1("mode set ntf pending ,not allowing nfcee_discover %d", discover);
+    return NFC_STATUS_FAILED;
+  }
   return nci_snd_nfcee_discover((uint8_t)(
       discover ? NCI_DISCOVER_ACTION_ENABLE : NCI_DISCOVER_ACTION_DISABLE));
 }

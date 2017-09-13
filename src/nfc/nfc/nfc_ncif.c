@@ -2806,7 +2806,7 @@ void nfc_modeset_ntf_timeout()
   tNFC_NFCEE_MODE_SET_REVT    mode_set_info;
   tNFC_RESPONSE_CBACK  *p_cback = nfc_cb.p_resp_cback;
   tNFC_NFCEE_INFO_REVT nfcee_info;
-
+  nfc_cb.flags  &= ~NFC_FL_WAIT_MODE_SET_NTF;
   tNFC_RESPONSE_EVT event    = NFC_NFCEE_MODE_SET_REVT;
   mode_set_info.status        = NCI_STATUS_FAILED;
 

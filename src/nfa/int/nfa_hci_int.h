@@ -124,6 +124,7 @@ bool MW_RCVRY_FW_DNLD_ALLOWED;
 #if (NXP_EXTNS == TRUE)
 /* HCI is waiting for NFCEE initialization */
 #define NFA_HCI_STATE_NFCEE_ENABLE 0x09
+#define NFA_HCI_STATE_EE_RECOVERY 0x0A
 #endif
 
 #if (NXP_EXTNS == TRUE)

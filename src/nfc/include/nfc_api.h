@@ -448,6 +448,10 @@ typedef struct {
   uint8_t info[NFC_MAX_EE_INFO];
 } tNFC_NFCEE_TLV;
 
+#define NFC_NFCEE_STS_UNRECOVERABLE_ERROR   NCI_NFCEE_STS_UNRECOVERABLE_ERROR
+#define NFC_NFCEE_STS_INIT_STARTED          NCI_NFCEE_STS_INIT_STARTED
+#define NFC_NFCEE_STS_INIT_COMPLETED        NCI_NFCEE_STS_INIT_COMPLETED
+
 /* NFCEE connected and inactive */
 #define NFC_NFCEE_STATUS_INACTIVE NCI_NFCEE_STS_CONN_INACTIVE
 /* NFCEE connected and active   */
@@ -459,6 +463,7 @@ typedef struct {
 #define NFC_NFCEE_STS_TRANSMISSION_ERROR     NCI_NFCEE_STS_TRANSMISSION_ERROR
 #define NFC_NFCEE_STS_PROTOCOL_ERROR         NCI_NFCEE_STS_PROTOCOL_ERROR
 #define NFC_NFCEE_STS_TIMEOUT_ERROR          NCI_NFCEE_STS_TIMEOUT_ERROR
+
 typedef struct {
   tNFC_STATUS status;    /* The event status - place holder  */
   uint8_t nfcee_id;      /* NFCEE ID                         */
