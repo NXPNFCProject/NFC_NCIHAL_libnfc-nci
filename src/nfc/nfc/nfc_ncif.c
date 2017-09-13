@@ -1759,6 +1759,9 @@ void nfc_ncif_proc_deactivate(uint8_t status, uint8_t deact_type, bool is_ntf) {
   tNFC_DISCOVER evt_data;
   tNFC_DEACTIVATE_DEVT* p_deact;
   tNFC_CONN_CB* p_cb = &nfc_cb.conn_cb[NFC_RF_CONN_ID];
+#if (NXP_EXTNS == TRUE)
+    tRW_T3T_CB *p_t3tcb = &rw_cb.tcb.t3t;
+#endif
   void* p_data;
 
   nfc_set_state(NFC_STATE_IDLE);
@@ -1779,6 +1782,12 @@ void nfc_ncif_proc_deactivate(uint8_t status, uint8_t deact_type, bool is_ntf) {
     (*p_cb->p_cback)(NFC_RF_CONN_ID, NFC_DEACTIVATE_CEVT, (tNFC_CONN*)p_deact);
 
 #if (NXP_EXTNS == TRUE)
+    if (p_t3tcb->poll_timer.in_use)
+    {
+        NFC_TRACE_DEBUG1 ("%s: stopping t3t polling timer", __func__);
+        nfc_stop_quick_timer (&p_t3tcb->poll_timer);
+    }
+
   if ((nfc_cb.flags & (NFC_FL_DISCOVER_PENDING | NFC_FL_CONTROL_REQUESTED)) &&
       (deact_type == NFC_DEACTIVATE_TYPE_DISCOVERY) && (is_ntf == true)) {
     NFC_TRACE_DEBUG0(
