@@ -1493,7 +1493,7 @@ void nfa_hci_rsp_timeout(tNFA_HCI_EVENT_DATA* p_evt_data) {
               p_buf->len = 2;
               NFC_SendData(nfa_hci_cb.conn_id, p_buf);
               nfa_sys_start_timer(&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT,
-                                  10000);
+                                  3000);
               nfa_hci_cb.hci_state = NFA_HCI_STATE_WAIT_RSP;
             }
             nfa_hci_cb.IsChainedPacket = false;
