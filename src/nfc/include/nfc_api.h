@@ -1689,6 +1689,17 @@ int32_t NFC_eSEChipReset(void* pdata);
 **
 *******************************************************************************/
 int32_t NFC_EnableWired(void* pdata);
+/*******************************************************************************
+**
+** Function         NFC_SetNfcServicePid
+**
+** Description      This function request to pn54x driver to
+**                  update NFC service process ID for signalling.
+**
+** Returns          0 if api call success, else -1
+**
+*******************************************************************************/
+int32_t NFC_SetNfcServicePid();
 
 /*******************************************************************************
 **

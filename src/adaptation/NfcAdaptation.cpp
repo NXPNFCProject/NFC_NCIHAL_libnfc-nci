@@ -82,7 +82,7 @@ tHAL_NFC_CBACK* NfcAdaptation::mHalCallback = NULL;
 tHAL_NFC_DATA_CBACK* NfcAdaptation::mHalDataCallback = NULL;
 ThreadCondVar NfcAdaptation::mHalOpenCompletedEvent;
 ThreadCondVar NfcAdaptation::mHalCloseCompletedEvent;
-ThreadCondVar NfcAdaptation::mHalIoctlEvent;
+
 #if (NXP_EXTNS == TRUE)
 ThreadCondVar NfcAdaptation::mHalCoreResetCompletedEvent;
 ThreadCondVar NfcAdaptation::mHalCoreInitCompletedEvent;
@@ -580,7 +580,6 @@ void IoctlCallback(::android::hardware::nfc::V1_0::NfcData outputData) {
 *******************************************************************************/
 int NfcAdaptation::HalIoctl(long arg, void* p_data) {
   const char* func = "NfcAdaptation::HalIoctl";
-  mHalIoctlEvent.lock();
   ::android::hardware::nfc::V1_0::NfcData data;
   AutoThreadMutex a(sIoctlLock);
   nfc_nci_IoctlInOutData_t* pInpOutData = (nfc_nci_IoctlInOutData_t*)p_data;
@@ -592,7 +591,6 @@ int NfcAdaptation::HalIoctl(long arg, void* p_data) {
   if(mHalNxpNfc != nullptr)
       mHalNxpNfc->ioctl(arg, data, IoctlCallback);
   ALOGD("%s Ioctl Completed for Type=%llu", func, pInpOutData->out.ioctlType);
-  mHalIoctlEvent.unlock();
   return (pInpOutData->out.result);
 }
 
