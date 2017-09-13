@@ -16,10 +16,10 @@
 
 #define LOG_TAG "NxpNfcNciHal"
 
-#include <utils/Log.h>
 #include <errno.h>
 #include <hardware/hardware.h>
 #include <hardware/nfc.h>
+#include <log/log.h>
 #include <phNxpNciHal_Adaptation.h>
 #include <string.h>
 #include <stdlib.h>

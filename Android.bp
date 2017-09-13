@@ -16,11 +16,9 @@ cc_library_shared {
         "halimpl/pn54x/nfc_nci.c"
     ],
     shared_libs: [
-        "liblog",
         "libcutils",
+         "liblog",
         "libhwbinder",
-        "libbase",
-        "libutils",
         "libhardware",
     ],
     local_include_dirs: [
