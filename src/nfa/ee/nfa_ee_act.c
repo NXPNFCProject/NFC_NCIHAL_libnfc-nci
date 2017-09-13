@@ -2286,7 +2286,6 @@ void nfa_ee_nci_nfcee_status_ntf(tNFA_EE_MSG* p_data) {
     if(p_cb != NULL) {
         if (nfa_ee_cb.p_enable_cback)
                     (*nfa_ee_cb.p_enable_cback) (NFA_EE_RECOVERY);
-        NFC_NfceeDiscover(true);
     }
   }
 }

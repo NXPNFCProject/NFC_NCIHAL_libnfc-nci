@@ -264,9 +264,19 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
       break;
     case NFA_EE_RECOVERY:
         /*NFCEE recovery in progress*/
-        nfa_hci_cb.nfcee_cfg.discovery_stopped =
-            nfa_dm_act_stop_rf_discovery(NULL);
-        nfa_hci_cb.hci_state = NFA_HCI_STATE_EE_RECOVERY;
+        if (!((nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_NETWK_ENABLE) ||
+            (nfa_hci_cb.hci_state == NFA_HCI_STATE_RESTORE_NETWK_ENABLE))) {
+          if (NFA_DM_RFST_DISCOVERY == nfa_dm_cb.disc_cb.disc_state)
+            nfa_hci_cb.nfcee_cfg.discovery_stopped = nfa_dm_act_stop_rf_discovery(NULL);
+          if(NFC_NfceeDiscover(true) == NFC_STATUS_FAILED){
+            if(nfa_hci_cb.nfcee_cfg.discovery_stopped == true) {
+              nfa_dm_act_start_rf_discovery(NULL);
+              nfa_hci_cb.nfcee_cfg.discovery_stopped = false;
+            }
+          } else {
+              nfa_hci_cb.hci_state = NFA_HCI_STATE_EE_RECOVERY;
+          }
+        }
         break;
   }
 }
