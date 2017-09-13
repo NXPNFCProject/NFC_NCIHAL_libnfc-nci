@@ -703,6 +703,7 @@ bool CNfcConfig::isAllowed(const char* name) {
   if ((token.find("P2P_LISTEN_TECH_MASK") != std::string::npos) ||
       (token.find("HOST_LISTEN_TECH_MASK") != std::string::npos) ||
       (token.find("UICC_LISTEN_TECH_MASK") != std::string::npos) ||
+      (token.find("NXP_ESE_LISTEN_TECH_MASK") != std::string::npos) ||
       (token.find("POLLING_TECH_MASK") != std::string::npos) ||
       (token.find("NXP_RF_CONF_BLK") != std::string::npos) ||
       (token.find("NXP_CN_TRANSIT_BLK_NUM_CHECK_ENABLE") !=

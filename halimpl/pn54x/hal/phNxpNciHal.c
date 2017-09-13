@@ -2522,11 +2522,18 @@ int phNxpNciHal_close(void) {
   uint8_t numPrms = 0;
   uint8_t ptr = 4;
   unsigned long uiccListenMask = 0x00;
+  unsigned long eseListenMask = 0x00;
 
   if (!(GetNxpNumValue(NAME_NXP_UICC_LISTEN_TECH_MASK, &uiccListenMask,
                        sizeof(uiccListenMask)))) {
     uiccListenMask = 0x07;
     NXPLOG_NCIHAL_D("UICC_LISTEN_TECH_MASK = 0x%0lX", uiccListenMask);
+  }
+
+  if (!(GetNxpNumValue(NAME_NXP_ESE_LISTEN_TECH_MASK, &eseListenMask, 
+                      sizeof(eseListenMask)))) {
+    eseListenMask = 0x07;
+    NXPLOG_NCIHAL_D ("NXP_ESE_LISTEN_TECH_MASK = 0x%0lX", eseListenMask);
   }
 
   if (nxpncihal_ctrl.hal_boot_mode == NFC_FAST_BOOT_MODE) {
@@ -2553,21 +2560,21 @@ int phNxpNciHal_close(void) {
     goto close_and_return;
   }
 
-  if ((uiccListenMask & 0x1) == 0x01) {
+  if((uiccListenMask & 0x1) == 0x01 || (eseListenMask & 0x1) == 0x01) {
     NXPLOG_NCIHAL_D("phNxpNciHal_close (): Adding A passive listen");
     numPrms++;
     cmd_ce_discovery_nci[ptr++] = 0x80;
     cmd_ce_discovery_nci[ptr++] = 0x01;
     length += 2;
   }
-  if ((uiccListenMask & 0x2) == 0x02) {
+  if((uiccListenMask & 0x2) == 0x02 || (eseListenMask & 0x4) == 0x02) {
     NXPLOG_NCIHAL_D("phNxpNciHal_close (): Adding B passive listen");
     numPrms++;
     cmd_ce_discovery_nci[ptr++] = 0x81;
     cmd_ce_discovery_nci[ptr++] = 0x01;
     length += 2;
   }
-  if ((uiccListenMask & 0x4) == 0x04) {
+  if((uiccListenMask & 0x4) == 0x04 || (eseListenMask & 0x4) == 0x04) {
     NXPLOG_NCIHAL_D("phNxpNciHal_close (): Adding F passive listen");
     numPrms++;
     cmd_ce_discovery_nci[ptr++] = 0x82;
