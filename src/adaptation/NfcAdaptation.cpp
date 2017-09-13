@@ -74,6 +74,7 @@ extern "C" void delete_stack_non_volatile_store(bool forceDelete);
 
 NfcAdaptation* NfcAdaptation::mpInstance = NULL;
 ThreadMutex NfcAdaptation::sLock;
+ThreadMutex NfcAdaptation::sIoctlLock;
 sp<INxpNfc> NfcAdaptation::mHalNxpNfc;
 sp<INfc> NfcAdaptation::mHal;
 INfcClientCallback* NfcAdaptation::mCallback;
@@ -581,13 +582,15 @@ int NfcAdaptation::HalIoctl(long arg, void* p_data) {
   const char* func = "NfcAdaptation::HalIoctl";
   mHalIoctlEvent.lock();
   ::android::hardware::nfc::V1_0::NfcData data;
+  AutoThreadMutex a(sIoctlLock);
   nfc_nci_IoctlInOutData_t* pInpOutData = (nfc_nci_IoctlInOutData_t*)p_data;
   int status = 0;
   ALOGD("%s arg=%ld", func, arg);
   pInpOutData->inp.context = &NfcAdaptation::GetInstance();
   NfcAdaptation::GetInstance().mCurrentIoctlData = pInpOutData;
   data.setToExternal((uint8_t*)pInpOutData, sizeof(nfc_nci_IoctlInOutData_t));
-  mHalNxpNfc->ioctl(arg, data, IoctlCallback);
+  if(mHalNxpNfc != nullptr)
+      mHalNxpNfc->ioctl(arg, data, IoctlCallback);
   ALOGD("%s Ioctl Completed for Type=%llu", func, pInpOutData->out.ioctlType);
   mHalIoctlEvent.unlock();
   return (pInpOutData->out.result);
