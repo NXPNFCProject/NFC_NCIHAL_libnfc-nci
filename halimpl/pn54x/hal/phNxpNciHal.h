@@ -127,7 +127,6 @@ typedef struct {
 typedef struct phNxpNciClock {
   bool_t isClockSet;
   uint8_t p_rx_data[20];
-  bool_t issetConfig;
 } phNxpNciClock_t;
 
 typedef struct phNxpNciRfSetting {
