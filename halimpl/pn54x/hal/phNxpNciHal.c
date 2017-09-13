@@ -1166,13 +1166,15 @@ void read_retry() {
 *******************************************************************************/
 void phNxpNciHal_check_delete_nfaStorage_DHArea() {
   struct stat st;
+  int ret = 0;
   const char config_eseinfo_path[] = "/data/vendor/nfc/nfaStorage.bin1";
   if (stat(config_eseinfo_path, &st) == -1) {
-    ALOGD("%s file not present = %s", __func__, config_eseinfo_path);
+    ALOGD("%s: file not found %s", __func__, config_eseinfo_path);
   } else {
-    ALOGD("%s file present = %s", __func__, config_eseinfo_path);
-    remove(config_eseinfo_path);
-    ALOGD("%s Deleting the file present = %s", __func__, config_eseinfo_path);
+    ALOGD("%s: file found %s, delete it", __func__, config_eseinfo_path);
+    ret = remove(config_eseinfo_path);
+    if(ret!=0)
+      ALOGE("%s: error deleting file %s", __func__, config_eseinfo_path);
   }
 }
 
