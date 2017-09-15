@@ -46,7 +46,6 @@ phNxpNciHal_initParser() {
     psContext->sEntryFuncs.destroyParser = NULL;
     psContext->sEntryFuncs.parsePacket = NULL;
 
-
     NXPLOG_NCIHAL_D("%s: enter", __FUNCTION__);
 
     psContext->pvHandle = dlopen(NXP_NCI_PARSER_PATH, RTLD_NOW);

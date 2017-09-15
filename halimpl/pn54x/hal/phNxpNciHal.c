@@ -2103,7 +2103,11 @@ int phNxpNciHal_core_initialized(uint8_t* p_core_init_rsp_params) {
     }
   }
 
-  phNxpNciHal_configNciParser();
+  isfound = GetNxpNumValue(NAME_NXP_NCI_PARSER_LIBRARY, &num, sizeof(num));
+  if(isfound > 0 && num == 0x01)
+  {
+    phNxpNciHal_configNciParser();
+  }
 
   retry_core_init_cnt = 0;
 
