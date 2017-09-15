@@ -101,7 +101,7 @@ static nfa_dm_p2p_prio_logic_t p2p_prio_logic_data;
 
 static void nfa_dm_send_tag_deselect_cmd(tNFA_NFC_PROTOCOL protocol);
 #define TAG_DESELECT_CMD 0xC2
-uint8_t T2T_SLP_REQ[] ={0x05,0x00};
+uint8_t T2T_SLP_REQ[] ={0x50,0x00};
 
 int getListenTechValue(int listenTechMask);
 #define P2P_RESUME_POLL_TIMEOUT 16 /*mili second timeout value*/
