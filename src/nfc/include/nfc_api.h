@@ -115,8 +115,8 @@
 #define NXP_EN_PN553_MR1 0
 #define NXP_EN_PN81A     0
 #define NXP_EN_PN553_MR2 0
-#define NXP_EN_PN557     0
-#define NXP_EN_PN81T     0
+#define NXP_EN_PN557     1
+#define NXP_EN_PN81T     1
 #define NXP_ANDROID_VER (8U)        /* NXP android version */
 #define NFC_NXP_MW_VERSION_MAJ (0x01) /* MW Major Version */
 #define NFC_NXP_MW_VERSION_MIN (0x01) /* MW Minor Version */
