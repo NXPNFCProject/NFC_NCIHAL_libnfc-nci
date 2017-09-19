@@ -163,7 +163,7 @@ void nfa_ee_sys_enable(void) {
                        nfa_ee_cb.route_block_control);
     }
   }
-
+  nfa_ee_get_num_nfcee_configured(nfa_ee_read_num_nfcee_config_cb);
   if (nfa_ee_max_ee_cfg) {
     /* collect NFCEE information */
     NFC_NfceeDiscover(true);

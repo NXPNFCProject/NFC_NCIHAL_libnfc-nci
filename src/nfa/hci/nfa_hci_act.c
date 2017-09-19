@@ -2538,130 +2538,35 @@ static bool nfa_hci_handle_nfcee_config() {
 **
 ** Function         nfa_hci_get_num_nfcee_configured
 **
-** Description      Read the number of NFCEE configured by the user.
+** Description      Read number of NFCEE config.
 **
-** Returns          if success NFA_STATUS_OK or NFA_STATUS_FAILED
-**
-*********************************************************************************/
-static tNFA_STATUS nfa_hci_get_num_nfcee_configured() {
-  tNFA_STATUS status = NFA_STATUS_OK;
-  uint8_t p_data[NFA_MAX_HCI_CMD_LEN];
-  uint8_t* p = p_data, *parm_len, *num_param;
-  memset(p_data, 0, sizeof(p_data));
-  NCI_MSG_BLD_HDR0(p, NCI_MT_CMD, NCI_GID_CORE);
-  NCI_MSG_BLD_HDR1(p, NCI_MSG_CORE_GET_CONFIG);
-  parm_len = p++;
-  num_param = p++;
-  UINT8_TO_STREAM(p, NXP_NFC_SET_CONFIG_PARAM_EXT);
-  UINT8_TO_STREAM(p, NXP_NFC_PARAM_ID_SWP1);
-  (*num_param)++;
-  UINT8_TO_STREAM(p, NXP_NFC_SET_CONFIG_PARAM_EXT);
-  UINT8_TO_STREAM(p, NXP_NFC_PARAM_ID_SWP2);
-  (*num_param)++;
-
-if(nfcFL.nfccFL._NFCC_DYNAMIC_DUAL_UICC) {
-  UINT8_TO_STREAM(p, NXP_NFC_SET_CONFIG_PARAM_EXT);
-  UINT8_TO_STREAM(p, NXP_NFC_PARAM_ID_SWP1A);
-  (*num_param)++;
-}
-
-  *parm_len = (p - num_param);
-  if (*num_param != 0x00) {
-    status = nfa_hciu_send_raw_cmd(p - p_data, p_data,
-                                   nfa_hci_read_num_nfcee_config_cb);
-  }
-  NFA_TRACE_DEBUG1("nfa_hci_get_num_nfcee_configured %x", *num_param);
-
-  return status;
-}
-
-/*******************************************************************************
-**
-** Function         nfa_hci_read_num_nfcee_config_cb
-**
-** Description      Callback function to handle the response of num of NFCEE
-*configured cmd.
 **
 ** Returns          None
 **
 *********************************************************************************/
-static void nfa_hci_read_num_nfcee_config_cb(uint8_t event, uint16_t param_len,
-                                             uint8_t* p_param) {
+static tNFA_STATUS nfa_hci_get_num_nfcee_configured() {
   uint8_t num_param_id = 0x00, xx;
-  uint8_t configured_num_nfcee = 0x00;
-  uint8_t NFA_PARAM_ID_INDEX = 0x04;
-  uint8_t param_id1 = 0x00;
-  uint8_t param_id2 = 0x00;
-  uint8_t status = 0x00;
-
+  tNFA_STATUS status = NFA_STATUS_OK;
   nfa_sys_stop_timer(&nfa_hci_cb.timer);
   nfa_hci_cb.num_nfcee = NFA_HCI_MAX_HOST_IN_NETWORK;
   NFA_AllEeGetInfo(&nfa_hci_cb.num_nfcee, nfa_hci_cb.hci_ee_info);
-
   for (xx = 0; xx < nfa_hci_cb.num_nfcee; xx++) {
-    if(nfa_hci_cb.hci_ee_info[xx].ee_interface[0] ==
-            NCI_NFCEE_INTERFACE_HCI_ACCESS)
-    {
-      /*If NFCEE_HCI_NETWORK ID exists*/
-      configured_num_nfcee = 1;
-      break;
+    if ((((nfa_hci_cb.hci_ee_info[xx].ee_interface[0] !=
+        NCI_NFCEE_INTERFACE_HCI_ACCESS) &&
+        nfa_hci_cb.hci_ee_info[xx].ee_status == NFA_EE_STATUS_ACTIVE)) &&
+        (nfa_hci_cb.hci_ee_info[xx].ee_handle != 0x410)) {
+      nfa_hci_cb.nfcee_cfg.host_cb[num_param_id++] =
+          nfa_hci_cb.hci_ee_info[xx].ee_handle;
     }
   }
-
-  if (param_len == 0x00 || p_param == NULL ||
-      p_param[NFA_PARAM_ID_INDEX - 1] != NFA_STATUS_OK) {
-    for (xx = 0; xx < nfa_hci_cb.num_nfcee; xx++) {
-      if ((((nfa_hci_cb.hci_ee_info[xx].ee_interface[0] !=
-           NCI_NFCEE_INTERFACE_HCI_ACCESS) &&
-	          nfa_hci_cb.hci_ee_info[xx].ee_status == NFA_EE_STATUS_ACTIVE))  &&
-          (nfa_hci_cb.hci_ee_info[xx].ee_handle != 0x410)) {
-        nfa_hci_cb.nfcee_cfg.host_cb[num_param_id++] =
-            nfa_hci_cb.hci_ee_info[xx].ee_handle;
-      }
-    }
-    nfa_hci_handle_nfcee_config_evt(NFA_HCI_READ_SESSIONID);
-    return;
-  }
-  p_param += NFA_PARAM_ID_INDEX;
-  STREAM_TO_UINT8(num_param_id, p_param);
-
-  while (num_param_id > 0x00) {
-    STREAM_TO_UINT8(param_id1, p_param);
-    STREAM_TO_UINT8(param_id2, p_param);
-    p_param++;
-    STREAM_TO_UINT8(status, p_param);
-    if (param_id1 == NXP_NFC_SET_CONFIG_PARAM_EXT &&
-        param_id2 == NXP_NFC_PARAM_ID_SWP1 && status != 0x00)
-      configured_num_nfcee++;
-    else if (param_id1 == NXP_NFC_SET_CONFIG_PARAM_EXT &&
-             param_id2 == NXP_NFC_PARAM_ID_SWP2 && status != 0x00)
-      configured_num_nfcee++;
-    else if (param_id1 == NXP_NFC_SET_CONFIG_PARAM_EXT &&
-             param_id2 == NXP_NFC_PARAM_ID_SWP1A && status != 0x00)
-      configured_num_nfcee++;
-    else if (param_id1 == NXP_NFC_SET_CONFIG_PARAM_EXT &&
-             param_id2 == NXP_NFC_PARAM_ID_NDEF_NFCEE && status != 0x00)
-      configured_num_nfcee++;
-    num_param_id--;
-  }
-  NFA_TRACE_DEBUG1("nfa_hci_read_num_nfcee_config_cb %x", configured_num_nfcee);
-  NFA_TRACE_DEBUG1("nfa_hci_read_num_nfcee_config_cb %x", nfa_hci_cb.num_nfcee);
-  if (configured_num_nfcee > nfa_hci_cb.num_nfcee)
+  NFA_TRACE_DEBUG1("nfa_hci_read_num_nfcee_config_cb  nfa_ee_max_ee_cfg%x", nfa_ee_max_ee_cfg);
+  NFA_TRACE_DEBUG1("nfa_hci_read_num_nfcee_config_cb nfa_hci_cb.num_nfcee%x", nfa_hci_cb.num_nfcee);
+  if (nfa_ee_max_ee_cfg > nfa_hci_cb.num_nfcee) {
     nfa_sys_start_timer(&nfa_hci_cb.timer, NFA_HCI_NFCEE_DISCOVER_TIMEOUT_EVT,
                         nfa_hci_cb.max_nfcee_disc_timeout);
-  else {
-    num_param_id = 0x00;
-    for (xx = 0; xx < nfa_hci_cb.num_nfcee; xx++) {
-      if ((((nfa_hci_cb.hci_ee_info[xx].ee_interface[0] !=
-          NCI_NFCEE_INTERFACE_HCI_ACCESS) &&
-          nfa_hci_cb.hci_ee_info[xx].ee_status == NFA_EE_STATUS_ACTIVE)) &&
-          (nfa_hci_cb.hci_ee_info[xx].ee_handle != 0x410)) {
-        nfa_hci_cb.nfcee_cfg.host_cb[num_param_id++] =
-            nfa_hci_cb.hci_ee_info[xx].ee_handle;
-      }
-    }
-    nfa_hci_handle_nfcee_config_evt(NFA_HCI_READ_SESSIONID);
+    status = NFA_STATUS_BUSY;
   }
+  return status;
 }
 
 /*******************************************************************************
@@ -2789,7 +2694,7 @@ static void nfa_hci_poll_session_id_cb(uint8_t event, uint16_t param_len,
 ** Function         nfa_hci_handle_nfcee_config_evt
 **
 ** Description      In case of NFCEE CONFIG EVT , the following sequence of
-*commands are sent.
+** commands are sent.
 **                  This function also handles the CLEAR_ALL_PIPE_NTF from
 *respective host.
 **                      a.Get the number of secelement configured and
@@ -2818,16 +2723,12 @@ void nfa_hci_handle_nfcee_config_evt(uint16_t event) {
         nfa_hci_cb.hci_state = NFA_HCI_STATE_NFCEE_ENABLE;
         nfa_hci_cb.nfcee_cfg.config_nfcee_state =
             NFA_HCI_GET_NUM_NFCEE_CONFIGURED;
-        if (nfa_hci_get_num_nfcee_configured() != NFA_STATUS_OK) {
+        if (nfa_hci_get_num_nfcee_configured() != NFA_STATUS_BUSY) {
           tNFA_HCI_API_CONFIGURE_EVT* p_msg;
           /* Send read session event to continue with other initialization*/
-          if ((p_msg = (tNFA_HCI_API_CONFIGURE_EVT*)GKI_getbuf(
-                   sizeof(tNFA_HCI_API_CONFIGURE_EVT))) != NULL) {
-            p_msg->hdr.event = NFA_HCI_API_CONFIGURE_EVT;
-            p_msg->config_nfcee_event = NFA_HCI_READ_SESSIONID;
-            nfa_sys_sendmsg(p_msg);
-          } else
-            event = NFA_HCI_NFCEE_CONFIG_COMPLETE;
+          /*Read the session ID of the host discovered */
+          nfa_hci_cb.nfcee_cfg.config_nfcee_state = NFA_HCI_READ_SESSIONID;
+          nfa_hci_poll_all_nfcee_session_id();
         }
       } else {
         event = NFA_HCI_NFCEE_CONFIG_COMPLETE;

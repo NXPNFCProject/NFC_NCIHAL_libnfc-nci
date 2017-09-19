@@ -818,6 +818,102 @@ void nfa_ee_start_timer(void) {
 
 /*******************************************************************************
 **
+** Function         nfa_ee_get_num_nfcee_configured
+**
+** Description      Get the number of NFCEE configured
+**
+** Returns          void
+**
+*******************************************************************************/
+tNFA_STATUS nfa_ee_get_num_nfcee_configured(tNFA_VSC_CBACK* p_cback)
+{
+  tNFA_STATUS status = NFA_STATUS_OK;
+  uint8_t p_data[255];
+  uint8_t* p = p_data, *parm_len, *num_param;
+  memset(p_data, 0, sizeof(p_data));
+  NCI_MSG_BLD_HDR0(p, NCI_MT_CMD, NCI_GID_CORE);
+  NCI_MSG_BLD_HDR1(p, NCI_MSG_CORE_GET_CONFIG);
+  parm_len = p++;
+  num_param = p++;
+  UINT8_TO_STREAM(p, NXP_NFC_SET_CONFIG_PARAM_EXT);
+  UINT8_TO_STREAM(p, NXP_NFC_PARAM_ID_SWP1);
+  (*num_param)++;
+  UINT8_TO_STREAM(p, NXP_NFC_SET_CONFIG_PARAM_EXT);
+  UINT8_TO_STREAM(p, NXP_NFC_PARAM_ID_SWP2);
+  (*num_param)++;
+
+  if(nfcFL.nfccFL._NFCC_DYNAMIC_DUAL_UICC) {
+    UINT8_TO_STREAM(p, NXP_NFC_SET_CONFIG_PARAM_EXT);
+    UINT8_TO_STREAM(p, NXP_NFC_PARAM_ID_SWP1A);
+    (*num_param)++;
+  }
+
+  *parm_len = (p - num_param);
+  if (*num_param != 0x00) {
+    status = NFA_SendNxpNciCommand(p - p_data, p_data, p_cback);
+  } else {
+      status = NFA_STATUS_FAILED;
+  }
+  NFA_TRACE_DEBUG1("nfa_ee_get_num_nfcee_configured %x", *num_param);
+
+  return status;
+}
+
+/*******************************************************************************
+**
+** Function         nfa_hci_read_num_nfcee_config_cb
+**
+** Description      Callback function to handle the response of num of NFCEE
+*                   configured.
+**
+** Returns          None
+**
+*********************************************************************************/
+ void nfa_ee_read_num_nfcee_config_cb(uint8_t event, uint16_t param_len,
+                                             uint8_t* p_param) {
+    uint8_t num_param_id = 0x00, xx;
+    uint8_t configured_num_nfcee = 0x00;
+    uint8_t NFA_PARAM_ID_INDEX = 0x04;
+    uint8_t param_id1 = 0x00;
+    uint8_t param_id2 = 0x00;
+    uint8_t status = 0x00;
+
+    if (param_len == 0x00 || p_param == NULL ||
+        p_param[NFA_PARAM_ID_INDEX - 1] != NFA_STATUS_OK) {
+      return;
+    }
+    if(NFA_GetNCIVersion() != NCI_VERSION_2_0) { //HCI_NETWORK_ACCESS
+        configured_num_nfcee = 1;
+    }
+    p_param += NFA_PARAM_ID_INDEX;
+    STREAM_TO_UINT8(num_param_id, p_param);
+
+    while (num_param_id > 0x00) {
+      STREAM_TO_UINT8(param_id1, p_param);
+      STREAM_TO_UINT8(param_id2, p_param);
+      p_param++;
+      STREAM_TO_UINT8(status, p_param);
+      if (param_id1 == NXP_NFC_SET_CONFIG_PARAM_EXT &&
+          param_id2 == NXP_NFC_PARAM_ID_SWP1 && status != 0x00)
+        configured_num_nfcee++;
+      else if (param_id1 == NXP_NFC_SET_CONFIG_PARAM_EXT &&
+               param_id2 == NXP_NFC_PARAM_ID_SWP2 && status != 0x00)
+        configured_num_nfcee++;
+      else if (param_id1 == NXP_NFC_SET_CONFIG_PARAM_EXT &&
+               param_id2 == NXP_NFC_PARAM_ID_SWP1A && status != 0x00)
+        configured_num_nfcee++;
+      else if (param_id1 == NXP_NFC_SET_CONFIG_PARAM_EXT &&
+               param_id2 == NXP_NFC_PARAM_ID_NDEF_NFCEE && status != 0x00)
+        configured_num_nfcee++;
+      num_param_id--;
+    }
+    if(configured_num_nfcee)
+        nfa_ee_max_ee_cfg = configured_num_nfcee;
+    NFA_TRACE_DEBUG1("nfa_ee_read_num_nfcee_config_cb %x", configured_num_nfcee);
+}
+
+/******************************************************************************
+**
 ** Function         nfa_ee_api_discover
 **
 ** Description      process discover command from user
@@ -1814,7 +1910,8 @@ void nfa_ee_api_connect(tNFA_EE_MSG* p_data) {
   if (p_cb->conn_st == NFA_EE_CONN_ST_NONE) {
     for (xx = 0; xx < p_cb->num_interface; xx++) {
       if (p_data->connect.ee_interface == p_cb->ee_interface[xx]) {
-        p_cb->p_ee_cback = p_data->connect.p_cback;
+          nfa_ee_get_num_nfcee_configured(nfa_ee_read_num_nfcee_config_cb);
+          p_cb->p_ee_cback = p_data->connect.p_cback;
         p_cb->conn_st = NFA_EE_CONN_ST_WAIT;
         p_cb->use_interface = p_data->connect.ee_interface;
         evt_data.connect.status =
@@ -2263,9 +2360,11 @@ void nfa_ee_nci_disc_ntf(tNFA_EE_MSG* p_data) {
     if (nfa_ee_cb.discv_timer.in_use) {
       nfa_sys_stop_timer(&nfa_ee_cb.discv_timer);
       p_data->hdr.event = NFA_EE_DISCV_TIMEOUT_EVT;
+      NFA_TRACE_DEBUG0("ee_disc_timeout");
       nfa_ee_evt_hdlr((NFC_HDR*)p_data);
     }
   }
+  NFA_TRACE_DEBUG0("after nfa_ee_nci_disc_ntf");
 #if (NXP_EXTNS == TRUE)
   if (p_cb) {
     if ((nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_NETWK_ENABLE) &&
@@ -2278,6 +2377,7 @@ void nfa_ee_nci_disc_ntf(tNFA_EE_MSG* p_data) {
     }
   }
 #endif
+  NFA_TRACE_DEBUG0("nfa_ee_nci_disc_ntf last");
 }
 
 /*******************************************************************************

@@ -982,10 +982,6 @@ typedef union {
 #define NFC_RF_PARAM_SOS_REQUIRED 0x00     /* SoS required */
 #define NFC_RF_PARAM_SOS_NOT_REQUIRED 0x01 /* SoS not required */
 
-#if (NXP_EXTNS == TRUE)
-#define NFA_EE_MAX_EE_SUPPORTED_DEFAULT 0x04
-#endif
-
 typedef struct {
   bool include_rf_tech_mode; /* true if including RF Tech and Mode update    */
   tNFC_RF_TECH_N_MODE rf_tech_n_mode; /* RF tech and mode */

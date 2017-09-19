@@ -102,7 +102,6 @@ void NFA_Init(tHAL_NFC_ENTRY* p_hal_entry_tbl) {
 #else
   NFC_Init(p_hal_entry_tbl);
 #endif
-  nfa_ee_max_ee_cfg == nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED;
 }
 
 /*******************************************************************************

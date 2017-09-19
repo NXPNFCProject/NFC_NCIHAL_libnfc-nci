@@ -819,8 +819,6 @@ void nfa_hci_startup(void) {
   uint8_t count = 0;
   bool found = false;
 
-  nfa_ee_max_ee_cfg = nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED;
-
   if (HCI_LOOPBACK_DEBUG) {
       /* First step in initialization is to open the admin pipe */
       nfa_hciu_send_open_pipe_cmd(NFA_HCI_ADMIN_PIPE);
