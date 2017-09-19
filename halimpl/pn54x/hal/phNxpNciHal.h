@@ -51,6 +51,9 @@ typedef void(phNxpNciHal_control_granted_callback_t)();
 #define FW_MOBILE_ROM_VERSION_PN547C2 0x08
 #define FW_MOBILE_ROM_VERSION_PN557 0x12
 
+#define FW_DBG_REASON_AVAILABLE     (0xA3)
+
+
 /* NCI Data */
 #define NCI_MT_CMD  0x20
 #define NCI_MT_RSP  0x40
@@ -76,6 +79,7 @@ typedef enum { HAL_STATUS_CLOSE = 0, HAL_STATUS_OPEN } phNxpNci_HalStatus;
 typedef struct phNxpNciInfo {
   uint8_t   nci_version;
   bool_t    wait_for_ntf;
+  uint8_t   lastResetNtfReason;
 }phNxpNciInfo_t;
 /* NCI Control structure */
 typedef struct phNxpNciHal_Control {

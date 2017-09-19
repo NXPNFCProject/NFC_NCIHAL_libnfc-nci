@@ -342,6 +342,10 @@ if(nfcFL.nfccFL._NFCC_FORCE_NCI1_0_INIT == true) {
              nxpncihal_ctrl.is_wait_for_ce_ntf) {
     NXPLOG_NCIHAL_D("CORE_INIT_RSP 2 received !");
   }
+  /*Retreive reset ntf reason code irrespective of NCI 1.0 or 2.0*/
+  if (p_ntf[0] == 0x60 && p_ntf[1] == 0x00 ){
+    nxpncihal_ctrl.nci_info.lastResetNtfReason = p_ntf[3];
+  }
 }
 /*Handle NFCC2.0 in NCI1.0 Boot sequence*/
 if (((nfcFL.nfccFL._NFCC_FORCE_NCI1_0_INIT) &&

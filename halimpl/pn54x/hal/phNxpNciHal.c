@@ -1177,7 +1177,23 @@ void phNxpNciHal_check_delete_nfaStorage_DHArea() {
       ALOGE("%s: error deleting file %s", __func__, config_eseinfo_path);
   }
 }
+/*******************************************************************************
+ **
+ ** Function:        phNxpNciHal_lastResetNtfReason()
+ **
+ ** Description:     Returns and clears last reset notification reason.
+ **                      Intended to be called only once during recovery.
+ **
+ ** Returns:         reasonCode
+ **
+ ********************************************************************************/
+uint8_t phNxpNciHal_lastResetNtfReason(void) {
+  uint8_t reasonCode = nxpncihal_ctrl.nci_info.lastResetNtfReason;
 
+  nxpncihal_ctrl.nci_info.lastResetNtfReason = 0;
+
+  return reasonCode;
+}
 /******************************************************************************
  * Function         phNxpNciHal_core_initialized
  *
@@ -1207,6 +1223,8 @@ int phNxpNciHal_core_initialized(uint8_t* p_core_init_rsp_params) {
   static uint8_t cmd_init_nci[] = {0x20, 0x01, 0x00};
   static uint8_t cmd_reset_nci[] = {0x20, 0x00, 0x01, 0x00};
   static uint8_t cmd_init_nci2_0[] = {0x20,0x01,0x02,0x00,0x00};
+  static uint8_t cmd_get_cfg_dbg_info[] = {0x20, 0x03, 0x4, 0xA0, 0x1B, 0xA0, 0x27};
+
   config_success = true;
   long bufflen = 260;
   long retlen = 0;
@@ -1447,6 +1465,11 @@ int phNxpNciHal_core_initialized(uint8_t* p_core_init_rsp_params) {
     }
   }
 #endif
+  if(phNxpNciHal_lastResetNtfReason() == FW_DBG_REASON_AVAILABLE){
+
+    phNxpNciHal_send_ext_cmd(sizeof(cmd_get_cfg_dbg_info), cmd_get_cfg_dbg_info);
+    NXPLOG_NCIHAL_D("NFCC txed reset ntf with reason code 0xA3");
+  }
   setConfigAlways = false;
   isfound = GetNxpNumValue(NAME_NXP_SET_CONFIG_ALWAYS, &num, sizeof(num));
   if (isfound > 0) {
