@@ -129,7 +129,12 @@ void nfc_process_timer_evt(void) {
   while ((nfc_cb.timer_queue.p_first) && (!nfc_cb.timer_queue.p_first->ticks)) {
     p_tle = nfc_cb.timer_queue.p_first;
     GKI_remove_from_timer_list(&nfc_cb.timer_queue, p_tle);
-
+#if(NXP_EXTNS == TRUE)
+    /*Ignore expired timer when NFC off is in progress*/
+    if(nfc_cb.nfc_state == NFC_STATE_W4_HAL_CLOSE){
+        return;
+    }
+#endif
     switch (p_tle->event) {
       case NFC_TTYPE_NCI_WAIT_RSP:
         nfc_ncif_cmd_timeout();
