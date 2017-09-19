@@ -2618,10 +2618,12 @@ bool nfa_rw_activate_ntf(tNFA_RW_MSG* p_data) {
            NFA_T1T_HR_LEN);
     memcpy(tag_params.t1t.uid, p_activate_params->rf_tech_param.param.pa.nfcid1,
            p_activate_params->rf_tech_param.param.pa.nfcid1_len);
+    if(NFC_GetNCIVersion() == NCI_VERSION_1_0) {
     msg.op = NFA_RW_OP_T1T_RID;
     nfa_rw_handle_op_req((void*)&msg);
     activate_notify = false; /* Delay notifying upper layer of NFA_ACTIVATED_EVT
                                 until HR0/HR1 is received */
+   }
   } else if (NFC_PROTOCOL_T2T == nfa_rw_cb.protocol) {
     /* Retrieve UID fields from activation notification */
     memcpy(tag_params.t2t.uid, p_activate_params->rf_tech_param.param.pa.nfcid1,
