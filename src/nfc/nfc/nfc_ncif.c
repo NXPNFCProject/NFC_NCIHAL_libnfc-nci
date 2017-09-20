@@ -779,7 +779,6 @@ bool nfc_ncif_process_event(NFC_HDR* p_msg) {
   if ((nfc_cb.nxpCbflag == true) &&
       (nfc_ncif_proc_proprietary_rsp(mt, gid, oid) == true)) {
     nci_proc_prop_nxp_rsp(p_msg);
-    nfc_cb.nxpCbflag = false;
     return (free);
   }
 #endif
