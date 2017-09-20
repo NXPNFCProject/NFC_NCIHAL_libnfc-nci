@@ -58,8 +58,7 @@ const tNFA_DM_DISC_FREQ_CFG nfa_dm_rf_disc_freq_cfg = {
 tNFA_DM_DISC_FREQ_CFG* p_nfa_dm_rf_disc_freq_cfg =
     (tNFA_DM_DISC_FREQ_CFG*)&nfa_dm_rf_disc_freq_cfg;
 
-//uint8_t nfa_ee_max_ee_cfg = NFA_EE_MAX_EE_SUPPORTED;
-uint8_t nfa_ee_max_ee_cfg = nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED;
+uint8_t nfa_ee_max_ee_cfg = NFA_EE_MAX_EE_SUPPORTED;
 const tNCI_DISCOVER_MAPS nfa_dm_interface_mapping[NFA_DM_NUM_INTERFACE_MAP] = {
     /* Protocols that use Frame Interface do not need to be included in the
        interface mapping */

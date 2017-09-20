@@ -937,6 +937,7 @@ void nfa_ee_api_discover(tNFA_EE_MSG* p_data) {
         return;
     }
   }
+  nfa_ee_get_num_nfcee_configured(nfa_ee_read_num_nfcee_config_cb);
   if (nfa_ee_cb.p_ee_disc_cback == NULL &&
       NFC_NfceeDiscover(true) == NFC_STATUS_OK) {
     nfa_ee_cb.p_ee_disc_cback = p_cback;
