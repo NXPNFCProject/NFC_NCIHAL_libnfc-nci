@@ -1370,7 +1370,8 @@ int phNxpNciHal_core_initialized(uint8_t* p_core_init_rsp_params) {
 #endif
 
 
-  if((nfcFL.chipType != pn547C2) && nfcFL.nfccFL._NFCC_ROUTING_BLOCK_BIT_PROP) {
+  if((nfcFL.chipType != pn547C2) && (nfcFL.chipType != pn557) &&
+      nfcFL.nfccFL._NFCC_ROUTING_BLOCK_BIT_PROP) {
       if (isNxpConfigModified() || (fw_dwnld_flag == 0x01)) {
           uint8_t value;
           retlen = 0;
