@@ -2392,11 +2392,12 @@ void nfa_ee_nci_disc_ntf(tNFA_EE_MSG* p_data) {
 *******************************************************************************/
 void nfa_ee_nci_nfcee_status_ntf(tNFA_EE_MSG* p_data) {
   tNFC_NFCEE_STATUS_REVT* p_ee = p_data->nfcee_status_ntf.p_data;
+
   NFA_TRACE_DEBUG3(
       "nfa_ee_nci_nfcee_status_ntf() em_state:%d, nfcee_id:%d nfcee_status:%d",
-      nfa_ee_cb.em_state, p_ee->nfcee_id, p_ee->status);
+      nfa_ee_cb.em_state, p_ee->nfcee_id, p_ee->nfcee_status);
   tNFA_EE_ECB* p_cb = nfa_ee_find_ecb(p_ee->nfcee_id);
-  if(p_ee->status == NFC_NFCEE_STS_UNRECOVERABLE_ERROR) {
+  if(p_ee->nfcee_status == NFC_NFCEE_STS_UNRECOVERABLE_ERROR) {
     if(p_cb != NULL) {
         if (nfa_ee_cb.p_enable_cback)
                     (*nfa_ee_cb.p_enable_cback) (NFA_EE_RECOVERY);
