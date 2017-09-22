@@ -934,6 +934,8 @@ static void nfa_hci_sys_enable(void) {
 *******************************************************************************/
 static void nfa_hci_sys_disable(void) {
   tNFA_HCI_EVT_DATA evt_data;
+  tNFC_CONN_EVT event;
+  tNFC_CONN cData;
 
   nfa_sys_stop_timer(&nfa_hci_cb.timer);
 
@@ -943,6 +945,16 @@ static void nfa_hci_sys_disable(void) {
       if(NFC_GetNCIVersion() == NCI_VERSION_1_0) {
         nfa_hciu_send_to_all_apps(NFA_HCI_EXIT_EVT, &evt_data);
         NFC_ConnClose(nfa_hci_cb.conn_id);
+      }
+      else
+      {
+        /* HCI module deregister should be triggered to sto the nfa_sys_main timer,
+        so faking a connection close event */
+        NFA_TRACE_ERROR0("Fake NFC_CONN_CLOSE_CEVT triggered");
+        cData.data.status = NFA_STATUS_OK;
+        cData.data.p_data = NULL;
+        event = NFC_CONN_CLOSE_CEVT;
+        nfa_hci_conn_cback(nfa_hci_cb.conn_id, event, &cData);
       }
       return;
     }
