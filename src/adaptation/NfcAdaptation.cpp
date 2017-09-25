@@ -210,9 +210,6 @@ void NfcAdaptation::Initialize() {
   if (GetStrValue(NAME_NFA_DM_CFG, (char*)nfa_dm_cfg, sizeof(nfa_dm_cfg)))
     p_nfa_dm_cfg = (tNFA_DM_CFG*)((void*)&nfa_dm_cfg[0]);
 
-  nfa_ee_max_ee_cfg = nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED;
-  ALOGD("%s: NFA_EE_MAX_EE_SUPPORTED to use %d", func, nfa_ee_max_ee_cfg);
-
   if (GetNumValue(NAME_NFA_POLL_BAIL_OUT_MODE, &num, sizeof(num))) {
     nfa_poll_bail_out_mode = num;
     ALOGD("%s: Overriding NFA_POLL_BAIL_OUT_MODE to use %d", func,

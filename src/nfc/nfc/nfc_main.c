@@ -64,6 +64,7 @@
 
 #if (NXP_EXTNS == TRUE)
 extern void nfa_dm_init_cfgs(phNxpNci_getCfg_info_t* mGetCfg_info_main);
+extern nfa_ee_max_ee_cfg;
 #endif
 
 /* NFC mandates support for at least one logical connection;
@@ -694,6 +695,8 @@ static void nfc_main_hal_cback(uint8_t event, tHAL_NFC_STATUS status) {
         } else {
           nfc_main_post_hal_evt(event, status);
         }
+        nfa_ee_max_ee_cfg = nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED;
+        NFC_TRACE_DEBUG1("NFA_EE_MAX_EE_SUPPORTED to use %d", nfa_ee_max_ee_cfg);
       }
       break;
 
