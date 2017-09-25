@@ -1041,14 +1041,20 @@ tNFA_STATUS NFA_SendRawFrame(uint8_t* p_raw_data, uint16_t data_len,
   NFA_TRACE_API1("NFA_SendRawFrame () data_len:%d", data_len);
 
 /* Validate parameters */
-  if ((nfcFL.nfccFL._NXP_NFCC_EMPTY_DATA_PACKET &&
-          (((data_len == 0) || (p_raw_data == NULL)) &&
-                  (!(nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_LISTEN_ACTIVE &&
-                          nfa_dm_cb.disc_cb.activated_protocol ==
-                                  NFA_PROTOCOL_T3T)))) ||
-          ((data_len == 0) || (p_raw_data == NULL))) {
+  if (nfcFL.nfccFL._NXP_NFCC_EMPTY_DATA_PACKET) {
+      if(((data_len == 0) || (p_raw_data == NULL)) &&
+              (!(nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_LISTEN_ACTIVE &&
+                      nfa_dm_cb.disc_cb.activated_protocol ==
+                              NFA_PROTOCOL_T3T))){
+          return (NFA_STATUS_INVALID_PARAM);
+      } else {
+          //Do Nothing.
+      }
+  }else if((data_len == 0) || (p_raw_data == NULL)) {
       return (NFA_STATUS_INVALID_PARAM);
   }
+
+
   size = NFC_HDR_SIZE + NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE + data_len;
   p_msg = (NFC_HDR*)GKI_getbuf(size);
   if (p_msg != NULL) {
