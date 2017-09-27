@@ -422,9 +422,6 @@ static void nfa_dm_nfc_response_cback(tNFC_RESPONSE_EVT event,
     case NFC_NFCEE_MODE_SET_REVT: /* NFCEE Mode Set response */
 #if (NXP_EXTNS == TRUE)
     case NFC_NFCEE_PWR_LNK_CTRL_REVT:
-        if(!nfcFL.eseFL._WIRED_MODE_STANDBY) {
-            break;
-        }
     case NFC_NFCEE_MODE_SET_INFO:
 #endif
     case NFC_NFCEE_STATUS_REVT:
