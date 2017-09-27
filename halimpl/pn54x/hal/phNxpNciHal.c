@@ -2976,6 +2976,15 @@ int phNxpNciHal_ioctl(long arg, void* p_data) {
             }
         }
       break;
+    case HAL_NFC_IOCTL_REL_DWP_WAIT:
+        if(nfcFL.nfcNxpEse) {
+            status = phTmlNfc_rel_dwpOnOff_wait(gpphTmlNfc_Context->pDevHandle);
+            NXPLOG_NCIHAL_D("HAL_NFC_IOCTL_REL_DWP_ON_OFF_WAIT retval = %d\n", status);
+            if (NFCSTATUS_SUCCESS == status) {
+                ret = 0;
+            }
+        }
+      break;
 
     case HAL_NFC_IOCTL_SET_BOOT_MODE:
       if (NULL != p_data) {

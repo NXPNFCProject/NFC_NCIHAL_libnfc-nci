@@ -1759,6 +1759,18 @@ tNFC_chipType NFC_GetChipType();
 
 /*******************************************************************************
 **
+** Function         NFC_RelForceDwpOnOffWait
+**
+** Description      This function release wait for DWP On/Off
+**                  of P73. Status would be updated to pdata
+**
+** Returns          0 if api call success, else -1
+**
+*******************************************************************************/
+int32_t NFC_RelForceDwpOnOffWait (void *pdata);
+
+/*******************************************************************************
+**
 ** Function         NFC_Queue_Is_empty
 **
 ** Description      This function to get NFCEE connection ID queue information
@@ -1837,4 +1849,5 @@ extern tNFC_STATUS NFC_SetPowerSubState (uint8_t screen_state);
 **
 *******************************************************************************/
 extern tNFC_STATUS NFC_ISODEPNakPresCheck ();
+
 #endif /* NFC_API_H */

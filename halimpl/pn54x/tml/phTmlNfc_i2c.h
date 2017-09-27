@@ -50,6 +50,7 @@ NFCSTATUS phTmlNfc_set_power_scheme(void* pDevHandle, long id);
 NFCSTATUS phTmlNfc_get_ese_access(void* pDevHandle, long timeout);
 NFCSTATUS phTmlNfc_i2c_set_Jcop_dwnld_state(void* pDevHandle, long level);
 NFCSTATUS phTmlNfc_rel_svdd_wait(void* pDevHandle);
+NFCSTATUS phTmlNfc_rel_dwpOnOff_wait(void* pDevHandle);
 /*
  * SPI Request NFCC to enable p61 power, only in param
  * Only for SPI
@@ -93,3 +94,7 @@ NFCSTATUS phTmlNfc_rel_svdd_wait(void* pDevHandle);
  *
 */
 #define PN544_SET_DWNLD_STATUS _IOW(PN544_MAGIC, 0x09, long)
+/*
+ * NFC will call the ioctlto release the dwp on/off protection
+ */
+ #define P544_REL_DWPONOFF_WAIT  _IOW(PN544_MAGIC, 0x0A, long)

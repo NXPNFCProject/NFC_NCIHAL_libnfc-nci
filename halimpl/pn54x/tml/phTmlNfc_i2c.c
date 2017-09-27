@@ -578,3 +578,38 @@ NFCSTATUS phTmlNfc_rel_svdd_wait(void* pDevHandle) {
 ** Returns           Current mode download/NCI
 *******************************************************************************/
 bool_t getDownloadFlag(void) { return bFwDnldFlag; }
+
+/*******************************************************************************
+**
+** Function         phTmlNfc_rel_dwpOnOff_wait
+**
+** Description
+**
+** Parameters       pDevHandle     - valid device handle
+**
+** Returns          success or failure
+**
+*******************************************************************************/
+NFCSTATUS phTmlNfc_rel_dwpOnOff_wait(void *pDevHandle)
+{
+    int ret = -1;
+    NFCSTATUS status = NFCSTATUS_SUCCESS;
+    NXPLOG_TML_D("phTmlNfc_rel_dwpOnOff_wait(), enter ");
+
+    if (NULL == pDevHandle)
+    {
+        return NFCSTATUS_FAILED;
+    }
+
+    ret = ioctl((intptr_t)pDevHandle, P544_REL_DWPONOFF_WAIT);
+    if (ret < 0)
+    {
+        if (ret == -EBUSY)
+            status = NFCSTATUS_BUSY;
+        else
+            status = NFCSTATUS_FAILED;
+    }
+    NXPLOG_TML_D("phTmlNfc_rel_dwpOnOff_wait(), exit  ret %d, status %d", ret, status);
+    return status;
+
+}

@@ -850,19 +850,6 @@ void NFC_Disable(void) {
     nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_SET_BOOT_MODE, (void*)&inpOutData);
   }
 #endif
-
-  if(nfcFL.nfcNxpEse) {
-      tNFC_STATUS setPidStatus = NFC_STATUS_OK;
-      nfc_nci_IoctlInOutData_t inpOutData;
-      inpOutData.inp.data.nfcServicePid = 0;
-      setPidStatus = nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_SET_NFC_SERVICE_PID,(void*)&inpOutData);
-      if (setPidStatus == NFC_STATUS_OK) {
-          NFC_TRACE_API0("nfc service set pid done");
-      } else {
-          NFC_TRACE_API0("nfc service set pid failed");
-      }
-  }
-
   /* Close transport and clean up */
   nfc_task_shutdown_nfcc();
 
@@ -1818,7 +1805,20 @@ int32_t NFC_RelSvddWait(void* pdata) {
   *(tNFC_STATUS*)pdata = inpOutData.out.data.status;
   return status;
 }
-
+/*******************************************************************************
+**
+** Function         NFC_RelForceDwpOnOffWait
+**
+** Description      This function release wait for DWP On/Off
+**                  of P73. Status would be updated to pdata
+**
+** Returns          0 if api call success, else -1
+**
+*******************************************************************************/
+int32_t NFC_RelForceDwpOnOffWait (void *pdata)
+{
+    return (nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_REL_DWP_WAIT, pdata));
+}
 #endif
 
 #if (NXP_EXTNS == TRUE)
