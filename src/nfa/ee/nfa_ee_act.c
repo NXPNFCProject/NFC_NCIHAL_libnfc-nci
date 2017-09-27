@@ -2171,7 +2171,6 @@ void nfa_ee_nci_disc_rsp(tNFA_EE_MSG* p_data) {
             p_cb->nfcee_id = NFA_EE_INVALID;
           }
         }
-        nfa_ee_cb.cur_ee = num_nfcee;
       }
       break;
 
