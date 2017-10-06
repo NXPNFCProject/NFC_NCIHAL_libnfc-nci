@@ -294,7 +294,7 @@ typedef struct {
 typedef struct {
   tNFA_STATUS status;    /* NFA_STATUS_OK if successful              */
   uint16_t tlv_size;     /* The length of TLV                        */
-  uint8_t param_tlvs[1]; /* TLV (Parameter ID-Len-Value byte stream) */
+  uint8_t param_tlvs[74]; /* TLV (Parameter ID-Len-Value byte stream) */
 } tNFA_GET_CONFIG;
 
 #if (NXP_EXTNS == TRUE)
