@@ -833,6 +833,11 @@ tNFC_STATUS NFC_Enable(tNFC_RESPONSE_CBACK* p_cback) {
 void NFC_Disable(void) {
   NFC_TRACE_API1("NFC_Disable (): nfc_state = %d", nfc_cb.nfc_state);
 
+#if (NXP_EXTNS == TRUE)
+  if(nfcFL.eseFL._ESE_DUAL_MODE_PRIO_SCHEME == nfcFL.eseFL._ESE_WIRED_MODE_RESUME)
+    nfc_stop_timer(&nfc_cb.rf_filed_event_timeout_timer);
+#endif
+
   if ((nfc_cb.nfc_state == NFC_STATE_NONE) ||
       (nfc_cb.nfc_state == NFC_STATE_NFCC_POWER_OFF_SLEEP)) {
     nfc_set_state(NFC_STATE_NONE);

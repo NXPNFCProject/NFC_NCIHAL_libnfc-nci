@@ -131,7 +131,8 @@ void nfc_process_timer_evt(void) {
     GKI_remove_from_timer_list(&nfc_cb.timer_queue, p_tle);
 #if(NXP_EXTNS == TRUE)
     /*Ignore expired timer when NFC off is in progress*/
-    if(nfc_cb.nfc_state == NFC_STATE_W4_HAL_CLOSE){
+    if(nfc_cb.nfc_state == NFC_STATE_W4_HAL_CLOSE ||
+       nfc_cb.nfc_state == NFC_STATE_NONE){
         return;
     }
 #endif
@@ -364,12 +365,6 @@ void nfc_process_quick_timer_evt(void) {
 *******************************************************************************/
 void nfc_task_shutdown_nfcc(void) {
   NFC_HDR* p_msg;
-
-#if (NXP_EXTNS == TRUE)
- if(nfcFL.eseFL._ESE_DUAL_MODE_PRIO_SCHEME == nfcFL.eseFL._ESE_WIRED_MODE_RESUME) {
-     nfc_stop_timer(&nfc_cb.rf_filed_event_timeout_timer);
- }
-#endif
 
   /* Free any messages still in the mbox */
   while ((p_msg = (NFC_HDR*)GKI_read_mbox(NFC_MBOX_ID)) != NULL) {
