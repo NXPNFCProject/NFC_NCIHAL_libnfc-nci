@@ -544,6 +544,7 @@ int phNxpNciHal_MinOpen(nfc_stack_callback_t* p_cback,
         } while (init_retry_cnt < 0x03);
       }
     }
+    pthread_attr_destroy(&attr);
   }
   CONCURRENCY_UNLOCK();
   init_retry_cnt = 0;
@@ -873,12 +874,12 @@ int phNxpNciHal_write(uint16_t data_len, const uint8_t* p_data) {
   }
 
   /* Create local copy of cmd_data */
-  memcpy(nxpncihal_ctrl.p_cmd_data, p_data, data_len);
   nxpncihal_ctrl.cmd_len = data_len;
   if (nxpncihal_ctrl.cmd_len > NCI_MAX_DATA_LEN) {
     NXPLOG_NCIHAL_D("cmd_len exceeds limit NCI_MAX_DATA_LEN");
     goto clean_and_return;
   }
+  memcpy(nxpncihal_ctrl.p_cmd_data, p_data, data_len);
 #ifdef P2P_PRIO_LOGIC_HAL_IMP
   /* Specific logic to block RF disable when P2P priority logic is busy */
   if (p_data[0] == 0x21 && p_data[1] == 0x06 && p_data[2] == 0x01 &&
