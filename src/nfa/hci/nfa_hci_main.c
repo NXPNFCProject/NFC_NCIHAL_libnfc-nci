@@ -257,7 +257,8 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
           NFA_EeGetInfo(&nfa_hci_cb.num_nfcee, nfa_hci_cb.ee_info);
           nfa_hci_enable_one_nfcee();
         }
-        else if(nfa_hci_cb.hci_state == NFA_HCI_STATE_NFCEE_ENABLE)
+        else if((nfa_hci_cb.hci_state == NFA_HCI_STATE_NFCEE_ENABLE) &&
+          (nfa_hci_cb.nfcee_cfg.config_nfcee_state == NFA_HCI_INIT_NFCEE_CONFIG))
         {
             nfa_hci_api_config_nfcee(nfa_hci_cb.current_nfcee);
         }
