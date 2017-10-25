@@ -2348,7 +2348,7 @@ void nfc_ncif_proc_init_rsp(NFC_HDR* p_msg) {
             ((NFC_STATE_CORE_INIT == nfc_cb.nfc_state) &&
                     (MW_RCVRY_FW_DNLD_ALLOWED == false))) ||
             ((!nfcFL.nfccFL._NFCC_MW_RCVRY_BLK_FW_DNLD) &&
-                    (nfcFL.nfccFL._NFCC_MW_RCVRY_BLK_FW_DNLD)))
+                    (NFC_STATE_CORE_INIT == nfc_cb.nfc_state)))
     {
       nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_CHECK_FLASH_REQ, &inpOutData);
       fw_update_inf = *(tNFC_FWUpdate_Info_t*)&inpOutData.out.data.fwUpdateInf;
