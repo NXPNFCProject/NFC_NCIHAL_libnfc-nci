@@ -112,7 +112,7 @@ const tNFA_PROPRIETARY_CFG nfa_proprietary_cfg = {
 #else
     0x83, /* NCI_PROTOCOL_15693 */
 #endif
-#if (NXP_EXTNS == TRUE && NFC_NXP_CHIP_TYPE != PN547C2)
+#if (NXP_EXTNS == TRUE)
     0x81,
 #else
     0x8A, /* NCI_PROTOCOL_KOVIO */
@@ -122,7 +122,7 @@ const tNFA_PROPRIETARY_CFG nfa_proprietary_cfg = {
 #else
     0xFF, /* NCI_PROTOCOL_MIFARE */
 #endif
-#if (NXP_EXTNS == TRUE && NFC_NXP_CHIP_TYPE != PN547C2)
+#if (NXP_EXTNS == TRUE)
     0x70,
 #else
     0x77, /* NCI_DISCOVERY_TYPE_POLL_KOVIO */
