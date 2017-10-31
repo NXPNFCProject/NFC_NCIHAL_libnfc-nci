@@ -118,7 +118,7 @@
 
 /* The number of GKI tasks in the software system. */
 #ifndef GKI_MAX_TASKS
-#define GKI_MAX_TASKS 14
+#define GKI_MAX_TASKS 15
 #endif
 
 /******************************************************************************
