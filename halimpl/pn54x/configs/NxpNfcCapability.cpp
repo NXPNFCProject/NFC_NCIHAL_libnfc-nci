@@ -57,6 +57,7 @@ tNFC_chipType capability::processChipType(uint8_t* msg, uint16_t msg_len) {
                 break;
 
             case 0xA8 :
+            case 0x08 :
                 chipType = pn67T;
                 break;
 
