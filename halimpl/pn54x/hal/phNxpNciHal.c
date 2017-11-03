@@ -1929,7 +1929,7 @@ int phNxpNciHal_core_initialized(uint8_t* p_core_init_rsp_params) {
 
   config_access = false;
   if (!((*p_core_init_rsp_params > 0) && (*p_core_init_rsp_params < 4))) {
-      if(nfcFL.nfcNxpEse == true) {
+      if(nfcFL.nfcNxpEse == true && nfcFL.eseFL._ESE_ETSI12_PROP_INIT) {
           status = phNxpNciHal_check_eSE_Session_Identity();
           if (status != NFCSTATUS_SUCCESS) {
               NXPLOG_NCIHAL_E("Session id/ SWP intf reset Failed");
