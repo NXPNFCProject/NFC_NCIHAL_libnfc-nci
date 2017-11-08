@@ -1532,17 +1532,6 @@ extern tNFC_STATUS NFC_TestLoopback(NFC_HDR* p_data);
 *******************************************************************************/
 extern uint8_t NFC_SetTraceLevel(uint8_t new_level);
 
-/*******************************************************************************
-**
-** Function         NFC_GetChipType
-**
-** Description      Gets the chipType
-**
-** Returns          ChipType
-**
-*******************************************************************************/
-tNFC_chipType NFC_GetChipType();
-
 #if (BT_TRACE_VERBOSE == true)
 /*******************************************************************************
 **
