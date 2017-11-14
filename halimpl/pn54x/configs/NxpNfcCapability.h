@@ -56,6 +56,10 @@ private:
     static capability* instance;
     const uint16_t offsetHwVersion = 24;
     const uint16_t offsetFwVersion = 25;
+    /*product[] will be used to print product version and
+    should be kept in accordance with tNFC_chipType*/
+    const char* product[11] = {"UNKNOWN","PN547C2","PN65T","PN548C2","PN66T",
+    "PN551","PN67T","PN553","PN80T","PN557","PN81T"};
     capability();
 public:
     static tNFC_chipType chipType;

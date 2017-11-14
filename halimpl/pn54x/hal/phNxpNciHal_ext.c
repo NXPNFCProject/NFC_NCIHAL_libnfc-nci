@@ -367,69 +367,8 @@ if (((nfcFL.nfccFL._NFCC_FORCE_NCI1_0_INIT) &&
         if (wFwVerRsp == 0) status = NFCSTATUS_FAILED;
         iCoreInitRspLen = *p_len;
         memcpy(bCoreInitRsp, p_ntf, *p_len);
-        NXPLOG_NCIHAL_D("NxpNci> FW Version: %x.%x.%x", p_ntf[len - 2],
-                p_ntf[len - 1], p_ntf[len]);
-        NXPLOG_NCIHAL_D("NxpNci> Model id: %x", p_ntf[len - 3] >> 4);
         fw_maj_ver = p_ntf[len - 1];
         rom_version = p_ntf[len - 2];
-        /* Before FW version: 10.01.12, products are PN548c2(for model id = 0) and
-         * PN66T(for model id = 1)*/
-        if (p_ntf[len - 2] == 0x10) {
-            if ((p_ntf[len - 1] < 0x01) |
-                    ((p_ntf[len - 1] == 0x01) &&
-                            (p_ntf[len] <= 0x11)))  // for FW < 10.01.12
-            {
-                NXPLOG_NCIHAL_D("NxpNci> Model ID: %x", p_ntf[len - 3] >> 4);
-                if (0x01 == (p_ntf[len - 3] >> 4)) {
-                    NXPLOG_NCIHAL_D("NxpNci> Product: PN66T");
-                } else {
-                    NXPLOG_NCIHAL_D("NxpNci> Product: PN548C2");
-                }
-            } else if ((p_ntf[len - 1] == 0x01) &&
-                    (p_ntf[len] >= 0x12))  // for FW >= 10.01.12
-            {
-                NXPLOG_NCIHAL_D("NxpNci> Model ID: %x", p_ntf[len - 3] >> 4);
-                /* From FW version: 10.01.12, product names based on Hardware Version
-                 * number */
-                switch (p_ntf[len - 3]) {
-                case 0x08:
-                    NXPLOG_NCIHAL_D("NxpNci> Product: PN546");
-                    break;
-                case 0x18:
-                    NXPLOG_NCIHAL_D("NxpNci> Product: PN66T");
-                    break;
-                case 0x28:
-                    NXPLOG_NCIHAL_D("NxpNci> Product: PN548C2");
-                    break;
-                case 0x38:
-                    NXPLOG_NCIHAL_D("NxpNci> Product: PN66U");
-                    break;
-                case 0x48:
-                    NXPLOG_NCIHAL_D("NxpNci> Product: NQ210");
-                    break;
-                case 0x58:
-                    NXPLOG_NCIHAL_D("NxpNci> Product: NQ220");
-                    break;
-                case 0x68:
-                    NXPLOG_NCIHAL_D("NxpNci> Product: NPC300");
-                    break;
-                case 0x78:
-                    NXPLOG_NCIHAL_D("NxpNci> Product: NPC320");
-                    break;
-                case 0x88:
-                    NXPLOG_NCIHAL_D("NxpNci> Product: PN7150");
-                    break;
-                case 0x98:
-                    NXPLOG_NCIHAL_D("NxpNci> Product: PN548C3");
-                    break;
-                default:
-                    NXPLOG_NCIHAL_D("NxpNci> Product: Invalid");
-                    break;
-                }
-            }
-        } else {
-            /* Do Nothing */
-        }
     }
 }
 
