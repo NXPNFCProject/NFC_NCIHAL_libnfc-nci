@@ -649,9 +649,15 @@ void GKI_freebuf(void* p_buf) {
 uint16_t GKI_get_buf_size(void* p_buf) {
   BUFFER_HDR_T* p_hdr;
 
+
   p_hdr = (BUFFER_HDR_T*)((uint8_t*)p_buf - BUFFER_HDR_SIZE);
 
-  if ((uint32_t)p_hdr & 1) return (0);
+  if ((uint32_t)p_hdr & 1){
+#if (GKI_BUFFER_DEBUG ==  true)
+    LOGD("GKI_get_buf_size() Found odd address p_hdr = 0x%x !!!!!",p_hdr);
+#endif
+    return (0);
+  }
 
   if (p_hdr->q_id < GKI_NUM_TOTAL_BUF_POOLS) {
     return (gki_cb.com.freeq[p_hdr->q_id].size);
@@ -675,7 +681,12 @@ bool gki_chk_buf_damage(void* p_buf) {
   uint32_t* magic;
   magic = (uint32_t*)((uint8_t*)p_buf + GKI_get_buf_size(p_buf));
 
-  if ((uint32_t)magic & 1) return (true);
+  if ((uint32_t)magic & 1){
+#if (GKI_BUFFER_DEBUG == true)
+    LOGD("gki_chk_buf_damage() buffer corrupted !!!!! magic = 0x%x !!!!!",magic);
+#endif
+    return (true);
+  }
 
   if (*magic == MAGIC_NO) return (false);
 
