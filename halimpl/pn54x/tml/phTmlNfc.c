@@ -308,7 +308,7 @@ static void phTmlNfc_TmlThread(void* pParam) {
   NFCSTATUS wStatus = NFCSTATUS_SUCCESS;
   int32_t dwNoBytesWrRd = PH_TMLNFC_RESET_VALUE;
   uint8_t temp[260];
-  static uint8_t read_count = 0;
+  uint8_t read_count = 0;
 
   /* Transaction info buffer to be passed to Callback Thread */
   static phTmlNfc_TransactInfo_t tTransactionInfo;
@@ -365,6 +365,7 @@ static void phTmlNfc_TmlThread(void* pParam) {
                     tMsg.eMsgType = PH_LIBNFC_DEFERREDCALL_MSG;
                     tMsg.pMsgData = &tDeferredInfo;
                     tMsg.Size = sizeof(tDeferredInfo);
+                    read_count = 0;
                     NXPLOG_TML_D("PN54X - Posting read failure message.....\n");
                     phTmlNfc_DeferredCall(gpphTmlNfc_Context->dwCallbackThreadId,
                             &tMsg);
