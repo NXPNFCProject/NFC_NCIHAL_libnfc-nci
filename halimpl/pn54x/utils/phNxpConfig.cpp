@@ -790,11 +790,6 @@ int CNfcConfig::checkTimestamp(const char* fileName, const char* fileNameTime) {
     }
     fread(&value, sizeof(unsigned long), 1, fd);
     ret = (value != timeStamp) ? 1 : 0;
-    if (ret) {
-      ALOGD("Config File Modified Update timestamp");
-      fseek(fd, 0, SEEK_SET);
-      fwrite(&timeStamp, sizeof(unsigned long), 1, fd);
-    }
     fclose(fd);
   }
   return ret;
