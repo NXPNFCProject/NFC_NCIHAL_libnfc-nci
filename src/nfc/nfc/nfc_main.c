@@ -63,9 +63,10 @@
 #include "llcp_int.h"
 
 #if (NXP_EXTNS == TRUE)
+#include "nfa_dm_int.h"
 extern void nfa_dm_init_cfgs(phNxpNci_getCfg_info_t* mGetCfg_info_main);
-extern nfa_ee_max_ee_cfg;
 #endif
+
 
 /* NFC mandates support for at least one logical connection;
  * Update max_conn to the NFCC capability on InitRsp */
@@ -1388,6 +1389,7 @@ tNFC_STATUS NFC_Deactivate(tNFC_DEACT_TYPE deactivate_type) {
       nfc_cb.p_last_disc = NULL;
     }
     nfc_cb.p_last_disc = nfc_cb.p_disc_pending;
+    nfa_dm_cb.disc_cb.disc_flags &= ~NFA_DM_DISC_FLAGS_W4_RSP;
 #else
       GKI_freebuf(nfc_cb.p_disc_pending);
 #endif
