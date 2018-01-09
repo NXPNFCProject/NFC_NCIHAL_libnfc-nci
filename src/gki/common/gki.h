@@ -29,9 +29,6 @@
 #include "bt_types.h"
 #include "gki_target.h"
 
-/* Uncomment this line for verbose GKI debugging and buffer tracking */
-#define GKI_BUFFER_DEBUG false
-
 /* Error codes */
 #define GKI_SUCCESS 0x00
 #define GKI_FAILURE 0x01
@@ -389,19 +386,9 @@ extern uint8_t GKI_create_pool(uint16_t, uint16_t, uint8_t, void*);
 extern void GKI_delete_pool(uint8_t);
 extern void* GKI_find_buf_start(void*);
 extern void GKI_freebuf(void*);
-#if (GKI_BUFFER_DEBUG == true)
-#define GKI_getbuf(size) GKI_getbuf_debug(size, __func__, __LINE__)
-extern void* GKI_getbuf_debug(uint16_t, const char*, int);
-#else
 extern void* GKI_getbuf(uint16_t);
-#endif
 extern uint16_t GKI_get_buf_size(void*);
-#if (GKI_BUFFER_DEBUG == true)
-#define GKI_getpoolbuf(id) GKI_getpoolbuf_debug(id, __func__, __LINE__)
-extern void* GKI_getpoolbuf_debug(uint8_t, const char*, int);
-#else
 extern void* GKI_getpoolbuf(uint8_t);
-#endif
 
 extern uint16_t GKI_poolcount(uint8_t);
 extern uint16_t GKI_poolfreecount(uint8_t);

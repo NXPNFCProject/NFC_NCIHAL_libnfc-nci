@@ -82,14 +82,6 @@ typedef struct _buffer_hdr {
   uint8_t task_id;            /* task which allocated the buffer*/
   uint8_t status;             /* FREE, UNLINKED or QUEUED */
   uint8_t Type;
-
-#if (GKI_BUFFER_DEBUG == true)
-/* for tracking who allocated the buffer */
-#define _GKI_MAX_FUNCTION_NAME_LEN (50)
-  char _function[_GKI_MAX_FUNCTION_NAME_LEN + 1];
-  int _line;
-#endif
-
 } BUFFER_HDR_T;
 
 typedef struct _free_queue {
