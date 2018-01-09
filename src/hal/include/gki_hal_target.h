@@ -126,11 +126,6 @@
 **
 ******************************************************************************/
 
-/* true if GKI uses dynamic buffers. */
-#ifndef GKI_USE_DYNAMIC_BUFFERS
-#define GKI_USE_DYNAMIC_BUFFERS false
-#endif
-
 /* The size of the buffers in pool 0. */
 #ifndef GKI_BUF0_SIZE
 #define GKI_BUF0_SIZE 64

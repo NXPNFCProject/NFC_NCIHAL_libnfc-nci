@@ -121,7 +121,6 @@ typedef struct {
 */
 /* The stack and stack size are not used on Windows
 */
-#if (GKI_USE_DYNAMIC_BUFFERS == false)
 
 #if (GKI_NUM_FIXED_BUF_POOLS > 0)
   uint8_t bufpool0[(ALIGN_POOL(GKI_BUF0_SIZE) + BUFFER_PADDING_SIZE) *
@@ -201,74 +200,6 @@ typedef struct {
 #if (GKI_NUM_FIXED_BUF_POOLS > 15)
   uint8_t bufpool15[(ALIGN_POOL(GKI_BUF15_SIZE) + BUFFER_PADDING_SIZE) *
                     GKI_BUF15_MAX];
-#endif
-
-#else
-/* Definitions for dynamic buffer use */
-#if (GKI_NUM_FIXED_BUF_POOLS > 0)
-  uint8_t* bufpool0;
-#endif
-
-#if (GKI_NUM_FIXED_BUF_POOLS > 1)
-  uint8_t* bufpool1;
-#endif
-
-#if (GKI_NUM_FIXED_BUF_POOLS > 2)
-  uint8_t* bufpool2;
-#endif
-
-#if (GKI_NUM_FIXED_BUF_POOLS > 3)
-  uint8_t* bufpool3;
-#endif
-
-#if (GKI_NUM_FIXED_BUF_POOLS > 4)
-  uint8_t* bufpool4;
-#endif
-
-#if (GKI_NUM_FIXED_BUF_POOLS > 5)
-  uint8_t* bufpool5;
-#endif
-
-#if (GKI_NUM_FIXED_BUF_POOLS > 6)
-  uint8_t* bufpool6;
-#endif
-
-#if (GKI_NUM_FIXED_BUF_POOLS > 7)
-  uint8_t* bufpool7;
-#endif
-
-#if (GKI_NUM_FIXED_BUF_POOLS > 8)
-  uint8_t* bufpool8;
-#endif
-
-#if (GKI_NUM_FIXED_BUF_POOLS > 9)
-  uint8_t* bufpool9;
-#endif
-
-#if (GKI_NUM_FIXED_BUF_POOLS > 10)
-  uint8_t* bufpool10;
-#endif
-
-#if (GKI_NUM_FIXED_BUF_POOLS > 11)
-  uint8_t* bufpool11;
-#endif
-
-#if (GKI_NUM_FIXED_BUF_POOLS > 12)
-  uint8_t* bufpool12;
-#endif
-
-#if (GKI_NUM_FIXED_BUF_POOLS > 13)
-  uint8_t* bufpool13;
-#endif
-
-#if (GKI_NUM_FIXED_BUF_POOLS > 14)
-  uint8_t* bufpool14;
-#endif
-
-#if (GKI_NUM_FIXED_BUF_POOLS > 15)
-  uint8_t* bufpool15;
-#endif
-
 #endif
 
   uint8_t* OSStack[GKI_MAX_TASKS];     /* pointer to beginning of stack */
