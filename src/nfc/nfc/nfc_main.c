@@ -960,9 +960,7 @@ uint16_t NFC_GetLmrtSize(void) {
 ** Returns          NCI version NCI2.0 / NCI1.0
 **
 *******************************************************************************/
-uint8_t NFC_GetNCIVersion() {
-  return nfc_cb.nci_version;
-}
+uint8_t NFC_GetNCIVersion() { return nfc_cb.nci_version; }
 
 /*******************************************************************************
 **

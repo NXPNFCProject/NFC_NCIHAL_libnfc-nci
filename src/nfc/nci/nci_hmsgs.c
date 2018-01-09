@@ -91,8 +91,8 @@ uint8_t nci_snd_core_reset(uint8_t reset_type) {
 uint8_t nci_snd_core_init(uint8_t nci_version) {
   NFC_HDR* p;
   uint8_t* pp;
-  p = NCI_GET_CMD_BUF(NCI_CORE_PARAM_SIZE_INIT(nci_version));
-  if (p == NULL) return (NCI_STATUS_FAILED);
+  if ((p = NCI_GET_CMD_BUF(NCI_CORE_PARAM_SIZE_INIT(nci_version))) == NULL)
+    return (NCI_STATUS_FAILED);
 
   p->event = BT_EVT_TO_NFC_NCI;
   p->len = NCI_MSG_HDR_SIZE + NCI_CORE_PARAM_SIZE_INIT(nci_version);
