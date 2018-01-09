@@ -114,8 +114,6 @@ typedef struct _free_queue {
 #define BUF_STATUS_UNLINKED 1
 #define BUF_STATUS_QUEUED 2
 
-#define GKI_USE_DEFERED_ALLOC_BUF_POOLS true
-
 /* Exception related structures (Used in debug mode only)
 */
 #if (GKI_DEBUG == true)
