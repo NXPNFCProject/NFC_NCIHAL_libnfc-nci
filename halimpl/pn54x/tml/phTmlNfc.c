@@ -507,6 +507,8 @@ static void phTmlNfc_TmlWriterThread(void* pParam) {
             if (retry_cnt++ < MAX_WRITE_RETRY_COUNT) {
               NXPLOG_NCIHAL_E("PN54X - Error in I2C Write  - Retry 0x%x",
                               retry_cnt);
+              // Add a 10 ms delay to ensure NFCC is not still in stand by mode.
+              usleep(10 * 1000);
               goto retry;
             }
           }
