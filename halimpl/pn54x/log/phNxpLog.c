@@ -16,6 +16,7 @@
 
 /* ############################################### Header Includes
  * ################################################ */
+#include <stdio.h>
 #if !defined(NXPLOG__H_INCLUDED)
 #include "phNxpLog.h"
 #include "phNxpConfig.h"
