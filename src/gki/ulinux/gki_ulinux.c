@@ -19,8 +19,6 @@
 #include <stdarg.h>
 #include <errno.h>
 
-#define GKI_DEBUG false
-
 #include <pthread.h> /* must be 1st header defined  */
 #include <time.h>
 #include "gki_int.h"
@@ -162,9 +160,6 @@ void GKI_init(void) {
   p_os = &gki_cb.os;
   pthread_mutex_init(&p_os->GKI_mutex, &attr);
 /* pthread_mutex_init(&GKI_sched_mutex, NULL); */
-#if (GKI_DEBUG == true)
-  pthread_mutex_init(&p_os->GKI_trace_mutex, NULL);
-#endif
   /* pthread_mutex_init(&thread_delay_mutex, NULL); */ /* used in GKI_delay */
   /* pthread_cond_init (&thread_delay_cond, NULL); */
 
@@ -363,9 +358,6 @@ void GKI_shutdown(void) {
   /* Destroy mutex and condition variable objects */
   pthread_mutex_destroy(&gki_cb.os.GKI_mutex);
 /*    pthread_mutex_destroy(&GKI_sched_mutex); */
-#if (GKI_DEBUG == true)
-  pthread_mutex_destroy(&gki_cb.os.GKI_trace_mutex);
-#endif
 /*    pthread_mutex_destroy(&thread_delay_mutex);
  pthread_cond_destroy (&thread_delay_cond); */
 #if (false == GKI_PTHREAD_JOINABLE)
@@ -986,21 +978,6 @@ void GKI_exception(uint16_t code, char* msg) {
   GKI_TRACE_ERROR_2("* GKI_exception(): %d %s", code, msg);
   GKI_TRACE_ERROR_0(
       "********************************************************************");
-
-#if (GKI_DEBUG == true)
-  GKI_disable();
-
-  if (gki_cb.com.ExceptionCnt < GKI_MAX_EXCEPTION) {
-    EXCEPTION_T* pExp;
-
-    pExp = &gki_cb.com.Exception[gki_cb.com.ExceptionCnt++];
-    pExp->type = code;
-    pExp->taskid = GKI_get_taskid();
-    strncpy((char*)pExp->msg, msg, GKI_MAX_EXCEPTION_MSGLEN - 1);
-  }
-
-  GKI_enable();
-#endif
 
   GKI_TRACE_ERROR_2("GKI_exception %d %s done", code, msg);
 

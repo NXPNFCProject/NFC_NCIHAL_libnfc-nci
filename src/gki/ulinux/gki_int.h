@@ -40,9 +40,6 @@ typedef struct {
   pthread_mutex_t gki_timer_mutex;
   pthread_cond_t gki_timer_cond;
   int gki_timer_wake_lock_on;
-#if (GKI_DEBUG == true)
-  pthread_mutex_t GKI_trace_mutex;
-#endif
 } tGKI_OS;
 
 /* condition to exit or continue GKI_run() timer loop */
