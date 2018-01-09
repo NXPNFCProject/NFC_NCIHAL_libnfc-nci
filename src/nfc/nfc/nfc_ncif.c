@@ -2193,9 +2193,7 @@ void nfc_ncif_proc_reset_rsp(uint8_t* p, bool is_ntf) {
     nfc_reset_all_conn_cbs();
   }
 
-  if (status ==
-      NCI_STATUS_OK)  // Status of CORE_RESET_RESPONSE if not notification
-      {
+  if (!is_ntf && status == NCI_STATUS_OK) { // Status of CORE_RESET_RESPONSE if not notification
     if ((*p) != NCI_VERSION) {
       NFC_TRACE_ERROR2("NCI version mismatch!!:0x%02x != 0x%02x ", NCI_VERSION,
                        *p);
