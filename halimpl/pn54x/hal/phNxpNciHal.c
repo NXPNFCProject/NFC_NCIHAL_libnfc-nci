@@ -978,8 +978,8 @@ retry:
           /* 5ms delay to give NFCC wake up delay */
           usleep(5000);
       } else {
-          /* 1ms delay to give NFCC wake up delay */
-          usleep(1000);
+          /* 10ms delay to give NFCC wake up delay */
+          usleep(1000 * 10);
 }
       goto retry;
     } else {
