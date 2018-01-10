@@ -1100,8 +1100,8 @@ static void phNxpNciHal_read_complete(void* pContext,
     } else
 #endif
         /* Check if response should go to hal module only */
-        if (nxpncihal_ctrl.hal_ext_enabled == 1 &&
-            ((nxpncihal_ctrl.p_rx_data[0x00] & 0xF0) == 0x40 ||
+        if (nxpncihal_ctrl.hal_ext_enabled == TRUE &&
+            ((nxpncihal_ctrl.p_rx_data[0x00] & NCI_MT_MASK) == NCI_MT_RSP ||
              ((icode_detected == true) && (icode_send_eof == 3)))) {
       if (status == NFCSTATUS_FAILED) {
         NXPLOG_NCIHAL_D("enter into NFCC init recovery");
@@ -1217,8 +1217,8 @@ int phNxpNciHal_core_initialized(uint8_t* p_core_init_rsp_params) {
   static uint8_t retry_core_init_cnt = 0;
   static uint8_t p2p_listen_mode_routing_cmd[] = {0x21, 0x01, 0x07, 0x00, 0x01,
                                                   0x01, 0x03, 0x00, 0x01, 0x05};
-  static uint8_t swp_full_pwr_mode_on_cmd[] = {0x20, 0x02, 0x05, 0x01,
-                                               0xA0, 0xF1, 0x01, 0x01};
+  uint8_t swp_full_pwr_mode_on_cmd[] = {0x20, 0x02, 0x05, 0x01,
+                                        0xA0, 0xF1, 0x01, 0x01};
   static uint8_t swp_switch_timeout_cmd[] = {0x20, 0x02, 0x06, 0x01, 0xA0,
                                              0xF3, 0x02, 0x00, 0x00};
   static uint8_t cmd_init_nci[] = {0x20, 0x01, 0x00};
@@ -3674,13 +3674,11 @@ void phNxpNciHal_enable_i2c_fragmentation() {
       if (status != NFCSTATUS_SUCCESS) {
         NXPLOG_NCIHAL_E("NCI_CORE_RESET: Failed");
       }
-
       if (nxpncihal_ctrl.nci_info.nci_version == NCI_VERSION_2_0) {
         status = phNxpNciHal_send_ext_cmd(sizeof(cmd_init_nci2_0), cmd_init_nci2_0);
       } else {
         status = phNxpNciHal_send_ext_cmd(sizeof(cmd_init_nci), cmd_init_nci);
       }
-
       if (status != NFCSTATUS_SUCCESS) {
         NXPLOG_NCIHAL_E("NCI_CORE_INIT : Failed");
       } else if (i2c_status == 0x01) {

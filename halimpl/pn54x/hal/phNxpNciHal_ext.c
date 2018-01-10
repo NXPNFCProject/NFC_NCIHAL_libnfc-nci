@@ -256,7 +256,8 @@ NFCSTATUS phNxpNciHal_process_ext_rsp(uint8_t* p_ntf, uint16_t* p_len) {
         break;
     }
   }
-  phNxpNciHal_ext_process_nfc_init_rsp(p_ntf,p_len);
+  phNxpNciHal_ext_process_nfc_init_rsp(p_ntf, p_len);
+
   if (p_ntf[0] == 0x61 && p_ntf[1] == 0x05 && p_ntf[2] == 0x15 &&
       p_ntf[4] == 0x01 && p_ntf[5] == 0x06 && p_ntf[6] == 0x06) {
     NXPLOG_NCIHAL_D("> Notification for ISO-15693");
@@ -588,6 +589,7 @@ static NFCSTATUS phNxpNciHal_process_ext_cmd_rsp(uint16_t cmd_len,
       goto clean_and_return;
     }
   }
+
   if (nxpncihal_ctrl.ext_cb_data.status != NFCSTATUS_SUCCESS) {
     NXPLOG_NCIHAL_E(
         "Callback Status is failed!! Timer Expired!! Couldn't read it! 0x%x",
@@ -642,7 +644,6 @@ static NFCSTATUS phNxpNciHal_process_ext_cmd_rsp(uint16_t cmd_len,
 
 clean_and_return:
   phNxpNciHal_cleanup_cb_data(&nxpncihal_ctrl.ext_cb_data);
-
   nxpncihal_ctrl.nci_info.wait_for_ntf = FALSE;
   return status;
 }
@@ -664,7 +665,8 @@ NFCSTATUS phNxpNciHal_write_ext(uint16_t* cmd_len, uint8_t* p_cmd_data,
   NFCSTATUS status = NFCSTATUS_SUCCESS;
 
   unsigned long retval = 0;
-  GetNxpNumValue(NAME_MIFARE_READER_ENABLE, &retval, sizeof(unsigned long));
+  int isfound =
+      GetNxpNumValue(NAME_MIFARE_READER_ENABLE, &retval, sizeof(unsigned long));
 
   phNxpNciHal_NfcDep_cmd_ext(p_cmd_data, cmd_len);
 
@@ -791,6 +793,7 @@ NFCSTATUS phNxpNciHal_write_ext(uint16_t* cmd_len, uint8_t* p_cmd_data,
     p_rsp_data[2] = 0x02;
     p_rsp_data[3] = 0x00;
     p_rsp_data[4] = 0x00;
+    phNxpNciHal_print_packet("RECV", p_rsp_data, 5);
     status = NFCSTATUS_FAILED;
   }
   // 2002 0904 3000 3100 3200 5000
