@@ -447,7 +447,6 @@ typedef struct {
   bool b_read_hdr;         /* Tag header read from tag */
   bool b_read_data;        /* Tag data block read from tag */
   bool b_hard_lock; /* Hard lock the tag as part of config tag to Read only */
-  uint8_t last_cmd_sent;
   bool check_tag_halt; /* Resent command after NACK rsp to find tag is in HALT
                           State   */
 #if (RW_NDEF_INCLUDED == true)

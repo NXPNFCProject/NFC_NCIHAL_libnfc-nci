@@ -1785,8 +1785,8 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
 #endif
 
   p_cb->act_protocol = evt_data.activate.protocol;
-#if (NXP_EXTNS == TRUE)
   p_cb->act_interface = evt_data.activate.intf_param.type;
+#if (NXP_EXTNS == TRUE)
   p_cb->sel_res = evt_data.activate.rf_tech_param.param.pa.sel_rsp;
 #endif
   p_cb->buff_size = buff_size;

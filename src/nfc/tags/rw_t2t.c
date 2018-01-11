@@ -406,7 +406,6 @@ tNFC_STATUS rw_t2t_send_cmd(uint8_t opcode, uint8_t* p_dat) {
 
       status = NFC_SendData(NFC_RF_CONN_ID, p_data);
       if (status == NFC_STATUS_OK) {
-        p_t2t->last_cmd_sent = opcode;
         nfc_start_quick_timer(
             &p_t2t->t2_timer, NFC_TTYPE_RW_T2T_RESPONSE,
             (RW_T2T_TOUT_RESP * QUICK_TIMER_TICKS_PER_SEC) / 1000);
