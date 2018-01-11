@@ -498,11 +498,15 @@ typedef uint8_t tNCI_INTF_TYPE;
 #define NCI_DISCOVERY_TYPE_POLL_F 0x02
 #define NCI_DISCOVERY_TYPE_POLL_V 0x06
 #define NCI_DISCOVERY_TYPE_POLL_A_ACTIVE 0x03
+/* NCI2.0 standardizes P2P poll active*/
+#define NCI_DISCOVERY_TYPE_POLL_ACTIVE 0x03
 #define NCI_DISCOVERY_TYPE_POLL_F_ACTIVE 0x05
 #define NCI_DISCOVERY_TYPE_LISTEN_A 0x80
 #define NCI_DISCOVERY_TYPE_LISTEN_B 0x81
 #define NCI_DISCOVERY_TYPE_LISTEN_F 0x82
 #define NCI_DISCOVERY_TYPE_LISTEN_A_ACTIVE 0x83
+/* NCI2.0 standardizes P2P listen active*/
+#define NCI_DISCOVERY_TYPE_LISTEN_ACTIVE 0x83
 #define NCI_DISCOVERY_TYPE_LISTEN_F_ACTIVE 0x85
 #define NCI_DISCOVERY_TYPE_LISTEN_ISO15693 0x86
 #define NCI_DISCOVERY_TYPE_MAX NCI_DISCOVERY_TYPE_LISTEN_ISO15693
@@ -873,6 +877,15 @@ typedef struct {
   } intf_param; /* Activation Parameters   0 - n Bytes */
 } tNCI_INTF_PARAMS;
 
+typedef struct {
+  uint8_t atr_res_len;                      /* Length of ATR_RES            */
+  uint8_t atr_res[NCI_MAX_ATS_LEN];         /* ATR_RES (Byte 3 - Byte 17+n) */
+  uint8_t max_payload_size;                 /* 64, 128, 192 or 254          */
+  uint8_t gen_bytes_len;                    /* len of general bytes         */
+  uint8_t gen_bytes[NCI_MAX_GEN_BYTES_LEN]; /* general bytes                */
+  uint8_t waiting_time;                     /* WT -> Response Waiting Time
+                                               RWT = (256 x 16/fC) x 2WT    */
+} tNCI_RF_ACM_P_PARAMS;
 #ifdef __cplusplus
 }
 #endif

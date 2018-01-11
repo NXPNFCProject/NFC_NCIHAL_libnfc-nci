@@ -175,6 +175,8 @@ typedef uint8_t tNFA_PMID;
 #define NFA_TECHNOLOGY_MASK_V 0x08
 #define NFA_TECHNOLOGY_MASK_B_PRIME 0x10  /* Proprietary Technology       */
 #define NFA_TECHNOLOGY_MASK_KOVIO 0x20    /* Proprietary Technology       */
+/* NFC technology NFC-DEP protocol active mode */
+#define NFA_TECHNOLOGY_MASK_ACTIVE 0x40
 /* NFC Technology A active mode */
 #define NFA_TECHNOLOGY_MASK_A_ACTIVE 0x40
 /* NFC Technology F active mode */
@@ -700,6 +702,7 @@ typedef struct {
   uint8_t pk;   /* Frequency for Proprietary Technology/Kovio   */
   uint8_t paa;  /* Frequency for NFC Technology A active mode   */
   uint8_t pfa;  /* Frequency for NFC Technology F active mode   */
+  uint8_t pacm; /* Frequency for NFC Technology active mode     */
 } tNFA_DM_DISC_FREQ_CFG;
 
 /* definitions for tNFA_DM_CFG.presence_check_option */

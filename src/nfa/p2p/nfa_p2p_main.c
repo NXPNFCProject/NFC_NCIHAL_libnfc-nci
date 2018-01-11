@@ -227,8 +227,12 @@ static void nfa_p2p_update_active_listen(void) {
     nfa_p2p_cb.listen_tech_mask_to_restore = nfa_p2p_cb.listen_tech_mask;
 
     /* remove active listen mode */
-    nfa_p2p_cb.listen_tech_mask &=
-        ~(NFA_TECHNOLOGY_MASK_A_ACTIVE | NFA_TECHNOLOGY_MASK_F_ACTIVE);
+    if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+      nfa_p2p_cb.listen_tech_mask &= ~(NFA_TECHNOLOGY_MASK_ACTIVE);
+    } else {
+      nfa_p2p_cb.listen_tech_mask &=
+          ~(NFA_TECHNOLOGY_MASK_A_ACTIVE | NFA_TECHNOLOGY_MASK_F_ACTIVE);
+    }
   }
 
   if (nfa_p2p_cb.dm_disc_handle != NFA_HANDLE_INVALID) {
@@ -242,12 +246,15 @@ static void nfa_p2p_update_active_listen(void) {
 
   if (nfa_p2p_cb.listen_tech_mask & NFA_TECHNOLOGY_MASK_F)
     p2p_listen_mask |= NFA_DM_DISC_MASK_LF_NFC_DEP;
-
-  if (nfa_p2p_cb.listen_tech_mask & NFA_TECHNOLOGY_MASK_A_ACTIVE)
-    p2p_listen_mask |= NFA_DM_DISC_MASK_LAA_NFC_DEP;
-
-  if (nfa_p2p_cb.listen_tech_mask & NFA_TECHNOLOGY_MASK_F_ACTIVE)
-    p2p_listen_mask |= NFA_DM_DISC_MASK_LFA_NFC_DEP;
+  if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+    if (nfa_p2p_cb.listen_tech_mask & NFA_TECHNOLOGY_MASK_ACTIVE)
+      p2p_listen_mask |= NFA_DM_DISC_MASK_LACM_NFC_DEP;
+  } else {
+    if (nfa_p2p_cb.listen_tech_mask & NFA_TECHNOLOGY_MASK_A_ACTIVE)
+      p2p_listen_mask |= NFA_DM_DISC_MASK_LAA_NFC_DEP;
+    if (nfa_p2p_cb.listen_tech_mask & NFA_TECHNOLOGY_MASK_F_ACTIVE)
+      p2p_listen_mask |= NFA_DM_DISC_MASK_LFA_NFC_DEP;
+  }
 
 #if (NXP_EXTNS == TRUE)
   /*For P2P mode(Default DTA mode) open Raw channel to bypass LLCP layer. For
@@ -403,27 +410,45 @@ void nfa_p2p_activate_llcp(tNFC_DISCOVER* p_data) {
   P2P_TRACE_DEBUG0("nfa_p2p_activate_llcp ()");
 
   if ((p_data->activate.rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A) ||
-      (p_data->activate.rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_F) ||
-      (p_data->activate.rf_tech_param.mode ==
-       NFC_DISCOVERY_TYPE_POLL_A_ACTIVE) ||
-      (p_data->activate.rf_tech_param.mode ==
-       NFC_DISCOVERY_TYPE_POLL_F_ACTIVE)) {
+      (p_data->activate.rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_F)) {
     config.is_initiator = true;
   } else {
     config.is_initiator = false;
   }
-
-  if ((p_data->activate.rf_tech_param.mode ==
-       NFC_DISCOVERY_TYPE_POLL_A_ACTIVE) ||
-      (p_data->activate.rf_tech_param.mode ==
-       NFC_DISCOVERY_TYPE_POLL_F_ACTIVE) ||
-      (p_data->activate.rf_tech_param.mode ==
-       NFC_DISCOVERY_TYPE_LISTEN_A_ACTIVE) ||
-      (p_data->activate.rf_tech_param.mode ==
-       NFC_DISCOVERY_TYPE_LISTEN_F_ACTIVE)) {
-    nfa_p2p_cb.is_active_mode = true;
+  if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+    if (p_data->activate.rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_ACTIVE) {
+      config.is_initiator = true;
+    }
   } else {
-    nfa_p2p_cb.is_active_mode = false;
+    if ((p_data->activate.rf_tech_param.mode ==
+         NFC_DISCOVERY_TYPE_POLL_A_ACTIVE) ||
+        (p_data->activate.rf_tech_param.mode ==
+         NFC_DISCOVERY_TYPE_POLL_F_ACTIVE)) {
+      config.is_initiator = true;
+    }
+  }
+  if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+    if ((p_data->activate.rf_tech_param.mode ==
+         NFC_DISCOVERY_TYPE_POLL_ACTIVE) ||
+        (p_data->activate.rf_tech_param.mode ==
+         NFC_DISCOVERY_TYPE_LISTEN_ACTIVE)) {
+      nfa_p2p_cb.is_active_mode = true;
+    } else {
+      nfa_p2p_cb.is_active_mode = false;
+    }
+  } else {
+    if ((p_data->activate.rf_tech_param.mode ==
+         NFC_DISCOVERY_TYPE_POLL_A_ACTIVE) ||
+        (p_data->activate.rf_tech_param.mode ==
+         NFC_DISCOVERY_TYPE_POLL_F_ACTIVE) ||
+        (p_data->activate.rf_tech_param.mode ==
+         NFC_DISCOVERY_TYPE_LISTEN_A_ACTIVE) ||
+        (p_data->activate.rf_tech_param.mode ==
+         NFC_DISCOVERY_TYPE_LISTEN_F_ACTIVE)) {
+      nfa_p2p_cb.is_active_mode = true;
+    } else {
+      nfa_p2p_cb.is_active_mode = false;
+    }
   }
 
   nfa_p2p_cb.is_initiator = config.is_initiator;
@@ -523,9 +548,13 @@ void nfa_p2p_set_config(tNFA_DM_DISC_TECH_PROTO_MASK disc_mask) {
     gen_bytes_len = 0;
   }
 
-  if (disc_mask &
-      (NFA_DM_DISC_MASK_PA_NFC_DEP | NFA_DM_DISC_MASK_PF_NFC_DEP |
-       NFA_DM_DISC_MASK_PAA_NFC_DEP | NFA_DM_DISC_MASK_PFA_NFC_DEP)) {
+  if ((disc_mask &
+       (NFA_DM_DISC_MASK_PA_NFC_DEP | NFA_DM_DISC_MASK_PF_NFC_DEP)) ||
+      ((NFC_GetNCIVersion() == NCI_VERSION_2_0) &&
+       (disc_mask & NFA_DM_DISC_MASK_PACM_NFC_DEP)) ||
+      ((NFC_GetNCIVersion() != NCI_VERSION_2_0) &&
+       (disc_mask &
+        (NFA_DM_DISC_MASK_PAA_NFC_DEP | NFA_DM_DISC_MASK_PFA_NFC_DEP)))) {
     p = params;
 
     UINT8_TO_BE_STREAM(p, NFC_PMID_ATR_REQ_GEN_BYTES);
@@ -537,9 +566,13 @@ void nfa_p2p_set_config(tNFA_DM_DISC_TECH_PROTO_MASK disc_mask) {
     nfa_dm_check_set_config(length, params, false);
   }
 
-  if (disc_mask &
-      (NFA_DM_DISC_MASK_LA_NFC_DEP | NFA_DM_DISC_MASK_LF_NFC_DEP |
-       NFA_DM_DISC_MASK_LAA_NFC_DEP | NFA_DM_DISC_MASK_LFA_NFC_DEP)) {
+  if ((disc_mask &
+       (NFA_DM_DISC_MASK_LA_NFC_DEP | NFA_DM_DISC_MASK_LF_NFC_DEP)) ||
+      ((NFC_GetNCIVersion() == NCI_VERSION_2_0) &&
+       (disc_mask & NFA_DM_DISC_MASK_LACM_NFC_DEP)) ||
+      ((NFC_GetNCIVersion() != NCI_VERSION_2_0) &&
+       (disc_mask &
+        (NFA_DM_DISC_MASK_LFA_NFC_DEP | NFA_DM_DISC_MASK_LAA_NFC_DEP)))) {
     p = params;
 
     UINT8_TO_BE_STREAM(p, NFC_PMID_ATR_RES_GEN_BYTES);
@@ -596,11 +629,16 @@ void nfa_p2p_enable_listening(tNFA_SYS_ID sys_id, bool update_wks) {
   if (nfa_p2p_cb.listen_tech_mask & NFA_TECHNOLOGY_MASK_F)
     p2p_listen_mask |= NFA_DM_DISC_MASK_LF_NFC_DEP;
 
-  if (nfa_p2p_cb.listen_tech_mask & NFA_TECHNOLOGY_MASK_A_ACTIVE)
-    p2p_listen_mask |= NFA_DM_DISC_MASK_LAA_NFC_DEP;
+  if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+    if (nfa_p2p_cb.listen_tech_mask & NFA_TECHNOLOGY_MASK_ACTIVE)
+      p2p_listen_mask |= NFA_DM_DISC_MASK_LACM_NFC_DEP;
+  } else {
+    if (nfa_p2p_cb.listen_tech_mask & NFA_TECHNOLOGY_MASK_A_ACTIVE)
+      p2p_listen_mask |= NFA_DM_DISC_MASK_LAA_NFC_DEP;
 
-  if (nfa_p2p_cb.listen_tech_mask & NFA_TECHNOLOGY_MASK_F_ACTIVE)
-    p2p_listen_mask |= NFA_DM_DISC_MASK_LFA_NFC_DEP;
+    if (nfa_p2p_cb.listen_tech_mask & NFA_TECHNOLOGY_MASK_F_ACTIVE)
+      p2p_listen_mask |= NFA_DM_DISC_MASK_LFA_NFC_DEP;
+  }
 
   if (p2p_listen_mask) {
 #if (NXP_EXTNS == TRUE)

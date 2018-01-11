@@ -1036,8 +1036,17 @@ tNFA_STATUS nfa_dm_start_polling(void) {
       poll_disc_mask |= NFA_DM_DISC_MASK_PA_NFC_DEP;
       poll_disc_mask |= NFA_DM_DISC_MASK_P_LEGACY;
     }
-    if (poll_tech_mask & NFA_TECHNOLOGY_MASK_A_ACTIVE) {
-      poll_disc_mask |= NFA_DM_DISC_MASK_PAA_NFC_DEP;
+    if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+      if (poll_tech_mask & NFA_TECHNOLOGY_MASK_ACTIVE) {
+        poll_disc_mask |= NFA_DM_DISC_MASK_PACM_NFC_DEP;
+      }
+    } else {
+      if (poll_tech_mask & NFA_TECHNOLOGY_MASK_A_ACTIVE) {
+        poll_disc_mask |= NFA_DM_DISC_MASK_PAA_NFC_DEP;
+      }
+      if (poll_tech_mask & NFA_TECHNOLOGY_MASK_F_ACTIVE) {
+        poll_disc_mask |= NFA_DM_DISC_MASK_PFA_NFC_DEP;
+      }
     }
     if (poll_tech_mask & NFA_TECHNOLOGY_MASK_B) {
       poll_disc_mask |= NFA_DM_DISC_MASK_PB_ISO_DEP;
@@ -1048,9 +1057,6 @@ tNFA_STATUS nfa_dm_start_polling(void) {
     if (poll_tech_mask & NFA_TECHNOLOGY_MASK_F) {
       poll_disc_mask |= NFA_DM_DISC_MASK_PF_T3T;
       poll_disc_mask |= NFA_DM_DISC_MASK_PF_NFC_DEP;
-    }
-    if (poll_tech_mask & NFA_TECHNOLOGY_MASK_F_ACTIVE) {
-      poll_disc_mask |= NFA_DM_DISC_MASK_PFA_NFC_DEP;
     }
     if (poll_tech_mask & NFA_TECHNOLOGY_MASK_V) {
       poll_disc_mask |= NFA_DM_DISC_MASK_P_T5T;

@@ -1321,12 +1321,15 @@ uint8_t* nfc_ncif_decode_rf_params(tNFC_RF_TECH_PARAMS* p_param, uint8_t* p) {
   tNFC_RF_LF_PARAMS* p_lf;
   tNFC_RF_PF_PARAMS* p_pf;
   tNFC_RF_PISO15693_PARAMS* p_i93;
-
+  tNFC_RF_ACM_P_PARAMS* acm_p;
+  uint8_t mpl_idx = 0;
+  uint8_t gb_idx = 0, mpl;
   len = *p++;
   p_start = p;
   memset(&p_param->param, 0, sizeof(tNFC_RF_TECH_PARAMU));
-  if (NCI_DISCOVERY_TYPE_POLL_A == p_param->mode ||
-      NCI_DISCOVERY_TYPE_POLL_A_ACTIVE == p_param->mode) {
+ if (NCI_DISCOVERY_TYPE_POLL_A == p_param->mode ||
+      (NCI_DISCOVERY_TYPE_POLL_A_ACTIVE == p_param->mode &&
+       NFC_GetNCIVersion() != NCI_VERSION_2_0)) {
     p_pa = &p_param->param.pa;
     /*
 SENS_RES Response   2 bytes Defined in [DIGPROT] Available after Technology
@@ -1373,7 +1376,8 @@ Available after Technology Detection
     STREAM_TO_ARRAY(p_pb->sensb_res, p, p_pb->sensb_res_len);
     memcpy(p_pb->nfcid0, p_pb->sensb_res, NFC_NFCID0_MAX_LEN);
   } else if (NCI_DISCOVERY_TYPE_POLL_F == p_param->mode ||
-             NCI_DISCOVERY_TYPE_POLL_F_ACTIVE == p_param->mode) {
+             (NCI_DISCOVERY_TYPE_POLL_F_ACTIVE == p_param->mode &&
+              NFC_GetNCIVersion() != NCI_VERSION_2_0)) {
     /*
 Bit Rate    1 byte  1   212 kbps/2   424 kbps/0 and 3 to 255  RFU
 SENSF_RES Response length.(n) 1 byte  Length of SENSF_RES (Byte 2 - Byte 17 or
@@ -1391,7 +1395,8 @@ Available after Technology Detection
     p_pf->mrti_check = p_pf->sensf_res[NCI_MRTI_CHECK_INDEX];
     p_pf->mrti_update = p_pf->sensf_res[NCI_MRTI_UPDATE_INDEX];
   } else if (NCI_DISCOVERY_TYPE_LISTEN_F == p_param->mode ||
-             NCI_DISCOVERY_TYPE_LISTEN_F_ACTIVE == p_param->mode) {
+             (NCI_DISCOVERY_TYPE_LISTEN_F_ACTIVE == p_param->mode &&
+              NFC_GetNCIVersion() != NCI_VERSION_2_0)) {
     p_lf = &p_param->param.lf;
     u8 = *p++;
     if (u8) {
@@ -1410,6 +1415,49 @@ Available after Technology Detection
       p_param->param.pk.uid_len = NFC_KOVIO_MAX_LEN;
     }
     STREAM_TO_ARRAY(p_param->param.pk.uid, p, p_param->param.pk.uid_len);
+  } else if (NCI_DISCOVERY_TYPE_POLL_ACTIVE == p_param->mode) {
+    acm_p = &p_param->param.acm_p;
+    acm_p->atr_res_len = *p++;
+    if (acm_p->atr_res_len > 0) {
+      if (acm_p->atr_res_len > NFC_MAX_ATS_LEN)
+        acm_p->atr_res_len = NFC_MAX_ATS_LEN;
+      STREAM_TO_ARRAY(acm_p->atr_res, p, acm_p->atr_res_len);
+      /* ATR_RES
+      Byte 3~12 Byte 13 Byte 14 Byte 15 Byte 16 Byte 17 Byte 18~18+n
+      NFCID3T   DIDT    BST     BRT     TO      PPT     [GT0 ... GTn] */
+      mpl_idx = 14;
+      gb_idx = NCI_P_GEN_BYTE_INDEX;
+      acm_p->waiting_time = acm_p->atr_res[NCI_L_NFC_DEP_TO_INDEX] & 0x0F;
+      mpl = ((acm_p->atr_res[mpl_idx]) >> 4) & 0x03;
+      acm_p->max_payload_size = nfc_mpl_code_to_size[mpl];
+      if (acm_p->atr_res_len > gb_idx) {
+        acm_p->gen_bytes_len = acm_p->atr_res_len - gb_idx;
+        if (acm_p->gen_bytes_len > NFC_MAX_GEN_BYTES_LEN)
+          acm_p->gen_bytes_len = NFC_MAX_GEN_BYTES_LEN;
+        memcpy(acm_p->gen_bytes, &acm_p->atr_res[gb_idx], acm_p->gen_bytes_len);
+      }
+    }
+  } else if (NCI_DISCOVERY_TYPE_LISTEN_ACTIVE == p_param->mode) {
+    acm_p = &p_param->param.acm_p;
+    acm_p->atr_res_len = *p++;
+    if (acm_p->atr_res_len > 0) {
+      if (acm_p->atr_res_len > NFC_MAX_ATS_LEN)
+        acm_p->atr_res_len = NFC_MAX_ATS_LEN;
+      STREAM_TO_ARRAY(acm_p->atr_res, p, acm_p->atr_res_len);
+      /* ATR_REQ
+      Byte 3~12 Byte 13 Byte 14 Byte 15 Byte 16 Byte 17~17+n
+      NFCID3I   DIDI    BSI     BRI     PPI     [GI0 ... GIn] */
+      mpl_idx = 13;
+      gb_idx = NCI_L_GEN_BYTE_INDEX;
+      mpl = ((acm_p->atr_res[mpl_idx]) >> 4) & 0x03;
+      acm_p->max_payload_size = nfc_mpl_code_to_size[mpl];
+      if (acm_p->atr_res_len > gb_idx) {
+        acm_p->gen_bytes_len = acm_p->atr_res_len - gb_idx;
+        if (acm_p->gen_bytes_len > NFC_MAX_GEN_BYTES_LEN)
+          acm_p->gen_bytes_len = NFC_MAX_GEN_BYTES_LEN;
+        memcpy(acm_p->gen_bytes, &acm_p->atr_res[gb_idx], acm_p->gen_bytes_len);
+      }
+    }
   }
 
   return (p_start + len);
@@ -1676,8 +1724,11 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
       STREAM_TO_ARRAY(p_pa_nfc->atr_res, p, p_pa_nfc->atr_res_len);
       if ((mode == NCI_DISCOVERY_TYPE_POLL_A) ||
           (mode == NCI_DISCOVERY_TYPE_POLL_F) ||
-          (mode == NCI_DISCOVERY_TYPE_POLL_A_ACTIVE) ||
-          (mode == NCI_DISCOVERY_TYPE_POLL_F_ACTIVE)) {
+          ((mode == NCI_DISCOVERY_TYPE_POLL_A_ACTIVE ||
+            mode == NCI_DISCOVERY_TYPE_POLL_F_ACTIVE) &&
+           NFC_GetNCIVersion() != NCI_VERSION_2_0) ||
+          (NFC_GetNCIVersion() == NCI_VERSION_2_0 &&
+           mode == NCI_DISCOVERY_TYPE_POLL_ACTIVE)) {
         /* ATR_RES
         Byte 3~12 Byte 13 Byte 14 Byte 15 Byte 16 Byte 17 Byte 18~18+n
         NFCID3T   DIDT    BST     BRT     TO      PPT     [GT0 ... GTn] */
@@ -1687,8 +1738,11 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
             p_pa_nfc->atr_res[NCI_L_NFC_DEP_TO_INDEX] & 0x0F;
       } else if ((mode == NCI_DISCOVERY_TYPE_LISTEN_A) ||
                  (mode == NCI_DISCOVERY_TYPE_LISTEN_F) ||
-                 (mode == NCI_DISCOVERY_TYPE_LISTEN_A_ACTIVE) ||
-                 (mode == NCI_DISCOVERY_TYPE_LISTEN_F_ACTIVE)) {
+                 (NFC_GetNCIVersion() != NCI_VERSION_2_0 &&
+                  (mode == NCI_DISCOVERY_TYPE_LISTEN_A_ACTIVE ||
+                   mode == NCI_DISCOVERY_TYPE_LISTEN_F_ACTIVE)) ||
+                 (NFC_GetNCIVersion() == NCI_VERSION_2_0 &&
+                  mode == NCI_DISCOVERY_TYPE_LISTEN_ACTIVE)) {
         /* ATR_REQ
         Byte 3~12 Byte 13 Byte 14 Byte 15 Byte 16 Byte 17~17+n
         NFCID3I   DIDI    BSI     BRI     PPI     [GI0 ... GIn] */

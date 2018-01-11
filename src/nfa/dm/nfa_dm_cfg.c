@@ -52,7 +52,8 @@ const tNFA_DM_DISC_FREQ_CFG nfa_dm_rf_disc_freq_cfg = {
     1, /* Frequency for Proprietary Technology/B-Prime */
     1, /* Frequency for Proprietary Technology/Kovio   */
     1, /* Frequency for NFC Technology A active mode   */
-    1  /* Frequency for NFC Technology F active mode   */
+    1, /* Frequency for NFC Technology F active mode   */
+    1  /* Frequency for NFC Technology active mode     */
 };
 
 tNFA_DM_DISC_FREQ_CFG* p_nfa_dm_rf_disc_freq_cfg =
