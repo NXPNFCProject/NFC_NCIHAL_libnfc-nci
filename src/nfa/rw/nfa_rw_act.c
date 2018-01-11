@@ -2608,16 +2608,22 @@ bool nfa_rw_activate_ntf(tNFA_RW_MSG* p_data) {
   /* Perform protocol-specific actions */
   if (NFC_PROTOCOL_T1T == nfa_rw_cb.protocol) {
     /* Retrieve HR and UID fields from activation notification */
-    memcpy(tag_params.t1t.hr, p_activate_params->rf_tech_param.param.pa.hr,
-           NFA_T1T_HR_LEN);
     memcpy(tag_params.t1t.uid, p_activate_params->rf_tech_param.param.pa.nfcid1,
            p_activate_params->rf_tech_param.param.pa.nfcid1_len);
-    if(NFC_GetNCIVersion() == NCI_VERSION_1_0) {
-    msg.op = NFA_RW_OP_T1T_RID;
-    nfa_rw_handle_op_req((void*)&msg);
-    activate_notify = false; /* Delay notifying upper layer of NFA_ACTIVATED_EVT
-                                until HR0/HR1 is received */
-   }
+
+    if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+      memcpy(tag_params.t1t.hr, p_activate_params->rf_tech_param.param.pa.hr,
+             NFA_T1T_HR_LEN);
+    } else {
+      memcpy(tag_params.t1t.hr,
+             p_activate_params->intf_param.intf_param.frame.param,
+             NFA_T1T_HR_LEN);
+      msg.op = NFA_RW_OP_T1T_RID;
+      nfa_rw_handle_op_req((tNFA_RW_MSG*)&msg);
+      /* Delay notifying upper layer of NFA_ACTIVATED_EVT
+         until HR0/HR1 is received */
+      activate_notify = false;
+    }
   } else if (NFC_PROTOCOL_T2T == nfa_rw_cb.protocol) {
     /* Retrieve UID fields from activation notification */
     memcpy(tag_params.t2t.uid, p_activate_params->rf_tech_param.param.pa.nfcid1,
