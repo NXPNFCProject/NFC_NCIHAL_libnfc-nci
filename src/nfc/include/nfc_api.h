@@ -655,6 +655,7 @@ typedef uint8_t tNFC_DEACT_TYPE;
 #define NFC_DEACTIVATE_REASON_ENDPOINT_REQ NCI_DEACTIVATE_REASON_ENDPOINT_REQ
 #define NFC_DEACTIVATE_REASON_RF_LINK_LOSS NCI_DEACTIVATE_REASON_RF_LINK_LOSS
 #define NFC_DEACTIVATE_REASON_NFCB_BAD_AFI NCI_DEACTIVATE_REASON_NFCB_BAD_AFI
+#define NFC_DEACTIVATE_REASON_DH_REQ_FAILED NCI_DEACTIVATE_REASON_DH_REQ_FAILED
 typedef uint8_t tNFC_DEACT_REASON;
 
 /* the data type associated with NFC_RF_FIELD_REVT */
@@ -954,7 +955,8 @@ typedef struct {
 typedef struct {
   tNFC_STATUS status;   /* The event status.        */
   tNFC_DEACT_TYPE type; /* De-activate type         */
-  bool is_ntf;          /* true, if deactivate notif*/
+  bool is_ntf;          /* TRUE, if deactivate notif*/
+  tNFC_DEACT_REASON reason; /* De-activate reason    */
 } tNFC_DEACTIVATE_DEVT;
 
 typedef union {

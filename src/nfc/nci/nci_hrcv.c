@@ -262,6 +262,9 @@ void nci_proc_rf_management_ntf(NFC_HDR* p_msg) {
       if (false == nfa_dm_p2p_prio_logic(op_code, pp, NFA_DM_P2P_PRIO_NTF)) {
         return;
       }
+      if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+        nfc_cb.deact_reason = *(pp + 1);
+      }
       nfc_ncif_proc_deactivate(NFC_STATUS_OK, *pp, true);
       break;
 

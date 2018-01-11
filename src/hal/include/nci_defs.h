@@ -414,7 +414,8 @@ typedef uint8_t tNCI_STATUS;
 #define NCI_DEACTIVATE_REASON_ENDPOINT_REQ 1 /* Endpoint Request */
 #define NCI_DEACTIVATE_REASON_RF_LINK_LOSS 2 /* RF Link Loss     */
 #define NCI_DEACTIVATE_REASON_NFCB_BAD_AFI 3 /* NFC-B Bad AFI    */
-
+/* DH Request Failed due to error */
+#define NCI_DEACTIVATE_REASON_DH_REQ_FAILED 4
 
 /* The NFCEE status in NFCEE Status Notification */
 #define NCI_NFCEE_NTF_STATUS_ERROR          0x00    /* Unrecoverable Error */

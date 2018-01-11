@@ -336,6 +336,8 @@ typedef struct {
   uint16_t nci_max_v_size; /*maximum NFC V rf frame size*/
 
   TIMER_LIST_ENT nci_setmode_ntf_timer;/*Mode notification timer*/
+
+  uint8_t deact_reason;
 } tNFC_CB;
 
 #if (NXP_EXTNS == TRUE)

@@ -578,6 +578,9 @@ typedef struct {
 
   /* NFCC power mode */
   uint8_t nfcc_pwr_mode; /* NFA_DM_PWR_MODE_FULL or NFA_DM_PWR_MODE_OFF_SLEEP */
+
+  uint8_t deactivate_cmd_retry_count; /*number of times the deactivation cmd
+                                         sent in case of error scenerio */
 #if (NXP_EXTNS == TRUE)
   uint32_t eDtaMode;        /* For enable the DTA type modes. */
   uint8_t selected_uicc_id; /* Current selected UICC ID */

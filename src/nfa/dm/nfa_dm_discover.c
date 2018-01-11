@@ -2668,35 +2668,60 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
         NFA_TRACE_DEBUG0("Rx deactivate NTF while waiting for deactivate RSP");
         break;
       }
-
-      sleep_wakeup_event = true;
-
-      nfa_dm_disc_notify_deactivation(NFA_DM_RF_DEACTIVATE_NTF,
-                                      &(p_data->nfc_discover));
-
-      if ((p_data->nfc_discover.deactivate.type == NFC_DEACTIVATE_TYPE_SLEEP) ||
-          (p_data->nfc_discover.deactivate.type ==
-           NFC_DEACTIVATE_TYPE_SLEEP_AF)) {
-        nfa_dm_disc_new_state(NFA_DM_RFST_W4_HOST_SELECT);
-        if (old_sleep_wakeup_flag) {
-          sleep_wakeup_event_processed = true;
-          /* process pending deactivate request */
-          if (nfa_dm_cb.disc_cb.deact_pending) {
-            /* notify RW module that sleep wakeup is finished */
-            /* if deactivation is pending then deactivate  */
-            nfa_dm_disc_end_sleep_wakeup(NFC_STATUS_OK);
-
-            /* Notify NFA RW sub-systems because NFA_DM_RF_DEACTIVATE_RSP will
-             * not call this function */
-            nfa_rw_proc_disc_evt(NFA_DM_RF_DISC_DEACTIVATED_EVT, NULL, true);
-          } else {
-            /* Successfully went to sleep mode for sleep wakeup */
-            /* Now wake up the tag to complete the operation */
-            NFC_DiscoverySelect(nfa_dm_cb.disc_cb.activated_rf_disc_id,
-                                nfa_dm_cb.disc_cb.activated_protocol,
-                                nfa_dm_cb.disc_cb.activated_rf_interface);
-          }
+      if (p_data->nfc_discover.deactivate.reason !=
+          NFC_DEACTIVATE_REASON_DH_REQ_FAILED) {
+        sleep_wakeup_event = true;
+        nfa_dm_disc_notify_deactivation(NFA_DM_RF_DEACTIVATE_NTF,
+                                        &(p_data->nfc_discover));
         }
+        if ((p_data->nfc_discover.deactivate.type ==
+             NFC_DEACTIVATE_TYPE_SLEEP) ||
+            (p_data->nfc_discover.deactivate.type ==
+             NFC_DEACTIVATE_TYPE_SLEEP_AF)) {
+          if (p_data->nfc_discover.deactivate.reason !=
+              NFC_DEACTIVATE_REASON_DH_REQ_FAILED) {
+            /* count for number of times deactivate cmd sent */
+            nfa_dm_cb.deactivate_cmd_retry_count = 0;
+          }
+          nfa_dm_disc_new_state(NFA_DM_RFST_W4_HOST_SELECT);
+          if (old_sleep_wakeup_flag) {
+            sleep_wakeup_event_processed = true;
+            /* process pending deactivate request */
+            if (nfa_dm_cb.disc_cb.deact_pending) {
+              /* notify RW module that sleep wakeup is finished */
+              /* if deactivation is pending then deactivate  */
+              nfa_dm_disc_end_sleep_wakeup(NFC_STATUS_OK);
+
+              /* Notify NFA RW sub-systems because NFA_DM_RF_DEACTIVATE_RSP will
+               * not call this function */
+              nfa_rw_proc_disc_evt(NFA_DM_RF_DISC_DEACTIVATED_EVT, NULL, true);
+            } else {
+              /* Successfully went to sleep mode for sleep wakeup */
+              /* Now wake up the tag to complete the operation */
+              NFC_DiscoverySelect(nfa_dm_cb.disc_cb.activated_rf_disc_id,
+                                  nfa_dm_cb.disc_cb.activated_protocol,
+                                  nfa_dm_cb.disc_cb.activated_rf_interface);
+            }
+          }
+          if (p_data->nfc_discover.deactivate.reason ==
+              NFC_DEACTIVATE_REASON_DH_REQ_FAILED) {
+            /* in case deactivation is not sucessfull, NFCC shall send
+               RF_DEACTIVATE_NTF with DH Req failed due to error.
+               MW shall send deactivation cmd again for 3 three times. if
+               deactivation is not successfull 3 times also,
+               then MW shall send deacivate cmd with deactivate type is
+               discovery */
+            if (nfa_dm_cb.deactivate_cmd_retry_count == 3) {
+              if ((!old_sleep_wakeup_flag) ||
+                  (!nfa_dm_cb.disc_cb.deact_pending)) {
+                nfa_dm_send_deactivate_cmd(NFA_DEACTIVATE_TYPE_DISCOVERY);
+              }
+              nfa_dm_cb.deactivate_cmd_retry_count = 0;
+            } else {
+              nfa_dm_cb.deactivate_cmd_retry_count++;
+              nfa_dm_send_deactivate_cmd(p_data->nfc_discover.deactivate.type);
+            }
+          }
       } else if (p_data->nfc_discover.deactivate.type ==
                  NFC_DEACTIVATE_TYPE_IDLE) {
         nfa_dm_disc_new_state(NFA_DM_RFST_IDLE);

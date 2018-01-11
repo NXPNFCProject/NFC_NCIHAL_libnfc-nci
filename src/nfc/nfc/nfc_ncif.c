@@ -1822,6 +1822,9 @@ void nfc_ncif_proc_deactivate(uint8_t status, uint8_t deact_type, bool is_ntf) {
   p_deact->status = status;
   p_deact->type = deact_type;
   p_deact->is_ntf = is_ntf;
+  if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+    p_deact->reason = nfc_cb.deact_reason;
+  }
 
   while ((p_data = GKI_dequeue(&p_cb->rx_q)) != NULL) {
     GKI_freebuf(p_data);
