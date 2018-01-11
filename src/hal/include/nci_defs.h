@@ -698,6 +698,15 @@ typedef uint8_t tNCI_DISCOVERY_TYPE;
 #define NCI_LF_T3T_FLAGS2_ALL_DISABLED 0x0000
 #define NCI_LF_T3T_FLAGS2_ID1_ENABLED 0x0001
 
+/* The DH-NFCEE listen is considered as a enable NFCEE */
+#define NCI_LISTEN_DH_NFCEE_ENABLE_MASK 0x00
+/* The DH-NFCEE listen is considered as a disable NFCEE */
+#define NCI_LISTEN_DH_NFCEE_DISABLE_MASK 0x02
+/* The DH polling is considered as a disable NFCEE */
+#define NCI_POLLING_DH_DISABLE_MASK 0x00
+/* The DH polling is considered as a enable NFCEE */
+#define NCI_POLLING_DH_ENABLE_MASK 0x01
+
 #define NCI_PARAM_LEN_LF_CON_ADV_FEAT 1
 
 #define NCI_PARAM_LEN_LF_T3T_RD_ALLOWED 1 //Listen F NCI2.0 Parameter
