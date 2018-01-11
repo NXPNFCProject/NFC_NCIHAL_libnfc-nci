@@ -184,14 +184,6 @@ typedef struct {
                        registered.    */
 } tNFA_DM_API_REG_NDEF_HDLR;
 
-
-/* data type for NFA_DM_API_SET_POWER_SUB_STATE_EVT */
-typedef struct
-{
-  NFC_HDR hdr;
-  uint8_t screen_state;
-} tNFA_DM_API_SET_POWER_SUB_STATE;
-
 /* data type for NFA_DM_API_DEREG_NDEF_HDLR_EVT */
 typedef struct {
   NFC_HDR hdr;
@@ -215,6 +207,12 @@ typedef struct {
                    offset=NCI_VSC_MSG_HDR_SIZE */
   uint8_t* p_cmd_params;
 } tNFA_DM_API_SEND_VSC;
+
+/* data type for NFA_DM_API_SET_POWER_SUB_STATE_EVT */
+typedef struct {
+  NFC_HDR hdr;
+  uint8_t screen_state;
+} tNFA_DM_API_SET_POWER_SUB_STATE;
 
 /* union of all data types */
 typedef union {
@@ -245,7 +243,8 @@ typedef union {
   tNFA_DM_API_DEACTIVATE deactivate; /* NFA_DM_API_DEACTIVATE_EVT            */
   tNFA_DM_API_SEND_VSC send_vsc;     /* NFA_DM_API_SEND_VSC_EVT              */
   tNFA_DM_API_REG_VSC reg_vsc;       /* NFA_DM_API_REG_VSC_EVT               */
-  tNFA_DM_API_SET_POWER_SUB_STATE set_power_state; /* NFA_DM_API_SET_POWER_SUB_STATE_EVT   */
+  /* NFA_DM_API_SET_POWER_SUB_STATE_EVT */
+  tNFA_DM_API_SET_POWER_SUB_STATE set_power_state;
 } tNFA_DM_MSG;
 
 /* DM RF discovery state */
@@ -680,7 +679,8 @@ uint16_t nfa_dm_act_get_rf_disc_duration();
 #endif
 bool nfa_dm_act_disable_timeout(tNFA_DM_MSG* p_data);
 bool nfa_dm_act_nfc_cback_data(tNFA_DM_MSG* p_data);
-bool nfa_dm_set_power_sub_state (tNFA_DM_MSG *p_data);
+bool nfa_dm_set_power_sub_state(tNFA_DM_MSG* p_data);
+
 void nfa_dm_proc_nfcc_power_mode(uint8_t nfcc_power_mode);
 
 /* Main function prototypes */

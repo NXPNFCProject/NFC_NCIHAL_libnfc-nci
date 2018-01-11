@@ -250,6 +250,7 @@ typedef uint8_t tNCI_STATUS;
 #define NCI_MSG_CORE_CONN_CREDITS 6
 #define NCI_MSG_CORE_GEN_ERR_STATUS 7
 #define NCI_MSG_CORE_INTF_ERR_STATUS 8
+#define NCI_MSG_CORE_SET_POWER_SUB_STATE 9
 
 /**********************************************
  * RF MANAGEMENT Group Opcode    - 1
@@ -267,6 +268,7 @@ typedef uint8_t tNCI_STATUS;
 #define NCI_MSG_RF_EE_DISCOVERY_REQ 10
 #define NCI_MSG_RF_PARAMETER_UPDATE 11
 #define NCI_MSG_RF_ISO_DEP_NAK_PRESENCE 16
+
 /**********************************************
  * NFCEE MANAGEMENT Group Opcode - 2
  **********************************************/
@@ -300,6 +302,7 @@ typedef uint8_t tNCI_STATUS;
 
 /* Status (1 octet) and number of params */
 #define NCI_CORE_PARAM_SIZE_SET_CONFIG_RSP 0x02
+#define NCI_CORE_PARAM_SIZE_SET_POWER_SUB_STATE 0x01
 
 /* octet 0 */
 #define NCI_FEAT_DISCOVERY_FREG 0x00000001
@@ -391,8 +394,6 @@ typedef uint8_t tNCI_STATUS;
 #define NCI_CORE_PARAM_SIZE_NFCEE_MODE_SET 0x02
 #define NCI_CORE_PARAM_SIZE_NFCEE_MODE_SET_RSP 0x01 /* Status (1 octet) */
 
-#define NCI_MSG_CORE_SET_POWER_SUB_STATE 9
-#define NCI_CORE_PARAM_SIZE_SET_POWER_SUB_STATE    0x01
 /* Deactivate the connected NFCEE */
 #define NCI_NFCEE_MD_DEACTIVATE 0x00
 /* Activate the connected NFCEE */
@@ -540,14 +541,13 @@ typedef uint8_t tNCI_DISCOVERY_TYPE;
 #define NCI_ROUTE_PWR_STATE_SWITCH_OFF 0x02
 /* The device's battery is removed */
 #define NCI_ROUTE_PWR_STATE_BATT_OFF 0x04
-#if (NXP_EXTNS == TRUE)
 /* The device is screen off Unlock mode */
 #define NCI_ROUTE_PWR_STATE_SCREEN_OFF_UNLOCK()   ((NFC_GetNCIVersion() == NCI_VERSION_2_0)?0x08:0x80)
 /* The device is screen on lock mode */
 #define NCI_ROUTE_PWR_STATE_SCREEN_ON_LOCK()    ((NFC_GetNCIVersion() == NCI_VERSION_2_0)?0x10:0x40)
 /* The device is screen off lock mode */
 #define NCI_ROUTE_PWR_STATE_SCREEN_OFF_LOCK()   ((NFC_GetNCIVersion() == NCI_VERSION_2_0)?0x20:0x00)
-#endif
+
 /* Hardware / Registration Identification  */
 #define NCI_NFCEE_TAG_HW_ID 0x00
 #define NCI_NFCEE_TAG_ATR_BYTES 0x01 /* ATR Bytes  */

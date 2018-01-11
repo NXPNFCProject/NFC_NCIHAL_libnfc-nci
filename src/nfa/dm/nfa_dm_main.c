@@ -105,9 +105,9 @@ const tNFA_DM_ACTION nfa_dm_action[] = {
     nfa_dm_act_disable_timeout       /* NFA_DM_TIMEOUT_DISABLE_EVT           */
 #if (NXP_EXTNS == TRUE)
     ,
-    nfa_dm_act_send_nxp /* NFA_DM_API_SEND_NXP_EVT              */
+    nfa_dm_act_send_nxp              /* NFA_DM_API_SEND_NXP_EVT              */
 #endif
-    ,nfa_dm_set_power_sub_state /* NFA_DM_API_SET_POWER_SUB_STATE_EVT  */
+    ,nfa_dm_set_power_sub_state      /* NFA_DM_API_SET_POWER_SUB_STATE_EVT   */
 };
 
 /*****************************************************************************

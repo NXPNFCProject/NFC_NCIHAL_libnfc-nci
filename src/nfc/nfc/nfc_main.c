@@ -1411,7 +1411,22 @@ tNFC_STATUS NFC_Deactivate(tNFC_DEACT_TYPE deactivate_type) {
   status = nci_snd_deactivate_cmd(deactivate_type);
   return status;
 }
-
+/*******************************************************************************
+**
+** Function         NFC_SetPowerSubState
+**
+** Description      This function is called to send the power sub state (screen
+**                  state) to NFCC. The response from NFCC is reported by
+**                  tNFC_RESPONSE_CBACK as NFC_SET_POWER_STATE_REVT.
+**
+** Parameters       scree_state
+**
+** Returns          tNFC_STATUS
+**
+*******************************************************************************/
+tNFC_STATUS NFC_SetPowerSubState(uint8_t screen_state) {
+  return nci_snd_core_set_power_sub_state(screen_state);
+}
 /*******************************************************************************
 **
 ** Function         NFC_UpdateRFCommParams
@@ -1505,23 +1520,6 @@ tNFC_STATUS NFC_SetPowerOffSleep(bool enable) {
   return NFC_STATUS_FAILED;
 }
 
-/*******************************************************************************
-**
-** Function         NFC_SetPowerSubState
-**
-** Description      This function is called to send the power sub state( screen state)
-**                      to NFCC. The response from NFCC is reported by
-**                  tNFC_RESPONSE_CBACK as NFC_SET_POWER_STATE_REVT.
-**
-** Parameters       scree_state
-**
-** Returns          tNFC_STATUS
-**
-*******************************************************************************/
-tNFC_STATUS NFC_SetPowerSubState (uint8_t screen_state)
-{
-  return nci_snd_core_set_power_sub_state(screen_state);
-}
 /*******************************************************************************
 **
 ** Function         NFC_PowerCycleNFCC

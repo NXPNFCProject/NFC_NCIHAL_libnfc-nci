@@ -330,6 +330,7 @@ enum {
   NFC_NFCC_TIMEOUT_REVT,            /* 15 NFCC is not responding        */
   NFC_NFCC_TRANSPORT_ERR_REVT,      /* 16 NCI Tranport error            */
   NFC_NFCC_POWER_OFF_REVT,          /* 17 NFCC turned off               */
+  NFC_SET_POWER_SUB_STATE_REVT,     /* 18 Set power sub state response  */
   NFC_NFCEE_PL_CONTROL_REVT,              /* NFCEE Power/Link Ctrl response*/
   NFC_FIRST_VS_REVT,          /* First vendor-specific rsp event  */
   NFC_NFCEE_PWR_LNK_CTRL_REVT, /* PWR LINK CTRL Event for Wired Mode standby */
@@ -338,7 +339,6 @@ enum {
   ,
   NFC_NFCEE_MODE_SET_INFO /*  NFCEE Mode Set Notification*/
 #endif
-  ,NFC_SET_POWER_SUB_STATE_REVT     /* 18 Set power sub state response  */
 };
 typedef uint16_t tNFC_RESPONSE_EVT;
 
@@ -1414,6 +1414,21 @@ extern tNFC_STATUS NFC_SetPowerOffSleep(bool enable);
 
 /*******************************************************************************
 **
+** Function         NFC_SetPowerSubState
+**
+** Description      This function is called to send the power sub state(screen
+**                  state) to NFCC. The response from NFCC is reported by
+**                  tNFC_RESPONSE_CBACK as NFC_SET_POWER_STATE_REVT.
+**
+** Parameters       scree_state
+**
+** Returns          tNFC_STATUS
+**
+*******************************************************************************/
+extern tNFC_STATUS NFC_SetPowerSubState(uint8_t screen_state);
+
+/*******************************************************************************
+**
 ** Function         NFC_PowerCycleNFCC
 **
 ** Description      This function turns off and then on NFCC.
@@ -1833,20 +1848,5 @@ extern tNFC_STATUS NFC_NfceePLConfig (uint8_t                 nfcee_id,
 **
 *******************************************************************************/
 extern void NFC_SetStaticHciCback (tNFC_CONN_CBACK    *p_cback);
-
-/*******************************************************************************
-**
-** Function         NFC_SetPowerSubState
-**
-** Description      This function is called to send the power sub state( screen state)
-**                      to NFCC. The response from NFCC is reported by
-**                  tNFC_RESPONSE_CBACK as NFC_SET_POWER_STATE_REVT.
-**
-** Parameters       scree_state
-**
-** Returns          tNFC_STATUS
-**
-*******************************************************************************/
-extern tNFC_STATUS NFC_SetPowerSubState (uint8_t screen_state);
 
 #endif /* NFC_API_H */

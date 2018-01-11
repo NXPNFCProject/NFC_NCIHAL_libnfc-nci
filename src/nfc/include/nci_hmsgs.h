@@ -82,6 +82,7 @@ uint8_t nci_snd_discover_map_cmd(uint8_t num, tNCI_DISCOVER_MAPS* p_maps);
 uint8_t nci_snd_t3t_polling(uint16_t system_code, uint8_t rc, uint8_t tsn);
 uint8_t nci_snd_parameter_update_cmd(uint8_t* p_param_tlvs, uint8_t tlv_size);
 uint8_t nci_snd_iso_dep_nak_presence_check_cmd();
+uint8_t nci_snd_core_set_power_sub_state(uint8_t screen_state);
 #if (NXP_EXTNS == TRUE)
 uint8_t nci_snd_pwr_nd_lnk_ctrl_cmd(uint8_t nfcee_id, uint8_t cfg_value);
 #endif
@@ -93,7 +94,6 @@ uint8_t nci_snd_set_routing_cmd(bool more, uint8_t num_tlv, uint8_t tlv_size,
 uint8_t nci_snd_get_routing_cmd(void);
 uint8_t nci_snd_nfcee_power_link_control (uint8_t nfcee_id, uint8_t pl_config);
 #endif
-uint8_t nci_snd_core_set_power_sub_state(uint8_t screen_state);
 #ifdef __cplusplus
 }
 #endif

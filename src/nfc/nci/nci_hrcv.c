@@ -102,7 +102,6 @@ bool nci_proc_core_rsp(NFC_HDR* p_msg) {
     case NCI_MSG_CORE_CONN_CLOSE:
       nfc_ncif_report_conn_close_evt(*p_old, *pp);
       break;
-
     case NCI_MSG_CORE_SET_POWER_SUB_STATE:
       nfc_ncif_event_status(NFC_SET_POWER_SUB_STATE_REVT, *pp);
       break;
