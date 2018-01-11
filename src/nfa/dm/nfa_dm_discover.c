@@ -257,8 +257,8 @@ static uint8_t nfa_dm_get_rf_discover_config(
   }
 
   /* Check polling ISO 15693 */
-  if (dm_disc_mask & NFA_DM_DISC_MASK_P_ISO15693) {
-    disc_params[num_params].type = NFC_DISCOVERY_TYPE_POLL_ISO15693;
+  if (dm_disc_mask & NFA_DM_DISC_MASK_P_T5T) {
+    disc_params[num_params].type = NFC_DISCOVERY_TYPE_POLL_V;
     disc_params[num_params].frequency = p_nfa_dm_rf_disc_freq_cfg->pi93;
     num_params++;
 
@@ -866,8 +866,8 @@ static tNFA_DM_DISC_TECH_PROTO_MASK nfa_dm_disc_get_disc_mask(
       disc_mask = NFA_DM_DISC_MASK_PF_T3T;
     else if (protocol == NFC_PROTOCOL_NFC_DEP)
       disc_mask = NFA_DM_DISC_MASK_PF_NFC_DEP;
-  } else if (NFC_DISCOVERY_TYPE_POLL_ISO15693 == tech_n_mode) {
-    disc_mask = NFA_DM_DISC_MASK_P_ISO15693;
+  } else if (NFC_DISCOVERY_TYPE_POLL_V == tech_n_mode) {
+    disc_mask = NFA_DM_DISC_MASK_P_T5T;
   } else if (NFC_DISCOVERY_TYPE_POLL_B_PRIME == tech_n_mode) {
     disc_mask = NFA_DM_DISC_MASK_P_B_PRIME;
   } else if (NFC_DISCOVERY_TYPE_POLL_KOVIO == tech_n_mode) {
@@ -3053,8 +3053,8 @@ void nfa_dm_start_excl_discovery(tNFA_TECHNOLOGY_MASK poll_tech_mask,
   if (poll_tech_mask & NFA_TECHNOLOGY_MASK_F_ACTIVE) {
     poll_disc_mask |= NFA_DM_DISC_MASK_PFA_NFC_DEP;
   }
-  if (poll_tech_mask & NFA_TECHNOLOGY_MASK_ISO15693) {
-    poll_disc_mask |= NFA_DM_DISC_MASK_P_ISO15693;
+  if (poll_tech_mask & NFA_TECHNOLOGY_MASK_V) {
+    poll_disc_mask |= NFA_DM_DISC_MASK_P_T5T;
   }
   if (poll_tech_mask & NFA_TECHNOLOGY_MASK_B_PRIME) {
     poll_disc_mask |= NFA_DM_DISC_MASK_P_B_PRIME;

@@ -1743,7 +1743,7 @@ void rw_i93_sm_detect_ndef(NFC_HDR* p_resp) {
       }
 
       rw_data.ndef.status = NFC_STATUS_OK;
-      rw_data.ndef.protocol = NFC_PROTOCOL_15693;
+      rw_data.ndef.protocol = NFC_PROTOCOL_T5T;
       rw_data.ndef.flags = 0;
       rw_data.ndef.flags |= RW_NDEF_FL_SUPPORTED;
       rw_data.ndef.flags |= RW_NDEF_FL_FORMATED;
@@ -2621,7 +2621,7 @@ void rw_i93_handle_error(tNFC_STATUS status) {
         break;
 
       case RW_I93_STATE_DETECT_NDEF:
-        rw_data.ndef.protocol = NFC_PROTOCOL_15693;
+        rw_data.ndef.protocol = NFC_PROTOCOL_T5T;
         rw_data.ndef.cur_size = 0;
         rw_data.ndef.max_size = 0;
         rw_data.ndef.flags = 0;
@@ -2740,12 +2740,8 @@ static void rw_i93_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
 
   RW_TRACE_DEBUG2 ("rw_i93_data_cback () event = 0x%X 0x%X", event, p_data->status);
 
-  if ((event == NFC_DEACTIVATE_CEVT) || (event == NFC_ERROR_CEVT)
-#if (NXP_EXTNS == TRUE)
-          || ((event == NFC_DATA_CEVT)&&(p_data->status != NFC_STATUS_OK))
-#endif
-    )
-  {
+  if ((event == NFC_DEACTIVATE_CEVT) || (event == NFC_ERROR_CEVT) ||
+      ((event == NFC_DATA_CEVT) && (p_data->status != NFC_STATUS_OK))) {
     nfc_stop_quick_timer(&p_i93->timer);
 #if(NXP_EXTNS == TRUE)
         if ((event == NFC_ERROR_CEVT) || (p_data->status != NFC_STATUS_OK))
@@ -2887,7 +2883,7 @@ static void rw_i93_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
 **
 ** Function         rw_i93_select
 **
-** Description      Initialise ISO 15693 RW
+** Description      Initialise ISO 15693 / T5T RW
 **
 ** Returns          NFC_STATUS_OK if success
 **

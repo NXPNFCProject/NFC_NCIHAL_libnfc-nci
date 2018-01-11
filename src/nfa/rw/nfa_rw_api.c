@@ -23,8 +23,8 @@
  ******************************************************************************/
 #include <string.h>
 #include "nfa_api.h"
-#include "nfa_sys.h"
 #include "nfa_rw_int.h"
+#include "nfa_sys.h"
 #include "nfa_sys_int.h"
 
 /*****************************************************************************
@@ -243,8 +243,8 @@ tNFA_STATUS NFA_RwFormatTag(void) {
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
-**      NFA_STATUS_REJECTED if protocol is not T1/T2/ISO15693
-**                 (or) if hard lock is not requested for protocol ISO15693
+**      NFA_STATUS_REJECTED if protocol is not T1/T2/T5T
+**                 (or) if hard lock is not requested for protocol T5T
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
@@ -253,7 +253,7 @@ tNFA_STATUS NFA_RwSetTagReadOnly(bool b_hard_lock) {
   tNFC_PROTOCOL protocol = nfa_rw_cb.protocol;
 
   if ((protocol != NFC_PROTOCOL_T1T) && (protocol != NFC_PROTOCOL_T2T) &&
-      (protocol != NFC_PROTOCOL_15693) && (protocol != NFC_PROTOCOL_ISO_DEP) &&
+      (protocol != NFC_PROTOCOL_T5T) && (protocol != NFC_PROTOCOL_ISO_DEP) &&
       (protocol != NFC_PROTOCOL_T3T)) {
     NFA_TRACE_API1(
         "NFA_RwSetTagReadOnly (): Cannot Configure as read only for Protocol: "
@@ -262,7 +262,7 @@ tNFA_STATUS NFA_RwSetTagReadOnly(bool b_hard_lock) {
     return (NFA_STATUS_REJECTED);
   }
 
-  if ((!b_hard_lock && (protocol == NFC_PROTOCOL_15693)) ||
+  if ((!b_hard_lock && (protocol == NFC_PROTOCOL_T5T)) ||
       (b_hard_lock && (protocol == NFC_PROTOCOL_ISO_DEP))) {
     NFA_TRACE_API2("NFA_RwSetTagReadOnly (): Cannot %s for Protocol: %d",
                    b_hard_lock ? "Hard lock" : "Soft lock", protocol);
@@ -755,7 +755,7 @@ tNFA_STATUS NFA_RwT3tRead(uint8_t num_blocks, tNFA_T3T_BLOCK_DESC* t3t_blocks) {
 tNFA_STATUS NFA_RwT3tWrite(uint8_t num_blocks, tNFA_T3T_BLOCK_DESC* t3t_blocks,
                            uint8_t* p_data) {
   tNFA_RW_OPERATION* p_msg;
-  uint8_t* p_block_desc, *p_data_area;
+  uint8_t *p_block_desc, *p_data_area;
 
   NFA_TRACE_API1("NFA_RwT3tWrite (): num_blocks to write: %i", num_blocks);
 
@@ -799,7 +799,7 @@ tNFA_STATUS NFA_RwT3tWrite(uint8_t num_blocks, tNFA_T3T_BLOCK_DESC* t3t_blocks,
 ** Function         NFA_RwI93Inventory
 **
 ** Description:
-**      Send Inventory command to the activated ISO 15693 tag with/without AFI
+**      Send Inventory command to the activated ISO T5T tag with/without AFI
 **      If UID is provided then set UID[0]:MSB, ... UID[7]:LSB
 **
 **      When the operation has completed (or if an error occurs), the
@@ -807,7 +807,7 @@ tNFA_STATUS NFA_RwT3tWrite(uint8_t num_blocks, tNFA_T3T_BLOCK_DESC* t3t_blocks,
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
-**      NFA_STATUS_WRONG_PROTOCOL: ISO 15693 tag not activated
+**      NFA_STATUS_WRONG_PROTOCOL: T5T tag not activated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
@@ -817,7 +817,7 @@ tNFA_STATUS NFA_RwI93Inventory(bool afi_present, uint8_t afi, uint8_t* p_uid) {
   NFA_TRACE_API2("NFA_RwI93Inventory (): afi_present:%d, AFI: 0x%02X",
                  afi_present, afi);
 
-  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_T5T) {
     return (NFA_STATUS_WRONG_PROTOCOL);
   }
 
@@ -850,14 +850,14 @@ tNFA_STATUS NFA_RwI93Inventory(bool afi_present, uint8_t afi, uint8_t* p_uid) {
 ** Function         NFA_RwI93StayQuiet
 **
 ** Description:
-**      Send Stay Quiet command to the activated ISO 15693 tag.
+**      Send Stay Quiet command to the activated T5T tag.
 **
 **      When the operation has completed (or if an error occurs), the
 **      app will be notified with NFA_I93_CMD_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
-**      NFA_STATUS_WRONG_PROTOCOL: ISO 15693 tag not activated
+**      NFA_STATUS_WRONG_PROTOCOL: T5T tag not activated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
@@ -866,7 +866,7 @@ tNFA_STATUS NFA_RwI93StayQuiet(void) {
 
   NFA_TRACE_API0("NFA_RwI93StayQuiet ()");
 
-  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_T5T) {
     return (NFA_STATUS_WRONG_PROTOCOL);
   }
 
@@ -889,7 +889,7 @@ tNFA_STATUS NFA_RwI93StayQuiet(void) {
 ** Function         NFA_RwI93ReadSingleBlock
 **
 ** Description:
-**      Send Read Single Block command to the activated ISO 15693 tag.
+**      Send Read Single Block command to the activated T5T tag.
 **
 **      Data is returned to the application using the NFA_DATA_EVT. When the
 **      read operation has completed, or if an error occurs, the app will be
@@ -897,7 +897,7 @@ tNFA_STATUS NFA_RwI93StayQuiet(void) {
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
-**      NFA_STATUS_WRONG_PROTOCOL: ISO 15693 tag not activated
+**      NFA_STATUS_WRONG_PROTOCOL: T5T tag not activated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
@@ -907,7 +907,7 @@ tNFA_STATUS NFA_RwI93ReadSingleBlock(uint8_t block_number) {
   NFA_TRACE_API1("NFA_RwI93ReadSingleBlock (): block_number: 0x%02X",
                  block_number);
 
-  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_T5T) {
     return (NFA_STATUS_WRONG_PROTOCOL);
   }
 
@@ -932,14 +932,14 @@ tNFA_STATUS NFA_RwI93ReadSingleBlock(uint8_t block_number) {
 ** Function         NFA_RwI93WriteSingleBlock
 **
 ** Description:
-**      Send Write Single Block command to the activated ISO 15693 tag.
+**      Send Write Single Block command to the activated T5T tag.
 **
 **      When the write operation has completed (or if an error occurs), the
 **      app will be notified with NFA_I93_CMD_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
-**      NFA_STATUS_WRONG_PROTOCOL: ISO 15693 tag not activated
+**      NFA_STATUS_WRONG_PROTOCOL: T5T tag not activated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
@@ -949,7 +949,7 @@ tNFA_STATUS NFA_RwI93WriteSingleBlock(uint8_t block_number, uint8_t* p_data) {
   NFA_TRACE_API1("NFA_RwI93WriteSingleBlock (): block_number: 0x%02X",
                  block_number);
 
-  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_T5T) {
     return (NFA_STATUS_WRONG_PROTOCOL);
   }
 
@@ -983,14 +983,14 @@ tNFA_STATUS NFA_RwI93WriteSingleBlock(uint8_t block_number, uint8_t* p_data) {
 ** Function         NFA_RwI93LockBlock
 **
 ** Description:
-**      Send Lock block command to the activated ISO 15693 tag.
+**      Send Lock block command to the activated T5T tag.
 **
 **      When the operation has completed (or if an error occurs), the
 **      app will be notified with NFA_I93_CMD_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
-**      NFA_STATUS_WRONG_PROTOCOL: ISO 15693 tag not activated
+**      NFA_STATUS_WRONG_PROTOCOL: T5T tag not activated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
@@ -999,7 +999,7 @@ tNFA_STATUS NFA_RwI93LockBlock(uint8_t block_number) {
 
   NFA_TRACE_API1("NFA_RwI93LockBlock (): block_number: 0x%02X", block_number);
 
-  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_T5T) {
     return (NFA_STATUS_WRONG_PROTOCOL);
   }
 
@@ -1024,7 +1024,7 @@ tNFA_STATUS NFA_RwI93LockBlock(uint8_t block_number) {
 ** Function         NFA_RwI93ReadMultipleBlocks
 **
 ** Description:
-**      Send Read Multiple Block command to the activated ISO 15693 tag.
+**      Send Read Multiple Block command to the activated T5T tag.
 **
 **      Data is returned to the application using the NFA_DATA_EVT. When the
 **      read operation has completed, or if an error occurs, the app will be
@@ -1032,7 +1032,7 @@ tNFA_STATUS NFA_RwI93LockBlock(uint8_t block_number) {
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
-**      NFA_STATUS_WRONG_PROTOCOL: ISO 15693 tag not activated
+**      NFA_STATUS_WRONG_PROTOCOL: T5T tag not activated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
@@ -1043,7 +1043,7 @@ tNFA_STATUS NFA_RwI93ReadMultipleBlocks(uint8_t first_block_number,
   NFA_TRACE_API2("NFA_RwI93ReadMultipleBlocks(): %d, %d", first_block_number,
                  number_blocks);
 
-  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_T5T) {
     return (NFA_STATUS_WRONG_PROTOCOL);
   }
 
@@ -1069,14 +1069,14 @@ tNFA_STATUS NFA_RwI93ReadMultipleBlocks(uint8_t first_block_number,
 ** Function         NFA_RwI93WriteMultipleBlocks
 **
 ** Description:
-**      Send Write Multiple Block command to the activated ISO 15693 tag.
+**      Send Write Multiple Block command to the activated T5T tag.
 **
 **      When the write operation has completed (or if an error occurs), the
 **      app will be notified with NFA_I93_CMD_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
-**      NFA_STATUS_WRONG_PROTOCOL: ISO 15693 tag not activated
+**      NFA_STATUS_WRONG_PROTOCOL: T5T tag not activated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
@@ -1089,7 +1089,7 @@ tNFA_STATUS NFA_RwI93WriteMultipleBlocks(uint8_t first_block_number,
   NFA_TRACE_API2("NFA_RwI93WriteMultipleBlocks (): %d, %d", first_block_number,
                  number_blocks);
 
-  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_T5T) {
     return (NFA_STATUS_WRONG_PROTOCOL);
   }
 
@@ -1126,7 +1126,7 @@ tNFA_STATUS NFA_RwI93WriteMultipleBlocks(uint8_t first_block_number,
 ** Function         NFA_RwI93Select
 **
 ** Description:
-**      Send Select command to the activated ISO 15693 tag.
+**      Send Select command to the activated T5T tag.
 **
 **      UID[0]: 0xE0, MSB
 **      UID[1]: IC Mfg Code
@@ -1138,7 +1138,7 @@ tNFA_STATUS NFA_RwI93WriteMultipleBlocks(uint8_t first_block_number,
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
-**      NFA_STATUS_WRONG_PROTOCOL: ISO 15693 tag not activated
+**      NFA_STATUS_WRONG_PROTOCOL: T5T tag not activated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
@@ -1148,7 +1148,7 @@ tNFA_STATUS NFA_RwI93Select(uint8_t* p_uid) {
   NFA_TRACE_API3("NFA_RwI93Select (): UID: [%02X%02X%02X...]", *(p_uid),
                  *(p_uid + 1), *(p_uid + 2));
 
-  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_T5T) {
     return (NFA_STATUS_WRONG_PROTOCOL);
   }
 
@@ -1175,14 +1175,14 @@ tNFA_STATUS NFA_RwI93Select(uint8_t* p_uid) {
 ** Function         NFA_RwI93ResetToReady
 **
 ** Description:
-**      Send Reset to ready command to the activated ISO 15693 tag.
+**      Send Reset to ready command to the activated T5T tag.
 **
 **      When the operation has completed (or if an error occurs), the
 **      app will be notified with NFA_I93_CMD_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
-**      NFA_STATUS_WRONG_PROTOCOL: ISO 15693 tag not activated
+**      NFA_STATUS_WRONG_PROTOCOL: T5T tag not activated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
@@ -1191,7 +1191,7 @@ tNFA_STATUS NFA_RwI93ResetToReady(void) {
 
   NFA_TRACE_API0("NFA_RwI93ResetToReady ()");
 
-  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_T5T) {
     return (NFA_STATUS_WRONG_PROTOCOL);
   }
 
@@ -1214,14 +1214,14 @@ tNFA_STATUS NFA_RwI93ResetToReady(void) {
 ** Function         NFA_RwI93WriteAFI
 **
 ** Description:
-**      Send Write AFI command to the activated ISO 15693 tag.
+**      Send Write AFI command to the activated T5T tag.
 **
 **      When the operation has completed (or if an error occurs), the
 **      app will be notified with NFA_I93_CMD_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
-**      NFA_STATUS_WRONG_PROTOCOL: ISO 15693 tag not activated
+**      NFA_STATUS_WRONG_PROTOCOL: T5T tag not activated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
@@ -1230,7 +1230,7 @@ tNFA_STATUS NFA_RwI93WriteAFI(uint8_t afi) {
 
   NFA_TRACE_API1("NFA_RwI93WriteAFI (): AFI: 0x%02X", afi);
 
-  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_T5T) {
     return (NFA_STATUS_WRONG_PROTOCOL);
   }
 
@@ -1255,14 +1255,14 @@ tNFA_STATUS NFA_RwI93WriteAFI(uint8_t afi) {
 ** Function         NFA_RwI93LockAFI
 **
 ** Description:
-**      Send Lock AFI command to the activated ISO 15693 tag.
+**      Send Lock AFI command to the activated T5T tag.
 **
 **      When the operation has completed (or if an error occurs), the
 **      app will be notified with NFA_I93_CMD_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
-**      NFA_STATUS_WRONG_PROTOCOL: ISO 15693 tag not activated
+**      NFA_STATUS_WRONG_PROTOCOL: T5T tag not activated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
@@ -1271,7 +1271,7 @@ tNFA_STATUS NFA_RwI93LockAFI(void) {
 
   NFA_TRACE_API0("NFA_RwI93LockAFI ()");
 
-  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_T5T) {
     return (NFA_STATUS_WRONG_PROTOCOL);
   }
 
@@ -1294,14 +1294,14 @@ tNFA_STATUS NFA_RwI93LockAFI(void) {
 ** Function         NFA_RwI93WriteDSFID
 **
 ** Description:
-**      Send Write DSFID command to the activated ISO 15693 tag.
+**      Send Write DSFID command to the activated T5T tag.
 **
 **      When the operation has completed (or if an error occurs), the
 **      app will be notified with NFA_I93_CMD_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
-**      NFA_STATUS_WRONG_PROTOCOL: ISO 15693 tag not activated
+**      NFA_STATUS_WRONG_PROTOCOL: T5T tag not activated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
@@ -1310,7 +1310,7 @@ tNFA_STATUS NFA_RwI93WriteDSFID(uint8_t dsfid) {
 
   NFA_TRACE_API1("NFA_RwI93WriteDSFID (): DSFID: 0x%02X", dsfid);
 
-  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_T5T) {
     return (NFA_STATUS_WRONG_PROTOCOL);
   }
 
@@ -1335,14 +1335,14 @@ tNFA_STATUS NFA_RwI93WriteDSFID(uint8_t dsfid) {
 ** Function         NFA_RwI93LockDSFID
 **
 ** Description:
-**      Send Lock DSFID command to the activated ISO 15693 tag.
+**      Send Lock DSFID command to the activated T5T tag.
 **
 **      When the operation has completed (or if an error occurs), the
 **      app will be notified with NFA_I93_CMD_CPLT_EVT.
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
-**      NFA_STATUS_WRONG_PROTOCOL: ISO 15693 tag not activated
+**      NFA_STATUS_WRONG_PROTOCOL: T5T tag not activated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
@@ -1351,7 +1351,7 @@ tNFA_STATUS NFA_RwI93LockDSFID(void) {
 
   NFA_TRACE_API0("NFA_RwI93LockDSFID ()");
 
-  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_T5T) {
     return (NFA_STATUS_WRONG_PROTOCOL);
   }
 
@@ -1374,7 +1374,7 @@ tNFA_STATUS NFA_RwI93LockDSFID(void) {
 ** Function         NFA_RwI93GetSysInfo
 **
 ** Description:
-**      Send Get system information command to the activated ISO 15693 tag.
+**      Send Get system information command to the activated T5T tag.
 **      If UID is provided then set UID[0]:MSB, ... UID[7]:LSB
 **
 **      When the operation has completed (or if an error occurs), the
@@ -1382,7 +1382,7 @@ tNFA_STATUS NFA_RwI93LockDSFID(void) {
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
-**      NFA_STATUS_WRONG_PROTOCOL: ISO 15693 tag not activated
+**      NFA_STATUS_WRONG_PROTOCOL: T5T tag not activated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
@@ -1391,7 +1391,7 @@ tNFA_STATUS NFA_RwI93GetSysInfo(uint8_t* p_uid) {
 
   NFA_TRACE_API0("NFA_RwI93GetSysInfo ()");
 
-  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_T5T) {
     return (NFA_STATUS_WRONG_PROTOCOL);
   }
 
@@ -1421,8 +1421,8 @@ tNFA_STATUS NFA_RwI93GetSysInfo(uint8_t* p_uid) {
 ** Function         NFA_RwI93GetMultiBlockSecurityStatus
 **
 ** Description:
-**      Send Get Multiple block security status command to the activated ISO
-**      15693 tag.
+**      Send Get Multiple block security status command to the activated
+**      T5T tag.
 **
 **      Data is returned to the application using the NFA_DATA_EVT. When the
 **      read operation has completed, or if an error occurs, the app will be
@@ -1430,7 +1430,7 @@ tNFA_STATUS NFA_RwI93GetSysInfo(uint8_t* p_uid) {
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
-**      NFA_STATUS_WRONG_PROTOCOL: ISO 15693 tag not activated
+**      NFA_STATUS_WRONG_PROTOCOL: T5T tag not activated
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
@@ -1441,7 +1441,7 @@ tNFA_STATUS NFA_RwI93GetMultiBlockSecurityStatus(uint8_t first_block_number,
   NFA_TRACE_API2("NFA_RwI93GetMultiBlockSecurityStatus(): %d, %d",
                  first_block_number, number_blocks);
 
-  if (nfa_rw_cb.protocol != NFC_PROTOCOL_15693) {
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_T5T) {
     return (NFA_STATUS_WRONG_PROTOCOL);
   }
 

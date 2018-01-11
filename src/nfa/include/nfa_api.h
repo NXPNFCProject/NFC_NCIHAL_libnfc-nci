@@ -171,7 +171,8 @@ typedef uint8_t tNFA_PMID;
 #define NFA_TECHNOLOGY_MASK_A 0x01        /* NFC Technology A             */
 #define NFA_TECHNOLOGY_MASK_B 0x02        /* NFC Technology B             */
 #define NFA_TECHNOLOGY_MASK_F 0x04        /* NFC Technology F             */
-#define NFA_TECHNOLOGY_MASK_ISO15693 0x08 /* Proprietary Technology       */
+/* TECHNOLOGY_MASK_V in NCI2.0 and TECHNOLOGY_MASK_15693 proprietary in NCI1.0*/
+#define NFA_TECHNOLOGY_MASK_V 0x08
 #define NFA_TECHNOLOGY_MASK_B_PRIME 0x10  /* Proprietary Technology       */
 #define NFA_TECHNOLOGY_MASK_KOVIO 0x20    /* Proprietary Technology       */
 /* NFC Technology A active mode */
@@ -193,7 +194,8 @@ typedef uint8_t tNFA_TECHNOLOGY_MASK;
 #define NFA_PROTOCOL_ISO_DEP NFC_PROTOCOL_ISO_DEP
 /* NFCDEP/LLCP - NFC-A or NFC-F */
 #define NFA_PROTOCOL_NFC_DEP NFC_PROTOCOL_NFC_DEP
-#define NFA_PROTOCOL_ISO15693 NFC_PROTOCOL_15693
+/* NFC_PROTOCOL_T5T in NCI2.0 and NFC_PROTOCOL_ISO15693 proprietary in NCI1.0*/
+#define NFA_PROTOCOL_T5T NFC_PROTOCOL_T5T
 #define NFA_PROTOCOL_B_PRIME NFC_PROTOCOL_B_PRIME
 #define NFA_PROTOCOL_KOVIO NFC_PROTOCOL_KOVIO
 #define NFA_PROTOCOL_MIFARE NFC_PROTOCOL_MIFARE
