@@ -509,7 +509,8 @@ typedef struct {
   uint8_t lf_t3t_flags2[NCI_PARAM_LEN_LF_T3T_FLAGS2];
   uint8_t lf_t3t_flags2_len;
   uint8_t lf_t3t_pmm[NCI_PARAM_LEN_LF_T3T_PMM];
-  uint8_t lf_t3t_id[NFA_CE_LISTEN_INFO_MAX][NCI_PARAM_LEN_LF_T3T_ID(NCI_VERSION_2_0)];
+  uint8_t lf_t3t_id[NFA_CE_LISTEN_INFO_MAX]
+                   [NCI_PARAM_LEN_LF_T3T_ID(NCI_VERSION_2_0)];
 
   uint8_t fwi[NCI_PARAM_LEN_FWI];
   uint8_t wt[NCI_PARAM_LEN_WT];

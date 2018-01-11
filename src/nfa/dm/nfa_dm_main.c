@@ -375,11 +375,11 @@ tNFA_STATUS nfa_dm_check_set_config(uint8_t tlv_list_len, uint8_t* p_tlv_list,
         max_len = NCI_PARAM_LEN_LF_T3T_FLAGS2;
         p_cur_len = &nfa_dm_cb.params.lf_t3t_flags2_len;
         break;
-#if (NXP_EXTNS != TRUE)
       case NFC_PMID_LF_T3T_PMM:
         p_stored = nfa_dm_cb.params.lf_t3t_pmm;
         max_len = NCI_PARAM_LEN_LF_T3T_PMM;
         break;
+
       /*
       **  ISO-DEP and NFC-DEP Configuration
       */
@@ -387,7 +387,6 @@ tNFA_STATUS nfa_dm_check_set_config(uint8_t tlv_list_len, uint8_t* p_tlv_list,
         p_stored = nfa_dm_cb.params.fwi;
         max_len = NCI_PARAM_LEN_FWI;
         break;
-#endif
       case NFC_PMID_WT:
         p_stored = nfa_dm_cb.params.wt;
         max_len = NCI_PARAM_LEN_WT;
