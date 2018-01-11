@@ -1543,6 +1543,18 @@ extern tNFC_STATUS NFC_TestLoopback(NFC_HDR* p_data);
 *******************************************************************************/
 extern uint8_t NFC_SetTraceLevel(uint8_t new_level);
 
+/*******************************************************************************
+**
+** Function         NFC_ISODEPNakPresCheck
+**
+** Description      This function is called to send the ISO DEP nak presenc check cmd
+**                  to check that the remote end point in RF field.
+**
+** Returns          tNFC_STATUS
+**
+*******************************************************************************/
+extern tNFC_STATUS NFC_ISODEPNakPresCheck ();
+
 #if (BT_TRACE_VERBOSE == true)
 /*******************************************************************************
 **
@@ -1837,17 +1849,5 @@ extern void NFC_SetStaticHciCback (tNFC_CONN_CBACK    *p_cback);
 **
 *******************************************************************************/
 extern tNFC_STATUS NFC_SetPowerSubState (uint8_t screen_state);
-
-/*******************************************************************************
-**
-** Function         NFC_ISODEPNakPresCheck
-**
-** Description      This function is called to send the ISO DEP nak presenc check cmd
-**                  to check that the remote end point in RF field.
-**
-** Returns          tNFC_STATUS
-**
-*******************************************************************************/
-extern tNFC_STATUS NFC_ISODEPNakPresCheck ();
 
 #endif /* NFC_API_H */

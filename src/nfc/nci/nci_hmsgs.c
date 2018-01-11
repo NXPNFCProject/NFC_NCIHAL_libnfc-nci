@@ -409,6 +409,37 @@ uint8_t nci_snd_pwr_nd_lnk_ctrl_cmd(uint8_t nfcee_id, uint8_t cfg_value) {
   return (NCI_STATUS_OK);
 }
 #endif
+
+/*******************************************************************************
+**
+** Function         nci_snd_iso_dep_nak_presence_check_cmd
+**
+** Description      compose and send RF Management presence check ISO-DEP NAK
+**                  command.
+**
+**
+** Returns          status
+**
+*******************************************************************************/
+uint8_t nci_snd_iso_dep_nak_presence_check_cmd()
+{
+    NFC_HDR *p;
+    uint8_t *pp;
+
+    if ((p = NCI_GET_CMD_BUF(0)) == NULL) return (NCI_STATUS_FAILED);
+
+    p->event            = BT_EVT_TO_NFC_NCI;
+    p->offset           = NCI_MSG_OFFSET_SIZE;
+    p->len              = NCI_MSG_HDR_SIZE + 0;
+    p->layer_specific   = 0;
+    pp                  = (uint8_t *) (p + 1) + p->offset;
+
+    NCI_MSG_BLD_HDR0 (pp, NCI_MT_CMD, NCI_GID_RF_MANAGE);
+    NCI_MSG_BLD_HDR1 (pp, NCI_MSG_RF_ISO_DEP_NAK_PRESENCE);
+    UINT8_TO_STREAM(pp, 0x00);
+    nfc_ncif_send_cmd (p);
+    return (NCI_STATUS_OK);
+}
 /*******************************************************************************
 **
 ** Function         nci_snd_nfcee_mode_set
@@ -810,37 +841,6 @@ uint8_t nci_snd_nfcee_power_link_control (uint8_t nfcee_id, uint8_t pl_config)
     UINT8_TO_STREAM (pp, nfcee_id);
     UINT8_TO_STREAM (pp, pl_config);
 
-    nfc_ncif_send_cmd (p);
-    return (NCI_STATUS_OK);
-}
-
-/*******************************************************************************
-**
-** Function         nci_snd_iso_dep_nak_presence_check_cmd
-**
-** Description      compose and send RF Management presence check ISO-DEP NAK
-**                  command.
-**
-**
-** Returns          status
-**
-*******************************************************************************/
-uint8_t nci_snd_iso_dep_nak_presence_check_cmd()
-{
-    NFC_HDR *p;
-    uint8_t *pp;
-
-    if ((p = NCI_GET_CMD_BUF(0)) == NULL) return (NCI_STATUS_FAILED);
-
-    p->event            = BT_EVT_TO_NFC_NCI;
-    p->offset           = NCI_MSG_OFFSET_SIZE;
-    p->len              = NCI_MSG_HDR_SIZE + 0;
-    p->layer_specific   = 0;
-    pp                  = (uint8_t *) (p + 1) + p->offset;
-
-    NCI_MSG_BLD_HDR0 (pp, NCI_MT_CMD, NCI_GID_RF_MANAGE);
-    NCI_MSG_BLD_HDR1 (pp, NCI_MSG_RF_ISO_DEP_NAK_PRESENCE);
-    UINT8_TO_STREAM(pp, 0x00);
     nfc_ncif_send_cmd (p);
     return (NCI_STATUS_OK);
 }

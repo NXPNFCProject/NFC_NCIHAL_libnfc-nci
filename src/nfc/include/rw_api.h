@@ -178,10 +178,7 @@ typedef uint8_t tRW_EVENT;
 /* Tag is one time programmable */
 #define RW_NDEF_FL_OTP 0x80
 
-#define RW_T4T_CHK_ISO_DEP_NAK_PRES_CHK 5
-
 typedef uint8_t tRW_NDEF_FLAG;
-
 
 /* options for RW_T4tPresenceCheck  */
 #define RW_T4T_CHK_READ_BINARY_CH0 0
@@ -189,7 +186,7 @@ typedef uint8_t tRW_NDEF_FLAG;
 #define RW_T4T_CHK_READ_BINARY_CH2 2
 #define RW_T4T_CHK_READ_BINARY_CH3 3
 #define RW_T4T_CHK_EMPTY_I_BLOCK 4
-
+#define RW_T4T_CHK_ISO_DEP_NAK_PRES_CHK 5
 typedef struct {
   tNFC_STATUS status;
   uint8_t hr[T1T_HR_LEN];

@@ -1851,7 +1851,7 @@ void rw_t4t_process_timeout(TIMER_LIST_ENT* p_tle) {
 ** Returns          none
 **
 *******************************************************************************/
-void rw_t4t_handle_isodep_nak_rsp(uint8_t status,bool is_ntf) {
+void rw_t4t_handle_isodep_nak_rsp(uint8_t status, bool is_ntf) {
   tRW_DATA rw_data;
   tRW_T4T_CB* p_t4t = &rw_cb.tcb.t4t;
   RW_TRACE_DEBUG1("rw_t4t_handle_isodep_nak_rsp %d", status);
@@ -2277,8 +2277,7 @@ tNFC_STATUS RW_T4tPresenceCheck(uint8_t option) {
           status = true;
       }
     } else if (option == RW_T4T_CHK_ISO_DEP_NAK_PRES_CHK) {
-      if (NFC_ISODEPNakPresCheck() == NFC_STATUS_OK)
-        status = true;
+      if (NFC_ISODEPNakPresCheck() == NFC_STATUS_OK) status = true;
     } else {
       /* use read binary on the given channel */
       rw_cb.tcb.t4t.channel = 0;

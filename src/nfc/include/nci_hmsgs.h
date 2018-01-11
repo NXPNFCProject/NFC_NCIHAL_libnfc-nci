@@ -61,7 +61,6 @@ void nci_proc_ee_management_ntf(NFC_HDR* p_msg);
 void nci_proc_prop_rsp(NFC_HDR* p_msg);
 #if (NXP_EXTNS == TRUE)
 void nci_proc_prop_nxp_rsp(NFC_HDR* p_msg);
-uint8_t nci_snd_iso_dep_nak_presence_check_cmd();
 #endif
 void nci_proc_prop_ntf(NFC_HDR* p_msg);
 
@@ -82,6 +81,7 @@ uint8_t nci_snd_deactivate_cmd(uint8_t de_act_type);
 uint8_t nci_snd_discover_map_cmd(uint8_t num, tNCI_DISCOVER_MAPS* p_maps);
 uint8_t nci_snd_t3t_polling(uint16_t system_code, uint8_t rc, uint8_t tsn);
 uint8_t nci_snd_parameter_update_cmd(uint8_t* p_param_tlvs, uint8_t tlv_size);
+uint8_t nci_snd_iso_dep_nak_presence_check_cmd();
 #if (NXP_EXTNS == TRUE)
 uint8_t nci_snd_pwr_nd_lnk_ctrl_cmd(uint8_t nfcee_id, uint8_t cfg_value);
 #endif

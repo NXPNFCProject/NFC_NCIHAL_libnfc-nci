@@ -415,7 +415,6 @@ extern void nfc_ncif_proc_data(NFC_HDR* p_msg);
 extern uint8_t nfc_ncif_retransmit_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data);
 extern tNFC_STATUS nfc_ncif_store_FWVersion(uint8_t* p_buf);
 extern tNFC_STATUS nfc_ncif_set_MaxRoutingTableSize(uint8_t* p_buf);
-extern void nfc_ncif_proc_isodep_nak_presence_check_status (uint8_t status, bool is_ntf);
 extern void nfc_ncif_update_window(void);
 extern void nfc_ncif_empty_cmd_queue();
 extern bool nfc_ncif_proc_proprietary_rsp(uint8_t mt, uint8_t gid, uint8_t oid);
@@ -424,7 +423,7 @@ extern void nfc_ncif_proc_rf_wtx_ntf(uint8_t* p, uint16_t plen);
 extern bool nfa_dm_p2p_prio_logic(uint8_t event, uint8_t* p, uint8_t ntf_rsp);
 extern void nfa_dm_p2p_timer_event();
 extern void nfa_dm_p2p_prio_logic_cleanup();
-
+extern void nfc_ncif_proc_isodep_nak_presence_check_status (uint8_t status, bool is_ntf);
 #if (NFC_RW_ONLY == FALSE)
 extern void nfc_ncif_proc_rf_field_ntf(uint8_t rf_status);
 #else
