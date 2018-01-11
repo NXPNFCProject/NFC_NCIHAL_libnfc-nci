@@ -49,6 +49,9 @@
 
 #define NFA_RW_OPTION_INVALID 0xFF
 
+/* Tag sleep req cmd*/
+uint8_t NFA_RW_TAG_SLP_REQ[] = {0x50, 0x00};
+
 /* Local static function prototypes */
 static tNFC_STATUS nfa_rw_start_ndef_read(void);
 static tNFC_STATUS nfa_rw_start_ndef_write(void);
