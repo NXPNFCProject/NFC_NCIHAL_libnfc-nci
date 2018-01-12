@@ -47,10 +47,11 @@
 #include <string.h>
 #include "nfc_target.h"
 
-#include "nfc_hal_api.h"
-#include "nfc_api.h"
+#include "include/debug_nfcsnoop.h"
 #include "nci_defs.h"
 #include "nci_hmsgs.h"
+#include "nfc_api.h"
+#include "nfc_hal_api.h"
 #include "nfc_int.h"
 #include "rw_api.h"
 #include "rw_int.h"
@@ -541,6 +542,7 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
 
     /* send to HAL */
     HAL_WRITE(p);
+    nfcsnoop_capture(p, false);
 #if (NXP_EXTNS == TRUE)
     /* start NFC data ntf timeout timer */
     if (get_i2c_fragmentation_enabled() == I2C_FRAGMENATATION_ENABLED) {
@@ -751,6 +753,7 @@ void nfc_ncif_send_cmd(NFC_HDR* p_buf) {
   /* post the p_buf to NCIT task */
   p_buf->event = BT_EVT_TO_NFC_NCI;
   p_buf->layer_specific = 0;
+  nfcsnoop_capture(p_buf, false);
   nfc_ncif_check_cmd_queue(p_buf);
 }
 
@@ -788,6 +791,7 @@ bool nfc_ncif_process_event(NFC_HDR* p_msg) {
   }
 #endif
 
+  nfcsnoop_capture(p_msg, true);
   switch (mt) {
     case NCI_MT_DATA:
       NFC_TRACE_DEBUG0("NFC received data");

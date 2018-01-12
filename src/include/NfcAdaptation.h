@@ -104,6 +104,7 @@ class NfcAdaptation {
   static NfcAdaptation& GetInstance();
   tHAL_NFC_ENTRY* GetHalEntryFuncs();
   void DownloadFirmware();
+  void Dump(int fd);
 #if (NXP_EXTNS == TRUE)
   void MinInitialize();
   int HalGetFwDwnldFlag(uint8_t* fwDnldRequest);
