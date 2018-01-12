@@ -763,8 +763,8 @@ NFCSTATUS phDnldNfc_InitImgInfo(void) {
     wStatus = phDnldNfc_LoadFW(pathName, &pImageInfo, &ImageInfoLen);
   }
 
-  NXPLOG_FWDNLD_D("FW Image Length - ImageInfoLen %d", ImageInfoLen);
-  NXPLOG_FWDNLD_D("FW Image Info Pointer - pImageInfo %p", pImageInfo);
+  NXPLOG_FWDNLD_E("FW Image Length - ImageInfoLen %d", ImageInfoLen);
+  NXPLOG_FWDNLD_E("FW Image Info Pointer - pImageInfo %p", pImageInfo);
 
   if ((pImageInfo == NULL) || (ImageInfoLen == 0)) {
     NXPLOG_FWDNLD_E(
@@ -788,12 +788,12 @@ NFCSTATUS phDnldNfc_InitImgInfo(void) {
     gpphDnldContext->nxp_nfc_fw_len = ImageInfoLen;
     if ((NULL != gpphDnldContext->nxp_nfc_fw) &&
         (0 != gpphDnldContext->nxp_nfc_fw_len)) {
-      NXPLOG_FWDNLD_D("FW Major Version Num - %x",
+      NXPLOG_FWDNLD_E("FW Major Version Num - %x",
                       gpphDnldContext->nxp_nfc_fw[5]);
-      NXPLOG_FWDNLD_D("FW Minor Version Num - %x",
+      NXPLOG_FWDNLD_E("FW Minor Version Num - %x",
                       gpphDnldContext->nxp_nfc_fw[4]);
-      NXPLOG_FWDNLD_D("FW Image Length - %d", ImageInfoLen);
-      NXPLOG_FWDNLD_D("FW Image Info Pointer - %p", pImageInfo);
+      NXPLOG_FWDNLD_E("FW Image Length - %d", ImageInfoLen);
+      NXPLOG_FWDNLD_E("FW Image Info Pointer - %p", pImageInfo);
 
       /* get the FW version */
       wFwVer = (((uint16_t)(gpphDnldContext->nxp_nfc_fw[5]) << 8U) |

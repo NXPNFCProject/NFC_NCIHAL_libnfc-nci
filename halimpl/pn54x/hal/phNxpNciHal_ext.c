@@ -1315,8 +1315,8 @@ int phNxpNciHal_CheckFwRegFlashRequired(uint8_t* fw_update_req,
   UNUSED(rf_update_req);
   NXPLOG_NCIHAL_D("phNxpNciHal_CheckFwRegFlashRequired() : enter");
   status = phDnldNfc_InitImgInfo();
-  NXPLOG_NCIHAL_D("FW version of the libpn5xx.so binary = 0x%x", wFwVer);
-  NXPLOG_NCIHAL_D("FW version found on the device = 0x%x", wFwVerRsp);
+  NXPLOG_NCIHAL_E("FW version of the libpn5xx.so binary = 0x%x", wFwVer);
+  NXPLOG_NCIHAL_E("FW version found on the device = 0x%x", wFwVerRsp);
   /* Consider for each chip type */
   *fw_update_req = (((wFwVerRsp & 0x0000FFFF) != wFwVer) ? true : false);
 
