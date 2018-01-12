@@ -2743,12 +2743,8 @@ static void rw_i93_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   if ((event == NFC_DEACTIVATE_CEVT) || (event == NFC_ERROR_CEVT) ||
       ((event == NFC_DATA_CEVT) && (p_data->status != NFC_STATUS_OK))) {
     nfc_stop_quick_timer(&p_i93->timer);
-#if(NXP_EXTNS == TRUE)
-        if ((event == NFC_ERROR_CEVT) || (p_data->status != NFC_STATUS_OK))
-#else
-    if (event == NFC_ERROR_CEVT)
-#endif
-    {
+
+    if (event == NFC_ERROR_CEVT || (p_data->status != NFC_STATUS_OK)) {
       if ((p_i93->retry_count < RW_MAX_RETRIES) && (p_i93->p_retry_cmd)) {
         p_i93->retry_count++;
 
