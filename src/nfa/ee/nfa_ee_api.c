@@ -570,47 +570,42 @@ tNFA_STATUS NFA_EeSetDefaultProtoRouting(
 **
 *******************************************************************************/
 tNFA_STATUS NFA_EeAddAidRouting(tNFA_HANDLE ee_handle, uint8_t aid_len,
-                                uint8_t* p_aid, tNFA_EE_PWR_STATE power_state
-#if (NXP_EXTNS == TRUE)
-                                ,
-                                uint8_t aidInfo)
-#else
-                                )
-#endif
-{
+                                uint8_t* p_aid, tNFA_EE_PWR_STATE power_state,
+                                uint8_t aidInfo) {
   tNFA_EE_API_ADD_AID* p_msg;
   tNFA_STATUS status = NFA_STATUS_FAILED;
   uint16_t size = sizeof(tNFA_EE_API_ADD_AID) + aid_len;
   uint8_t nfcee_id = (uint8_t)(ee_handle & 0xFF);
   tNFA_EE_ECB* p_cb;
+
   NFA_TRACE_API1("NFA_EeAddAidRouting(): handle:<0x%x>", ee_handle);
   p_cb = nfa_ee_find_ecb(nfcee_id);
 
   /* validate parameters - make sure the AID is in valid length range */
+#if (NXP_EXTNS == TRUE)
   if ((p_cb == NULL) || ((NFA_GetNCIVersion() == NCI_VERSION_2_0) && (aid_len != 0) && (p_aid == NULL)) ||
           ((NFA_GetNCIVersion() != NCI_VERSION_2_0) &&
                   ((aid_len == 0) || (p_aid == NULL) || (aid_len < NFA_MIN_AID_LEN))) ||
                   (aid_len > NFA_MAX_AID_LEN)) {
+#else
+  if ((p_cb == NULL) || (aid_len == 0) || (p_aid == NULL) ||
+      (aid_len < NFA_MIN_AID_LEN) || (aid_len > NFA_MAX_AID_LEN)) {
+#endif
     NFA_TRACE_ERROR1("Bad ee_handle or AID (len=%d)", aid_len);
     status = NFA_STATUS_INVALID_PARAM;
   } else {
     p_msg = (tNFA_EE_API_ADD_AID*)GKI_getbuf(size);
     if (p_msg != NULL) {
-        if(p_aid != NULL) {
-            NFA_TRACE_DEBUG2("aid:<%02x%02x>", p_aid[0], p_aid[1]);
-        }
+      NFA_TRACE_DEBUG2("aid:<%02x%02x>", p_aid[0], p_aid[1]);
       p_msg->hdr.event = NFA_EE_API_ADD_AID_EVT;
       p_msg->nfcee_id = nfcee_id;
       p_msg->p_cb = p_cb;
       p_msg->aid_len = aid_len;
       p_msg->power_state = power_state;
       p_msg->p_aid = (uint8_t*)(p_msg + 1);
-#if (NXP_EXTNS == TRUE)
-      p_msg->aid_info = aidInfo;
-#endif
-      if(p_aid != NULL) {
+      p_msg->aidInfo = aidInfo;
       memcpy(p_msg->p_aid, p_aid, aid_len);
-      }
+
       nfa_sys_sendmsg(p_msg);
 
       status = NFA_STATUS_OK;

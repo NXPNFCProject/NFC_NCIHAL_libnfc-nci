@@ -389,9 +389,7 @@ typedef struct {
   uint8_t aid_len;
   uint8_t* p_aid;
   tNFA_EE_PWR_STATE power_state;
-#if (NXP_EXTNS == TRUE)
-  uint8_t aid_info;
-#endif
+  uint8_t aidInfo;
 } tNFA_EE_API_ADD_AID;
 
 /* data type for NFA_EE_API_REMOVE_AID_EVT */
