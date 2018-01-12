@@ -40,11 +40,11 @@ extern "C" {
 
 extern unsigned char appl_trace_level;
 extern uint32_t ScrProtocolTraceFlag;
+/* defined for run time DTA mode selection */
+extern unsigned char appl_dta_mode_flag;
 
-#if (NXP_EXTNS == TRUE)
-extern unsigned char
-    appl_dta_mode_flag;  // defined for run time DTA mode selection
-#endif
+void initializeGlobalAppDtaMode();
+
 /*******************************************************************************
 **
 ** Function:        initializeGlobalAppLogLevel
@@ -66,17 +66,6 @@ unsigned char initializeGlobalAppLogLevel();
 uint32_t initializeProtocolLogLevel();
 
 #if (NXP_EXTNS == TRUE)
-/*******************************************************************************
-**
-** Function:        initializeGlobalDtaMode
-**
-** Description:     Initialize and get global DTA mode from .conf
-**
-** Returns:         none:
-**
-*******************************************************************************/
-void initializeGlobalAppDtaMode();
-
 /*******************************************************************************
 **
 ** Function:        enableDisableAppLevel

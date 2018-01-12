@@ -1712,22 +1712,20 @@ static tNFA_STATUS nfa_dm_disc_notify_activation(tNFC_DISCOVER* p_data) {
     /* if any ISO-DEP or T3T listening even if host in LRT is not matched */
     xx = iso_dep_t3t__listen;
   }
-
-#if (NXP_EXTNS == TRUE)
   if (protocol == NFC_PROTOCOL_NFC_DEP &&
       (tech_n_mode == NFC_DISCOVERY_TYPE_LISTEN_F_ACTIVE ||
        tech_n_mode == NFC_DISCOVERY_TYPE_LISTEN_A_ACTIVE ||
        tech_n_mode == NFC_DISCOVERY_TYPE_LISTEN_A)) {
-    if (appl_dta_mode_flag == 1 &&
-        (tech_n_mode == NFC_DISCOVERY_TYPE_LISTEN_A)) {
+    if (appl_dta_mode_flag == 1 && tech_n_mode == NFC_DISCOVERY_TYPE_LISTEN_A) {
       NFA_TRACE_DEBUG0("DTA Mode Enabled : NFC-A Passive Listen Mode");
-    } else {
+    }
+#if (NXP_EXTNS == TRUE)
+    else {
       extern tNFA_P2P_CB nfa_p2p_cb;
       xx = nfa_p2p_cb.dm_disc_handle;
     }
-  }
-
 #endif
+  }
 
   if (xx < NFA_DM_DISC_NUM_ENTRIES) {
     nfa_dm_cb.disc_cb.activated_tech_mode = tech_n_mode;
@@ -3382,11 +3380,11 @@ bool nfa_dm_p2p_prio_logic(uint8_t event, uint8_t* p, uint8_t event_type) {
         "returning from nfa_dm_p2p_prio_logic  reconnect_in_progress");
     return true;
   }
+#endif
   if (0x01 == appl_dta_mode_flag) {
     /*Disable the P2P Prio Logic when DTA is running*/
-    return true;
+    return TRUE;
   }
-#endif
   if (event == NCI_MSG_RF_DISCOVER &&
       p2p_prio_logic_data.timer_expired == true &&
       event_type == NFA_DM_P2P_PRIO_RSP) {

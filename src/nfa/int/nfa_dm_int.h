@@ -83,10 +83,8 @@ enum {
   NFA_DM_API_REG_VSC_EVT,
   NFA_DM_API_SEND_VSC_EVT,
   NFA_DM_TIMEOUT_DISABLE_EVT,
-#if (NXP_EXTNS == TRUE)
-  NFA_DM_API_SEND_NXP_EVT,
-#endif
   NFA_DM_API_SET_POWER_SUB_STATE_EVT,
+  NFA_DM_API_SEND_RAW_VS_EVT,
   NFA_DM_MAX_EVT
 };
 
@@ -581,8 +579,9 @@ typedef struct {
 
   uint8_t deactivate_cmd_retry_count; /*number of times the deactivation cmd
                                          sent in case of error scenerio */
-#if (NXP_EXTNS == TRUE)
+
   uint32_t eDtaMode;        /* For enable the DTA type modes. */
+#if (NXP_EXTNS == TRUE)
   uint8_t selected_uicc_id; /* Current selected UICC ID */
 #endif
   uint8_t power_state;    /* current screen/power  state */
@@ -595,6 +594,9 @@ void nfa_dm_ndef_dereg_all(void);
 void nfa_dm_act_conn_cback_notify(uint8_t event, tNFA_CONN_EVT_DATA* p_data);
 void nfa_dm_notify_activation_status(tNFA_STATUS status,
                                      tNFA_TAG_PARAMS* p_params);
+
+bool nfa_dm_act_send_raw_vs(tNFA_DM_MSG* p_data);
+
 void nfa_dm_disable_complete(void);
 
 /* Internal functions from nfa_rw */
@@ -616,11 +618,10 @@ extern uint8_t nfa_ee_max_ee_cfg;
 extern tNCI_DISCOVER_MAPS* p_nfa_dm_interface_mapping;
 extern uint8_t nfa_dm_num_dm_interface_mapping;
 extern bool nfa_poll_bail_out_mode;
-#if (NXP_EXTNS == TRUE)
+
 void nfa_dm_poll_disc_cback_dta_wrapper(tNFA_DM_RF_DISC_EVT event,
                                         tNFC_DISCOVER* p_data);
 extern unsigned char appl_dta_mode_flag;
-#endif
 
 /* NFA device manager control block */
 extern tNFA_DM_CB nfa_dm_cb;
@@ -675,7 +676,6 @@ bool nfa_dm_act_reg_vsc(tNFA_DM_MSG* p_data);
 bool nfa_dm_act_send_vsc(tNFA_DM_MSG* p_data);
 #if (NXP_EXTNS == TRUE)
 void nfa_dm_p2p_prio_logic_disable();
-bool nfa_dm_act_send_nxp(tNFA_DM_MSG* p_data);
 uint16_t nfa_dm_act_get_rf_disc_duration();
 #endif
 bool nfa_dm_act_disable_timeout(tNFA_DM_MSG* p_data);

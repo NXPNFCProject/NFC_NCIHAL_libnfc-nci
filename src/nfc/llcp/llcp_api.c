@@ -76,7 +76,6 @@ void LLCP_SetTestParams(uint8_t version, uint16_t wks) {
 }
 #endif
 
-#if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         LLCP_RegisterDtaCback
@@ -88,11 +87,10 @@ void LLCP_SetTestParams(uint8_t version, uint16_t wks) {
 **
 *******************************************************************************/
 void LLCP_RegisterDtaCback(tLLCP_DTA_CBACK* p_dta_cback) {
-  LLCP_TRACE_API0("LLCP_RegisterDtaCback ()");
+  LLCP_TRACE_API1("%s", __func__);
 
   llcp_cb.p_dta_cback = p_dta_cback;
 }
-#endif
 
 /*******************************************************************************
 **

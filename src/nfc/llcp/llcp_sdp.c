@@ -49,10 +49,9 @@
 #include "llcp_api.h"
 #include "llcp_int.h"
 #include "llcp_defs.h"
-
+#include "nfa_dm_int.h"
 #if (NXP_EXTNS == TRUE)
 #include "nfa_sys.h"
-#include "nfa_dm_int.h"
 #endif
 
 /*******************************************************************************
@@ -100,17 +99,14 @@ void llcp_sdp_check_send_snl(void) {
 
     GKI_enqueue(&llcp_cb.lcb.sig_xmit_q, llcp_cb.sdp_cb.p_snl);
     llcp_cb.sdp_cb.p_snl = NULL;
-  }
-#if (NXP_EXTNS == TRUE)
-  else {
+  } else {
     /* Notify DTA after sending out SNL with SDRES not to send SNLs in AGF PDU
      */
-    if ((llcp_cb.p_dta_cback) && (llcp_cb.dta_snl_resp)) {
+    if (llcp_cb.p_dta_cback && llcp_cb.dta_snl_resp) {
       llcp_cb.dta_snl_resp = false;
       (*llcp_cb.p_dta_cback)();
     }
   }
-#endif
 }
 
 /*******************************************************************************
@@ -318,14 +314,12 @@ uint8_t llcp_sdp_get_sap_by_name(char* p_name, uint8_t length) {
     if ((p_app_cb) && (p_app_cb->p_app_cback) &&
         (strlen((char*)p_app_cb->p_service_name) == length) &&
         (!strncmp((char*)p_app_cb->p_service_name, p_name, length))) {
-#if (NXP_EXTNS == TRUE)
       /* if device is under LLCP DTA testing */
-      if ((llcp_cb.p_dta_cback) &&
-          (!strncmp((char*)p_app_cb->p_service_name, "urn:nfc:sn:cl-echo-in",
-                    length))) {
+      if (llcp_cb.p_dta_cback && (!strncmp((char*)p_app_cb->p_service_name,
+                                           "urn:nfc:sn:cl-echo-in", length))) {
         llcp_cb.dta_snl_resp = true;
       }
-#endif
+
       return (sap);
     }
   }
@@ -388,9 +382,7 @@ void llcp_sdp_proc_deactivation(void) {
   }
 
   llcp_cb.sdp_cb.next_tid = 0;
-#if (NXP_EXTNS == TRUE)
   llcp_cb.dta_snl_resp = false;
-#endif
 }
 
 /*******************************************************************************
@@ -430,40 +422,29 @@ tLLCP_STATUS llcp_sdp_proc_snl(uint16_t sdu_length, uint8_t* p) {
           p_value = p;
           BE_STREAM_TO_UINT8(tid, p_value);
           sap = llcp_sdp_get_sap_by_name((char*)p_value, (uint8_t)(length - 1));
-#if (NXP_EXTNS == TRUE)
           /* fix to pass TC_CTO_TAR_BI_03_x (x=5) test case
            * As per the LLCP test specification v1.2.00 by receiving erroneous
-           * SNL PDU
-           * i'e with improper service name "urn:nfc:sn:dta-co-echo-in", the IUT
-           * should not
-           * send any PDU except SYMM PDU*/
-          if ((appl_dta_mode_flag == 1) && (sap == 0x00)) {
-            LLCP_TRACE_DEBUG1(
-                "llcp_sdp_proc_snl () In dta mode sap == 0x00 p_value = %s",
-                p_value);
+           * SNL PDU i'e with improper service name "urn:nfc:sn:dta-co-echo-in",
+           * the IUT should not send any PDU except SYMM PDU */
+          if (appl_dta_mode_flag == 1 && sap == 0x00) {
+            LLCP_TRACE_DEBUG2("%s: In dta mode sap == 0x00 p_value = %s",
+                              __func__, p_value);
             if ((length - 1) == strlen((const char*)p_value)) {
-              LLCP_TRACE_DEBUG0(
-                  "DEBUG> llcp_sdp_proc_snl () Strings are not equal");
+              LLCP_TRACE_DEBUG1("%s: Strings are not equal", __func__);
               llcp_sdp_send_sdres(tid, sap);
             }
           } else {
             llcp_sdp_send_sdres(tid, sap);
           }
-#else
-          llcp_sdp_send_sdres(tid, sap);
-#endif
         } else {
-#if (NXP_EXTNS == TRUE)
           /*For P2P in LLCP mode TC_CTO_TAR_BI_03_x(x=3) fix*/
-          if ((appl_dta_mode_flag == 1) &&
+          if (appl_dta_mode_flag == 1 &&
               ((nfa_dm_cb.eDtaMode & 0x0F) == NFA_DTA_LLCP_MODE)) {
-            LLCP_TRACE_ERROR0(
-                " llcp_sdp_proc_snl () Calling llcp_sdp_send_sdres");
+            LLCP_TRACE_ERROR1("%s: Calling llcp_sdp_send_sdres", __func__);
             tid = 0x01;
             sap = 0x00;
             llcp_sdp_send_sdres(tid, sap);
           }
-#endif
           LLCP_TRACE_ERROR1(
               "llcp_sdp_proc_snl (): bad length (%d) in LLCP_SDREQ_TYPE",
               length);

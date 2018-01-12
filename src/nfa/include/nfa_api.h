@@ -380,7 +380,6 @@ typedef union {
 /* NFA_DM callback */
 typedef void(tNFA_DM_CBACK)(uint8_t event, tNFA_DM_CBACK_DATA* p_data);
 
-#if (NXP_EXTNS == TRUE)
 /* NFA Enable DTA Type Mode */
 typedef enum {
   NFA_DTA_DEFAULT_MODE = 0x00000001,
@@ -393,6 +392,7 @@ typedef enum {
   NFA_DTA_CR11 = 0x000000B0,
   NFA_DTA_CR12 = 0x000000C0,
 } tNFA_eDtaModes;
+#if (NXP_EXTNS == TRUE)
 typedef struct {
   uint32_t validation; /* indicates on which platform validation is done like
                          pn547, pn548, pn65T, pn66T */
@@ -1501,28 +1501,28 @@ extern tNFA_STATUS NFA_SendVsCommand(uint8_t oid, uint8_t cmd_params_len,
                                      uint8_t* p_cmd_params,
                                      tNFA_VSC_CBACK* p_cback);
 
-#if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
-** Function         NFA_SendNxpNciCommand
+** Function         NFA_SendRawVsCommand
 **
-** Description      This function is called to send NXP NCI Vendor Specific
+** Description      This function is called to send raw vendor specific
 **                  command to NFCC.
 **
 **                  cmd_params_len  - The command parameter len
 **                  p_cmd_params    - The command parameter
 **                  p_cback         - The callback function to receive the
-*command
+**                                    command
 **
 ** Returns          NFA_STATUS_OK if successfully initiated
 **                  NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
 
-extern tNFA_STATUS NFA_SendNxpNciCommand(uint8_t cmd_params_len,
-                                         uint8_t* p_cmd_params,
-                                         tNFA_VSC_CBACK* p_cback);
+extern tNFA_STATUS NFA_SendRawVsCommand(uint8_t cmd_params_len,
+                                        uint8_t* p_cmd_params,
+                                        tNFA_VSC_CBACK* p_cback);
 
+#if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         NFA_Send_Core_Reset
@@ -1579,6 +1579,8 @@ extern tNFA_STATUS NFA_SetPowerSubStateForScreenState(uint8_t ScreenState);
 ** Returns:         none:
 **
 *******************************************************************************/
+extern void NFA_EnableDtamode(tNFA_eDtaModes eDtaMode);
+
 #if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
@@ -1614,8 +1616,6 @@ extern void NFA_SetReaderMode(bool ReaderModeFlag, uint32_t Technologies);
 **
 *******************************************************************************/
 extern void NFA_SetBootMode(uint8_t boot_mode);
-
-extern void NFA_EnableDtamode(tNFA_eDtaModes eDtaMode);
 
 /*******************************************************************************
 **

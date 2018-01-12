@@ -92,6 +92,36 @@ tNFC_STATUS NFC_RegVSCback(bool is_register, tNFC_VS_CBACK* p_cback) {
 
 /*******************************************************************************
 **
+** Function         NFC_SendRawVsCommand
+**
+** Description      This function is called to send the raw vendor specific
+**                  command to NFCC. The response from NFCC is reported to the
+**                  given tNFC_VS_CBACK.
+**
+** Parameters       p_data - The command buffer
+**
+** Returns          tNFC_STATUS
+**
+*******************************************************************************/
+tNFC_STATUS NFC_SendRawVsCommand(NFC_HDR* p_data, tNFC_VS_CBACK* p_cback) {
+  /* Validate parameters */
+  if (p_data == NULL || (p_data->len > NCI_MAX_VSC_SIZE)) {
+    NFC_TRACE_ERROR1("buffer offset must be >= %d", NCI_VSC_MSG_HDR_SIZE);
+    if (p_data) GKI_freebuf(p_data);
+    return NFC_STATUS_INVALID_PARAM;
+  }
+
+  p_data->event = BT_EVT_TO_NFC_NCI;
+  p_data->layer_specific = NFC_WAIT_RSP_RAW_VS;
+  /* save the callback function in the BT_HDR, to receive the response */
+  ((tNFC_NCI_VS_MSG*)p_data)->p_cback = p_cback;
+
+  nfc_ncif_check_cmd_queue(p_data);
+  return NFC_STATUS_OK;
+}
+
+/*******************************************************************************
+**
 ** Function         NFC_SendVsCommand
 **
 ** Description      This function is called to send the given vendor specific
@@ -140,38 +170,3 @@ tNFC_STATUS NFC_SendVsCommand(uint8_t oid, NFC_HDR* p_data,
   nfc_ncif_check_cmd_queue(p_data);
   return status;
 }
-#if (NXP_EXTNS == TRUE)
-/*******************************************************************************
-**
-** Function         NFC_SendNxpNciCommand
-**
-** Description      This function is called to send the given nxp specific
-**                  command to NFCC. The response from NFCC is reported to the
-**                  given tNFC_VS_CBACK.
-**
-** Parameters       p_data - The command buffer
-**
-** Returns          tNFC_STATUS
-**
-*******************************************************************************/
-tNFC_STATUS NFC_SendNxpNciCommand(NFC_HDR* p_data, tNFC_VS_CBACK* p_cback) {
-  tNFC_STATUS status = NFC_STATUS_OK;
-  uint8_t* pp;
-
-  /* Validate parameters */
-  if ((p_data == NULL) || (p_data->len > NCI_MAX_VSC_SIZE)) {
-    NFC_TRACE_ERROR1("buffer offset must be >= %d", NCI_VSC_MSG_HDR_SIZE);
-    if (p_data) GKI_freebuf(p_data);
-    return NFC_STATUS_INVALID_PARAM;
-  }
-
-  p_data->event = BT_EVT_TO_NFC_NCI;
-  p_data->layer_specific = NFC_WAIT_RSP_NXP;
-  /* save the callback function in the NFC_HDR, to receive the response */
-  ((tNFC_NCI_VS_MSG*)p_data)->p_cback = p_cback;
-  pp = (uint8_t*)(p_data + 1) + p_data->offset;
-
-  nfc_ncif_check_cmd_queue(p_data);
-  return status;
-}
-#endif

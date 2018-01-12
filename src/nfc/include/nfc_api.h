@@ -317,6 +317,7 @@ extern "C"
 #if __cplusplus
 }
 #endif
+#endif
 /* the events reported on tNFC_RESPONSE_CBACK */
 enum {
   NFC_ENABLE_REVT = NFC_FIRST_REVT, /* 0  Enable event                  */
@@ -401,13 +402,6 @@ typedef struct {
 } tNFC_GET_CONFIG_REVT;
 
 #if (NXP_EXTNS == TRUE)
-/* This data type is for FW Version */
-typedef struct {
-  uint8_t rom_code_version; /* ROM code Version  */
-  uint8_t major_version;    /* Major Version */
-  uint8_t minor_version;    /* Minor Version  */
-} tNFC_FW_VERSION;
-
 typedef struct {
   tNFC_STATUS status;
   uint8_t nfcee_id;
@@ -493,6 +487,14 @@ typedef struct {
   tNFC_NFCEE_MODE mode; /* NFCEE mode       */
 } tNFC_NFCEE_MODE_SET_REVT;
 
+#if (NXP_EXTNS == TRUE || APPL_DTA_MODE == TRUE)
+/* This data type is for FW Version */
+typedef struct {
+  uint8_t rom_code_version; /* ROM code Version  */
+  uint8_t major_version;    /* Major Version */
+  uint8_t minor_version;    /* Minor Version  */
+} tNFC_FW_VERSION;
+#endif
 typedef struct {
   tNFC_STATUS status; /* The event status.*/
   uint8_t nfcee_id;   /* NFCEE ID         */
@@ -1511,23 +1513,23 @@ extern tNFC_STATUS NFC_RegVSCback(bool is_register, tNFC_VS_CBACK* p_cback);
 extern tNFC_STATUS NFC_SendVsCommand(uint8_t oid, NFC_HDR* p_data,
                                      tNFC_VS_CBACK* p_cback);
 
-#if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
-** Function         NFC_SendNxpNciCommand
+** Function         NFC_SendRawVsCommand
 **
-** Description      This function is called to send the given nxp specific
-**                  command to NFCC. The response from NFCC is reported to the
-**                  given tNFC_VS_CBACK.
+** Description      This function is called to send the given raw command to
+**                  NFCC. The response from NFCC is reported to the given
+**                  tNFC_VS_CBACK.
 **
 ** Parameters       p_data - The command buffer
 **
 ** Returns          tNFC_STATUS
 **
 *******************************************************************************/
-extern tNFC_STATUS NFC_SendNxpNciCommand(NFC_HDR* p_data,
+extern tNFC_STATUS NFC_SendRawVsCommand(NFC_HDR* p_data,
                                          tNFC_VS_CBACK* p_cback);
 
+#if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         NFC_SetP61Status
@@ -1596,7 +1598,7 @@ extern tNFC_STATUS NFC_ISODEPNakPresCheck ();
 extern char* NFC_GetStatusName(tNFC_STATUS status);
 #endif
 
-#if (NXP_EXTNS == TRUE)
+#if (NXP_EXTNS == TRUE || APPL_DTA_MODE == TRUE)
 /*******************************************************************************
 **
 ** Function         nfc_ncif_getFWVersion
@@ -1608,6 +1610,9 @@ extern char* NFC_GetStatusName(tNFC_STATUS status);
 **
 *******************************************************************************/
 extern tNFC_FW_VERSION nfc_ncif_getFWVersion();
+#endif
+
+#if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         nfc_ncif_storeScreenState
@@ -1817,7 +1822,6 @@ int32_t NFC_RelForceDwpOnOffWait (void *pdata);
 **
 *******************************************************************************/
 extern bool NFC_Queue_Is_empty(uint8_t conn_id);
-#endif
 #endif
 
 #ifdef __cplusplus

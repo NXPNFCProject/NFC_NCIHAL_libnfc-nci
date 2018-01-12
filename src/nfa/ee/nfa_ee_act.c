@@ -850,7 +850,7 @@ tNFA_STATUS nfa_ee_get_num_nfcee_configured(tNFA_VSC_CBACK* p_cback)
 
   *parm_len = (p - num_param);
   if (*num_param != 0x00) {
-    status = NFA_SendNxpNciCommand(p - p_data, p_data, p_cback);
+    status = NFA_SendRawVsCommand(p - p_data, p_data, p_cback);
   } else {
       status = NFA_STATUS_FAILED;
   }

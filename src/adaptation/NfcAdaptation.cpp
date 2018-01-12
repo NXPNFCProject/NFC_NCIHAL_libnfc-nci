@@ -98,9 +98,7 @@ static uint8_t evt_status;
 
 uint32_t ScrProtocolTraceFlag = SCR_PROTO_TRACE_ALL;  // 0x017F00;
 uint8_t appl_trace_level = 0xff;
-#if (NXP_EXTNS == TRUE)
 uint8_t appl_dta_mode_flag = 0x00;
-#endif
 char bcm_nfc_location[120];
 
 static uint8_t nfa_dm_cfg[sizeof(tNFA_DM_CFG)];

@@ -69,19 +69,21 @@ tNFC_CONN_CB* p_cb_stored = NULL;
 static const uint8_t nfc_mpl_code_to_size[] = {64, 128, 192, 254};
 
 #endif /* NFC_RW_ONLY */
-
+#if (NXP_EXTNS == TRUE || APPL_DTA_MODE == TRUE)
+// Global Structure varibale for FW Version
+static tNFC_FW_VERSION nfc_fw_version;
+#endif
 #if (NXP_EXTNS == TRUE)
 #define NFC_NCI_WAIT_DATA_NTF_TOUT 2
 #define NFC_NCI_RFFIELD_EVT_TIMEOUT 2
 uint8_t temp_buff[660];
 #endif
-
 #define NFC_PB_ATTRIB_REQ_FIXED_BYTES 1
 #define NFC_LB_ATTRIB_REQ_FIXED_BYTES 8
 
+extern unsigned char appl_dta_mode_flag;
 #if (NXP_EXTNS == TRUE)
 // Global Structure varibale for FW Version
-static tNFC_FW_VERSION nfc_fw_version;
 static uint8_t gScreenState = 0x0;  // SCREEN ON UNLOCKED
 static uint16_t maxRoutingTableSize;
 uint8_t sListenActivated;
@@ -660,16 +662,15 @@ void nfc_ncif_check_cmd_queue(NFC_HDR* p_buf) {
       if (p_buf->layer_specific == NFC_WAIT_RSP_VSC) {
         /* save the callback for NCI VSCs)  */
         nfc_cb.p_vsc_cback = (void*)((tNFC_NCI_VS_MSG*)p_buf)->p_cback;
-      }
-#if (NXP_EXTNS == TRUE)
-      else if (p_buf->layer_specific == NFC_WAIT_RSP_NXP) {
-        /* save the callback for NCI NXPs)  */
+      } else if (p_buf->layer_specific == NFC_WAIT_RSP_RAW_VS) {
+        /* save the callback for RAW VS */
         nfc_cb.p_vsc_cback = (void*)((tNFC_NCI_VS_MSG*)p_buf)->p_cback;
-        nfc_cb.nxpCbflag = true;
+        nfc_cb.rawVsCbflag = true;
       }
+
       /* Indicate command is pending */
       nfc_cb.nci_cmd_window--;
-#endif
+
       /* send to HAL */
       HAL_WRITE(p_buf);
 #if (NXP_EXTNS != TRUE)
@@ -726,6 +727,19 @@ void nfc_ncif_check_cmd_queue(NFC_HDR* p_buf) {
   }
 }
 
+#if (NXP_EXTNS == TRUE || APPL_DTA_MODE == TRUE)
+/*******************************************************************************
+**
+** Function         nfc_ncif_getFWVersion
+**
+** Description      This function is called to fet the FW Version
+**
+** Returns          tNFC_FW_VERSION
+**
+*******************************************************************************/
+tNFC_FW_VERSION nfc_ncif_getFWVersion() { return nfc_fw_version; }
+#endif
+
 /*******************************************************************************
 **
 ** Function         nfc_ncif_send_cmd
@@ -776,20 +790,19 @@ bool nfc_ncif_process_event(NFC_HDR* p_msg) {
 
   pp = p;
   NCI_MSG_PRS_HDR0(pp, mt, pbf, gid);
-#if (NXP_EXTNS == TRUE)
   oid = ((*pp) & NCI_OID_MASK);
-
+#if (NXP_EXTNS == TRUE)
   if (sListenActivated == true) {
     nfc_stop_timer(&nfc_cb.listen_activation_timer_list);
     sListenActivated = false;
   }
-
-  if ((nfc_cb.nxpCbflag == true) &&
-      (nfc_ncif_proc_proprietary_rsp(mt, gid, oid) == true)) {
-    nci_proc_prop_nxp_rsp(p_msg);
-    return (free);
-  }
 #endif
+  if (nfc_cb.rawVsCbflag == true &&
+      nfc_ncif_proc_proprietary_rsp(mt, gid, oid) == true) {
+    nci_proc_prop_raw_vs_rsp(p_msg);
+    nfc_cb.rawVsCbflag = false;
+    return free;
+  }
 
   nfcsnoop_capture(p_msg, true);
   switch (mt) {
@@ -2604,16 +2617,6 @@ uint16_t nfc_ncif_getMaxRoutingTableSize() {
     }
     return maxRoutingTableSize;
 }
-/*******************************************************************************
-**
-** Function         nfc_ncif_getFWVersion
-**
-** Description      This function is called to fet the FW Version
-**
-** Returns          tNFC_FW_VERSION
-**
-*******************************************************************************/
-tNFC_FW_VERSION nfc_ncif_getFWVersion() { return nfc_fw_version; }
 
 /*******************************************************************************
 **
@@ -2980,90 +2983,50 @@ void nfc_ncif_credit_ntf_timeout() {
 ** Function         nfc_ncif_process_proprietary_rsp
 **
 ** Description      Process the response to avoid collision
-**                  while nxpCbflag is set
+**                  while rawVsCbflag is set
 **
 ** Returns          true if proprietary response else false
 **
 *******************************************************************************/
-
 bool nfc_ncif_proc_proprietary_rsp(uint8_t mt, uint8_t gid, uint8_t oid) {
-  bool stat = false;
-  NFC_TRACE_DEBUG3("nfc_ncif_proc_proprietary_rsp: mt=%u, gid=%u, oid=%u", mt,
-                   gid, oid);
+  bool stat = FALSE;
+  NFC_TRACE_DEBUG4("%s: mt=%u, gid=%u, oid=%u", __func__, mt, gid, oid);
+
   switch (mt) {
     case NCI_MT_DATA:
-      switch (gid) {
-        case 0x03:
-          switch (oid) {
-            case 0x00: /*Data Response*/
-              stat = false;
-              break;
-
-            default:
-              stat = true;
-              break;
-          }
-          break;
-
-        default:
-          stat = true;
-          break;
-      }
+      /* check for Data Response */
+      if (gid != 0x03 && oid != 0x00) stat = TRUE;
       break;
 
     case NCI_MT_NTF:
       switch (gid) {
         case NCI_GID_CORE:
-          switch (oid) {
-            case 0x00: /*CORE_RESET_NTF*/
-            case 0x06: /*CORE_CONN_CREDITS_NTF*/
-              stat = false;
-              break;
-
-            default:
-              stat = true;
-              break;
-          }
+          /* check for CORE_RESET_NTF or CORE_CONN_CREDITS_NTF */
+          if (oid != 0x00 && oid != 0x06) stat = TRUE;
           break;
         case NCI_GID_RF_MANAGE:
-          switch (oid) {
-            case 0x06: /*CORE_CONN_CREDITS_NTF*/
-              stat = false;
-              break;
-            case 0x09:
-              stat = false; /*NFA_EE_ACTION_NTF*/
-              break;
-            case 0x0A: /*NFA_EE_DISCOVERY_REQ_NTF*/
-              stat = false;
-              break;
-            default:
-              stat = true;
-              break;
-          }
+          /* check for CORE_CONN_CREDITS_NTF or NFA_EE_ACTION_NTF or
+           * NFA_EE_DISCOVERY_REQ_NTF */
+          if (oid != 0x06 && oid != 0x09 && oid != 0x0A) stat = TRUE;
           break;
         case NCI_GID_EE_MANAGE:
-          switch (oid) {
-            case 0x00:
-            case 0x01:
-            /*FALL_THRU: NFCEE_MODE_SET_NTF*/
-              stat = false;
-              break;
-            default:
-              stat = true;
-              break;
-          }
+          if (oid != 0x00
+#if (NXP_EXTNS == TRUE)
+          && oid != 0x01
+#endif
+           ) stat = TRUE;
           break;
         default:
-          stat = true;
+          stat = TRUE;
           break;
       }
       break;
 
     default:
-      stat = true;
+      stat = TRUE;
       break;
   }
-  NFC_TRACE_DEBUG1("nfc_ncif_proc_proprietary_rsp: exit status=%u", stat);
+  NFC_TRACE_DEBUG2("%s: exit status=%u", __func__, stat);
   return stat;
 }
 

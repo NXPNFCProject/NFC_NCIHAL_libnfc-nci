@@ -290,11 +290,9 @@ typedef struct {
 
   uint8_t total_rx_ui_pdu;   /* total number of rx UI PDU in all of ui_rx_q  */
   uint8_t total_rx_i_pdu;    /* total number of rx I PDU in all of i_rx_q    */
-  bool overall_rx_congested; /* true if overall rx link is congested         */
-#if (NXP_EXTNS == TRUE)
+  bool overall_rx_congested; /* TRUE if overall rx link is congested         */
   tLLCP_DTA_CBACK* p_dta_cback; /* callback to notify DTA when respoding SNL */
-  bool dta_snl_resp; /* true if need to notify DTA when respoding SNL*/
-#endif
+  bool dta_snl_resp; /* TRUE if need to notify DTA when respoding SNL*/
 } tLLCP_CB;
 
 #if (LLCP_TEST_INCLUDED == true) /* this is for LLCP testing */

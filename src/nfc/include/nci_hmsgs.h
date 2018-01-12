@@ -47,8 +47,8 @@
 extern "C" {
 #endif
 
-#include "nfc_types.h"
 #include "nci_defs.h"
+#include "nfc_types.h"
 
 #include <stdbool.h>
 
@@ -59,9 +59,7 @@ void nci_proc_core_ntf(NFC_HDR* p_msg);
 void nci_proc_rf_management_ntf(NFC_HDR* p_msg);
 void nci_proc_ee_management_ntf(NFC_HDR* p_msg);
 void nci_proc_prop_rsp(NFC_HDR* p_msg);
-#if (NXP_EXTNS == TRUE)
-void nci_proc_prop_nxp_rsp(NFC_HDR* p_msg);
-#endif
+void nci_proc_prop_raw_vs_rsp(NFC_HDR* p_msg);
 void nci_proc_prop_ntf(NFC_HDR* p_msg);
 
 uint8_t nci_snd_core_reset(uint8_t reset_type);

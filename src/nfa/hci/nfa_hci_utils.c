@@ -1172,7 +1172,7 @@ void nfa_hciu_send_to_apps_handling_connectivity_evts(
 tNFA_STATUS nfa_hciu_send_raw_cmd(uint8_t param_len, uint8_t* p_data,
                                   tNFA_VSC_CBACK* p_cback) {
   tNFA_STATUS status = NFA_STATUS_OK;
-  status = NFA_SendNxpNciCommand(param_len, p_data, p_cback);
+  status = NFA_SendRawVsCommand(param_len, p_data, p_cback);
   if (NFA_STATUS_OK == status) {
     nfa_sys_start_timer(&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT,
                         p_nfa_hci_cfg->hcp_response_timeout);
@@ -1335,7 +1335,7 @@ tNFA_STATUS nfa_hciu_reset_session_id(tNFA_VSC_CBACK* p_cback) {
     pp = p_start;
     UINT8_TO_STREAM(pp, cmd_len);
     p_cmd->len = cmd_len + NCI_DATA_HDR_SIZE;
-    status = NFC_SendNxpNciCommand(p_cmd, p_cback);
+    status = NFC_SendRawVsCommand(p_cmd, p_cback);
   }
   return status;
 }

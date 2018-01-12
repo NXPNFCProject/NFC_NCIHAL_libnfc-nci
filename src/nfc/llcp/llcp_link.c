@@ -97,9 +97,7 @@ static void llcp_link_send_to_lower(NFC_HDR* p_msg);
 extern tLLCP_TEST_PARAMS llcp_test_params;
 #endif
 
-#if (NXP_EXTNS == TRUE)
 extern unsigned char appl_dta_mode_flag;
-#endif
 
 /* debug functions type */
 #if (BT_TRACE_VERBOSE == true)
@@ -208,31 +206,27 @@ tLLCP_STATUS llcp_link_activate(tLLCP_ACTIVATE_CONFIG* p_config) {
   if (llcp_link_parse_gen_bytes(p_config->gen_bytes_len,
                                 p_config->p_gen_bytes) == false) {
     LLCP_TRACE_ERROR0("llcp_link_activate (): Failed to parse general bytes");
-#if (NXP_EXTNS == TRUE)
-    /*For LLCP DTA test, In case of bad magic bytes normal p2p communication is
-     * expected
-     * In case of wrong magic bytes in ATR_REQ LLC layer will be disconnected
-     * but P2P connection
-     * is expected to be in connected state. So, non LLC PDU is expected.
-     * Below changes is to send PDU after disconnect of LLCP PDU.
-     * fix for TC_MAC_TAR_BI_01 LLCP test case*/
-    if ((appl_dta_mode_flag == 1) && (p_config->is_initiator == false)) {
-      NFC_HDR* p_msg;
-      uint8_t* p;
-      p_msg = (NFC_HDR*)GKI_getpoolbuf(LLCP_POOL_ID);
+    /* For LLCP DTA test, In case of bad magic bytes normal p2p communication is
+     * expected,but in case of wrong magic bytes in ATR_REQ, LLC layer will be
+     * disconnected but P2P connection is expected to be in connected state
+     * and non LLC PDU is expected.
+     * As per NFC forum expectation below changes is to send PDU after
+     * disconnect of LLCP PDU.
+     * This is fix for TC_MAC_TAR_BI_01 LLCP test case */
+
+    if (appl_dta_mode_flag == 1 && p_config->is_initiator == FALSE) {
+      NFC_HDR* p_msg = (NFC_HDR*)GKI_getpoolbuf(LLCP_POOL_ID);
 
       if (p_msg) {
         /*LLCP test scenario requires non LLC PDU to be sent in case of wrong
-          magic bytes.
-          So sending NFC-DEP pdu with size 1 (0x00)*/
+          magic bytes. So sending NFC-DEP pdu with size 1 (0x00)*/
         p_msg->len = 1;
         p_msg->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
 
-        p = (uint8_t*)(p_msg + 1) + p_msg->offset;
         NFC_SendData(NFC_RF_CONN_ID, p_msg);
       }
     }
-#endif
+
     (*llcp_cb.lcb.p_link_cback)(LLCP_LINK_ACTIVATION_FAILED_EVT,
                                 LLCP_LINK_BAD_GEN_BYTES);
 
@@ -256,17 +250,13 @@ tLLCP_STATUS llcp_link_activate(tLLCP_ACTIVATE_CONFIG* p_config) {
         p_config->waiting_time, llcp_link_rwt[p_config->waiting_time],
         llcp_cb.lcb.peer_lto);
   }
-#if (NXP_EXTNS == TRUE)
-  /*For DTA mode Peer LTO Should not include TX RX Delay, Just llcp deactivate
+  /* For DTA mode Peer LTO Should not include TX RX Delay, Just llcp deactivate
    * after Peer LTO time */
   if (!appl_dta_mode_flag) {
-#endif
     /* extend LTO as much as internally required processing time and propagation
      * delays */
     llcp_cb.lcb.peer_lto += LLCP_INTERNAL_TX_DELAY + LLCP_INTERNAL_RX_DELAY;
-#if (NXP_EXTNS == TRUE)
   }
-#endif
   /* LLCP version number agreement */
   if (llcp_link_version_agreement() == false) {
     LLCP_TRACE_ERROR0("llcp_link_activate (): Failed to agree version");
@@ -280,6 +270,7 @@ tLLCP_STATUS llcp_link_activate(tLLCP_ACTIVATE_CONFIG* p_config) {
     }
     return LLCP_STATUS_FAIL;
   }
+
   llcp_cb.lcb.received_first_packet = false;
   llcp_cb.lcb.is_initiator = p_config->is_initiator;
 
@@ -457,21 +448,19 @@ void llcp_link_deactivate(uint8_t reason) {
 
   llcp_cb.overall_tx_congested = false;
   llcp_cb.overall_rx_congested = false;
+
   /* As per the LLCP test specification v1.2.00 for test case TC_LLC_TAR_BV_04
    * the receiving LLC shall commence sending an LLC PDU to the remote
-   * LLC. So, after IUT receiving DISC PDU from LT(remote device), IUT shall
-   * send DISC PDU to LT.
-     * appl_dta_mode_flag condition is added to fulfill above requirement.
-     * Only in CR8, the IUT shall acknoweledge with SYMM for DISC PDU.
-     * For other CRx, send DISC PDU.
-     */
-
+   * LLC. So, after IUT receives DISC PDU from LT(remote device), IUT shall
+   * send DISC PDU to LT. appl_dta_mode_flag condition is added to fulfil
+   * above requirement. Only in CR8, the IUT shall acknoweledge with SYMM for
+   * DISC PDU. For other CRx, send DISC PDU.
+   */
   if ((reason == LLCP_LINK_FRAME_ERROR) ||
       (reason == LLCP_LINK_LOCAL_INITIATED) ||
-      ((appl_dta_mode_flag) && (reason == LLCP_LINK_REMOTE_INITIATED) &&
-       (llcp_cb.lcb.is_initiator == false) &&
-       ((nfa_dm_cb.eDtaMode & 0xF0) != NFA_DTA_CR8)))
-  {
+      (appl_dta_mode_flag && reason == LLCP_LINK_REMOTE_INITIATED &&
+       llcp_cb.lcb.is_initiator == false &&
+       (nfa_dm_cb.eDtaMode & 0xF0) != NFA_DTA_CR8)) {
     /* get rid of the data pending in NFC tx queue, so DISC PDU can be sent ASAP
      */
     NFC_FlushData(NFC_RF_CONN_ID);
@@ -507,6 +496,7 @@ void llcp_link_deactivate(uint8_t reason) {
 
     NFC_FlushData(NFC_RF_CONN_ID);
   }
+
   llcp_deactivate_cleanup(reason);
 }
 

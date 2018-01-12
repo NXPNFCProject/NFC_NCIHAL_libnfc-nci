@@ -849,14 +849,12 @@ bool nfa_dm_act_deactivate(tNFA_DM_MSG* p_data) {
   /* Do not allow deactivate to SLEEP for T1T,NFCDEP, ISO15693 */
   if ((p_data->deactivate.sleep_mode == false) ||
       ((nfa_dm_cb.disc_cb.activated_protocol != NFA_PROTOCOL_T1T) &&
+       (nfa_dm_cb.disc_cb.activated_protocol != NFA_PROTOCOL_NFC_DEP ||
+        appl_dta_mode_flag
 #if (NXP_EXTNS == TRUE)
-       (
+        || gFelicaReaderMode
 #endif
-           (nfa_dm_cb.disc_cb.activated_protocol != NFA_PROTOCOL_NFC_DEP)
-#if (NXP_EXTNS == TRUE)
-           || gFelicaReaderMode || appl_dta_mode_flag)
-#endif
-       &&
+       ) &&
        (nfa_dm_cb.disc_cb.activated_protocol != NFA_PROTOCOL_T5T) &&
        (nfa_dm_cb.disc_cb.activated_protocol != NFC_PROTOCOL_KOVIO))) {
     deact_type = NFA_DEACTIVATE_TYPE_DISCOVERY;
@@ -864,15 +862,11 @@ bool nfa_dm_act_deactivate(tNFA_DM_MSG* p_data) {
       if (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_W4_HOST_SELECT) {
         /* Deactivate to sleep mode not allowed in this state. */
         deact_type = NFA_DEACTIVATE_TYPE_IDLE;
-      }
-#if (NXP_EXTNS == TRUE)
-      else if (appl_dta_mode_flag == true &&
-               (nfa_dm_cb.disc_cb.disc_state != NFA_DM_RFST_LISTEN_SLEEP ||
-                nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_POLL_ACTIVE)) {
+      } else if (appl_dta_mode_flag == true &&
+                 (nfa_dm_cb.disc_cb.disc_state != NFA_DM_RFST_LISTEN_SLEEP ||
+                  nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_POLL_ACTIVE)) {
         deact_type = NFA_DEACTIVATE_TYPE_SLEEP;
-      }
-#endif
-      else if (nfa_dm_cb.disc_cb.disc_state != NFA_DM_RFST_LISTEN_SLEEP) {
+      } else if (nfa_dm_cb.disc_cb.disc_state != NFA_DM_RFST_LISTEN_SLEEP) {
         deact_type = NFA_DEACTIVATE_TYPE_SLEEP;
       }
     }
@@ -886,11 +880,8 @@ bool nfa_dm_act_deactivate(tNFA_DM_MSG* p_data) {
     }
 
     if ((nfa_dm_cb.disc_cb.activated_protocol == NFA_PROTOCOL_NFC_DEP) &&
-        ((nfa_dm_cb.flags & NFA_DM_FLAGS_EXCL_RF_ACTIVE) == 0x00)
-#if (NXP_EXTNS == TRUE)
-        && appl_dta_mode_flag != true
-#endif
-        ) {
+        ((nfa_dm_cb.flags & NFA_DM_FLAGS_EXCL_RF_ACTIVE) == 0x00) &&
+        appl_dta_mode_flag != true) {
       /* Exclusive RF control doesn't use NFA P2P */
       /* NFA P2P will deactivate NFC link after deactivating LLCP link */
       if (!(nfa_dm_cb.flags & NFA_DM_FLAGS_P2P_PAUSED)) {
@@ -976,30 +967,29 @@ bool nfa_dm_act_send_vsc(tNFA_DM_MSG* p_data) {
   return (false);
 }
 
-#if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
-** Function         nfa_dm_act_send_nxp
+** Function         nfa_dm_act_send_raw_vs
 **
-** Description      Send the NXP NCI command to the NCI command queue
+** Description      Send the raw vs command to the NCI command queue
 **
-** Returns          false (message buffer is NOT freed by caller)
+** Returns          FALSE (message buffer is NOT freed by caller)
 **
 *******************************************************************************/
-bool nfa_dm_act_send_nxp(tNFA_DM_MSG* p_data) {
+bool nfa_dm_act_send_raw_vs(tNFA_DM_MSG* p_data) {
   NFC_HDR* p_cmd = (NFC_HDR*)p_data;
 
   p_cmd->offset = sizeof(tNFA_DM_API_SEND_VSC) - NFC_HDR_SIZE;
   p_cmd->len = p_data->send_vsc.cmd_params_len;
-  NFC_SendNxpNciCommand(p_cmd, p_data->send_vsc.p_cback);
+  NFC_SendRawVsCommand(p_cmd, p_data->send_vsc.p_cback);
 
-  /* Most dm action functions return true, so nfa-sys frees the GKI buffer
+  /* Most dm action functions return TRUE, so nfa-sys frees the GKI buffer
    * carrying the message,
    * This action function re-use the GKI buffer to send the VSC, so the GKI
    * buffer can not be freed by nfa-sys */
-  return (false);
+  return false;
 }
-#endif
+
 /*******************************************************************************
 **
 ** Function         nfa_dm_start_polling
@@ -1729,21 +1719,17 @@ static void nfa_dm_poll_disc_cback(tNFA_DM_RF_DISC_EVT event,
       if (nfa_dm_cb.p_activate_ntf) {
         memcpy(nfa_dm_cb.p_activate_ntf, &(p_data->activate),
                sizeof(tNFC_ACTIVATE_DEVT));
-
         if ((nfa_dm_cb.disc_cb.activated_protocol == NFC_PROTOCOL_NFC_DEP) &&
-            ((nfa_dm_cb.disc_cb.activated_rf_interface ==
-              NFC_INTERFACE_NFC_DEP))) {
-#if (NXP_EXTNS == TRUE)
-          /*For P2P mode(Default DTA mode) open Raw channel to bypass LLCP
-           * layer. For LLCP DTA mode activate LLCP*/
+            (nfa_dm_cb.disc_cb.activated_rf_interface ==
+             NFC_INTERFACE_NFC_DEP)) {
+          /* For P2P mode(Default DTA mode) open Raw channel to bypass LLCP
+           * layer. For LLCP DTA mode activate LLCP */
           if ((appl_dta_mode_flag == 1) &&
               ((nfa_dm_cb.eDtaMode & 0x0F) == NFA_DTA_DEFAULT_MODE)) {
             /* Open raw channel in case of p2p for DTA testing */
             NFC_SetStaticRfCback(nfa_dm_act_data_cback);
             nfa_dm_notify_activation_status(NFA_STATUS_OK, NULL);
-
           } else {
-#endif
             if (!(nfa_dm_cb.flags & NFA_DM_FLAGS_P2P_PAUSED)) {
               /* activate LLCP */
               nfa_p2p_activate_llcp(p_data);
@@ -1755,9 +1741,7 @@ static void nfa_dm_poll_disc_cback(tNFA_DM_RF_DISC_EVT event,
               NFA_TRACE_DEBUG0("P2P is paused");
               nfa_dm_notify_activation_status(NFA_STATUS_OK, NULL);
             }
-#if (NXP_EXTNS == TRUE)
           }
-#endif
         } else if ((nfa_dm_cb.disc_cb.activated_protocol == NFC_PROTOCOL_T1T) ||
                    (nfa_dm_cb.disc_cb.activated_protocol == NFC_PROTOCOL_T2T) ||
                    (nfa_dm_cb.disc_cb.activated_protocol == NFC_PROTOCOL_T3T) ||
@@ -1850,12 +1834,10 @@ static void nfa_dm_poll_disc_cback(tNFA_DM_RF_DISC_EVT event,
 ** Returns          None
 **
 *******************************************************************************/
-#if (NXP_EXTNS == TRUE)
 void nfa_dm_poll_disc_cback_dta_wrapper(tNFA_DM_RF_DISC_EVT event,
                                         tNFC_DISCOVER* p_data) {
   nfa_dm_poll_disc_cback(event, p_data);
 }
-#endif
 
 /*******************************************************************************
 **

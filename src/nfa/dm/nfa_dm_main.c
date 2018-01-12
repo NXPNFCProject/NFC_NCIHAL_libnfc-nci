@@ -102,12 +102,9 @@ const tNFA_DM_ACTION nfa_dm_action[] = {
     nfa_dm_ndef_dereg_hdlr,          /* NFA_DM_API_DEREG_NDEF_HDLR_EVT       */
     nfa_dm_act_reg_vsc,              /* NFA_DM_API_REG_VSC_EVT               */
     nfa_dm_act_send_vsc,             /* NFA_DM_API_SEND_VSC_EVT              */
-    nfa_dm_act_disable_timeout       /* NFA_DM_TIMEOUT_DISABLE_EVT           */
-#if (NXP_EXTNS == TRUE)
-    ,
-    nfa_dm_act_send_nxp              /* NFA_DM_API_SEND_NXP_EVT              */
-#endif
-    ,nfa_dm_set_power_sub_state      /* NFA_DM_API_SET_POWER_SUB_STATE_EVT   */
+    nfa_dm_act_disable_timeout,      /* NFA_DM_TIMEOUT_DISABLE_EVT           */
+    nfa_dm_set_power_sub_state,      /* NFA_DM_API_SET_POWER_SUB_STATE_EVT   */
+    nfa_dm_act_send_raw_vs           /* NFA_DM_API_SEND_RAW_VS_EVT           */
 };
 
 /*****************************************************************************
@@ -424,30 +421,22 @@ tNFA_STATUS nfa_dm_check_set_config(uint8_t tlv_list_len, uint8_t* p_tlv_list,
           update = true;
         } else if (memcmp(p_value, p_stored, len)) {
           update = true;
-        }
-#if (NXP_EXTNS == TRUE)
-        else if (appl_dta_mode_flag &&
-                 app_init) { /*In DTA mode, config update is forced so that
-                              length of config params
-                              (i.e update_len) is updated accordingly even for
-                              setconfig have only one tlv*/
+        } else if (appl_dta_mode_flag && app_init) {
+          /* In DTA mode, config update is forced so that length of config
+           * params (i.e update_len) is updated accordingly even for setconfig
+           * have only one tlv */
           update = true;
         }
-#endif
       } else if (len == max_len) /* fixed length */
       {
         if (memcmp(p_value, p_stored, len)) {
           update = true;
-        }
-#if (NXP_EXTNS == TRUE)
-        else if (appl_dta_mode_flag &&
-                 app_init) { /*In DTA mode, config update is forced so that
-                              length of config params
-                              (i.e update_len) is updated accordingly even for
-                              setconfig have only one tlv*/
+        } else if (appl_dta_mode_flag && app_init) {
+          /* In DTA mode, config update is forced so that length of config
+           * params (i.e update_len) is updated accordingly even for setconfig
+           * have only one tlv */
           update = true;
         }
-#endif
       }
     }
 
@@ -469,21 +458,10 @@ tNFA_STATUS nfa_dm_check_set_config(uint8_t tlv_list_len, uint8_t* p_tlv_list,
 
   /* If any TVLs to update, or if the SetConfig was initiated by the
    * application, then send the SET_CONFIG command */
-  /*if (updated_len || app_init) app_init is true when setconfig is invoked from
-  application. For extra setconfigs from internal to
-  stack, updated_len will be true. To avoid extra setconfigs from stack which is
-  NOT required by DTA, condition is modified*/
-  if
-#if (NXP_EXTNS == TRUE)
-      ((
-#endif
-           (updated_len || app_init)
-#if (NXP_EXTNS == TRUE)
-           && (appl_dta_mode_flag == 0x00 ||
-               (nfa_dm_cb.eDtaMode & 0x0F) == NFA_DTA_HCEF_MODE)) ||
-       ((appl_dta_mode_flag) && (app_init)))
-#endif
-  {
+  if (((updated_len || app_init) &&
+       (appl_dta_mode_flag == 0x00 ||
+        (nfa_dm_cb.eDtaMode & 0x0F) == NFA_DTA_HCEF_MODE)) ||
+      (appl_dta_mode_flag && app_init)) {
 #if (NXP_EXTNS == TRUE)
     NFA_TRACE_DEBUG1("nfa_dm_check_set_config () updated_len=%d", updated_len);
     if (!updated_len) {
@@ -491,6 +469,7 @@ tNFA_STATUS nfa_dm_check_set_config(uint8_t tlv_list_len, uint8_t* p_tlv_list,
     }
 #endif
     nfc_status = NFC_SetConfig(updated_len, p_tlv_list);
+
     if (nfc_status == NFC_STATUS_OK) {
       if ((nfa_dm_cb.eDtaMode & 0x0F) == NFA_DTA_HCEF_MODE) {
         nfa_dm_cb.eDtaMode &= ~NFA_DTA_HCEF_MODE;

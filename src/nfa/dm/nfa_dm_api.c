@@ -1366,33 +1366,32 @@ tNFA_STATUS NFA_SendVsCommand(uint8_t oid, uint8_t cmd_params_len,
   return (NFA_STATUS_FAILED);
 }
 
-#if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
-** Function         NFA_SendNxpNciCommand
+** Function         NFA_SendRawVsCommand
 **
-** Description      This function is called to send an NXP NCI Vendor Specific
+** Description      This function is called to send raw Vendor Specific
 **                  command to NFCC.
 **
 **                  cmd_params_len  - The command parameter len
 **                  p_cmd_params    - The command parameter
 **                  p_cback         - The callback function to receive the
-*command
+**                                    command
 **
 ** Returns          NFA_STATUS_OK if successfully initiated
 **                  NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_SendNxpNciCommand(uint8_t cmd_params_len, uint8_t* p_cmd_params,
-                                  tNFA_VSC_CBACK* p_cback) {
+tNFA_STATUS NFA_SendRawVsCommand(uint8_t cmd_params_len, uint8_t* p_cmd_params,
+                                 tNFA_VSC_CBACK* p_cback) {
   if (cmd_params_len == 0x00 || p_cmd_params == NULL || p_cback == NULL) {
-    return (NFA_STATUS_INVALID_PARAM);
+    return NFA_STATUS_INVALID_PARAM;
   }
-  tNFA_DM_API_SEND_VSC* p_msg;
   uint16_t size = sizeof(tNFA_DM_API_SEND_VSC) + cmd_params_len;
+  tNFA_DM_API_SEND_VSC* p_msg = (tNFA_DM_API_SEND_VSC*)GKI_getbuf(size);
 
-  if ((p_msg = (tNFA_DM_API_SEND_VSC*)GKI_getbuf(size)) != NULL) {
-    p_msg->hdr.event = NFA_DM_API_SEND_NXP_EVT;
+  if (p_msg != NULL) {
+    p_msg->hdr.event = NFA_DM_API_SEND_RAW_VS_EVT;
     p_msg->p_cback = p_cback;
     if (cmd_params_len && p_cmd_params) {
       p_msg->cmd_params_len = cmd_params_len;
@@ -1405,12 +1404,11 @@ tNFA_STATUS NFA_SendNxpNciCommand(uint8_t cmd_params_len, uint8_t* p_cmd_params,
 
     nfa_sys_sendmsg(p_msg);
 
-    return (NFA_STATUS_OK);
+    return NFA_STATUS_OK;
   }
 
-  return (NFA_STATUS_FAILED);
+  return NFA_STATUS_FAILED;
 }
-#endif
 
 /*******************************************************************************
 **
@@ -1426,6 +1424,20 @@ uint8_t NFA_SetTraceLevel(uint8_t new_level) {
   if (new_level != 0xFF) nfa_sys_set_trace_level(new_level);
 
   return (nfa_sys_cb.trace_level);
+}
+/*******************************************************************************
+**
+** Function:        NFA_EnableDtamode
+**
+** Description:     Enable DTA Mode
+**
+** Returns:         none:
+**
+*******************************************************************************/
+void NFA_EnableDtamode(tNFA_eDtaModes eDtaMode) {
+  NFA_TRACE_API2("%s: 0x%x ", __func__, eDtaMode);
+  appl_dta_mode_flag = 0x01;
+  nfa_dm_cb.eDtaMode = eDtaMode;
 }
 #if (NXP_EXTNS == TRUE)
 /*******************************************************************************
@@ -1482,20 +1494,6 @@ void NFA_SetReaderMode(bool ReaderModeFlag, uint32_t Technologies) {
 **
 *******************************************************************************/
 void NFA_SetBootMode(uint8_t boot_mode) { hal_Initcntxt.boot_mode = boot_mode; }
-/*******************************************************************************
-**
-** Function:        NFA_EnableDtamode
-**
-** Description:     Enable DTA Mode
-**
-** Returns:         none:
-**
-*******************************************************************************/
-void NFA_EnableDtamode(tNFA_eDtaModes eDtaMode) {
-  NFA_TRACE_API1("0x%x: DTA Enabled", eDtaMode);
-  appl_dta_mode_flag = 0x01;
-  nfa_dm_cb.eDtaMode = eDtaMode;
-}
 tNFA_MW_VERSION NFA_GetMwVersion() {
   tNFA_MW_VERSION mwVer;
   mwVer.validation =

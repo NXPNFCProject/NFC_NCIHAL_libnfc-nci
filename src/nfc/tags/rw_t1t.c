@@ -52,9 +52,7 @@
 #include "nfc_int.h"
 #include "gki.h"
 
-#if (NXP_EXTNS == TRUE)
 extern unsigned char appl_dta_mode_flag;
-#endif
 /* Local Functions */
 static tRW_EVENT rw_t1t_handle_rid_rsp(NFC_HDR* p_pkt);
 static void rw_t1t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
@@ -707,13 +705,8 @@ void rw_t1t_handle_op_complete(void) {
   tRW_T1T_CB* p_t1t = &rw_cb.tcb.t1t;
 
   p_t1t->state = RW_T1T_STATE_IDLE;
-#if (RW_NDEF_INCLUDED == true)
-#if (NXP_EXTNS == TRUE)
-  if ((appl_dta_mode_flag == 0) && (p_t1t->state != RW_T1T_STATE_READ_NDEF))
-#else
-  if (p_t1t->state != RW_T1T_STATE_READ_NDEF)
-#endif
-  {
+#if (RW_NDEF_INCLUDED == TRUE)
+  if (appl_dta_mode_flag == 0 && (p_t1t->state != RW_T1T_STATE_READ_NDEF)) {
     p_t1t->b_update = false;
     p_t1t->b_rseg = false;
   }

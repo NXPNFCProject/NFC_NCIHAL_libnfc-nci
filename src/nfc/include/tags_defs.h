@@ -310,14 +310,13 @@
 /* Tag len for MEM_CTRL TLV per spec */
 #define T2T_TLEN_MEM_CTRL_TLV 3
 
-#if (NXP_EXTNS == TRUE)
+
 /* Maximum number of sectors supported */
+#if (APPL_DTA_MODE == TRUE)
 #define T2T_MAX_SECTOR 3
 #else
-/* Maximum number of sectors supported */
 #define T2T_MAX_SECTOR 2
 #endif
-
 /* Tlv type identifier len                */
 #define T2T_TLV_TYPE_LEN 1
 
