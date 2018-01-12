@@ -148,14 +148,13 @@ void nfa_ee_init(void) {
 **
 *******************************************************************************/
 void nfa_ee_sys_enable(void) {
-
   unsigned long retlen = 0;
 
   NFA_TRACE_DEBUG1("%s", __func__);
 
   nfa_ee_cb.route_block_control = 0x00;
 
-  if (GetNumValue(NAME_NFA_BLOCK_ROUTE, (void*)&retlen, sizeof(retlen))) {
+  if (GetNumValue(NAME_NFA_AID_BLOCK_ROUTE, (void*)&retlen, sizeof(retlen))) {
     if ((retlen == 0x01) && ((NFC_GetNCIVersion() == NCI_VERSION_2_0)
         || (nfcFL.nfccFL._NFCC_ROUTING_BLOCK_BIT == true))) {
       nfa_ee_cb.route_block_control = NCI_ROUTE_QUAL_BLOCK_ROUTE;
@@ -163,7 +162,9 @@ void nfa_ee_sys_enable(void) {
                        nfa_ee_cb.route_block_control);
     }
   }
+#if (NXP_EXTNS == TRUE)
   nfa_ee_get_num_nfcee_configured(nfa_ee_read_num_nfcee_config_cb);
+#endif
   if (nfa_ee_max_ee_cfg) {
     /* collect NFCEE information */
     NFC_NfceeDiscover(true);
