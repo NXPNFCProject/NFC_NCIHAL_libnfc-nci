@@ -25,7 +25,6 @@
 #include <phNxpLog.h>
 #include <phNxpConfig.h>
 #include <phNxpNciHal_NfcDepSWPrio.h>
-#include <phNxpNciHal_Kovio.h>
 #include <phTmlNfc_i2c.h>
 #include "phNxpNciHal_nciParser.h"
 /*********************** Global Variables *************************************/
@@ -81,9 +80,6 @@ extern uint16_t wFwVer;
 
 extern uint16_t fw_maj_ver;
 extern uint16_t rom_version;
-extern int send_to_upper_kovio;
-extern int kovio_detected;
-extern int disable_kovio;
 extern uint8_t
     gRecFWDwnld; /* flag  set to true to  indicate dummy FW download */
 static uint8_t gRecFwRetryCount;  // variable to hold dummy FW recovery count
@@ -1119,7 +1115,7 @@ static void phNxpNciHal_read_complete(void* pContext,
     }
     /* Read successful send the event to higher layer */
     else if ((nxpncihal_ctrl.p_nfc_stack_data_cback != NULL) &&
-             (status == NFCSTATUS_SUCCESS) && (send_to_upper_kovio == 1)) {
+             (status == NFCSTATUS_SUCCESS)) {
       (*nxpncihal_ctrl.p_nfc_stack_data_cback)(nxpncihal_ctrl.rx_data_len,
                                                nxpncihal_ctrl.p_rx_data);
     }
