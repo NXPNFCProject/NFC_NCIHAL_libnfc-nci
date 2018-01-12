@@ -304,12 +304,19 @@ typedef tNCI_DISCOVER_PARAMS tNFC_DISCOVER_PARAMS;
 #define NFC_FIRST_CEVT 0x6000
 #define NFC_FIRST_TEVT 0x8000
 #if (NXP_EXTNS == TRUE)
-void nfc_ncif_onWiredModeHold_timeout();
-void nfc_ncif_allow_dwp_transmission();
-void nfc_ncif_modeSet_Ntf_timeout();
-void nfc_ncif_modeSet_rsp_timeout();
-void nfc_ncif_resume_dwp_wired_mode();
-void nfc_ncif_pwr_link_rsp_timeout();
+#if __cplusplus
+extern "C"
+{
+#endif
+  void nfc_ncif_onWiredModeHold_timeout();
+  void nfc_ncif_allow_dwp_transmission();
+  void nfc_ncif_modeSet_Ntf_timeout();
+  void nfc_ncif_modeSet_rsp_timeout();
+  void nfc_ncif_resume_dwp_wired_mode();
+  void nfc_ncif_pwr_link_rsp_timeout();
+#if __cplusplus
+}
+#endif
 /* the events reported on tNFC_RESPONSE_CBACK */
 enum {
   NFC_ENABLE_REVT = NFC_FIRST_REVT, /* 0  Enable event                  */
@@ -559,7 +566,12 @@ typedef uint8_t tNFC_RF_STS;
 #define NFC_RF_TECHNOLOGY_V NCI_RF_TECHNOLOGY_V
 typedef uint8_t tNFC_RF_TECH;
 
+#ifdef __cplusplus
+extern "C" uint8_t NFC_GetNCIVersion();
+#else
 extern uint8_t NFC_GetNCIVersion();
+#endif
+
 /* Supported Protocols */
 #define NFC_PROTOCOL_UNKNOWN NCI_PROTOCOL_UNKNOWN /* Unknown */
 /* Type1Tag    - NFC-A            */

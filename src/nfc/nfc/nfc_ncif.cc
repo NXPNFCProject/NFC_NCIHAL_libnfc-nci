@@ -42,8 +42,9 @@
  *  (callback). On the transmit side, it manages the command transmission.
  *
  ******************************************************************************/
-#include <string.h>
+#include <metricslogger/metrics_logger.h>
 #include <stdlib.h>
+#include <string.h>
 #include "nfc_target.h"
 
 #include "nfc_hal_api.h"
@@ -86,7 +87,11 @@ uint8_t sListenActivated;
 extern tNFA_CE_CB nfa_ce_cb;
 bool core_reset_init_num_buff = false;
 uint8_t nfcc_dh_conn_id = 0xFF;
+#if __cplusplus
+extern "C" void nfa_hci_rsp_timeout(tNFA_HCI_EVENT_DATA* p_evt_data);
+#else
 extern void nfa_hci_rsp_timeout(tNFA_HCI_EVENT_DATA* p_evt_data);
+#endif
 void disc_deact_ntf_timeout_handler(tNFC_RESPONSE_EVT event);
 extern bool etsi_reader_in_progress;
 void uicc_eeprom_get_config(uint8_t* config_resp);
@@ -955,7 +960,8 @@ void nfc_ncif_set_config_status(uint8_t* p, uint8_t len) {
 *******************************************************************************/
 void nfc_ncif_event_status(tNFC_RESPONSE_EVT event, uint8_t status) {
   tNFC_RESPONSE evt_data;
-
+  if (event == NFC_NFCC_TIMEOUT_REVT && status == NFC_STATUS_HW_TIMEOUT)
+    android::metricslogger::LogCounter("nfc_hw_timeout_error", 1);
 #if (NXP_EXTNS == TRUE)
   if ((nfcFL.eseFL._ESE_DUAL_MODE_PRIO_SCHEME ==
           nfcFL.eseFL._ESE_WIRED_MODE_RESUME) &&
@@ -1009,8 +1015,24 @@ void nfc_ncif_error_status(uint8_t conn_id, uint8_t status) {
   tNFC_CONN_CB* p_cb;
   p_cb = nfc_find_conn_cb_by_conn_id(conn_id);
   if (p_cb && p_cb->p_cback) {
-    (*p_cb->p_cback)(conn_id, NFC_ERROR_CEVT, (void*)&status);
+    (*p_cb->p_cback)(conn_id, NFC_ERROR_CEVT, (tNFC_CONN*)&status);
   }
+  if (status == NFC_STATUS_TIMEOUT)
+    android::metricslogger::LogCounter("nfc_rf_timeout_error", 1);
+  else if (status == NFC_STATUS_EE_TIMEOUT)
+    android::metricslogger::LogCounter("nfc_ee_timeout_error", 1);
+  else if (status == NFC_STATUS_ACTIVATION_FAILED)
+    android::metricslogger::LogCounter("nfc_rf_activation_failed", 1);
+  else if (status == NFC_STATUS_EE_INTF_ACTIVE_FAIL)
+    android::metricslogger::LogCounter("nfc_ee_activation_failed", 1);
+  else if (status == NFC_STATUS_RF_TRANSMISSION_ERR)
+    android::metricslogger::LogCounter("nfc_rf_transmission_error", 1);
+  else if (status == NFC_STATUS_EE_TRANSMISSION_ERR)
+    android::metricslogger::LogCounter("nfc_ee_transmission_error", 1);
+  else if (status == NFC_STATUS_RF_PROTOCOL_ERR)
+    android::metricslogger::LogCounter("nfc_rf_protocol_error", 1);
+  else if (status == NFC_STATUS_EE_PROTOCOL_ERR)
+    android::metricslogger::LogCounter("nfc_ee_protocol_error", 1);
 }
 
 /*******************************************************************************
@@ -1996,7 +2018,7 @@ void nfc_ncif_proc_ee_discover_req(uint8_t* p, uint16_t plen) {
       plen -= NFC_EE_DISCOVER_ENTRY_LEN;
       p_info++;
     }
-    (*p_cback)(NFC_EE_DISCOVER_REQ_REVT, (void*)&ee_disc_req);
+    (*p_cback)(NFC_EE_DISCOVER_REQ_REVT, (tNFC_RESPONSE*)&ee_disc_req);
   }
 }
 
@@ -2357,7 +2379,7 @@ uint8_t nfc_hal_nfcc_init(uint8_t** pinit_rsp) {
   } while (NCI_STATUS_OK != init_status &&
            retry_count < (NFC_NFCC_INIT_MAX_RETRY + 1));
   if (init_status == NCI_STATUS_OK && inpOutData.out.data.nciRsp.rsp_len > 0) {
-    *pinit_rsp = GKI_getbuf(inpOutData.out.data.nciRsp.rsp_len);
+    *pinit_rsp = (uint8_t*)GKI_getbuf(inpOutData.out.data.nciRsp.rsp_len);
     if (NULL != *pinit_rsp)
       memcpy(*pinit_rsp, inpOutData.out.data.nciRsp.p_rsp,
              inpOutData.out.data.nciRsp.rsp_len);
@@ -2733,8 +2755,7 @@ void nfc_data_event(tNFC_CONN_CB* p_cb) {
           data_cevt.status = *(p + p_evt->offset + p_evt->len);
         }
       }
-
-      (*p_cb->p_cback)(p_cb->conn_id, NFC_DATA_CEVT, (void*)&data_cevt);
+      (*p_cb->p_cback)(p_cb->conn_id, NFC_DATA_CEVT, (tNFC_CONN*)&data_cevt);
       p_evt = NULL;
     }
   }

@@ -712,7 +712,11 @@ void nfa_dm_rf_discover_select(uint8_t rf_disc_id, tNFA_NFC_PROTOCOL protocol,
                                tNFA_INTF_TYPE rf_interface);
 tNFA_STATUS nfa_dm_rf_deactivate(tNFA_DEACTIVATE_TYPE deactivate_type);
 bool nfa_dm_is_protocol_supported(tNFA_NFC_PROTOCOL protocol, uint8_t sel_res);
+#if __cplusplus
+extern "C" bool nfa_dm_is_active(void);
+#else
 bool nfa_dm_is_active(void);
+#endif
 tNFC_STATUS nfa_dm_disc_sleep_wakeup(void);
 tNFC_STATUS nfa_dm_disc_start_kovio_presence_check(void);
 bool nfa_dm_is_raw_frame_session(void);
@@ -730,6 +734,10 @@ char* nfa_dm_nfc_revt_2_str(tNFC_RESPONSE_EVT event);
 #endif
 
 #if (NXP_EXTNS == TRUE)
+#ifdef __cplusplus
+extern "C" tNFC_STATUS nfc_ncif_reset_nfcc();
+#else
 tNFC_STATUS nfc_ncif_reset_nfcc();
+#endif
 #endif
 #endif /* NFA_DM_INT_H */
