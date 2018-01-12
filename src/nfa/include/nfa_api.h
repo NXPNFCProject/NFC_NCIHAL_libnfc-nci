@@ -247,9 +247,9 @@ typedef uint8_t tNFA_PROTOCOL_MASK;
 /* Result of NFA_GetRouting         */
 #define NFA_DM_GET_ROUTE_CONFIG_REVT 10
 /*Status when EE HCI subsystems disabled*/
-#define NFA_DM_EE_HCI_DISABLE 11
+#define NFA_DM_EE_HCI_DISABLE 12
 /*Status when EE HCI susbsystems enabled*/
-#define NFA_DM_EE_HCI_ENABLE 12
+#define NFA_DM_EE_HCI_ENABLE 13
 
 /* Reader over SWP Events*/
 #define NFA_RD_SWP_READER_REQUESTED 0
