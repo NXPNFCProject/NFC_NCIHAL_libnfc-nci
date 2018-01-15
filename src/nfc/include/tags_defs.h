@@ -312,7 +312,7 @@
 
 
 /* Maximum number of sectors supported */
-#if (APPL_DTA_MODE == TRUE)
+#if (NXP_EXTNS==TRUE || APPL_DTA_MODE == TRUE)
 #define T2T_MAX_SECTOR 3
 #else
 #define T2T_MAX_SECTOR 2
