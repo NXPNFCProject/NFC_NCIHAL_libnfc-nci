@@ -19,8 +19,8 @@
 #ifndef NFC_HAL_TARGET_H
 #define NFC_HAL_TARGET_H
 
-#include "gki.h"
 #include "data_types.h"
+#include "gki.h"
 
 /****************************************************************************
 ** NCI related configuration
@@ -79,7 +79,7 @@
 #endif
 
 #ifndef NFC_HAL_PRM_DEBUG
-#define NFC_HAL_PRM_DEBUG true
+#define NFC_HAL_PRM_DEBUG TRUE
 #endif
 
 /* max patch data length (Can be overridden by platform for ACL HCI command
@@ -90,7 +90,7 @@
 
 /* Require PreI2C patch by default */
 #ifndef NFC_HAL_PRE_I2C_PATCH_INCLUDED
-#define NFC_HAL_PRE_I2C_PATCH_INCLUDED true
+#define NFC_HAL_PRE_I2C_PATCH_INCLUDED TRUE
 #endif
 
 /* Mininum payload size for SPD NCI commands (used to validate
@@ -115,7 +115,7 @@
 
 /* NFCC will respond to more than one technology during listen discovery  */
 #ifndef NFC_HAL_DM_MULTI_TECH_RESP
-#define NFC_HAL_DM_MULTI_TECH_RESP true
+#define NFC_HAL_DM_MULTI_TECH_RESP TRUE
 #endif
 
 /* Data rate for 15693 command/response, it must be same as
@@ -129,7 +129,7 @@
 
 /* NFC HAL HCI */
 #ifndef NFC_HAL_HCI_INCLUDED
-#define NFC_HAL_HCI_INCLUDED true
+#define NFC_HAL_HCI_INCLUDED TRUE
 #endif
 
 /* Quick Timer */
@@ -138,12 +138,12 @@
 #endif
 
 #ifndef NFC_HAL_SHARED_TRANSPORT_ENABLED
-#define NFC_HAL_SHARED_TRANSPORT_ENABLED false
+#define NFC_HAL_SHARED_TRANSPORT_ENABLED FALSE
 #endif
 
 /* Enable verbose tracing by default */
 #ifndef NFC_HAL_TRACE_VERBOSE
-#define NFC_HAL_TRACE_VERBOSE true
+#define NFC_HAL_TRACE_VERBOSE TRUE
 #endif
 
 #ifndef NFC_HAL_INITIAL_TRACE_LEVEL
@@ -157,12 +157,12 @@
 
 /* Restore NFCC baud rate to default on shutdown if baud rate was updated */
 #ifndef NFC_HAL_RESTORE_BAUD_ON_SHUTDOWN
-#define NFC_HAL_RESTORE_BAUD_ON_SHUTDOWN true
+#define NFC_HAL_RESTORE_BAUD_ON_SHUTDOWN TRUE
 #endif
 
 /* Enable protocol tracing by default */
 #ifndef NFC_HAL_TRACE_PROTOCOL
-#define NFC_HAL_TRACE_PROTOCOL true
+#define NFC_HAL_TRACE_PROTOCOL TRUE
 #endif
 
 /* Legacy protocol-trace-enable macro */
@@ -172,11 +172,11 @@
 
 /* Enable HAL tracing by default */
 #ifndef NFC_HAL_USE_TRACES
-#define NFC_HAL_USE_TRACES true
+#define NFC_HAL_USE_TRACES TRUE
 #endif
 
 /* HAL trace macros */
-#if (NFC_HAL_USE_TRACES == true)
+#if (NFC_HAL_USE_TRACES == TRUE)
 #define NCI_TRACE_0(l, t, m) \
   LogMsg((TRACE_CTRL_GENERAL | (l) | TRACE_ORG_STACK | (t)), (m))
 #define NCI_TRACE_1(l, t, m, p1) \

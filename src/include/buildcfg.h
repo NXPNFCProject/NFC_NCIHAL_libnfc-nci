@@ -59,11 +59,9 @@
 #if (NXP_EXTNS == TRUE)
 #define GKI_BUF2_MAX 70
 #define GKI_BUF3_MAX 70
-#define GKI_NUM_FIXED_BUF_POOLS 9
 #else
 #define GKI_BUF2_MAX 50
 #define GKI_BUF3_MAX 30
-#define GKI_NUM_FIXED_BUF_POOLS 4
 #endif
 #define GKI_BUF4_SIZE 2400
 #define GKI_BUF4_MAX 30
@@ -77,6 +75,7 @@
 #define GKI_BUF0_MAX 40
 
 #define NCI_BUF_POOL_ID GKI_POOL_ID_0
+#define GKI_NUM_FIXED_BUF_POOLS 4
 
 #ifdef __cplusplus
 extern "C" {
