@@ -1513,7 +1513,7 @@ void nfa_hci_rsp_timeout(tNFA_HCI_EVENT_DATA* p_evt_data) {
             NFC_FlushData(nfa_hci_cb.conn_id);
             msg_len = (((nfa_hci_cb.hci_packet_len + 1) % 2) == 0) ? 1 : 2;
             NFA_TRACE_DEBUG1("NxpNci: Queue is not empty: %d", msg_len);
-            if ((p_buf = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID)) != NULL) {
+            if ((p_buf = (NFC_HDR*)GKI_getpoolbuf(NFC_WIRED_POOL_ID)) != NULL) {
               p_buf->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
               p_data = (uint8_t*)(p_buf + 1) + p_buf->offset;
               *p_data++ = (NFA_HCI_NO_MESSAGE_FRAGMENTATION << 7) |
@@ -1532,7 +1532,7 @@ void nfa_hci_rsp_timeout(tNFA_HCI_EVENT_DATA* p_evt_data) {
           } else if (!nfa_hci_cb.IsEventAbortSent) {
             NFC_FlushData(nfa_hci_cb.conn_id);
             /* send EVT_ABORT command */
-            if ((p_buf = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID)) != NULL) {
+            if ((p_buf = (NFC_HDR*)GKI_getpoolbuf(NFC_WIRED_POOL_ID)) != NULL) {
               NFA_TRACE_DEBUG0("EVT_ABORT sent");
               p_buf->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
               p_data = (uint8_t*)(p_buf + 1) + p_buf->offset;
