@@ -76,7 +76,7 @@ const char tr_config_timestamp_path[] =
 const char config_timestamp_path[] =
         "/data/vendor/nfc/libnfc-nxpConfigState.bin";
 const char default_nxp_config_path[] =
-        "/etc/libnfc-nxp.conf";
+        "/vendor/etc/libnfc-nxp.conf";
 const char nxp_rf_config_path[] =
         "/system/vendor/libnfc-nxp_RF.conf";
 
@@ -131,6 +131,7 @@ class CNfcConfig : public vector<const CNfcParam*> {
   static CNfcConfig& GetInstance();
   friend void readOptionalConfig(const char* optional);
   bool isModified();
+  bool isModified(const char* pName);
   void resetModified();
 
   bool getValue(const char* name, char* pValue, size_t len) const;
@@ -153,8 +154,9 @@ class CNfcConfig : public vector<const CNfcParam*> {
   list<const CNfcParam*> m_list;
   bool mValidFile;
   uint32_t config_crc32_;
-  unsigned long m_timeStampRF;
-  unsigned long m_timeStampTransit;
+  uint32_t config_crc32_rf_;
+  uint32_t config_crc32_tr_;
+
   string mCurrentFile;
 
   unsigned long state;
@@ -270,8 +272,7 @@ bool CNfcConfig::readConfig(const char* name, bool bResetContent) {
     }
     return false;
   }
-  FILE* fd;
-  struct stat buf;
+
   string token;
   string strValue;
   unsigned long numValue = 0;
@@ -280,29 +281,17 @@ bool CNfcConfig::readConfig(const char* name, bool bResetContent) {
   int base = 0;
   char c;
   int bflag = 0;
+  state = BEGIN_LINE;
   mCurrentFile = name;
 
-  state = BEGIN_LINE;
-  /* open config file, read it into a buffer */
-  if ((fd = fopen(name, "rb")) == NULL) {
-    ALOGE("%s Cannot open config file %s\n", __func__, name);
-    if (bResetContent) {
-      ALOGE("%s Using default value for all settings\n", __func__);
-      mValidFile = false;
-    }
-    return false;
-  }
-  ALOGD("%s Opened %s config %s\n", __func__,
-        (bResetContent ? "base" : "optional"), name);
-  stat(name, &buf);
   if (strcmp(default_nxp_config_path, name) == 0) {
     config_crc32_ = sparse_crc32(0, p_config, config_size);
   }
-  if (strcmp(nxp_rf_config_path, name) == 0) {
-    m_timeStampRF = (unsigned long)buf.st_mtime;
+  else if (strcmp(nxp_rf_config_path, name) == 0) {
+    config_crc32_rf_ = sparse_crc32(0, p_config, config_size);
   }
-  if (strcmp(transit_config_path, name) == 0) {
-    m_timeStampTransit = (unsigned long)buf.st_mtime;
+  else if (strcmp(transit_config_path, name) == 0) {
+    config_crc32_tr_ = sparse_crc32(0, p_config, config_size);
   }
   mValidFile = true;
   if (size() > 0) {
@@ -439,7 +428,6 @@ bool CNfcConfig::readConfig(const char* name, bool bResetContent) {
   }
 
   delete[] p_config;
-  fclose(fd);
 
   moveFromList();
   return size() > 0;
@@ -454,11 +442,7 @@ bool CNfcConfig::readConfig(const char* name, bool bResetContent) {
 ** Returns:     none
 **
 *******************************************************************************/
-CNfcConfig::CNfcConfig()
-    : mValidFile(true),
-      m_timeStampRF(0),
-      m_timeStampTransit(0),
-      state(0) {}
+CNfcConfig::CNfcConfig() : mValidFile(true), state(0) {}
 
 /*******************************************************************************
 **
@@ -793,16 +777,64 @@ bool CNfcConfig::isModified() {
   return stored_crc32 != config_crc32_;
 }
 
+bool CNfcConfig::isModified(const char* pName) {
+  FILE* fd = nullptr;
+  bool isRfFile = false;
+  if (strcmp(nxp_rf_config_path, pName) == 0) {
+    isRfFile = true;
+    fd = fopen(rf_config_timestamp_path, "r+");
+  }
+  else if (strcmp(transit_config_path, pName) == 0) {
+    fd = fopen(tr_config_timestamp_path, "r+");
+  }
+  if (fd == nullptr) {
+    return true;
+  }
+
+  uint32_t stored_crc32 = 0;
+  fread(&stored_crc32, sizeof(uint32_t), 1, fd);
+  fclose(fd);
+
+  if(isRfFile)
+    return stored_crc32 != config_crc32_rf_;
+  else
+    return stored_crc32 != config_crc32_tr_;
+}
+
 void CNfcConfig::resetModified() {
-  FILE* fd = fopen(config_timestamp_path, "w+");
+  FILE* fd = nullptr;
+
+  fd = fopen(config_timestamp_path, "w+");
   if (fd == nullptr) {
     ALOGE("%s Unable to open file '%s' for writing", __func__,
           config_timestamp_path);
-    return;
+  }
+  else
+  {
+    fwrite(&config_crc32_, sizeof(uint32_t), 1, fd);
+    fclose(fd);
+  }
+  fd = fopen(rf_config_timestamp_path, "w+");
+  if (fd == nullptr) {
+    ALOGE("%s Unable to open file '%s' for writing", __func__,
+        rf_config_timestamp_path);
+  }
+  else
+  {
+    fwrite(&config_crc32_rf_, sizeof(uint32_t), 1, fd);
+    fclose(fd);
   }
 
-  fwrite(&config_crc32_, sizeof(uint32_t), 1, fd);
-  fclose(fd);
+  fd = fopen(tr_config_timestamp_path, "w+");
+  if (fd == nullptr) {
+    ALOGE("%s Unable to open file '%s' for writing", __func__,
+        tr_config_timestamp_path);
+  }
+  else
+  {
+    fwrite(&config_crc32_tr_, sizeof(uint32_t), 1, fd);
+    fclose(fd);
+  }
 }
 
 /*******************************************************************************
@@ -1000,9 +1032,8 @@ extern "C" int isNxpConfigModified() {
 extern "C" int isNxpRFConfigModified() {
   int retRF = 0, rettransit = 0, ret = 0;
   nxp::CNfcConfig& rConfig = nxp::CNfcConfig::GetInstance();
-  retRF = rConfig.isModified();
-  rettransit =
-      rConfig.isModified();
+  retRF = rConfig.isModified(nxp_rf_config_path);
+  rettransit = rConfig.isModified(transit_config_path);
   ret = retRF | rettransit;
   ALOGD("ret RF or Transit value %d", ret);
   return ret;
