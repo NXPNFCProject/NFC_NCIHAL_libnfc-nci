@@ -1510,8 +1510,6 @@ int phNxpNciHal_core_initialized(uint8_t* p_core_init_rsp_params) {
     }
     /* reset the NFCC after applying the clock setting and DPLL setting */
     //phTmlNfc_IoCtl(phTmlNfc_e_ResetDevice);
-    goto retry_core_init;
-  }
 #endif
 #endif
 
