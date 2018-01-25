@@ -482,9 +482,6 @@ static void nfa_ee_add_aid_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
       uint8_t* p_start = pp;
       /* add one AID entry */
       if (p_cb->aid_rt_info[xx] & NFA_EE_AE_ROUTE) {
-#if(NXP_EXTNS == TRUE)
-        num_tlv++;
-#endif
         uint8_t* pa = &p_cb->aid_cfg[start_offset];
 
         NFA_TRACE_DEBUG2("%s -  p_cb->aid_info%x", __func__,
