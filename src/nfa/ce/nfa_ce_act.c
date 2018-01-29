@@ -395,7 +395,7 @@ void nfc_ce_t3t_set_listen_params(void) {
   UINT8_TO_STREAM(p_params, NFC_PMID_LF_T3T_FLAGS2);      /* type */
   UINT8_TO_STREAM(p_params, NCI_PARAM_LEN_LF_T3T_FLAGS2); /* length */
   /* Mask of IDs to disable listening */
-  UINT16_TO_STREAM(p_params, t3t_flags2_mask);
+  UINT16_TO_BE_STREAM(p_params, t3t_flags2_mask);
 
   if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
     /*Name changed in NCI2.0*/
