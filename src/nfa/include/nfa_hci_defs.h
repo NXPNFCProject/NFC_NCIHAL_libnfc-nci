@@ -129,6 +129,7 @@
 #define NFA_HCI_EVT_WTX 0x11
 #define NFA_HCI_ABORT 0x12
 #define NFA_EVT_ABORT 0x11 /* ETSI12 */
+#define HCI_INVALID_CMD 0xFF
 #endif
 
 /* NFA HCI Connectivity gate Events */

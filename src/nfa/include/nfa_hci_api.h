@@ -706,6 +706,16 @@ void NFA_HciDebug(uint8_t action, uint8_t size, uint8_t* p_data);
 #if (NXP_EXTNS == TRUE)
 extern tNFA_STATUS NFA_HciSendHostTypeListCommand(tNFA_HANDLE hci_handle);
 extern tNFA_STATUS NFA_HciConfigureNfceeETSI12();
+/*******************************************************************************
+**
+** Function         NFA_IsPipeStatusNotCorrect
+**
+** Description      Checks and resets pipe status
+**
+** Returns          TRUE/FALSE
+**
+*******************************************************************************/
+extern bool NFA_IsPipeStatusNotCorrect();
 #endif
 #if (NXP_EXTNS == TRUE)
 /*******************************************************************************

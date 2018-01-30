@@ -546,6 +546,7 @@ typedef struct {
   bool IsEventAbortSent;
   bool IsLastEvtAbortFailed;
   bool w4_nfcee_enable;
+  bool IsApduPipeStatusNotCorrect;
   tNFA_HCI_EVENT_SENT evt_sent;
   struct {
     tNFA_CONFIG_STATE

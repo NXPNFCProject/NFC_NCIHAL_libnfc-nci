@@ -433,6 +433,7 @@ tNFA_STATUS nfa_hciu_send_msg(uint8_t pipe_id, uint8_t type,
 #if (NXP_EXTNS == TRUE)
   else if (type == NFA_HCI_EVENT_TYPE) {
     nfa_hci_cb.evt_sent.evt_type = instruction;
+    nfa_hci_cb.cmd_sent = HCI_INVALID_CMD;
   }
 #endif
   return status;

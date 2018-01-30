@@ -1108,4 +1108,21 @@ tNFA_STATUS NFA_HciConfigureNfceeETSI12() {
 
   return (NFA_STATUS_FAILED);
 }
+/*******************************************************************************
+**
+** Function         NFA_IsPipeStatusNotCorrect
+**
+** Description      Checks and resets pipe status
+**
+** Returns          TRUE/FALSE
+**
+*******************************************************************************/
+bool NFA_IsPipeStatusNotCorrect()
+{
+  NFA_TRACE_API1("NFA_IsPipeStatusNotCorrect (): pipe status not correct: %d", nfa_hci_cb.IsApduPipeStatusNotCorrect);
+  bool status;
+  status = nfa_hci_cb.IsApduPipeStatusNotCorrect;
+  nfa_hci_cb.IsApduPipeStatusNotCorrect = false;
+  return status;
+}
 #endif

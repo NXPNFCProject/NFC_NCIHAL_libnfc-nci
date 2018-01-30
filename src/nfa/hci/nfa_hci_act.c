@@ -2193,6 +2193,12 @@ static void nfa_hci_handle_generic_gate_rsp(uint8_t* p_data, uint8_t data_len,
                          nfa_hci_cb.app_in_use);
   } else {
     /* Could be a response to application specific command sent, pass it on */
+#if (NXP_EXTNS == TRUE)
+    if(nfa_hci_cb.inst == NFA_HCI_ANY_E_PIPE_NOT_OPENED) {
+      p_pipe->pipe_state = NFA_HCI_PIPE_CLOSED;
+      nfa_hci_cb.nv_write_needed = true;
+    }
+#endif
     evt_data.rsp_rcvd.status = NFA_STATUS_OK;
     evt_data.rsp_rcvd.pipe = p_pipe->pipe_id;
     ;
@@ -3223,6 +3229,7 @@ static void nfa_hci_get_pipe_state_cb(uint8_t event, uint16_t param_len, uint8_t
                 if(!nfa_hci_api_IspipePresent(NFA_HCI_HOST_ID_ESE, NFA_HCI_ETSI12_APDU_GATE))
                 {
                     nfa_hci_update_pipe_status(NFA_HCI_ETSI12_APDU_GATE, NFA_HCI_APDU_PIPE);
+                    nfa_hci_cb.IsApduPipeStatusNotCorrect = true;
                     if(nfa_hciu_find_gate_by_gid (NFA_HCI_ETSI12_APDU_GATE) == NULL)
                     {
                         tNFA_HCI_DYN_GATE   *pg;

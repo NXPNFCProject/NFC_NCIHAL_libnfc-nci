@@ -313,6 +313,7 @@ void nfa_hci_init(void) {
   nfa_hci_cb.IsHciTimerChanged = false;
   nfa_hci_cb.IsWiredSessionAborted = false;
   nfa_hci_cb.IsLastEvtAbortFailed = false;
+  nfa_hci_cb.IsApduPipeStatusNotCorrect = false;
   read_config_timeout_param_values();
 #endif
   /* register message handler on NFA SYS */
