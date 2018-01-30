@@ -1877,6 +1877,16 @@ void nfc_ncif_proc_deactivate(uint8_t status, uint8_t deact_type, bool is_ntf) {
     (*p_cb->p_cback)(NFC_RF_CONN_ID, NFC_DEACTIVATE_CEVT, (tNFC_CONN*)p_deact);
 
 #if (NXP_EXTNS == TRUE)
+    if((nfcFL.eseFL._ESE_DUAL_MODE_PRIO_SCHEME == nfcFL.eseFL._ESE_WIRED_MODE_RESUME) &&
+        (deact_type != NFC_DEACTIVATE_TYPE_SLEEP) && is_ntf)
+    {
+        if(nfc_cb.bBlockWiredMode)
+        {
+            nfc_stop_timer(&nfc_cb.rf_filed_event_timeout_timer);
+            nfc_start_timer(&nfc_cb.rf_filed_event_timeout_timer, (uint16_t)(NFC_TTYPE_NCI_WAIT_RF_FIELD_NTF), NFC_NCI_RFFIELD_EVT_TIMEOUT);
+        }
+    }
+
     if (p_t3tcb->poll_timer.in_use)
     {
         NFC_TRACE_DEBUG1 ("%s: stopping t3t polling timer", __func__);
