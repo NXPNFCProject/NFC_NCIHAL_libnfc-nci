@@ -670,11 +670,18 @@ static void llcp_dlc_proc_connect_pdu(uint8_t dsap, uint8_t ssap,
      * As per the LLCP test specification v1.2.00 by receiving erroneous SNL PDU
      * i'e with improper length and service name "urn:nfc:sn:dta-co-echo-in",
      * the IUT should not send any PDU except SYMM PDU */
-
+#if (NXP_EXTNS != TRUE)
     if (appl_dta_mode_flag == 1 &&
         p_data[1] == strlen((const char*)&p_data[2])) {
       LLCP_TRACE_DEBUG1("%s: Strings are not equal", __func__);
       llcp_util_send_dm(ssap, dsap, LLCP_SAP_DM_REASON_NO_SERVICE);
+#else
+    if (appl_dta_mode_flag == 1) {
+      if(p_data[1] == strlen((const char*)&p_data[2])) {
+        LLCP_TRACE_DEBUG1("%s: Strings are not equal", __func__);
+        llcp_util_send_dm(ssap, dsap, LLCP_SAP_DM_REASON_NO_SERVICE);
+      }
+#endif
     } else {
       llcp_util_send_dm(ssap, dsap, LLCP_SAP_DM_REASON_NO_SERVICE);
     }
