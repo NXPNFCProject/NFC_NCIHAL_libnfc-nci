@@ -596,7 +596,13 @@ tNFA_STATUS NFA_EeAddAidRouting(tNFA_HANDLE ee_handle, uint8_t aid_len,
   } else {
     p_msg = (tNFA_EE_API_ADD_AID*)GKI_getbuf(size);
     if (p_msg != NULL) {
+#if (NXP_EXTNS == TRUE)
+        if(p_aid != NULL) {
+            NFA_TRACE_DEBUG2("aid:<%02x%02x>", p_aid[0], p_aid[1]);
+        }
+#else
       NFA_TRACE_DEBUG2("aid:<%02x%02x>", p_aid[0], p_aid[1]);
+#endif
       p_msg->hdr.event = NFA_EE_API_ADD_AID_EVT;
       p_msg->nfcee_id = nfcee_id;
       p_msg->p_cb = p_cb;
