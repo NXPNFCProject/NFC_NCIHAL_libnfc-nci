@@ -610,8 +610,10 @@ tNFA_STATUS NFA_EeAddAidRouting(tNFA_HANDLE ee_handle, uint8_t aid_len,
       p_msg->power_state = power_state;
       p_msg->p_aid = (uint8_t*)(p_msg + 1);
       p_msg->aidInfo = aidInfo;
-      memcpy(p_msg->p_aid, p_aid, aid_len);
-
+#if (NXP_EXTNS == TRUE)
+      if(p_aid != NULL)
+#endif
+        memcpy(p_msg->p_aid, p_aid, aid_len);
       nfa_sys_sendmsg(p_msg);
 
       status = NFA_STATUS_OK;
