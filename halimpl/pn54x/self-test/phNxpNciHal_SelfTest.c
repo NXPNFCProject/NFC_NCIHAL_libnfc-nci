@@ -564,7 +564,8 @@ static uint8_t st_validator_testAntenna_AgcVal_FixedNfcLd(
       } else {
         gagc_nfcld_status = NFCSTATUS_FAILED;
         NXPLOG_NCIHAL_E(
-            "Test Antenna Response for AGC value with fixed NFCLD FAIL");
+            "Test Antenna Response for AGC value with fixed NFCLD FAIL org Val = %d",
+               phAntenna_resp.wAgcValuewithfixedNFCLD);
       }
     } else {
       gagc_nfcld_status = NFCSTATUS_FAILED;
@@ -1987,16 +1988,28 @@ NFCSTATUS phNxpNciHal_AntennaSelfTest(phAntenna_St_Resp_t* phAntenna_St_Resp) {
   if (status == NFCSTATUS_SUCCESS) {
       if ((gtxldo_status == NFCSTATUS_SUCCESS) &&
               (gagc_value_status == NFCSTATUS_SUCCESS) &&
-              (gagc_nfcld_status == NFCSTATUS_SUCCESS)
-              && ((nfcFL.nfccFL._HW_ANTENNA_LOOP4_SELF_TEST) &&
-                      (gagc_differential_status == NFCSTATUS_SUCCESS))) {
-          antenna_st_status = NFCSTATUS_SUCCESS;
-          NXPLOG_NCIHAL_D("phNxpNciHal_AntennaSelfTest - SUCESS\n");
-      } else {
+              (gagc_nfcld_status == NFCSTATUS_SUCCESS))
+      {
+          if((nfcFL.nfccFL._HW_ANTENNA_LOOP4_SELF_TEST) && (gagc_differential_status == NFCSTATUS_SUCCESS))
+          {
+              antenna_st_status = NFCSTATUS_SUCCESS;
+              NXPLOG_NCIHAL_D("phNxpNciHal_AntennaSelfTest - SUCESS\n");
+          }
+          else if (!nfcFL.nfccFL._HW_ANTENNA_LOOP4_SELF_TEST)
+          {
+              antenna_st_status = NFCSTATUS_SUCCESS;
+              NXPLOG_NCIHAL_D("phNxpNciHal_AntennaSelfTest - SUCESS\n");
+          }
+      }
+      if (antenna_st_status != NFCSTATUS_SUCCESS)
+      {
           NXPLOG_NCIHAL_D("phNxpNciHal_AntennaSelfTest - FAILED\n");
+          NXPLOG_NCIHAL_D("gtxldo_status=%d gagc_value_status=%d gagc_nfcld_status=%d HW_ANTENNA_LOOP4_SELF_TEST=%d"
+                           "gagc_differential_status=%d\n", gtxldo_status,gagc_value_status,
+                       gagc_nfcld_status, nfcFL.nfccFL._HW_ANTENNA_LOOP4_SELF_TEST, gagc_differential_status);
       }
   } else {
-      NXPLOG_NCIHAL_D("phNxpNciHal_AntennaSelfTest - FAILED\n");
+      NXPLOG_NCIHAL_D("phNxpNciHal_AntennaSelfTest - FAILED, status = %d\n", status);
   }
 
   NXPLOG_NCIHAL_D("phNxpNciHal_AntennaSelfTest - end\n");
