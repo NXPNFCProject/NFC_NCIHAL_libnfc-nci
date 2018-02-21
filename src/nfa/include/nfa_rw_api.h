@@ -15,25 +15,6 @@
  *  limitations under the License.
  *
  ******************************************************************************/
-/******************************************************************************
- *
- *  The original Work has been changed by NXP Semiconductors.
- *
- *  Copyright (C) 2015 NXP Semiconductors
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
- ******************************************************************************/
 
 /******************************************************************************
  *
@@ -43,19 +24,20 @@
 #ifndef NFA_RW_API_H
 #define NFA_RW_API_H
 
-#include "nfc_target.h"
 #include "nfa_api.h"
+#include "nfc_target.h"
 
 /*****************************************************************************
 **  Constants and data types
 *****************************************************************************/
 enum {
-  NFA_RW_PRES_CHK_DEFAULT, /* The default behavior             */
-  NFA_RW_PRES_CHK_I_BLOCK, /* Empty I Block                    */
-  NFA_RW_PRES_CHK_RESET,   /* Deactivate to Sleep; Re-activate */
-  NFA_RW_PRES_CHK_RB_CH0,  /* ReadBinary on Channel 0          */
-  NFA_RW_PRES_CHK_RB_CH3,   /* ReadBinary on Channel 3          */
-  NFA_RW_PRES_CHK_ISO_DEP_NAK /*presence check command ISO-DEP NAK as per NCI2.0*/
+  NFA_RW_PRES_CHK_DEFAULT,    /* The default behavior             */
+  NFA_RW_PRES_CHK_I_BLOCK,    /* Empty I Block                    */
+  NFA_RW_PRES_CHK_RESET,      /* Deactivate to Sleep; Re-activate */
+  NFA_RW_PRES_CHK_RB_CH0,     /* ReadBinary on Channel 0          */
+  NFA_RW_PRES_CHK_RB_CH3,     /* ReadBinary on Channel 3          */
+  NFA_RW_PRES_CHK_ISO_DEP_NAK /* presence check command ISO-DEP
+                                 NAK as per NCI2.0                */
 };
 typedef uint8_t tNFA_RW_PRES_CHK_OPTION;
 
@@ -72,9 +54,6 @@ typedef struct {
 /*****************************************************************************
 **  External Function Declarations
 *****************************************************************************/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*******************************************************************************
 **
@@ -765,35 +744,5 @@ extern tNFA_STATUS NFA_RwI93GetSysInfo(uint8_t* p_uid);
 *******************************************************************************/
 extern tNFA_STATUS NFA_RwI93GetMultiBlockSecurityStatus(
     uint8_t first_block_number, uint16_t number_blocks);
-#if (NXP_EXTNS == TRUE)
-/*******************************************************************************
-**
-** Function         NFA_SetReconnectState
-**
-** Description:
-**      This function enable/disable p2p prio logic if re-connect is in progress
-**
-** Returns:
-**      void
-*******************************************************************************/
-extern void NFA_SetReconnectState(bool flag);
-
-/*******************************************************************************
-**
-** Function         NFA_SetEmvCoState
-**
-** Description:
-**      This function enable/disable p2p prio logic if emvco polling is enabled.
-**
-** Returns:
-**      void
-*******************************************************************************/
-extern void NFA_SetEmvCoState(bool flag);
-
-#endif
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* NFA_RW_API_H */

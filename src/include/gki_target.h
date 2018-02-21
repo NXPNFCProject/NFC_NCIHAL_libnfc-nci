@@ -15,25 +15,6 @@
  *  limitations under the License.
  *
  ******************************************************************************/
-/******************************************************************************
- *
- *  The original Work has been changed by NXP Semiconductors.
- *
- *  Copyright (C) 2015 NXP Semiconductors
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
- ******************************************************************************/
 #ifndef GKI_TARGET_H
 #define GKI_TARGET_H
 
@@ -42,14 +23,6 @@
 #endif
 
 #include "data_types.h"
-
-/* Operating System Selection */
-#ifndef BTE_SIM_APP
-#define _GKI_ARM
-#define _GKI_STANDALONE
-#else
-#define _BT_WIN32
-#endif
 
 /******************************************************************************
 **
@@ -118,7 +91,7 @@
 
 /* The number of GKI tasks in the software system. */
 #ifndef GKI_MAX_TASKS
-#define GKI_MAX_TASKS 15
+#define GKI_MAX_TASKS 14
 #endif
 
 /******************************************************************************
@@ -147,11 +120,6 @@
 ** Buffer configuration
 **
 ******************************************************************************/
-
-/* true if GKI uses dynamic buffers. */
-#ifndef GKI_USE_DYNAMIC_BUFFERS
-#define GKI_USE_DYNAMIC_BUFFERS false
-#endif
 
 /* The size of the buffers in pool 0. */
 #ifndef GKI_BUF0_SIZE
@@ -200,11 +168,7 @@
 
 /* The size of the buffers in pool 3. */
 #ifndef GKI_BUF3_SIZE
-#if (NXP_EXTNS == TRUE)
 #define GKI_BUF3_SIZE (0xFFB0)
-#else
-#define GKI_BUF3_SIZE 2500
-#endif
 #endif
 
 /* The number of buffers in buffer pool 3. */
@@ -242,7 +206,8 @@ Devices with small amount of RAM should limit the number of active obex objects.
 
 /* The number of buffers in buffer pool 4. */
 #ifndef GKI_BUF4_MAX
-#define GKI_BUF4_MAX 96 /* (OBX_NUM_SERVERS + OBX_NUM_CLIENTS) */
+/* (OBX_NUM_SERVERS + OBX_NUM_CLIENTS) */
+#define GKI_BUF4_MAX 96
 #endif
 
 /* The ID of buffer pool 4. */
@@ -251,11 +216,11 @@ Devices with small amount of RAM should limit the number of active obex objects.
 #endif
 
 /* The number of fixed GKI buffer pools.
-If L2CAP_FCR_INCLUDED is false, Pool ID 5 is unnecessary
-If BTM_SCO_HCI_INCLUDED is false, Pool ID 6 is unnecessary, otherwise set to 7
-If BTA_HL_INCLUDED is false then Pool ID 7 is uncessary and set the following to
+If L2CAP_FCR_INCLUDED is FALSE, Pool ID 5 is unnecessary
+If BTM_SCO_HCI_INCLUDED is FALSE, Pool ID 6 is unnecessary, otherwise set to 7
+If BTA_HL_INCLUDED is FALSE then Pool ID 7 is uncessary and set the following to
 7, otherwise set to 8
-If GATT_SERVER_ENABLED is false then Pool ID 8 is uncessary and set the
+If GATT_SERVER_ENABLED is FALSE then Pool ID 8 is uncessary and set the
 following to 8, otherwise set to 9
 */
 #ifndef GKI_NUM_FIXED_BUF_POOLS
@@ -268,7 +233,7 @@ following to 8, otherwise set to 9
 #endif
 
 /* The number of fixed and dynamic buffer pools.
-If L2CAP_FCR_INCLUDED is false, Pool ID 4 is unnecessary */
+If L2CAP_FCR_INCLUDED is FALSE, Pool ID 4 is unnecessary */
 #ifndef GKI_NUM_TOTAL_BUF_POOLS
 #define GKI_NUM_TOTAL_BUF_POOLS 10
 #endif
@@ -300,17 +265,12 @@ of order */
 
 /* The buffer corruption check flag. */
 #ifndef GKI_ENABLE_BUF_CORRUPTION_CHECK
-#define GKI_ENABLE_BUF_CORRUPTION_CHECK true
+#define GKI_ENABLE_BUF_CORRUPTION_CHECK TRUE
 #endif
 
 /* The GKI severe error macro. */
 #ifndef GKI_SEVERE
 #define GKI_SEVERE(code)
-#endif
-
-/* true if GKI includes debug functionality. */
-#ifndef GKI_DEBUG
-#define GKI_DEBUG false
 #endif
 
 /* Maximum number of exceptions logged. */
@@ -324,7 +284,7 @@ of order */
 #endif
 
 #ifndef GKI_SEND_MSG_FROM_ISR
-#define GKI_SEND_MSG_FROM_ISR false
+#define GKI_SEND_MSG_FROM_ISR FALSE
 #endif
 
 /* The following is intended to be a reserved pool for SCO
@@ -391,90 +351,6 @@ over HCI data and intentionally kept out of order */
 /* The number of buffers in buffer pool 8. */
 #ifndef GKI_BUF8_MAX
 #define GKI_BUF8_MAX 30
-#endif
-
-#if defined(GKI_DEBUG) && (GKI_DEBUG == true)
-#ifdef LOG_TAG
-#undef LOG_TAG
-#endif
-#define LOG_TAG "GKI_LINUX"
-/* GKI Trace Macros */
-#define GKI_TRACE_0(m)                                          \
-  LogMsg(TRACE_CTRL_GENERAL | TRACE_LAYER_GKI | TRACE_ORG_GKI | \
-             TRACE_TYPE_GENERIC,                                \
-         m)
-#define GKI_TRACE_1(m, p1)                                      \
-  LogMsg(TRACE_CTRL_GENERAL | TRACE_LAYER_GKI | TRACE_ORG_GKI | \
-             TRACE_TYPE_GENERIC,                                \
-         m, p1)
-#define GKI_TRACE_2(m, p1, p2)                                  \
-  LogMsg(TRACE_CTRL_GENERAL | TRACE_LAYER_GKI | TRACE_ORG_GKI | \
-             TRACE_TYPE_GENERIC,                                \
-         m, p1, p2)
-#define GKI_TRACE_3(m, p1, p2, p3)                              \
-  LogMsg(TRACE_CTRL_GENERAL | TRACE_LAYER_GKI | TRACE_ORG_GKI | \
-             TRACE_TYPE_GENERIC,                                \
-         m, p1, p2, p3)
-#define GKI_TRACE_4(m, p1, p2, p3, p4)                          \
-  LogMsg(TRACE_CTRL_GENERAL | TRACE_LAYER_GKI | TRACE_ORG_GKI | \
-             TRACE_TYPE_GENERIC,                                \
-         m, p1, p2, p3, p4)
-#define GKI_TRACE_5(m, p1, p2, p3, p4, p5)                      \
-  LogMsg(TRACE_CTRL_GENERAL | TRACE_LAYER_GKI | TRACE_ORG_GKI | \
-             TRACE_TYPE_GENERIC,                                \
-         m, p1, p2, p3, p4, p5)
-#define GKI_TRACE_6(m, p1, p2, p3, p4, p5, p6)                  \
-  LogMsg(TRACE_CTRL_GENERAL | TRACE_LAYER_GKI | TRACE_ORG_GKI | \
-             TRACE_TYPE_GENERIC,                                \
-         m, p1, p2, p3, p4, p5, p6)
-#else
-#define GKI_TRACE_0(m)
-#define GKI_TRACE_1(m, p1)
-#define GKI_TRACE_2(m, p1, p2)
-#define GKI_TRACE_3(m, p1, p2, p3)
-#define GKI_TRACE_4(m, p1, p2, p3, p4)
-#define GKI_TRACE_5(m, p1, p2, p3, p4, p5)
-#define GKI_TRACE_6(m, p1, p2, p3, p4, p5, p6)
-
-#endif
-
-#define GKI_TRACE_ERROR_0(m)                                                   \
-  LogMsg(                                                                      \
-      TRACE_CTRL_GENERAL | TRACE_LAYER_GKI | TRACE_ORG_GKI | TRACE_TYPE_ERROR, \
-      m)
-#define GKI_TRACE_ERROR_1(m, p1)                                               \
-  LogMsg(                                                                      \
-      TRACE_CTRL_GENERAL | TRACE_LAYER_GKI | TRACE_ORG_GKI | TRACE_TYPE_ERROR, \
-      m, p1)
-#define GKI_TRACE_ERROR_2(m, p1, p2)                                           \
-  LogMsg(                                                                      \
-      TRACE_CTRL_GENERAL | TRACE_LAYER_GKI | TRACE_ORG_GKI | TRACE_TYPE_ERROR, \
-      m, p1, p2)
-#define GKI_TRACE_ERROR_3(m, p1, p2, p3)                                       \
-  LogMsg(                                                                      \
-      TRACE_CTRL_GENERAL | TRACE_LAYER_GKI | TRACE_ORG_GKI | TRACE_TYPE_ERROR, \
-      m, p1, p2, p3)
-#define GKI_TRACE_ERROR_4(m, p1, p2, p3, p4)                                   \
-  LogMsg(                                                                      \
-      TRACE_CTRL_GENERAL | TRACE_LAYER_GKI | TRACE_ORG_GKI | TRACE_TYPE_ERROR, \
-      m, p1, p2, p3, p4)
-#define GKI_TRACE_ERROR_5(m, p1, p2, p3, p4, p5)                               \
-  LogMsg(                                                                      \
-      TRACE_CTRL_GENERAL | TRACE_LAYER_GKI | TRACE_ORG_GKI | TRACE_TYPE_ERROR, \
-      m, p1, p2, p3, p4, p5)
-#define GKI_TRACE_ERROR_6(m, p1, p2, p3, p4, p5, p6)                           \
-  LogMsg(                                                                      \
-      TRACE_CTRL_GENERAL | TRACE_LAYER_GKI | TRACE_ORG_GKI | TRACE_TYPE_ERROR, \
-      m, p1, p2, p3, p4, p5, p6)
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-extern void LogMsg(uint32_t trace_set_mask, const char* fmt_str, ...);
-
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* GKI_TARGET_H */

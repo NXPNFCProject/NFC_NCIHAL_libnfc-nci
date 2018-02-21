@@ -15,37 +15,13 @@
  *  limitations under the License.
  *
  ******************************************************************************/
-/******************************************************************************
- *
- *  The original Work has been changed by NXP Semiconductors.
- *
- *  Copyright (C) 2015 NXP Semiconductors
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
- ******************************************************************************/
 #pragma once
 #include <pthread.h>
 
-#include "nfc_target.h"
 #include "nfc_hal_api.h"
-#include <hardware/nfc.h>
+#include "nfc_target.h"
+
 #include <utils/RefBase.h>
-#include <android/hardware/nfc/1.0/INfc.h>
-#include <android/hardware/nfc/1.0/INfcClientCallback.h>
-#include <android/hardware/nfc/1.0/types.h>
-#include <vendor/nxp/nxpnfc/1.0/INxpNfc.h>
-using vendor::nxp::nxpnfc::V1_0::INxpNfc;
 
 namespace android {
 namespace hardware {
@@ -53,6 +29,9 @@ namespace nfc {
 namespace V1_0 {
 struct INfc;
 struct INfcClientCallback;
+}
+namespace V1_1 {
+struct INfc;
 }
 }
 }
@@ -101,38 +80,28 @@ class NfcAdaptation {
   virtual ~NfcAdaptation();
   void Initialize();
   void Finalize();
+  void FactoryReset();
+  void DeviceShutdown();
   static NfcAdaptation& GetInstance();
   tHAL_NFC_ENTRY* GetHalEntryFuncs();
   void DownloadFirmware();
-#if (NXP_EXTNS == TRUE)
-  void MinInitialize();
-  int HalGetFwDwnldFlag(uint8_t* fwDnldRequest);
-  nfc_nci_IoctlInOutData_t* mCurrentIoctlData;
-#endif
+  void Dump(int fd);
 
  private:
   NfcAdaptation();
   void signal();
   static NfcAdaptation* mpInstance;
   static ThreadMutex sLock;
-  static ThreadMutex sIoctlLock;
   ThreadCondVar mCondVar;
   tHAL_NFC_ENTRY mHalEntryFuncs;  // function pointers for HAL entry points
-  static nfc_nci_device_t* mHalDeviceContext;
+  static android::sp<android::hardware::nfc::V1_0::INfc> mHal;
+  static android::sp<android::hardware::nfc::V1_1::INfc> mHal_1_1;
+  static android::hardware::nfc::V1_0::INfcClientCallback* mCallback;
   static tHAL_NFC_CBACK* mHalCallback;
   static tHAL_NFC_DATA_CBACK* mHalDataCallback;
   static ThreadCondVar mHalOpenCompletedEvent;
   static ThreadCondVar mHalCloseCompletedEvent;
-  static ThreadCondVar mHalIoctlEvent;
-  static android::sp<android::hardware::nfc::V1_0::INfc> mHal;
-  static android::sp<vendor::nxp::nxpnfc::V1_0::INxpNfc> mHalNxpNfc;
-  static android::hardware::nfc::V1_0::INfcClientCallback* mCallback;
-#if (NXP_EXTNS == TRUE)
-  pthread_t mThreadId;
-  static ThreadCondVar mHalCoreResetCompletedEvent;
-  static ThreadCondVar mHalCoreInitCompletedEvent;
-  static ThreadCondVar mHalInitCompletedEvent;
-#endif
+
   static uint32_t NFCA_TASK(uint32_t arg);
   static uint32_t Thread(uint32_t arg);
   void InitializeHalDeviceContext();
@@ -148,9 +117,6 @@ class NfcAdaptation {
   static void HalCoreInitialized(uint16_t data_len,
                                  uint8_t* p_core_init_rsp_params);
   static void HalWrite(uint16_t data_len, uint8_t* p_data);
-#if (NXP_EXTNS == TRUE)
-  static int HalIoctl(long arg, void* p_data);
-#endif
   static bool HalPrediscover();
   static void HalControlGranted();
   static void HalPowerCycle();

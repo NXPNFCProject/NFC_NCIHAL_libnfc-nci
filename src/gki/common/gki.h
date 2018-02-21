@@ -23,14 +23,13 @@
 #endif
 
 #ifndef NFC_STANDALONE
-#define NFC_STANDALONE false
+#define NFC_STANDALONE FALSE
 #endif
+
+#include <string>
 
 #include "bt_types.h"
 #include "gki_target.h"
-
-/* Uncomment this line for verbose GKI debugging and buffer tracking */
-#define GKI_BUFFER_DEBUG false
 
 /* Error codes */
 #define GKI_SUCCESS 0x00
@@ -43,9 +42,7 @@
 ** send buffers to the task.
 */
 #define TASK_MBOX_0 0
-#define TASK_MBOX_1 1
 #define TASK_MBOX_2 2
-#define TASK_MBOX_3 3
 
 #define NUM_TASK_MBOX 4
 
@@ -56,7 +53,6 @@
 ** There are 4 reserved events used to signal timeout events.
 ** There are 8 general purpose events available for applications.
 */
-#define MAX_EVENTS 16
 
 #define TASK_MBOX_0_EVT_MASK 0x0001
 #define TASK_MBOX_1_EVT_MASK 0x0002
@@ -74,12 +70,6 @@
 #define TIMER_3_EVT_MASK 0x0080
 
 #define APPL_EVT_0 8
-#define APPL_EVT_1 9
-#define APPL_EVT_2 10
-#define APPL_EVT_3 11
-#define APPL_EVT_4 12
-#define APPL_EVT_5 13
-#define APPL_EVT_6 14
 #define APPL_EVT_7 15
 
 #define EVENT_MASK(evt) ((uint16_t)(0x0001 << (evt)))
@@ -335,25 +325,18 @@ typedef struct {
   uint16_t count;
 } BUFFER_Q;
 
-#define GKI_IS_QUEUE_EMPTY(p_q) ((p_q)->count == 0)
-
 /* Task constants
 */
 #ifndef TASKPTR
-typedef void (*TASKPTR)(uint32_t);
+typedef uint32_t (*TASKPTR)(uint32_t);
 #endif
 
 /* General pool accessible to GKI_getbuf() */
-#define GKI_PUBLIC_POOL 0
 #define GKI_RESTRICTED_POOL 1 /* Inaccessible pool to GKI_getbuf() */
 
 /***********************************************************************
 ** Function prototypes
 */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /* Task management
 */
@@ -367,7 +350,6 @@ extern uint8_t GKI_resume_task(uint8_t);
 extern void GKI_run(void*);
 extern void GKI_stop(void);
 extern uint8_t GKI_suspend_task(uint8_t);
-extern uint8_t GKI_is_task_running(uint8_t);
 
 /* memory management
 */
@@ -389,19 +371,9 @@ extern uint8_t GKI_create_pool(uint16_t, uint16_t, uint8_t, void*);
 extern void GKI_delete_pool(uint8_t);
 extern void* GKI_find_buf_start(void*);
 extern void GKI_freebuf(void*);
-#if (GKI_BUFFER_DEBUG == true)
-#define GKI_getbuf(size) GKI_getbuf_debug(size, __func__, __LINE__)
-extern void* GKI_getbuf_debug(uint16_t, const char*, int);
-#else
 extern void* GKI_getbuf(uint16_t);
-#endif
 extern uint16_t GKI_get_buf_size(void*);
-#if (GKI_BUFFER_DEBUG == true)
-#define GKI_getpoolbuf(id) GKI_getpoolbuf_debug(id, __func__, __LINE__)
-extern void* GKI_getpoolbuf_debug(uint8_t, const char*, int);
-#else
 extern void* GKI_getpoolbuf(uint8_t);
-#endif
 
 extern uint16_t GKI_poolcount(uint8_t);
 extern uint16_t GKI_poolfreecount(uint8_t);
@@ -467,19 +439,6 @@ extern uint32_t GKI_get_os_tick_count(void);
 
 /* Exception handling
 */
-extern void GKI_exception(uint16_t, char*);
-
-#if (GKI_BUFFER_DEBUG == true)
-extern void GKI_PrintBufferUsage(uint8_t* p_num_pools, uint16_t* p_cur_used);
-extern void GKI_PrintBuffer(void);
-extern void GKI_print_task(void);
-#else
-#undef GKI_PrintBufferUsage
-#define GKI_PrintBuffer() NULL
-#endif
-
-#ifdef __cplusplus
-}
-#endif
+extern void GKI_exception(uint16_t, std::string);
 
 #endif

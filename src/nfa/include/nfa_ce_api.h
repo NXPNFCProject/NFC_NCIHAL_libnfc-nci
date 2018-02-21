@@ -15,25 +15,6 @@
  *  limitations under the License.
  *
  ******************************************************************************/
-/******************************************************************************
- *
- *  The original Work has been changed by NXP Semiconductors.
- *
- *  Copyright (C) 2015 NXP Semiconductors
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
- ******************************************************************************/
 
 /******************************************************************************
  *
@@ -43,8 +24,8 @@
 #ifndef NFA_CE_API_H
 #define NFA_CE_API_H
 
-#include "nfc_target.h"
 #include "nfa_api.h"
+#include "nfc_target.h"
 
 /*****************************************************************************
 **  Constants and data types
@@ -53,9 +34,6 @@
 /*****************************************************************************
 **  External Function Declarations
 *****************************************************************************/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*******************************************************************************
 **
@@ -132,36 +110,6 @@ extern tNFA_STATUS NFA_CeConfigureLocalTag(tNFA_PROTOCOL_MASK protocol_mask,
 extern tNFA_STATUS NFA_CeConfigureUiccListenTech(
     tNFA_HANDLE ee_handle, tNFA_TECHNOLOGY_MASK tech_mask);
 
-#if (NXP_EXTNS == TRUE)
-/*******************************************************************************
-**
-** Function         NFA_CeConfigureEseListenTech
-**
-** Description      Configure listening for the Ese, using the specified
-**                  technologies.
-**
-**                  Events will be notifed using the tNFA_CONN_CBACK
-**                  (registered during NFA_Enable)
-**
-**                  The NFA_CE_ESE_LISTEN_CONFIGURED_EVT reports the status of
-*the
-**                  operation.
-**
-**                  Activation and deactivation are reported using the
-**                  NFA_ACTIVATED_EVT and NFA_DEACTIVATED_EVT events
-**
-** Note:            If RF discovery is started,
-*NFA_StopRfDiscovery()/NFA_RF_DISCOVERY_STOPPED_EVT
-**                  should happen before calling this function
-**
-** Returns:
-**                  NFA_STATUS_OK, if command accepted
-**                  NFA_STATUS_FAILED: otherwise
-**
-*******************************************************************************/
-extern tNFA_STATUS NFA_CeConfigureEseListenTech(tNFA_HANDLE ee_handle,
-                                                tNFA_TECHNOLOGY_MASK tech_mask);
-#endif
 /*******************************************************************************
 **
 ** Function         NFA_CeRegisterFelicaSystemCodeOnDH
@@ -182,8 +130,7 @@ extern tNFA_STATUS NFA_CeConfigureEseListenTech(tNFA_HANDLE ee_handle,
 *******************************************************************************/
 extern tNFA_STATUS NFA_CeRegisterFelicaSystemCodeOnDH(
     uint16_t system_code, uint8_t nfcid2[NCI_RF_F_UID_LEN],
-    uint8_t t3tPmm[NCI_T3T_PMM_LEN],
-    tNFA_CONN_CBACK* p_conn_cback);
+    uint8_t t3tPmm[NCI_T3T_PMM_LEN], tNFA_CONN_CBACK* p_conn_cback);
 
 /*******************************************************************************
 **
@@ -281,9 +228,5 @@ extern tNFA_STATUS NFA_CeDeregisterAidOnDH(tNFA_HANDLE handle);
 **
 *******************************************************************************/
 extern tNFA_STATUS NFA_CeSetIsoDepListenTech(tNFA_TECHNOLOGY_MASK tech_mask);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* NFA_CE_API_H */

@@ -19,10 +19,6 @@
 
 #include <stdbool.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /*******************************************************************************
 **
 ** Function         crcChecksumCompute
@@ -45,7 +41,3 @@ unsigned short crcChecksumCompute(const unsigned char* buffer, int bufferLen);
 **
 *******************************************************************************/
 bool crcChecksumVerifyIntegrity(const char* filename);
-
-#ifdef __cplusplus
-}
-#endif

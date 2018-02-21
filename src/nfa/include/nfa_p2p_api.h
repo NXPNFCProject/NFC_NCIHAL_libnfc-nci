@@ -41,12 +41,8 @@
   0x02 /* no service bound in remote      */
 #define NFA_P2P_DISC_REASON_REMOTE_REJECT \
   0x03 /* remote rejected connection      */
-#define NFA_P2P_DISC_REASON_FRAME_ERROR \
-  0x04 /* sending or receiving FRMR PDU   */
 #define NFA_P2P_DISC_REASON_LLCP_DEACTIVATED \
   0x05 /* LLCP link deactivated           */
-#define NFA_P2P_DISC_REASON_NO_RESOURCE \
-  0x06 /* Out of resource in local device */
 #define NFA_P2P_DISC_REASON_NO_INFORMATION \
   0x80 /* Without information             */
 
@@ -71,24 +67,13 @@
 #define NFA_P2P_CONGEST_EVT 0x08
 /* link MIU and Well-Known Service list         */
 #define NFA_P2P_LINK_INFO_EVT 0x09
-/* Remote SAP of SDP result                     */
-#define NFA_P2P_SDP_EVT 0x0A
+#define NFA_P2P_SDP_EVT 0x0A /* Remote SAP of SDP result */
 
 typedef uint8_t tNFA_P2P_EVT;
 
 /* NFA allocates a SAP for server */
 #define NFA_P2P_ANY_SAP LLCP_INVALID_SAP
 #define NFA_P2P_INVALID_SAP LLCP_INVALID_SAP
-
-/* Recommanded MIU's for connection-oriented */
-#define NFA_P2P_MIU_1 \
-  (NCI_NFC_DEP_MAX_DATA - LLCP_PDU_HEADER_SIZE - LLCP_SEQUENCE_SIZE)
-#define NFA_P2P_MIU_2 \
-  (2 * NCI_NFC_DEP_MAX_DATA - LLCP_PDU_HEADER_SIZE - LLCP_SEQUENCE_SIZE)
-#define NFA_P2P_MIU_3 \
-  (3 * NCI_NFC_DEP_MAX_DATA - LLCP_PDU_HEADER_SIZE - LLCP_SEQUENCE_SIZE)
-#define NFA_P2P_MIU_8 \
-  (8 * NCI_NFC_DEP_MAX_DATA - LLCP_PDU_HEADER_SIZE - LLCP_SEQUENCE_SIZE)
 
 #define NFA_P2P_LLINK_TYPE LLCP_LINK_TYPE_LOGICAL_DATA_LINK
 #define NFA_P2P_DLINK_TYPE LLCP_LINK_TYPE_DATA_LINK_CONNECTION
@@ -189,9 +174,6 @@ typedef void(tNFA_P2P_CBACK)(tNFA_P2P_EVT event, tNFA_P2P_EVT_DATA* p_data);
 /*****************************************************************************
 **  External Function Declarations
 *****************************************************************************/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*******************************************************************************
 **
@@ -300,7 +282,7 @@ extern tNFA_STATUS NFA_P2pRejectConn(tNFA_HANDLE conn_handle);
 **                  connecting data link connection.
 **
 **                  discard any pending data on data link connection if flush is
-**                  set to true
+**                  set to TRUE
 **
 **                  NFA_P2P_DISC_EVT will be returned after data link connection
 **                  is disconnected
@@ -377,7 +359,7 @@ extern tNFA_STATUS NFA_P2pSendUI(tNFA_HANDLE handle, uint8_t dsap,
 **                  - Information of UI PDU up to max_data_len is copied into
 **                    p_data.
 **                  - If more information of UI PDU or more UI PDU in queue then
-**                    more is returned to true.
+**                    more is returned to TRUE.
 **                  - Information of next UI PDU is not concatenated.
 **
 ** Returns          NFA_STATUS_OK if successfully initiated
@@ -429,7 +411,7 @@ extern tNFA_STATUS NFA_P2pSendData(tNFA_HANDLE conn_handle, uint16_t length,
 **                  - Information of I PDU is copied into p_data up to
 **                    max_data_len.
 **                  - If more information of I PDU or more I PDU in queue, then
-**                    more is returned to true.
+**                    more is returned to TRUE.
 **                  - Information of next I PDU is not concatenated.
 **
 ** Returns          NFA_STATUS_OK if successfully initiated
@@ -559,21 +541,5 @@ extern void NFA_P2pGetLLCPConfig(uint16_t* p_link_miu, uint8_t* p_opt,
                                  uint16_t* p_symm_delay,
                                  uint16_t* p_data_link_timeout,
                                  uint16_t* p_delay_first_pdu_timeout);
-
-/*******************************************************************************
-**
-** Function         NFA_P2pSetTraceLevel
-**
-** Description      This function sets the trace level for P2P.  If called with
-**                  a value of 0xFF, it simply returns the current trace level.
-**
-** Returns          The new or current trace level
-**
-*******************************************************************************/
-extern uint8_t NFA_P2pSetTraceLevel(uint8_t new_level);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* NFA_P2P_API_H */

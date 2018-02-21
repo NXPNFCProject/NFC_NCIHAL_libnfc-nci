@@ -18,9 +18,8 @@
 #ifndef GKI_INT_H
 #define GKI_INT_H
 
-#include "gki_common.h"
-#include <stdlib.h>
 #include <pthread.h>
+#include "gki_common.h"
 
 /**********************************************************************
 ** OS specific definitions
@@ -40,9 +39,6 @@ typedef struct {
   pthread_mutex_t gki_timer_mutex;
   pthread_cond_t gki_timer_cond;
   int gki_timer_wake_lock_on;
-#if (GKI_DEBUG == true)
-  pthread_mutex_t GKI_trace_mutex;
-#endif
 } tGKI_OS;
 
 /* condition to exit or continue GKI_run() timer loop */
@@ -58,14 +54,6 @@ typedef struct {
   tGKI_COM_CB com;
 } tGKI_CB;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 extern tGKI_CB gki_cb;
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
