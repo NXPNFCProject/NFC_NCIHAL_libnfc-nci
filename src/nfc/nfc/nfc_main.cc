@@ -88,7 +88,11 @@ static tNFC_chipType chipType;
 static void NFC_GetFeatureList();
 #endif
 #if (NFC_RW_ONLY == FALSE)
+#if (NXP_EXTNS == TRUE)
+#define NFC_NUM_INTERFACE_MAP 3
+#else
 #define NFC_NUM_INTERFACE_MAP 2
+#endif
 #else
 #define NFC_NUM_INTERFACE_MAP 1
 #endif
@@ -103,6 +107,12 @@ static const tNCI_DISCOVER_MAPS nfc_interface_mapping[NFC_NUM_INTERFACE_MAP] = {
     /* this can not be set here due to 2079xB0 NFCC issues */
     {NCI_PROTOCOL_NFC_DEP, NCI_INTERFACE_MODE_POLL_N_LISTEN,
      NCI_INTERFACE_NFC_DEP}
+#endif
+#if (NXP_EXTNS == TRUE)
+    ,
+    /* This mapping is for Felica on DH  */
+    {NCI_PROTOCOL_T3T, NCI_INTERFACE_MODE_LISTEN, NCI_INTERFACE_FRAME}
+
 #endif
 };
 

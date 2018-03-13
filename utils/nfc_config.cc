@@ -82,3 +82,11 @@ std::vector<uint8_t> NfcConfig::getBytes(const std::string& key) {
 }
 
 void NfcConfig::clear() { getInstance().config_.clear(); }
+#if(NXP_EXTNS == TRUE)
+void NfcConfig::parseConfigFile() {
+    getInstance().config_.clear();
+    string config_path = findConfigPath();
+    CHECK(config_path != "");
+    getInstance().config_.parseFromFile(config_path);
+}
+#endif
