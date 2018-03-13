@@ -1865,19 +1865,19 @@ void nfc_ncif_credit_ntf_timeout() {
       << StringPrintf("nfc_ncif_credit_ntf_timeout : Enter");
 
   tNFC_CONN_CB* p_cb;
-    // No need to wait for response since credit ntf timeout calls recovery
-    // Stop the response timer
-    nfa_sys_stop_timer(&nfa_hci_cb.timer);
+  // No need to wait for response since credit ntf timeout calls recovery
+  // Stop the response timer
+  nfa_sys_stop_timer(&nfa_hci_cb.timer);
 
-    nfa_hci_rsp_timeout();
-    p_cb = nfc_find_conn_cb_by_conn_id(NFC_NFCEE_CONN_ID);
-    if (p_cb && (p_cb->num_buff != NFC_CONN_NO_FC) && (p_cb->num_buff == 0))
+  nfa_hci_rsp_timeout();
+  p_cb = nfc_find_conn_cb_by_conn_id(NFC_NFCEE_CONN_ID);
+  if (p_cb && (p_cb->num_buff != NFC_CONN_NO_FC) && (p_cb->num_buff == 0))
       p_cb->num_buff++;
 
-    p_cb = nfc_find_conn_cb_by_conn_id(NFC_RF_CONN_ID);
-    if (p_cb && (p_cb->num_buff != NFC_CONN_NO_FC) && (p_cb->num_buff == 0))
-      p_cb->num_buff++;
-
+  p_cb = nfc_find_conn_cb_by_conn_id(NFC_RF_CONN_ID);
+  if (p_cb && (p_cb->num_buff != NFC_CONN_NO_FC) && (p_cb->num_buff == 0))
+    p_cb->num_buff++;
+  nci_snd_nfcee_power_link_control(NFA_HCI_HOST_ID_PROP_HOST0, 0x01);
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("cmd timeout sending core reset!!!");
   nfc_ncif_cmd_timeout();
