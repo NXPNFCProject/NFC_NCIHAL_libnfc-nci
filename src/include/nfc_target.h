@@ -132,6 +132,17 @@
 #define NFC_HAL_NCI_POOL_BUF_SIZE NFC_NCI_POOL_BUF_SIZE
 #endif
 
+#if (NXP_EXTNS == TRUE)
+/* WIRED Mode pool */
+#ifndef NFC_WIRED_POOL_ID
+#define NFC_WIRED_POOL_ID GKI_POOL_ID_4
+#endif
+
+#ifndef NFC_WIRED_POOL_SIZE
+#define NFC_WIRED_POOL_SIZE GKI_BUF4_SIZE
+#endif
+
+#endif
 /******************************************************************************
 **
 ** NCI Transport definitions

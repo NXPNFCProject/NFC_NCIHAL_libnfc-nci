@@ -338,7 +338,11 @@ tNFA_STATUS nfa_hciu_send_msg(uint8_t pipe_id, uint8_t type,
     nfa_hci_cb.param_in_use = *p_msg;
 
   while ((first_pkt == true) || (msg_len != 0)) {
+#if (NXP_EXTNS == TRUE)
+    p_buf = (NFC_HDR*)GKI_getpoolbuf(NFC_WIRED_POOL_ID);
+#else
     p_buf = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID);
+#endif
     if (p_buf != NULL) {
       p_buf->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
 
