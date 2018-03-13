@@ -423,8 +423,6 @@ tNFA_STATUS nfa_hciu_send_msg(uint8_t pipe_id, uint8_t type,
   {
       nfa_hci_cb.cmd_sent = 0;
       nfa_hci_cb.evt_sent.evt_type = instruction;
-      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-          "nfa_hci_rsp_timeout () Sending evt abort");
   }
 #endif
   return status;
