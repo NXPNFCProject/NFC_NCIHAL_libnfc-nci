@@ -348,5 +348,6 @@ void nfc_stop_quick_timer(TIMER_LIST_ENT* p_tle);
 void nfc_process_quick_timer_evt(void);
 #if (NXP_EXTNS == TRUE)
 extern void nfc_ncif_credit_ntf_timeout(void);
+void check_nfcee_session_and_reset();
 #endif
 #endif /* NFC_INT_H_ */
