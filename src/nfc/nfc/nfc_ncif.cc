@@ -432,7 +432,6 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
   uint8_t hdr0 = p_cb->conn_id;
   bool fragmented = false;
 #if (NXP_EXTNS == TRUE)
-  uint8_t dataHdrSize = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
   uint8_t* pTemp;
   if (core_reset_init_num_buff == true) {
     NFC_TRACE_ERROR0("Reinitializing the num_buff");
@@ -489,12 +488,6 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
   /* try to send the first data packet in the tx queue  */
   p_data = (NFC_HDR*)GKI_getfirst(&p_cb->tx_q);
 
-#if (NXP_EXTNS == TRUE)
-  if(p_data && (p_data->len > buffer_size)){
-      NFC_TRACE_DEBUG0("Data size is more then maximum payload size. Need to be fragmented");
-      p_data->extendedApdu = true;
-  }
-#endif
   /* post data fragment to NCIT task as credits are available */
   while (p_data && (p_data->len >= 0) && (p_cb->num_buff > 0)) {
     if (p_data->len <= buffer_size) {
@@ -507,27 +500,8 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
     }
 
     if (!fragmented) {
-#if (NXP_EXTNS == TRUE)
-      if(p_data->extendedApdu){
-        p = NCI_GET_CMD_BUF(ulen);
-        if (p == NULL) return (NCI_STATUS_BUFFER_FULL);
-        p->len = ulen;
-        p->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE + 1;
-        if (p->len) {
-          pp = (uint8_t*)(p + 1) + p->offset;
-          if(p_data->p_data_buf){
-            memcpy(pp, (p_data->p_data_buf+(p_data->offset-dataHdrSize)), ulen);
-          }
-        }
-        /* adjust the NFC_HDR on the old fragment */
-        p_data->len -= ulen;
-      }else{
-#endif
-        /* if data packet is not fragmented, use the original buffer */
-        p = p_data;
-#if (NXP_EXTNS == TRUE)
-      }
-#endif
+      /* if data packet is not fragmented, use the original buffer */
+      p = p_data;
       p_data = (NFC_HDR*)GKI_dequeue(&p_cb->tx_q);
     } else {
       /* the data packet is too big and need to be fragmented
@@ -539,14 +513,8 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
       p->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE + 1;
       if (p->len) {
         pp = (uint8_t*)(p + 1) + p->offset;
-#if (NXP_EXTNS == TRUE)
-        if(p_data->p_data_buf){
-          memcpy(pp, (p_data->p_data_buf+(p_data->offset-dataHdrSize)), ulen);
-        }
-#else
         ps = (uint8_t*)(p_data + 1) + p_data->offset;
         memcpy(pp, ps, ulen);
-#endif
       }
       /* adjust the NFC_HDR on the old fragment */
       p_data->len -= ulen;
