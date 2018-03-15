@@ -34,8 +34,8 @@
 #include <phNfcCompId.h>
 
 /* HAL Version number (Updated as per release) */
-#define NXP_MW_VERSION_MAJ (0x03)
-#define NXP_MW_VERSION_MIN (0x09)
+#define NXP_MW_VERSION_MAJ (0x04)
+#define NXP_MW_VERSION_MIN (0x00)
 
 #define GET_EEPROM_DATA (1U)
 #define SET_EEPROM_DATA (2U)
