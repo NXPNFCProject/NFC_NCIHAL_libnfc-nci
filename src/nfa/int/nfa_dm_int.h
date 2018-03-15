@@ -212,6 +212,13 @@ typedef struct {
   uint8_t screen_state;
 } tNFA_DM_API_SET_POWER_SUB_STATE;
 
+#if (NXP_EXTNS == TRUE)
+typedef struct {
+  NFC_HDR hdr;
+  uint8_t* p_data_buf;
+} tNFC_EXT_HDR;
+#endif
+
 /* union of all data types */
 typedef union {
   /* GKI event buffer header */
@@ -221,6 +228,9 @@ typedef union {
                                     /* NFA_DM_API_DISABLE_POLLING_EVT       */
                                     /* NFA_DM_API_START_RF_DISCOVERY_EVT    */
                                     /* NFA_DM_API_STOP_RF_DISCOVERY_EVT     */
+#if (NXP_EXTNS == TRUE)
+  tNFC_EXT_HDR ext_hdr;             /* NFA_DM_API_RAW_FRAME_EVT             */
+#endif
   tNFA_DM_API_ENABLE enable;        /* NFA_DM_API_ENABLE_EVT                */
   tNFA_DM_API_DISABLE disable;      /* NFA_DM_API_DISABLE_EVT               */
   tNFA_DM_API_SET_CONFIG setconfig; /* NFA_DM_API_SET_CONFIG_EVT            */

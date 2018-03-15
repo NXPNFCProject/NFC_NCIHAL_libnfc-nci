@@ -1052,24 +1052,41 @@ tNFA_STATUS NFA_SendRawFrame(uint8_t* p_raw_data, uint16_t data_len,
       return (NFA_STATUS_INVALID_PARAM);
   }
 
+#if (NXP_EXTNS == TRUE)
+  if(data_len > (NCI_MAX_PAYLOAD_SIZE - NCI_MSG_OFFSET_SIZE)) {
+    size = NFC_EXT_HDR_SIZE + NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
+    p_msg = (NFC_HDR*)GKI_getbuf(size);
+  } else {
+    size = NFC_HDR_SIZE + NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE + data_len;
+    p_msg = (NFC_HDR*)GKI_getbuf(size);
+  }
+#else
+    size = NFC_HDR_SIZE + NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE + data_len;
+    p_msg = (NFC_HDR*)GKI_getbuf(size);
+#endif
 
-  size = NFC_HDR_SIZE + NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE + data_len;
-  p_msg = (NFC_HDR*)GKI_getbuf(size);
   if (p_msg != NULL) {
     p_msg->event = NFA_DM_API_RAW_FRAME_EVT;
     p_msg->layer_specific = presence_check_start_delay;
     p_msg->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
     p_msg->len = data_len;
-
-    p = (uint8_t*)(p_msg + 1) + p_msg->offset;
-    if (nfcFL.nfccFL._NXP_NFCC_EMPTY_DATA_PACKET) {
+#if (NXP_EXTNS == TRUE)
+    if(data_len <= (NCI_MAX_PAYLOAD_SIZE - NCI_MSG_OFFSET_SIZE)){
+#endif
+      p = (uint8_t*)(p_msg + 1) + p_msg->offset;
+      if (nfcFL.nfccFL._NXP_NFCC_EMPTY_DATA_PACKET) {
         if (p_raw_data != NULL) {
             memcpy(p, p_raw_data, data_len);
         }
-    }
-    else {
+      }
+      else {
         memcpy(p, p_raw_data, data_len);
+      }
+#if (NXP_EXTNS == TRUE)
+    }else{
+      ((tNFC_EXT_HDR*)p_msg)->p_data_buf = p_raw_data;
     }
+#endif
 
     nfa_sys_sendmsg(p_msg);
 
