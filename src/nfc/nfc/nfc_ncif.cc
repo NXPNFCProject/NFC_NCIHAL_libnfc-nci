@@ -432,7 +432,6 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
   uint8_t hdr0 = p_cb->conn_id;
   bool fragmented = false;
 #if (NXP_EXTNS == TRUE)
-  tNFC_EXT_HDR *p_ext;
   NFC_HDR* p_last;
   uint8_t dataHdrSize = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
   uint8_t* pTemp;
