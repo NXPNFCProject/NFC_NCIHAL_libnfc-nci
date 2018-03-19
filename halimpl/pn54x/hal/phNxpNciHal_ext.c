@@ -727,8 +727,7 @@ NFCSTATUS phNxpNciHal_write_ext(uint16_t* cmd_len, uint8_t* p_cmd_data,
     }
   }
 
-  if (retval == 0x01 && p_cmd_data[0] == 0x21 && p_cmd_data[1] == 0x00 &&
-      p_cmd_data[2] == 0x04 && p_cmd_data[6] != 0x83) {
+  if (retval == 0x01 && p_cmd_data[0] == 0x21 && p_cmd_data[1] == 0x00) {
     NXPLOG_NCIHAL_D("Going through extns - Adding Mifare in RF Discovery");
     p_cmd_data[2] += 3;
     p_cmd_data[3] += 1;

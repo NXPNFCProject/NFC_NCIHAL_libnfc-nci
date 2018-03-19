@@ -253,7 +253,7 @@ typedef uint8_t tNFA_PROTOCOL_MASK;
 
 /* Reader over SWP Events*/
 #define NFA_RD_SWP_READER_REQUESTED 0
-#define NFA_RD_SWP_READER_ACTIVATED 1
+#define NFA_RD_SWP_READER_START 1
 #define NFA_RD_SWP_READER_STOP 2
 #define NFA_RD_SWP_READER_START_FAIL 3
 #endif
