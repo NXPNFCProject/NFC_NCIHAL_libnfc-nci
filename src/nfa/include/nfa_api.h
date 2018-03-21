@@ -250,12 +250,6 @@ typedef uint8_t tNFA_PROTOCOL_MASK;
 #define NFA_DM_EE_HCI_DISABLE 12
 /*Status when EE HCI susbsystems enabled*/
 #define NFA_DM_EE_HCI_ENABLE 13
-
-/* Reader over SWP Events*/
-#define NFA_RD_SWP_READER_REQUESTED 0
-#define NFA_RD_SWP_READER_START 1
-#define NFA_RD_SWP_READER_STOP 2
-#define NFA_RD_SWP_READER_START_FAIL 3
 #endif
 
 /* T1T HR length            */
