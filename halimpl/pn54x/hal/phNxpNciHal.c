@@ -359,7 +359,21 @@ static NFCSTATUS phNxpNciHal_CheckValidFwVersion(void) {
 
   NXPLOG_NCIHAL_D("%s current_major_no = 0x%x", __func__, ufw_current_major_no);
 
-  if (ufw_current_major_no == nfcFL.nfcMwFL._FW_MOBILE_MAJOR_NUMBER) {
+  if (nfcFL.chipType == pn553) {
+    unsigned char fw_major_no = 0x00;
+    if(wFwVerRsp != 0x00) {
+      fw_major_no = ((wFwVerRsp >> 8) & 0x000000FF);
+      if(ufw_current_major_no >= fw_major_no) {
+        status = NFCSTATUS_SUCCESS;
+      } else {
+        NXPLOG_NCIHAL_E("Wrong FW Version >>> Firmware download not allowed");
+      }
+    } else {
+      NXPLOG_NCIHAL_E(
+          "FW Version not received by NCI command >>> Force Firmware download");
+      status = NFCSTATUS_SUCCESS;
+    }
+  } else if (ufw_current_major_no == nfcFL.nfcMwFL._FW_MOBILE_MAJOR_NUMBER) {
     status = NFCSTATUS_SUCCESS;
   } else if (ufw_current_major_no == sfw_infra_major_no) {
         if(rom_version == FW_MOBILE_ROM_VERSION_PN553 || rom_version == FW_MOBILE_ROM_VERSION_PN557) {
