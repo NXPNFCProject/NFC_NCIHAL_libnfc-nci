@@ -15,6 +15,25 @@
  *  limitations under the License.
  *
  ******************************************************************************/
+/******************************************************************************
+ *
+ *  The original Work has been changed by NXP Semiconductors.
+ *
+ *  Copyright 2018 NXP
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ ******************************************************************************/
 
 /******************************************************************************
  *
@@ -29,6 +48,9 @@
 #include "llcp_api.h"
 #include "nfa_p2p_api.h"
 #include "nfa_p2p_int.h"
+#if (NXP_EXTNS == TRUE)
+#include "nfc_int.h"
+#endif
 
 /*****************************************************************************
 **  Constants
@@ -482,6 +504,9 @@ tNFA_STATUS NFA_P2pSendUI(tNFA_HANDLE handle, uint8_t dsap, uint16_t length,
   tNFA_P2P_API_SEND_UI* p_msg;
   tNFA_STATUS ret_status = NFA_STATUS_FAILED;
   tNFA_HANDLE xx;
+#if (NXP_EXTNS == TRUE)
+  tNFC_CONN_CB* p_cb = &nfc_cb.conn_cb[NFC_RF_CONN_ID];
+#endif
 
   P2P_TRACE_API3("NFA_P2pSendUI (): handle:0x%X, DSAP:0x%02X, length:%d",
                  handle, dsap, length);
@@ -520,13 +545,32 @@ tNFA_STATUS NFA_P2pSendUI(tNFA_HANDLE handle, uint8_t dsap, uint16_t length,
     p_msg->handle = handle;
     p_msg->dsap = dsap;
 
+#if (NXP_EXTNS == TRUE)
+    if(length > p_cb->buff_size){
+      if(nfa_dm_get_extended_cmd_buf((tNFC_EXT_HDR **)&p_msg->p_msg, NFA_P2P_API_SEND_UI_EVT, p_data, length)){
+        P2P_TRACE_ERROR0("NFA_P2pSendUI () memory allocation for extended length is un-successfull");
+        return NFA_STATUS_FAILED;
+      }else{
+        /*Do nothing*/
+      }
+    }else{
+      p_msg->p_msg = (NFC_HDR*)GKI_getpoolbuf(LLCP_POOL_ID);
+    }
+#else
     p_msg->p_msg = (NFC_HDR*)GKI_getpoolbuf(LLCP_POOL_ID);
+#endif
     if (p_msg->p_msg != NULL) {
       p_msg->p_msg->len = length;
       p_msg->p_msg->offset = LLCP_MIN_OFFSET;
-      memcpy(((uint8_t*)(p_msg->p_msg + 1) + p_msg->p_msg->offset), p_data,
+#if (NXP_EXTNS == TRUE)
+      if(length <= p_cb->buff_size){
+#endif
+        memcpy(((uint8_t*)(p_msg->p_msg + 1) + p_msg->p_msg->offset), p_data,
              length);
 
+#if (NXP_EXTNS == TRUE)
+      }
+#endif
       /* increase number of tx UI PDU which is not processed by NFA for
        * congestion control */
       nfa_p2p_cb.sap_cb[xx].num_pending_ui_pdu++;
@@ -646,6 +690,9 @@ tNFA_STATUS NFA_P2pSendData(tNFA_HANDLE handle, uint16_t length,
   tNFA_P2P_API_SEND_DATA* p_msg;
   tNFA_STATUS ret_status = NFA_STATUS_FAILED;
   tNFA_HANDLE xx;
+#if (NXP_EXTNS == TRUE)
+  tNFC_CONN_CB* p_cb = &nfc_cb.conn_cb[NFC_RF_CONN_ID];
+#endif
 
   P2P_TRACE_API2("NFA_P2pSendData (): handle:0x%X, length:%d", handle, length);
 
@@ -691,13 +738,33 @@ tNFA_STATUS NFA_P2pSendData(tNFA_HANDLE handle, uint16_t length,
 
     p_msg->conn_handle = handle;
 
+#if (NXP_EXTNS == TRUE)
+    if(length > p_cb->buff_size){
+      if(nfa_dm_get_extended_cmd_buf((tNFC_EXT_HDR **)&p_msg->p_msg, NFA_P2P_API_SEND_DATA_EVT, p_data, length)){
+        P2P_TRACE_ERROR0("NFA_P2pSendData () memory allocation for extended length is un-successfull");
+        return NFA_STATUS_FAILED;
+      }else{
+        /*Do nothing*/
+      }
+    }else{
+      p_msg->p_msg = (NFC_HDR*)GKI_getpoolbuf(LLCP_POOL_ID);
+    }
+#else
     p_msg->p_msg = (NFC_HDR*)GKI_getpoolbuf(LLCP_POOL_ID);
+#endif
+
     if (p_msg->p_msg != NULL) {
       p_msg->p_msg->len = length;
       p_msg->p_msg->offset = LLCP_MIN_OFFSET;
-      memcpy(((uint8_t*)(p_msg->p_msg + 1) + p_msg->p_msg->offset), p_data,
+#if (NXP_EXTNS == TRUE)
+      if(length <= p_cb->buff_size){
+#endif
+        memcpy(((uint8_t*)(p_msg->p_msg + 1) + p_msg->p_msg->offset), p_data,
              length);
 
+#if (NXP_EXTNS == TRUE)
+      }
+#endif
       /* increase number of tx I PDU which is not processed by NFA for
        * congestion control */
       nfa_p2p_cb.conn_cb[xx].num_pending_i_pdu++;

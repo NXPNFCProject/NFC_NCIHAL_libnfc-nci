@@ -48,6 +48,8 @@
 #include "nfa_sys_int.h"
 #include "ndef_utils.h"
 #if (NXP_EXTNS == TRUE)
+#include "nfc_int.h"
+
 uint32_t gFelicaReaderMode;
 tHAL_NFC_CONTEXT hal_Initcntxt;
 #endif
@@ -1035,6 +1037,9 @@ tNFA_STATUS NFA_SendRawFrame(uint8_t* p_raw_data, uint16_t data_len,
   NFC_HDR* p_msg;
   uint16_t size;
   uint8_t* p;
+#if (NXP_EXTNS == TRUE)
+  tNFC_CONN_CB* p_cb = &nfc_cb.conn_cb[NFC_RF_CONN_ID];
+#endif
 
   NFA_TRACE_API1("NFA_SendRawFrame () data_len:%d", data_len);
 
@@ -1053,16 +1058,20 @@ tNFA_STATUS NFA_SendRawFrame(uint8_t* p_raw_data, uint16_t data_len,
   }
 
 #if (NXP_EXTNS == TRUE)
-  if(data_len > (NCI_MAX_PAYLOAD_SIZE - NCI_MSG_OFFSET_SIZE)) {
-    size = NFC_EXT_HDR_SIZE + NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
-    p_msg = (NFC_HDR*)GKI_getbuf(size);
-  } else {
+  if(data_len > p_cb->buff_size){
+    if(nfa_dm_get_extended_cmd_buf((tNFC_EXT_HDR **)&p_msg, NFA_DM_API_RAW_FRAME_EVT, p_raw_data, data_len)){
+      NFA_TRACE_ERROR0("NFA_SendRawFrame () memory allocation for extended length is un-successfull");
+      return NFA_STATUS_FAILED;
+    }else{
+      /*Do nothing*/
+    }
+  }else{
     size = NFC_HDR_SIZE + NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE + data_len;
     p_msg = (NFC_HDR*)GKI_getbuf(size);
   }
 #else
-    size = NFC_HDR_SIZE + NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE + data_len;
-    p_msg = (NFC_HDR*)GKI_getbuf(size);
+  size = NFC_HDR_SIZE + NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE + data_len;
+  p_msg = (NFC_HDR*)GKI_getbuf(size);
 #endif
 
   if (p_msg != NULL) {
@@ -1071,7 +1080,7 @@ tNFA_STATUS NFA_SendRawFrame(uint8_t* p_raw_data, uint16_t data_len,
     p_msg->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
     p_msg->len = data_len;
 #if (NXP_EXTNS == TRUE)
-    if(data_len <= (NCI_MAX_PAYLOAD_SIZE - NCI_MSG_OFFSET_SIZE)){
+    if(data_len <= p_cb->buff_size) {
 #endif
       p = (uint8_t*)(p_msg + 1) + p_msg->offset;
       if (nfcFL.nfccFL._NXP_NFCC_EMPTY_DATA_PACKET) {
@@ -1083,8 +1092,6 @@ tNFA_STATUS NFA_SendRawFrame(uint8_t* p_raw_data, uint16_t data_len,
         memcpy(p, p_raw_data, data_len);
       }
 #if (NXP_EXTNS == TRUE)
-    }else{
-      ((tNFC_EXT_HDR*)p_msg)->p_data_buf = p_raw_data;
     }
 #endif
 

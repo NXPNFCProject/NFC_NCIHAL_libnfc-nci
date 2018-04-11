@@ -215,6 +215,8 @@ typedef struct {
 #if (NXP_EXTNS == TRUE)
 typedef struct {
   NFC_HDR hdr;
+  uint8_t hdr_info[NCI_EXT_DATA_MAX_HDR_SIZE];
+  uint8_t hdr_len;
   uint8_t* p_data_buf;
 } tNFC_EXT_HDR;
 #endif
@@ -687,6 +689,8 @@ bool nfa_dm_act_send_vsc(tNFA_DM_MSG* p_data);
 #if (NXP_EXTNS == TRUE)
 void nfa_dm_p2p_prio_logic_disable();
 uint16_t nfa_dm_act_get_rf_disc_duration();
+tNFA_STATUS nfa_dm_get_extended_cmd_buf(tNFC_EXT_HDR** p_msg, uint32_t event,
+                                        uint8_t* p_data, uint16_t data_len) ;
 #endif
 bool nfa_dm_act_disable_timeout(tNFA_DM_MSG* p_data);
 bool nfa_dm_act_nfc_cback_data(tNFA_DM_MSG* p_data);

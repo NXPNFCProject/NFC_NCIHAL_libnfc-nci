@@ -432,8 +432,8 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
   uint8_t hdr0 = p_cb->conn_id;
   bool fragmented = false;
 #if (NXP_EXTNS == TRUE)
+  tNFC_EXT_HDR* p_ext_hdr;
   NFC_HDR* p_last;
-  uint8_t dataHdrSize = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
   uint8_t* pTemp;
   if (core_reset_init_num_buff == true) {
     NFC_TRACE_ERROR0("Reinitializing the num_buff");
@@ -510,7 +510,8 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
        * prepare a new GKI buffer
        * (even the last fragment to avoid issues) */
 #if (NXP_EXTNS == TRUE)
-      p = NCI_GET_CMD_BUF(sizeof(NFC_HDR) + dataHdrSize + ulen);
+      p_ext_hdr = (tNFC_EXT_HDR *)p_data;
+      p = NCI_GET_CMD_BUF(sizeof(NFC_HDR) + NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE + ulen);
 #else
       p = NCI_GET_CMD_BUF(ulen);
 #endif
@@ -524,8 +525,13 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
       if (p->len) {
         pp = (uint8_t*)(p + 1) + p->offset;
 #if (NXP_EXTNS == TRUE)
-        if(((tNFC_EXT_HDR*)p_data)->p_data_buf){
-          memcpy(pp, (((tNFC_EXT_HDR*)p_data)->p_data_buf+(p_data->offset-dataHdrSize)), ulen);
+        if(p_ext_hdr->p_data_buf) {
+          if(p_ext_hdr->hdr_len) {
+            memcpy(pp, p_ext_hdr->hdr_info, p_ext_hdr->hdr_len);
+            pp += p_ext_hdr->hdr_len;
+            memset(p_ext_hdr->hdr_info, 0, sizeof(p_ext_hdr->hdr_info));
+          }
+          memcpy(pp, p_ext_hdr->p_data_buf+p_data->offset, ulen - p_ext_hdr->hdr_len);
         }
 #else
         ps = (uint8_t*)(p_data + 1) + p_data->offset;
@@ -537,15 +543,20 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
       p_data->offset += ulen;
 
 #if (NXP_EXTNS == TRUE)
+      if(p_ext_hdr->hdr_len) {
+        p_data->offset -= p_ext_hdr->hdr_len;
+        p_ext_hdr->hdr_len = 0;
+      }
+
       if(p_data->len <= ulen) {
-        p_last = NCI_GET_CMD_BUF(sizeof(NFC_HDR) + dataHdrSize + p_data->len);
+        p_last = NCI_GET_CMD_BUF(sizeof(NFC_HDR) + NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE + p_data->len);
         if (p_last == NULL) return (NCI_STATUS_BUFFER_FULL);
         p_last->len = p_data->len;
         p_last->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
         if (p_last->len) {
           uint8_t* pp = (uint8_t*)(p_last + 1) + p_last->offset;
-          if(((tNFC_EXT_HDR*)p_data)->p_data_buf){
-            memcpy(pp, (((tNFC_EXT_HDR*)p_data)->p_data_buf+(p_data->offset-dataHdrSize)), p_data->len);
+          if(p_ext_hdr->p_data_buf){
+            memcpy(pp, (p_ext_hdr->p_data_buf+(p_data->offset)), p_data->len);
           }
         }
         p_data = (NFC_HDR*)GKI_dequeue(&p_cb->tx_q);
