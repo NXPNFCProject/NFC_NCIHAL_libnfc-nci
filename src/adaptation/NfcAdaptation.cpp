@@ -35,7 +35,6 @@
  *
  ******************************************************************************/
 #include "_OverrideLog.h"
-
 #include <android/hardware/nfc/1.0/INfc.h>
 #include <android/hardware/nfc/1.0/INfcClientCallback.h>
 #include <android/hardware/nfc/1.0/types.h>
@@ -54,6 +53,7 @@ extern "C" {
 }
 #include "config.h"
 #include "android_logmsg.h"
+#include <hidl/LegacySupport.h>
 
 #undef LOG_TAG
 #define LOG_TAG "NfcAdaptation"
@@ -69,6 +69,7 @@ using android::hardware::nfc::V1_0::INfc;
 using android::hardware::nfc::V1_0::INfcClientCallback;
 using android::hardware::hidl_vec;
 using vendor::nxp::nxpnfc::V1_0::INxpNfc;
+using android::hardware::configureRpcThreadpool;
 
 extern "C" void GKI_shutdown();
 extern void resetConfig();
@@ -261,6 +262,7 @@ void NfcAdaptation::Initialize() {
   memset(&mHalEntryFuncs, 0, sizeof(mHalEntryFuncs));
   InitializeHalDeviceContext();
   debug_nfcsnoop_init();
+  configureRpcThreadpool(2, false);
   ALOGD("%s: exit", func);
 }
 #if (NXP_EXTNS == TRUE)
