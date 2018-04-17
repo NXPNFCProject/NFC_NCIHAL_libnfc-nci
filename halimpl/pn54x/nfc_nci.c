@@ -75,7 +75,7 @@ static int hal_write(const struct nfc_nci_device* p_dev, uint16_t data_len,
 ** Returns          status code of ioctl.
 **
 *******************************************************************************/
-static int hal_ioctl(const struct nfc_nci_device* p_dev, long arg,
+static int hal_ioctl(const nxpnfc_nci_device_t* p_dev, long arg,
                      void* p_data) {
   int retval = 0;
   nxpnfc_nci_device_t* dev = (nxpnfc_nci_device_t*)p_dev;
@@ -180,7 +180,7 @@ static int hal_power_cycle(const struct nfc_nci_device* p_dev) {
 ** Returns          true if successful otherwise false.
 **
 *******************************************************************************/
-static int hal_get_fw_dwnld_flag(const struct nfc_nci_device* p_dev,
+static int hal_get_fw_dwnld_flag(const nxpnfc_nci_device_t* p_dev,
                                  uint8_t* fwDnldRequest) {
   int retval = 0;
   nxpnfc_nci_device_t* dev = (nxpnfc_nci_device_t*)p_dev;

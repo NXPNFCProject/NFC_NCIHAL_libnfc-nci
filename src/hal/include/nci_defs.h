@@ -223,6 +223,7 @@ extern "C" {
 #define NCI_STATUS_DWP_APDU_DROPPPED \
   0xE5 /* todo: need to place new error code when FW is readey*/
 #define NCI_STATUS_ALREADY_INITIALIZED 0x0C
+#define NCI_STATUS_EPERM -1
 #endif
 
 typedef uint8_t tNCI_STATUS;

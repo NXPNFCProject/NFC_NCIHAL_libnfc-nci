@@ -1750,7 +1750,7 @@ int32_t NFC_eSEChipReset(void* pdata) {
 **
 *******************************************************************************/
 int32_t NFC_GetEseAccess(void* pdata) {
-    int32_t status;
+    int32_t status = NFC_STATUS_EPERM;
     if((nfcFL.eseFL._NXP_ESE_VER != JCOP_VER_3_1) &&
             (nfcFL.eseFL._NXP_ESE_VER != JCOP_VER_3_2)) {
         NFC_TRACE_API0("NFC_GetEseAccess NXP_ESE_VER !="
@@ -1774,7 +1774,7 @@ int32_t NFC_GetEseAccess(void* pdata) {
 **
 *******************************************************************************/
 int32_t NFC_RelEseAccess(void* pdata) {
-    int32_t status;
+    int32_t status = NFC_STATUS_EPERM;
     if((nfcFL.eseFL._NXP_ESE_VER != JCOP_VER_3_1) &&
             (nfcFL.eseFL._NXP_ESE_VER != JCOP_VER_3_2)) {
         NFC_TRACE_API0("NFC_RelEseAccess NXP_ESE_VER !="
@@ -1802,7 +1802,7 @@ int32_t NFC_RelSvddWait(void* pdata) {
     if(!nfcFL.eseFL._ESE_SVDD_SYNC) {
         NFC_TRACE_API0("NFC_RelSvddWait :"
                 "ESE_SVDD_SYNC is not available.. Returning");
-        return -1;
+        return NFC_STATUS_EPERM;
     }
   nfc_nci_IoctlInOutData_t inpOutData;
   int32_t status;

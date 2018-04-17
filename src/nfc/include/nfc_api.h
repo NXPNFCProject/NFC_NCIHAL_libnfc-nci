@@ -103,6 +103,8 @@
 #define NFC_STATUS_DWP_APDU_DROPPPED \
   NCI_STATUS_DWP_APDU_DROPPPED /* FW dropped the APDU because UICC switch */
 #define NFC_STATUS_ALREADY_INITIALIZED NCI_STATUS_ALREADY_INITIALIZED
+/*Operation not permitted*/
+#define NFC_STATUS_EPERM NCI_STATUS_EPERM
 // DTA API for MW Version need to change according to release
 #define NXP_EN_PN547C2 0
 #define NXP_EN_PN65T 0

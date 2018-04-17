@@ -485,11 +485,13 @@ static void nfa_dm_nfc_response_cback(tNFC_RESPONSE_EVT event,
               dm_cback_data.status = p_data->status;
           }
           dm_cback_evt = NFA_DM_NFCC_TRANSPORT_ERR_EVT;
-      }
-#else
+      } else {
+#endif
       dm_cback_evt = (event == NFC_NFCC_TIMEOUT_REVT)
                          ? NFA_DM_NFCC_TIMEOUT_EVT
                          : NFA_DM_NFCC_TRANSPORT_ERR_EVT;
+#if (NXP_EXTNS == TRUE)
+      }
 #endif
       (*nfa_dm_cb.p_dm_cback)(dm_cback_evt, NULL);
       break;

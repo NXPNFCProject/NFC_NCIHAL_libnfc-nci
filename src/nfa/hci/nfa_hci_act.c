@@ -3025,7 +3025,7 @@ static void nfa_hci_handle_Nfcee_dynpipe_rsp(uint8_t pipeId, uint8_t* p_data,
       return;
     }
   }
-  if (pipeId == NULL) {
+  if (!pipeId) {
     /* Invalid pipe ID */
     NFA_TRACE_ERROR1("nfa_hci_handle_Nfcee_dynpipe_rsp - Unknown pipe %d",
                      pipeId);

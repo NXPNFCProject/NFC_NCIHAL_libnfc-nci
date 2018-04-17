@@ -781,7 +781,8 @@ void nfa_hci_enable_one_nfcee(void) {
 
   for (xx = 0; xx < nfa_hci_cb.num_nfcee; xx++) {
     nfceeid = nfa_hci_cb.ee_info[xx].ee_handle & ~NFA_HANDLE_GROUP_EE;
-    if ((nfa_hci_cb.ee_info[xx].ee_status == NFA_EE_STATUS_INACTIVE)) {
+
+    if (nfa_hci_cb.ee_info[xx].ee_status == NFA_EE_STATUS_INACTIVE) {
       NFC_NfceeModeSet(nfceeid, NFC_MODE_ACTIVATE);
       return;
     }
