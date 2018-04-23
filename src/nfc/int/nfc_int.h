@@ -323,6 +323,7 @@ typedef struct {
   bool bIssueModeSetCmd;
   bool bBlkPwrlinkAndModeSetCmd;
   NFC_HDR* temp_data;
+  bool isLowRam;
 #endif
   uint8_t nci_version;     /* NCI version used for NCI communication*/
 

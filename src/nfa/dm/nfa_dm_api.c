@@ -1538,6 +1538,22 @@ tNFA_MW_VERSION NFA_GetMwVersion() {
 
 /*******************************************************************************
 **
+** Function         NFA_SetLowRamDevice
+**
+** Description      This function sets the device is LOW RAM enabled or not
+**                  param mode is either true or false
+**                  true - LOW RAM DEVICE
+**                  false - NOT A LOW RAM DEVICE
+** Returns          none
+**
+*******************************************************************************/
+void NFA_SetLowRamDevice(bool mode)
+{
+  hal_Initcntxt.isLowRam = mode;
+}
+
+/*******************************************************************************
+**
 ** Function:        NFA_ResetNfcc
 **
 ** Description:     Reset the NFCC

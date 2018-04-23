@@ -2863,6 +2863,24 @@ int phNxpNciHal_ioctl(long arg, void* p_data) {
             }
         }
       break;
+    case HAL_NFC_IOCTL_P61_REL_ESE_PWR:
+      if(nfcFL.nfcNxpEse) {
+          status = phTmlNfc_IoCtl(phTmlNfc_e_ReleaseEsePower);
+          if (NFCSTATUS_FAILED != status) {
+              if (NULL != p_data) pInpOutData->out.data.status = (uint16_t)status;
+              ret = 0;
+          }
+      }
+      break;
+    case HAL_NFC_IOCTL_P61_SET_ESE_PWR:
+      if(nfcFL.nfcNxpEse) {
+          status = phTmlNfc_IoCtl(phTmlNfc_e_RaiseEsePower);
+          if (NFCSTATUS_FAILED != status) {
+              if (NULL != p_data) pInpOutData->out.data.status = (uint16_t)status;
+              ret = 0;
+          }
+      }
+      break;
     case HAL_NFC_IOCTL_P61_GET_ACCESS:
         if(nfcFL.nfcNxpEse) {
             NXPLOG_NCIHAL_D("HAL_NFC_IOCTL_P61_GET_ACCESS timeoutInMillisec = %d",

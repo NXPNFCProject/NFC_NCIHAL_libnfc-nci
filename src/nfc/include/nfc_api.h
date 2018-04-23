@@ -1711,6 +1711,31 @@ int32_t NFC_GetP61Status(void* pdata);
 **
 *******************************************************************************/
 int32_t NFC_DisableWired(void* pdata);
+
+/*******************************************************************************
+**
+** Function         NFC_ReleaseEsePwr
+**
+** Description      This function request to pn553 driver to
+**                  turn ese vdd gpio low
+**
+** Returns          0 if api call success, else -1
+**
+*******************************************************************************/
+int32_t NFC_ReleaseEsePwr(void* pdata);
+
+/*******************************************************************************
+**
+** Function         NFC_AcquireEsePwr
+**
+** Description      This function request to pn553 driver to
+**                  turn ese vdd gpio high
+**
+** Returns          0 if api call success, else -1
+**
+*******************************************************************************/
+int32_t NFC_AcquireEsePwr(void* pdata);
+
 /*******************************************************************************
 **
 ** Function         NFC_eSEChipReset
@@ -1754,6 +1779,18 @@ int32_t NFC_SetNfcServicePid();
 **
 *******************************************************************************/
 int32_t NFC_ResetNfcServicePid();
+
+/*******************************************************************************
+**
+** Function         NFC_IsLowRamDevice
+**
+** Description      This function provides low_ram is enabled or not
+**
+** Returns          true or false
+**
+*******************************************************************************/
+bool NFC_IsLowRamDevice();
+
 /*******************************************************************************
 **
 ** Function         NFC_GetEseAccess

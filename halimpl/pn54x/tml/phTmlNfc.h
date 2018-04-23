@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 NXP Semiconductors
+ * Copyright (C) 2015-2018 NXP Semiconductors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,6 +114,8 @@ typedef enum {
   phTmlNfc_e_SetP61IdleMode, /* Set the current P61 mode of operation to Idle*/
   phTmlNfc_e_SetP61DisableMode, /* Set the ese vdd gpio to low*/
   phTmlNfc_e_SetP61EnableMode,  /* Set the ese vdd gpio to high*/
+  phTmlNfc_e_RaiseEsePower,     /* Set the ese pwr gpio to high*/
+  phTmlNfc_e_ReleaseEsePower,   /* Set the ese pwr gpio to high*/
   phTmlNfc_e_eSEChipRstMode,    /* ISO RST of P73*/
   phTmlNfc_e_RelP61Access,      /*Release the P61 lock*/
   phTmlNfc_e_SetLegacyPowerScheme,

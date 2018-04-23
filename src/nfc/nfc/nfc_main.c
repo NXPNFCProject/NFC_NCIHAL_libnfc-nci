@@ -918,6 +918,7 @@ void NFC_Init(tHAL_NFC_ENTRY* p_hal_entry_tbl)
   nfc_cb.bCeActivatedeSE = false;
   nfc_cb.pwr_link_cmd.bPwrLinkCmdRequested = false;
   nfc_cb.bBlkPwrlinkAndModeSetCmd = false;
+  nfc_cb.isLowRam = p_hal_entry_cntxt->isLowRam;
   if (p_hal_entry_cntxt->boot_mode != NFC_FAST_BOOT_MODE)
 #endif
   {
@@ -1664,6 +1665,42 @@ int32_t NFC_EnableWired(void* pdata) {
   *(tNFC_STATUS*)pdata = inpOutData.out.data.status;
   return status;
 }
+
+/*******************************************************************************
+**
+** Function         NFC_ReleaseEsePwr
+**
+** Description      This function request to pn553 driver to
+**                  turn ese vdd gpio low
+**
+** Returns          0 if api call success, else -1
+**
+*******************************************************************************/
+int32_t NFC_ReleaseEsePwr(void* pdata) {
+  nfc_nci_IoctlInOutData_t inpOutData;
+  int32_t status;
+  status = nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_P61_REL_ESE_PWR, &inpOutData);
+  *(tNFC_STATUS*)pdata = inpOutData.out.data.status;
+  return status;
+}
+
+/*******************************************************************************
+**
+** Function         NFC_AcquireEsePwr
+**
+** Description      This function request to pn553 driver to
+**                  turn ese vdd gpio high
+**
+** Returns          0 if api call success, else -1
+**
+*******************************************************************************/
+int32_t NFC_AcquireEsePwr(void* pdata) {
+  nfc_nci_IoctlInOutData_t inpOutData;
+  int32_t status;
+  status = nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_P61_SET_ESE_PWR, &inpOutData);
+  *(tNFC_STATUS*)pdata = inpOutData.out.data.status;
+  return status;
+}
 #if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 +**
@@ -1856,6 +1893,10 @@ void NFC_EnableDisableHalLog(uint8_t type) {
 int32_t NFC_SetNfcServicePid() {
     tNFC_STATUS setPidStatus = NFC_STATUS_OK;
     nfc_nci_IoctlInOutData_t inpOutData;
+    if(NFC_IsLowRamDevice()) {
+      NFC_TRACE_API0("NFC_SetNfcServicePid: Not valid for low RAM device");
+      return setPidStatus;
+    }
     inpOutData.inp.data.nfcServicePid = getpid();
     setPidStatus = nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_SET_NFC_SERVICE_PID,
                                        (void*)&inpOutData);
@@ -1881,6 +1922,10 @@ int32_t NFC_ResetNfcServicePid()
     tNFC_STATUS setPidStatus = NFC_STATUS_OK;
     nfc_nci_IoctlInOutData_t inpOutData;
     inpOutData.inp.data.nfcServicePid = 0;
+    if(NFC_IsLowRamDevice()) {
+      NFC_TRACE_API0("NFC_ResetNfcServicePid: Not valid for low RAM device");
+      return setPidStatus;
+    }
     setPidStatus = nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_SET_NFC_SERVICE_PID,
                                        (void*)&inpOutData);
     if (setPidStatus == NFC_STATUS_OK) {
@@ -1889,6 +1934,21 @@ int32_t NFC_ResetNfcServicePid()
       NFC_TRACE_API0("nfc service set pid failed");
     }
     return setPidStatus;
+}
+
+/*******************************************************************************
+**
+** Function         NFC_IsLowRamDevice
+**
+** Description      This function provides low_ram is enabled or not
+**
+** Returns          true or false
+**
+*******************************************************************************/
+bool NFC_IsLowRamDevice()
+{
+  NFC_TRACE_API1("NFC_IsLowRamDevice: %s",nfc_cb.isLowRam?"true":"false");
+  return nfc_cb.isLowRam;
 }
 #endif
 /*******************************************************************************
