@@ -608,7 +608,7 @@ static void phNxpNciHal_fw_dnld_get_version_cb(void* pContext, NFCSTATUS status,
             (gphNxpNciHal_fw_IoctlCtx.bSkipSeq) = true;
         }
         else {
-            (gphNxpNciHal_fw_IoctlCtx.bSkipSeq) = true;
+            (gphNxpNciHal_fw_IoctlCtx.bSkipSeq) = false;
         }
 #else
         (gphNxpNciHal_fw_IoctlCtx.bForceDnld) = true;

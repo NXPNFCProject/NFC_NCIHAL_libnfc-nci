@@ -536,7 +536,7 @@ NFCSTATUS phDnldNfc_Force(pphDnldNfc_Buff_t pInputs, pphDnldNfc_RspCb_t pNotify,
   NFCSTATUS wStatus = NFCSTATUS_SUCCESS;
   uint8_t bClkSrc = 0x00, bClkFreq = 0x00;
   uint8_t bPldVal[3] = {
-      0x11, 0x00, 0x00}; /* default values to be used if input not provided */
+      0x07, 0x00, 0x00}; /* default values to be used if input not provided */
 
   if ((NULL == pNotify) || (NULL == pContext)) {
     NXPLOG_FWDNLD_E("Invalid Input Parameters!!");
@@ -551,7 +551,7 @@ NFCSTATUS phDnldNfc_Force(pphDnldNfc_Buff_t pInputs, pphDnldNfc_RspCb_t pNotify,
       (gpphDnldContext->tRspBuffInfo.pBuff) = NULL;
       (gpphDnldContext->tRspBuffInfo.wLen) = 0;
 
-      if ((0 != (pInputs->wLen)) || (NULL != (pInputs->pBuff))) {
+      if (((0 != (pInputs->wLen)) || (NULL != (pInputs->pBuff))) && (nfcFL.chipType == pn547C2)) {
         if (CLK_SRC_XTAL == (pInputs->pBuff[0])) {
           bClkSrc = phDnldNfc_ClkSrcXtal;
         } else if (CLK_SRC_PLL == (pInputs->pBuff[0])) {
