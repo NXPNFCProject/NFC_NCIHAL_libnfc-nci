@@ -2941,6 +2941,17 @@ void nfc_ncif_proc_data(NFC_HDR* p_msg) {
       GKI_enqueue(&p_cb->rx_q, p_msg);
       nfc_data_event(p_cb);
     }
+#if (NXP_EXTNS == TRUE)
+    if(!pbf) {
+      NFC_HDR* p_cur;
+      if((NFC_HDR*)GKI_getlast(&p_cb->rx_q) != NULL) {
+        NFC_TRACE_DEBUG0("nfc_ncif_proc_data: Last non chained packet");
+        nfc_data_event(p_cb);
+      } else {
+        /*Do nothing*/
+      }
+    }
+#endif
     return;
   }
   GKI_freebuf(p_msg);
