@@ -587,7 +587,7 @@ extern uint8_t NFC_GetNCIVersion();
 /* Type5Tag    - NFC-V/ISO15693*/
 #define NFC_PROTOCOL_T5T NFC_PROTOCOL_T5T_(NFC_GetNCIVersion())
 #define NFC_PROTOCOL_T5T_(x) \
-  ((x == NCI_VERSION_2_0) ? NCI_PROTOCOL_T5T : NCI_PROTOCOL_15693)
+  (((x) == NCI_VERSION_2_0) ? NCI_PROTOCOL_T5T : NCI_PROTOCOL_15693)
 /* Type 4A,4B  - NFC-A or NFC-B   */
 #define NFC_PROTOCOL_ISO_DEP NCI_PROTOCOL_ISO_DEP
 /* NFCDEP/LLCP - NFC-A or NFC-F       */
@@ -628,7 +628,7 @@ typedef uint8_t tNFC_RF_TECH_N_MODE;
 #define NFC_SEL_RES_NFC_FORUM_T2T 0x00
 #define NFC_SEL_RES_MF_CLASSIC 0x08
 
-#define  NCI_CALCULATE_ACK(a,v) {a &=  ((1 << v) -1);}
+#define  NCI_CALCULATE_ACK(a,v) {(a) &=  ((1 << (v)) -1);}
 #define  MAX_NUM_VALID_BITS_FOR_ACK      0x07
 /* Bit Rates */
 #define NFC_BIT_RATE_106 NCI_BIT_RATE_106   /* 106 kbit/s */

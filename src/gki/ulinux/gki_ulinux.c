@@ -52,9 +52,9 @@ tGKI_CB gki_cb;
 #define LINUX_SEC (1000 / TICKS_PER_SEC)
 // #define GKI_TICK_TIMER_DEBUG
 
-#define LOCK(m) pthread_mutex_lock(&m)
-#define UNLOCK(m) pthread_mutex_unlock(&m)
-#define INIT(m) pthread_mutex_init(&m, NULL)
+#define LOCK(m) pthread_mutex_lock(&(m))
+#define UNLOCK(m) pthread_mutex_unlock(&(m))
+#define INIT(m) pthread_mutex_init(&(m), NULL)
 
 /* this kind of mutex go into tGKI_OS control block!!!! */
 /* static pthread_mutex_t GKI_sched_mutex; */

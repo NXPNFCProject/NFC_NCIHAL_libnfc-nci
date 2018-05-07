@@ -146,19 +146,19 @@ extern "C" {
 #define NCI_MSG_BLD_HDR1(p, oid) *(p)++ = (uint8_t)(((oid) << NCI_OID_SHIFT));
 
 /* parse byte0 of NCI packet */
-#define NCI_MSG_PRS_HDR0(p, mt, pbf, gid)     \
-  mt = (*(p)&NCI_MT_MASK) >> NCI_MT_SHIFT;    \
-  pbf = (*(p)&NCI_PBF_MASK) >> NCI_PBF_SHIFT; \
-  gid = *(p)++ & NCI_GID_MASK;
+#define NCI_MSG_PRS_HDR0(p, mt, pbf, gid)       \
+  mt = (*(p)&NCI_MT_MASK) >> NCI_MT_SHIFT;      \
+  (pbf) = (*(p)&NCI_PBF_MASK) >> NCI_PBF_SHIFT; \
+  (gid) = *(p)++ & NCI_GID_MASK;
 
 /* parse MT and PBF bits of NCI packet */
 #define NCI_MSG_PRS_MT_PBF(p, mt, pbf)     \
   mt = (*(p)&NCI_MT_MASK) >> NCI_MT_SHIFT; \
-  pbf = (*(p)&NCI_PBF_MASK) >> NCI_PBF_SHIFT;
+  (pbf) = (*(p)&NCI_PBF_MASK) >> NCI_PBF_SHIFT;
 
 /* parse byte1 of NCI Cmd/Ntf */
-#define NCI_MSG_PRS_HDR1(p, oid) \
-  oid = (*(p)&NCI_OID_MASK);     \
+#define NCI_MSG_PRS_HDR1(p, oid)   \
+  (oid) = (*(p)&NCI_OID_MASK);     \
   (p)++;
 
 /* NCI Data Format:
@@ -183,8 +183,8 @@ extern "C" {
 #define NCI_DATA_PRS_HDR(p, pbf, cid, len)      \
   (pbf) = (*(p)&NCI_PBF_MASK) >> NCI_PBF_SHIFT; \
   (cid) = (*(p)&NCI_CID_MASK);                  \
-  p++;                                          \
-  p++;                                          \
+  (p)++;                                          \
+  (p)++;                                          \
   (len) = *(p)++;
 
 /* Logical target ID 0x01-0xFE */

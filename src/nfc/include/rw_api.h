@@ -46,8 +46,8 @@
 #define RW_API_H
 #include "tags_defs.h"
 
-#define RW_T1T_BLD_ADD(a, k, y) a = ((k & 0xF) << 3) | (y & 0x7);
-#define RW_T1T_BLD_ADDS(a, s) a = ((s & 0xF) << 4);
+#define RW_T1T_BLD_ADD(a, k, y) (a) = (((k) & 0xF) << 3) | ((y) & 0x7);
+#define RW_T1T_BLD_ADDS(a, s) (a) = (((s) & 0xF) << 4);
 
 #define RW_T1T_FIRST_EVT 0x20
 #define RW_T2T_FIRST_EVT 0x40
