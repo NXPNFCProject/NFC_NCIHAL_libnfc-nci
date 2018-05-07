@@ -1540,18 +1540,6 @@ extern void NFA_Send_Core_Init(uint8_t** p);
 #endif
 
 /*******************************************************************************
-**
-** Function         NFA_SetTraceLevel
-**
-** Description      This function sets the trace level for NFA.  If called with
-**                  a value of 0xFF, it simply returns the current trace level.
-**
-** Returns          The new or current trace level
-**
-*******************************************************************************/
-extern uint8_t NFA_SetTraceLevel(uint8_t new_level);
-
-/*******************************************************************************
 ** Function:        NFA_SetPowerSubStateForScreenState
 **
 ** Description:     This function send the current screen state

@@ -410,7 +410,6 @@ uint32_t nfc_task(uint32_t param) {
 
   /* Initialize the nfc control block */
   memset(&nfc_cb, 0, sizeof(tNFC_CB));
-  nfc_cb.trace_level = NFC_INITIAL_TRACE_LEVEL;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFC_TASK started.");
 

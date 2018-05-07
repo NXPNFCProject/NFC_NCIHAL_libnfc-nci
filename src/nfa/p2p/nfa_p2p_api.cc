@@ -1124,19 +1124,3 @@ void NFA_P2pGetLLCPConfig(uint16_t* p_link_miu, uint8_t* p_opt, uint8_t* p_wt,
       *p_data_link_timeout);
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("delay_first_pdu_timeout:%d", *p_delay_first_pdu_timeout);
 }
-
-/*******************************************************************************
-**
-** Function         NFA_P2pSetTraceLevel
-**
-** Description      This function sets the trace level for P2P.  If called with
-**                  a value of 0xFF, it simply returns the current trace level.
-**
-** Returns          The new or current trace level
-**
-*******************************************************************************/
-uint8_t NFA_P2pSetTraceLevel(uint8_t new_level) {
-  if (new_level != 0xFF) nfa_p2p_cb.trace_level = new_level;
-
-  return (nfa_p2p_cb.trace_level);
-}

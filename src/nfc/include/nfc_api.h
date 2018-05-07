@@ -1550,18 +1550,6 @@ extern tNFC_STATUS NFC_TestLoopback(NFC_HDR* p_data);
 
 /*******************************************************************************
 **
-** Function         NFC_SetTraceLevel
-**
-** Description      This function sets the trace level for NFC.  If called with
-**                  a value of 0xFF, it simply returns the current trace level.
-**
-** Returns          The new or current trace level
-**
-*******************************************************************************/
-extern uint8_t NFC_SetTraceLevel(uint8_t new_level);
-
-/*******************************************************************************
-**
 ** Function         NFC_ISODEPNakPresCheck
 **
 ** Description      This function is called to send the ISO DEP nak presenc check cmd

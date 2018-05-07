@@ -52,7 +52,6 @@ void nfa_sys_init(void) {
   nfa_sys_cb.flags |= NFA_SYS_FL_INITIALIZED;
   nfa_sys_ptim_init(&nfa_sys_cb.ptim_cb, NFA_SYS_TIMER_PERIOD,
                     p_nfa_sys_cfg->timer);
-  nfa_sys_cb.trace_level = p_nfa_sys_cfg->trace_level;
 }
 
 /*******************************************************************************
@@ -359,14 +358,3 @@ void nfa_sys_stop_timer(TIMER_LIST_ENT* p_tle) {
 **
 *******************************************************************************/
 void nfa_sys_disable_timers(void) { nfa_sys_cb.timers_disabled = true; }
-
-/*******************************************************************************
-**
-** Function         nfa_sys_set_trace_level
-**
-** Description      Set trace level for BTA
-**
-** Returns          void
-**
-*******************************************************************************/
-void nfa_sys_set_trace_level(uint8_t level) { nfa_sys_cb.trace_level = level; }

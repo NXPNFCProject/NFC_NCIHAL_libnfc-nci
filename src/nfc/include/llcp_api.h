@@ -678,18 +678,6 @@ extern tLLCP_STATUS LLCP_DiscoverService(char* p_name, tLLCP_SDP_CBACK* p_cback,
 
 /*******************************************************************************
 **
-** Function         LLCP_SetTraceLevel
-**
-** Description      This function sets the trace level for LLCP.  If called with
-**                  a value of 0xFF, it simply returns the current trace level.
-**
-** Returns          The new or current trace level
-**
-*******************************************************************************/
-
-extern uint8_t LLCP_SetTraceLevel(uint8_t new_level);
-/*******************************************************************************
-**
 ** Function         LLCP_RegisterDtaCback
 **
 ** Description      Register callback function for LLCP DTA testing

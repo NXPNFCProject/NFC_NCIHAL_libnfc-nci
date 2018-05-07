@@ -557,17 +557,4 @@ extern void NFA_P2pGetLLCPConfig(uint16_t* p_link_miu, uint8_t* p_opt,
                                  uint16_t* p_data_link_timeout,
                                  uint16_t* p_delay_first_pdu_timeout);
 
-/*******************************************************************************
-**
-** Function         NFA_P2pSetTraceLevel
-**
-** Description      This function sets the trace level for P2P.  If called with
-**                  a value of 0xFF, it simply returns the current trace level.
-**
-** Returns          The new or current trace level
-**
-*******************************************************************************/
-extern uint8_t NFA_P2pSetTraceLevel(uint8_t new_level);
-
-
 #endif /* NFA_P2P_API_H */

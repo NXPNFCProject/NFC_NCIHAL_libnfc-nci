@@ -78,7 +78,6 @@ typedef struct {
   uint16_t mbox_evt;   /* GKI mailbox event */
   uint8_t mbox;        /* GKI mailbox id */
   uint8_t timer;       /* GKI timer id */
-  uint8_t trace_level; /* initial trace level */
 } tNFA_SYS_CFG;
 
 /*****************************************************************************

@@ -197,7 +197,6 @@ typedef struct {
   tNFA_SNEP_CONN conn[NFA_SNEP_MAX_CONN];
   bool listen_enabled;
   bool is_dta_mode;
-  uint8_t trace_level;
 } tNFA_SNEP_CB;
 
 /*

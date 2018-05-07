@@ -243,17 +243,4 @@ extern tNFC_STATUS CE_SetActivatedTagType(tNFC_ACTIVATE_DEVT* p_activate_params,
                                           uint16_t t3t_system_code,
                                           tCE_CBACK* p_cback);
 
-/*******************************************************************************
-**
-** Function         CE_SetTraceLevel
-**
-** Description      This function sets the trace level for Card Emulation mode.
-**                  If called with a value of 0xFF,
-**                  it simply returns the current trace level.
-**
-** Returns          The new or current trace level
-**
-*******************************************************************************/
-extern uint8_t CE_SetTraceLevel(uint8_t new_level);
-
 #endif /* CE_API_H */

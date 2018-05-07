@@ -255,7 +255,6 @@ typedef struct {
   uint8_t
       total_pending_i_pdu; /* total number of tx I PDU not processed by NFA */
 
-  uint8_t trace_level;
 } tNFA_P2P_CB;
 
 /*****************************************************************************

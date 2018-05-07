@@ -133,8 +133,6 @@ typedef struct {
   uint16_t ndef_max; /* max size of p_ndef */
   uint16_t ndef_cur; /* current size of p_ndef */
   tNFC_RF_TECH tech;
-  uint8_t trace_level;
-
 } tCE_CB;
 
 /*

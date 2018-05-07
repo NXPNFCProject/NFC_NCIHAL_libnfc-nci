@@ -1372,20 +1372,6 @@ extern tNFC_STATUS RW_SendRawFrame(uint8_t* p_raw_data, uint16_t data_len);
 *******************************************************************************/
 extern tNFC_STATUS RW_SetActivatedTagType(tNFC_ACTIVATE_DEVT* p_activate_params,
                                           tRW_CBACK* p_cback);
-
-/*******************************************************************************
-**
-** Function         RW_SetTraceLevel
-**
-** Description      This function sets the trace level for Reader/Writer mode.
-**                  If called with a value of 0xFF,
-**                  it simply returns the current trace level.
-**
-** Returns          The new or current trace level
-**
-*******************************************************************************/
-extern uint8_t RW_SetTraceLevel(uint8_t new_level);
-
 #if (NXP_EXTNS == TRUE)
 extern tNFC_STATUS RW_T3BtGetPupiID();
 #endif

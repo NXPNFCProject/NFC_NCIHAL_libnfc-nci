@@ -276,7 +276,6 @@ typedef struct {
 #if (NXP_EXTNS == TRUE)
   tNFC_STATE old_nfc_state;
 #endif
-  uint8_t trace_level;
   uint8_t last_hdr[NFC_SAVED_HDR_SIZE]; /* part of last NCI command header */
   uint8_t last_cmd[NFC_SAVED_CMD_SIZE]; /* part of last NCI command payload */
 #if (NXP_EXTNS == TRUE)

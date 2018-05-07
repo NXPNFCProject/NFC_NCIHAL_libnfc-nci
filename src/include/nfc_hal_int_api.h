@@ -285,17 +285,4 @@ tHAL_NFC_STATUS HAL_NfcPrmSetSpdNciCmdPayloadSize(uint8_t max_payload_size);
 *******************************************************************************/
 void HAL_NfcSetMaxRfDataCredits(uint8_t max_credits);
 
-/*******************************************************************************
-**
-** Function         HAL_NfcSetTraceLevel
-**
-** Description      This function sets the trace level for HAL.  If called with
-**                  a value of 0xFF, it simply returns the current trace level.
-**
-** Returns          The new or current trace level
-**
-*******************************************************************************/
-uint8_t HAL_NfcSetTraceLevel(uint8_t new_level);
-
-
 #endif /* NFC_HAL_INT_API_H */

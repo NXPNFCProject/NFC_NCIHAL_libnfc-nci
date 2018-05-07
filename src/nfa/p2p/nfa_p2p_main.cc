@@ -493,7 +493,6 @@ void nfa_p2p_init(void) {
   /* initialize control block */
   memset(&nfa_p2p_cb, 0, sizeof(tNFA_P2P_CB));
   nfa_p2p_cb.dm_disc_handle = NFA_HANDLE_INVALID;
-  nfa_p2p_cb.trace_level = APPL_INITIAL_TRACE_LEVEL;
 
   for (xx = 0; xx < LLCP_MAX_SDP_TRANSAC; xx++) {
     nfa_p2p_cb.sdp_cb[xx].local_sap = LLCP_INVALID_SAP;

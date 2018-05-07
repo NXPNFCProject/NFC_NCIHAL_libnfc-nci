@@ -48,8 +48,6 @@ void llcp_init(void) {
 
   memset(&llcp_cb, 0, sizeof(tLLCP_CB));
 
-  llcp_cb.trace_level = LLCP_INITIAL_TRACE_LEVEL;
-
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("LLCP - llcp_init ()");
 
   llcp_cb.lcb.local_link_miu =
@@ -169,20 +167,4 @@ void llcp_process_timeout(TIMER_LIST_ENT* p_tle) {
     default:
       break;
   }
-}
-
-/*******************************************************************************
-**
-** Function         LLCP_SetTraceLevel
-**
-** Description      This function sets the trace level for LLCP.  If called with
-**                  a value of 0xFF, it simply returns the current trace level.
-**
-** Returns          The new or current trace level
-**
-*******************************************************************************/
-uint8_t LLCP_SetTraceLevel(uint8_t new_level) {
-  if (new_level != 0xFF) llcp_cb.trace_level = new_level;
-
-  return (llcp_cb.trace_level);
 }

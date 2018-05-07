@@ -39,7 +39,6 @@ tCE_CB ce_cb;
 *******************************************************************************/
 void ce_init(void) {
   memset(&ce_cb, 0, sizeof(tCE_CB));
-  ce_cb.trace_level = NFC_INITIAL_TRACE_LEVEL;
 
   /* Initialize tag-specific fields of ce control block */
   ce_t3t_init();
@@ -119,21 +118,4 @@ tNFC_STATUS CE_SetActivatedTagType(tNFC_ACTIVATE_DEVT* p_activate_params,
     ce_cb.p_cback = NULL;
   }
   return status;
-}
-
-/*******************************************************************************
-**
-** Function         CE_SetTraceLevel
-**
-** Description      This function sets the trace level for Card Emulation mode.
-**                  If called with a value of 0xFF,
-**                  it simply returns the current trace level.
-**
-** Returns          The new or current trace level
-**
-*******************************************************************************/
-uint8_t CE_SetTraceLevel(uint8_t new_level) {
-  if (new_level != 0xFF) ce_cb.trace_level = new_level;
-
-  return (ce_cb.trace_level);
 }

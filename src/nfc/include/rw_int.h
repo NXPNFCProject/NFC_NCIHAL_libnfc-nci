@@ -740,7 +740,6 @@ typedef struct {
 #if (RW_STATS_INCLUDED == true)
   tRW_STATS stats;
 #endif /* RW_STATS_INCLUDED */
-  uint8_t trace_level;
 } tRW_CB;
 
 /*****************************************************************************

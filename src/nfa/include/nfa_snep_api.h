@@ -467,17 +467,4 @@ extern tNFA_STATUS NFA_SnepPutResponse(tNFA_HANDLE conn_handle,
 *******************************************************************************/
 extern tNFA_STATUS NFA_SnepDisconnect(tNFA_HANDLE conn_handle, bool flush);
 
-/*******************************************************************************
-**
-** Function         NFA_SnepSetTraceLevel
-**
-** Description      This function sets the trace level for SNEP.  If called with
-**                  a value of 0xFF, it simply returns the current trace level.
-**
-** Returns          The new or current trace level
-**
-*******************************************************************************/
-extern uint8_t NFA_SnepSetTraceLevel(uint8_t new_level);
-
-
 #endif /* NFA_P2P_API_H */

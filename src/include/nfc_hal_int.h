@@ -443,7 +443,6 @@ typedef struct {
 
   uint8_t max_rf_credits; /* NFC Max RF data credits */
   uint8_t max_ee;         /* NFC Max number of NFCEE supported by NFCC */
-  uint8_t trace_level;    /* NFC HAL trace level */
 } tNFC_HAL_CB;
 
 /* Global NCI data */

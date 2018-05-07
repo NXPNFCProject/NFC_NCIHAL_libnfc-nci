@@ -236,8 +236,6 @@ typedef struct {
 */
 
 typedef struct {
-  uint8_t trace_level; /* LLCP trace level                             */
-
   tLLCP_SDP_CB sdp_cb; /* SDP control block                            */
   tLLCP_LCB lcb;       /* LLCP link control block                      */
   tLLCP_APP_CB wks_cb[LLCP_MAX_WKS]; /* Application's registration for

@@ -1436,21 +1436,6 @@ tNFA_STATUS NFA_SendRawVsCommand(uint8_t cmd_params_len, uint8_t* p_cmd_params,
 
 /*******************************************************************************
 **
-** Function         NFA_SetTraceLevel
-**
-** Description      This function sets the trace level for NFA.  If called with
-**                  a value of 0xFF, it simply returns the current trace level.
-**
-** Returns          The new or current trace level
-**
-*******************************************************************************/
-uint8_t NFA_SetTraceLevel(uint8_t new_level) {
-  if (new_level != 0xFF) nfa_sys_set_trace_level(new_level);
-
-  return (nfa_sys_cb.trace_level);
-}
-/*******************************************************************************
-**
 ** Function:        NFA_EnableDtamode
 **
 ** Description:     Enable DTA Mode
