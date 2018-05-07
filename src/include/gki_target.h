@@ -187,7 +187,7 @@
 
 /* The size of the buffers in pool 3. */
 #ifndef GKI_BUF3_SIZE
-#define GKI_BUF3_SIZE 2500
+#define GKI_BUF3_SIZE (0xFFB0)
 #endif
 
 /* The number of buffers in buffer pool 3. */
