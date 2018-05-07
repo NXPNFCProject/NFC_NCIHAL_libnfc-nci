@@ -219,7 +219,6 @@ void phTmlNfc_ConfigNciPktReTx(phTmlNfc_ConfigRetrans_t eConfiguration,
 static NFCSTATUS phTmlNfc_StartThread(void) {
   NFCSTATUS wStartStatus = NFCSTATUS_SUCCESS;
   void* h_threadsEvent = 0x00;
-  uint32_t dwEvent;
   int pthread_create_status = 0;
 
   /* Create Reader and Writer threads */
@@ -608,7 +607,6 @@ static void phTmlNfc_TmlWriterThread(void* pParam) {
 **
 *******************************************************************************/
 static void phTmlNfc_CleanUp(void) {
-  NFCSTATUS wRetval = NFCSTATUS_SUCCESS;
 
   if (NULL == gpphTmlNfc_Context) {
     return;

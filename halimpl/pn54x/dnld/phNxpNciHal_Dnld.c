@@ -155,9 +155,6 @@ static void phNxpNciHal_fw_dnld_log_cb(void* pContext, NFCSTATUS status,
 static NFCSTATUS phNxpNciHal_fw_dnld_log(void* pContext, NFCSTATUS status,
                                          void* pInfo);
 
-static void phNxpNciHal_fw_dnld_send_ncicmd_Cb(void* pContext, NFCSTATUS status,
-                                               void* pInfo);
-
 static NFCSTATUS phNxpNciHal_fw_dnld_send_ncicmd(void* pContext,
                                                  NFCSTATUS status, void* pInfo);
 

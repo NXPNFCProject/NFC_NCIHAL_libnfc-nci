@@ -47,6 +47,8 @@ cc_library_shared {
         "-DBUILDCFG=1",
         "-Wno-deprecated-register",
         "-Wno-unused-parameter",
+        "-Wall",
+        "-Werror",
         "-Wno-missing-field-initializers",
         "-DNFC_HAL_TARGET=TRUE",
         "-DNFC_RW_ONLY=TRUE",

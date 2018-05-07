@@ -443,7 +443,7 @@ void phNxpNciHal_releaseall_cb_data(void) {
 *******************************************************************************/
 void phNxpNciHal_print_packet(const char* pString, const uint8_t* p_data,
                               uint16_t len) {
-  uint32_t i, j;
+  uint32_t i;
   char print_buffer[len * 3 + 1];
 
   memset(print_buffer, 0, sizeof(print_buffer));

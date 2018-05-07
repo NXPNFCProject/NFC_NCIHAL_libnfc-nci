@@ -42,7 +42,6 @@ static uint32_t RfDiscID = 1;
 static uint32_t RfProtocolType = 4;
 /* NFCEE Set mode */
 static uint8_t setEEModeDone = 0x00;
-static uint8_t cmd_nfcee_setmode_enable[] = {0x22, 0x01, 0x02, 0x01, 0x01};
 
 /* External global variable to get FW version from NCI response*/
 extern uint32_t wFwVerRsp;
@@ -656,8 +655,7 @@ NFCSTATUS phNxpNciHal_write_ext(uint16_t* cmd_len, uint8_t* p_cmd_data,
   NFCSTATUS status = NFCSTATUS_SUCCESS;
 
   unsigned long retval = 0;
-  int isfound =
-      GetNxpNumValue(NAME_MIFARE_READER_ENABLE, &retval, sizeof(unsigned long));
+  GetNxpNumValue(NAME_MIFARE_READER_ENABLE, &retval, sizeof(unsigned long));
 
   phNxpNciHal_NfcDep_cmd_ext(p_cmd_data, cmd_len);
 

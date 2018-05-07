@@ -37,15 +37,10 @@
 ** Returns          0 if successful
 **
 *******************************************************************************/
-static int hal_open(const struct nfc_nci_device* p_dev,
+static int hal_open(__attribute__((unused)) const struct nfc_nci_device* p_dev,
                     nfc_stack_callback_t p_hal_cback,
                     nfc_stack_data_callback_t* p_hal_data_callback) {
-  int retval = 0;
-
-  nxpnfc_nci_device_t* dev = (nxpnfc_nci_device_t*)p_dev;
-  retval = phNxpNciHal_open(p_hal_cback, p_hal_data_callback);
-
-  return retval;
+  return phNxpNciHal_open(p_hal_cback, p_hal_data_callback);
 }
 
 /*******************************************************************************
@@ -57,13 +52,9 @@ static int hal_open(const struct nfc_nci_device* p_dev,
 ** Returns          Number of bytes successfully written to NFCC.
 **
 *******************************************************************************/
-static int hal_write(const struct nfc_nci_device* p_dev, uint16_t data_len,
-                     const uint8_t* p_data) {
-  int retval = 0;
-  nxpnfc_nci_device_t* dev = (nxpnfc_nci_device_t*)p_dev;
-
-  retval = phNxpNciHal_write(data_len, p_data);
-  return retval;
+static int hal_write(__attribute__((unused)) const struct nfc_nci_device* p_dev,
+                      uint16_t data_len, const uint8_t* p_data) {
+  return phNxpNciHal_write(data_len, p_data);
 }
 
 /*******************************************************************************
@@ -94,13 +85,10 @@ static int hal_ioctl(const nxpnfc_nci_device_t* p_dev, long arg,
 ** Returns          0 if successful
 **
 *******************************************************************************/
-static int hal_core_initialized(const struct nfc_nci_device* p_dev,
+static int hal_core_initialized(__attribute__((unused))
+                                const struct nfc_nci_device* p_dev,
                                 uint8_t* p_core_init_rsp_params) {
-  int retval = 0;
-  nxpnfc_nci_device_t* dev = (nxpnfc_nci_device_t*)p_dev;
-
-  retval = phNxpNciHal_core_initialized(p_core_init_rsp_params);
-  return retval;
+  return retval = phNxpNciHal_core_initialized(p_core_init_rsp_params);
 }
 
 /*******************************************************************************
@@ -112,12 +100,9 @@ static int hal_core_initialized(const struct nfc_nci_device* p_dev,
 ** Returns          0 if successful
 **
 *******************************************************************************/
-static int hal_pre_discover(const struct nfc_nci_device* p_dev) {
+static int hal_pre_discover(__attribute__((unused)) const struct nfc_nci_device* p_dev) {
   int retval = 0;
-  nxpnfc_nci_device_t* dev = (nxpnfc_nci_device_t*)p_dev;
-
-  retval = phNxpNciHal_pre_discover();
-  return retval;
+  return phNxpNciHal_pre_discover();
 }
 
 /*******************************************************************************
@@ -129,12 +114,9 @@ static int hal_pre_discover(const struct nfc_nci_device* p_dev) {
 ** Returns          0 if successful
 **
 *******************************************************************************/
-static int hal_close(const struct nfc_nci_device* p_dev) {
-  int retval = 0;
-  nxpnfc_nci_device_t* dev = (nxpnfc_nci_device_t*)p_dev;
-
-  retval = phNxpNciHal_close();
-  return retval;
+static int hal_close(__attribute__((unused)) const
+                        struct nfc_nci_device* p_dev) {
+  return phNxpNciHal_close();
 }
 
 /*******************************************************************************
@@ -146,12 +128,9 @@ static int hal_close(const struct nfc_nci_device* p_dev) {
 ** Returns          0 if successful
 **
 *******************************************************************************/
-static int hal_control_granted(const struct nfc_nci_device* p_dev) {
-  int retval = 0;
-  nxpnfc_nci_device_t* dev = (nxpnfc_nci_device_t*)p_dev;
-
-  retval = phNxpNciHal_control_granted();
-  return retval;
+static int hal_control_granted(__attribute__((unused)) const
+                                struct nfc_nci_device* p_dev) {
+  return phNxpNciHal_control_granted();
 }
 
 /*******************************************************************************
@@ -163,12 +142,9 @@ static int hal_control_granted(const struct nfc_nci_device* p_dev) {
 ** Returns          0 if successful
 **
 *******************************************************************************/
-static int hal_power_cycle(const struct nfc_nci_device* p_dev) {
-  int retval = 0;
-  nxpnfc_nci_device_t* dev = (nxpnfc_nci_device_t*)p_dev;
-
-  retval = phNxpNciHal_power_cycle();
-  return retval;
+static int hal_power_cycle(__attribute__((unused)) const
+                            struct nfc_nci_device* p_dev) {
+  return phNxpNciHal_power_cycle();
 }
 
 /*******************************************************************************
@@ -180,14 +156,10 @@ static int hal_power_cycle(const struct nfc_nci_device* p_dev) {
 ** Returns          true if successful otherwise false.
 **
 *******************************************************************************/
-static int hal_get_fw_dwnld_flag(const nxpnfc_nci_device_t* p_dev,
+static int hal_get_fw_dwnld_flag(__attribute__((unused)) const
+                                 nxpnfc_nci_device_t* p_dev,
                                  uint8_t* fwDnldRequest) {
-  int retval = 0;
-  nxpnfc_nci_device_t* dev = (nxpnfc_nci_device_t*)p_dev;
-
-  retval = phNxpNciHal_getFWDownloadFlag(fwDnldRequest);
-
-  return retval;
+  return phNxpNciHal_getFWDownloadFlag(fwDnldRequest);
 }
 
 /*************************************

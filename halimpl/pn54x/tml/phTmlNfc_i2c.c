@@ -122,7 +122,6 @@ int phTmlNfc_i2c_read(void* pDevHandle, uint8_t* pBuffer, int nNbBytesToRead) {
   fd_set rfds;
   uint16_t totalBtyesToRead = 0;
 
-  int i;
   UNUSED(nNbBytesToRead);
   if (NULL == pDevHandle) {
     return -1;
@@ -227,7 +226,6 @@ int phTmlNfc_i2c_write(void* pDevHandle, uint8_t* pBuffer,
                        int nNbBytesToWrite) {
   int ret;
   int numWrote = 0;
-  int i;
   int numBytes = nNbBytesToWrite;
   if (NULL == pDevHandle) {
     return -1;

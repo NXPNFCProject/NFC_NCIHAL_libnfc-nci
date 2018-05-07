@@ -400,30 +400,6 @@ extern NFCSTATUS phNxpNciHal_clean_P2P_Prio() {
 }
 
 #endif
-/*******************************************************************************
-**
-** Function         hal_write_cb
-**
-** Description      Callback function for hal write.
-**
-** Returns          None
-**
-*******************************************************************************/
-static void hal_write_cb(void* pContext, phTmlNfc_TransactInfo_t* pInfo) {
-  phNxpNciHal_Sem_t* p_cb_data = (phNxpNciHal_Sem_t*)pContext;
-
-  if (pInfo->wStatus == NFCSTATUS_SUCCESS) {
-    NXPLOG_NCIHAL_D("hal_write_cb: write successful status = 0x%x",
-                    pInfo->wStatus);
-  } else {
-    NXPLOG_NCIHAL_E("hal_write_cb: write error status = 0x%x", pInfo->wStatus);
-  }
-
-  p_cb_data->status = pInfo->wStatus;
-
-  SEM_POST(p_cb_data);
-  return;
-}
 
 /*******************************************************************************
  **
@@ -510,7 +486,6 @@ void* tmp_thread(void* tmp) {
 NFCSTATUS phNxpNciHal_select_RF_Discovery(unsigned int RfID,
                                           unsigned int RfProtocolType) {
   NFCSTATUS status = NFCSTATUS_SUCCESS;
-  phNxpNciHal_Sem_t cb_data;
   pthread_t pthread;
   discover_type = DISCOVER_SELECT;
   cmd_select_rf_discovery[3] = RfID;

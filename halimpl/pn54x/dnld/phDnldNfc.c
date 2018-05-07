@@ -31,13 +31,7 @@ uint16_t wMwVer = 0; /* Middleware version no */
 uint16_t wFwVer = 0; /* Firmware version no */
 uint8_t gRecFWDwnld; /* flag set to true to indicate dummy FW download */
 static pphDnldNfc_DlContext_t gpphDnldContext = NULL; /* Download contex */
-static pphDnldNfc_RspCb_t UserCb; /* Upper layer call back function */
-static void* UserCtxt;            /* Pointer to upper layer context */
 #undef EEPROM_Read_Mem_IMP
-
-/* Function prototype declaration */
-static void phDnldNfc_ReadComplete(void* pContext, NFCSTATUS status,
-                                   void* pInfo);
 
 /*******************************************************************************
 **
@@ -1122,6 +1116,12 @@ NFCSTATUS phDnldNfc_UnloadFW(void) {
 }
 
 #ifdef EEPROM_Read_Mem_IMP
+static pphDnldNfc_RspCb_t UserCb; /* Upper layer call back function */
+static void* UserCtxt;            /* Pointer to upper layer context */
+/* Function prototype declaration */
+static void phDnldNfc_ReadComplete(void* pContext, NFCSTATUS status,
+                                   void* pInfo);
+
 /*******************************************************************************
 **
 ** Function         phDnldNfc_ReadMem
