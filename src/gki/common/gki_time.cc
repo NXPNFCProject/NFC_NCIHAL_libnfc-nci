@@ -17,7 +17,6 @@
  ******************************************************************************/
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
-#include "_OverrideLog.h"
 #include "gki_int.h"
 
 /* Make sure that this has been defined in target.h */
@@ -32,6 +31,8 @@
 #define GKI_MAX_INT32 (0x7fffffffL)
 
 using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
 
 /*******************************************************************************
 **

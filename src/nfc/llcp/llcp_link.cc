@@ -42,6 +42,10 @@
  ******************************************************************************/
 
 #include <string.h>
+
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
+
 #include "gki.h"
 #include "bt_types.h"
 #include "trace_api.h"
@@ -50,6 +54,8 @@
 #include "nfc_int.h"
 #include "nfa_sys.h"
 #include "nfa_dm_int.h"
+
+using android::base::StringPrintf;
 
 const uint16_t llcp_link_rwt
     [15] = /* RWT = (302us)*2**WT; 302us = 256*16/fc; fc = 13.56MHz */
@@ -96,6 +102,7 @@ static void llcp_link_send_to_lower(NFC_HDR* p_msg);
 extern tLLCP_TEST_PARAMS llcp_test_params;
 #endif
 
+extern bool nfc_debug_enabled;
 extern unsigned char appl_dta_mode_flag;
 
 /* debug functions type */

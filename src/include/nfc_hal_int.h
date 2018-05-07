@@ -32,6 +32,7 @@
 #include "nfc_hal_api.h"
 #include "nfc_hal_int_api.h"
 
+using android::base::StringPrintf;
 
 /* NFC HAL Task Timer events */
 #ifndef NFC_HAL_QUICK_TIMER_EVT_MASK
@@ -80,6 +81,7 @@ typedef uint8_t tNFC_HAL_POWER_MODE;
 #endif
 
 #if (NFC_HAL_DEBUG == true)
+extern bool nfc_debug_enabled;
 extern const char* const nfc_hal_init_state_str[];
 #define NFC_HAL_SET_INIT_STATE(state)                                        \
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(                          \

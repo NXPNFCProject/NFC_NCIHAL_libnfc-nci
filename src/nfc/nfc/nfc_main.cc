@@ -43,9 +43,13 @@
  *
  ******************************************************************************/
 #include <string.h>
-#include "gki.h"
+
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
+
 #include "nfc_target.h"
 #include "bt_types.h"
+#include "gki.h"
 #include <stdlib.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -77,6 +81,11 @@ extern void nfa_dm_init_cfgs(phNxpNci_getCfg_info_t* mGetCfg_info_main);
 #define NFC_SET_MAX_CONN_DEFAULT()
 
 #endif /* NFC_RW_ONLY */
+
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
+
 /****************************************************************************
 ** Declarations
 ****************************************************************************/

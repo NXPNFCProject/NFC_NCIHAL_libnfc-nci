@@ -21,9 +21,15 @@
  *  Protocol timer services (taken from bta ptim)
  *
  ******************************************************************************/
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
 
 #include "nfa_sys_ptim.h"
 #include "nfa_sys.h"
+
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
 
 /*******************************************************************************
 **

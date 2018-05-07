@@ -43,6 +43,10 @@
  *
  ******************************************************************************/
 #include <string.h>
+
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
+
 #include "nfc_target.h"
 #include "bt_types.h"
 
@@ -52,6 +56,10 @@
 #include "rw_int.h"
 #include "nfc_int.h"
 #include "gki.h"
+
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
 
 /* Static local functions */
 static void rw_t2t_proc_data(uint8_t conn_id, tNFC_DATA_CEVT* p_data);

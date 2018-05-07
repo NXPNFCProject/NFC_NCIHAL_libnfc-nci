@@ -22,9 +22,17 @@
  *
  ******************************************************************************/
 #include <string.h>
+
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
+
 #include "nfa_api.h"
 #include "nfa_dm_int.h"
 #include "ndef_utils.h"
+
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
 
 /*******************************************************************************
 * URI Well-known-type prefixes

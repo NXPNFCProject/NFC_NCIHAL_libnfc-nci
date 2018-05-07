@@ -42,6 +42,10 @@
  *
  ******************************************************************************/
 #include <string.h>
+
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
+
 #include "nfc_target.h"
 #include "bt_types.h"
 #include "trace_api.h"
@@ -51,6 +55,10 @@
 #include "nci_hmsgs.h"
 #include "rw_api.h"
 #include "rw_int.h"
+
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
 
 /* Definitions for constructing t3t command messages */
 #define RW_T3T_FL_PADDING 0x01 /* Padding needed for last NDEF block */

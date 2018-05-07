@@ -42,11 +42,17 @@
  ******************************************************************************/
 
 #include <string.h>
+
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
+
 #include "gki.h"
 #include "bt_types.h"
 #include "llcp_int.h"
 #include "llcp_defs.h"
 #include "nfc_int.h"
+
+using android::base::StringPrintf;
 
 static tLLCP_STATUS llcp_dlsm_idle(tLLCP_DLCB* p_dlcb, tLLCP_DLC_EVENT event,
                                    void* p_data);
@@ -60,10 +66,11 @@ static tLLCP_STATUS llcp_dlsm_connected(tLLCP_DLCB* p_dlcb,
                                         tLLCP_DLC_EVENT event, void* p_data);
 static tLLCP_STATUS llcp_dlsm_w4_remote_dm(tLLCP_DLCB* p_dlcb,
                                            tLLCP_DLC_EVENT event);
-extern unsigned char appl_dta_mode_flag;
-
 static std::string llcp_dlsm_get_state_name(tLLCP_DLC_STATE state);
 static std::string llcp_dlsm_get_event_name(tLLCP_DLC_EVENT event);
+
+extern bool nfc_debug_enabled;
+extern unsigned char appl_dta_mode_flag;
 
 /*******************************************************************************
 **

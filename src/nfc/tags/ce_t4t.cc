@@ -23,6 +23,10 @@
  *
  ******************************************************************************/
 #include <string.h>
+
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
+
 #include "nfc_target.h"
 #include "bt_types.h"
 #include "trace_api.h"
@@ -31,6 +35,10 @@
 #include "ce_api.h"
 #include "ce_int.h"
 #include "tags_int.h"
+
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
 
 #if (CE_TEST_INCLUDED == true) /* test only */
 bool mapping_aid_test_enabled = false;

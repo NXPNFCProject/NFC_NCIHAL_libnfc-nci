@@ -40,11 +40,18 @@
  *  NFA interface to LLCP
  *
  ******************************************************************************/
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
+
 #include "nfa_p2p_api.h"
 #include "nfa_p2p_int.h"
 #if (NXP_EXTNS == TRUE)
 #include "nfc_int.h"
 #endif
+
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
 
 /*****************************************************************************
 **  Constants

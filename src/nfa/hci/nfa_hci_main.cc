@@ -41,6 +41,10 @@
  *
  ******************************************************************************/
 #include <string.h>
+
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
+
 #include "nfa_dm_int.h"
 #include "nfa_hci_api.h"
 #include "nfa_hci_int.h"
@@ -69,6 +73,10 @@ tNFA_HCI_CB nfa_hci_cb;
 #ifndef NFA_HCI_CON_CREATE_TIMEOUT_VAL
 #define NFA_HCI_CON_CREATE_TIMEOUT_VAL 1000
 #endif
+
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
 
 /*****************************************************************************
 **  Static Functions

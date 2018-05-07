@@ -15,13 +15,18 @@
  *  limitations under the License.
  *
  ******************************************************************************/
-#include "_OverrideLog.h"
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include "nfa_nv_ci.h"
 #include "nfc_hal_nv_co.h"
 #include "CrcChecksum.h"
+using android::base::StringPrintf;
+
 extern char bcm_nfc_location[];
+extern bool nfc_debug_enabled;
+
 static const char* sNfaStorageBin = "/nfaStorage.bin";
 
 /*******************************************************************************

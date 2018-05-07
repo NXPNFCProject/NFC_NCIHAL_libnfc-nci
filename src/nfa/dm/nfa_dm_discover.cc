@@ -41,6 +41,10 @@
  *
  ******************************************************************************/
 #include <string.h>
+
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
+
 #include "nfa_api.h"
 #include "nfa_dm_int.h"
 #include "nfa_p2p_int.h"
@@ -55,6 +59,11 @@
 #if (NXP_EXTNS == TRUE)
 #include <config.h>
 #endif
+
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
+
 /*
 **  static functions
 */

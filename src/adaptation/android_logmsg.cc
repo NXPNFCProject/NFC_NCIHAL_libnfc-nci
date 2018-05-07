@@ -35,12 +35,16 @@
  *
  ******************************************************************************/
 
-#include "_OverrideLog.h"
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
 #include "android_logmsg.h"
 #include "buildcfg.h"
 #include <cutils/log.h>
 
-extern uint32_t ScrProtocolTraceFlag;
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
+
 #define MAX_NCI_PACKET_SIZE 259
 #define BTE_LOG_BUF_SIZE 1024
 #define BTE_LOG_MAX_SIZE (BTE_LOG_BUF_SIZE - 12)
@@ -54,8 +58,7 @@ static void ToHex(const uint8_t* data, uint16_t len, char* hexString,
 
 void ProtoDispAdapterDisplayNciPacket(uint8_t* nciPacket, uint16_t nciPacketLen,
                                       bool is_recv) {
-  // Protocol decoder is not available, so decode NCI packet into hex numbers.
-  if (!(ScrProtocolTraceFlag & SCR_PROTO_TRACE_NCI)) return;
+  if (!nfc_debug_enabled) return;
   char line_buf[(MAX_NCI_PACKET_SIZE * 2) + 1];
   ToHex(nciPacket, nciPacketLen, line_buf, sizeof(line_buf));
   DLOG_IF(INFO, nfc_debug_enabled)
@@ -95,13 +98,14 @@ inline void byte2hex(const char* data, char** str) {
 **
 ***************************************************************************/
 void DispLLCP(NFC_HDR* p_buf, bool is_recv) {
-  uint32_t nBytes = ((NFC_HDR_SIZE + p_buf->offset + p_buf->len) * 2) + 1;
-  uint8_t* data = (uint8_t*)p_buf;
-  int data_len = NFC_HDR_SIZE + p_buf->offset + p_buf->len;
-
   if (!nfc_debug_enabled) return;
 
+  uint32_t nBytes = ((NFC_HDR_SIZE + p_buf->offset + p_buf->len) * 2) + 1;
+
   if (nBytes > sizeof(log_line)) return;
+
+  uint8_t* data = (uint8_t*)p_buf;
+  int data_len = NFC_HDR_SIZE + p_buf->offset + p_buf->len;
 
   ToHex(data, data_len, log_line, sizeof(log_line));
   DLOG_IF(INFO, nfc_debug_enabled)
@@ -118,12 +122,10 @@ void DispLLCP(NFC_HDR* p_buf, bool is_recv) {
 **
 ***************************************************************************/
 void DispHcp(uint8_t* data, uint16_t len, bool is_recv) {
-  uint32_t nBytes = (len * 2) + 1;
 
   if (!nfc_debug_enabled) return;
 
-  // Only trace HCP if we're tracing HCI as well
-  if (!(ScrProtocolTraceFlag & SCR_PROTO_TRACE_HCI_SUMMARY)) return;
+  uint32_t nBytes = (len * 2) + 1;
 
   if (nBytes > sizeof(log_line)) return;
 

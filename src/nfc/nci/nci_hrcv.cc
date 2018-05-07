@@ -42,6 +42,10 @@
  *
  ******************************************************************************/
 #include <string.h>
+
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
+
 #include "nfc_target.h"
 #include "bt_types.h"
 #include "gki.h"
@@ -54,6 +58,11 @@
 #include "nfa_sys.h"
 #endif
 #include "nfa_ee_int.h"
+
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
+
 /*******************************************************************************
 **
 ** Function         nci_proc_core_rsp

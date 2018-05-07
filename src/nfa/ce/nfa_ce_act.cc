@@ -41,6 +41,8 @@
  *
  ******************************************************************************/
 #include <string.h>
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
 #include "nfa_ce_int.h"
 #include "nfa_mem_co.h"
 #include "ndef_utils.h"
@@ -49,6 +51,9 @@
 #include "nfa_ee_int.h"
 #endif
 
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
 /*****************************************************************************
 * Protocol-specific event handlers
 *****************************************************************************/

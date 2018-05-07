@@ -41,6 +41,10 @@
  *
  ******************************************************************************/
 #include <string.h>
+
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
+
 #include "nfa_api.h"
 #include "nfa_ce_int.h"
 #include "ndef_utils.h"
@@ -50,6 +54,10 @@
 uint32_t gFelicaReaderMode;
 tHAL_NFC_CONTEXT hal_Initcntxt;
 #endif
+
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
 
 /*****************************************************************************
 **  Constants

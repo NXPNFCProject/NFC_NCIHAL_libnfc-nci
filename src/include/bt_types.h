@@ -22,10 +22,6 @@
 #include "data_types.h"
 #include "nfc_types.h"
 
-#define SCR_PROTO_TRACE_NCI 0x00004000
-#define SCR_PROTO_TRACE_ALL 0x001fffff
-#define SCR_PROTO_TRACE_HCI_SUMMARY 0x00000001
-
 /* NCI Command, Notification or Data*/
 #define BT_EVT_TO_NFC_NCI 0x4000
 /* messages between NFC and NCI task */

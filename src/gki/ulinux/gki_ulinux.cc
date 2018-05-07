@@ -19,8 +19,12 @@
 
 #include <pthread.h> /* must be 1st header defined  */
 #include "gki_int.h"
-#include "_OverrideLog.h"
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
 
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
 /* Temp android logging...move to android tgt config file */
 
 #ifndef LINUX_NATIVE

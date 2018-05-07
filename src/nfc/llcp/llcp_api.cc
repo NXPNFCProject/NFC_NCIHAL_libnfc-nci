@@ -41,10 +41,16 @@
  *  This file contains the LLCP API code
  *
  ******************************************************************************/
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
 
 #include "gki.h"
 #include "llcp_api.h"
 #include "llcp_int.h"
+
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
 
 #if (LLCP_TEST_INCLUDED == true) /* this is for LLCP testing */
 

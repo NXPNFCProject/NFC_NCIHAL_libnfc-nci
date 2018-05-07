@@ -43,6 +43,10 @@
  *
  ******************************************************************************/
 #include <string.h>
+
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
+
 #include "nfc_target.h"
 #include "bt_types.h"
 #include "trace_api.h"
@@ -51,6 +55,10 @@
 #include "nfc_int.h"
 #include "rw_api.h"
 #include "rw_int.h"
+
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
 
 /* main state */
 /* T4T is not activated                 */

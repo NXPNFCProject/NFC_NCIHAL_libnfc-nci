@@ -21,8 +21,15 @@
  *  Registration/deregistration functions for inter-module callbacks
  *
  ******************************************************************************/
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
+
 #include "nfa_sys.h"
 #include "nfa_sys_int.h"
+
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
 
 /*******************************************************************************
 **

@@ -22,6 +22,10 @@
  *
  ******************************************************************************/
 #include <string.h>
+
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
+
 #include "gki.h"
 #include "nfc_target.h"
 
@@ -30,6 +34,7 @@
 #include "nci_hmsgs.h"
 #include "nfa_ee_int.h"
 
+using android::base::StringPrintf;
 /*******************************************************************************
 **
 ** Function         NFC_NfceeDiscover

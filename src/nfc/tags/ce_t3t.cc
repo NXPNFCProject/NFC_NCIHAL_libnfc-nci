@@ -23,12 +23,20 @@
  *
  ******************************************************************************/
 #include <string.h>
+
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
+
 #include "nfc_target.h"
 #include "bt_types.h"
 #include "trace_api.h"
 
 #include "ce_api.h"
 #include "ce_int.h"
+
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
 
 enum {
   CE_T3T_COMMAND_INVALID,

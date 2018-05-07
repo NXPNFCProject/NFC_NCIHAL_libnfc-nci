@@ -22,6 +22,10 @@
  *
  ******************************************************************************/
 #include <string.h>
+
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
+
 #include "nfa_api.h"
 #include "nfa_sys_int.h"
 #include "nfa_dm_int.h"
@@ -30,6 +34,11 @@
 #ifndef NFA_SYS_TIMER_PERIOD
 #define NFA_SYS_TIMER_PERIOD 10
 #endif
+
+
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
 
 /* system manager control block definition */
 tNFA_SYS_CB nfa_sys_cb = {};

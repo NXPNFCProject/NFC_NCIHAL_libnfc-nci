@@ -35,10 +35,15 @@
  *
  ******************************************************************************/
 
-#include "_OverrideLog.h"
 #include "CrcChecksum.h"
 #include <fcntl.h>
 #include <string>
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
+
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
 
 static const unsigned short crctab[256] = {
     0x0000, 0xc0c1, 0xc181, 0x0140, 0xc301, 0x03c0, 0x0280, 0xc241, 0xc601,

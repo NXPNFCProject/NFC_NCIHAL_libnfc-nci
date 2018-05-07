@@ -42,7 +42,10 @@
  *  (callback). On the transmit side, it manages the command transmission.
  *
  ******************************************************************************/
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
 #include <metricslogger/metrics_logger.h>
+
 #include "nfc_target.h"
 
 #include "include/debug_nfcsnoop.h"
@@ -61,6 +64,9 @@
 #include "nfa_hci_int.h"
 #include <config.h>
 #endif
+
+using android::base::StringPrintf;
+
 tNFC_CONN_CB* p_cb_stored = NULL;
 #if (NFC_RW_ONLY == FALSE)
 static const uint8_t nfc_mpl_code_to_size[] = {64, 128, 192, 254};
@@ -79,6 +85,8 @@ uint8_t temp_buff[660];
 #define NFC_LB_ATTRIB_REQ_FIXED_BYTES 8
 
 extern unsigned char appl_dta_mode_flag;
+extern bool nfc_debug_enabled;
+
 #if (NXP_EXTNS == TRUE)
 // Global Structure varibale for FW Version
 static uint8_t gScreenState = 0x0;  // SCREEN ON UNLOCKED
@@ -88,7 +96,7 @@ extern tNFA_CE_CB nfa_ce_cb;
 bool core_reset_init_num_buff = false;
 uint8_t nfcc_dh_conn_id = 0xFF;
 #if __cplusplus
-extern "C" void nfa_hci_rsp_timeout(tNFA_HCI_EVENT_DATA* p_evt_data);
+extern void nfa_hci_rsp_timeout(tNFA_HCI_EVENT_DATA* p_evt_data);
 #else
 extern void nfa_hci_rsp_timeout(tNFA_HCI_EVENT_DATA* p_evt_data);
 #endif

@@ -42,12 +42,20 @@
  *
  ******************************************************************************/
 #include <string.h>
+
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
+
 #include "nfc_target.h"
 
 #include "nfc_api.h"
 #include "nci_hmsgs.h"
 #include "rw_api.h"
 #include "rw_int.h"
+
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
 
 #if (RW_NDEF_INCLUDED == true)
 

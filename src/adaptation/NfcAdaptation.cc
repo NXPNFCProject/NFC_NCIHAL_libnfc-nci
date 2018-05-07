@@ -34,24 +34,27 @@
  *  limitations under the License.
  *
  ******************************************************************************/
+#include <android-base/stringprintf.h>
 #include <android/hardware/nfc/1.0/INfc.h>
 #include <base/command_line.h>
+#include <base/logging.h>
+#include <cutils/properties.h>
 #include <android/hardware/nfc/1.0/types.h>
 #include <hwbinder/ProcessState.h>
 #include "NfcAdaptation.h"
-#include "debug_nfcsnoop.h"
-
-#include "nfa_api.h"
-#include "nfc_int.h"
 #include "nfc_target.h"
 #include "config.h"
 #include "android_logmsg.h"
-#include <hidl/LegacySupport.h>
+#include "debug_nfcsnoop.h"
+#include "nfa_api.h"
+#include "nfc_int.h"
+#include "nfca_version.h"
 
 using android::OK;
 using android::sp;
 using android::status_t;
 
+using android::base::StringPrintf;
 using android::hardware::ProcessState;
 using android::hardware::Return;
 using android::hardware::Void;
@@ -61,10 +64,12 @@ using android::hardware::hidl_vec;
 using vendor::nxp::nxpnfc::V1_0::INxpNfc;
 using android::hardware::configureRpcThreadpool;
 
-extern "C" void GKI_shutdown();
+extern bool nfc_debug_enabled;
+
+extern void GKI_shutdown();
 extern void resetConfig();
-extern "C" void verify_stack_non_volatile_store();
-extern "C" void delete_stack_non_volatile_store(bool forceDelete);
+extern void verify_stack_non_volatile_store();
+extern void delete_stack_non_volatile_store(bool forceDelete);
 
 NfcAdaptation* NfcAdaptation::mpInstance = NULL;
 ThreadMutex NfcAdaptation::sLock;
@@ -87,7 +92,6 @@ static uint8_t isSignaled = SIGNAL_NONE;
 static uint8_t evt_status;
 #endif
 
-uint32_t ScrProtocolTraceFlag = SCR_PROTO_TRACE_ALL;  // 0x017F00;
 bool nfc_debug_enabled = false;
 uint8_t appl_dta_mode_flag = 0x00;
 char bcm_nfc_location[120];
@@ -103,6 +107,25 @@ static uint8_t deviceHostWhiteList[NFA_HCI_MAX_HOST_IN_NETWORK];
 static tNFA_HCI_CFG jni_nfa_hci_cfg;
 extern tNFA_HCI_CFG* p_nfa_hci_cfg;
 extern bool nfa_poll_bail_out_mode;
+
+namespace {
+void initializeGlobalDebugEnabledFlag() {
+  unsigned trace_level = 1;
+  if (GetNumValue(NAME_APPL_TRACE_LEVEL, &trace_level, sizeof(trace_level)))
+    nfc_debug_enabled = (trace_level == 0) ? false : true;
+
+  char valueStr[PROPERTY_VALUE_MAX] = {0};
+  int len = property_get("nfc.app_log_level", valueStr, "");
+  if (len > 0) {
+    // let Android property override .conf variable
+    sscanf(valueStr, "%u", &trace_level);
+    nfc_debug_enabled = (trace_level == 0) ? false : true;
+  }
+
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("%s: level=%u", __func__, nfc_debug_enabled);
+}
+}  // namespace
 
 class NfcClientCallback : public INfcClientCallback {
  public:
@@ -204,8 +227,6 @@ void NfcAdaptation::Initialize() {
     strlcpy(bcm_nfc_location, "/data/vendor/nfc", sizeof(bcm_nfc_location));
   }
 
-  initializeProtocolLogLevel();
-
   if (GetStrValue(NAME_NFA_DM_CFG, (char*)nfa_dm_cfg, sizeof(nfa_dm_cfg)))
     p_nfa_dm_cfg = (tNFA_DM_CFG*)((void*)&nfa_dm_cfg[0]);
 
@@ -234,7 +255,7 @@ void NfcAdaptation::Initialize() {
     p_nfa_hci_cfg = &jni_nfa_hci_cfg;
   }
 
-  initializeGlobalAppLogLevel();
+  initializeGlobalDebugEnabledFlag();
 
   verify_stack_non_volatile_store();
   if (GetNumValue(NAME_PRESERVE_STORAGE, (char*)&num, sizeof(num)) &&

@@ -43,10 +43,16 @@
  *
  ******************************************************************************/
 #include <string.h>
-#include "gki.h"
+
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
+
 #include "nfc_target.h"
 
+#include "gki.h"
 #include "nfc_int.h"
+
+using android::base::StringPrintf;
 
 /****************************************************************************
 ** Declarations

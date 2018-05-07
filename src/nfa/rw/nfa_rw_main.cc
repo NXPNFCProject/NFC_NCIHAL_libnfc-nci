@@ -22,9 +22,18 @@
  *
  ******************************************************************************/
 #include <string.h>
+
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
+
 #include "nfa_rw_api.h"
 #include "nfa_rw_int.h"
 #include "nfa_dm_int.h"
+
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
+
 
 /* NFA_RW control block */
 tNFA_RW_CB nfa_rw_cb;

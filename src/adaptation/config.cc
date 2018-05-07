@@ -34,12 +34,17 @@
  *  limitations under the License.
  *
  ******************************************************************************/
-#include "_OverrideLog.h"
 #include <stdio.h>
 #include <sys/stat.h>
 #include <string>
 #include <vector>
 #include <list>
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
+
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
 
 const char* transport_config_paths[] = {"/odm/etc/", "/vendor/etc/", "/etc/"};
 const int transport_config_path_size =
@@ -724,7 +729,7 @@ CNfcParam::CNfcParam(const char* name, unsigned long value)
 ** Returns:     none
 **
 *******************************************************************************/
-extern "C" int GetStrValue(const char* name, char* pValue, unsigned long l) {
+extern int GetStrValue(const char* name, char* pValue, unsigned long l) {
   size_t len = l;
   CNfcConfig& rConfig = CNfcConfig::GetInstance();
 
@@ -741,7 +746,7 @@ extern "C" int GetStrValue(const char* name, char* pValue, unsigned long l) {
 ** Returns:     none
 **
 *******************************************************************************/
-extern "C" int GetNumValue(const char* name, void* pValue, unsigned long len) {
+extern int GetNumValue(const char* name, void* pValue, unsigned long len) {
   if (!pValue) return false;
 
   CNfcConfig& rConfig = CNfcConfig::GetInstance();
