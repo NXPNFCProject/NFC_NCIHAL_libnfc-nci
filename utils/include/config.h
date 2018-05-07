@@ -47,6 +47,8 @@ class ConfigFile {
   unsigned getUnsigned(const std::string& key);
   std::vector<uint8_t> getBytes(const std::string& key);
 
+  void clear();
+
  private:
   ConfigValue& getValue(const std::string& key);
 

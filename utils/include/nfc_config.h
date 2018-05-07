@@ -20,12 +20,34 @@
 
 #include <config.h>
 
+#define NAME_NFC_DEBUG_ENABLED "NFC_DEBUG_ENABLED"
+#define NAME_POLLING_TECH_MASK "POLLING_TECH_MASK"
+#define NAME_NFA_DM_CFG "NFA_DM_CFG"
+#define NAME_SCREEN_OFF_POWER_STATE "SCREEN_OFF_POWER_STATE"
+#define NAME_NFA_STORAGE "NFA_STORAGE"
+#define NAME_UICC_LISTEN_TECH_MASK "UICC_LISTEN_TECH_MASK"
+#define NAME_NFA_DM_DISC_DURATION_POLL "NFA_DM_DISC_DURATION_POLL"
+#define NAME_AID_FOR_EMPTY_SELECT "AID_FOR_EMPTY_SELECT"
+#define NAME_PRESERVE_STORAGE "PRESERVE_STORAGE"
+#define NAME_NFA_MAX_EE_SUPPORTED "NFA_MAX_EE_SUPPORTED"
+#define NAME_POLL_FREQUENCY "POLL_FREQUENCY"
+#define NAME_PRESENCE_CHECK_ALGORITHM "PRESENCE_CHECK_ALGORITHM"
+#define NAME_DEVICE_HOST_WHITE_LIST "DEVICE_HOST_WHITE_LIST"
+#define NAME_NFA_POLL_BAIL_OUT_MODE "NFA_POLL_BAIL_OUT_MODE"
+#define NAME_NFA_PROPRIETARY_CFG "NFA_PROPRIETARY_CFG"
+#define NAME_NFA_AID_BLOCK_ROUTE "NFA_AID_BLOCK_ROUTE"
+#define NAME_ISO_DEP_MAX_TRANSCEIVE "ISO_DEP_MAX_TRANSCEIVE"
+
 class NfcConfig {
  public:
   static bool hasKey(const std::string& key);
   static std::string getString(const std::string& key);
+  static std::string getString(const std::string& key,
+                               std::string default_value);
   static unsigned getUnsigned(const std::string& key);
+  static unsigned getUnsigned(const std::string& key, unsigned default_value);
   static std::vector<uint8_t> getBytes(const std::string& key);
+  static void clear();
 
  private:
   static NfcConfig& getInstance();

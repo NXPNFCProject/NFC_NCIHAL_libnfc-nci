@@ -61,10 +61,24 @@ std::string NfcConfig::getString(const std::string& key) {
   return getInstance().config_.getString(key);
 }
 
+std::string NfcConfig::getString(const std::string& key,
+                                 std::string default_value) {
+  if (hasKey(key)) return getString(key);
+  return default_value;
+}
+
 unsigned NfcConfig::getUnsigned(const std::string& key) {
   return getInstance().config_.getUnsigned(key);
+}
+
+unsigned NfcConfig::getUnsigned(const std::string& key,
+                                unsigned default_value) {
+  if (hasKey(key)) return getUnsigned(key);
+  return default_value;
 }
 
 std::vector<uint8_t> NfcConfig::getBytes(const std::string& key) {
   return getInstance().config_.getBytes(key);
 }
+
+void NfcConfig::clear() { getInstance().config_.clear(); }

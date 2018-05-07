@@ -46,7 +46,7 @@
 
 #include "nfa_dm_int.h"
 #include "nfa_ee_int.h"
-#include "config.h"
+#include "nfc_config.h"
 
 using android::base::StringPrintf;
 
@@ -152,13 +152,12 @@ void nfa_ee_init(void) {
 **
 *******************************************************************************/
 void nfa_ee_sys_enable(void) {
-  unsigned long retlen = 0;
-
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s", __func__);
 
   nfa_ee_cb.route_block_control = 0x00;
 
-  if (GetNumValue(NAME_NFA_AID_BLOCK_ROUTE, (void*)&retlen, sizeof(retlen))) {
+  if (NfcConfig::hasKey(NAME_NFA_AID_BLOCK_ROUTE)) {
+    unsigned retlen = NfcConfig::getUnsigned(NAME_NFA_AID_BLOCK_ROUTE);
     if ((retlen == 0x01) && ((NFC_GetNCIVersion() == NCI_VERSION_2_0)
         || (nfcFL.nfccFL._NFCC_ROUTING_BLOCK_BIT == true))) {
       nfa_ee_cb.route_block_control = NCI_ROUTE_QUAL_BLOCK_ROUTE;

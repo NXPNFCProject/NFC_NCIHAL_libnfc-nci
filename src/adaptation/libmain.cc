@@ -22,12 +22,19 @@
 #include "nfa_nv_ci.h"
 #include "nfc_hal_nv_co.h"
 #include "CrcChecksum.h"
+#include <vector>
+
 using android::base::StringPrintf;
 
-extern char bcm_nfc_location[];
+extern std::string nfc_storage_path;
 extern bool nfc_debug_enabled;
 
-static const char* sNfaStorageBin = "/nfaStorage.bin";
+namespace {
+std::string getFilenameForBlock(const unsigned block) {
+  std::string bin = "nfaStorage.bin";
+  return StringPrintf("%s/%s%u", nfc_storage_path.c_str(), bin.c_str(), block);
+}
+}  // namespace
 
 /*******************************************************************************
 **
@@ -75,20 +82,11 @@ extern void nfa_mem_co_free(void* pBuffer) { free(pBuffer); }
 **
 *******************************************************************************/
 extern void nfa_nv_co_read(uint8_t* pBuffer, uint16_t nbytes, uint8_t block) {
-  char filename[256], filename2[256];
+  std::string filename = getFilenameForBlock(block);
 
-  memset(filename, 0, sizeof(filename));
-  memset(filename2, 0, sizeof(filename2));
-  strcpy(filename2, bcm_nfc_location);
-  strncat(filename2, sNfaStorageBin, sizeof(filename2) - strlen(filename2) - 1);
-  if (strlen(filename2) > 200) {
-    LOG(ERROR) << StringPrintf("%s: filename too long", __func__);
-    return;
-  }
-  sprintf(filename, "%s%u", filename2, block);
-
-  ALOGD("%s: buffer len=%u; file=%s", __func__, nbytes, filename);
-  int fileStream = open(filename, O_RDONLY);
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+      "%s: buffer len=%u; file=%s", __func__, nbytes, filename.c_str());
+  int fileStream = open(filename.c_str(), O_RDONLY);
   if (fileStream >= 0) {
     unsigned short checksum = 0;
     read(fileStream, &checksum, sizeof(checksum));
@@ -128,22 +126,10 @@ extern void nfa_nv_co_read(uint8_t* pBuffer, uint16_t nbytes, uint8_t block) {
 *******************************************************************************/
 extern void nfa_nv_co_write(const uint8_t* pBuffer, uint16_t nbytes,
                             uint8_t block) {
-  char filename[256], filename2[256];
+  std::string filename = getFilenameForBlock(block);
 
-  memset(filename, 0, sizeof(filename));
-  memset(filename2, 0, sizeof(filename2));
-  strcpy(filename2, bcm_nfc_location);
-  strncat(filename2, sNfaStorageBin, sizeof(filename2) - strlen(filename2) - 1);
-  if (strlen(filename2) > 200) {
-    LOG(ERROR) << StringPrintf("%s: filename too long", __func__);
-    return;
-  }
-  sprintf(filename, "%s%u", filename2, block);
-  ALOGD("%s: bytes=%u; file=%s", __func__, nbytes, filename);
-
-  int fileStream = 0;
-
-  fileStream = open(filename, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+  int fileStream =
+      open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
   if (fileStream >= 0) {
     unsigned short checksum = crcChecksumCompute(pBuffer, nbytes);
     size_t actualWrittenCrc = write(fileStream, &checksum, sizeof(checksum));
@@ -176,31 +162,17 @@ extern void nfa_nv_co_write(const uint8_t* pBuffer, uint16_t nbytes,
 *******************************************************************************/
 void delete_stack_non_volatile_store(bool forceDelete) {
   static bool firstTime = true;
-  char filename[256], filename2[256];
 
   if ((firstTime == false) && (forceDelete == false)) return;
   firstTime = false;
 
   ALOGD("%s", __func__);
 
-  memset(filename, 0, sizeof(filename));
-  memset(filename2, 0, sizeof(filename2));
-  strcpy(filename2, bcm_nfc_location);
-  strncat(filename2, sNfaStorageBin, sizeof(filename2) - strlen(filename2) - 1);
-  if (strlen(filename2) > 200) {
-    LOG(ERROR) << StringPrintf("%s: filename too long", __func__);
-    return;
-  }
-  sprintf(filename, "%s%u", filename2, DH_NV_BLOCK);
-  remove(filename);
-  sprintf(filename, "%s%u", filename2, HC_F3_NV_BLOCK);
-  remove(filename);
-  sprintf(filename, "%s%u", filename2, HC_F4_NV_BLOCK);
-  remove(filename);
-  sprintf(filename, "%s%u", filename2, HC_F2_NV_BLOCK);
-  remove(filename);
-  sprintf(filename, "%s%u", filename2, HC_F5_NV_BLOCK);
-  remove(filename);
+  remove(getFilenameForBlock(DH_NV_BLOCK).c_str());
+  remove(getFilenameForBlock(HC_F2_NV_BLOCK).c_str());
+  remove(getFilenameForBlock(HC_F3_NV_BLOCK).c_str());
+  remove(getFilenameForBlock(HC_F4_NV_BLOCK).c_str());
+  remove(getFilenameForBlock(HC_F5_NV_BLOCK).c_str());
 }
 
 /*******************************************************************************
@@ -216,32 +188,15 @@ void delete_stack_non_volatile_store(bool forceDelete) {
 *******************************************************************************/
 void verify_stack_non_volatile_store() {
   ALOGD("%s", __func__);
-  char filename[256], filename2[256];
-  bool isValid = false;
+  const std::vector<unsigned> verify_blocks = {DH_NV_BLOCK, HC_F2_NV_BLOCK,
+                                               HC_F3_NV_BLOCK, HC_F4_NV_BLOCK,
+                                               HC_F5_NV_BLOCK};
 
-  memset(filename, 0, sizeof(filename));
-  memset(filename2, 0, sizeof(filename2));
-  strcpy(filename2, bcm_nfc_location);
-  strncat(filename2, sNfaStorageBin, sizeof(filename2) - strlen(filename2) - 1);
-  if (strlen(filename2) > 200) {
-    LOG(ERROR) << StringPrintf("%s: filename too long", __func__);
-    return;
+  size_t verified = 0;
+  for (auto block : verify_blocks) {
+    if (!crcChecksumVerifyIntegrity(getFilenameForBlock(block).c_str())) break;
+    ++verified;
   }
 
-  sprintf(filename, "%s%u", filename2, DH_NV_BLOCK);
-  if (crcChecksumVerifyIntegrity(filename)) {
-    sprintf(filename, "%s%u", filename2, HC_F3_NV_BLOCK);
-    if (crcChecksumVerifyIntegrity(filename)) {
-      sprintf(filename, "%s%u", filename2, HC_F4_NV_BLOCK);
-      if (crcChecksumVerifyIntegrity(filename)) {
-        sprintf(filename, "%s%u", filename2, HC_F2_NV_BLOCK);
-        if (crcChecksumVerifyIntegrity(filename)) {
-          sprintf(filename, "%s%u", filename2, HC_F5_NV_BLOCK);
-          if (crcChecksumVerifyIntegrity(filename)) isValid = true;
-        }
-      }
-    }
-  }
-
-  if (isValid == false) delete_stack_non_volatile_store(true);
+  if (verified != verify_blocks.size()) delete_stack_non_volatile_store(true);
 }

@@ -99,6 +99,17 @@ TEST(ConfigTestFromString, test_invalid_configs) {
   EXPECT_DEATH(config5.parseFromString(INVALID_CONFIG5), "");
 }
 
+TEST(ConfigTestFromString, test_clear) {
+  ConfigFile config;
+  EXPECT_FALSE(config.hasKey("NUM_VALUE"));
+  config.parseFromString(SIMPLE_CONFIG);
+  EXPECT_TRUE(config.hasKey("NUM_VALUE"));
+  EXPECT_EQ(config.getUnsigned("NUM_VALUE"), 42u);
+  config.clear();
+  EXPECT_FALSE(config.hasKey("NUM_VALUE"));
+  EXPECT_DEATH(config.getUnsigned("NUM_VALUE"), "");
+}
+
 TEST_F(ConfigTestFromFile, test_file_based_config) {
   ConfigFile config;
   config.parseFromFile(SIMPLE_CONFIG_FILE);

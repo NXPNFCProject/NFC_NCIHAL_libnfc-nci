@@ -133,3 +133,5 @@ unsigned ConfigFile::getUnsigned(const std::string& key) {
 std::vector<uint8_t> ConfigFile::getBytes(const std::string& key) {
   return getValue(key).getBytes();
 }
+
+void ConfigFile::clear() { values_.clear(); }

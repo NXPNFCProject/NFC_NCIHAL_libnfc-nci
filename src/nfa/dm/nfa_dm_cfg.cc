@@ -59,7 +59,7 @@ uint8_t nfa_ee_max_ee_cfg = NFA_EE_MAX_EE_SUPPORTED;
 tNCI_DISCOVER_MAPS* p_nfa_dm_interface_mapping = NULL;
 uint8_t nfa_dm_num_dm_interface_mapping = 0;
 
-const tNFA_DM_CFG nfa_dm_cfg = {
+tNFA_DM_CFG nfa_dm_cfg = {
     /* Automatic NDEF detection (when not in exclusive RF mode) */
     NFA_DM_AUTO_DETECT_NDEF,
     /* Automatic NDEF read (when not in exclusive RF mode) */
@@ -75,7 +75,7 @@ tNFA_DM_CFG* p_nfa_dm_cfg = (tNFA_DM_CFG*)&nfa_dm_cfg;
 
 const uint8_t nfa_hci_whitelist[] = {0x02, 0x03, 0x04};
 
-const tNFA_HCI_CFG nfa_hci_cfg = {
+tNFA_HCI_CFG nfa_hci_cfg = {
     /* Max HCI Network IDLE time to wait for EE DISC REQ Ntf(s) */
     NFA_HCI_NETWK_INIT_IDLE_TIMEOUT,
     /* Maximum HCP Response time to any HCP Command */
@@ -88,7 +88,7 @@ const tNFA_HCI_CFG nfa_hci_cfg = {
 tNFA_HCI_CFG* p_nfa_hci_cfg = (tNFA_HCI_CFG*)&nfa_hci_cfg;
 
 bool nfa_poll_bail_out_mode = false;
-const tNFA_PROPRIETARY_CFG nfa_proprietary_cfg = {
+tNFA_PROPRIETARY_CFG nfa_proprietary_cfg = {
 #if (NXP_EXTNS == TRUE)
     0x05, /* NCI_PROTOCOL_18092_ACTIVE */
 #else
