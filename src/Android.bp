@@ -37,12 +37,8 @@ cc_library_shared {
         "include",
         "gki/ulinux",
         "gki/common",
-        "hal/include",
-        "hal/int",
         "nfa/include",
-        "nfa/int",
         "nfc/include",
-        "nfc/int",
     ],
     include_dirs: [
         "vendor/nxp/opensource/hardware/interfaces/nxpnfc/1.0/default/",
