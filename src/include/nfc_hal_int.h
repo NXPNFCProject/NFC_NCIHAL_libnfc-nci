@@ -46,8 +46,6 @@ typedef uint8_t tNFC_HAL_WAIT_RSP;
 
 #if (NFC_HAL_HCI_INCLUDED == true)
 
-typedef uint16_t tNFC_HAL_HCI_EVT;
-
 #endif
 
 /* NFC HAL transport configuration */
@@ -70,34 +68,9 @@ extern NFC_HAL_TRANS_CFG_QUALIFIER tNFC_HAL_TRANS_CFG nfc_hal_trans_cfg;
 ** Internal constants and definitions
 ****************************************************************************/
 
-/* NFC HAL receiving states */
-enum {
-  NFC_HAL_RCV_IDLE_ST,        /* waiting for packet type byte             */
-  NFC_HAL_RCV_NCI_MSG_ST,     /* waiting for the first byte of NCI header */
-  NFC_HAL_RCV_NCI_HDR_ST,     /* reading NCI header                       */
-  NFC_HAL_RCV_NCI_PAYLOAD_ST, /* reading NCI payload                      */
-  NFC_HAL_RCV_BT_MSG_ST,      /* waiting for the first byte of BT header  */
-  NFC_HAL_RCV_BT_HDR_ST,      /* reading BT HCI header                    */
-  NFC_HAL_RCV_BT_PAYLOAD_ST   /* reading BT HCI payload                   */
-};
-
 typedef uint8_t tNFC_HAL_NCI_RAS;
 
-/* NFC HAL power mode */
-enum {
-  NFC_HAL_POWER_MODE_FULL, /* NFCC is full power mode      */
-  NFC_HAL_POWER_MODE_LAST
-};
 typedef uint8_t tNFC_HAL_POWER_MODE;
-
-/* NFC HAL event for low power mode */
-enum {
-  NFC_HAL_LP_TX_DATA_EVT, /* DH is sending data to NFCC   */
-  NFC_HAL_LP_RX_DATA_EVT, /* DH received data from NFCC   */
-  NFC_HAL_LP_TIMEOUT_EVT, /* Timeout                      */
-  NFC_HAL_LP_LAST_EVT
-};
-typedef uint8_t tNFC_HAL_LP_EVT;
 
 #define NFC_HAL_SAVED_HDR_SIZE (2)
 #define NFC_HAL_SAVED_CMD_SIZE (2)
@@ -118,34 +91,8 @@ extern const char* const nfc_hal_init_state_str[];
   nfc_hal_cb.dev_cb.initializing_state = state;
 #endif
 
-/* NFC HAL - NFCC initializing state */
-enum {
-  NFC_HAL_INIT_STATE_IDLE,           /* Initialization is done                */
-  NFC_HAL_INIT_STATE_W4_XTAL_SET,    /* Waiting for crystal setting rsp       */
-  NFC_HAL_INIT_STATE_POST_XTAL_SET,  /* Waiting for reset ntf after xtal set  */
-  NFC_HAL_INIT_STATE_W4_NFCC_ENABLE, /* Waiting for reset ntf atter REG_PU up */
-  NFC_HAL_INIT_STATE_W4_BUILD_INFO,  /* Waiting for build info rsp            */
-  NFC_HAL_INIT_STATE_W4_PATCH_INFO,  /* Waiting for patch info rsp            */
-  NFC_HAL_INIT_STATE_W4_APP_COMPLETE,   /* Waiting for complete from application
-                                           */
-  NFC_HAL_INIT_STATE_W4_POST_INIT_DONE, /* Waiting for complete of post init */
-  NFC_HAL_INIT_STATE_W4_CONTROL_DONE,   /* Waiting for control release */
-  NFC_HAL_INIT_STATE_W4_PREDISCOVER_DONE, /* Waiting for complete of prediscover
-                                             */
-  NFC_HAL_INIT_STATE_CLOSING /* Shutting down                         */
-};
 typedef uint8_t tNFC_HAL_INIT_STATE;
 
-/* NFC HAL - NFCC config items during post initialization */
-enum {
-  NFC_HAL_DM_CONFIG_LPTD,
-  NFC_HAL_DM_CONFIG_PLL_325,
-  NFC_HAL_DM_CONFIG_START_UP,
-  NFC_HAL_DM_CONFIG_I93_DATA_RATE,
-  NFC_HAL_DM_CONFIG_FW_FSM,
-  NFC_HAL_DM_CONFIG_START_UP_VSC,
-  NFC_HAL_DM_CONFIG_NONE
-};
 typedef uint8_t tNFC_HAL_DM_CONFIG;
 
 /* callback function prototype */
@@ -154,8 +101,6 @@ typedef struct {
   uint16_t param_len;
   uint8_t* p_param_buf;
 } tNFC_HAL_BTVSC_CPLT;
-
-typedef void(tNFC_HAL_BTVSC_CPLT_CBACK)(tNFC_HAL_BTVSC_CPLT* p1);
 
 #if (NFC_HAL_HCI_INCLUDED == true)
 
@@ -185,63 +130,6 @@ typedef union {
 /*****************************************************************************
 ** Control block for NFC HAL
 *****************************************************************************/
-
-/* Patch RAM Download Control block */
-
-/* PRM states */
-enum {
-  NFC_HAL_PRM_ST_IDLE,
-
-  /* Secure patch download stated */
-  NFC_HAL_PRM_ST_SPD_COMPARE_VERSION,
-  NFC_HAL_PRM_ST_SPD_GET_PATCH_HEADER,
-  NFC_HAL_PRM_ST_SPD_DOWNLOADING,
-  NFC_HAL_PRM_ST_SPD_AUTHENTICATING,
-  NFC_HAL_PRM_ST_SPD_AUTH_DONE,
-  NFC_HAL_PRM_ST_W4_GET_VERSION
-};
-typedef uint8_t tNFC_HAL_PRM_STATE;
-
-/* Maximum number of patches (currently 2: LPM and FPM) */
-#define NFC_HAL_PRM_MAX_PATCH_COUNT 2
-#define NFC_HAL_PRM_MAX_CHIP_VER_LEN 8
-
-/* Structures for PRM Control Block */
-typedef struct {
-  uint8_t power_mode;
-  uint16_t len;
-} tNFC_HAL_PRM_PATCHDESC;
-
-typedef struct {
-  tNFC_HAL_PRM_STATE state; /* download state */
-  uint32_t flags;           /* internal flags */
-  uint16_t
-      cur_patch_len_remaining; /* bytes remaining in patchfile to process     */
-  const uint8_t*
-      p_cur_patch_data;      /* pointer to patch currently being downloaded */
-  uint16_t cur_patch_offset; /* offset of next byte to process              */
-  uint32_t dest_ram;
-  TIMER_LIST_ENT timer; /* Timer for patch download                    */
-  void* p_param;        /* general purpose param for PRM               */
-  uint8_t param_idx;    /* information related to general purpose param*/
-
-  /* Secure Patch Download */
-  uint32_t
-      spd_patch_needed_mask; /* Mask of patches that need to be downloaded */
-  uint8_t spd_patch_count;   /* Number of patches left to download */
-  uint8_t spd_cur_patch_idx; /* Current patch being downloaded */
-
-  tNFC_HAL_PRM_PATCHDESC spd_patch_desc[NFC_HAL_PRM_MAX_PATCH_COUNT];
-
-  /* I2C-patch */
-  uint8_t* p_spd_patch;             /* pointer to spd patch             */
-  uint16_t spd_patch_len_remaining; /* patch length                     */
-  uint16_t spd_patch_offset;        /* offset of next byte to process   */
-
-  tNFC_HAL_PRM_FORMAT format;  /* format of patch ram              */
-  tNFC_HAL_PRM_CBACK* p_cback; /* Callback for download status notifications */
-  uint32_t patchram_delay;     /* the dealy after patch */
-} tNFC_HAL_PRM_CB;
 
 /* Information about current patch in NVM */
 typedef struct {
@@ -360,59 +248,11 @@ extern uint8_t* p_nfc_hal_pre_discover_cfg;
 ** Internal nfc functions
 ****************************************************************************/
 
-/* From nfc_hal_main.c */
-uint32_t nfc_hal_main_task(uint32_t param);
-void nfc_hal_main_init(void);
-void nfc_hal_main_pre_init_done(tHAL_NFC_STATUS);
-void nfc_hal_main_start_quick_timer(TIMER_LIST_ENT* p_tle, uint16_t type,
-                                    uint32_t timeout);
-void nfc_hal_main_stop_quick_timer(TIMER_LIST_ENT* p_tle);
-void nfc_hal_main_send_error(tHAL_NFC_STATUS status);
-void nfc_hal_send_nci_msg_to_nfc_task(NFC_HDR* p_msg);
-
-/* nfc_hal_nci.c */
-bool nfc_hal_nci_receive_msg(uint8_t byte);
-bool nfc_hal_nci_preproc_rx_nci_msg(NFC_HDR* p_msg);
-NFC_HDR* nfc_hal_nci_postproc_rx_nci_msg(void);
-void nfc_hal_nci_assemble_nci_msg(void);
-void nfc_hal_nci_add_nfc_pkt_type(NFC_HDR* p_msg);
-void nfc_hal_nci_send_cmd(NFC_HDR* p_buf);
-void nfc_hal_nci_cmd_timeout_cback(void* p_tle);
-
-/* nfc_hal_dm.c */
-void nfc_hal_dm_init(void);
-void nfc_hal_dm_set_xtal_freq_index(void);
-void nfc_hal_dm_send_get_build_info_cmd(void);
-void nfc_hal_dm_proc_msg_during_init(NFC_HDR* p_msg);
-void nfc_hal_dm_config_nfcc(void);
-void nfc_hal_dm_send_nci_cmd(const uint8_t* p_data, uint16_t len,
-                             tNFC_HAL_NCI_CBACK* p_cback);
-void nfc_hal_dm_send_bt_cmd(const uint8_t* p_data, uint16_t len,
-                            tNFC_HAL_BTVSC_CPLT_CBACK* p_cback);
-void nfc_hal_dm_set_nfc_wake(uint8_t cmd);
-void nfc_hal_dm_pre_init_nfcc(void);
-void nfc_hal_dm_shutting_down_nfcc(void);
-bool nfc_hal_dm_power_mode_execute(tNFC_HAL_LP_EVT event);
-void nfc_hal_dm_send_pend_cmd(void);
-tHAL_NFC_STATUS nfc_hal_dm_set_config(uint8_t tlv_size, uint8_t* p_param_tlvs,
-                                      tNFC_HAL_NCI_CBACK* p_cback);
-bool nfc_hal_dm_check_pre_set_mem(void);
-
-/* nfc_hal_prm.c */
-void nfc_hal_prm_spd_reset_ntf(uint8_t reset_reason, uint8_t reset_type);
-void nfc_hal_prm_nci_command_complete_cback(tNFC_HAL_NCI_EVT event,
-                                            uint16_t data_len, uint8_t* p_data);
-void nfc_hal_prm_process_timeout(void* p_tle);
-
 #if (NFC_HAL_HCI_INCLUDED == true)
 /* nfc_hal_hci.c */
 void nfc_hal_hci_enable(void);
 void nfc_hal_hci_evt_hdlr(tNFC_HAL_HCI_EVENT_DATA* p_evt_data);
-void nfc_hal_hci_handle_hci_netwk_info(uint8_t* p_data);
-void nfc_hal_hci_handle_hcp_pkt_from_hc(uint8_t* p_data);
-NFC_HDR* nfc_hal_hci_postproc_hcp(void);
-bool nfc_hal_hci_handle_hcp_pkt_to_hc(uint8_t* p_data);
-void nfc_hal_hci_timeout_cback(void* p_tle);
+
 void nfc_hal_hci_handle_build_info(uint8_t chipverlen, uint8_t* p_chipverstr);
 #else
 #define nfc_hal_hci_enable() NFC_HAL_SET_INIT_STATE(NFC_HAL_INIT_STATE_IDLE);

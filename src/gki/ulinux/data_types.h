@@ -33,8 +33,6 @@
 #define FALSE 0
 #endif
 
-typedef uint32_t TIME_STAMP;
-
 #ifndef true
 #define true (!false)
 #endif
@@ -42,7 +40,6 @@ typedef uint32_t TIME_STAMP;
 #ifndef TRUE
 #define TRUE (!FALSE)
 #endif
-typedef unsigned char UBYTE;
 
 #ifdef __arm
 #define PACKED __packed

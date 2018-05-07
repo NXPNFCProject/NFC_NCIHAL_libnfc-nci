@@ -93,10 +93,6 @@
 #define NFC_HAL_PRE_I2C_PATCH_INCLUDED TRUE
 #endif
 
-/* Mininum payload size for SPD NCI commands (used to validate
- * HAL_NfcPrmSetSpdNciCmdPayloadSize) */
-/* Default is 32, as required by the NCI specifications; however this value may
- * be          */
 /* over-riden for platforms that have transport packet limitations */
 #ifndef NFC_HAL_PRM_MIN_NCI_CMD_PAYLOAD_SIZE
 #define NFC_HAL_PRM_MIN_NCI_CMD_PAYLOAD_SIZE (32)

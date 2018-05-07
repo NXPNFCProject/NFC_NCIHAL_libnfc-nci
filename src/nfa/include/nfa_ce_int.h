@@ -53,9 +53,6 @@
 **  Constants and data types
 *****************************************************************************/
 
-/* ce status callback */
-typedef void tNFA_CE_STATUS_CBACK(tNFA_STATUS status);
-
 /* CE events */
 enum {
   /* device manager local device API events */
@@ -64,14 +61,11 @@ enum {
   NFA_CE_API_DEREG_LISTEN_EVT,
   NFA_CE_API_CFG_ISODEP_TECH_EVT,
   NFA_CE_ACTIVATE_NTF_EVT,
-  NFA_CE_DEACTIVATE_NTF_EVT,
-
-  NFA_CE_MAX_EVT
+  NFA_CE_DEACTIVATE_NTF_EVT
 };
 
 /* Listen registration types */
 enum {
-  NFA_CE_REG_TYPE_NDEF,
   NFA_CE_REG_TYPE_ISO_DEP,
   NFA_CE_REG_TYPE_FELICA,
   NFA_CE_REG_TYPE_UICC

@@ -513,66 +513,6 @@ tNFA_STATUS NFA_HciGetRegistry(tNFA_HANDLE hci_handle, uint8_t pipe,
 
 /*******************************************************************************
 **
-** Function         NFA_HciSetRegistry
-**
-** Description      This function requests a peer host to set the desired
-**                  registry field value for the gate that the pipe is on.
-**
-**                  When the peer host responds,the app is notified with
-**                  NFA_HCI_SET_REG_RSP_EVT or
-**                  if an error occurs in sending the command the app will be
-**                  notified by NFA_HCI_CMD_SENT_EVT
-**
-** Returns          NFA_STATUS_OK if successfully initiated
-**                  NFA_STATUS_FAILED otherwise
-**
-*******************************************************************************/
-extern tNFA_STATUS NFA_HciSetRegistry(tNFA_HANDLE hci_handle, uint8_t pipe,
-                                      uint8_t reg_inx, uint8_t data_size,
-                                      uint8_t* p_data) {
-  tNFA_HCI_API_SET_REGISTRY* p_msg;
-
-  if ((NFA_HANDLE_GROUP_MASK & hci_handle) != NFA_HANDLE_GROUP_HCI) {
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_HciSetRegistry (): Invalid hci_handle:0x%04x",
-                   hci_handle);
-    return (NFA_STATUS_FAILED);
-  }
-
-  if (pipe < NFA_HCI_FIRST_DYNAMIC_PIPE) {
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_HciSetRegistry (): Invalid Pipe:0x%02x", pipe);
-    return (NFA_STATUS_FAILED);
-  }
-
-  if ((data_size == 0) || (p_data == NULL) ||
-      (data_size > NFA_MAX_HCI_CMD_LEN)) {
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_HciSetRegistry (): Invalid data size:0x%02x",
-                   data_size);
-    return (NFA_STATUS_FAILED);
-  }
-
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_HciSetRegistry (): hci_handle:0x%04x  Pipe: 0x%02x",
-                 hci_handle, pipe);
-
-  /* Request HCI to get list of gates supported by the specified host */
-  if ((nfa_hci_cb.hci_state != NFA_HCI_STATE_DISABLED) &&
-      ((p_msg = (tNFA_HCI_API_SET_REGISTRY*)GKI_getbuf(
-            sizeof(tNFA_HCI_API_SET_REGISTRY))) != NULL)) {
-    p_msg->hdr.event = NFA_HCI_API_SET_REGISTRY_EVT;
-    p_msg->hci_handle = hci_handle;
-    p_msg->pipe = pipe;
-    p_msg->reg_inx = reg_inx;
-    p_msg->size = data_size;
-
-    memcpy(p_msg->data, p_data, data_size);
-    nfa_sys_sendmsg(p_msg);
-    return (NFA_STATUS_OK);
-  }
-
-  return (NFA_STATUS_FAILED);
-}
-
-/*******************************************************************************
-**
 ** Function         NFA_HciSendCommand
 **
 ** Description      This function is called to send a command on a pipe created
@@ -622,64 +562,6 @@ tNFA_STATUS NFA_HciSendCommand(tNFA_HANDLE hci_handle, uint8_t pipe,
     p_msg->cmd_len = cmd_size;
 
     if (cmd_size) memcpy(p_msg->data, p_data, cmd_size);
-
-    nfa_sys_sendmsg(p_msg);
-    return (NFA_STATUS_OK);
-  }
-
-  return (NFA_STATUS_FAILED);
-}
-
-/*******************************************************************************
-**
-** Function         NFA_HciSendResponse
-**
-** Description      This function is called to send a response on a pipe created
-**                  by the application.
-**                  The app will be notified by NFA_HCI_RSP_SENT_EVT if an error
-**                  occurs.
-**
-** Returns          NFA_STATUS_OK if successfully initiated
-**                  NFA_STATUS_FAILED otherwise
-**
-*******************************************************************************/
-extern tNFA_STATUS NFA_HciSendResponse(tNFA_HANDLE hci_handle, uint8_t pipe,
-                                       uint8_t response, uint8_t data_size,
-                                       uint8_t* p_data) {
-  tNFA_HCI_API_SEND_RSP_EVT* p_msg;
-
-  if ((NFA_HANDLE_GROUP_MASK & hci_handle) != NFA_HANDLE_GROUP_HCI) {
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_HciSendResponse (): Invalid hci_handle:0x%04x",
-                   hci_handle);
-    return (NFA_STATUS_FAILED);
-  }
-
-  if (pipe < NFA_HCI_FIRST_DYNAMIC_PIPE) {
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_HciSendResponse (): Invalid Pipe:0x%02x", pipe);
-    return (NFA_STATUS_FAILED);
-  }
-
-  if ((data_size && (p_data == NULL)) || (data_size > NFA_MAX_HCI_RSP_LEN)) {
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_HciSendResponse (): Invalid data size:0x%02x",
-                   data_size);
-    return (NFA_STATUS_FAILED);
-  }
-
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-      "NFA_HciSendResponse (): hci_handle:0x%04x  Pipe: 0x%02x  Response: "
-      "0x%02x",
-      hci_handle, pipe, response);
-
-  /* Request HCI to get list of gates supported by the specified host */
-  if ((nfa_hci_cb.hci_state != NFA_HCI_STATE_DISABLED) &&
-      ((p_msg = (tNFA_HCI_API_SEND_RSP_EVT*)GKI_getbuf(
-            sizeof(tNFA_HCI_API_SEND_RSP_EVT))) != NULL)) {
-    p_msg->hdr.event = NFA_HCI_API_SEND_RSP_EVT;
-    p_msg->hci_handle = hci_handle;
-    p_msg->response = response;
-    p_msg->size = data_size;
-
-    if (data_size) memcpy(p_msg->data, p_data, data_size);
 
     nfa_sys_sendmsg(p_msg);
     return (NFA_STATUS_OK);

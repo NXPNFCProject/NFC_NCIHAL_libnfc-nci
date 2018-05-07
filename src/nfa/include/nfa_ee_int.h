@@ -124,8 +124,7 @@ enum {
   NFA_EE_CONN_ST_NONE, /* not connected */
   NFA_EE_CONN_ST_WAIT, /* connection is initiated; waiting for ack */
   NFA_EE_CONN_ST_CONN, /* connected; can send/receive data */
-  NFA_EE_CONN_ST_DISC, /* disconnecting; waiting for ack */
-  NFA_EE_CONN_ST_MAX
+  NFA_EE_CONN_ST_DISC /* disconnecting; waiting for ack */
 };
 typedef uint8_t tNFA_EE_CONN_ST;
 #if (NXP_EXTNS == TRUE)
@@ -445,23 +444,12 @@ typedef struct {
   uint8_t nfcee_id;
 } tNFA_EE_API_DISCONNECT;
 
-typedef struct {
-  NFC_HDR hdr;
-  tNFC_STATUS status; /* The event status. */
-} tNFA_EE_MSG_STATUS;
-
 /* common data type for internal events with nfa_ee_use_cfg_cb[] as true */
 typedef struct {
   NFC_HDR hdr;
   tNFA_EE_ECB* p_cb;
   uint8_t nfcee_id;
 } tNFA_EE_CFG_HDR;
-
-/* data type for tNFC_RESPONSE_EVT */
-typedef struct {
-  NFC_HDR hdr;
-  void* p_data;
-} tNFA_EE_NCI_RESPONSE;
 
 /* data type for NFA_EE_NCI_DISC_RSP_EVT */
 typedef struct {
@@ -735,7 +723,7 @@ void nfa_ee_report_event(tNFA_EE_CBACK* p_cback, tNFA_EE_EVT event,
                          tNFA_EE_CBACK_DATA* p_data);
 tNFA_EE_ECB* nfa_ee_find_aid_offset(uint8_t aid_len, uint8_t* p_aid,
                                     int* p_offset, int* p_entry);
-void nfa_ee_remove_labels(void);
+
 int nfa_ee_find_total_aid_len(tNFA_EE_ECB* p_cb, int start_entry);
 void nfa_ee_start_timer(void);
 void nfa_ee_reg_cback_enable_done(tNFA_EE_ENABLE_DONE_CBACK* p_cback);

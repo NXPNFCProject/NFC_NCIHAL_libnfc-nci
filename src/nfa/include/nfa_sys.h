@@ -61,7 +61,6 @@ typedef void(tNFA_SYS_DISABLE)(void);
 /* function type for processing the change of NFCC power mode */
 typedef void(tNFA_SYS_PROC_NFCC_PWR_MODE)(uint8_t nfcc_power_mode);
 
-typedef void(tNFA_SYS_CBACK)(void);
 typedef void(tNFA_SYS_ENABLE_CBACK)(void);
 typedef void(tNFA_SYS_PROC_NFCC_PWR_MODE_CMPL)(void);
 

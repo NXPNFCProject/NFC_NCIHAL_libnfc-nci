@@ -268,39 +268,6 @@ extern tNDEF_STATUS NDEF_MsgAddRec(uint8_t* p_msg, uint32_t max_size,
 
 /*******************************************************************************
 **
-** Function         NDEF_MsgInsertRec
-**
-** Description      This function inserts a record at a specific index into the
-**                  given NDEF message
-**
-** Returns          OK, or error if the record did not fit
-**                  *p_cur_size is updated
-**
-*******************************************************************************/
-extern tNDEF_STATUS NDEF_MsgInsertRec(uint8_t* p_msg, uint32_t max_size,
-                                      uint32_t* p_cur_size, int32_t index,
-                                      uint8_t tnf, uint8_t* p_type,
-                                      uint8_t type_len, uint8_t* p_id,
-                                      uint8_t id_len, uint8_t* p_payload,
-                                      uint32_t payload_len);
-
-/*******************************************************************************
-**
-** Function         NDEF_MsgAppendRec
-**
-** Description      This function adds NDEF records to the end of an NDEF
-**                  message.
-**
-** Returns          OK, or error if the record did not fit
-**                  *p_cur_size is updated
-**
-*******************************************************************************/
-extern tNDEF_STATUS NDEF_MsgAppendRec(uint8_t* p_msg, uint32_t max_size,
-                                      uint32_t* p_cur_size, uint8_t* p_new_rec,
-                                      uint32_t new_rec_len);
-
-/*******************************************************************************
-**
 ** Function         NDEF_MsgAppendPayload
 **
 ** Description      This function appends extra payload to a specific record in

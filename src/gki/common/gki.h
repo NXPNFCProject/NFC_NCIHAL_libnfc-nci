@@ -349,7 +349,6 @@ extern uint8_t GKI_resume_task(uint8_t);
 extern void GKI_run(void*);
 extern void GKI_stop(void);
 extern uint8_t GKI_suspend_task(uint8_t);
-extern uint8_t GKI_is_task_running(uint8_t);
 
 /* memory management
 */

@@ -60,13 +60,4 @@ typedef struct {
 } tNFC_POST_RESET_CB;
 extern tNFC_POST_RESET_CB nfc_post_reset_cb;
 
-/*
-** Post NCI reset handler
-**
-** This function is called to start device pre-initialization after
-** NCI CORE-RESET. When pre-initialization is completed,
-** HAL_NfcPreInitDone() must be called to proceed with stack start up.
-*/
-void nfc_hal_post_reset_init(uint32_t brcm_hw_id, uint8_t nvm_type);
-
 #endif /* NFC_HAL_POST_RESET_H */

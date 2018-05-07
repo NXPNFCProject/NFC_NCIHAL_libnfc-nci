@@ -2559,45 +2559,4 @@ tNFC_STATUS RW_T1tSetTagReadOnly(bool b_hard_lock) {
   return status;
 }
 
-/*******************************************************************************
-**
-** Function         rw_t1t_get_sub_state_name
-**
-** Description      This function returns the sub_state name.
-**
-** NOTE             conditionally compiled to save memory.
-**
-** Returns          pointer to the name
-**
-*******************************************************************************/
-static std::string rw_t1t_get_sub_state_name(uint8_t sub_state) {
-  switch (sub_state) {
-    case RW_T1T_SUBSTATE_NONE:
-      return ("NONE");
-    case RW_T1T_SUBSTATE_WAIT_READ_TLV_VALUE:
-      return ("EXTRACT_TLV_VALUE");
-    case RW_T1T_SUBSTATE_WAIT_READ_LOCKS:
-      return ("READING_LOCKS");
-    case RW_T1T_SUBSTATE_WAIT_READ_NDEF_BLOCK:
-      return ("READ_NDEF_FINAL_BLOCK");
-    case RW_T1T_SUBSTATE_WAIT_INVALIDATE_NDEF:
-      return ("INVALIDATING_NDEF");
-    case RW_T1T_SUBSTATE_WAIT_NDEF_WRITE:
-      return ("WRITE_NDEF_TLV_MESSAGE");
-    case RW_T1T_SUBSTATE_WAIT_NDEF_UPDATED:
-      return ("WAITING_RSP_FOR_LAST_NDEF_WRITE");
-    case RW_T1T_SUBSTATE_WAIT_VALIDATE_NDEF:
-      return ("VALIDATING_NDEF");
-    case RW_T1T_SUBSTATE_WAIT_SET_CC_RWA_RO:
-      return ("SET_RWA_RO");
-    case RW_T1T_SUBSTATE_WAIT_SET_ST_LOCK_BITS:
-      return ("SET_STATIC_LOCK_BITS");
-    case RW_T1T_SUBSTATE_WAIT_SET_DYN_LOCK_BITS:
-      return ("SET_DYNAMIC_LOCK_BITS");
-
-    default:
-      return ("???? UNKNOWN SUBSTATE");
-  }
-}
-
 #endif /* (RW_NDEF_INCLUDED == true) */

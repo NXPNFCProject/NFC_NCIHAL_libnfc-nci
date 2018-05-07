@@ -305,13 +305,6 @@ extern void gki_buffer_init(void);
 extern void gki_timers_init(void);
 extern void gki_adjust_timer_count(int32_t);
 
-extern void OSStartRdy(void);
-extern void OSCtxSw(void);
-extern void OSIntCtxSw(void);
-extern void OSSched(void);
-extern void OSIntEnter(void);
-extern void OSIntExit(void);
-
 /* Debug aids
 */
 typedef void (*FP_PRINT)(char*, ...);

@@ -105,18 +105,4 @@ struct tUART_CONFIG {
   int m_iStopbits;
 };
 
-extern struct tUART_CONFIG uartConfig;
-
-void readOptionalConfigExt(const char* option);
-
-/* Snooze mode configuration structure */
-typedef struct {
-  unsigned char snooze_mode;         /* Snooze Mode */
-  unsigned char idle_threshold_dh;   /* Idle Threshold Host */
-  unsigned char idle_threshold_nfcc; /* Idle Threshold NFCC   */
-  unsigned char
-      nfc_wake_active_mode; /* NFC_LP_ACTIVE_LOW or NFC_LP_ACTIVE_HIGH */
-  unsigned char
-      dh_wake_active_mode; /* NFC_LP_ACTIVE_LOW or NFC_LP_ACTIVE_HIGH */
-} tSNOOZE_MODE_CONFIG;
 #endif

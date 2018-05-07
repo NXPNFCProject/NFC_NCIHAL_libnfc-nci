@@ -27,25 +27,6 @@
 #include "nfa_nv_co.h"
 
 /*****************************************************************************
-**  Constants and data types
-*****************************************************************************/
-
-/* Read Ready Event */
-typedef struct {
-  NFC_HDR hdr;
-  tNFA_NV_CO_STATUS status;
-  int fd;
-  uint16_t num_read;
-} tNFA_NV_CI_READ_EVT;
-
-/* Write Ready Event */
-typedef struct {
-  NFC_HDR hdr;
-  tNFA_NV_CO_STATUS status;
-  int fd;
-} tNFA_NV_CI_WRITE_EVT;
-
-/*****************************************************************************
 **  Function Declarations
 *****************************************************************************/
 

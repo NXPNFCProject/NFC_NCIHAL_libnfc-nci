@@ -982,45 +982,6 @@ static void gki_remove_from_pool_list(uint8_t pool_id) {
 
 /*******************************************************************************
 **
-** Function         GKI_igetpoolbuf
-**
-** Description      Called by an interrupt service routine to get a free buffer
-**                  from a specific buffer pool.
-**
-** Parameters       pool_id - (input) pool ID to get a buffer out of.
-**
-** Returns          A pointer to the buffer, or NULL if none available
-**
-*******************************************************************************/
-void* GKI_igetpoolbuf(uint8_t pool_id) {
-  FREE_QUEUE_T* Q;
-  BUFFER_HDR_T* p_hdr;
-
-  if (pool_id >= GKI_NUM_TOTAL_BUF_POOLS) return (NULL);
-
-  Q = &gki_cb.com.freeq[pool_id];
-  if (Q->cur_cnt < Q->total) {
-    p_hdr = Q->p_first;
-    Q->p_first = p_hdr->p_next;
-
-    if (!Q->p_first) Q->p_last = NULL;
-
-    if (++Q->cur_cnt > Q->max_cnt) Q->max_cnt = Q->cur_cnt;
-
-    p_hdr->task_id = GKI_get_taskid();
-
-    p_hdr->status = BUF_STATUS_UNLINKED;
-    p_hdr->p_next = NULL;
-    p_hdr->Type = 0;
-
-    return ((void*)((uint8_t*)p_hdr + BUFFER_HDR_SIZE));
-  }
-
-  return (NULL);
-}
-
-/*******************************************************************************
-**
 ** Function         GKI_poolcount
 **
 ** Description      Called by an application to get the total number of buffers

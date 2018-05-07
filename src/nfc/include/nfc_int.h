@@ -203,8 +203,6 @@ typedef struct {
 /* callback function pointer(8; use 8 to be safe + NFC_SAVED_CMD_SIZE(2) */
 #define NFC_RECEIVE_MSGS_OFFSET (10)
 
-/* NFCC power state change pending callback */
-typedef void(tNFC_PWR_ST_CBACK)(void);
 #define NFC_SAVED_HDR_SIZE (2)
 /* data Reassembly error (in NFC_HDR.layer_specific) */
 #define NFC_RAS_TOO_BIG 0x08
@@ -359,8 +357,6 @@ extern tNFC_CB nfc_cb;
 /****************************************************************************
  ** Internal nfc functions
  ****************************************************************************/
-extern void nfc_init(void);
-
 /* from nfc_utils.c */
 extern tNFC_CONN_CB* nfc_alloc_conn_cb(tNFC_CONN_CBACK* p_cback);
 extern tNFC_CONN_CB* nfc_find_conn_cb_by_conn_id(uint8_t conn_id);
@@ -370,7 +366,6 @@ extern void nfc_free_conn_cb(tNFC_CONN_CB* p_cb);
 extern void nfc_reset_all_conn_cbs(void);
 extern void nfc_data_event(tNFC_CONN_CB* p_cb);
 
-void nfc_ncif_send(NFC_HDR* p_buf, bool is_cmd);
 extern uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data);
 extern void nfc_ncif_cmd_timeout(void);
 extern void nfc_wait_2_deactivate_timeout(void);

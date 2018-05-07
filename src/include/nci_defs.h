@@ -192,8 +192,6 @@
 #define NCI_STATUS_EPERM -1
 #endif
 
-typedef uint8_t tNCI_STATUS;
-
 /* RF Technologies */
 #define NCI_RF_TECHNOLOGY_A 0x00
 #define NCI_RF_TECHNOLOGY_B 0x01
@@ -601,28 +599,6 @@ typedef uint8_t tNCI_DISCOVERY_TYPE;
 /* AID is blocked in unsupported power mode */
 #define NCI_ROUTE_QUAL_BLOCK_ROUTE 0x40
 
-typedef struct {
-  uint16_t addr;
-  uint8_t len;
-  uint8_t* data;
-} NCIP_T1T_SETMEM_CMD_t;
-
-typedef struct { uint8_t status; } NCIP_T1T_SETMEM_RSP_t;
-
-typedef struct { uint16_t addr; } NCIP_T1T_GETMEM_CMD_t;
-
-typedef struct {
-  uint8_t status;
-  uint8_t* data;
-} NCIP_T1T_GETMEM_RSP_t;
-
-typedef struct {
-  uint8_t hr0;
-  uint8_t hr1;
-} NCIP_T1T_SETHR_CMD_t;
-
-typedef struct { uint8_t status; } NCIP_T1T_SETHR_RSP_t;
-
 #ifndef NCI_GET_CMD_BUF
 #if (HCI_USE_VARIABLE_SIZE_CMD_BUF == false)
 /* Allocate fixed-size buffer from HCI_CMD_POOL (default case) */
@@ -694,16 +670,6 @@ typedef struct {
                                      Interface  */
 } tNCI_RF_LF_PARAMS;
 
-typedef struct {
-  tNCI_DISCOVERY_TYPE mode;
-  union {
-    tNCI_RF_PA_PARAMS pa;
-    tNCI_RF_PB_PARAMS pb;
-    tNCI_RF_PF_PARAMS pf;
-    tNCI_RF_LF_PARAMS lf;
-  } param; /* Discovery Type specific parameters */
-} tNCI_RF_TECH_PARAMS;
-
 #ifndef NCI_MAX_ATS_LEN
 #define NCI_MAX_ATS_LEN 60
 #endif
@@ -757,20 +723,6 @@ typedef struct {
   uint8_t attrib_req[NCI_MAX_ATTRIB_LEN]; /* ATTRIB REQ (Byte 2 - Byte 10+k) as
                                              defined in [DIGPROT] */
 } tNCI_INTF_LB_ISO_DEP;
-
-typedef struct {
-  tNCI_INTF_TYPE type; /* Interface Type  1 Byte  See Table 67 */
-  union {
-    tNCI_INTF_LA_ISO_DEP la_iso;
-    tNCI_INTF_PA_ISO_DEP pa_iso;
-    tNCI_INTF_LB_ISO_DEP lb_iso;
-    tNCI_INTF_PB_ISO_DEP pb_iso;
-    tNCI_INTF_LA_NFC_DEP la_nfc;
-    tNCI_INTF_PA_NFC_DEP pa_nfc;
-    tNCI_INTF_LF_NFC_DEP lf_nfc;
-    tNCI_INTF_PF_NFC_DEP pf_nfc;
-  } intf_param; /* Activation Parameters   0 - n Bytes */
-} tNCI_INTF_PARAMS;
 
 typedef struct {
   uint8_t atr_res_len;                      /* Length of ATR_RES            */

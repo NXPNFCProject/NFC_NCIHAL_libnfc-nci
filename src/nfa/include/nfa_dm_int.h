@@ -643,7 +643,6 @@ void nfa_snep_init(bool is_dta_mode);
 #define nfa_snep_init(is_dta_mode)
 #endif
 
-void nfa_dta_init(void);
 #if (NFC_NFCEE_INCLUDED == true)
 void nfa_ee_init(void);
 void nfa_hci_init(void);
@@ -679,7 +678,7 @@ bool nfa_dm_act_deactivate(tNFA_DM_MSG* p_data);
 bool nfa_dm_act_power_off_sleep(tNFA_DM_MSG* p_data);
 bool nfa_dm_ndef_reg_hdlr(tNFA_DM_MSG* p_data);
 bool nfa_dm_ndef_dereg_hdlr(tNFA_DM_MSG* p_data);
-bool nfa_dm_tout(tNFA_DM_MSG* p_data);
+
 bool nfa_dm_act_reg_vsc(tNFA_DM_MSG* p_data);
 bool nfa_dm_act_send_vsc(tNFA_DM_MSG* p_data);
 #if (NXP_EXTNS == TRUE)
@@ -689,7 +688,6 @@ tNFA_STATUS nfa_dm_get_extended_cmd_buf(tNFC_EXT_HDR** p_msg, uint32_t event,
                                         uint8_t* p_data, uint16_t data_len) ;
 #endif
 bool nfa_dm_act_disable_timeout(tNFA_DM_MSG* p_data);
-bool nfa_dm_act_nfc_cback_data(tNFA_DM_MSG* p_data);
 bool nfa_dm_set_power_sub_state(tNFA_DM_MSG* p_data);
 
 void nfa_dm_proc_nfcc_power_mode(uint8_t nfcc_power_mode);

@@ -343,78 +343,9 @@ extern uint8_t nfa_dta_start_up_cfg_len;
 /*****************************************************************************
 * DTA internal funciton protoytpes
 *****************************************************************************/
-/* Internal function prototypes */
-void nfa_dta_deactivate(uint8_t deactivate_type);
-void nfa_dta_shutdown(void);
-void nfa_dta_discover_start(void);
-
-/* nfa_sys handler for DTA */
-bool nfa_dta_evt_hdlr(NFC_HDR* p_msg);
-void nfa_dta_sys_disable(void);
-
-/* State machine action functions */
-bool nfa_dta_enable(tNFA_DTA_MSG* p_data);
-bool nfa_dta_disable(tNFA_DTA_MSG* p_data);
-bool nfa_dta_config(tNFA_DTA_MSG* p_data);
-bool nfa_dta_start(tNFA_DTA_MSG* p_data);
-bool nfa_dta_handle_deact(tNFA_DTA_MSG* p_data);
-bool nfa_dta_stop(tNFA_DTA_MSG* p_data);
-bool nfa_dta_run_test(tNFA_DTA_MSG* p_data);
-bool nfa_dta_proc_data(tNFA_DTA_MSG* p_msg_data);
-
-/* Utility functions */
-void nfa_dta_test_set_state(tNFA_DTA_STATE state);
-void nfa_dta_test_set_substate(tNFA_DTA_SUBSTATE substate);
-void nfa_dta_free_ndef_buf(uint8_t ndef_idx);
-uint8_t* nfa_dta_realloc_buf(uint8_t ndef_idx, uint32_t size);
-void nfa_dta_t3t_nfcid_rand(uint8_t nfcid2[NCI_RF_F_UID_LEN]);
-
-/* Test function entry points (in nfa_dta_XXX.c) */
-void nfa_dta_nfcdep_poll_test_start(void);
-void nfa_dta_nfcdep_proc_data(tNFC_CONN_EVT event, tNFC_CONN* p_data);
-void nfa_dta_t1t_poll_test_start(void);
-void nfa_dta_t2t_poll_test_start(void);
-void nfa_dta_t3t_poll_test_start(void);
-void nfa_dta_t4t_poll_test_start(void);
-
-void nfa_dta_nfcdep_listen_test_start(void);
-void nfa_dta_t3t_listen_test_start(void);
-void nfa_dta_t4t_listen_test_start(void);
-
-void nfa_dta_t1t_rw_cback(uint8_t event, tRW_DATA* p_data);
-void nfa_dta_t2t_rw_cback(uint8_t event, tRW_DATA* p_data);
-void nfa_dta_t3t_rw_cback(uint8_t event, tRW_DATA* p_data);
-void nfa_dta_t4t_rw_cback(uint8_t event, tRW_DATA* p_data);
-
-void nfa_dta_t3t_ce_cback(uint8_t event, tCE_DATA* p_data);
-void nfa_dta_t4t_ce_cback(uint8_t event, tCE_DATA* p_data);
-
-void nfa_dta_ce_cback(uint8_t event, tCE_DATA* p_ce_data);
-
-void nfa_dta_t4t_register_apps(void);
-void nfa_dta_t4t_deregister_apps(void);
-
-void nfa_dta_llcp_init(void);
-void nfa_dta_llcp_set_gen_bytes(void);
-void nfa_dta_llcp_clear_gen_bytes(void);
-void nfa_dta_llcp_register_pattern_number_service(void);
-void nfa_dta_llcp_deregister_pattern_number_service(void);
-void nfa_dta_llcp_register_echo(void);
-void nfa_dta_llcp_deregister_echo(void);
-void nfa_dta_llcp_activate_link(void);
-void nfa_dta_llcp_connect_co_echo_out(void);
-void nfa_dta_llcp_disconnect_co_echo_out(void);
-
-void nfa_dta_snep_init(void);
-void nfa_dta_snep_register(void);
-void nfa_dta_snep_deregister(void);
 #if (NXP_EXTNS == TRUE)
 void nfa_dta_snep_mode(tNFA_DTA_SNEP_MODE mode);
 #endif
-
-void nfa_dta_emvco_pcd_config_nfcc(bool enable);
-void nfa_dta_emvco_pcd_start(void);
-void nfa_dta_emvco_pcd_cback(uint8_t event, tRW_DATA* p_data);
 
 extern uint8_t* p_nfa_dta_brcm_start_up_cfg;
 extern uint8_t nfa_dta_brcm_start_up_cfg_len;

@@ -85,7 +85,6 @@ enum {
   NFA_EE_NEW_EE_EVT, /* A new NFCEE is discovered                             */
   NFA_EE_ACTION_EVT, /* An action happened in NFCEE                           */
   NFA_EE_DISCOVER_REQ_EVT, /* NFCEE Discover Request Notification */
-  NFA_EE_ROUT_ERR_EVT,     /* Error - exceed NFCC CE Routing size */
   NFA_EE_NO_MEM_ERR_EVT,   /* Error - out of GKI buffers */
   NFA_EE_NO_CB_ERR_EVT, /* Error - Can not find control block or wrong state */
 #if (NXP_EXTNS == TRUE)

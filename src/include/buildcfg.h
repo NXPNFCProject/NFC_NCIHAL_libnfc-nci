@@ -78,22 +78,8 @@ extern uint8_t* scru_dump_hex(uint8_t* p, char* p_title, uint32_t len,
 extern void ScrLog(uint32_t trace_set_mask, const char* fmt_str, ...);
 extern void DispNci(uint8_t* p, uint16_t len, bool is_recv);
 
-extern void downloadFirmwarePatchFile(uint32_t brcm_hw_id);
-
 void ProtoDispAdapterDisplayNciPacket(uint8_t* nciPacket, uint16_t nciPacketLen,
                                       bool is_recv);
 #define DISP_NCI ProtoDispAdapterDisplayNciPacket
-
-#ifndef _TIMEB
-#define _TIMEB
-struct _timeb {
-  long time;
-  short millitm;
-  short timezone;
-  short dstflag;
-};
-void _ftime(struct _timeb*);
-
-#endif
 
 #endif

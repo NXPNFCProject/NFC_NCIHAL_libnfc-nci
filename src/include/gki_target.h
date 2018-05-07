@@ -371,7 +371,4 @@ over HCI data and intentionally kept out of order */
 #define GKI_BUF8_MAX 30
 #endif
 
-extern void LogMsg(uint32_t trace_set_mask, const char* fmt_str, ...);
-
-
 #endif /* GKI_TARGET_H */

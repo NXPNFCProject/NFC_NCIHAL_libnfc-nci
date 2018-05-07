@@ -119,7 +119,6 @@ class NfcAdaptation {
   static ThreadMutex sIoctlLock;
   ThreadCondVar mCondVar;
   tHAL_NFC_ENTRY mHalEntryFuncs;  // function pointers for HAL entry points
-  static nfc_nci_device_t* mHalDeviceContext;
   static tHAL_NFC_CBACK* mHalCallback;
   static tHAL_NFC_DATA_CBACK* mHalDataCallback;
   static ThreadCondVar mHalOpenCompletedEvent;

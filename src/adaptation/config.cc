@@ -107,7 +107,6 @@ class CNfcConfig : public vector<const CNfcParam*> {
 
   inline bool Is(unsigned long f) { return (state & f) == f; }
   inline void Set(unsigned long f) { state |= f; }
-  inline void Reset(unsigned long f) { state &= ~f; }
 };
 
 /*******************************************************************************

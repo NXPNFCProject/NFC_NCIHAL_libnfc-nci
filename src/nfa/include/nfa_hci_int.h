@@ -205,8 +205,6 @@ enum {
 #define NFA_HCI_FIRST_API_EVENT NFA_HCI_API_REGISTER_APP_EVT
 #define NFA_HCI_LAST_API_EVENT NFA_HCI_API_SEND_EVENT_EVT
 
-typedef uint16_t tNFA_HCI_INT_EVT;
-
 /* Internal event structures.
 **
 ** Note, every internal structure starts with a NFC_HDR and an app handle
@@ -664,8 +662,6 @@ extern tNFA_HCI_DYN_PIPE* nfa_hciu_find_active_pipe_on_gate(uint8_t gate_id);
 extern tNFA_HANDLE nfa_hciu_get_pipe_owner(uint8_t pipe_id);
 extern uint8_t nfa_hciu_count_open_pipes_on_gate(tNFA_HCI_DYN_GATE* p_gate);
 extern uint8_t nfa_hciu_count_pipes_on_gate(tNFA_HCI_DYN_GATE* p_gate);
-extern tNFA_STATUS nfa_hciu_asmbl_dyn_pipe_pkt(uint8_t* p_data,
-                                               uint8_t data_len);
 
 extern tNFA_HCI_RESPONSE nfa_hciu_add_pipe_to_gate(uint8_t pipe,
                                                    uint8_t local_gate,

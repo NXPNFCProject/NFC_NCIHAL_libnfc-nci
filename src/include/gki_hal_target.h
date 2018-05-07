@@ -215,7 +215,4 @@
 #define GKI_SEND_MSG_FROM_ISR false
 #endif
 
-extern void LogMsg(uint32_t trace_set_mask, const char* fmt_str, ...);
-
-
 #endif /* GKI_TARGET_H */

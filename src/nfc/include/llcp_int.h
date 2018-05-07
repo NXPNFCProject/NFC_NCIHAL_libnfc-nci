@@ -145,8 +145,7 @@ enum {
   LLCP_DLC_STATE_W4_LOCAL_RESP,  /* waiting for connection confirm from upper
                                     layer  */
   LLCP_DLC_STATE_CONNECTED,      /* data link connection has been established */
-  LLCP_DLC_STATE_W4_REMOTE_DM, /* waiting for disconnection confirm from peer */
-  LLCP_DLC_STATE_MAX
+  LLCP_DLC_STATE_W4_REMOTE_DM /* waiting for disconnection confirm from peer */
 };
 typedef uint8_t tLLCP_DLC_STATE;
 

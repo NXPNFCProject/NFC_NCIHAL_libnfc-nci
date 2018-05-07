@@ -43,9 +43,7 @@ enum {
   NFA_SNEP_API_PUT_REQ_EVT,
   NFA_SNEP_API_GET_RESP_EVT,
   NFA_SNEP_API_PUT_RESP_EVT,
-  NFA_SNEP_API_DISCONNECT_EVT,
-
-  NFA_SNEP_LAST_EVT
+  NFA_SNEP_API_DISCONNECT_EVT
 };
 
 /* data type for NFA_SNEP_API_START_DEFAULT_SERVER_EVT */
@@ -215,38 +213,6 @@ extern tNFA_SNEP_DEFAULT_CB nfa_snep_default_cb;
 **  nfa_snep_main.c
 */
 void nfa_snep_init(bool is_dta_mode);
-/*
-**  nfa_snep_default.c
-*/
-void nfa_snep_default_init(void);
-bool nfa_snep_start_default_server(tNFA_SNEP_MSG* p_msg);
-bool nfa_snep_stop_default_server(tNFA_SNEP_MSG* p_msg);
-/*
-**  nfa_snep_srv.c
-*/
-uint8_t nfa_snep_allocate_cb(void);
-void nfa_snep_deallocate_cb(uint8_t xx);
-void nfa_snep_send_msg(uint8_t opcode, uint8_t dlink);
-
-void nfa_snep_llcp_cback(tLLCP_SAP_CBACK_DATA* p_data);
-void nfa_snep_proc_llcp_data_ind(tLLCP_SAP_CBACK_DATA* p_data);
-void nfa_snep_proc_llcp_connect_ind(tLLCP_SAP_CBACK_DATA* p_data);
-void nfa_snep_proc_llcp_connect_resp(tLLCP_SAP_CBACK_DATA* p_data);
-void nfa_snep_proc_llcp_disconnect_ind(tLLCP_SAP_CBACK_DATA* p_data);
-void nfa_snep_proc_llcp_disconnect_resp(tLLCP_SAP_CBACK_DATA* p_data);
-void nfa_snep_proc_llcp_congest(tLLCP_SAP_CBACK_DATA* p_data);
-void nfa_snep_proc_llcp_link_status(tLLCP_SAP_CBACK_DATA* p_data);
-void nfa_snep_proc_llcp_tx_complete(tLLCP_SAP_CBACK_DATA* p_data);
-
-bool nfa_snep_reg_server(tNFA_SNEP_MSG* p_msg);
-bool nfa_snep_reg_client(tNFA_SNEP_MSG* p_msg);
-bool nfa_snep_dereg(tNFA_SNEP_MSG* p_msg);
-bool nfa_snep_connect(tNFA_SNEP_MSG* p_msg);
-bool nfa_snep_put_resp(tNFA_SNEP_MSG* p_msg);
-bool nfa_snep_get_resp(tNFA_SNEP_MSG* p_msg);
-bool nfa_snep_put_req(tNFA_SNEP_MSG* p_msg);
-bool nfa_snep_get_req(tNFA_SNEP_MSG* p_msg);
-bool nfa_snep_disconnect(tNFA_SNEP_MSG* p_msg);
 
 #endif /* #if (NFA_SNEP_INCLUDED==true) */
 #endif /* NFA_SNEP_INT_H */
