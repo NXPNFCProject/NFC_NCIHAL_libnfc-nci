@@ -399,7 +399,7 @@ void nfc_task_shutdown_nfcc(void) {
 ** Returns          nothing
 **
 *******************************************************************************/
-uint32_t nfc_task() {
+uint32_t nfc_task(__attribute__((unused)) uint32_t arg) {
   uint16_t event;
   NFC_HDR* p_msg;
   bool free_buf;

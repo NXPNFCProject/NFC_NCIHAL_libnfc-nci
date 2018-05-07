@@ -418,7 +418,7 @@ extern void nfc_ncif_proc_rf_field_ntf(uint8_t rf_status);
 #endif
 
 /* From nfc_task.c */
-extern uint32_t nfc_task();
+extern uint32_t nfc_task(uint32_t);
 void nfc_task_shutdown_nfcc(void);
 
 /* From nfc_main.c */
