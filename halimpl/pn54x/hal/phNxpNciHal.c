@@ -2489,7 +2489,7 @@ int phNxpNciHal_close(void) {
     NXPLOG_NCIHAL_D("UICC_LISTEN_TECH_MASK = 0x%0lX", uiccListenMask);
   }
 
-  if (!(GetNxpNumValue(NAME_NXP_ESE_LISTEN_TECH_MASK, &eseListenMask, 
+  if (!(GetNxpNumValue(NAME_NXP_ESE_LISTEN_TECH_MASK, &eseListenMask,
                       sizeof(eseListenMask)))) {
     eseListenMask = 0x07;
     NXPLOG_NCIHAL_D ("NXP_ESE_LISTEN_TECH_MASK = 0x%0lX", eseListenMask);
@@ -3414,7 +3414,7 @@ NFCSTATUS phNxpNciHal_nfccClockCfgApply(void) {
     NXPLOG_NCIHAL_E("unable to retrieve get_clk_src_sel");
     return status;
   }
-  
+
   nfcc_cfg_clock_src = phNxpNciHal_determineConfiguredClockSrc();
   nfcc_cur_clock_src = phNxpNciClock.p_rx_data[12];
 
@@ -3569,7 +3569,6 @@ void phNxpNciHal_enable_i2c_fragmentation() {
   NFCSTATUS status = NFCSTATUS_FAILED;
   static uint8_t fragmentation_enable_config_cmd[] = {0x20, 0x02, 0x05, 0x01,
                                                       0xA0, 0x05, 0x01, 0x10};
-  int isfound = 0;
   unsigned long i2c_status = 0x00;
   unsigned long config_i2c_value = 0xff;
   /*NCI_RESET_CMD*/
@@ -3579,7 +3578,7 @@ void phNxpNciHal_enable_i2c_fragmentation() {
   static uint8_t cmd_init_nci2_0[] = {0x20,0x01,0x02,0x00,0x00};
   static uint8_t get_i2c_fragmentation_cmd[] = {0x20, 0x03, 0x03,
                                                 0x01, 0xA0, 0x05};
-  isfound = (GetNxpNumValue(NAME_NXP_I2C_FRAGMENTATION_ENABLED,
+  (GetNxpNumValue(NAME_NXP_I2C_FRAGMENTATION_ENABLED,
                             (void*)&i2c_status, sizeof(i2c_status)));
   status = phNxpNciHal_send_ext_cmd(sizeof(get_i2c_fragmentation_cmd),
                                     get_i2c_fragmentation_cmd);
@@ -3593,9 +3592,8 @@ void phNxpNciHal_enable_i2c_fragmentation() {
     } else if (nxpncihal_ctrl.p_rx_data[8] == 0x00) {
       config_i2c_value = 0x00;
     }
-    if (config_i2c_value == i2c_status) {
-      NXPLOG_NCIHAL_E("i2c_fragmentation_status existing");
-    } else {
+    // if the value already matches, nothing to be done
+    if (config_i2c_vlaue != i2c_status) {
       if (i2c_status == 0x01) {
         /* NXP I2C fragmenation enabled*/
         status =
