@@ -39,10 +39,6 @@
 
 #include "gki.h"
 
-#ifndef GKI_DEBUG
-#define GKI_DEBUG false
-#endif
-
 /* Task States: (For OSRdyTbl) */
 #define TASK_DEAD 0    /* b0000 */
 #define TASK_READY 1   /* b0001 */

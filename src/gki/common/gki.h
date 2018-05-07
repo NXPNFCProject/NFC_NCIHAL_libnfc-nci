@@ -456,15 +456,6 @@ extern uint32_t GKI_get_os_tick_count(void);
 */
 extern void GKI_exception(uint16_t, char*);
 
-#if (GKI_BUFFER_DEBUG == true)
-extern void GKI_PrintBufferUsage(uint8_t* p_num_pools, uint16_t* p_cur_used);
-extern void GKI_PrintBuffer(void);
-extern void GKI_print_task(void);
-#else
-#undef GKI_PrintBufferUsage
-#define GKI_PrintBuffer() NULL
-#endif
-
 #ifdef __cplusplus
 }
 #endif
