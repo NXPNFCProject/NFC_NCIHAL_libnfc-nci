@@ -3,6 +3,10 @@ cc_defaults {
     include_dirs: [
         "system/nfc",
     ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
     target: {
         linux_glibc: {
             cflags: ["-D_GNU_SOURCE"],
