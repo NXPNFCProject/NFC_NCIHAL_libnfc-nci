@@ -1163,6 +1163,9 @@ uint8_t GKI_resume_task(uint8_t task_id) {
 **
 *******************************************************************************/
 void GKI_exit_task(uint8_t task_id) {
+  if (task_id >= GKI_MAX_TASKS) {
+    return;
+  }
   GKI_disable();
   gki_cb.com.OSRdyTbl[task_id] = TASK_DEAD;
 
