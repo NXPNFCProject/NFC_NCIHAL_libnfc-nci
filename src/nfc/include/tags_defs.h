@@ -517,10 +517,15 @@ typedef uint8_t tT3T_POLL_RC;
 
 /* ISO 15693 Optional commands */
 #define I93_CMD_READ_SINGLE_BLOCK 0x20  /* Read single block     */
+#define I93_CMD_EXT_READ_SINGLE_BLOCK 0x30 /* Extended Read single block */
 #define I93_CMD_WRITE_SINGLE_BLOCK 0x21 /* Write single block    */
+#define I93_CMD_EXT_WRITE_SINGLE_BLOCK 0x31 /* Extended Write single block */
 #define I93_CMD_LOCK_BLOCK 0x22         /* Lock block            */
+#define I93_CMD_EXT_LOCK_BLOCK 0x32     /* Extended Lock block            */
 #define I93_CMD_READ_MULTI_BLOCK 0x23   /* Read multiple blocks  */
+#define I93_CMD_EXT_READ_MULTI_BLOCK 0x33 /* Extended Read multiple blocks  */
 #define I93_CMD_WRITE_MULTI_BLOCK 0x24  /* Write multiple blocks */
+#define I93_CMD_EXT_WRITE_MULTI_BLOCK 0x34 /* Write multiple blocks */
 #define I93_CMD_SELECT 0x25             /* Select                */
 #define I93_CMD_RESET_TO_READY 0x26     /* Reset to ready        */
 #define I93_CMD_WRITE_AFI 0x27          /* Wreite AFI            */
@@ -529,8 +534,12 @@ typedef uint8_t tT3T_POLL_RC;
 #define I93_CMD_LOCK_DSFID 0x2A         /* Lock DSFID            */
 /* Get system information             */
 #define I93_CMD_GET_SYS_INFO 0x2B
+/* Get extended system information    */
+#define I93_CMD_EXT_GET_SYS_INFO 0x3B
 /* Get multiple block security status */
 #define I93_CMD_GET_MULTI_BLK_SEC 0x2C
+/* Get extended multiple block security status */
+#define I93_CMD_EXT_GET_MULTI_BLK_SEC 0x3C
 
 /* Information flags definition */
 /* DSFID is supported and DSFID field is present */
@@ -541,12 +550,15 @@ typedef uint8_t tT3T_POLL_RC;
 #define I93_INFO_FLAG_MEM_SIZE 0x04
 /* IC reference field is present                 */
 #define I93_INFO_FLAG_IC_REF 0x08
+/* Memory coded in 2 bytes address               */
+#define I93_INFO_FLAG_MOI 0x10
 
 /* Max block size in bytes */
 #define I93_MAX_BLOCK_LENGH 32
 
 /* ICODE Capability Container(CC) definition */
-#define I93_ICODE_CC_MAGIC_NUMER 0xE1    /* magic number in CC[0]  */
+#define I93_ICODE_CC_MAGIC_NUMER_E1 0xE1 /* magic number in CC[0]  */
+#define I93_ICODE_CC_MAGIC_NUMER_E2 0xE2 /* magic number in CC[0]  */
 /* read access condition in CC[1]        */
 #define I93_ICODE_CC_READ_ACCESS_MASK 0x0C
 /* read access granted without security  */
@@ -634,6 +646,13 @@ typedef uint8_t tT3T_POLL_RC;
 /* IC Reference for M24LR64E-R: 01011110(b), blockSize: 4, numberBlocks: 0x800
  */
 #define I93_IC_REF_STM_M24LR64E_R 0x5E
+/* IC Reference for ST25DV04K: 00100100(b), blockSize: 4, numberBlocks: 0x80
++ */
+#define I93_IC_REF_STM_ST25DV04K 0x24
+/* IC Reference for ST25DVHIK: 00100110(b), blockSize: 4, numberBlocks: 0x800
++ * or 0x200
++ */
+#define I93_IC_REF_STM_ST25DVHIK 0x26
 
 #define I93_STM_BLOCKS_PER_SECTOR 32
 #define I93_STM_MAX_BLOCKS_PER_READ 32

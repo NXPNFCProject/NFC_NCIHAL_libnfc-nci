@@ -1104,7 +1104,7 @@ extern tNFC_STATUS RW_I93ReadMultipleBlocks(uint16_t first_block_number,
 **                  NFC_STATUS_FAILED if other error
 **
 *******************************************************************************/
-extern tNFC_STATUS RW_I93WriteMultipleBlocks(uint8_t first_block_number,
+extern tNFC_STATUS RW_I93WriteMultipleBlocks(uint16_t first_block_number,
                                              uint16_t number_blocks,
                                              uint8_t* p_data);
 

@@ -646,6 +646,8 @@ typedef uint8_t tRW_I93_RW_SUBSTATE;
 #define RW_I93_FLAG_RESET_AFI 0x08
 /* use 2 bytes for number of blocks        */
 #define RW_I93_FLAG_16BIT_NUM_BLOCK 0x10
+/* use extended commands */
+#define RW_I93_FLAG_EXT_COMMANDS 0x20
 
 /* searching for type                      */
 #define RW_I93_TLV_DETECT_STATE_TYPE 0x01
@@ -674,6 +676,8 @@ enum {
   RW_I93_STM_M24LR04E_R,             /* STM M24LR04E-R                   */
   RW_I93_STM_M24LR16E_R,             /* STM M24LR16E-R                   */
   RW_I93_STM_M24LR64E_R,             /* STM M24LR64E-R                   */
+  RW_I93_STM_ST25DV04K,              /* STM ST25DV04K                    */
+  RW_I93_STM_ST25DVHIK,              /* STM ST25DV 16K OR 64K            */
   RW_I93_UNKNOWN_PRODUCT             /* Unknwon product version          */
 };
 
