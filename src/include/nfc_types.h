@@ -342,19 +342,6 @@ typedef struct {
 ** Define trace levels
 *****************************************************************************/
 
-/* No trace messages to be generated    */
-#define BT_TRACE_LEVEL_NONE 0
-/* Error condition trace messages       */
-#define BT_TRACE_LEVEL_ERROR 1
-/* Warning condition trace messages     */
-#define BT_TRACE_LEVEL_WARNING 2
-/* API traces                           */
-#define BT_TRACE_LEVEL_API 3
-/* Debug messages for events            */
-#define BT_TRACE_LEVEL_EVENT 4
-/* Full debug messages                  */
-#define BT_TRACE_LEVEL_DEBUG 5
-
 #define TRACE_CTRL_GENERAL 0x00000000
 #define TRACE_LAYER_NCI 0x00280000
 #define TRACE_LAYER_HAL 0x00310000

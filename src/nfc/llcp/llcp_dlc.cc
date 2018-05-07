@@ -63,10 +63,8 @@ static tLLCP_STATUS llcp_dlsm_w4_remote_dm(tLLCP_DLCB* p_dlcb,
                                            tLLCP_DLC_EVENT event, void* p_data);
 extern unsigned char appl_dta_mode_flag;
 
-#if (BT_TRACE_VERBOSE == true)
 static std::string llcp_dlsm_get_state_name(tLLCP_DLC_STATE state);
 static std::string llcp_dlsm_get_event_name(tLLCP_DLC_EVENT event);
-#endif
 
 /*******************************************************************************
 **
@@ -82,14 +80,9 @@ tLLCP_STATUS llcp_dlsm_execute(tLLCP_DLCB* p_dlcb, tLLCP_DLC_EVENT event,
                                void* p_data) {
   tLLCP_STATUS status;
 
-#if (BT_TRACE_VERBOSE == true)
-  LLCP_TRACE_EVENT3("DLC (0x%02X) - state: %s, evt: %s", p_dlcb->local_sap,
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("DLC (0x%02X) - state: %s, evt: %s", p_dlcb->local_sap,
                     llcp_dlsm_get_state_name(p_dlcb->state),
                     llcp_dlsm_get_event_name(event));
-#else
-  LLCP_TRACE_EVENT3("DLC (0x%02X) - state: %d, evt: %d", p_dlcb->local_sap,
-                    p_dlcb->state, event);
-#endif
 
   switch (p_dlcb->state) {
     case LLCP_DLC_STATE_IDLE:
@@ -163,7 +156,7 @@ static tLLCP_STATUS llcp_dlsm_idle(tLLCP_DLCB* p_dlcb, tLLCP_DLC_EVENT event,
       p_params = (tLLCP_CONNECTION_PARAMS*)p_data;
 
       if (p_params->miu > llcp_cb.lcb.peer_miu) {
-        LLCP_TRACE_WARNING0(
+        LOG(WARNING) << StringPrintf(
             "llcp_dlsm_idle (): Peer sent data link MIU bigger than peer's "
             "link MIU");
         p_params->miu = llcp_cb.lcb.peer_miu;
@@ -180,7 +173,7 @@ static tLLCP_STATUS llcp_dlsm_idle(tLLCP_DLCB* p_dlcb, tLLCP_DLC_EVENT event,
       p_dlcb->remote_miu = p_params->miu;
       p_dlcb->remote_rw = p_params->rw;
 
-      LLCP_TRACE_DEBUG2("llcp_dlsm_idle (): Remote MIU:%d, RW:%d",
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("llcp_dlsm_idle (): Remote MIU:%d, RW:%d",
                         p_dlcb->remote_miu, p_dlcb->remote_rw);
 
       /* wait for response from upper layer */
@@ -196,7 +189,7 @@ static tLLCP_STATUS llcp_dlsm_idle(tLLCP_DLCB* p_dlcb, tLLCP_DLC_EVENT event,
       break;
 
     default:
-      LLCP_TRACE_ERROR0("llcp_dlsm_idle (): Unexpected event");
+      LOG(ERROR) << StringPrintf("llcp_dlsm_idle (): Unexpected event");
       status = LLCP_STATUS_FAIL;
       break;
   }
@@ -231,7 +224,7 @@ static tLLCP_STATUS llcp_dlsm_w4_remote_resp(tLLCP_DLCB* p_dlcb,
 
       /* data link MIU must be up to link MIU */
       if (p_params->miu > llcp_cb.lcb.peer_miu) {
-        LLCP_TRACE_WARNING0(
+        LOG(WARNING) << StringPrintf(
             "llcp_dlsm_w4_remote_resp (): Peer sent data link MIU bigger than "
             "peer's link MIU");
         p_params->miu = llcp_cb.lcb.peer_miu;
@@ -240,7 +233,7 @@ static tLLCP_STATUS llcp_dlsm_w4_remote_resp(tLLCP_DLCB* p_dlcb,
       p_dlcb->remote_miu = p_params->miu;
       p_dlcb->remote_rw = p_params->rw;
 
-      LLCP_TRACE_DEBUG2("llcp_dlsm_w4_remote_resp (): Remote MIU:%d, RW:%d",
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("llcp_dlsm_w4_remote_resp (): Remote MIU:%d, RW:%d",
                         p_dlcb->remote_miu, p_dlcb->remote_rw);
 
       p_dlcb->state = LLCP_DLC_STATE_CONNECTED;
@@ -290,7 +283,7 @@ static tLLCP_STATUS llcp_dlsm_w4_remote_resp(tLLCP_DLCB* p_dlcb,
       break;
 
     default:
-      LLCP_TRACE_ERROR0("llcp_dlsm_w4_remote_resp (): Unexpected event");
+      LOG(ERROR) << StringPrintf("llcp_dlsm_w4_remote_resp (): Unexpected event");
       status = LLCP_STATUS_FAIL;
       break;
   }
@@ -378,7 +371,7 @@ static tLLCP_STATUS llcp_dlsm_w4_local_resp(tLLCP_DLCB* p_dlcb,
       break;
 
     default:
-      LLCP_TRACE_ERROR0("llcp_dlsm_w4_local_resp (): Unexpected event");
+      LOG(ERROR) << StringPrintf("llcp_dlsm_w4_local_resp (): Unexpected event");
       status = LLCP_STATUS_FAIL;
       break;
   }
@@ -463,7 +456,7 @@ static tLLCP_STATUS llcp_dlsm_connected(tLLCP_DLCB* p_dlcb,
             (p_dlcb->i_xmit_q.count >=
              p_dlcb->remote_rw)) /*if enough data to send next round */
         {
-          LLCP_TRACE_DEBUG3(
+          DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
               "llcp_dlsm_connected (): Data link (SSAP:DSAP=0x%X:0x%X) "
               "congested: xmit_q.count=%d",
               p_dlcb->local_sap, p_dlcb->remote_sap, p_dlcb->i_xmit_q.count);
@@ -474,7 +467,7 @@ static tLLCP_STATUS llcp_dlsm_connected(tLLCP_DLCB* p_dlcb,
           status = LLCP_STATUS_CONGESTED;
         }
       } else {
-        LLCP_TRACE_ERROR0(
+        LOG(ERROR) << StringPrintf(
             "llcp_dlsm_connected (): Remote RW is zero: discard data");
         /* buffer will be freed when returned to API function */
         status = LLCP_STATUS_FAIL;
@@ -507,7 +500,7 @@ static tLLCP_STATUS llcp_dlsm_connected(tLLCP_DLCB* p_dlcb,
       break;
 
     default:
-      LLCP_TRACE_ERROR0("llcp_dlsm_connected (): Unexpected event");
+      LOG(ERROR) << StringPrintf("llcp_dlsm_connected (): Unexpected event");
       status = LLCP_STATUS_FAIL;
       break;
   }
@@ -570,7 +563,7 @@ static tLLCP_STATUS llcp_dlsm_w4_remote_dm(tLLCP_DLCB* p_dlcb,
       break;
 
     default:
-      LLCP_TRACE_ERROR0("llcp_dlsm_w4_remote_dm (): Unexpected event");
+      LOG(ERROR) << StringPrintf("llcp_dlsm_w4_remote_dm (): Unexpected event");
       status = LLCP_STATUS_FAIL;
       break;
   }
@@ -618,7 +611,7 @@ tLLCP_DLCB* llcp_dlc_find_dlcb_by_sap(uint8_t local_sap, uint8_t remote_sap) {
 *******************************************************************************/
 void llcp_dlc_flush_q(tLLCP_DLCB* p_dlcb) {
   if (p_dlcb) {
-    LLCP_TRACE_DEBUG1("llcp_dlc_flush_q (): local SAP:0x%02X",
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("llcp_dlc_flush_q (): local SAP:0x%02X",
                       p_dlcb->local_sap);
 
     /* Release any held buffers */
@@ -630,7 +623,7 @@ void llcp_dlc_flush_q(tLLCP_DLCB* p_dlcb) {
     /* discard any received I PDU on data link  including in AGF */
     LLCP_FlushDataLinkRxData(p_dlcb->local_sap, p_dlcb->remote_sap);
   } else {
-    LLCP_TRACE_ERROR0("llcp_dlc_flush_q (): p_dlcb is NULL");
+    LOG(ERROR) << StringPrintf("llcp_dlc_flush_q (): p_dlcb is NULL");
   }
 }
 
@@ -651,13 +644,13 @@ static void llcp_dlc_proc_connect_pdu(uint8_t dsap, uint8_t ssap,
 
   tLLCP_CONNECTION_PARAMS params;
 
-  LLCP_TRACE_DEBUG0("llcp_dlc_proc_connect_pdu ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("llcp_dlc_proc_connect_pdu ()");
 
   p_app_cb = llcp_util_get_app_cb(dsap);
 
   if ((p_app_cb == NULL) || (p_app_cb->p_app_cback == NULL) ||
       ((p_app_cb->link_type & LLCP_LINK_TYPE_DATA_LINK_CONNECTION) == 0)) {
-    LLCP_TRACE_ERROR1("llcp_dlc_proc_connect_pdu (): Unregistered SAP:0x%x",
+    LOG(ERROR) << StringPrintf("llcp_dlc_proc_connect_pdu (): Unregistered SAP:0x%x",
                       dsap);
     llcp_util_send_dm(ssap, dsap, LLCP_SAP_DM_REASON_NO_SERVICE);
     return;
@@ -665,7 +658,7 @@ static void llcp_dlc_proc_connect_pdu(uint8_t dsap, uint8_t ssap,
 
   /* parse CONNECT PDU and get connection parameters */
   if (llcp_util_parse_connect(p_data, length, &params) != LLCP_STATUS_SUCCESS) {
-    LLCP_TRACE_ERROR0("llcp_dlc_proc_connect_pdu (): Bad format CONNECT");
+    LOG(ERROR) << StringPrintf("llcp_dlc_proc_connect_pdu (): Bad format CONNECT");
     /* fix to pass TC_CTO_TAR_BI_02_x (x=5) test case
      * As per the LLCP test specification v1.2.00 by receiving erroneous SNL PDU
      * i'e with improper length and service name "urn:nfc:sn:dta-co-echo-in",
@@ -673,12 +666,12 @@ static void llcp_dlc_proc_connect_pdu(uint8_t dsap, uint8_t ssap,
 #if (NXP_EXTNS != TRUE)
     if (appl_dta_mode_flag == 1 &&
         p_data[1] == strlen((const char*)&p_data[2])) {
-      LLCP_TRACE_DEBUG1("%s: Strings are not equal", __func__);
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: Strings are not equal", __func__);
       llcp_util_send_dm(ssap, dsap, LLCP_SAP_DM_REASON_NO_SERVICE);
 #else
     if (appl_dta_mode_flag == 1) {
       if(p_data[1] == strlen((const char*)&p_data[2])) {
-        LLCP_TRACE_DEBUG1("%s: Strings are not equal", __func__);
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: Strings are not equal", __func__);
         llcp_util_send_dm(ssap, dsap, LLCP_SAP_DM_REASON_NO_SERVICE);
       }
 #endif
@@ -706,14 +699,14 @@ static void llcp_dlc_proc_connect_pdu(uint8_t dsap, uint8_t ssap,
     }
 
     if (dsap == LLCP_SAP_SDP) {
-      LLCP_TRACE_ERROR0(
+      LOG(ERROR) << StringPrintf(
           "llcp_dlc_proc_connect_pdu (): SDP doesn't accept connection");
 
       llcp_util_send_dm(ssap, LLCP_SAP_SDP,
                         LLCP_SAP_DM_REASON_PERM_REJECT_THIS);
       return;
     } else if (dsap == 0) {
-      LLCP_TRACE_ERROR1("llcp_dlc_proc_connect_pdu (): Unregistered Service:%s",
+      LOG(ERROR) << StringPrintf("llcp_dlc_proc_connect_pdu (): Unregistered Service:%s",
                         params.sn);
 
       llcp_util_send_dm(ssap, LLCP_SAP_SDP, LLCP_SAP_DM_REASON_NO_SERVICE);
@@ -724,7 +717,7 @@ static void llcp_dlc_proc_connect_pdu(uint8_t dsap, uint8_t ssap,
 
       if ((p_app_cb == NULL) || (p_app_cb->p_app_cback == NULL) ||
           ((p_app_cb->link_type & LLCP_LINK_TYPE_DATA_LINK_CONNECTION) == 0)) {
-        LLCP_TRACE_ERROR1(
+        LOG(ERROR) << StringPrintf(
             "llcp_dlc_proc_connect_pdu (): SAP(0x%x) doesn't support "
             "connection-oriented",
             dsap);
@@ -737,7 +730,7 @@ static void llcp_dlc_proc_connect_pdu(uint8_t dsap, uint8_t ssap,
   /* check if any data link */
   p_dlcb = llcp_dlc_find_dlcb_by_sap(dsap, ssap);
   if (p_dlcb) {
-    LLCP_TRACE_ERROR0(
+    LOG(ERROR) << StringPrintf(
         "llcp_dlc_proc_connect_pdu (): Data link is aleady established");
     llcp_util_send_dm(ssap, dsap, LLCP_SAP_DM_REASON_TEMP_REJECT_THIS);
   } else {
@@ -749,12 +742,12 @@ static void llcp_dlc_proc_connect_pdu(uint8_t dsap, uint8_t ssap,
       status =
           llcp_dlsm_execute(p_dlcb, LLCP_DLC_EVENT_PEER_CONNECT_IND, &params);
       if (status != LLCP_STATUS_SUCCESS) {
-        LLCP_TRACE_ERROR0(
+        LOG(ERROR) << StringPrintf(
             "llcp_dlc_proc_connect_pdu (): Error in state machine");
         llcp_util_deallocate_data_link(p_dlcb);
       }
     } else {
-      LLCP_TRACE_ERROR0("llcp_dlc_proc_connect_pdu (): Out of resource");
+      LOG(ERROR) << StringPrintf("llcp_dlc_proc_connect_pdu (): Out of resource");
       llcp_util_send_dm(ssap, dsap, LLCP_SAP_DM_REASON_TEMP_REJECT_ANY);
     }
   }
@@ -774,12 +767,12 @@ static void llcp_dlc_proc_disc_pdu(uint8_t dsap, uint8_t ssap, uint16_t length,
   tLLCP_DLCB* p_dlcb;
   (void)p_data;
 
-  LLCP_TRACE_DEBUG0("llcp_dlc_proc_disc_pdu ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("llcp_dlc_proc_disc_pdu ()");
 
   p_dlcb = llcp_dlc_find_dlcb_by_sap(dsap, ssap);
   if (p_dlcb) {
     if (length > 0) {
-      LLCP_TRACE_ERROR1(
+      LOG(ERROR) << StringPrintf(
           "llcp_dlc_proc_disc_pdu (): Received extra data (%d bytes) in DISC "
           "PDU",
           length);
@@ -792,7 +785,7 @@ static void llcp_dlc_proc_disc_pdu(uint8_t dsap, uint8_t ssap, uint16_t length,
       llcp_dlsm_execute(p_dlcb, LLCP_DLC_EVENT_PEER_DISCONNECT_IND, NULL);
     }
   } else {
-    LLCP_TRACE_ERROR2(
+    LOG(ERROR) << StringPrintf(
         "llcp_dlc_proc_disc_pdu (): No data link for SAP (0x%x,0x%x)", dsap,
         ssap);
   }
@@ -813,7 +806,7 @@ static void llcp_dlc_proc_cc_pdu(uint8_t dsap, uint8_t ssap, uint16_t length,
   tLLCP_CONNECTION_PARAMS params;
   tLLCP_STATUS status;
 
-  LLCP_TRACE_DEBUG0("llcp_dlc_proc_cc_pdu ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("llcp_dlc_proc_cc_pdu ()");
 
   /* find a DLCB waiting for CC on this local SAP */
   p_dlcb = llcp_dlc_find_dlcb_by_sap(dsap, LLCP_INVALID_SAP);
@@ -827,7 +820,7 @@ static void llcp_dlc_proc_cc_pdu(uint8_t dsap, uint8_t ssap, uint16_t length,
       status =
           llcp_dlsm_execute(p_dlcb, LLCP_DLC_EVENT_PEER_CONNECT_CFM, &params);
       if (status != LLCP_STATUS_SUCCESS) {
-        LLCP_TRACE_ERROR0("llcp_dlc_proc_cc_pdu (): Error in state machine");
+        LOG(ERROR) << StringPrintf("llcp_dlc_proc_cc_pdu (): Error in state machine");
         llcp_util_deallocate_data_link(p_dlcb);
       }
     } else {
@@ -837,7 +830,7 @@ static void llcp_dlc_proc_cc_pdu(uint8_t dsap, uint8_t ssap, uint16_t length,
       llcp_dlsm_execute(p_dlcb, LLCP_DLC_EVENT_FRAME_ERROR, NULL);
     }
   } else {
-    LLCP_TRACE_ERROR2(
+    LOG(ERROR) << StringPrintf(
         "llcp_dlc_proc_cc_pdu (): No data link for SAP (0x%x,0x%x)", dsap,
         ssap);
   }
@@ -856,10 +849,10 @@ static void llcp_dlc_proc_dm_pdu(uint8_t dsap, uint8_t ssap, uint16_t length,
                                  uint8_t* p_data) {
   tLLCP_DLCB* p_dlcb;
 
-  LLCP_TRACE_DEBUG0("llcp_dlc_proc_dm_pdu ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("llcp_dlc_proc_dm_pdu ()");
 
   if (length != LLCP_PDU_DM_SIZE - LLCP_PDU_HEADER_SIZE) {
-    LLCP_TRACE_ERROR0("llcp_dlc_proc_dm_pdu (): Received invalid DM PDU");
+    LOG(ERROR) << StringPrintf("llcp_dlc_proc_dm_pdu (): Received invalid DM PDU");
   } else {
     if (*p_data == LLCP_SAP_DM_REASON_RESP_DISC) {
       /* local device initiated disconnecting */
@@ -874,7 +867,7 @@ static void llcp_dlc_proc_dm_pdu(uint8_t dsap, uint8_t ssap, uint16_t length,
       llcp_dlsm_execute(p_dlcb, LLCP_DLC_EVENT_PEER_DISCONNECT_RESP,
                         p_data); /* passing reason */
     } else {
-      LLCP_TRACE_ERROR2(
+      LOG(ERROR) << StringPrintf(
           "llcp_dlc_proc_dm_pdu (): No data link for SAP (0x%x,0x%x)", dsap,
           ssap);
     }
@@ -898,7 +891,7 @@ void llcp_dlc_proc_i_pdu(uint8_t dsap, uint8_t ssap, uint16_t i_pdu_length,
   bool appended;
   NFC_HDR* p_last_buf;
 
-  LLCP_TRACE_DEBUG0("llcp_dlc_proc_i_pdu ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("llcp_dlc_proc_i_pdu ()");
 
   p_dlcb = llcp_dlc_find_dlcb_by_sap(dsap, ssap);
 
@@ -906,7 +899,7 @@ void llcp_dlc_proc_i_pdu(uint8_t dsap, uint8_t ssap, uint16_t i_pdu_length,
     error_flags = 0;
 
     if ((p_msg == NULL) && (p_i_pdu == NULL)) {
-      LLCP_TRACE_ERROR0(
+      LOG(ERROR) << StringPrintf(
           "llcp_dlc_proc_i_pdu (): Both p_msg and p_i_pdu are NULL");
       /* Frame reject cannot be sent in this case, as we don't have sequence
        * number */
@@ -921,7 +914,7 @@ void llcp_dlc_proc_i_pdu(uint8_t dsap, uint8_t ssap, uint16_t i_pdu_length,
     info_len = i_pdu_length - LLCP_PDU_HEADER_SIZE - LLCP_SEQUENCE_SIZE;
 
     if (info_len > p_dlcb->local_miu) {
-      LLCP_TRACE_ERROR2(
+      LOG(ERROR) << StringPrintf(
           "llcp_dlc_proc_i_pdu (): exceeding local MIU (%d bytes): got %d "
           "bytes SDU",
           p_dlcb->local_miu, info_len);
@@ -935,16 +928,14 @@ void llcp_dlc_proc_i_pdu(uint8_t dsap, uint8_t ssap, uint16_t i_pdu_length,
     send_seq = LLCP_GET_NS(*p);
     rcv_seq = LLCP_GET_NR(*p);
 
-#if (BT_TRACE_VERBOSE == true)
-    LLCP_TRACE_DEBUG6(
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
         "LLCP RX I PDU - N(S,R):(%d,%d) V(S,SA,R,RA):(%d,%d,%d,%d)", send_seq,
         rcv_seq, p_dlcb->next_tx_seq, p_dlcb->rcvd_ack_seq, p_dlcb->next_rx_seq,
         p_dlcb->sent_ack_seq);
-#endif
 
     /* if send sequence number, N(S) is not expected one, V(R) */
     if (p_dlcb->next_rx_seq != send_seq) {
-      LLCP_TRACE_ERROR2("llcp_dlc_proc_i_pdu (): Bad N(S) got:%d, expected:%d",
+      LOG(ERROR) << StringPrintf("llcp_dlc_proc_i_pdu (): Bad N(S) got:%d, expected:%d",
                         send_seq, p_dlcb->next_rx_seq);
 
       error_flags |= LLCP_FRMR_S_ERROR_FLAG;
@@ -952,7 +943,7 @@ void llcp_dlc_proc_i_pdu(uint8_t dsap, uint8_t ssap, uint16_t i_pdu_length,
       /* if peer device sends more than our receiving window size */
       if ((uint8_t)(send_seq - p_dlcb->sent_ack_seq) % LLCP_SEQ_MODULO >=
           p_dlcb->local_rw) {
-        LLCP_TRACE_ERROR3(
+        LOG(ERROR) << StringPrintf(
             "llcp_dlc_proc_i_pdu (): Bad N(S):%d >= V(RA):%d + RW(L):%d",
             send_seq, p_dlcb->sent_ack_seq, p_dlcb->local_rw);
 
@@ -966,7 +957,7 @@ void llcp_dlc_proc_i_pdu(uint8_t dsap, uint8_t ssap, uint16_t i_pdu_length,
         (uint8_t)(p_dlcb->next_tx_seq - p_dlcb->rcvd_ack_seq) %
             LLCP_SEQ_MODULO) {
       error_flags |= LLCP_FRMR_R_ERROR_FLAG;
-      LLCP_TRACE_ERROR3(
+      LOG(ERROR) << StringPrintf(
           "llcp_dlc_proc_i_pdu (): Bad N(R):%d valid range [V(SA):%d, V(S):%d]",
           rcv_seq, p_dlcb->rcvd_ack_seq, p_dlcb->next_tx_seq);
     }
@@ -1044,7 +1035,7 @@ void llcp_dlc_proc_i_pdu(uint8_t dsap, uint8_t ssap, uint16_t i_pdu_length,
             p_msg->len = LLCP_PDU_AGF_LEN_SIZE + info_len;
             p_msg->layer_specific = 0;
           } else {
-            LLCP_TRACE_ERROR0("llcp_dlc_proc_i_pdu (): out of buffer");
+            LOG(ERROR) << StringPrintf("llcp_dlc_proc_i_pdu (): out of buffer");
           }
         }
 
@@ -1068,7 +1059,7 @@ void llcp_dlc_proc_i_pdu(uint8_t dsap, uint8_t ssap, uint16_t i_pdu_length,
 
       if ((!p_dlcb->is_rx_congested) &&
           (p_dlcb->num_rx_i_pdu >= p_dlcb->rx_congest_threshold)) {
-        LLCP_TRACE_DEBUG2(
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
             "llcp_dlc_proc_i_pdu (): congested num_rx_i_pdu=%d, "
             "rx_congest_threshold=%d",
             p_dlcb->num_rx_i_pdu, p_dlcb->rx_congest_threshold);
@@ -1079,7 +1070,7 @@ void llcp_dlc_proc_i_pdu(uint8_t dsap, uint8_t ssap, uint16_t i_pdu_length,
       }
     }
   } else {
-    LLCP_TRACE_ERROR2(
+    LOG(ERROR) << StringPrintf(
         "llcp_dlc_proc_i_pdu (): No data link for SAP (0x%x,0x%x)", dsap, ssap);
     llcp_util_send_dm(ssap, dsap, LLCP_SAP_DM_REASON_NO_ACTIVE_CONNECTION);
   }
@@ -1106,7 +1097,7 @@ static void llcp_dlc_proc_rr_rnr_pdu(uint8_t dsap, uint8_t ptype, uint8_t ssap,
   tLLCP_SAP_CBACK_DATA cback_data;
   bool old_remote_busy;
 
-  LLCP_TRACE_DEBUG0("llcp_dlc_proc_rr_rnr_pdu ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("llcp_dlc_proc_rr_rnr_pdu ()");
 
   p_dlcb = llcp_dlc_find_dlcb_by_sap(dsap, ssap);
   if (p_dlcb != NULL) {
@@ -1124,7 +1115,7 @@ static void llcp_dlc_proc_rr_rnr_pdu(uint8_t dsap, uint8_t ptype, uint8_t ssap,
         (uint8_t)(p_dlcb->next_tx_seq - p_dlcb->rcvd_ack_seq) %
             LLCP_SEQ_MODULO) {
       error_flags |= LLCP_FRMR_R_ERROR_FLAG;
-      LLCP_TRACE_ERROR3(
+      LOG(ERROR) << StringPrintf(
           "llcp_dlc_proc_rr_rnr_pdu (): Bad N(R):%d valid range [V(SA):%d, "
           "V(S):%d]",
           rcv_seq, p_dlcb->rcvd_ack_seq, p_dlcb->next_tx_seq);
@@ -1136,17 +1127,15 @@ static void llcp_dlc_proc_rr_rnr_pdu(uint8_t dsap, uint8_t ptype, uint8_t ssap,
     } else {
       p_dlcb->rcvd_ack_seq = rcv_seq;
 
-#if (BT_TRACE_VERBOSE == true)
-      LLCP_TRACE_DEBUG5("LLCP RX - N(S,R):(NA,%d) V(S,SA,R,RA):(%d,%d,%d,%d)",
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("LLCP RX - N(S,R):(NA,%d) V(S,SA,R,RA):(%d,%d,%d,%d)",
                         rcv_seq, p_dlcb->next_tx_seq, p_dlcb->rcvd_ack_seq,
                         p_dlcb->next_rx_seq, p_dlcb->sent_ack_seq);
-#endif
       old_remote_busy = p_dlcb->remote_busy;
       if (ptype == LLCP_PDU_RNR_TYPE) {
         p_dlcb->remote_busy = true;
         /* if upper layer hasn't get congestion started notification */
         if ((!old_remote_busy) && (!p_dlcb->is_tx_congested)) {
-          LLCP_TRACE_WARNING3(
+          LOG(WARNING) << StringPrintf(
               "llcp_dlc_proc_rr_rnr_pdu (): Data link (SSAP:DSAP=0x%X:0x%X) "
               "congestion start: i_xmit_q.count=%d",
               p_dlcb->local_sap, p_dlcb->remote_sap, p_dlcb->i_xmit_q.count);
@@ -1164,7 +1153,7 @@ static void llcp_dlc_proc_rr_rnr_pdu(uint8_t dsap, uint8_t ptype, uint8_t ssap,
         /* if upper layer hasn't get congestion ended notification and data link
          * is not congested */
         if ((old_remote_busy) && (!p_dlcb->is_tx_congested)) {
-          LLCP_TRACE_WARNING3(
+          LOG(WARNING) << StringPrintf(
               "llcp_dlc_proc_rr_rnr_pdu (): Data link (SSAP:DSAP=0x%X:0x%X) "
               "congestion end: i_xmit_q.count=%d",
               p_dlcb->local_sap, p_dlcb->remote_sap, p_dlcb->i_xmit_q.count);
@@ -1191,7 +1180,7 @@ static void llcp_dlc_proc_rr_rnr_pdu(uint8_t dsap, uint8_t ptype, uint8_t ssap,
       }
     }
   } else {
-    LLCP_TRACE_ERROR2(
+    LOG(ERROR) << StringPrintf(
         "llcp_dlc_proc_rr_rnr_pdu (): No data link for SAP (0x%x,0x%x)", dsap,
         ssap);
   }
@@ -1210,11 +1199,11 @@ void llcp_dlc_proc_rx_pdu(uint8_t dsap, uint8_t ptype, uint8_t ssap,
                           uint16_t length, uint8_t* p_data) {
   tLLCP_DLCB* p_dlcb;
 
-  LLCP_TRACE_DEBUG3("llcp_dlc_proc_rx_pdu (): DSAP:0x%x, PTYPE:0x%x, SSAP:0x%x",
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("llcp_dlc_proc_rx_pdu (): DSAP:0x%x, PTYPE:0x%x, SSAP:0x%x",
                     dsap, ptype, ssap);
 
   if (dsap == LLCP_SAP_LM) {
-    LLCP_TRACE_ERROR2(
+    LOG(ERROR) << StringPrintf(
         "llcp_dlc_proc_rx_pdu (): Invalid SAP:0x%x for PTYPE:0x%x", dsap,
         ptype);
     return;
@@ -1250,7 +1239,7 @@ void llcp_dlc_proc_rx_pdu(uint8_t dsap, uint8_t ptype, uint8_t ssap,
       break;
 
     default:
-      LLCP_TRACE_ERROR1("llcp_dlc_proc_rx_pdu (): Unexpected PDU type (0x%x)",
+      LOG(ERROR) << StringPrintf("llcp_dlc_proc_rx_pdu (): Unexpected PDU type (0x%x)",
                         ptype);
 
       p_dlcb = llcp_dlc_find_dlcb_by_sap(dsap, ssap);
@@ -1275,7 +1264,7 @@ void llcp_dlc_check_to_send_rr_rnr(void) {
   uint8_t idx;
   bool flush = true;
 
-  LLCP_TRACE_DEBUG0("llcp_dlc_check_to_send_rr_rnr ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("llcp_dlc_check_to_send_rr_rnr ()");
 
   /*
   ** DLC doesn't send RR PDU for each received I PDU because multiple I PDUs
@@ -1319,7 +1308,7 @@ bool llcp_dlc_is_rw_open(tLLCP_DLCB* p_dlcb) {
       p_dlcb->remote_rw) {
     return true;
   } else {
-    LLCP_TRACE_DEBUG3(
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
         "llcp_dlc_is_rw_open ():Flow Off, V(S):%d, V(SA):%d, RW(R):%d",
         p_dlcb->next_tx_seq, p_dlcb->rcvd_ack_seq, p_dlcb->remote_rw);
     return false;
@@ -1340,9 +1329,7 @@ NFC_HDR* llcp_dlc_get_next_pdu(tLLCP_DLCB* p_dlcb) {
   bool flush = true;
   tLLCP_SAP_CBACK_DATA data;
 
-#if (BT_TRACE_VERBOSE == true)
   uint8_t send_seq = p_dlcb->next_tx_seq;
-#endif
 
   /* if there is data to send and remote device can receive it */
   if ((p_dlcb->i_xmit_q.count) && (!p_dlcb->remote_busy) &&
@@ -1357,14 +1344,12 @@ NFC_HDR* llcp_dlc_get_next_pdu(tLLCP_DLCB* p_dlcb) {
 
         p_dlcb->next_tx_seq = (p_dlcb->next_tx_seq + 1) % LLCP_SEQ_MODULO;
 
-#if (BT_TRACE_VERBOSE == true)
-        LLCP_TRACE_DEBUG6("LLCP TX - N(S,R):(%d,%d) V(S,SA,R,RA):(%d,%d,%d,%d)",
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("LLCP TX - N(S,R):(%d,%d) V(S,SA,R,RA):(%d,%d,%d,%d)",
                           send_seq, p_dlcb->next_rx_seq, p_dlcb->next_tx_seq,
                           p_dlcb->rcvd_ack_seq, p_dlcb->next_rx_seq,
                           p_dlcb->sent_ack_seq);
-#endif
       } else {
-        LLCP_TRACE_ERROR2(
+        LOG(ERROR) << StringPrintf(
             "LLCP - llcp_dlc_get_next_pdu (): offset (%d) must be %d at least",
             p_msg->offset, LLCP_MIN_OFFSET);
         GKI_freebuf(p_msg);
@@ -1420,7 +1405,6 @@ uint16_t llcp_dlc_get_next_pdu_length(tLLCP_DLCB* p_dlcb) {
   return 0;
 }
 
-#if (BT_TRACE_VERBOSE == true)
 /*******************************************************************************
 **
 ** Function         llcp_dlsm_get_state_name
@@ -1493,4 +1477,3 @@ static std::string llcp_dlsm_get_event_name(tLLCP_DLC_EVENT event) {
       return ("???? UNKNOWN EVENT");
   }
 }
-#endif /* (BT_TRACE_VERBOSE == true) */

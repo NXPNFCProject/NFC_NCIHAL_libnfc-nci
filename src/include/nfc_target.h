@@ -37,6 +37,7 @@
 #ifndef NFC_TARGET_H
 #define NFC_TARGET_H
 
+#include "_OverrideLog.h"
 #include "data_types.h"
 
 #ifdef BUILDCFG
@@ -47,9 +48,6 @@
 #include "gki_target.h"
 
 #include "bt_types.h" /* This must be defined AFTER buildcfg.h */
-#ifndef LMP_TEST
-#include "bt_trace.h"
-#endif
 
 #ifndef USERIAL_DEBUG
 #define USERIAL_DEBUG false

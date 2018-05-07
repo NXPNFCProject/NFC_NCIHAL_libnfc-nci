@@ -47,11 +47,6 @@
 
 #define BTE_APPL_MAX_USERIAL_DEV_NAME (256)
 
-#ifdef BT_TRACE_VERBOSE
-#undef BT_TRACE_VERBOSE
-#endif
-#define BT_TRACE_VERBOSE true
-
 #define TRACE_TASK_INCLUDED true
 
 #define GKI_BUF1_MAX 0

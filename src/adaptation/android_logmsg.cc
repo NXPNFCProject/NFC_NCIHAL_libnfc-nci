@@ -75,8 +75,8 @@ void ProtoDispAdapterDisplayNciPacket(uint8_t* nciPacket, uint16_t nciPacketLen,
   if (!(ScrProtocolTraceFlag & SCR_PROTO_TRACE_NCI)) return;
   char line_buf[(MAX_NCI_PACKET_SIZE * 2) + 1];
   ToHex(nciPacket, nciPacketLen, line_buf, sizeof(line_buf));
-  __android_log_write(ANDROID_LOG_DEBUG, (is_recv) ? "BrcmNciR" : "BrcmNciX",
-                      line_buf);
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("%s:%s", is_recv ? "NciR" : "NciX", line_buf);
 }
 
 void ToHex(const uint8_t* data, uint16_t len, char* hexString,
@@ -188,7 +188,7 @@ void DispHciCmd(NFC_HDR* p_buf) {
   uint8_t* data = (uint8_t*)p_buf;
   int data_len = NFC_HDR_SIZE + p_buf->offset + p_buf->len;
 
-  if (appl_trace_level < BT_TRACE_LEVEL_DEBUG) return;
+  if (!nfc_debug_enabled) return;
 
   if (nBytes > sizeof(log_line)) return;
 
@@ -202,7 +202,7 @@ void DispHciEvt(NFC_HDR* p_buf) {
   uint8_t* data = (uint8_t*)p_buf;
   int data_len = NFC_HDR_SIZE + p_buf->offset + p_buf->len;
 
-  if (appl_trace_level < BT_TRACE_LEVEL_DEBUG) return;
+  if (!nfc_debug_enabled) return;
 
   if (nBytes > sizeof(log_line)) return;
 
@@ -224,13 +224,13 @@ void DispLLCP(NFC_HDR* p_buf, bool is_recv) {
   uint8_t* data = (uint8_t*)p_buf;
   int data_len = NFC_HDR_SIZE + p_buf->offset + p_buf->len;
 
-  if (appl_trace_level < BT_TRACE_LEVEL_DEBUG) return;
+  if (!nfc_debug_enabled) return;
 
   if (nBytes > sizeof(log_line)) return;
 
   ToHex(data, data_len, log_line, sizeof(log_line));
-  __android_log_write(ANDROID_LOG_DEBUG, (is_recv) ? "BrcmLlcpR" : "BrcmLlcpX",
-                      log_line);
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("%s:%s", is_recv ? "LlcpR" : "LlcpX", log_line);
 }
 
 /***************************************************************************
@@ -245,7 +245,7 @@ void DispLLCP(NFC_HDR* p_buf, bool is_recv) {
 void DispHcp(uint8_t* data, uint16_t len, bool is_recv) {
   uint32_t nBytes = (len * 2) + 1;
 
-  if (appl_trace_level < BT_TRACE_LEVEL_DEBUG) return;
+  if (!nfc_debug_enabled) return;
 
   // Only trace HCP if we're tracing HCI as well
   if (!(ScrProtocolTraceFlag & SCR_PROTO_TRACE_HCI_SUMMARY)) return;
@@ -253,8 +253,8 @@ void DispHcp(uint8_t* data, uint16_t len, bool is_recv) {
   if (nBytes > sizeof(log_line)) return;
 
   ToHex(data, len, log_line, sizeof(log_line));
-  __android_log_write(ANDROID_LOG_DEBUG, (is_recv) ? "BrcmHcpR" : "BrcmHcpX",
-                      log_line);
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("%s:%s", is_recv ? "HcpR" : "HcpX", log_line);
 }
 
 void DispSNEP(uint8_t local_sap, uint8_t remote_sap, NFC_HDR* p_buf,
@@ -293,59 +293,3 @@ void DispNDEFMsg(uint8_t* pMsg, uint32_t MsgLen, bool is_recv) {
   UNUSED(is_recv);
 }
 
-/*******************************************************************************
-**
-** Function:        LogMsg
-**
-** Description:     Print messages from NFC stack.
-**
-** Returns:         None.
-**
-*******************************************************************************/
-void LogMsg(uint32_t trace_set_mask, const char* fmt_str, ...) {
-  static char buffer[BTE_LOG_BUF_SIZE];
-  va_list ap;
-  uint32_t trace_type =
-      trace_set_mask & 0x07;  // lower 3 bits contain trace type
-  int android_log_type = ANDROID_LOG_INFO;
-
-  va_start(ap, fmt_str);
-  vsnprintf(buffer, BTE_LOG_MAX_SIZE, fmt_str, ap);
-  va_end(ap);
-  if (trace_type == TRACE_TYPE_ERROR) android_log_type = ANDROID_LOG_ERROR;
-  __android_log_write(android_log_type, LOGMSG_TAG_NAME, buffer);
-}
-
-void LogMsg_0(uint32_t maskTraceSet, const char* p_str) {
-  LogMsg(maskTraceSet, p_str);
-}
-
-void LogMsg_1(uint32_t maskTraceSet, const char* fmt_str, uintptr_t p1) {
-  LogMsg(maskTraceSet, fmt_str, p1);
-}
-
-void LogMsg_2(uint32_t maskTraceSet, const char* fmt_str, uintptr_t p1,
-              uintptr_t p2) {
-  LogMsg(maskTraceSet, fmt_str, p1, p2);
-}
-
-void LogMsg_3(uint32_t maskTraceSet, const char* fmt_str, uintptr_t p1,
-              uintptr_t p2, uintptr_t p3) {
-  LogMsg(maskTraceSet, fmt_str, p1, p2, p3);
-}
-
-void LogMsg_4(uint32_t maskTraceSet, const char* fmt_str, uintptr_t p1,
-              uintptr_t p2, uintptr_t p3, uintptr_t p4) {
-  LogMsg(maskTraceSet, fmt_str, p1, p2, p3, p4);
-}
-
-void LogMsg_5(uint32_t maskTraceSet, const char* fmt_str, uintptr_t p1,
-              uintptr_t p2, uintptr_t p3, uintptr_t p4, uintptr_t p5) {
-  LogMsg(maskTraceSet, fmt_str, p1, p2, p3, p4, p5);
-}
-
-void LogMsg_6(uint32_t maskTraceSet, const char* fmt_str, uintptr_t p1,
-              uintptr_t p2, uintptr_t p3, uintptr_t p4, uintptr_t p5,
-              uintptr_t p6) {
-  LogMsg(maskTraceSet, fmt_str, p1, p2, p3, p4, p5, p6);
-}

@@ -48,7 +48,7 @@
 *******************************************************************************/
 tNFC_STATUS NFC_NfceeDiscover(bool discover) {
   if(nfc_cb.flags & NFC_FL_WAIT_MODE_SET_NTF) {
-    NFC_TRACE_ERROR1("mode set ntf pending ,not allowing nfcee_discover %d", discover);
+    LOG(ERROR) << StringPrintf("mode set ntf pending ,not allowing nfcee_discover %d", discover);
     return NFC_STATUS_FAILED;
   }
   return nci_snd_nfcee_discover((uint8_t)(
@@ -74,7 +74,7 @@ tNFC_STATUS NFC_NfceeDiscover(bool discover) {
 tNFC_STATUS NFC_NfceeModeSet(uint8_t nfcee_id, tNFC_NFCEE_MODE mode) {
   tNFC_STATUS status = NCI_STATUS_OK;
   if (mode >= NCI_NUM_NFCEE_MODE|| nfcee_id == 0x00) {
-    NFC_TRACE_ERROR1("NFC_NfceeModeSet bad mode:%d", mode);
+    LOG(ERROR) << StringPrintf("NFC_NfceeModeSet bad mode:%d", mode);
     return NFC_STATUS_FAILED;
   }
   if(nfc_cb.nci_version != NCI_VERSION_2_0)

@@ -49,7 +49,6 @@
 /*****************************************************************************
 **  Constants and data types
 *****************************************************************************/
-#define NFA_EE_DEBUG BT_TRACE_VERBOSE
 /* the number of tNFA_EE_ECBs (for NFCEEs and DH) */
 #define NFA_EE_NUM_ECBS (NFA_EE_MAX_EE_SUPPORTED + 1)
 /* The index for DH in nfa_ee_cb.ee_cb[] */

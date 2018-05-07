@@ -119,7 +119,7 @@ const tNFA_EE_SM_ACT nfa_ee_actions[] = {
 void nfa_ee_init(void) {
   int xx;
 
-  NFA_TRACE_DEBUG0("nfa_ee_init ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ee_init ()");
 
   /* initialize control block */
   memset(&nfa_ee_cb, 0, sizeof(tNFA_EE_CB));
@@ -150,7 +150,7 @@ void nfa_ee_init(void) {
 void nfa_ee_sys_enable(void) {
   unsigned long retlen = 0;
 
-  NFA_TRACE_DEBUG1("%s", __func__);
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s", __func__);
 
   nfa_ee_cb.route_block_control = 0x00;
 
@@ -158,7 +158,7 @@ void nfa_ee_sys_enable(void) {
     if ((retlen == 0x01) && ((NFC_GetNCIVersion() == NCI_VERSION_2_0)
         || (nfcFL.nfccFL._NFCC_ROUTING_BLOCK_BIT == true))) {
       nfa_ee_cb.route_block_control = NCI_ROUTE_QUAL_BLOCK_ROUTE;
-      NFA_TRACE_DEBUG1("nfa_ee_cb.route_block_control=0x%x",
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ee_cb.route_block_control=0x%x",
                        nfa_ee_cb.route_block_control);
     }
   }
@@ -191,7 +191,7 @@ void nfa_ee_restore_one_ecb(tNFA_EE_ECB* p_cb) {
   tNFC_NFCEE_MODE_SET_REVT rsp;
   tNFA_EE_NCI_MODE_SET ee_msg;
 
-  NFA_TRACE_DEBUG4(
+   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "nfa_ee_restore_one_ecb () nfcee_id:0x%x, ecb_flags:0x%x ee_status:0x%x "
       "ee_old_status: 0x%x",
       p_cb->nfcee_id, p_cb->ecb_flags, p_cb->ee_status, p_cb->ee_old_status);
@@ -252,7 +252,7 @@ void nfa_ee_proc_nfcc_power_mode(uint8_t nfcc_power_mode) {
   tNFA_EE_ECB* p_cb;
   bool proc_complete = true;
 
-  NFA_TRACE_DEBUG1("nfa_ee_proc_nfcc_power_mode (): nfcc_power_mode=%d",
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ee_proc_nfcc_power_mode (): nfcc_power_mode=%d",
                    nfcc_power_mode);
   /* if NFCC power state is change to full power */
   if (nfcc_power_mode == NFA_DM_PWR_MODE_FULL) {
@@ -313,7 +313,7 @@ void nfa_ee_proc_hci_info_cback(void) {
   tNFA_EE_ECB* p_cb;
   tNFA_EE_MSG data;
 
-  NFA_TRACE_DEBUG0("nfa_ee_proc_hci_info_cback ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ee_proc_hci_info_cback ()");
   /* if NFCC power state is change to full power */
   nfa_ee_cb.ee_flags &= ~NFA_EE_FLAG_WAIT_HCI;
 
@@ -397,7 +397,7 @@ void nfa_ee_proc_evt(tNFC_RESPONSE_EVT event, void* p_data) {
       break;
   }
 
-  NFA_TRACE_DEBUG2("nfa_ee_proc_evt: event=0x%02x int_event:0x%x", event,
+   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ee_proc_evt: event=0x%02x int_event:0x%x", event,
                    int_event);
   if (int_event) {
     cbk.hdr.event = int_event;
@@ -441,7 +441,7 @@ uint8_t nfa_ee_ecb_to_mask(tNFA_EE_ECB* p_cb) {
 tNFA_EE_ECB* nfa_ee_find_ecb(uint8_t nfcee_id) {
   uint32_t xx;
   tNFA_EE_ECB* p_ret = NULL, *p_cb;
-  NFA_TRACE_DEBUG0("nfa_ee_find_ecb ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ee_find_ecb ()");
 
   if (nfcee_id == NFC_DH_ID) {
     p_ret = &nfa_ee_cb.ecb[NFA_EE_CB_4_DH];
@@ -470,7 +470,7 @@ tNFA_EE_ECB* nfa_ee_find_ecb(uint8_t nfcee_id) {
 tNFA_EE_ECB* nfa_ee_find_ecb_by_conn_id(uint8_t conn_id) {
   uint32_t xx;
   tNFA_EE_ECB* p_ret = NULL, *p_cb;
-  NFA_TRACE_DEBUG0("nfa_ee_find_ecb_by_conn_id ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ee_find_ecb_by_conn_id ()");
 
   p_cb = nfa_ee_cb.ecb;
   for (xx = 0; xx < nfa_ee_cb.cur_ee; xx++, p_cb++) {
@@ -498,7 +498,7 @@ void nfa_ee_sys_disable(void) {
   tNFA_EE_ECB* p_cb;
   tNFA_EE_MSG msg;
 
-  NFA_TRACE_DEBUG0("nfa_ee_sys_disable ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ee_sys_disable ()");
 
   nfa_ee_cb.em_state = NFA_EE_EM_STATE_DISABLED;
   /* report NFA_EE_DEREGISTER_EVT to all registered to EE */
@@ -600,7 +600,6 @@ void nfa_ee_reg_cback_enable_done(tNFA_EE_ENABLE_DONE_CBACK* p_cback) {
   nfa_ee_cb.p_enable_cback = p_cback;
 }
 
-#if (BT_TRACE_VERBOSE == true)
 /*******************************************************************************
 **
 ** Function         nfa_ee_sm_st_2_str
@@ -704,7 +703,6 @@ static std::string nfa_ee_sm_evt_2_str(uint16_t event) {
       return "Unknown";
   }
 }
-#endif /* BT_TRACE_VERBOSE */
 
 /*******************************************************************************
 **
@@ -719,22 +717,16 @@ static std::string nfa_ee_sm_evt_2_str(uint16_t event) {
 bool nfa_ee_evt_hdlr(NFC_HDR* p_msg) {
   bool act = false;
 
-#if (BT_TRACE_VERBOSE == true)
-#else
-  NFA_TRACE_DEBUG4("nfa_ee_evt_hdlr (): Event %s(0x%02x), State: %s(%d)",
-                   nfa_ee_sm_evt_2_str(p_msg->event).c_str(), p_msg->event,
-                   nfa_ee_sm_st_2_str(nfa_ee_cb.em_state).c_str(),
-                   nfa_ee_cb.em_state);
-#else
-  NFA_TRACE_DEBUG2("nfa_ee_evt_hdlr (): Event 0x%02x, State: %d", p_msg->event,
-                   nfa_ee_cb.em_state);
-#endif
+DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+      "Event %s(0x%02x), State: %s(%d)",
+      nfa_ee_sm_evt_2_str(p_msg->event).c_str(), p_msg->event,
+      nfa_ee_sm_st_2_str(nfa_ee_cb.em_state).c_str(), nfa_ee_cb.em_state);
 
 #if 0
     /*This is required to receive Reader Over SWP event*/
     if(p_evt_data->hdr.event == NFA_EE_NCI_DISC_NTF_EVT)
     {
-        NFA_TRACE_DEBUG0("recived dis_ntf; stopping timer");
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("recived dis_ntf; stopping timer");
         nfa_sys_stop_timer(&nfa_ee_cb.discv_timer);
     }
 #endif

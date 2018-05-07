@@ -73,7 +73,7 @@ bool llcp_util_parse_link_params(uint16_t length, uint8_t* p_bytes) {
       case LLCP_VERSION_TYPE:
         BE_STREAM_TO_UINT8(param_len, p);
         BE_STREAM_TO_UINT8(llcp_cb.lcb.peer_version, p);
-        LLCP_TRACE_DEBUG1("Peer Version - 0x%02X", llcp_cb.lcb.peer_version);
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Peer Version - 0x%02X", llcp_cb.lcb.peer_version);
         break;
 
       case LLCP_MIUX_TYPE:
@@ -81,30 +81,30 @@ bool llcp_util_parse_link_params(uint16_t length, uint8_t* p_bytes) {
         BE_STREAM_TO_UINT16(llcp_cb.lcb.peer_miu, p);
         llcp_cb.lcb.peer_miu &= LLCP_MIUX_MASK;
         llcp_cb.lcb.peer_miu += LLCP_DEFAULT_MIU;
-        LLCP_TRACE_DEBUG1("Peer MIU - %d bytes", llcp_cb.lcb.peer_miu);
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Peer MIU - %d bytes", llcp_cb.lcb.peer_miu);
         break;
 
       case LLCP_WKS_TYPE:
         BE_STREAM_TO_UINT8(param_len, p);
         BE_STREAM_TO_UINT16(llcp_cb.lcb.peer_wks, p);
-        LLCP_TRACE_DEBUG1("Peer WKS - 0x%04X", llcp_cb.lcb.peer_wks);
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Peer WKS - 0x%04X", llcp_cb.lcb.peer_wks);
         break;
 
       case LLCP_LTO_TYPE:
         BE_STREAM_TO_UINT8(param_len, p);
         BE_STREAM_TO_UINT8(llcp_cb.lcb.peer_lto, p);
         llcp_cb.lcb.peer_lto *= LLCP_LTO_UNIT; /* 10ms unit */
-        LLCP_TRACE_DEBUG1("Peer LTO - %d ms", llcp_cb.lcb.peer_lto);
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Peer LTO - %d ms", llcp_cb.lcb.peer_lto);
         break;
 
       case LLCP_OPT_TYPE:
         BE_STREAM_TO_UINT8(param_len, p);
         BE_STREAM_TO_UINT8(llcp_cb.lcb.peer_opt, p);
-        LLCP_TRACE_DEBUG1("Peer OPT - 0x%02X", llcp_cb.lcb.peer_opt);
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Peer OPT - 0x%02X", llcp_cb.lcb.peer_opt);
         break;
 
       default:
-        LLCP_TRACE_ERROR1(
+        LOG(ERROR) << StringPrintf(
             "llcp_util_parse_link_params (): Unexpected type 0x%x", param_type);
         BE_STREAM_TO_UINT8(param_len, p);
         p += param_len;
@@ -114,7 +114,7 @@ bool llcp_util_parse_link_params(uint16_t length, uint8_t* p_bytes) {
     if (length >= param_len + 1)
       length -= param_len + 1;
     else {
-      LLCP_TRACE_ERROR0("llcp_util_parse_link_params (): Bad LTV's");
+      LOG(ERROR) << StringPrintf("llcp_util_parse_link_params (): Bad LTV's");
       return (false);
     }
   }
@@ -156,7 +156,7 @@ void llcp_util_adjust_ll_congestion(void) {
     llcp_cb.ll_tx_congest_end = 0;
   }
 
-  LLCP_TRACE_DEBUG4(
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "num_logical_data_link=%d, ll_tx_congest_start=%d, ll_tx_congest_end=%d, "
       "ll_rx_congest_start=%d",
       llcp_cb.num_logical_data_link, llcp_cb.ll_tx_congest_start,
@@ -194,7 +194,7 @@ void llcp_util_adjust_dl_rx_congestion(void) {
           llcp_cb.dlcb[idx].rx_congest_threshold = LLCP_DL_MIN_RX_CONGEST;
         }
 
-        LLCP_TRACE_DEBUG3("DLC[%d], local_rw=%d, rx_congest_threshold=%d", idx,
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("DLC[%d], local_rw=%d, rx_congest_threshold=%d", idx,
                           llcp_cb.dlcb[idx].local_rw,
                           llcp_cb.dlcb[idx].rx_congest_threshold);
       }
@@ -218,7 +218,7 @@ void llcp_util_check_rx_congested_status(void) {
     /* check if rx congestion clear */
     if (llcp_cb.total_rx_ui_pdu + llcp_cb.total_rx_i_pdu <=
         llcp_cb.overall_rx_congest_end) {
-      LLCP_TRACE_DEBUG3(
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
           "llcp_util_check_rx_congested_status (): rx link is uncongested, "
           "%d+%d <= %d",
           llcp_cb.total_rx_ui_pdu, llcp_cb.total_rx_i_pdu,
@@ -238,7 +238,7 @@ void llcp_util_check_rx_congested_status(void) {
     /* check if rx link is congested */
     if (llcp_cb.total_rx_ui_pdu + llcp_cb.total_rx_i_pdu >=
         llcp_cb.overall_rx_congest_start) {
-      LLCP_TRACE_WARNING3(
+      LOG(WARNING) << StringPrintf(
           "llcp_util_check_rx_congested_status (): rx link is congested, %d+%d "
           ">= %d",
           llcp_cb.total_rx_ui_pdu, llcp_cb.total_rx_i_pdu,
@@ -303,7 +303,7 @@ tLLCP_STATUS llcp_util_send_ui(uint8_t ssap, uint8_t dsap,
     /* or notify uncongestion later */
     p_app_cb->is_ui_tx_congested = true;
 
-    LLCP_TRACE_WARNING2("Logical link (SAP=0x%X) congested: ui_xmit_q.count=%d",
+    LOG(WARNING) << StringPrintf("Logical link (SAP=0x%X) congested: ui_xmit_q.count=%d",
                         ssap, p_app_cb->ui_xmit_q.count);
 
     status = LLCP_STATUS_CONGESTED;
@@ -352,7 +352,7 @@ tLLCP_DLCB* llcp_util_allocate_data_link(uint8_t reg_sap, uint8_t remote_sap) {
   tLLCP_DLCB* p_dlcb = NULL;
   int idx;
 
-  LLCP_TRACE_DEBUG2(
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "llcp_util_allocate_data_link (): reg_sap = 0x%x, remote_sap = 0x%x",
       reg_sap, remote_sap);
 
@@ -366,7 +366,7 @@ tLLCP_DLCB* llcp_util_allocate_data_link(uint8_t reg_sap, uint8_t remote_sap) {
   }
 
   if (!p_dlcb) {
-    LLCP_TRACE_ERROR0("llcp_util_allocate_data_link (): Out of DLCB");
+    LOG(ERROR) << StringPrintf("llcp_util_allocate_data_link (): Out of DLCB");
   } else {
     p_dlcb->p_app_cb = llcp_util_get_app_cb(reg_sap);
     p_dlcb->local_sap = reg_sap;
@@ -376,7 +376,7 @@ tLLCP_DLCB* llcp_util_allocate_data_link(uint8_t reg_sap, uint8_t remote_sap) {
     /* this is for inactivity timer and congestion control. */
     llcp_cb.num_data_link_connection++;
 
-    LLCP_TRACE_DEBUG3(
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
         "llcp_util_allocate_data_link (): local_sap = 0x%x, remote_sap = 0x%x, "
         "num_data_link_connection = %d",
         p_dlcb->local_sap, p_dlcb->remote_sap,
@@ -396,7 +396,7 @@ tLLCP_DLCB* llcp_util_allocate_data_link(uint8_t reg_sap, uint8_t remote_sap) {
 ******************************************************************************/
 void llcp_util_deallocate_data_link(tLLCP_DLCB* p_dlcb) {
   if (p_dlcb) {
-    LLCP_TRACE_DEBUG1("llcp_util_deallocate_data_link (): local_sap = 0x%x",
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("llcp_util_deallocate_data_link (): local_sap = 0x%x",
                       p_dlcb->local_sap);
 
     if (p_dlcb->state != LLCP_DLC_STATE_IDLE) {
@@ -409,7 +409,7 @@ void llcp_util_deallocate_data_link(tLLCP_DLCB* p_dlcb) {
         llcp_cb.num_data_link_connection--;
       }
 
-      LLCP_TRACE_DEBUG1(
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
           "llcp_util_deallocate_data_link (): num_data_link_connection = %d",
           llcp_cb.num_data_link_connection);
     }
@@ -510,7 +510,7 @@ tLLCP_STATUS llcp_util_parse_connect(uint8_t* p_bytes, uint16_t length,
         p_params->miu &= LLCP_MIUX_MASK;
         p_params->miu += LLCP_DEFAULT_MIU;
 
-        LLCP_TRACE_DEBUG1("llcp_util_parse_connect (): LLCP_MIUX_TYPE:%d",
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("llcp_util_parse_connect (): LLCP_MIUX_TYPE:%d",
                           p_params->miu);
         break;
 
@@ -519,7 +519,7 @@ tLLCP_STATUS llcp_util_parse_connect(uint8_t* p_bytes, uint16_t length,
         BE_STREAM_TO_UINT8(p_params->rw, p);
         p_params->rw &= 0x0F;
 
-        LLCP_TRACE_DEBUG1("llcp_util_parse_connect (): LLCP_RW_TYPE:%d",
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("llcp_util_parse_connect (): LLCP_RW_TYPE:%d",
                           p_params->rw);
         break;
 
@@ -538,12 +538,12 @@ tLLCP_STATUS llcp_util_parse_connect(uint8_t* p_bytes, uint16_t length,
         }
         p += param_len;
 
-        LLCP_TRACE_DEBUG1("llcp_util_parse_connect (): LLCP_SN_TYPE:<%s>",
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("llcp_util_parse_connect (): LLCP_SN_TYPE:<%s>",
                           p_params->sn);
         break;
 
       default:
-        LLCP_TRACE_ERROR1("llcp_util_parse_connect (): Unexpected type 0x%x",
+        LOG(ERROR) << StringPrintf("llcp_util_parse_connect (): Unexpected type 0x%x",
                           param_type);
         BE_STREAM_TO_UINT8(param_len, p);
         p += param_len;
@@ -554,7 +554,7 @@ tLLCP_STATUS llcp_util_parse_connect(uint8_t* p_bytes, uint16_t length,
     if (length >= param_len + 1) {
       length -= param_len + 1;
     } else {
-      LLCP_TRACE_ERROR0("llcp_util_parse_connect (): Bad LTV's");
+      LOG(ERROR) << StringPrintf("llcp_util_parse_connect (): Bad LTV's");
       return LLCP_STATUS_FAIL;
     }
   }
@@ -644,7 +644,7 @@ tLLCP_STATUS llcp_util_parse_cc(uint8_t* p_bytes, uint16_t length,
         (*p_miu) &= LLCP_MIUX_MASK;
         (*p_miu) += LLCP_DEFAULT_MIU;
 
-        LLCP_TRACE_DEBUG1("llcp_util_parse_cc (): LLCP_MIUX_TYPE:%d", *p_miu);
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("llcp_util_parse_cc (): LLCP_MIUX_TYPE:%d", *p_miu);
         break;
 
       case LLCP_RW_TYPE:
@@ -652,11 +652,11 @@ tLLCP_STATUS llcp_util_parse_cc(uint8_t* p_bytes, uint16_t length,
         BE_STREAM_TO_UINT8((*p_rw), p);
         (*p_rw) &= 0x0F;
 
-        LLCP_TRACE_DEBUG1("llcp_util_parse_cc (): LLCP_RW_TYPE:%d", *p_rw);
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("llcp_util_parse_cc (): LLCP_RW_TYPE:%d", *p_rw);
         break;
 
       default:
-        LLCP_TRACE_ERROR1("llcp_util_parse_cc (): Unexpected type 0x%x",
+        LOG(ERROR) << StringPrintf("llcp_util_parse_cc (): Unexpected type 0x%x",
                           param_type);
         BE_STREAM_TO_UINT8(param_len, p);
         p += param_len;
@@ -666,7 +666,7 @@ tLLCP_STATUS llcp_util_parse_cc(uint8_t* p_bytes, uint16_t length,
     if (length >= param_len + 1)
       length -= param_len + 1;
     else {
-      LLCP_TRACE_ERROR0("llcp_util_parse_cc (): Bad LTV's");
+      LOG(ERROR) << StringPrintf("llcp_util_parse_cc (): Bad LTV's");
       return LLCP_STATUS_FAIL;
     }
   }
@@ -782,7 +782,7 @@ tLLCP_STATUS llcp_util_send_frmr(tLLCP_DLCB* p_dlcb, uint8_t flags,
 
     return LLCP_STATUS_SUCCESS;
   } else {
-    LLCP_TRACE_ERROR0("llcp_util_send_frmr (): Out of resource");
+    LOG(ERROR) << StringPrintf("llcp_util_send_frmr (): Out of resource");
     return LLCP_STATUS_FAIL;
   }
 }
@@ -821,7 +821,7 @@ void llcp_util_send_rr_rnr(tLLCP_DLCB* p_dlcb) {
 
   if ((p_dlcb->local_busy) || (p_dlcb->is_rx_congested) ||
       (llcp_cb.overall_rx_congested)) {
-    LLCP_TRACE_DEBUG3(
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
         "llcp_util_send_rr_rnr (): "
         "local_busy=%d,is_rx_congested=%d,overall_rx_congested=%d",
         p_dlcb->local_busy, p_dlcb->is_rx_congested,
@@ -855,16 +855,14 @@ void llcp_util_send_rr_rnr(tLLCP_DLCB* p_dlcb) {
 
     UINT8_TO_BE_STREAM(p, rcv_seq);
 
-#if (BT_TRACE_VERBOSE == true)
-    LLCP_TRACE_DEBUG5("LLCP TX - N(S,R):(NA,%d) V(S,SA,R,RA):(%d,%d,%d,%d)",
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("LLCP TX - N(S,R):(NA,%d) V(S,SA,R,RA):(%d,%d,%d,%d)",
                       p_dlcb->next_rx_seq, p_dlcb->next_tx_seq,
                       p_dlcb->rcvd_ack_seq, p_dlcb->next_rx_seq,
                       p_dlcb->sent_ack_seq);
-#endif
     GKI_enqueue(&llcp_cb.lcb.sig_xmit_q, p_msg);
     llcp_link_check_send_data();
   } else {
-    LLCP_TRACE_ERROR0("llcp_util_send_rr_rnr (): Out of resource");
+    LOG(ERROR) << StringPrintf("llcp_util_send_rr_rnr (): Out of resource");
   }
 }
 

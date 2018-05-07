@@ -84,7 +84,7 @@ extern void nfa_nv_co_read(uint8_t* pBuffer, uint16_t nbytes, uint8_t block) {
   strcpy(filename2, bcm_nfc_location);
   strncat(filename2, sNfaStorageBin, sizeof(filename2) - strlen(filename2) - 1);
   if (strlen(filename2) > 200) {
-    ALOGE("%s: filename too long", __func__);
+    LOG(ERROR) << StringPrintf("%s: filename too long", __func__);
     return;
   }
   sprintf(filename, "%s%u", filename2, block);
@@ -100,7 +100,7 @@ extern void nfa_nv_co_read(uint8_t* pBuffer, uint16_t nbytes, uint8_t block) {
       ALOGD("%s: data size=%zu", __func__, actualReadData);
       nfa_nv_ci_read(actualReadData, NFA_NV_CO_OK, block);
     } else {
-      ALOGE("%s: fail to read", __func__);
+      LOG(ERROR) << StringPrintf("%s: fail to read", __func__);
       nfa_nv_ci_read(0, NFA_NV_CO_FAIL, block);
     }
   } else {
@@ -137,7 +137,7 @@ extern void nfa_nv_co_write(const uint8_t* pBuffer, uint16_t nbytes,
   strcpy(filename2, bcm_nfc_location);
   strncat(filename2, sNfaStorageBin, sizeof(filename2) - strlen(filename2) - 1);
   if (strlen(filename2) > 200) {
-    ALOGE("%s: filename too long", __func__);
+    LOG(ERROR) << StringPrintf("%s: filename too long", __func__);
     return;
   }
   sprintf(filename, "%s%u", filename2, block);
@@ -155,12 +155,12 @@ extern void nfa_nv_co_write(const uint8_t* pBuffer, uint16_t nbytes,
         (actualWrittenCrc == sizeof(checksum))) {
       nfa_nv_ci_write(NFA_NV_CO_OK);
     } else {
-      ALOGE("%s: fail to write", __func__);
+      LOG(ERROR) << StringPrintf("%s: fail to write", __func__);
       nfa_nv_ci_write(NFA_NV_CO_FAIL);
     }
     close(fileStream);
   } else {
-    ALOGE("%s: fail to open, error = %d", __func__, errno);
+    LOG(ERROR) << StringPrintf("%s: fail to open, error = %d", __func__, errno);
     nfa_nv_ci_write(NFA_NV_CO_FAIL);
   }
 }
@@ -190,7 +190,7 @@ void delete_stack_non_volatile_store(bool forceDelete) {
   strcpy(filename2, bcm_nfc_location);
   strncat(filename2, sNfaStorageBin, sizeof(filename2) - strlen(filename2) - 1);
   if (strlen(filename2) > 200) {
-    ALOGE("%s: filename too long", __func__);
+    LOG(ERROR) << StringPrintf("%s: filename too long", __func__);
     return;
   }
   sprintf(filename, "%s%u", filename2, DH_NV_BLOCK);
@@ -226,7 +226,7 @@ void verify_stack_non_volatile_store() {
   strcpy(filename2, bcm_nfc_location);
   strncat(filename2, sNfaStorageBin, sizeof(filename2) - strlen(filename2) - 1);
   if (strlen(filename2) > 200) {
-    ALOGE("%s: filename too long", __func__);
+    LOG(ERROR) << StringPrintf("%s: filename too long", __func__);
     return;
   }
 

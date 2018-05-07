@@ -46,20 +46,6 @@ void ProtoDispAdapterDisplayNciPacket(uint8_t* nciPacket, uint16_t nciPacketLen,
                                       bool is_recv);
 void ProtoDispAdapterUseRawOutput(bool isUseRaw);
 void ScrLog(uint32_t trace_set_mask, const char* fmt_str, ...);
-void LogMsg(uint32_t trace_set_mask, const char* fmt_str, ...);
-void LogMsg_0(uint32_t trace_set_mask, const char* p_str);
-void LogMsg_1(uint32_t trace_set_mask, const char* fmt_str, uintptr_t p1);
-void LogMsg_2(uint32_t trace_set_mask, const char* fmt_str, uintptr_t p1,
-              uintptr_t p2);
-void LogMsg_3(uint32_t trace_set_mask, const char* fmt_str, uintptr_t p1,
-              uintptr_t p2, uintptr_t p3);
-void LogMsg_4(uint32_t trace_set_mask, const char* fmt_str, uintptr_t p1,
-              uintptr_t p2, uintptr_t p3, uintptr_t p4);
-void LogMsg_5(uint32_t trace_set_mask, const char* fmt_str, uintptr_t p1,
-              uintptr_t p2, uintptr_t p3, uintptr_t p4, uintptr_t p5);
-void LogMsg_6(uint32_t trace_set_mask, const char* fmt_str, uintptr_t p1,
-              uintptr_t p2, uintptr_t p3, uintptr_t p4, uintptr_t p5,
-              uintptr_t p6);
 uint8_t* scru_dump_hex(uint8_t* p, char* pTitle, uint32_t len, uint32_t layer,
                        uint32_t type);
 void BTDISP_LOCK_LOG();

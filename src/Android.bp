@@ -12,6 +12,8 @@ cc_library_shared {
         "libhardware",
         "libmetricslogger",
         "libpower",
+        "libchrome",
+        "libbase",
         "libz",
 
         // Treble configuration
@@ -63,4 +65,11 @@ cc_library_shared {
         "gki/common/*.cc",
         "gki/ulinux/*.cc",
     ],
+    product_variables: {
+        debuggable: {
+            cflags: [
+                "-DDCHECK_ALWAYS_ON"
+            ],
+        },
+    },
 }

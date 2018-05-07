@@ -52,7 +52,7 @@ void nfa_sys_cback_reg_enable_complete(tNFA_SYS_ENABLE_CBACK* p_cback) {
 void nfa_sys_cback_notify_enable_complete(uint8_t id) {
   nfa_sys_cb.enable_cplt_flags |= (0x0001 << id);
 
-  NFA_TRACE_DEBUG2(
+   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "nfa_sys_cback_notify_enable_complete () enable_cplt_flags=0x%x, "
       "enable_cplt_mask=0x%x",
       nfa_sys_cb.enable_cplt_flags, nfa_sys_cb.enable_cplt_mask);
@@ -110,7 +110,7 @@ void nfa_sys_cback_reg_nfcc_power_mode_proc_complete(
 void nfa_sys_cback_notify_nfcc_power_mode_proc_complete(uint8_t id) {
   nfa_sys_cb.proc_nfcc_pwr_mode_cplt_flags |= (0x0001 << id);
 
-  NFA_TRACE_DEBUG2(
+   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "nfa_sys_cback_notify_nfcc_power_mode_proc_complete () flags=0x%x, "
       "mask=0x%x",
       nfa_sys_cb.proc_nfcc_pwr_mode_cplt_flags,

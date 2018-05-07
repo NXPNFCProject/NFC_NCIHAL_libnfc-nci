@@ -337,9 +337,9 @@ uint8_t nci_snd_nfcee_discover(uint8_t discover_action) {
 **
 *******************************************************************************/
 uint8_t nci_snd_pwr_nd_lnk_ctrl_cmd(uint8_t nfcee_id, uint8_t cfg_value) {
-    NFC_TRACE_DEBUG0("nci_snd_pwr_nd_lnk_ctrl_cmd() Enter ");
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nci_snd_pwr_nd_lnk_ctrl_cmd() Enter ");
     if(!nfcFL.eseFL._WIRED_MODE_STANDBY) {
-        NFC_TRACE_DEBUG0("WIRED_MODE_STANDBY not available. Returning");
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("WIRED_MODE_STANDBY not available. Returning");
         return (NCI_STATUS_FAILED);
     }
   NFC_HDR* p;
@@ -347,7 +347,7 @@ uint8_t nci_snd_pwr_nd_lnk_ctrl_cmd(uint8_t nfcee_id, uint8_t cfg_value) {
   if (nfcFL.eseFL._ESE_DUAL_MODE_PRIO_SCHEME ==
           nfcFL.eseFL._ESE_WIRED_MODE_RESUME) {
       if (nfc_cb.bBlkPwrlinkAndModeSetCmd) {
-          NFC_TRACE_DEBUG0("pwr link cmd ignored due to RF session");
+          DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("pwr link cmd ignored due to RF session");
           nfc_cb.pwr_link_cmd.bPwrLinkCmdRequested = true;
           nfc_cb.pwr_link_cmd.param = cfg_value;
           nfc_start_quick_timer(&nfc_cb.nci_wait_pwrLinkRsp_timer,
@@ -422,7 +422,7 @@ uint8_t nci_snd_nfcee_mode_set(uint8_t nfcee_id, uint8_t nfcee_mode) {
   if (nfcFL.eseFL._ESE_DUAL_MODE_PRIO_SCHEME ==
           nfcFL.eseFL._ESE_WIRED_MODE_RESUME) {
       if ((nfc_cb.bBlkPwrlinkAndModeSetCmd) && (NFCEE_ID_ESE == nfcee_id)) {
-          NFC_TRACE_DEBUG0("mode set cmd ignored due to RF session");
+          DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("mode set cmd ignored due to RF session");
           nfc_start_quick_timer(&nfc_cb.nci_wait_pwrLinkRsp_timer,
                   NFC_TTYPE_SET_MODE_RSP,
                   ((uint32_t)100) * QUICK_TIMER_TICKS_PER_SEC / 1000);

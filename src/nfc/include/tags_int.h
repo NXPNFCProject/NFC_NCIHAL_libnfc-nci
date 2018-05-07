@@ -82,13 +82,8 @@ extern const tT2T_CMD_RSP_INFO t2t_cmd_rsp_infos[];
 extern const tT2T_CMD_RSP_INFO* t2t_cmd_to_rsp_info(uint8_t opcode);
 extern uint8_t t2t_info_to_evt(const tT2T_CMD_RSP_INFO* p_info);
 
-#if (BT_TRACE_PROTOCOL == true)
 extern const char* t1t_info_to_str(const tT1T_CMD_RSP_INFO* p_info);
 extern const char* t2t_info_to_str(const tT2T_CMD_RSP_INFO* p_info);
-#else
-#define t1t_info_to_str(x) ""
-#define t2t_info_to_str(x) ""
-#endif
 extern int tags_pow(int x, int y);
 extern unsigned int tags_log2(register unsigned int x);
 

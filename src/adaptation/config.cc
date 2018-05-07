@@ -42,9 +42,6 @@
 #include <vector>
 #include <list>
 
-#undef LOG_TAG
-#define LOG_TAG "NfcAdaptation"
-
 const char* transport_config_paths[] = {"/odm/etc/", "/vendor/etc/", "/etc/"};
 const int transport_config_path_size =
     (sizeof(transport_config_paths) / sizeof(transport_config_paths[0]));

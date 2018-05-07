@@ -92,14 +92,12 @@ const uint8_t t4t_v10_ndef_tag_aid[T4T_V10_NDEF_TAG_AID_LEN] = {
 const uint8_t t4t_v20_ndef_tag_aid[T4T_V20_NDEF_TAG_AID_LEN] = {
     0xD2, 0x76, 0x00, 0x00, 0x85, 0x01, 0x01};
 
-#if (BT_TRACE_PROTOCOL == true)
 const char* const t1t_cmd_str[] = {
     "T1T_RID",  "T1T_RALL",  "T1T_READ",     "T1T_WRITE_E",  "T1T_WRITE_NE",
     "T1T_RSEG", "T1T_READ8", "T1T_WRITE_E8", "T1T_WRITE_NE8"};
 
 const char* const t2t_cmd_str[] = {"T2T_CMD_READ", "T2T_CMD_WRITE",
                                    "T2T_CMD_SEC_SEL"};
-#endif
 
 static unsigned int tags_ones32(register unsigned int x);
 
@@ -229,7 +227,6 @@ uint8_t t2t_info_to_evt(const tT2T_CMD_RSP_INFO* p_info) {
   return ((uint8_t)(p_info - t2t_cmd_rsp_infos) + RW_T2T_FIRST_EVT);
 }
 
-#if (BT_TRACE_PROTOCOL == true)
 /*******************************************************************************
 **
 ** Function         t1t_info_to_str
@@ -265,7 +262,6 @@ const char* t2t_info_to_str(const tT2T_CMD_RSP_INFO* p_info) {
   else
     return "";
 }
-#endif
 
 /*******************************************************************************
 **

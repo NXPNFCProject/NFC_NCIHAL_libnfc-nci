@@ -69,9 +69,7 @@ static void nfa_p2p_sys_disable(void);
 static void nfa_p2p_update_active_listen(void);
 
 /* debug functions type */
-#if (BT_TRACE_VERBOSE == true)
 static std::string nfa_p2p_llcp_state_code(tNFA_P2P_LLCP_STATE state_code);
-#endif
 
 /*****************************************************************************
 **  Constants
@@ -118,7 +116,7 @@ const tNFA_P2P_ACTION nfa_p2p_action[] = {
 void nfa_p2p_discovery_cback(tNFA_DM_RF_DISC_EVT event, tNFC_DISCOVER* p_data) {
   tNFA_CONN_EVT_DATA evt_data;
 
-  P2P_TRACE_DEBUG1("nfa_p2p_discovery_cback (): event:0x%02X", event);
+ DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_p2p_discovery_cback (): event:0x%02X", event);
 
   switch (event) {
     case NFA_DM_RF_DISC_START_EVT:
@@ -169,7 +167,7 @@ void nfa_p2p_discovery_cback(tNFA_DM_RF_DISC_EVT event, tNFC_DISCOVER* p_data) {
       break;
 
     default:
-      P2P_TRACE_ERROR0("Unexpected event");
+      LOG(ERROR) << StringPrintf("Unexpected event");
       break;
   }
 }
@@ -186,7 +184,7 @@ void nfa_p2p_discovery_cback(tNFA_DM_RF_DISC_EVT event, tNFC_DISCOVER* p_data) {
 static void nfa_p2p_update_active_listen_timeout_cback(TIMER_LIST_ENT* p_tle) {
   (void)p_tle;
 
-  NFA_TRACE_ERROR0("nfa_p2p_update_active_listen_timeout_cback()");
+  LOG(ERROR) << StringPrintf("nfa_p2p_update_active_listen_timeout_cback()");
 
   /* restore active listen mode */
   nfa_p2p_update_active_listen();
@@ -206,7 +204,7 @@ static void nfa_p2p_update_active_listen(void) {
   tNFA_DM_DISC_TECH_PROTO_MASK p2p_listen_mask = 0;
   NFC_HDR* p_msg;
 
-  P2P_TRACE_DEBUG1(
+ DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "nfa_p2p_update_active_listen (): listen_tech_mask_to_restore:0x%x",
       nfa_p2p_cb.listen_tech_mask_to_restore);
 
@@ -264,7 +262,7 @@ static void nfa_p2p_update_active_listen(void) {
       ((nfa_dm_cb.eDtaMode & 0x0F) == NFA_DTA_DEFAULT_MODE)) {
     // Configure listen technologies and protocols and register callback to DTA
 
-    P2P_TRACE_DEBUG1(
+   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
         "%s: DTA mode:Registering nfa_dm_poll_disc_cback to avoid LLCP in P2P",
         __func__);
     nfa_p2p_cb.dm_disc_handle =
@@ -299,7 +297,7 @@ void nfa_p2p_llcp_link_cback(uint8_t event, uint8_t reason) {
   tNFA_LLCP_ACTIVATED llcp_activated;
   tNFA_LLCP_DEACTIVATED llcp_deactivated;
 
-  P2P_TRACE_DEBUG2("nfa_p2p_llcp_link_cback () event:0x%x, reason:0x%x", event,
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_p2p_llcp_link_cback () event:0x%x, reason:0x%x", event,
                    reason);
 
   if (event == LLCP_LINK_ACTIVATION_COMPLETE_EVT) {
@@ -346,7 +344,7 @@ void nfa_p2p_llcp_link_cback(uint8_t event, uint8_t reason) {
         if ((nfa_p2p_cb.listen_tech_mask_to_restore == 0x00) &&
             (nfa_p2p_cb.listen_tech_mask &
              (NFA_TECHNOLOGY_MASK_A | NFA_TECHNOLOGY_MASK_F))) {
-          P2P_TRACE_DEBUG0("Retry without active listen mode");
+         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Retry without active listen mode");
 
           /* retry without active listen mode */
           nfa_p2p_update_active_listen();
@@ -384,7 +382,7 @@ void nfa_p2p_llcp_link_cback(uint8_t event, uint8_t reason) {
         ** target needs to trun off RF in case of receiving invalid
         ** frame from initiator
         */
-        P2P_TRACE_DEBUG0("Got LLCP_LINK_TIMEOUT in active mode on target");
+       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Got LLCP_LINK_TIMEOUT in active mode on target");
         nfa_dm_rf_deactivate(NFA_DEACTIVATE_TYPE_DISCOVERY);
       }
     }
@@ -404,7 +402,7 @@ void nfa_p2p_llcp_link_cback(uint8_t event, uint8_t reason) {
 void nfa_p2p_activate_llcp(tNFC_DISCOVER* p_data) {
   tLLCP_ACTIVATE_CONFIG config;
 
-  P2P_TRACE_DEBUG0("nfa_p2p_activate_llcp ()");
+ DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_p2p_activate_llcp ()");
 
   if ((p_data->activate.rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A) ||
       (p_data->activate.rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_F)) {
@@ -472,7 +470,7 @@ void nfa_p2p_activate_llcp(tNFC_DISCOVER* p_data) {
 **
 *******************************************************************************/
 void nfa_p2p_deactivate_llcp(void) {
-  P2P_TRACE_DEBUG0("nfa_p2p_deactivate_llcp ()");
+ DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_p2p_deactivate_llcp ()");
 
   LLCP_DeactivateLink();
 }
@@ -490,7 +488,7 @@ void nfa_p2p_deactivate_llcp(void) {
 void nfa_p2p_init(void) {
   uint8_t xx;
 
-  P2P_TRACE_DEBUG0("nfa_p2p_init ()");
+ DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_p2p_init ()");
 
   /* initialize control block */
   memset(&nfa_p2p_cb, 0, sizeof(tNFA_P2P_CB));
@@ -516,7 +514,7 @@ void nfa_p2p_init(void) {
 **
 *******************************************************************************/
 static void nfa_p2p_sys_disable(void) {
-  P2P_TRACE_DEBUG0("nfa_p2p_sys_disable()");
+ DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_p2p_sys_disable()");
 
   nfa_sys_stop_timer(&nfa_p2p_cb.active_listen_restore_timer);
 
@@ -538,7 +536,7 @@ void nfa_p2p_set_config(tNFA_DM_DISC_TECH_PROTO_MASK disc_mask) {
   uint8_t wt, gen_bytes_len = LLCP_MAX_GEN_BYTES;
   uint8_t params[LLCP_MAX_GEN_BYTES + 5], *p, length;
 
-  P2P_TRACE_DEBUG0("nfa_p2p_set_config ()");
+ DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_p2p_set_config ()");
 
   LLCP_GetDiscoveryConfig(&wt, params + 2, &gen_bytes_len);
   if (nfa_dm_is_p2p_paused()) {
@@ -601,7 +599,7 @@ void nfa_p2p_set_config(tNFA_DM_DISC_TECH_PROTO_MASK disc_mask) {
 void nfa_p2p_enable_listening(tNFA_SYS_ID sys_id, bool update_wks) {
   tNFA_DM_DISC_TECH_PROTO_MASK p2p_listen_mask = 0;
 
-  P2P_TRACE_DEBUG2("nfa_p2p_enable_listening () sys_id = %d, update_wks = %d",
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_p2p_enable_listening () sys_id = %d, update_wks = %d",
                    sys_id, update_wks);
 
   if (sys_id == NFA_ID_P2P)
@@ -645,7 +643,7 @@ void nfa_p2p_enable_listening(tNFA_SYS_ID sys_id, bool update_wks) {
         ((nfa_dm_cb.eDtaMode & 0x0F) == NFA_DTA_DEFAULT_MODE)) {
       /* Configure listen technologies and protocols and register callback to
        * NFA DM discovery */
-      P2P_TRACE_DEBUG1(
+     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
           "%s: DTA mode:Registering nfa_dm_poll_disc_cback to avoid LLCP in "
           "P2P",
           __func__);
@@ -674,7 +672,7 @@ void nfa_p2p_enable_listening(tNFA_SYS_ID sys_id, bool update_wks) {
 **
 *******************************************************************************/
 void nfa_p2p_disable_listening(tNFA_SYS_ID sys_id, bool update_wks) {
-  P2P_TRACE_DEBUG2("nfa_p2p_disable_listening ()  sys_id = %d, update_wks = %d",
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_p2p_disable_listening ()  sys_id = %d, update_wks = %d",
                    sys_id, update_wks);
 
   if (sys_id == NFA_ID_P2P)
@@ -709,7 +707,7 @@ void nfa_p2p_disable_listening(tNFA_SYS_ID sys_id, bool update_wks) {
 **
 *******************************************************************************/
 void nfa_p2p_update_listen_tech(tNFA_TECHNOLOGY_MASK tech_mask) {
-  P2P_TRACE_DEBUG1("nfa_p2p_update_listen_tech ()  tech_mask = 0x%x",
+ DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_p2p_update_listen_tech ()  tech_mask = 0x%x",
                    tech_mask);
 
   if (nfa_p2p_cb.listen_tech_mask_to_restore) {
@@ -749,14 +747,11 @@ static bool nfa_p2p_evt_hdlr(NFC_HDR* p_hdr) {
   bool delete_msg = true;
   uint16_t event;
 
-#if (BT_TRACE_VERBOSE == true)
-  P2P_TRACE_DEBUG2("nfa_p2p_evt_hdlr (): LLCP State [%s], Event [%s]",
+
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_p2p_evt_hdlr (): LLCP State [%s], Event [%s]",
                    nfa_p2p_llcp_state_code(nfa_p2p_cb.llcp_state).c_str(),
                    nfa_p2p_evt_code(p_hdr->event).c_str());
-#else
-  P2P_TRACE_DEBUG2("nfa_p2p_evt_hdlr (): State 0x%02x, Event 0x%02x",
-                   nfa_p2p_cb.llcp_state, p_hdr->event);
-#endif
+
 
   event = p_hdr->event & 0x00ff;
 
@@ -765,13 +760,12 @@ static bool nfa_p2p_evt_hdlr(NFC_HDR* p_hdr) {
     tNFA_P2P_MSG* p_msg = (tNFA_P2P_MSG*)p_hdr;
     delete_msg = (*nfa_p2p_action[event])(p_msg);
   } else {
-    P2P_TRACE_ERROR0("Unhandled event");
+    LOG(ERROR) << StringPrintf("Unhandled event");
   }
 
   return delete_msg;
 }
 
-#if (BT_TRACE_VERBOSE == true)
 /*******************************************************************************
 **
 ** Function         nfa_p2p_llcp_state_code
@@ -837,4 +831,3 @@ std::static nfa_p2p_evt_code(uint16_t evt_code) {
       return "Unknown event";
   }
 }
-#endif /* Debug Functions */

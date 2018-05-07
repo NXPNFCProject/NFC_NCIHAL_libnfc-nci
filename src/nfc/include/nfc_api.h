@@ -1572,7 +1572,6 @@ extern uint8_t NFC_SetTraceLevel(uint8_t new_level);
 *******************************************************************************/
 extern tNFC_STATUS NFC_ISODEPNakPresCheck ();
 
-#if (BT_TRACE_VERBOSE == true)
 /*******************************************************************************
 **
 ** Function         NFC_GetStatusName
@@ -1585,7 +1584,6 @@ extern tNFC_STATUS NFC_ISODEPNakPresCheck ();
 **
 *******************************************************************************/
 extern std::string NFC_GetStatusName(tNFC_STATUS status);
-#endif
 
 #if (NXP_EXTNS == TRUE || APPL_DTA_MODE == TRUE)
 /*******************************************************************************

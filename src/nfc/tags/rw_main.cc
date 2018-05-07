@@ -156,14 +156,14 @@ void rw_main_log_stats(void) {
   ticks = GKI_get_tick_count() - rw_cb.stats.start_tick;
   elapsed_ms = GKI_TICKS_TO_MS(ticks);
 
-  RW_TRACE_DEBUG5(
+ DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "NFC tx stats: cmds:%i, retries:%i, aborted: %i, tx_errs: %i, bytes "
       "sent:%i",
       rw_cb.stats.num_ops, rw_cb.stats.num_retries, rw_cb.stats.num_fail,
       rw_cb.stats.num_trans_err, rw_cb.stats.bytes_sent);
-  RW_TRACE_DEBUG2("    rx stats: rx-crc errors %i, bytes received: %i",
+ DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("    rx stats: rx-crc errors %i, bytes received: %i",
                   rw_cb.stats.num_crc, rw_cb.stats.bytes_received);
-  RW_TRACE_DEBUG1("    time activated %i ms", elapsed_ms);
+ DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("    time activated %i ms", elapsed_ms);
 }
 #endif /* RW_STATS_INCLUDED */
 
@@ -190,7 +190,7 @@ tNFC_STATUS RW_SendRawFrame(uint8_t* p_raw_data, uint16_t data_len) {
       memcpy(p, p_raw_data, data_len);
       p_data->len = data_len;
 
-      RW_TRACE_EVENT1("RW SENT raw frame (0x%x)", data_len);
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("RW SENT raw frame (0x%x)", data_len);
       status = NFC_SendData(NFC_RF_CONN_ID, p_data);
     }
   }
@@ -211,13 +211,13 @@ tNFC_STATUS RW_SetActivatedTagType(tNFC_ACTIVATE_DEVT* p_activate_params,
   tNFC_STATUS status = NFC_STATUS_FAILED;
 
   /* check for null cback here / remove checks from rw_t?t */
-  RW_TRACE_DEBUG3("RW_SetActivatedTagType protocol:%d, technology:%d, SAK:%d",
+ DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("RW_SetActivatedTagType protocol:%d, technology:%d, SAK:%d",
                   p_activate_params->protocol,
                   p_activate_params->rf_tech_param.mode,
                   p_activate_params->rf_tech_param.param.pa.sel_rsp);
 
   if (p_cback == NULL) {
-    RW_TRACE_ERROR0("RW_SetActivatedTagType called with NULL callback");
+    LOG(ERROR) << StringPrintf("RW_SetActivatedTagType called with NULL callback");
     return (NFC_STATUS_FAILED);
   }
 
@@ -268,7 +268,7 @@ tNFC_STATUS RW_SetActivatedTagType(tNFC_ACTIVATE_DEVT* p_activate_params,
       status = rw_i93_select(p_activate_params->rf_tech_param.param.pi93.uid);
     }
   } else {
-    RW_TRACE_ERROR0("RW_SetActivatedTagType Invalid protocol");
+    LOG(ERROR) << StringPrintf("RW_SetActivatedTagType Invalid protocol");
   }
 
   if (status != NFC_STATUS_OK) rw_cb.p_cback = NULL;

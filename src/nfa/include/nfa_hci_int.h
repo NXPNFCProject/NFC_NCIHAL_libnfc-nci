@@ -710,13 +710,11 @@ extern tNFA_STATUS nfa_hciu_send_msg(uint8_t pipe_id, uint8_t type,
                                      uint8_t instruction, uint16_t pkt_len,
                                      uint8_t* p_pkt);
 
-#if (BT_TRACE_VERBOSE == true)
 extern std::string nfa_hciu_instr_2_str(uint8_t type);
 extern std::string nfa_hciu_get_event_name(uint16_t event);
 extern std::string nfa_hciu_get_state_name(uint8_t state);
 extern char* nfa_hciu_get_type_inst_names(uint8_t pipe, uint8_t type,
                                           uint8_t inst, char* p_buff);
 extern std::string nfa_hciu_evt_2_str(uint8_t pipe_id, uint8_t evt);
-#endif
 
 #endif /* NFA_HCI_INT_H */

@@ -43,9 +43,6 @@
 #include <errno.h>
 #include <string>
 
-#undef LOG_TAG
-#define LOG_TAG "NfcNciHal"
-
 static const unsigned short crctab[256] = {
     0x0000, 0xc0c1, 0xc181, 0x0140, 0xc301, 0x03c0, 0x0280, 0xc241, 0xc601,
     0x06c0, 0x0780, 0xc741, 0x0500, 0xc5c1, 0xc481, 0x0440, 0xcc01, 0x0cc0,
@@ -131,9 +128,9 @@ bool crcChecksumVerifyIntegrity(const char* filename) {
           crcChecksumCompute((const unsigned char*)data.data(), data.size()))
         isGood = true;
       else
-        ALOGE("%s: checksum mismatch", __func__);
+        LOG(ERROR) << StringPrintf("%s: checksum mismatch", __func__);
     } else
-      ALOGE("%s: invalid length", __func__);
+      LOG(ERROR) << StringPrintf("%s: invalid length", __func__);
   } else
     isGood = true;  // assume file does not exist
   return isGood;

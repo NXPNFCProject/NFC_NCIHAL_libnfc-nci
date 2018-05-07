@@ -111,9 +111,7 @@ const tNFA_DM_ACTION nfa_dm_action[] = {
 /*****************************************************************************
 ** Local function prototypes
 *****************************************************************************/
-#if (BT_TRACE_VERBOSE == true)
 static std::string nfa_dm_evt_2_str(uint16_t event);
-#endif
 #if (NXP_EXTNS == TRUE)
 void nfa_dm_init_cfgs(phNxpNci_getCfg_info_t* mGetCfg_info);
 #endif
@@ -127,7 +125,7 @@ void nfa_dm_init_cfgs(phNxpNci_getCfg_info_t* mGetCfg_info);
 **
 *******************************************************************************/
 void nfa_dm_init(void) {
-  NFA_TRACE_DEBUG0("nfa_dm_init ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_dm_init ()");
   memset(&nfa_dm_cb, 0, sizeof(tNFA_DM_CB));
   nfa_dm_cb.poll_disc_handle = NFA_HANDLE_INVALID;
   nfa_dm_cb.disc_cb.disc_duration = NFA_DM_DISC_DURATION_POLL;
@@ -153,12 +151,9 @@ bool nfa_dm_evt_hdlr(NFC_HDR* p_msg) {
   bool freebuf = true;
   uint16_t event = p_msg->event & 0x00ff;
 
-#if (BT_TRACE_VERBOSE == true)
-  NFA_TRACE_EVENT2("nfa_dm_evt_hdlr event: %s (0x%02x)",
-                   nfa_dm_evt_2_str(event), event);
-#else
-  NFA_TRACE_EVENT1("nfa_dm_evt_hdlr event: 0x%x", event);
-#endif
+DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+      "event: %s (0x%02x)", nfa_dm_evt_2_str(event).c_str(), event);
+
 
   /* execute action functions */
   if (event < NFA_DM_NUM_ACTIONS) {
@@ -189,7 +184,7 @@ void nfa_dm_sys_disable(void) {
       nfa_dm_disable_complete();
     } else {
       /* probably waiting to be disabled */
-      NFA_TRACE_WARNING2("DM disc_state state = %d disc_flags:0x%x",
+      LOG(WARNING) << StringPrintf("DM disc_state state = %d disc_flags:0x%x",
                          nfa_dm_cb.disc_cb.disc_state,
                          nfa_dm_cb.disc_cb.disc_flags);
     }
@@ -232,7 +227,7 @@ bool nfa_dm_is_protocol_supported(tNFC_PROTOCOL protocol, uint8_t sel_res) {
 **
 *******************************************************************************/
 bool nfa_dm_is_active(void) {
-  NFA_TRACE_DEBUG1("nfa_dm_is_active () flags:0x%x", nfa_dm_cb.flags);
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_dm_is_active () flags:0x%x", nfa_dm_cb.flags);
   if ((nfa_dm_cb.flags & NFA_DM_FLAGS_DM_IS_ACTIVE) &&
       ((nfa_dm_cb.flags &
         (NFA_DM_FLAGS_ENABLE_EVT_PEND | NFA_DM_FLAGS_NFCC_IS_RESTORING |
@@ -263,11 +258,11 @@ tNFA_STATUS nfa_dm_check_set_config(uint8_t tlv_list_len, uint8_t* p_tlv_list,
   tNFC_STATUS nfc_status;
   uint32_t cur_bit;
 
-  NFA_TRACE_DEBUG1("nfa_dm_check_set_config () tlv_len=%d", tlv_list_len);
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_dm_check_set_config () tlv_len=%d", tlv_list_len);
 
   /* We only allow 32 pending SET_CONFIGs */
   if (nfa_dm_cb.setcfg_pending_num >= NFA_DM_SETCONFIG_PENDING_MAX) {
-    NFA_TRACE_ERROR0(
+    LOG(ERROR) << StringPrintf(
         "nfa_dm_check_set_config () error: pending number of SET_CONFIG "
         "exceeded");
     return NFA_STATUS_FAILED;
@@ -464,7 +459,7 @@ tNFA_STATUS nfa_dm_check_set_config(uint8_t tlv_list_len, uint8_t* p_tlv_list,
         (nfa_dm_cb.eDtaMode & 0x0F) == NFA_DTA_HCEF_MODE)) ||
       (appl_dta_mode_flag && app_init)) {
 #if (NXP_EXTNS == TRUE)
-    NFA_TRACE_DEBUG1("nfa_dm_check_set_config () updated_len=%d", updated_len);
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_dm_check_set_config () updated_len=%d", updated_len);
     if (!updated_len) {
       return NFA_STATUS_OK;
     }
@@ -515,7 +510,7 @@ tNFA_STATUS nfa_dm_check_set_config(uint8_t tlv_list_len, uint8_t* p_tlv_list,
 **
 *******************************************************************************/
 void nfa_dm_init_cfgs(phNxpNci_getCfg_info_t* mGetCfg_info) {
-  NFA_TRACE_DEBUG1("%s Enter", __func__);
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s Enter", __func__);
 
   memcpy(&nfa_dm_cb.params.atr_req_gen_bytes, mGetCfg_info->atr_req_gen_bytes,
          mGetCfg_info->atr_req_gen_bytes_len);
@@ -568,7 +563,6 @@ tNFA_STATUS nfa_dm_get_extended_cmd_buf(tNFC_EXT_HDR **p_msg, uint32_t event,
 }
 
 #endif
-#if (BT_TRACE_VERBOSE == true)
 /*******************************************************************************
 **
 ** Function         nfa_dm_nfc_revt_2_str
@@ -661,4 +655,3 @@ static std::string nfa_dm_evt_2_str(uint16_t event) {
 
   return "Unknown or Vendor Specific";
 }
-#endif /* BT_TRACE_VERBOSE */

@@ -740,9 +740,7 @@ void nfa_dm_deact_ntf_timeout();
   memset(ha, NFC_DH_ID, NFA_DM_MAX_TECH_ROUTE);
 #endif
 
-#if (BT_TRACE_VERBOSE == true)
 std::string nfa_dm_nfc_revt_2_str(tNFC_RESPONSE_EVT event);
-#endif
 
 #if (NXP_EXTNS == TRUE)
 tNFC_STATUS nfc_ncif_reset_nfcc();

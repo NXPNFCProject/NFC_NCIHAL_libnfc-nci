@@ -88,7 +88,7 @@ void llcp_sdp_check_send_snl(void) {
   uint8_t* p;
 
   if (llcp_cb.sdp_cb.p_snl) {
-    LLCP_TRACE_DEBUG0("SDP: llcp_sdp_check_send_snl ()");
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("SDP: llcp_sdp_check_send_snl ()");
 
     llcp_cb.sdp_cb.p_snl->len += LLCP_PDU_HEADER_SIZE;
     llcp_cb.sdp_cb.p_snl->offset -= LLCP_PDU_HEADER_SIZE;
@@ -149,7 +149,7 @@ tLLCP_STATUS llcp_sdp_send_sdreq(uint8_t tid, char* p_name) {
   uint16_t name_len;
   uint16_t available_bytes;
 
-  LLCP_TRACE_DEBUG2("llcp_sdp_send_sdreq (): tid=0x%x, ServiceName=%s", tid,
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("llcp_sdp_send_sdreq (): tid=0x%x, ServiceName=%s", tid,
                     p_name);
 
   /* if there is no pending SNL */
@@ -242,7 +242,7 @@ static tLLCP_STATUS llcp_sdp_send_sdres(uint8_t tid, uint8_t sap) {
   tLLCP_STATUS status;
   uint16_t available_bytes;
 
-  LLCP_TRACE_DEBUG2("llcp_sdp_send_sdres (): tid=0x%x, SAP=0x%x", tid, sap);
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("llcp_sdp_send_sdres (): tid=0x%x, SAP=0x%x", tid, sap);
 
   /* if there is no pending SNL */
   if (!llcp_cb.sdp_cb.p_snl) {
@@ -339,7 +339,7 @@ uint8_t llcp_sdp_get_sap_by_name(char* p_name, uint8_t length) {
 static void llcp_sdp_return_sap(uint8_t tid, uint8_t sap) {
   uint8_t i;
 
-  LLCP_TRACE_DEBUG2("llcp_sdp_return_sap (): tid=0x%x, SAP=0x%x", tid, sap);
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("llcp_sdp_return_sap (): tid=0x%x, SAP=0x%x", tid, sap);
 
   for (i = 0; i < LLCP_MAX_SDP_TRANSAC; i++) {
     if ((llcp_cb.sdp_cb.transac[i].p_cback) &&
@@ -365,7 +365,7 @@ static void llcp_sdp_return_sap(uint8_t tid, uint8_t sap) {
 void llcp_sdp_proc_deactivation(void) {
   uint8_t i;
 
-  LLCP_TRACE_DEBUG0("llcp_sdp_proc_deactivation ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("llcp_sdp_proc_deactivation ()");
 
   for (i = 0; i < LLCP_MAX_SDP_TRANSAC; i++) {
     if (llcp_cb.sdp_cb.transac[i].p_cback) {
@@ -398,12 +398,12 @@ void llcp_sdp_proc_deactivation(void) {
 tLLCP_STATUS llcp_sdp_proc_snl(uint16_t sdu_length, uint8_t* p) {
   uint8_t type, length, tid, sap, *p_value;
 
-  LLCP_TRACE_DEBUG0("llcp_sdp_proc_snl ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("llcp_sdp_proc_snl ()");
 
   if ((llcp_cb.lcb.agreed_major_version < LLCP_MIN_SNL_MAJOR_VERSION) ||
       ((llcp_cb.lcb.agreed_major_version == LLCP_MIN_SNL_MAJOR_VERSION) &&
        (llcp_cb.lcb.agreed_minor_version < LLCP_MIN_SNL_MINOR_VERSION))) {
-    LLCP_TRACE_DEBUG0(
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
         "llcp_sdp_proc_snl(): version number less than 1.1, SNL not "
         "supported.");
     return LLCP_STATUS_FAIL;
@@ -427,10 +427,10 @@ tLLCP_STATUS llcp_sdp_proc_snl(uint16_t sdu_length, uint8_t* p) {
            * SNL PDU i'e with improper service name "urn:nfc:sn:dta-co-echo-in",
            * the IUT should not send any PDU except SYMM PDU */
           if (appl_dta_mode_flag == 1 && sap == 0x00) {
-            LLCP_TRACE_DEBUG2("%s: In dta mode sap == 0x00 p_value = %s",
+            DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: In dta mode sap == 0x00 p_value = %s",
                               __func__, p_value);
             if ((length - 1) == strlen((const char*)p_value)) {
-              LLCP_TRACE_DEBUG1("%s: Strings are not equal", __func__);
+              DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: Strings are not equal", __func__);
               llcp_sdp_send_sdres(tid, sap);
             }
           } else {
@@ -440,12 +440,12 @@ tLLCP_STATUS llcp_sdp_proc_snl(uint16_t sdu_length, uint8_t* p) {
           /*For P2P in LLCP mode TC_CTO_TAR_BI_03_x(x=3) fix*/
           if (appl_dta_mode_flag == 1 &&
               ((nfa_dm_cb.eDtaMode & 0x0F) == NFA_DTA_LLCP_MODE)) {
-            LLCP_TRACE_ERROR1("%s: Calling llcp_sdp_send_sdres", __func__);
+            LOG(ERROR) << StringPrintf("%s: Calling llcp_sdp_send_sdres", __func__);
             tid = 0x01;
             sap = 0x00;
             llcp_sdp_send_sdres(tid, sap);
           }
-          LLCP_TRACE_ERROR1(
+          LOG(ERROR) << StringPrintf(
               "llcp_sdp_proc_snl (): bad length (%d) in LLCP_SDREQ_TYPE",
               length);
         }
@@ -460,14 +460,14 @@ tLLCP_STATUS llcp_sdp_proc_snl(uint16_t sdu_length, uint8_t* p) {
           BE_STREAM_TO_UINT8(sap, p_value);
           llcp_sdp_return_sap(tid, sap);
         } else {
-          LLCP_TRACE_ERROR1(
+          LOG(ERROR) << StringPrintf(
               "llcp_sdp_proc_snl (): bad length (%d) in LLCP_SDRES_TYPE",
               length);
         }
         break;
 
       default:
-        LLCP_TRACE_WARNING1(
+        LOG(WARNING) << StringPrintf(
             "llcp_sdp_proc_snl (): Unknown type (0x%x) is ignored", type);
         break;
     }
@@ -482,7 +482,7 @@ tLLCP_STATUS llcp_sdp_proc_snl(uint16_t sdu_length, uint8_t* p) {
   }
 
   if (sdu_length) {
-    LLCP_TRACE_ERROR0("llcp_sdp_proc_snl (): Bad format of SNL");
+    LOG(ERROR) << StringPrintf("llcp_sdp_proc_snl (): Bad format of SNL");
     return LLCP_STATUS_FAIL;
   } else {
     return LLCP_STATUS_SUCCESS;

@@ -56,9 +56,7 @@ const tNFA_CE_ACTION nfa_ce_action_tbl[] = {
 /*****************************************************************************
 ** Local function prototypes
 *****************************************************************************/
-#if (BT_TRACE_VERBOSE == true)
 static std::string nfa_ce_evt_2_str(uint16_t event);
-#endif
 
 /*******************************************************************************
 **
@@ -70,7 +68,7 @@ static std::string nfa_ce_evt_2_str(uint16_t event);
 **
 *******************************************************************************/
 void nfa_ce_init(void) {
-  NFA_TRACE_DEBUG0("nfa_ce_init ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ce_init ()");
 
   /* initialize control block */
   memset(&nfa_ce_cb, 0, sizeof(tNFA_CE_CB));
@@ -133,7 +131,7 @@ static void nfa_ce_proc_nfcc_power_mode(uint8_t nfcc_power_mode) {
   tNFA_CE_CB* p_cb = &nfa_ce_cb;
   uint8_t listen_info_idx;
 
-  NFA_TRACE_DEBUG1("nfa_ce_proc_nfcc_power_mode (): nfcc_power_mode=%d",
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ce_proc_nfcc_power_mode (): nfcc_power_mode=%d",
                    nfcc_power_mode);
 
   /* if NFCC power mode is change to full power */
@@ -170,14 +168,9 @@ bool nfa_ce_hdl_event(NFC_HDR* p_msg) {
   uint16_t act_idx;
   bool freebuf = true;
 
-#if (BT_TRACE_VERBOSE == true)
-  NFA_TRACE_EVENT3("nfa_ce_handle_event event: %s (0x%02x), flags: %08x",
-                   nfa_ce_evt_2_str(p_msg->event), p_msg->event,
-                   nfa_ce_cb.flags);
-#else
-  NFA_TRACE_EVENT2("nfa_ce_handle_event event: 0x%x, flags: %08x", p_msg->event,
-                   nfa_ce_cb.flags);
-#endif
+DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+      "nfa_ce_handle_event event: %s (0x%02x), flags: %08x",
+      nfa_ce_evt_2_str(p_msg->event).c_str(), p_msg->event, nfa_ce_cb.flags);
 
   /* Get NFA_RW sub-event */
   act_idx = (p_msg->event & 0x00FF);
@@ -193,7 +186,6 @@ bool nfa_ce_hdl_event(NFC_HDR* p_msg) {
   return freebuf;
 }
 
-#if (BT_TRACE_VERBOSE == true)
 /*******************************************************************************
 **
 ** Function         nfa_ce_evt_2_str
@@ -225,4 +217,3 @@ static std::string nfa_ce_evt_2_str(uint16_t event) {
       return "Unknown";
   }
 }
-#endif /* BT_TRACE_VERBOSE */

@@ -27,15 +27,14 @@
  ******************************************************************************/
 #pragma once
 
-// Override Android's ALOGD macro by adding a boolean expression.
-#define ALOGD(...) \
-  ((void)ALOGD_IF(appl_trace_level >= BT_TRACE_LEVEL_DEBUG, __VA_ARGS__))
-
-#include <cutils/log.h>  //define Android logging macros
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
 #include "bt_types.h"
 
 
-extern unsigned char appl_trace_level;
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
 extern uint32_t ScrProtocolTraceFlag;
 /* defined for run time DTA mode selection */
 extern unsigned char appl_dta_mode_flag;
@@ -51,12 +50,8 @@ void initializeGlobalAppDtaMode();
 **                  overrides .conf variable.
 **
 ** Returns:         Global log level:
-**                  BT_TRACE_LEVEL_NONE    0 * No trace messages to be generated
-**                  BT_TRACE_LEVEL_ERROR   1 * Error condition trace messages
-**                  BT_TRACE_LEVEL_WARNING 2 * Warning condition trace messages
-**                  BT_TRACE_LEVEL_API     3 * API traces
-**                  BT_TRACE_LEVEL_EVENT   4 * Debug messages for events
-**                  BT_TRACE_LEVEL_DEBUG   5 * Debug messages (general)
+**                  0 * No trace messages to be generated
+**                  1 * Debug messages
 **
 *******************************************************************************/
 unsigned char initializeGlobalAppLogLevel();
