@@ -86,8 +86,6 @@ void ce_t3t_send_to_lower(NFC_HDR* p_msg) {
   UINT8_TO_STREAM(p, (p_msg->len + 1));
   p_msg->len += 1; /* Increment len to include SoD */
 
-  DispT3TagMessage(p_msg, false);
-
   if (NFC_SendData(NFC_RF_CONN_ID, p_msg) != NFC_STATUS_OK) {
     LOG(ERROR) << StringPrintf("ce_t3t_send_to_lower (): NFC_SendData () failed");
   }
@@ -604,7 +602,7 @@ void ce_t3t_handle_non_nfc_forum_cmd(tCE_CB* p_mem_cb, uint8_t cmd_id,
 ** Returns          none
 **
 *******************************************************************************/
-void ce_t3t_data_cback(uint8_t conn_id, tNFC_DATA_CEVT* p_data) {
+void ce_t3t_data_cback(tNFC_DATA_CEVT* p_data) {
   tCE_CB* p_ce_cb = &ce_cb;
   tCE_T3T_MEM* p_cb = &p_ce_cb->mem.t3t;
   NFC_HDR* p_msg = p_data->p_data;
@@ -618,8 +616,6 @@ void ce_t3t_data_cback(uint8_t conn_id, tNFC_DATA_CEVT* p_data) {
   bool block_list_ok;
   uint8_t sod;
   uint8_t cmd_type;
-  DispT3TagMessage(p_msg, true);
-  (void)conn_id;
 
   /* If activate system code is not NDEF, or if no local NDEF contents was set,
    * then pass data up to the app */
@@ -787,7 +783,7 @@ void ce_t3t_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
 
     case NFC_DATA_CEVT:
       if (p_data->data.status == NFC_STATUS_OK) {
-        ce_t3t_data_cback(conn_id, &p_data->data);
+        ce_t3t_data_cback(&p_data->data);
       }
       break;
 

@@ -59,9 +59,7 @@ static const tNFA_SYS_REG nfa_dm_sys_reg = {nfa_dm_sys_enable, nfa_dm_evt_hdlr,
 #if (NXP_EXTNS == TRUE)
 tNFA_DM_CB nfa_dm_cb;
 #else
-tNFA_DM_CB nfa_dm_cb = {
-    0,
-};
+tNFA_DM_CB nfa_dm_cb = {};
 #endif
 
 #define NFA_DM_NUM_ACTIONS (NFA_DM_MAX_EVT & 0x00ff)

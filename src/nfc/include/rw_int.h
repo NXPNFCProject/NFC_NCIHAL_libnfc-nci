@@ -774,7 +774,7 @@ extern void rw_t2t_handle_rsp(uint8_t* p_data);
 extern tNFC_STATUS rw_t2t_sector_change(uint8_t sector);
 extern tNFC_STATUS rw_t2t_read(uint16_t block);
 extern tNFC_STATUS rw_t2t_write(uint16_t block, uint8_t* p_write_data);
-extern void rw_t2t_process_timeout(TIMER_LIST_ENT* p_tle);
+extern void rw_t2t_process_timeout();
 extern tNFC_STATUS rw_t2t_select(void);
 void rw_t2t_handle_op_complete(void);
 

@@ -70,10 +70,6 @@ unsigned char initializeGlobalAppLogLevel() {
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("%s: level=%u", __func__, nfc_debug_enabled);
 
-  if (nfc_debug_enabled) {
-    // display protocol traces in raw format
-    ProtoDispAdapterUseRawOutput(true);
-  }
   return nfc_debug_enabled;
 }
 

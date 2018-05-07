@@ -792,8 +792,8 @@ bool nfa_dm_act_request_excl_rf_ctrl(tNFA_DM_MSG* p_data) {
 ** Returns          true (message buffer to be freed by caller)
 **
 *******************************************************************************/
-bool nfa_dm_act_release_excl_rf_ctrl(tNFA_DM_MSG* p_data) {
-  (void)p_data;
+bool nfa_dm_act_release_excl_rf_ctrl(__attribute__((unused))
+                                      tNFA_DM_MSG* p_data) {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_dm_act_release_excl_rf_ctrl ()");
 
   /* nfa_dm_rel_excl_rf_control_and_notify() is called when discovery state goes
@@ -1121,9 +1121,8 @@ static bool nfa_dm_deactivate_polling(void) {
 ** Returns          true (message buffer to be freed by caller)
 **
 *******************************************************************************/
-bool nfa_dm_act_disable_polling(tNFA_DM_MSG* p_data) {
+bool nfa_dm_act_disable_polling(__attribute__((unused)) tNFA_DM_MSG* p_data) {
   tNFA_CONN_EVT_DATA evt_data;
-  (void)p_data;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_dm_act_disable_polling ()");
 
@@ -1156,9 +1155,8 @@ bool nfa_dm_act_disable_polling(tNFA_DM_MSG* p_data) {
 ** Returns          true (message buffer to be freed by caller)
 **
 *******************************************************************************/
-bool nfa_dm_act_enable_listening(tNFA_DM_MSG* p_data) {
+bool nfa_dm_act_enable_listening(__attribute__((unused)) tNFA_DM_MSG* p_data) {
   tNFA_CONN_EVT_DATA evt_data;
-  (void)p_data;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_dm_act_enable_listening ()");
 
@@ -1183,9 +1181,8 @@ bool nfa_dm_act_enable_listening(tNFA_DM_MSG* p_data) {
 ** Returns          true (message buffer to be freed by caller)
 **
 *******************************************************************************/
-bool nfa_dm_act_disable_listening(tNFA_DM_MSG* p_data) {
+bool nfa_dm_act_disable_listening((__attribute__((unused)) tNFA_DM_MSG* p_data) {
   tNFA_CONN_EVT_DATA evt_data;
-  (void)p_data;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_dm_act_disable_listening ()");
 
@@ -1231,9 +1228,8 @@ bool nfa_dm_act_disable_passive_listening(tNFA_DM_MSG* p_data) {
 ** Returns          true (message buffer to be freed by caller)
 **
 *******************************************************************************/
-bool nfa_dm_act_pause_p2p(tNFA_DM_MSG* p_data) {
+bool nfa_dm_act_pause_p2p(__attribute__((unused)) tNFA_DM_MSG* p_data) {
   tNFA_CONN_EVT_DATA evt_data;
-  (void)p_data;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_dm_act_pause_p2p ()");
 
@@ -1253,9 +1249,8 @@ bool nfa_dm_act_pause_p2p(tNFA_DM_MSG* p_data) {
 ** Returns          true (message buffer to be freed by caller)
 **
 *******************************************************************************/
-bool nfa_dm_act_resume_p2p(tNFA_DM_MSG* p_data) {
+bool nfa_dm_act_resume_p2p(__attribute__((unused)) tNFA_DM_MSG* p_data) {
   tNFA_CONN_EVT_DATA evt_data;
-  (void)(p_data);
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_dm_act_resume_p2p ()");
 
@@ -1344,9 +1339,8 @@ bool nfa_dm_set_p2p_listen_tech(tNFA_DM_MSG* p_data) {
 ** Returns          true (message buffer to be freed by caller)
 **
 *******************************************************************************/
-bool nfa_dm_act_start_rf_discovery(tNFA_DM_MSG* p_data) {
+bool nfa_dm_act_start_rf_discovery(__attribute__((unused)) tNFA_DM_MSG* p_data) {
   tNFA_CONN_EVT_DATA evt_data;
-  (void)p_data;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_dm_act_start_rf_discovery ()");
 
@@ -1374,9 +1368,8 @@ bool nfa_dm_act_start_rf_discovery(tNFA_DM_MSG* p_data) {
 ** Returns          true (message buffer to be freed by caller)
 **
 *******************************************************************************/
-bool nfa_dm_act_stop_rf_discovery(tNFA_DM_MSG* p_data) {
+bool nfa_dm_act_stop_rf_discovery(__attribute__((unused)) tNFA_DM_MSG* p_data) {
   tNFA_CONN_EVT_DATA evt_data;
-  (void)p_data;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_dm_act_stop_rf_discovery ()");
 
@@ -1484,9 +1477,8 @@ bool nfa_dm_act_update_rf_params(tNFA_DM_MSG* p_data) {
 ** Returns          true (message buffer to be freed by caller)
 **
 *******************************************************************************/
-bool nfa_dm_act_disable_timeout(tNFA_DM_MSG* p_data) {
+bool nfa_dm_act_disable_timeout(__attribute__((unused)) tNFA_DM_MSG* p_data) {
   tNFA_DM_MSG nfa_dm_msg;
-  (void)p_data;
 
   nfa_dm_msg.disable.graceful = false;
   nfa_dm_disable(&nfa_dm_msg);
@@ -1537,11 +1529,10 @@ void nfa_dm_act_conn_cback_notify(uint8_t event, tNFA_CONN_EVT_DATA* p_data) {
 ** Returns          None
 **
 *******************************************************************************/
-static void nfa_dm_act_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
-                                  tNFC_CONN* p_data) {
+static void nfa_dm_act_data_cback(__attribute__((unused)) uint8_t conn_id,
+                                  tNFC_CONN_EVT event, tNFC_CONN* p_data) {
   NFC_HDR* p_msg;
   tNFA_CONN_EVT_DATA evt_data;
-  (void)conn_id;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_dm_act_data_cback (): event = 0x%X", event);
 

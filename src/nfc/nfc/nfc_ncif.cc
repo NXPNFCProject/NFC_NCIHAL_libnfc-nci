@@ -991,9 +991,9 @@ void nfc_ncif_rf_management_status(tNFC_DISCOVER_EVT event, uint8_t status) {
 ** Returns          void
 **
 *******************************************************************************/
-void nfc_ncif_set_config_status(uint8_t* p, uint8_t len) {
+void nfc_ncif_set_config_status(uint8_t* p,
+                                __attribute__((unused))uint8_t len) {
   tNFC_RESPONSE evt_data;
-  (void)len;
 
   if (nfc_cb.p_resp_cback) {
     evt_data.set_config.status = (tNFC_STATUS)*p++;
@@ -1346,10 +1346,10 @@ void nfc_ncif_pwr_link_rsp_timeout() {
 ** Returns          void
 **
 *******************************************************************************/
-void nfc_ncif_proc_credits(uint8_t* p, uint16_t plen) {
+void nfc_ncif_proc_credits(uint8_t* p,
+                           __attribute__((unused)) uint16_t plen) {
   uint8_t num, xx;
   tNFC_CONN_CB* p_cb;
-  (void)plen;
 
   num = *p++;
   for (xx = 0; xx < num; xx++) {
@@ -1554,9 +1554,9 @@ Available after Technology Detection
 ** Returns          void
 **
 *******************************************************************************/
-void nfc_ncif_proc_discover_ntf(uint8_t* p, uint16_t plen) {
+void nfc_ncif_proc_discover_ntf(uint8_t* p,
+                                __attribute__((unused)) uint16_t plen) {
   tNFC_DISCOVER evt_data;
-  (void)plen;
 
   if (nfc_cb.p_discv_cback) {
     p += NCI_MSG_HDR_SIZE;
@@ -1595,11 +1595,9 @@ void nfc_ncif_proc_isodep_nak_presence_check_status (uint8_t status, bool is_ntf
 ** Returns          void
 **
 *******************************************************************************/
-void nfc_ncif_proc_rf_wtx_ntf(uint8_t* p, uint16_t plen) {
+void nfc_ncif_proc_rf_wtx_ntf(__attribute__((unused)) uint8_t* p,
+                              __attribute__((unused)) uint16_t plen) {
   tNFC_CONN_CB* p_cb = NULL;
-  (void)p;
-  (void)plen;
-
   p_cb = nfc_find_conn_cb_by_conn_id(NFC_RF_CONN_ID);
 
   if (NULL != p_cb) {
@@ -2106,14 +2104,11 @@ void nfc_ncif_proc_ee_discover_req(uint8_t* p, uint16_t plen) {
 ** Returns          void
 **
 *******************************************************************************/
-void nfc_ncif_proc_get_routing(uint8_t* p, uint8_t len) {
+void nfc_ncif_proc_get_routing(__attribute__((unused)) uint8_t* p,
+                               __attribute__((unused))uint8_t len) {
   tNFC_GET_ROUTING_REVT evt_data;
   uint8_t more, num_entries, xx, yy, *pn, tl;
   tNFC_STATUS status = NFC_STATUS_CONTINUE;
-#if (NXP_EXTNS == TRUE)
-  (void)(p);
-  (void)(len);
-#endif
 
 #if (NXP_EXTNS == FALSE)
   if (nfc_cb.p_resp_cback) {
@@ -2163,14 +2158,14 @@ void nfc_ncif_proc_get_routing(uint8_t* p, uint8_t len) {
 ** Returns          void
 **
 *******************************************************************************/
-void nfc_ncif_proc_conn_create_rsp(uint8_t* p, uint16_t plen,
+void nfc_ncif_proc_conn_create_rsp(uint8_t* p,
+                                  __attribute__((unused)) uint16_t plen,
                                    uint8_t dest_type) {
   tNFC_CONN_CB* p_cb;
   tNFC_STATUS status;
   tNFC_CONN_CBACK* p_cback;
   tNFC_CONN evt_data;
   uint8_t conn_id;
-  (void)plen;
 
   /* find the pending connection control block */
   p_cb = nfc_find_conn_cb_by_conn_id(NFC_PEND_CONN_ID);

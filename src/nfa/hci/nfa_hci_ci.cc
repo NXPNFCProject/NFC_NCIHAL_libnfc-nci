@@ -69,7 +69,8 @@ void nfa_nv_ci_write(tNFA_NV_CO_STATUS status) {
   p_msg = (tNFA_HCI_EVENT_DATA*)GKI_getbuf(sizeof(tNFA_HCI_EVENT_DATA));
   if (p_msg != NULL) {
     p_msg->nv_write.hdr.event = NFA_HCI_RSP_NV_WRITE_EVT;
-    p_msg->nv_write.status = 0;
+    p_msg->nv_write.status =
+        (status == NFA_NV_CO_OK) ? NFA_STATUS_OK : NFA_STATUS_FAILED;
     nfa_sys_sendmsg(p_msg);
   }
 }

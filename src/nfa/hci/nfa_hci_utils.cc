@@ -47,7 +47,7 @@
 #include "nfa_hci_int.h"
 #include "nfa_hci_defs.h"
 
-static void handle_debug_loopback(NFC_HDR* p_buf, uint8_t pipe, uint8_t type,
+static void handle_debug_loopback(NFC_HDR* p_buf, uint8_t type,
                                   uint8_t instruction);
 uint8_t HCI_LOOPBACK_DEBUG = false;
 
@@ -398,7 +398,7 @@ tNFA_STATUS nfa_hciu_send_msg(uint8_t pipe_id, uint8_t type,
               (bool)((p_buf->len - data_len) == 2));
 
       if (HCI_LOOPBACK_DEBUG)
-        handle_debug_loopback(p_buf, pipe_id, type, instruction);
+        handle_debug_loopback(p_buf, type, instruction);
       else
         status = NFC_SendData(nfa_hci_cb.conn_id, p_buf);
     } else {
@@ -1606,7 +1606,7 @@ std::string nfa_hciu_evt_2_str(uint8_t pipe_id, uint8_t evt) {
   }
 }
 
-static void handle_debug_loopback(NFC_HDR* p_buf, uint8_t pipe, uint8_t type,
+static void handle_debug_loopback(NFC_HDR* p_buf, uint8_t type,
                                   uint8_t instruction) {
   uint8_t* p = (uint8_t*)(p_buf + 1) + p_buf->offset;
   static uint8_t next_pipe = 0x10;

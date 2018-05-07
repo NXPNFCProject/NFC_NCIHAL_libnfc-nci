@@ -83,7 +83,7 @@ extern void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
                                tNFC_CONN* p_data);
 static void nfa_hci_set_receive_buf(uint8_t pipe);
 #if (NXP_EXTNS == TRUE)
-void nfa_hci_rsp_timeout(tNFA_HCI_EVENT_DATA* p_evt_data);
+void nfa_hci_rsp_timeout(void);
 static void nfa_hci_assemble_msg(uint8_t* p_data, uint16_t data_len,
                                  uint8_t pipe);
 static uint8_t nfa_ee_ce_p61_completed = 0x00;
@@ -1325,7 +1325,7 @@ void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
       } else if (nfa_hci_cb.type == NFA_HCI_RESPONSE_TYPE) {
         nfa_hci_handle_admin_gate_rsp(p, (uint8_t)pkt_len);
       } else if (nfa_hci_cb.type == NFA_HCI_EVENT_TYPE) {
-        nfa_hci_handle_admin_gate_evt(p);
+        nfa_hci_handle_admin_gate_evt();
       }
       break;
 
@@ -1429,7 +1429,7 @@ void nfa_hci_handle_nv_read(uint8_t block, tNFA_STATUS status) {
 ** Returns          None
 **
 *******************************************************************************/
-void nfa_hci_rsp_timeout(tNFA_HCI_EVENT_DATA* p_evt_data) {
+void nfa_hci_rsp_timeout() {
   tNFA_HCI_EVT evt = 0;
   tNFA_HCI_EVT_DATA evt_data;
   uint8_t delete_pipe;
@@ -1871,7 +1871,7 @@ static bool nfa_hci_evt_hdlr(NFC_HDR* p_msg) {
               }
           }
 #endif
-        nfa_hci_rsp_timeout((tNFA_HCI_EVENT_DATA*)p_msg);
+        nfa_hci_rsp_timeout();
         break;
 
       case NFA_HCI_CHECK_QUEUE_EVT:
@@ -1913,7 +1913,7 @@ void nfa_hci_release_transcieve() {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hci_release_transcieve (); Release ongoing transcieve");
   if (nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_RSP) {
     nfa_sys_stop_timer(&nfa_hci_cb.timer);
-    nfa_hci_rsp_timeout(NULL);
+    nfa_hci_rsp_timeout();
   }
 }
 

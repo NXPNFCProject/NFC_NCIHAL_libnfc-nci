@@ -195,8 +195,6 @@ void NfcAdaptation::Initialize() {
 
   if (GetNumValue(NAME_USE_RAW_NCI_TRACE, &num, sizeof(num))) {
     if (num == 1) {
-      // display protocol traces in raw format
-      ProtoDispAdapterUseRawOutput(true);
       DLOG_IF(INFO, nfc_debug_enabled)
           << StringPrintf("%s: logging protocol in raw format", func);
     }
@@ -350,7 +348,7 @@ void NfcAdaptation::signal() { mCondVar.signal(); }
 ** Returns:     none
 **
 *******************************************************************************/
-uint32_t NfcAdaptation::NFCA_TASK(uint32_t arg) {
+uint32_t NfcAdaptation::NFCA_TASK(__attribute__((unused)) uint32_t arg) {
   const char* func = "NfcAdaptation::NFCA_TASK";
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: enter", func);
   GKI_run(0);
@@ -367,7 +365,7 @@ uint32_t NfcAdaptation::NFCA_TASK(uint32_t arg) {
 ** Returns:     none
 **
 *******************************************************************************/
-uint32_t NfcAdaptation::Thread(uint32_t arg) {
+uint32_t NfcAdaptation::Thread(__attribute__((unused)) uint32_t arg) {
   const char* func = "NfcAdaptation::Thread";
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: enter", func);
 
@@ -409,7 +407,6 @@ tHAL_NFC_ENTRY* NfcAdaptation::GetHalEntryFuncs() { return &mHalEntryFuncs; }
 void NfcAdaptation::InitializeHalDeviceContext() {
   const char* func = "NfcAdaptation::InitializeHalDeviceContext";
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: enter", func);
-  int ret = 0;  // 0 means success
 
   const hw_module_t* hw_module = NULL;
 
@@ -729,7 +726,6 @@ void NfcAdaptation::HalPowerCycle() {
 *******************************************************************************/
 uint8_t NfcAdaptation::HalGetMaxNfcee() {
   const char* func = "NfcAdaptation::HalPowerCycle";
-  uint8_t maxNfcee = 0;
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s", func);
   return nfa_ee_max_ee_cfg;
 }
@@ -873,6 +869,7 @@ TheEnd:
 **
 *******************************************************************************/
 void NfcAdaptation::HalDownloadFirmwareCallback(nfc_event_t event,
+                                                __attribute__((unused))
                                                 nfc_status_t event_status) {
   const char* func = "NfcAdaptation::HalDownloadFirmwareCallback";
   (void)(event_status);
@@ -908,7 +905,9 @@ void NfcAdaptation::HalDownloadFirmwareCallback(nfc_event_t event,
 ** Returns:     None.
 **
 *******************************************************************************/
-void NfcAdaptation::HalDownloadFirmwareDataCallback(uint16_t data_len,
+void NfcAdaptation::HalDownloadFirmwareDataCallback(__attribute__((unused))
+                                                    uint16_t data_len,
+                                                    __attribute__((unused))
                                                     uint8_t* p_data) {
 #if (NXP_EXTNS == TRUE)
   isSignaled = SIGNAL_SIGNALED;

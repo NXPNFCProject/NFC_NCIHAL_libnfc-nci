@@ -1601,9 +1601,8 @@ static void llcp_link_send_to_lower(NFC_HDR* p_pdu) {
 ** Returns          void
 **
 *******************************************************************************/
-void llcp_link_connection_cback(uint8_t conn_id, tNFC_CONN_EVT event,
-                                tNFC_CONN* p_data) {
-  (void)conn_id;
+void llcp_link_connection_cback(__attribute__((unused)) uint8_t conn_id,
+                                tNFC_CONN_EVT event, tNFC_CONN* p_data) {
 
   if (event == NFC_DATA_CEVT) {
     DispLLCP((NFC_HDR*)p_data->data.p_data, true);

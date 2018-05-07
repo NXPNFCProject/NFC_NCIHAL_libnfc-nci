@@ -72,10 +72,8 @@ static void nfa_hci_handle_connectivity_gate_pkt(uint8_t* p_data,
                                                  uint16_t data_len,
                                                  tNFA_HCI_DYN_PIPE* p_pipe);
 static void nfa_hci_handle_generic_gate_cmd(uint8_t* p_data, uint8_t data_len,
-                                            tNFA_HCI_DYN_GATE* p_gate,
                                             tNFA_HCI_DYN_PIPE* p_pipe);
 static void nfa_hci_handle_generic_gate_rsp(uint8_t* p_data, uint8_t data_len,
-                                            tNFA_HCI_DYN_GATE* p_gate,
                                             tNFA_HCI_DYN_PIPE* p_pipe);
 static void nfa_hci_handle_generic_gate_evt(uint8_t* p_data, uint16_t data_len,
                                             tNFA_HCI_DYN_GATE* p_gate,
@@ -287,7 +285,7 @@ static void nfa_hci_api_register(tNFA_HCI_EVENT_DATA* p_evt_data) {
     if ((nfa_hci_cb.cfg.reg_app_names[xx][0] != 0) &&
         !strncmp(p_app_name, &nfa_hci_cb.cfg.reg_app_names[xx][0],
                  strlen(p_app_name))) {
-      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(nfa_hci_api_register (%s)  Reusing: %u", p_app_name,
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hci_api_register (%s)  Reusing: %u", p_app_name,
                        xx);
       break;
     }
@@ -1795,7 +1793,7 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
 ** Returns          none
 **
 *******************************************************************************/
-void nfa_hci_handle_admin_gate_evt(uint8_t* p_data) {
+void nfa_hci_handle_admin_gate_evt() {
   tNFA_HCI_EVT_DATA evt_data;
   tNFA_HCI_API_GET_HOST_LIST* p_msg;
   (void)p_data;
@@ -1906,13 +1904,11 @@ void nfa_hci_handle_dyn_pipe_pkt(uint8_t pipe_id, uint8_t* p_data,
 
     switch (nfa_hci_cb.type) {
       case NFA_HCI_COMMAND_TYPE:
-        nfa_hci_handle_generic_gate_cmd(p_data, (uint8_t)data_len, p_gate,
-                                        p_pipe);
+        nfa_hci_handle_generic_gate_cmd(p_data, (uint8_t)data_len, p_pipe);
         break;
 
       case NFA_HCI_RESPONSE_TYPE:
-        nfa_hci_handle_generic_gate_rsp(p_data, (uint8_t)data_len, p_gate,
-                                        p_pipe);
+        nfa_hci_handle_generic_gate_rsp(p_data, (uint8_t)data_len, p_pipe);
         break;
 
       case NFA_HCI_EVENT_TYPE:
@@ -1935,13 +1931,11 @@ void nfa_hci_handle_dyn_pipe_pkt(uint8_t pipe_id, uint8_t* p_data,
     /* Check if data packet is a command, response or event */
     switch (nfa_hci_cb.type) {
       case NFA_HCI_COMMAND_TYPE:
-        nfa_hci_handle_generic_gate_cmd(p_data, (uint8_t)data_len, p_gate,
-                                        p_pipe);
+        nfa_hci_handle_generic_gate_cmd(p_data, (uint8_t)data_len, p_pipe);
         break;
 
       case NFA_HCI_RESPONSE_TYPE:
-        nfa_hci_handle_generic_gate_rsp(p_data, (uint8_t)data_len, p_gate,
-                                        p_pipe);
+        nfa_hci_handle_generic_gate_rsp(p_data, (uint8_t)data_len, p_pipe);
         break;
 
       case NFA_HCI_EVENT_TYPE:
@@ -2058,7 +2052,6 @@ static void nfa_hci_handle_identity_mgmt_gate_pkt(uint8_t* p_data,
 **
 *******************************************************************************/
 static void nfa_hci_handle_generic_gate_cmd(uint8_t* p_data, uint8_t data_len,
-                                            tNFA_HCI_DYN_GATE* p_gate,
                                             tNFA_HCI_DYN_PIPE* p_pipe) {
   tNFA_HCI_EVT_DATA evt_data;
   tNFA_HANDLE app_handle = nfa_hciu_get_pipe_owner(p_pipe->pipe_id);
@@ -2129,7 +2122,6 @@ static void nfa_hci_handle_generic_gate_cmd(uint8_t* p_data, uint8_t data_len,
 **
 *******************************************************************************/
 static void nfa_hci_handle_generic_gate_rsp(uint8_t* p_data, uint8_t data_len,
-                                            tNFA_HCI_DYN_GATE* p_gate,
                                             tNFA_HCI_DYN_PIPE* p_pipe) {
   tNFA_HCI_EVT_DATA evt_data;
   tNFA_STATUS status = NFA_STATUS_OK;

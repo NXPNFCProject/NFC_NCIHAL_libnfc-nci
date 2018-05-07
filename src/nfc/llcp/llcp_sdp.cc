@@ -62,9 +62,7 @@
 ** Returns          void
 **
 *******************************************************************************/
-void llcp_sdp_proc_data(tLLCP_SAP_CBACK_DATA* p_data) {
-  (void)p_data;
-
+void llcp_sdp_proc_data(__attribute__((unused)) tLLCP_SAP_CBACK_DATA* p_data) {
   /*
   ** Do nothing
   ** llcp_sdp_proc_SNL () is called by link layer

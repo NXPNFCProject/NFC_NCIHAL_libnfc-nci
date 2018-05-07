@@ -1872,10 +1872,9 @@ void nfa_ee_api_remove_apdu(tNFA_EE_MSG* p_data) {
 ** Returns          void
 **
 *******************************************************************************/
-void nfa_ee_api_lmrt_size(tNFA_EE_MSG* p_data) {
+void nfa_ee_api_lmrt_size(__attribute__((unused)) tNFA_EE_MSG* p_data) {
   tNFA_EE_CBACK_DATA evt_data = {0};
   uint16_t total_size = NFC_GetLmrtSize();
-  (void)p_data;
   evt_data.size = total_size - nfa_ee_total_lmrt_size();
    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ee_api_lmrt_size total size:%d remaining size:%d",
                    total_size, evt_data.size);
@@ -3080,7 +3079,6 @@ void nfa_ee_check_set_routing(uint16_t new_size, int* p_max_len, uint8_t* p,
   uint8_t max_tlv = (uint8_t)((*p_max_len > NFA_EE_ROUT_MAX_TLV_SIZE)
                                   ? NFA_EE_ROUT_MAX_TLV_SIZE
                                   : *p_max_len);
-  tNFA_STATUS status = NFA_STATUS_OK;
 
   if (new_size + *p_cur_offset > max_tlv) {
     if (NFC_SetRouting(true, *p, *p_cur_offset, p + 1) == NFA_STATUS_OK) {
@@ -3257,9 +3255,8 @@ static bool nfa_ee_need_recfg(void) {
 ** Returns          void
 **
 *******************************************************************************/
-void nfa_ee_rout_timeout(tNFA_EE_MSG* p_data) {
+void nfa_ee_rout_timeout(__attribute__((unused)) tNFA_EE_MSG* p_data) {
   uint8_t ee_cfged = nfa_ee_cb.ee_cfged;
-  (void)p_data;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ee_rout_timeout()");
   if (nfa_ee_need_recfg()) {
@@ -3290,8 +3287,7 @@ void nfa_ee_rout_timeout(tNFA_EE_MSG* p_data) {
 ** Returns          void
 **
 *******************************************************************************/
-void nfa_ee_discv_timeout(tNFA_EE_MSG* p_data) {
-  (void)p_data;
+void nfa_ee_discv_timeout(__attribute__((unused)) tNFA_EE_MSG* p_data) {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ee_discv_timeout ()");
   if(NFA_GetNCIVersion() != NCI_VERSION_2_0)
       NFC_NfceeDiscover(false);
@@ -3309,7 +3305,7 @@ void nfa_ee_discv_timeout(tNFA_EE_MSG* p_data) {
 ** Returns          void
 **
 *******************************************************************************/
-void nfa_ee_lmrt_to_nfcc(tNFA_EE_MSG* p_data) {
+void nfa_ee_lmrt_to_nfcc(__attribute__((unused)) tNFA_EE_MSG* p_data) {
   int xx;
   tNFA_EE_ECB* p_cb;
   uint8_t* p = NULL;
@@ -3323,7 +3319,6 @@ void nfa_ee_lmrt_to_nfcc(tNFA_EE_MSG* p_data) {
 #if (NXP_EXTNS == TRUE)
   int rt;
   tNFA_EE_CBACK_DATA evt_data = {0};
-  (void)p_data;
 #endif
 
 #if (NXP_EXTNS == TRUE)

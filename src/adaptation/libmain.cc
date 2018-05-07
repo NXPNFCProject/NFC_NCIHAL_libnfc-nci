@@ -86,7 +86,7 @@ extern void nfa_nv_co_read(uint8_t* pBuffer, uint16_t nbytes, uint8_t block) {
   int fileStream = open(filename, O_RDONLY);
   if (fileStream >= 0) {
     unsigned short checksum = 0;
-    size_t actualReadCrc = read(fileStream, &checksum, sizeof(checksum));
+    read(fileStream, &checksum, sizeof(checksum));
     size_t actualReadData = read(fileStream, pBuffer, nbytes);
     close(fileStream);
     if (actualReadData > 0) {

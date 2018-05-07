@@ -268,9 +268,6 @@ void nfc_hal_hci_handle_build_info(uint8_t chipverlen, uint8_t* p_chipverstr);
 void DispNci(uint8_t* p, uint16_t len, bool is_recv);
 #endif /* DISP_NCI */
 
-/* For displaying vendor-specific HCI commands */
-void DispHciCmd(NFC_HDR* p_buf);
-void DispHciEvt(NFC_HDR* p_buf);
 #endif /* NFC_HAL_TRACE_PROTOCOL */
 
 

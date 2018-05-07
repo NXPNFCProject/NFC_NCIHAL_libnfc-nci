@@ -39,9 +39,9 @@
 **
 *******************************************************************************/
 static void shiftdown(uint8_t* p_mem, uint32_t len, uint32_t shift_amount) {
-  register uint8_t* ps = p_mem + len - 1;
-  register uint8_t* pd = ps + shift_amount;
-  register uint32_t xx;
+  uint8_t* ps = p_mem + len - 1;
+  uint8_t* pd = ps + shift_amount;
+  uint32_t xx;
 
   for (xx = 0; xx < len; xx++) *pd-- = *ps--;
 }
@@ -54,9 +54,9 @@ static void shiftdown(uint8_t* p_mem, uint32_t len, uint32_t shift_amount) {
 **
 *******************************************************************************/
 static void shiftup(uint8_t* p_dest, uint8_t* p_src, uint32_t len) {
-  register uint8_t* ps = p_src;
-  register uint8_t* pd = p_dest;
-  register uint32_t xx;
+  uint8_t* ps = p_src;
+  uint8_t* pd = p_dest;
+  uint32_t xx;
 
   for (xx = 0; xx < len; xx++) *pd++ = *ps++;
 }

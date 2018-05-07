@@ -399,11 +399,10 @@ void nfc_task_shutdown_nfcc(void) {
 ** Returns          nothing
 **
 *******************************************************************************/
-uint32_t nfc_task(uint32_t param) {
+uint32_t nfc_task() {
   uint16_t event;
   NFC_HDR* p_msg;
   bool free_buf;
-  (void)param;
 
   /* Initialize the nfc control block */
   memset(&nfc_cb, 0, sizeof(tNFC_CB));

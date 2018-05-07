@@ -59,7 +59,7 @@ static tLLCP_STATUS llcp_dlsm_w4_local_resp(tLLCP_DLCB* p_dlcb,
 static tLLCP_STATUS llcp_dlsm_connected(tLLCP_DLCB* p_dlcb,
                                         tLLCP_DLC_EVENT event, void* p_data);
 static tLLCP_STATUS llcp_dlsm_w4_remote_dm(tLLCP_DLCB* p_dlcb,
-                                           tLLCP_DLC_EVENT event, void* p_data);
+                                           tLLCP_DLC_EVENT event);
 extern unsigned char appl_dta_mode_flag;
 
 static std::string llcp_dlsm_get_state_name(tLLCP_DLC_STATE state);
@@ -101,7 +101,7 @@ tLLCP_STATUS llcp_dlsm_execute(tLLCP_DLCB* p_dlcb, tLLCP_DLC_EVENT event,
       break;
 
     case LLCP_DLC_STATE_W4_REMOTE_DM:
-      status = llcp_dlsm_w4_remote_dm(p_dlcb, event, p_data);
+      status = llcp_dlsm_w4_remote_dm(p_dlcb, event);
       break;
 
     default:
@@ -518,11 +518,9 @@ static tLLCP_STATUS llcp_dlsm_connected(tLLCP_DLCB* p_dlcb,
 **
 *******************************************************************************/
 static tLLCP_STATUS llcp_dlsm_w4_remote_dm(tLLCP_DLCB* p_dlcb,
-                                           tLLCP_DLC_EVENT event,
-                                           void* p_data) {
+                                           tLLCP_DLC_EVENT event) {
   tLLCP_STATUS status = LLCP_STATUS_SUCCESS;
   tLLCP_SAP_CBACK_DATA data;
-  (void)p_data;
 
   switch (event) {
     case LLCP_DLC_EVENT_PEER_DISCONNECT_RESP:
@@ -761,10 +759,9 @@ static void llcp_dlc_proc_connect_pdu(uint8_t dsap, uint8_t ssap,
 ** Returns          void
 **
 *******************************************************************************/
-static void llcp_dlc_proc_disc_pdu(uint8_t dsap, uint8_t ssap, uint16_t length,
-                                   uint8_t* p_data) {
+static void llcp_dlc_proc_disc_pdu(uint8_t dsap, uint8_t ssap,
+                                              uint16_t length) {
   tLLCP_DLCB* p_dlcb;
-  (void)p_data;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("llcp_dlc_proc_disc_pdu ()");
 
@@ -1214,7 +1211,7 @@ void llcp_dlc_proc_rx_pdu(uint8_t dsap, uint8_t ptype, uint8_t ssap,
       break;
 
     case LLCP_PDU_DISC_TYPE:
-      llcp_dlc_proc_disc_pdu(dsap, ssap, length, p_data);
+      llcp_dlc_proc_disc_pdu(dsap, ssap, length);
       break;
 
     case LLCP_PDU_CC_TYPE:

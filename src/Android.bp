@@ -26,9 +26,8 @@ cc_library_shared {
     ],
     cflags: [
         "-DBUILDCFG=1",
-        "-Wno-deprecated-register",
-        "-Wno-unused-parameter",
-        "-Wno-missing-field-initializers",
+        "-Wall",
+        "-Werror",
         "-DNXP_EXTNS=TRUE",
         "-DNFC_NXP_AID_MAX_SIZE_DYN=TRUE",
         "-DNXP_NFCC_HCE_F=TRUE",

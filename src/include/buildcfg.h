@@ -73,9 +73,6 @@
 #define GKI_NUM_FIXED_BUF_POOLS 4
 #endif
 
-extern uint8_t* scru_dump_hex(uint8_t* p, char* p_title, uint32_t len,
-                              uint32_t trace_layer, uint32_t trace_type);
-extern void ScrLog(uint32_t trace_set_mask, const char* fmt_str, ...);
 extern void DispNci(uint8_t* p, uint16_t len, bool is_recv);
 
 void ProtoDispAdapterDisplayNciPacket(uint8_t* nciPacket, uint16_t nciPacketLen,

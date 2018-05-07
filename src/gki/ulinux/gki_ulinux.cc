@@ -194,8 +194,6 @@ uint32_t GKI_get_os_tick_count(void) {
 uint8_t GKI_create_task(TASKPTR task_entry, uint8_t task_id, int8_t* taskname,
                         uint16_t* stack, uint16_t stacksize, void* pCondVar,
                         void* pMutex) {
-  uint16_t i;
-  uint8_t* p;
   struct sched_param param;
   int policy, ret = 0;
   pthread_condattr_t attr;
@@ -379,7 +377,9 @@ void GKI_shutdown(void) {
 void gki_system_tick_start_stop_cback(bool start) {
   tGKI_OS* p_os = &gki_cb.os;
   volatile int* p_run_cond = &p_os->no_timer_suspend;
+#ifdef GKI_TICK_TIMER_DEBUG
   static volatile int wake_lock_count;
+#endif
   if (false == start) {
     /* this can lead to a race condition. however as we only read this variable
      * in the timer loop
@@ -460,7 +460,7 @@ void timer_thread(signed long id) {
 **                  one step, If your OS does it in one step, this function
 **                  should be empty.
 *******************************************************************************/
-void GKI_run(void* p_task_id) {
+void GKI_run(__attribute__((unused)) void* p_task_id) {
   GDLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s enter", __func__);
   struct timespec delay;
   int err = 0;
@@ -965,7 +965,6 @@ void GKI_disable(void) {
 
 void GKI_exception(uint16_t code, std::string msg) {
   uint8_t task_id;
-  int i = 0;
 
   LOG(ERROR) << StringPrintf("Task State Table");
 
@@ -1231,9 +1230,9 @@ void GKI_sched_unlock(void) {
 **
 *******************************************************************************/
 void GKI_shiftdown(uint8_t* p_mem, uint32_t len, uint32_t shift_amount) {
-  register uint8_t* ps = p_mem + len - 1;
-  register uint8_t* pd = ps + shift_amount;
-  register uint32_t xx;
+  uint8_t* ps = p_mem + len - 1;
+  uint8_t* pd = ps + shift_amount;
+  uint32_t xx;
 
   for (xx = 0; xx < len; xx++) *pd-- = *ps--;
 }
@@ -1246,9 +1245,9 @@ void GKI_shiftdown(uint8_t* p_mem, uint32_t len, uint32_t shift_amount) {
 **
 *******************************************************************************/
 void GKI_shiftup(uint8_t* p_dest, uint8_t* p_src, uint32_t len) {
-  register uint8_t* ps = p_src;
-  register uint8_t* pd = p_dest;
-  register uint32_t xx;
+  uint8_t* ps = p_src;
+  uint8_t* pd = p_dest;
+  uint32_t xx;
 
   for (xx = 0; xx < len; xx++) *pd++ = *ps++;
 }

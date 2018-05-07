@@ -51,21 +51,6 @@ static char log_line[MAX_LOGCAT_LINE];
 static const char* sTable = "0123456789abcdef";
 static void ToHex(const uint8_t* data, uint16_t len, char* hexString,
                   uint16_t hexStringSize);
-static void dumpbin(const char* data, int size, uint32_t trace_layer,
-                    uint32_t trace_type);
-static inline void word2hex(const char* data, char** hex);
-static inline void byte2char(const char* data, char** str);
-static inline void byte2hex(const char* data, char** str);
-
-void BTDISP_LOCK_LOG() {}
-
-void BTDISP_UNLOCK_LOG() {}
-
-void BTDISP_INIT_LOCK() {}
-
-void BTDISP_UNINIT_LOCK() {}
-
-void ProtoDispAdapterUseRawOutput(bool isUseRaw) { }
 
 void ProtoDispAdapterDisplayNciPacket(uint8_t* nciPacket, uint16_t nciPacketLen,
                                       bool is_recv) {
@@ -88,86 +73,6 @@ void ToHex(const uint8_t* data, uint16_t len, char* hexString,
   hexString[j] = '\0';
 }
 
-// Protodisp code calls ScrLog() to print decoded texts.
-void ScrLog(uint32_t trace_set_mask, const char* fmt_str, ...) {
-  static char buffer[BTE_LOG_BUF_SIZE];
-  va_list ap;
-  UNUSED(trace_set_mask);
-  va_start(ap, fmt_str);
-  vsnprintf(buffer, BTE_LOG_MAX_SIZE, fmt_str, ap);
-  va_end(ap);
-  __android_log_write(ANDROID_LOG_INFO, "BrcmNci", buffer);
-}
-
-uint8_t* scru_dump_hex(uint8_t* p, char* pTitle, uint32_t len, uint32_t layer,
-                       uint32_t type) {
-  if (pTitle && *pTitle) PRINT(pTitle);
-  dumpbin((char*)p, len, layer, type);
-  return p;
-}
-
-void dumpbin(const char* data, int size, uint32_t trace_layer,
-             uint32_t trace_type) {
-  char line_buff[256];
-  char* line;
-  int i, j, addr;
-  const int width = 16;
-  UNUSED(trace_layer);
-  UNUSED(trace_type);
-  if (size <= 0) return;
-  for (i = 0; i < size / width; i++) {
-    line = line_buff;
-    // write address:
-    addr = i * width;
-    word2hex((const char*)&addr, &line);
-    *line++ = ':';
-    *line++ = ' ';
-    // write hex of data
-    for (j = 0; j < width; j++) {
-      byte2hex(&data[j], &line);
-      *line++ = ' ';
-    }
-    // write char of data
-    for (j = 0; j < width; j++) byte2char(data++, &line);
-    // wirte the end of line
-    *line = 0;
-    // output the line
-    PRINT(line_buff);
-  }
-  // last line of left over if any
-  int leftover = size % width;
-  if (leftover > 0) {
-    line = line_buff;
-    // write address:
-    addr = i * width;
-    word2hex((const char*)&addr, &line);
-    *line++ = ':';
-    *line++ = ' ';
-    // write hex of data
-    for (j = 0; j < leftover; j++) {
-      byte2hex(&data[j], &line);
-      *line++ = ' ';
-    }
-    // write hex padding
-    for (; j < width; j++) {
-      *line++ = ' ';
-      *line++ = ' ';
-      *line++ = ' ';
-    }
-    // write char of data
-    for (j = 0; j < leftover; j++) byte2char(data++, &line);
-    // write the end of line
-    *line = 0;
-    // output the line
-    PRINT(line_buff);
-  }
-}
-
-inline void word2hex(const char* data, char** hex) {
-  byte2hex(&data[1], hex);
-  byte2hex(&data[0], hex);
-}
-
 inline void byte2char(const char* data, char** str) {
   **str = *data < ' ' ? '.' : *data > '~' ? '.' : *data;
   ++(*str);
@@ -178,34 +83,6 @@ inline void byte2hex(const char* data, char** str) {
   ++*str;
   **str = sTable[*data & 0xf];
   ++*str;
-}
-
-// Decode a few Bluetooth HCI packets into hex numbers.
-void DispHciCmd(NFC_HDR* p_buf) {
-  uint32_t nBytes = ((NFC_HDR_SIZE + p_buf->offset + p_buf->len) * 2) + 1;
-  uint8_t* data = (uint8_t*)p_buf;
-  int data_len = NFC_HDR_SIZE + p_buf->offset + p_buf->len;
-
-  if (!nfc_debug_enabled) return;
-
-  if (nBytes > sizeof(log_line)) return;
-
-  ToHex(data, data_len, log_line, sizeof(log_line));
-  __android_log_write(ANDROID_LOG_DEBUG, "BrcmHciX", log_line);
-}
-
-// Decode a few Bluetooth HCI packets into hex numbers.
-void DispHciEvt(NFC_HDR* p_buf) {
-  uint32_t nBytes = ((NFC_HDR_SIZE + p_buf->offset + p_buf->len) * 2) + 1;
-  uint8_t* data = (uint8_t*)p_buf;
-  int data_len = NFC_HDR_SIZE + p_buf->offset + p_buf->len;
-
-  if (!nfc_debug_enabled) return;
-
-  if (nBytes > sizeof(log_line)) return;
-
-  ToHex(data, data_len, log_line, sizeof(log_line));
-  __android_log_write(ANDROID_LOG_DEBUG, "BrcmHciR", log_line);
 }
 
 /***************************************************************************
@@ -255,39 +132,4 @@ void DispHcp(uint8_t* data, uint16_t len, bool is_recv) {
       << StringPrintf("%s:%s", is_recv ? "HcpR" : "HcpX", log_line);
 }
 
-void DispSNEP(uint8_t local_sap, uint8_t remote_sap, NFC_HDR* p_buf,
-              bool is_first, bool is_rx) {
-  UNUSED(local_sap);
-  UNUSED(remote_sap);
-  UNUSED(p_buf);
-  UNUSED(is_first);
-  UNUSED(is_rx);
-}
-void DispCHO(uint8_t* pMsg, uint32_t MsgLen, bool is_rx) {
-  UNUSED(pMsg);
-  UNUSED(MsgLen);
-  UNUSED(is_rx);
-}
-void DispT3TagMessage(NFC_HDR* p_msg, bool is_rx) {
-  UNUSED(p_msg);
-  UNUSED(is_rx);
-}
-void DispRWT4Tags(NFC_HDR* p_buf, bool is_rx) {
-  UNUSED(p_buf);
-  UNUSED(is_rx);
-}
-void DispCET4Tags(NFC_HDR* p_buf, bool is_rx) {
-  UNUSED(p_buf);
-  UNUSED(is_rx);
-}
-void DispRWI93Tag(NFC_HDR* p_buf, bool is_rx, uint8_t command_to_respond) {
-  UNUSED(p_buf);
-  UNUSED(is_rx);
-  UNUSED(command_to_respond);
-}
-void DispNDEFMsg(uint8_t* pMsg, uint32_t MsgLen, bool is_recv) {
-  UNUSED(pMsg);
-  UNUSED(MsgLen);
-  UNUSED(is_recv);
-}
 
