@@ -55,28 +55,8 @@
 /*****************************************************************************
 **  DTA definitions
 *****************************************************************************/
-#define NFA_DTA_PATTERN_NUMBER_INVALID 0xFFFF
-
-#define NFA_DTA_PATTERN_NUMBER_LLCP_CONNECT_BY_SAP 0x1200
-#define NFA_DTA_PATTERN_NUMBER_LLCP_CONNECT_BY_SN 0x1240
-#define NFA_DTA_PATTERN_NUMBER_LLCP_CONNECT_BY_SNL 0x1280
-
-#define NFA_DTA_PATTERN_NUMBER_SNEP_SERVER_ONLY 0x1300
-#define NFA_DTA_PATTERN_NUMBER_SNEP_DEFAULT_PUT_SHORT_NDEF 0x1301
-#define NFA_DTA_PATTERN_NUMBER_SNEP_DEFAULT_PUT_LONG_NDEF 0x1302
-#define NFA_DTA_PATTERN_NUMBER_SNEP_EXTENDED_GET 0x1303
 
 #define NFA_DTA_DISCOVER_PARAMS_MAX 6
-
-/* Header length for long NDEF text message */
-#define NDEF_WKT_TEXT_HDR_LEN 7
-/* Size of NDEF message for T3T write-tests ([DTA] $5.5.6) */
-#define NFA_DTA_T3T_WRITE_NDEF_SIZE 192
-/* System code to use for T3T Listen mode tests */
-#define NFA_DTA_T3T_LISTEN_SYSTEMCODE 0xBABE
-
-/* Maximum protocol preference rank */
-#define NFA_PROTOCOL_RANK_INVALID 0xFF
 
 #define NFA_DTA_SCRATCH_BUF_SIZE T3T_MSG_BLOCKSIZE
 
@@ -205,9 +185,6 @@ enum {
 };
 typedef uint8_t tNFA_DTA_STATE;
 
-/* DTA Substates (while in ACTIVATED state) - substate enumerations are found in
- * protocol-specific files (nfa_dta_XXX.c) */
-#define NFA_DTA_SST_IDLE 0
 typedef uint8_t tNFA_DTA_SUBSTATE;
 
 /* DTA discovery states */
@@ -249,17 +226,6 @@ enum {
 
 /* DTA test step command */
 typedef tNFC_STATUS (*tNFA_DTA_CMD_FCN)(void*);
-
-/* dta control block flags */
-#define NFA_DTA_FL_ENABLED 0x00000001 /* DTA is enabled */
-/* Automatically start discovery when NFC is enabled */
-#define NFA_DTA_FL_AUTOSTART 0x00000002
-/* DTA is stopping (NFA_DtaStop called) */
-#define NFA_DTA_FL_STOPPING 0x00000004
-/* DTA is being disabled (NFA_DtaDisable called) */
-#define NFA_DTA_FL_DISABLING 0x00000008
-/* T4T/NFCDEP is deactivating to IDLE (need to DESELECT first) */
-#define NFA_DTA_FL_T4T_DESELECT_DEACT 0x00000010
 
 /* DTA control block */
 typedef struct {
@@ -321,11 +287,6 @@ typedef struct {
 
   uint16_t llcp_co_out_remote_miu; /* MIU of LT-CO-OUT-DEST */
   uint8_t llcp_co_out_remote_rw;   /* RW of LT-CO-OUT-DEST  */
-
-/* establishing outbound on connection-oriented */
-#define NFA_DTA_LLCP_FLAGS_CO_OUT_CONNECTING 0x01
-/* established outbound on connection-oriented  */
-#define NFA_DTA_LLCP_FLAGS_CO_OUT_CONNECTED 0x02
 
   uint8_t llcp_flags;      /* internal flags for LLCP echo test */
   uint8_t llcp_sdp_tid_cl; /* SDP transaction ID for outbound connectionless */

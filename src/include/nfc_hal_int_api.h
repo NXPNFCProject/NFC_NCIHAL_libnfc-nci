@@ -28,8 +28,6 @@
 ** Device Configuration definitions
 ****************************************************************************/
 
-#define NFC_HAL_PLL_325_SETCONFIG_PARAM_LEN (2 + NCI_PARAM_LEN_PLL325_CFG_PARAM)
-
 /* Crystal Frequency Index (in 1 KHz) */
 enum {
   NFC_HAL_XTAL_INDEX_9600,
@@ -62,29 +60,10 @@ typedef struct {
 } tNFC_HAL_DEV_INIT_CFG;
 
 /*****************************************************************************
-**  Low Power Mode definitions
-*****************************************************************************/
-
-/* Snooze mode disabled    */
-#define NFC_HAL_LP_SNOOZE_MODE_NONE NFC_SNOOZE_MODE_NONE
-/* Snooze mode for UART    */
-#define NFC_HAL_LP_SNOOZE_MODE_UART NFC_SNOOZE_MODE_UART
-/* Snooze mode for SPI/I2C */
-#define NFC_HAL_LP_SNOOZE_MODE_SPI_I2C NFC_SNOOZE_MODE_SPI_I2C
-
-/* high to low voltage is asserting */
-#define NFC_HAL_LP_ACTIVE_LOW NFC_SNOOZE_ACTIVE_LOW
-/* low to high voltage is asserting */
-#define NFC_HAL_LP_ACTIVE_HIGH NFC_SNOOZE_ACTIVE_HIGH
-
-/*****************************************************************************
 **  Patch RAM Constants
 *****************************************************************************/
 
 /* patch format type */
-#define NFC_HAL_PRM_FORMAT_BIN 0x00
-#define NFC_HAL_PRM_FORMAT_HCD 0x01
-#define NFC_HAL_PRM_FORMAT_NCD 0x02
 typedef uint8_t tNFC_HAL_PRM_FORMAT;
 
 /*****************************************************************************

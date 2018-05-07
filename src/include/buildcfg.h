@@ -45,10 +45,6 @@
 #define NFC_CONTORLLER_ID (1)
 #endif
 
-#define BTE_APPL_MAX_USERIAL_DEV_NAME (256)
-
-#define TRACE_TASK_INCLUDED true
-
 #define GKI_BUF1_MAX 0
 // 2 is in use
 #define GKI_BUF2_MAX 50
@@ -71,8 +67,6 @@
 #define GKI_BUF0_SIZE 268
 #define GKI_BUF0_MAX 40
 
-#define NCI_BUF_POOL_ID GKI_POOL_ID_0
-
 #if (NXP_EXTNS == TRUE)
 #define GKI_NUM_FIXED_BUF_POOLS 5
 #else
@@ -89,7 +83,6 @@ extern void downloadFirmwarePatchFile(uint32_t brcm_hw_id);
 void ProtoDispAdapterDisplayNciPacket(uint8_t* nciPacket, uint16_t nciPacketLen,
                                       bool is_recv);
 #define DISP_NCI ProtoDispAdapterDisplayNciPacket
-#define LOGMSG_TAG_NAME "BrcmNfcNfa"
 
 #ifndef _TIMEB
 #define _TIMEB

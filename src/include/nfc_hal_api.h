@@ -46,13 +46,6 @@
 #include "data_types.h"
 #include "nfc_hal_target.h"
 #include "hal_nxpnfc.h"
-/*******************************************************************************
-** tHAL_HCI_NETWK_CMD Definitions
-*******************************************************************************/
-#define HAL_NFC_HCI_NO_UICC_HOST 0x00
-#define HAL_NFC_HCI_UICC0_HOST 0x01
-#define HAL_NFC_HCI_UICC1_HOST 0x02
-#define HAL_NFC_HCI_UICC2_HOST 0x04
 
 typedef uint8_t tHAL_NFC_STATUS;
 typedef void(tHAL_NFC_STATUS_CBACK)(tHAL_NFC_STATUS status);
@@ -80,7 +73,6 @@ typedef int(tHAL_API_IOCTL)(long arg, void* p_data);
 typedef int(tHAL_API_GET_FW_DWNLD_FLAG)(uint8_t* fwDnldRequest);
 #endif
 
-#define NFC_HAL_DM_PRE_SET_MEM_LEN 5
 typedef struct {
   uint32_t addr;
   uint32_t data;

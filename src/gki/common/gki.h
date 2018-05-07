@@ -41,9 +41,7 @@
 ** send buffers to the task.
 */
 #define TASK_MBOX_0 0
-#define TASK_MBOX_1 1
 #define TASK_MBOX_2 2
-#define TASK_MBOX_3 3
 
 #define NUM_TASK_MBOX 4
 
@@ -54,7 +52,6 @@
 ** There are 4 reserved events used to signal timeout events.
 ** There are 8 general purpose events available for applications.
 */
-#define MAX_EVENTS 16
 
 #define TASK_MBOX_0_EVT_MASK 0x0001
 #define TASK_MBOX_1_EVT_MASK 0x0002
@@ -72,12 +69,6 @@
 #define TIMER_3_EVT_MASK 0x0080
 
 #define APPL_EVT_0 8
-#define APPL_EVT_1 9
-#define APPL_EVT_2 10
-#define APPL_EVT_3 11
-#define APPL_EVT_4 12
-#define APPL_EVT_5 13
-#define APPL_EVT_6 14
 #define APPL_EVT_7 15
 
 #define EVENT_MASK(evt) ((uint16_t)(0x0001 << (evt)))
@@ -333,8 +324,6 @@ typedef struct {
   uint16_t count;
 } BUFFER_Q;
 
-#define GKI_IS_QUEUE_EMPTY(p_q) ((p_q)->count == 0)
-
 /* Task constants
 */
 #ifndef TASKPTR
@@ -342,7 +331,6 @@ typedef uint32_t (*TASKPTR)(uint32_t);
 #endif
 
 /* General pool accessible to GKI_getbuf() */
-#define GKI_PUBLIC_POOL 0
 #define GKI_RESTRICTED_POOL 1 /* Inaccessible pool to GKI_getbuf() */
 
 /***********************************************************************

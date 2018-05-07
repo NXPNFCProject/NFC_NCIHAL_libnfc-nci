@@ -52,12 +52,9 @@
 #define LLCP_PDU_DM_TYPE 7
 #define LLCP_PDU_FRMR_TYPE 8
 #define LLCP_PDU_SNL_TYPE 9
-#define LLCP_PDU_RESERVED_1010 10
-#define LLCP_PDU_RESERVED_1011 11
 #define LLCP_PDU_I_TYPE 12
 #define LLCP_PDU_RR_TYPE 13
 #define LLCP_PDU_RNR_TYPE 14
-#define LLCP_PDU_RESERVED_1111 15
 
 #define LLCP_PDU_SYMM_SIZE 2
 #define LLCP_PDU_DISC_SIZE 2
@@ -80,16 +77,6 @@
 #define LLCP_FRMR_I_ERROR_FLAG 0x04 /* Information Field Error */
 #define LLCP_FRMR_R_ERROR_FLAG 0x02 /* Receive Sequence Error */
 #define LLCP_FRMR_S_ERROR_FLAG 0x01 /* Send Sequence Error */
-
-#define LLCP_GET_FRMR_W_ERROR_FLAG(u8) (((uint8_t)(u8) >> 7) & 0x01)
-#define LLCP_GET_FRMR_I_ERROR_FLAG(u8) (((uint8_t)(u8) >> 6) & 0x01)
-#define LLCP_GET_FRMR_R_ERROR_FLAG(u8) (((uint8_t)(u8) >> 5) & 0x01)
-#define LLCP_GET_FRMR_S_ERROR_FLAG(u8) (((uint8_t)(u8) >> 4) & 0x01)
-#define LLCP_GET_FRMR_PTYPE(u8) ((uint8_t)(u8)&0x0F)
-#define LLCP_GET_FRMR_VS(u16) (((uint16_t)(u16) >> 12) & 0x000F)
-#define LLCP_GET_FRMR_VR(u16) (((uint16_t)(u16) >> 8) & 0x000F)
-#define LLCP_GET_FRMR_VSA(u16) (((uint16_t)(u16) >> 4) & 0x000F)
-#define LLCP_GET_FRMR_VRA(u16) (((uint16_t)(u16) >> 0) & 0x000F)
 
 /*
 ** LLCP Parameter Descriptions
@@ -122,21 +109,10 @@
 
 /* Well-Known Service Bitmap */
 #define LLCP_WKS_MASK_LM 0x0001  /* Link Management */
-#define LLCP_WKS_MASK_SDP 0x0002 /* Service Discovery "urn:nfc:sn:sdp" */
-#define LLCP_WKS_MASK_IP 0x0004  /* IP over LLCP Binding "urn:nfc:sn:ip" */
-/* OBEX over LLCP Binding "urn:nfc:sn:obex" */
-#define LLCP_WKS_MASK_OBEX 0x0008
-/* Simple NDEP Exchange Protocol "urn:nfc:sn:snep" */
-#define LLCP_WKS_MASK_SNEP 0x0010
 
 /* Well-Known Service Access Points */
 #define LLCP_SAP_LM 0x00  /* Link Management */
 #define LLCP_SAP_SDP 0x01 /* Service Discovery "urn:nfc:sn:sdp" */
-#define LLCP_SAP_IP 0x02  /* IP over LLCP Binding "urn:nfc:sn:ip" */
-/* OBEX over LLCP Binding "urn:nfc:sn:obex" */
-#define LLCP_SAP_OBEX 0x03
-/* Simple NDEP Exchange Protocol "urn:nfc:sn:snep" */
-#define LLCP_SAP_SNEP 0x04
 
 /* Link Timeout, LTO */
 #define LLCP_LTO_TYPE 0x04
@@ -157,7 +133,6 @@
 /* Option, OPT */
 #define LLCP_OPT_TYPE 0x07
 #define LLCP_OPT_LEN 0x01
-#define LLCP_GET_OPT_LSC(u8) ((uint8_t)(u8)&0x03)
 
 /* Service Discovery Request, SDREQ */
 #define LLCP_SDREQ_TYPE 0x08
@@ -182,7 +157,6 @@
 #define LLCP_SEQ_MODULO 16
 
 #define LLCP_NUM_SAPS 64
-#define LLCP_LOWER_BOUND_WK_SAP 0x00
 #define LLCP_UPPER_BOUND_WK_SAP 0x0F
 #define LLCP_LOWER_BOUND_SDP_SAP 0x10
 #define LLCP_UPPER_BOUND_SDP_SAP 0x1F
@@ -192,10 +166,6 @@
 /* Max Payload */
 /* Maximum Payload size, Length Reduction LRi/LRt */
 #define LLCP_NCI_MAX_PAYL_SIZE 254
-/* Data exchange protocol header, 3 bytes */
-#define LLCP_NFC_DEP_HEADER_SIZE 3
-#define LLCP_MAX_PAYLOAD_SIZE \
-  (LLCP_NCI_MAX_PAYL_SIZE - LLCP_NFC_DEP_HEADER_SIZE)
 
 #define LLCP_MAX_GEN_BYTES 48
 

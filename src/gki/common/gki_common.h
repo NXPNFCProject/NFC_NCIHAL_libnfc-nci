@@ -42,9 +42,6 @@
 /* Task States: (For OSRdyTbl) */
 #define TASK_DEAD 0    /* b0000 */
 #define TASK_READY 1   /* b0001 */
-#define TASK_WAIT 2    /* b0010 */
-#define TASK_DELAY 4   /* b0100 */
-#define TASK_SUSPEND 8 /* b1000 */
 
 /********************************************************************
 **  Internal Error codes
@@ -59,14 +56,12 @@
 #define GKI_ERROR_DELETE_POOL_BAD_QID 0xFFF8
 #define GKI_ERROR_BUF_SIZE_TOOBIG 0xFFF7
 #define GKI_ERROR_BUF_SIZE_ZERO 0xFFF6
-#define GKI_ERROR_ADDR_NOT_IN_BUF 0xFFF5
 
 /********************************************************************
 **  Misc constants
 *********************************************************************/
 
 #define GKI_MAX_INT32 (0x7fffffffL)
-#define GKI_MAX_TIMESTAMP (0xffffffffL)
 
 /********************************************************************
 **  Buffer Management Data Structures

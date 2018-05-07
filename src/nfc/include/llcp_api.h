@@ -107,8 +107,6 @@ typedef struct {
 #define LLCP_LINK_VERSION_FAILED 0x01
 /* Failed to parse received general bytes   */
 #define LLCP_LINK_BAD_GEN_BYTES 0x02
-/* internal error                           */
-#define LLCP_LINK_INTERNAL_ERROR 0x03
 /* Link has been deactivated by local       */
 #define LLCP_LINK_LOCAL_INITIATED 0x04
 /* Link has been deactivated by remote      */
@@ -120,9 +118,6 @@ typedef struct {
 /* RF link loss without any rx LLC PDU      */
 #define LLCP_LINK_RF_LINK_LOSS_NO_RX_LLC 0x08
 
-#define LLCP_LINK_RF_TRANSMISSION_ERR NFC_STATUS_RF_TRANSMISSION_ERR
-#define LLCP_LINK_RF_PROTOCOL_ERR NFC_STATUS_RF_PROTOCOL_ERR
-#define LLCP_LINK_RF_TIMEOUT NFC_STATUS_TIMEOUT
 #define LLCP_LINK_RF_LINK_LOSS_ERR NFC_STATUS_LINK_LOSS
 
 typedef void(tLLCP_LINK_CBACK)(uint8_t event, uint8_t reason);

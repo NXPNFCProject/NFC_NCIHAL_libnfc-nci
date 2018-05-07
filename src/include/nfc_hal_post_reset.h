@@ -28,7 +28,6 @@
 ** Application control block definitions
 ******************************************************************************/
 #define NFA_APP_PATCHFILE_MAX_PATH 255
-#define NFA_APP_MAX_NUM_REINIT 5
 
 typedef struct {
   uint8_t prm_file[NFA_APP_PATCHFILE_MAX_PATH + 1]; /* Filename of patchram */

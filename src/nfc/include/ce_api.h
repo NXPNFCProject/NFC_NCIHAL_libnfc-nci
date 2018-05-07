@@ -49,8 +49,6 @@ enum {
   CE_T4T_MAX_EVT
 };
 
-#define CE_RAW_FRAME_EVT 0xFF
-
 typedef uint8_t tCE_EVENT;
 
 typedef struct {

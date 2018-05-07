@@ -95,7 +95,6 @@
 #define NFC_TTYPE_LISTEN_ACTIVATION 111
 #define NFC_TTYPE_P2P_PRIO_LOGIC_DEACT_NTF_TIMEOUT 113
 #endif
-#define NFC_TTYPE_VS_BASE 200
 /* time out for modeSet notification */
 #define NFC_SETMODE_NTF_TIMEOUT     2
 #if (NXP_EXTNS == TRUE)
@@ -158,11 +157,9 @@ typedef enum {
 #define NFC_FL_WAIT_MODE_SET_NTF        0x0100  /* Waiting for NFCEE Mode Set NTF*/
 
 #define NFC_PEND_CONN_ID 0xFE
-#define NFC_CONN_ID_INT_MASK 0xF0
 #define NFC_CONN_ID_ID_MASK NCI_CID_MASK
 /* set num_buff to this for no flow control */
 #define NFC_CONN_NO_FC 0xFF
-#define NFC_NCI_CONN_NO_FC 0xFF
 
 #if (NFC_RW_ONLY == FALSE)
 /* only allow the entries that the NFCC can support */

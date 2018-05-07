@@ -163,7 +163,6 @@ typedef struct {
   NFC_HDR hdr;
   uint16_t rf_disc_dur_ms;
 } tNFA_DM_API_SET_RF_DISC_DUR;
-#define NFA_RF_DISC_DURATION_MAX 0xFFFF
 
 /* data type for NFA_DM_API_REG_NDEF_HDLR_EVT */
 #define NFA_NDEF_FLAGS_HANDLE_WHOLE_MESSAGE 0x01
@@ -405,8 +404,6 @@ enum {
   NFA_DM_DISC_LRT_NFC_BP
 };
 
-/* SLP_REQ (HLTA) command */
-#define SLP_REQ_CMD 0x5000
 /* NFA_EE_MAX_TECH_ROUTE. only A, B, F, Bprime are supported by UICC now */
 #define NFA_DM_MAX_TECH_ROUTE 4
 
@@ -450,8 +447,6 @@ typedef struct {
 /* NDEF Type Handler Definitions */
 /* Default handler entry in ndef_handler table      */
 #define NFA_NDEF_DEFAULT_HANDLER_IDX 0
-
-#define NFA_PARAM_ID_INVALID 0xFF
 
 /* Maximum number of pending SetConfigs */
 #define NFA_DM_SETCONFIG_PENDING_MAX 32

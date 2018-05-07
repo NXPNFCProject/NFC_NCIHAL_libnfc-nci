@@ -186,14 +186,12 @@
 
 #define NCI_VERSION_UNKNOWN 0x00
 #define NCI_VERSION_1_0     0x10
-#define NCI_VERSION_1_1     0x11
 #define NCI_VERSION_2_0     0x20
 
 #ifndef NCI_VERSION
 #define NCI_VERSION NCI_VERSION_2_0
 #endif
 #define NCI_CORE_RESET_RSP_LEN(X) (((X) == NCI_VERSION_2_0)?(0x01) : (0x03))
-#define NCI_VERSION_0_F 0x0F
 /* true I2C patch is needed */
 #ifndef NFC_I2C_PATCH_INCLUDED
 #define NFC_I2C_PATCH_INCLUDED true /* NFC-Android uses this!!! */

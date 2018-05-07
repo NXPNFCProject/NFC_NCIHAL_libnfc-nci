@@ -33,20 +33,6 @@
 #include "nfc_hal_int_api.h"
 
 
-/****************************************************************************
-** NFC HAL TASK transport definitions
-****************************************************************************/
-/* NFC HAL Task event masks */
-#define NFC_HAL_TASK_EVT_DATA_RDY EVENT_MASK(APPL_EVT_0)
-#define NFC_HAL_TASK_EVT_INITIALIZE EVENT_MASK(APPL_EVT_5)
-#define NFC_HAL_TASK_EVT_TERMINATE EVENT_MASK(APPL_EVT_6)
-#define NFC_HAL_TASK_EVT_POWER_CYCLE EVENT_MASK(APPL_EVT_7)
-
-#define NFC_HAL_TASK_EVT_MBOX (TASK_MBOX_0_EVT_MASK)
-
-/* NFC HAL Task mailbox definitions */
-#define NFC_HAL_TASK_MBOX (TASK_MBOX_0)
-
 /* NFC HAL Task Timer events */
 #ifndef NFC_HAL_QUICK_TIMER_EVT_MASK
 #define NFC_HAL_QUICK_TIMER_EVT_MASK (TIMER_0_EVT_MASK)
@@ -56,60 +42,13 @@
 #define NFC_HAL_QUICK_TIMER_ID (TIMER_0)
 #endif
 
-/* NFC HAL Task Timer types */
-#define NFC_HAL_TTYPE_NCI_WAIT_RSP 0
-#define NFC_HAL_TTYPE_POWER_CYCLE 1
-#define NFC_HAL_TTYPE_NFCC_ENABLE 2
-
-/* NFC HAL Task Wait Response flag */
-/* wait response on an NCI command                  */
-#define NFC_HAL_WAIT_RSP_CMD 0x10
-/* wait response on an NCI vendor specific command  */
-#define NFC_HAL_WAIT_RSP_VSC 0x20
-/* wait response on a proprietary command           */
-#define NFC_HAL_WAIT_RSP_PROP 0x40
-/* not waiting for anything                         */
-#define NFC_HAL_WAIT_RSP_NONE 0x00
-
 typedef uint8_t tNFC_HAL_WAIT_RSP;
 
 #if (NFC_HAL_HCI_INCLUDED == true)
 
 typedef uint16_t tNFC_HAL_HCI_EVT;
 
-#define NFC_HAL_HCI_PIPE_INFO_SIZE 5
-
-#define NFC_HAL_HCI_ANY_SET_PARAMETER 0x01
-#define NFC_HAL_HCI_ANY_GET_PARAMETER 0x02
-#define NFC_HAL_HCI_ADM_NOTIFY_ALL_PIPE_CLEARED 0x15
-
-#define NFC_HAL_HCI_SESSION_IDENTITY_INDEX 0x01
-#define NFC_HAL_HCI_WHITELIST_INDEX 0x03
-
-#define NFC_HAL_HCI_ADMIN_PIPE 0x01
-/* Host ID for UICC 0 */
-#define NFC_HAL_HCI_HOST_ID_UICC0 0x02
-/* Host ID for UICC 1 */
-#define NFC_HAL_HCI_HOST_ID_UICC1 0x03
-/* Host ID for UICC 2 */
-#define NFC_HAL_HCI_HOST_ID_UICC2 0x04
-#define NFC_HAL_HCI_COMMAND_TYPE 0x00
-#define NFC_HAL_HCI_RESPONSE_TYPE 0x02
-
-/* NFC HAL HCI responses */
-#define NFC_HAL_HCI_ANY_OK 0x00
-
 #endif
-
-/* Flag defintions for tNFC_HAL_NVM */
-/* No NVM available                     */
-#define NFC_HAL_NVM_FLAGS_NO_NVM 0x01
-/* FPM patch in NVM failed CRC check    */
-#define NFC_HAL_NVM_FLAGS_LPM_BAD 0x02
-/* LPM patch in NVM failed CRC check    */
-#define NFC_HAL_NVM_FLAGS_FPM_BAD 0x04
-/* Patch is present in NVM              */
-#define NFC_HAL_NVM_FLAGS_PATCH_PRESENT 0x08
 
 /* NFC HAL transport configuration */
 typedef struct {
@@ -127,29 +66,6 @@ typedef struct {
 #endif
 extern NFC_HAL_TRANS_CFG_QUALIFIER tNFC_HAL_TRANS_CFG nfc_hal_trans_cfg;
 
-/*****************************************************************************
-* BT HCI definitions
-*****************************************************************************/
-
-/* Tranport message type */
-#define HCIT_TYPE_COMMAND 0x01
-#define HCIT_TYPE_EVENT 0x04
-#define HCIT_TYPE_NFC 0x10
-
-/* Vendor-Specific BT HCI definitions */
-#define HCI_SUCCESS 0x00
-#define HCI_GRP_VENDOR_SPECIFIC (0x3F << 10) /* 0xFC00 */
-#define HCI_BRCM_WRITE_SLEEP_MODE (0x0027 | HCI_GRP_VENDOR_SPECIFIC)
-#define HCI_GRP_HOST_CONT_BASEBAND_CMDS (0x03 << 10) /* 0x0C00 */
-#define HCI_RESET (0x0003 | HCI_GRP_HOST_CONT_BASEBAND_CMDS)
-#define HCI_COMMAND_COMPLETE_EVT 0x0E
-#define HCI_BRCM_WRITE_SLEEP_MODE_LENGTH 12
-#define HCI_BRCM_UPDATE_BAUD_RATE_UNENCODED_LENGTH 0x06
-#define HCIE_PREAMBLE_SIZE 2
-#define HCI_BRCM_PRE_SET_MEM (0x000C | HCI_GRP_VENDOR_SPECIFIC)
-#define HCI_BRCM_PRE_SET_MEM_LENGTH 10
-#define HCI_BRCM_PRE_SET_MEM_TYPE 8
-
 /****************************************************************************
 ** Internal constants and definitions
 ****************************************************************************/
@@ -165,9 +81,6 @@ enum {
   NFC_HAL_RCV_BT_PAYLOAD_ST   /* reading BT HCI payload                   */
 };
 
-/* errors during NCI packet reassembly process */
-#define NFC_HAL_NCI_RAS_TOO_BIG 0x01
-#define NFC_HAL_NCI_RAS_ERROR 0x02
 typedef uint8_t tNFC_HAL_NCI_RAS;
 
 /* NFC HAL power mode */
@@ -185,12 +98,6 @@ enum {
   NFC_HAL_LP_LAST_EVT
 };
 typedef uint8_t tNFC_HAL_LP_EVT;
-
-#define NFC_HAL_ASSERT_NFC_WAKE 0x00   /* assert NFC_WAKE      */
-#define NFC_HAL_DEASSERT_NFC_WAKE 0x01 /* deassert NFC_WAKE    */
-
-#define NFC_HAL_BT_HCI_CMD_HDR_SIZE 3 /* opcode (2) +  length (1)    */
-#define NFC_HAL_CMD_TOUT (2000)       /* timeout for NCI CMD (in ms) */
 
 #define NFC_HAL_SAVED_HDR_SIZE (2)
 #define NFC_HAL_SAVED_CMD_SIZE (2)
@@ -297,7 +204,6 @@ typedef uint8_t tNFC_HAL_PRM_STATE;
 
 /* Maximum number of patches (currently 2: LPM and FPM) */
 #define NFC_HAL_PRM_MAX_PATCH_COUNT 2
-#define NFC_HAL_PRM_PATCH_MASK_ALL 0xFFFFFFFF
 #define NFC_HAL_PRM_MAX_CHIP_VER_LEN 8
 
 /* Structures for PRM Control Block */

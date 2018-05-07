@@ -36,9 +36,6 @@
 #define CE_MAX_SUP_PROTO NCI_PROTOCOL_MIFARE
 #endif
 
-/* 2^8=256. CB use uint8_t for BytesPerPage, so max is 7 */
-#define CE_MAX_BYTE_PER_PAGE 7
-
 /* CE Type 3 Tag structures */
 
 /* Type 3 Tag NDEF card-emulation */

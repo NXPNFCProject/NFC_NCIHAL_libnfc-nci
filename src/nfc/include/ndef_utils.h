@@ -69,16 +69,6 @@ enum {
 };
 typedef uint8_t tNDEF_STATUS;
 
-#define HR_REC_TYPE_LEN 2        /* Handover Request Record Type     */
-#define HS_REC_TYPE_LEN 2        /* Handover Select Record Type      */
-#define HC_REC_TYPE_LEN 2        /* Handover Carrier recrod Type     */
-#define CR_REC_TYPE_LEN 2        /* Collision Resolution Record Type */
-#define AC_REC_TYPE_LEN 2        /* Alternative Carrier Record Type  */
-#define ERR_REC_TYPE_LEN 3       /* Error Record Type                */
-#define BT_OOB_REC_TYPE_LEN 32   /* Bluetooth OOB Data Type          */
-#define WIFI_WSC_REC_TYPE_LEN 23 /* Wifi WSC Data Type               */
-
-
 /* Functions to parse a received NDEF Message
 */
 /*******************************************************************************

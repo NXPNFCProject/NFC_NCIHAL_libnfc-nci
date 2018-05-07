@@ -120,7 +120,6 @@
 
 /* Data rate for 15693 command/response, it must be same as
  * RW_I93_FLAG_DATA_RATE in nfc_target.h */
-#define NFC_HAL_I93_FLAG_DATA_RATE_LOW 0x00
 #define NFC_HAL_I93_FLAG_DATA_RATE_HIGH 0x02
 
 #ifndef NFC_HAL_I93_FLAG_DATA_RATE

@@ -50,14 +50,6 @@
 #include "rw_api.h"
 
 /* Proprietary definitions for HR0 and HR1 */
-/* HI NIB Tag                                               */
-#define RW_T1T_HR0_HI_NIB 0xF0
-/* Jewel 64 Tag                                             */
-#define RW_T1T_IS_JEWEL64 0x20
-/* Jewel Tag                                                */
-#define RW_T1T_IS_JEWEL 0x00
-/* TOPAZ Tag                                                */
-#define RW_T1T_IS_TOPAZ 0x10
 /* TOPAZ96 Tag                                              */
 #define RW_T1T_IS_TOPAZ96 0x11
 /* TOPAZ512 Tag                                             */
@@ -283,11 +275,6 @@ typedef struct {
 #define T2T_NDEF_NOT_DETECTED 0x00
 #define T2T_NDEF_DETECTED 0x01
 #define T2T_NDEF_READ 0x02
-
-/* Max offset of an NDEF message in a T2 tag */
-#define T2T_MAX_NDEF_OFFSET 128
-#define T2T_MAX_RESERVED_BYTES_IN_TAG 0x64
-#define T2T_MAX_LOCK_BYTES_IN_TAG 0x64
 
 /* Maximum supported Memory control TLVS in the tag         */
 #define RW_T2T_MAX_MEM_TLVS 0x05

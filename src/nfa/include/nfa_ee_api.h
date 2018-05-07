@@ -54,7 +54,6 @@
 #define NFA_MAX_APDU_DATA_LEN NFC_MAX_APDU_DATA_LEN
 #define NFA_MAX_APDU_MASK_LEN NFC_MAX_APDU_MASK_LEN
 
-#define NFA_EE_HANDLE_DH (NFA_HANDLE_GROUP_EE | NFC_DH_ID)
 #if (NXP_EXTNS == TRUE)
 extern uint8_t NFA_REMOVE_ALL_AID[];
 #define NFA_REMOVE_ALL_AID_LEN (0x08)
@@ -99,26 +98,10 @@ enum {
 typedef uint8_t tNFA_EE_EVT;
 
 /* tNFA_NFCEE_INTERFACE values */
-/* APDU Interface       */
-#define NFA_EE_INTERFACE_APDU NFC_NFCEE_INTERFACE_APDU
 /* HCI Access Interface*/
 #define NFA_EE_INTERFACE_HCI_ACCESS NFC_NFCEE_INTERFACE_HCI_ACCESS
-/* T3T Command Interface*/
-#define NFA_EE_INTERFACE_T3T NFC_NFCEE_INTERFACE_T3T
-/* Transparent Interface*/
-#define NFA_EE_INTERFACE_TRANSPARENT NFC_NFCEE_INTERFACE_TRANSPARENT
-/* Proprietary          */
-#define NFA_EE_INTERFACE_PROPRIETARY NFC_NFCEE_INTERFACE_PROPRIETARY
 typedef uint8_t tNFA_EE_INTERFACE;
 
-/* HW/Registration ID   */
-#define NFA_EE_TAG_HW_ID NFC_NFCEE_TAG_HW_ID
-/* ATR Bytes            */
-#define NFA_EE_TAG_ATR_BYTES NFC_NFCEE_TAG_ATR_BYTES
-/* T3T Supplement. Info */
-#define NFA_EE_TAG_T3T_INFO NFC_NFCEE_TAG_T3T_INFO
-/* Broadcom Proprietary */
-#define NFA_EE_TAG_HCI_HOST_ID NFC_NFCEE_TAG_HCI_HOST_ID
 #if (NXP_EXTNS == TRUE)
 typedef uint16_t tNFA_EE_TAG;
 #else
@@ -136,9 +119,7 @@ typedef uint8_t tNFA_EE_MD;
 #define NFA_EE_PWR_STATE_SWITCH_OFF 0x02
 /* The device's battery is removed  */
 #define NFA_EE_PWR_STATE_BATT_OFF 0x04
-/* used to remove a particular technology or protocol based routing cfg of a
- * handle from the routing table. */
-#define NFA_EE_PWR_STATE_NONE 0
+
 typedef uint8_t tNFA_EE_PWR_STATE;
 
 /* NFCEE connected and inactive */
@@ -149,10 +130,6 @@ typedef uint8_t tNFA_EE_PWR_STATE;
 #define NFA_EE_STATUS_REMOVED NFC_NFCEE_STATUS_REMOVED
 /* waiting for response from NFCC */
 #define NFA_EE_STATUS_PENDING 0x10
-#define NFA_EE_STATUS_ACTIVATING \
-  (NFA_EE_STATUS_PENDING + NFC_NFCEE_STATUS_ACTIVE)
-#define NFA_EE_STATUS_DEACTIVATING \
-  (NFA_EE_STATUS_PENDING + NFC_NFCEE_STATUS_INACTIVE)
 typedef uint8_t tNFA_EE_STATUS;
 
 /* list of events for controlling DWP transceive state */
@@ -204,14 +181,6 @@ typedef struct {
       ee_interface; /* NFCEE interface associated with this connection  */
 } tNFA_EE_CONNECT;
 
-/* ISO 7816-4 SELECT command */
-#define NFA_EE_TRGR_SELECT NFC_EE_TRIG_SELECT
-/* RF Protocol changed       */
-#define NFA_EE_TRGR_RF_PROTOCOL NFC_EE_TRIG_RF_PROTOCOL
-/* RF Technology changed     */
-#define NFA_EE_TRGR_RF_TECHNOLOGY NFC_EE_TRIG_RF_TECHNOLOGY
-/* Application initiation    */
-#define NFA_EE_TRGR_APP_INIT NFC_EE_TRIG_APP_INIT
 typedef tNFC_EE_TRIGGER tNFA_EE_TRIGGER;
 
 /* Union of NFCEE action parameter depending on the associated trigger */

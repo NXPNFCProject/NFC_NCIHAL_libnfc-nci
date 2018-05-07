@@ -43,14 +43,6 @@
 
 #include "data_types.h"
 
-/* Operating System Selection */
-#ifndef BTE_SIM_APP
-#define _GKI_ARM
-#define _GKI_STANDALONE
-#else
-#define _BT_WIN32
-#endif
-
 /******************************************************************************
 **
 ** Task configuration
