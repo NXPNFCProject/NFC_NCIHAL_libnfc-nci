@@ -3,6 +3,14 @@ cc_defaults {
     include_dirs: [
         "system/nfc",
     ],
+    target: {
+        linux_glibc: {
+            cflags: ["-D_GNU_SOURCE"],
+        },
+        darwin: {
+            enabled: false,
+        }
+    },
 }
 
 cc_library_static {
