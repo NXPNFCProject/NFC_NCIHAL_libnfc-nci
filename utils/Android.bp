@@ -13,14 +13,14 @@ cc_defaults {
         },
         darwin: {
             enabled: false,
-        }
+        },
     },
 }
 
 cc_library_static {
     name: "libnfcutils",
     defaults: ["nfc_utils_defaults"],
-    export_include_dirs = ["include"],
+    export_include_dirs: ["include"],
     host_supported: true,
     srcs: [
         "config.cc",
@@ -29,7 +29,7 @@ cc_library_static {
     ],
     shared_libs: [
         "libbase",
-    ]
+    ],
 }
 
 cc_test {
@@ -47,5 +47,5 @@ cc_test {
     ],
     shared_libs: [
         "libbase",
-    ]
+    ],
 }
