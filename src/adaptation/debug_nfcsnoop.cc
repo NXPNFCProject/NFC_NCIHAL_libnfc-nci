@@ -60,8 +60,13 @@ static void nfcsnoop_cb(const uint8_t* data, const size_t length,
   // Insert data
   header.length = length;
   header.is_received = is_received ? 1 : 0;
-  header.delta_time_ms =
-      last_timestamp_ms ? timestamp_us - last_timestamp_ms : 0;
+
+  uint64_t delta_time_ms = 0;
+  if (last_timestamp_ms) {
+    __builtin_sub_overflow(timestamp_us, last_timestamp_ms, &delta_time_ms);
+  }
+  header.delta_time_ms = delta_time_ms;
+
   last_timestamp_ms = timestamp_us;
 
   ringbuffer_insert(buffer, (uint8_t*)&header, sizeof(nfcsnooz_header_t));
