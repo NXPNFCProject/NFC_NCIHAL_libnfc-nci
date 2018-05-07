@@ -105,6 +105,7 @@ class NfcAdaptation {
   void Initialize();
   void Finalize();
   void FactoryReset();
+  void DeviceShutdown();
   static NfcAdaptation& GetInstance();
   tHAL_NFC_ENTRY* GetHalEntryFuncs();
   void DownloadFirmware();
