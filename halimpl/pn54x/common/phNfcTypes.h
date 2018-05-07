@@ -331,6 +331,6 @@ typedef enum jcop_dwnld_state {
   JCP_DWP_DWNLD_COMPLETE = 0x8080, /* jcop download complete */
 } jcop_dwnld_state_t;
 #endif
-#define UNUSED(X) (void) X;
+#define UNUSED(X) (void) (X);
 
 #endif /* PHNFCTYPES_H */
