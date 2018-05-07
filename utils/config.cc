@@ -67,7 +67,7 @@ bool ConfigValue::parseFromString(std::string in) {
   }
 
   if (in.length() > 1 && in[0] == '{' && in[in.length() - 1] == '}') {
-    CHECK(in.length() > 4);  // Needs at least one byte
+    CHECK(in.length() >= 4);  // Needs at least one byte
     type_ = BYTES;
     return parseBytesString(in.substr(1, in.length() - 2), value_bytes_);
   }
