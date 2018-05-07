@@ -127,7 +127,7 @@ typedef struct {
 
 typedef struct {
   uint8_t link_type;       /* logical link and/or data link                */
-  uint8_t* p_service_name; /* GKI buffer containing service name           */
+  char* p_service_name; /* GKI buffer containing service name           */
   tLLCP_APP_CBACK* p_app_cback; /* application's callback pointer */
 
   BUFFER_Q ui_xmit_q;      /* UI PDU queue for transmitting                */
@@ -304,9 +304,6 @@ typedef struct {
 
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*
 ** LLCP global data
@@ -383,8 +380,5 @@ uint8_t llcp_sdp_get_sap_by_name(char* p_name, uint8_t length);
 tLLCP_STATUS llcp_sdp_proc_snl(uint16_t sdu_length, uint8_t* p);
 void llcp_sdp_check_send_snl(void);
 void llcp_sdp_proc_deactivation(void);
-#ifdef __cplusplus
-}
-#endif
 
 #endif

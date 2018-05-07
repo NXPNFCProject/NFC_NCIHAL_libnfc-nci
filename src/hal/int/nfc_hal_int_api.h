@@ -112,9 +112,6 @@ typedef uint8_t tNFC_HAL_NCI_EVT; /* MT + Opcode */
 typedef void(tNFC_HAL_NCI_CBACK)(tNFC_HAL_NCI_EVT event, uint16_t data_len,
                                  uint8_t* p_data);
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*******************************************************************************
 **
@@ -300,8 +297,5 @@ void HAL_NfcSetMaxRfDataCredits(uint8_t max_credits);
 *******************************************************************************/
 uint8_t HAL_NfcSetTraceLevel(uint8_t new_level);
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* NFC_HAL_INT_API_H */

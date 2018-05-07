@@ -604,7 +604,7 @@ void nfa_ee_reg_cback_enable_done(tNFA_EE_ENABLE_DONE_CBACK* p_cback) {
 ** Description      convert nfa-ee state to string
 **
 *******************************************************************************/
-static char* nfa_ee_sm_st_2_str(uint8_t state) {
+static std::string nfa_ee_sm_st_2_str(uint8_t state) {
   switch (state) {
     case NFA_EE_EM_STATE_INIT:
       return "INIT";
@@ -633,7 +633,7 @@ static char* nfa_ee_sm_st_2_str(uint8_t state) {
 ** Description      convert nfa-ee evt to string
 **
 *******************************************************************************/
-static char* nfa_ee_sm_evt_2_str(uint16_t event) {
+static std::string nfa_ee_sm_evt_2_str(uint16_t event) {
   switch (event) {
     case NFA_EE_API_DISCOVER_EVT:
       return "API_DISCOVER";

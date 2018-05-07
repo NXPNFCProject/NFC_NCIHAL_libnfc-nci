@@ -55,14 +55,6 @@ typedef struct {
   tGKI_COM_CB com;
 } tGKI_CB;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 extern tGKI_CB gki_cb;
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

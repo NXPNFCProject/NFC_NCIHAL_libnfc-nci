@@ -50,9 +50,6 @@
 #include "nci_defs.h"
 #include "nfc_api.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 /****************************************************************************
  ** Internal NFC constants and definitions
  ****************************************************************************/
@@ -451,9 +448,5 @@ void nfc_stop_quick_timer(TIMER_LIST_ENT* p_tle);
 void nfc_process_quick_timer_evt(void);
 void set_i2c_fragmentation_enabled(int value);
 int get_i2c_fragmentation_enabled();
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* NFC_INT_H_ */

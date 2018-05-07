@@ -48,9 +48,6 @@ typedef struct {
 /*****************************************************************************
 **  Function Declarations
 *****************************************************************************/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*******************************************************************************
 **
@@ -95,8 +92,5 @@ extern void nfa_nv_ci_write(tNFA_NV_CO_STATUS status);
 extern void nfa_nv_ci_read(uint16_t num_bytes_read, tNFA_NV_CO_STATUS status,
                            uint8_t block);
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* BTA_FS_CI_H */

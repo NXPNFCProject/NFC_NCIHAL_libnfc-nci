@@ -73,9 +73,6 @@ typedef struct {
 /*****************************************************************************
 **  External Function Declarations
 *****************************************************************************/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*******************************************************************************
 **
@@ -793,8 +790,5 @@ extern void NFA_SetEmvCoState(bool flag);
 
 #endif
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* NFA_RW_API_H */

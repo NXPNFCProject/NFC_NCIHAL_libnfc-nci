@@ -64,8 +64,8 @@ static tLLCP_STATUS llcp_dlsm_w4_remote_dm(tLLCP_DLCB* p_dlcb,
 extern unsigned char appl_dta_mode_flag;
 
 #if (BT_TRACE_VERBOSE == true)
-static char* llcp_dlsm_get_state_name(tLLCP_DLC_STATE state);
-static char* llcp_dlsm_get_event_name(tLLCP_DLC_EVENT event);
+static std::string llcp_dlsm_get_state_name(tLLCP_DLC_STATE state);
+static std::string llcp_dlsm_get_event_name(tLLCP_DLC_EVENT event);
 #endif
 
 /*******************************************************************************
@@ -1430,7 +1430,7 @@ uint16_t llcp_dlc_get_next_pdu_length(tLLCP_DLCB* p_dlcb) {
 ** Returns          pointer to the name
 **
 *******************************************************************************/
-static char* llcp_dlsm_get_state_name(tLLCP_DLC_STATE state) {
+static std::string llcp_dlsm_get_state_name(tLLCP_DLC_STATE state) {
   switch (state) {
     case LLCP_DLC_STATE_IDLE:
       return ("IDLE");
@@ -1456,7 +1456,7 @@ static char* llcp_dlsm_get_state_name(tLLCP_DLC_STATE state) {
 ** Returns          pointer to the name
 **
 *******************************************************************************/
-static char* llcp_dlsm_get_event_name(tLLCP_DLC_EVENT event) {
+static std::string llcp_dlsm_get_event_name(tLLCP_DLC_EVENT event) {
   switch (event) {
     case LLCP_DLC_EVENT_API_CONNECT_REQ:
       return ("API_CONNECT_REQ");

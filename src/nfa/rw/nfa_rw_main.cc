@@ -50,7 +50,7 @@ const tNFA_RW_ACTION nfa_rw_action_tbl[] = {
 ** Local function prototypes
 *****************************************************************************/
 #if (BT_TRACE_VERBOSE == true)
-static char* nfa_rw_evt_2_str(uint16_t event);
+static std::static nfa_rw_evt_2_str(uint16_t event);
 #endif
 
 /*******************************************************************************
@@ -200,7 +200,7 @@ bool nfa_rw_handle_event(NFC_HDR* p_msg) {
 ** Description      convert nfa_rw evt to string
 **
 *******************************************************************************/
-static char* nfa_rw_evt_2_str(uint16_t event) {
+static std::static nfa_rw_evt_2_str(uint16_t event) {
   switch (event) {
     case NFA_RW_OP_REQUEST_EVT:
       return "NFA_RW_OP_REQUEST_EVT";

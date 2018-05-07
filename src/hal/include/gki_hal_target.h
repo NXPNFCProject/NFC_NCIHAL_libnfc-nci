@@ -252,14 +252,7 @@
       TRACE_CTRL_GENERAL | TRACE_LAYER_GKI | TRACE_ORG_GKI | TRACE_TYPE_ERROR, \
       m, p1, p2, p3, p4, p5, p6)
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 extern void LogMsg(uint32_t trace_set_mask, const char* fmt_str, ...);
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* GKI_TARGET_H */

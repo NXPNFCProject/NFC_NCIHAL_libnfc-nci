@@ -112,7 +112,7 @@ const tNFA_DM_ACTION nfa_dm_action[] = {
 ** Local function prototypes
 *****************************************************************************/
 #if (BT_TRACE_VERBOSE == true)
-static char* nfa_dm_evt_2_str(uint16_t event);
+static std::string nfa_dm_evt_2_str(uint16_t event);
 #endif
 #if (NXP_EXTNS == TRUE)
 void nfa_dm_init_cfgs(phNxpNci_getCfg_info_t* mGetCfg_info);
@@ -576,7 +576,7 @@ tNFA_STATUS nfa_dm_get_extended_cmd_buf(tNFC_EXT_HDR **p_msg, uint32_t event,
 ** Description      convert nfc revt to string
 **
 *******************************************************************************/
-static char* nfa_dm_evt_2_str(uint16_t event) {
+static std::string nfa_dm_evt_2_str(uint16_t event) {
   switch (NFA_SYS_EVT_START(NFA_ID_DM) | event) {
     case NFA_DM_API_ENABLE_EVT:
       return "NFA_DM_API_ENABLE_EVT";

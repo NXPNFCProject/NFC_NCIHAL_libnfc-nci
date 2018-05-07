@@ -1065,7 +1065,7 @@ tNFC_STATUS RW_T2tSectorSelect(uint8_t sector) {
 ** Returns          pointer to the name
 **
 *******************************************************************************/
-static char* rw_t2t_get_state_name(uint8_t state) {
+static std::string rw_t2t_get_state_name(uint8_t state) {
   switch (state) {
     case RW_T2T_STATE_NOT_ACTIVATED:
       return ("NOT_ACTIVATED");
@@ -1103,7 +1103,7 @@ static char* rw_t2t_get_state_name(uint8_t state) {
 ** Returns          pointer to the name
 **
 *******************************************************************************/
-static char* rw_t2t_get_substate_name(uint8_t substate) {
+static std::string rw_t2t_get_substate_name(uint8_t substate) {
   switch (substate) {
     case RW_T2T_SUBSTATE_NONE:
       return ("RW_T2T_SUBSTATE_NONE");

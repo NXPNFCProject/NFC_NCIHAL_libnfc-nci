@@ -96,10 +96,6 @@ typedef struct {
 **  Function declarations
 *****************************************************************************/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 extern void nfa_sys_init(void);
 extern void nfa_sys_event(NFC_HDR* p_msg);
 extern void nfa_sys_timer_update(void);
@@ -128,9 +124,6 @@ extern void nfa_sys_cback_reg_nfcc_power_mode_proc_complete(
 extern void nfa_sys_cback_notify_nfcc_power_mode_proc_complete(uint8_t id);
 #if (NXP_EXTNS == TRUE)
 extern void nfa_sys_cback_notify_MinEnable_complete(uint8_t id);
-#endif
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* NFA_SYS_H */

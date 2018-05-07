@@ -57,7 +57,7 @@ const tNFA_CE_ACTION nfa_ce_action_tbl[] = {
 ** Local function prototypes
 *****************************************************************************/
 #if (BT_TRACE_VERBOSE == true)
-static char* nfa_ce_evt_2_str(uint16_t event);
+static std::string nfa_ce_evt_2_str(uint16_t event);
 #endif
 
 /*******************************************************************************
@@ -201,7 +201,7 @@ bool nfa_ce_hdl_event(NFC_HDR* p_msg) {
 ** Description      convert nfc evt to string
 **
 *******************************************************************************/
-static char* nfa_ce_evt_2_str(uint16_t event) {
+static std::string nfa_ce_evt_2_str(uint16_t event) {
   switch (event) {
     case NFA_CE_API_CFG_LOCAL_TAG_EVT:
       return "NFA_CE_API_CFG_LOCAL_TAG_EVT";

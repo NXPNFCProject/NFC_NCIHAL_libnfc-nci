@@ -144,7 +144,7 @@ static const tNCI_DISCOVER_MAPS nfc_interface_mapping_stat[NFC_NUM_INTERFACE_MAP
 ** Returns          pointer to the name
 **
 *******************************************************************************/
-static char* nfc_state_name(uint8_t state) {
+static std::string nfc_state_name(uint8_t state) {
   switch (state) {
     case NFC_STATE_NONE:
       return ("NONE");
@@ -180,7 +180,7 @@ static char* nfc_state_name(uint8_t state) {
 ** Returns          pointer to the name
 **
 *******************************************************************************/
-static char* nfc_hal_event_name(uint8_t event) {
+static std::string nfc_hal_event_name(uint8_t event) {
   switch (event) {
     case HAL_NFC_OPEN_CPLT_EVT:
       return ("HAL_NFC_OPEN_CPLT_EVT");
@@ -2050,7 +2050,7 @@ tNFC_chipType NFC_GetChipType() {
 ** Returns          pointer to the name
 **
 *******************************************************************************/
-char* NFC_GetStatusName(tNFC_STATUS status) {
+std::string NFC_GetStatusName(tNFC_STATUS status) {
   switch (status) {
     case NFC_STATUS_OK:
       return "OK";

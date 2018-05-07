@@ -53,9 +53,6 @@
 /*****************************************************************************
 **  External Function Declarations
 *****************************************************************************/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*******************************************************************************
 **
@@ -281,8 +278,5 @@ extern tNFA_STATUS NFA_CeDeregisterAidOnDH(tNFA_HANDLE handle);
 *******************************************************************************/
 extern tNFA_STATUS NFA_CeSetIsoDepListenTech(tNFA_TECHNOLOGY_MASK tech_mask);
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* NFA_CE_API_H */

@@ -1357,7 +1357,7 @@ tNFA_STATUS nfa_hciu_reset_session_id(tNFA_VSC_CBACK* p_cback) {
 ** Returns          pointer to the name
 **
 *******************************************************************************/
-char* nfa_hciu_get_response_name(uint8_t rsp_code) {
+std::string nfa_hciu_get_response_name(uint8_t rsp_code) {
   switch (rsp_code) {
     case NFA_HCI_ANY_OK:
       return ("ANY_OK");
@@ -1397,7 +1397,7 @@ char* nfa_hciu_get_response_name(uint8_t rsp_code) {
 ** Returns          pointer to the name
 **
 *******************************************************************************/
-char* nfa_hciu_type_2_str(uint8_t type) {
+std::string nfa_hciu_type_2_str(uint8_t type) {
   switch (type) {
     case NFA_HCI_COMMAND_TYPE:
       return ("COMMAND");
@@ -1419,7 +1419,7 @@ char* nfa_hciu_type_2_str(uint8_t type) {
 ** Returns          pointer to the name
 **
 *******************************************************************************/
-char* nfa_hciu_instr_2_str(uint8_t instruction) {
+std::string nfa_hciu_instr_2_str(uint8_t instruction) {
   switch (instruction) {
     case NFA_HCI_ANY_SET_PARAMETER:
       return ("ANY_SET_PARAMETER");
@@ -1455,7 +1455,7 @@ char* nfa_hciu_instr_2_str(uint8_t instruction) {
 ** Returns          pointer to the name
 **
 *******************************************************************************/
-char* nfa_hciu_get_event_name(uint16_t event) {
+std::string nfa_hciu_get_event_name(uint16_t event) {
   switch (event) {
     case NFA_HCI_API_REGISTER_APP_EVT:
       return ("API_REGISTER");
@@ -1512,7 +1512,7 @@ char* nfa_hciu_get_event_name(uint16_t event) {
 ** Returns          pointer to the name
 **
 *******************************************************************************/
-char* nfa_hciu_get_state_name(uint8_t state) {
+std::string nfa_hciu_get_state_name(uint8_t state) {
   switch (state) {
     case NFA_HCI_STATE_DISABLED:
       return ("DISABLED");
@@ -1584,7 +1584,7 @@ char* nfa_hciu_get_type_inst_names(uint8_t pipe, uint8_t type, uint8_t inst,
 ** Returns          pointer to the name
 **
 *******************************************************************************/
-char* nfa_hciu_evt_2_str(uint8_t pipe_id, uint8_t evt) {
+std::string nfa_hciu_evt_2_str(uint8_t pipe_id, uint8_t evt) {
   tNFA_HCI_DYN_PIPE* p_pipe;
 
   if ((pipe_id != NFA_HCI_ADMIN_PIPE) &&

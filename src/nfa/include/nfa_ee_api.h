@@ -307,9 +307,6 @@ typedef void(tNFA_EE_CBACK)(tNFA_EE_EVT event, tNFA_EE_CBACK_DATA* p_data);
 /*****************************************************************************
 **  External Function Declarations
 *****************************************************************************/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*******************************************************************************
 **
@@ -730,8 +727,5 @@ extern void NFA_setProvisionMode(bool provisionMode);
 
 #endif
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* NFA_EE_API_H */

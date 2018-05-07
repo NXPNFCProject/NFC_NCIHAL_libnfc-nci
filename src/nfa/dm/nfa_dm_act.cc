@@ -1996,7 +1996,7 @@ void nfa_dm_notify_activation_status(tNFA_STATUS status,
 ** Description      convert nfc revt to string
 **
 *******************************************************************************/
-char* nfa_dm_nfc_revt_2_str(tNFC_RESPONSE_EVT event) {
+std::string nfa_dm_nfc_revt_2_str(tNFC_RESPONSE_EVT event) {
   switch (event) {
     case NFC_ENABLE_REVT:
       return "NFC_ENABLE_REVT";

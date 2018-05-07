@@ -366,10 +366,6 @@ typedef void(tNFA_HCI_CBACK)(tNFA_HCI_EVT event, tNFA_HCI_EVT_DATA* p_data);
 /*****************************************************************************
 **  External Function Declarations
 *****************************************************************************/
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /*******************************************************************************
 **
 ** Function         NFA_HciRegister
@@ -754,10 +750,6 @@ extern void nfa_hci_handle_nfcee_config_evt(uint16_t event);
 extern void nfa_hci_nfcee_config_rsp_handler(tNFA_HCI_EVT event,
                                              tNFA_HCI_EVT_DATA* p_evt);
 
-#endif
-
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* NFA_P2P_API_H */

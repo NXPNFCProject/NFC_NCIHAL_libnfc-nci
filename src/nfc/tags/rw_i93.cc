@@ -105,9 +105,9 @@ enum {
 };
 
 #if (BT_TRACE_VERBOSE == true)
-static char* rw_i93_get_state_name(uint8_t state);
-static char* rw_i93_get_sub_state_name(uint8_t sub_state);
-static char* rw_i93_get_tag_name(uint8_t product_version);
+static std::string rw_i93_get_state_name(uint8_t state);
+static std::string rw_i93_get_sub_state_name(uint8_t sub_state);
+static std::string rw_i93_get_tag_name(uint8_t product_version);
 #endif
 
 static void rw_i93_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
@@ -3760,7 +3760,7 @@ tNFC_STATUS RW_I93PresenceCheck(void) {
 ** Returns          pointer to the name
 **
 *******************************************************************************/
-static char* rw_i93_get_state_name(uint8_t state) {
+static std::string rw_i93_get_state_name(uint8_t state) {
   switch (state) {
     case RW_I93_STATE_NOT_ACTIVATED:
       return ("NOT_ACTIVATED");
@@ -3798,7 +3798,7 @@ static char* rw_i93_get_state_name(uint8_t state) {
 ** Returns          pointer to the name
 **
 *******************************************************************************/
-static char* rw_i93_get_sub_state_name(uint8_t sub_state) {
+static std::string rw_i93_get_sub_state_name(uint8_t sub_state) {
   switch (sub_state) {
     case RW_I93_SUBSTATE_WAIT_UID:
       return ("WAIT_UID");
@@ -3844,7 +3844,7 @@ static char* rw_i93_get_sub_state_name(uint8_t sub_state) {
 ** Returns          pointer to the name
 **
 *******************************************************************************/
-static char* rw_i93_get_tag_name(uint8_t product_version) {
+static std::string rw_i93_get_tag_name(uint8_t product_version) {
   switch (product_version) {
     case RW_I93_ICODE_SLI:
       return ("SLI/SLIX");

@@ -44,6 +44,7 @@
 #ifndef LLCP_API_H
 #define LLCP_API_H
 
+#include <string>
 #include "nfc_target.h"
 #include "llcp_defs.h"
 
@@ -243,10 +244,6 @@ typedef void(tLLCP_DTA_CBACK)(void);
 /*****************************************************************************
 **  External Function Declarations
 *****************************************************************************/
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /*******************************************************************************
 **
 ** Function         LLCP_SetConfig
@@ -377,7 +374,7 @@ extern tLLCP_STATUS LLCP_DeactivateLink(void);
 **
 *******************************************************************************/
 extern uint8_t LLCP_RegisterServer(uint8_t reg_sap, uint8_t link_type,
-                                   char* p_service_name,
+                                   std::string p_service_name,
                                    tLLCP_APP_CBACK* p_sap_cback);
 
 /*******************************************************************************
@@ -714,10 +711,6 @@ extern void LLCP_RegisterDtaCback(tLLCP_DTA_CBACK* p_dta_cback);
 **
 *******************************************************************************/
 extern void LLCP_SetTestParams(uint8_t version, uint16_t wks);
-#endif
-
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* LLCP_API_H */

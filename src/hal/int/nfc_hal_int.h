@@ -32,9 +32,6 @@
 #include "nfc_hal_api.h"
 #include "nfc_hal_int_api.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /****************************************************************************
 ** NFC HAL TASK transport definitions
@@ -531,8 +528,5 @@ void DispHciCmd(NFC_HDR* p_buf);
 void DispHciEvt(NFC_HDR* p_buf);
 #endif /* NFC_HAL_TRACE_PROTOCOL */
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* NFC_HAL_INT_H */

@@ -308,10 +308,6 @@ bool nfa_p2p_get_remote_sap(tNFA_P2P_MSG* p_msg);
 bool nfa_p2p_set_llcp_cfg(tNFA_P2P_MSG* p_msg);
 bool nfa_p2p_restart_rf_discovery(tNFA_P2P_MSG* p_msg);
 
-#if (BT_TRACE_VERBOSE == true)
-char* nfa_p2p_evt_code(uint16_t evt_code);
-#endif
-
 #else
 
 #define nfa_p2p_init ()

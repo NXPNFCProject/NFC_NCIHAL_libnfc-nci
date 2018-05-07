@@ -78,9 +78,6 @@ typedef uint8_t tNDEF_STATUS;
 #define BT_OOB_REC_TYPE_LEN 32   /* Bluetooth OOB Data Type          */
 #define WIFI_WSC_REC_TYPE_LEN 23 /* Wifi WSC Data Type               */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /* Functions to parse a received NDEF Message
 */
@@ -405,8 +402,5 @@ extern tNDEF_STATUS NDEF_MsgCopyAndDechunk(uint8_t* p_src, uint32_t src_len,
                                            uint8_t* p_dest,
                                            uint32_t* p_out_len);
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* NDEF_UTILS_H */

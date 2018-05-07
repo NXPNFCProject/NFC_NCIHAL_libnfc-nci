@@ -18,10 +18,6 @@
 #ifndef BT_TRACE_H
 #define BT_TRACE_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* External declaration for appl_trace_level here to avoid to add the
  * declaration in all the files using APPL_TRACExxx macros */
 extern uint8_t appl_trace_level;
@@ -43,9 +39,6 @@ extern void LogMsg_6(uint32_t trace_set_mask, const char* fmt_str, uintptr_t p1,
                      uintptr_t p2, uintptr_t p3, uintptr_t p4, uintptr_t p5,
                      uintptr_t p6);
 
-#ifdef __cplusplus
-}
-#endif
 
 /******************************************************************************
 **

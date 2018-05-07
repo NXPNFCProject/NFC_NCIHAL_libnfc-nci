@@ -2559,7 +2559,7 @@ tNFC_STATUS RW_T1tSetTagReadOnly(bool b_hard_lock) {
 ** Returns          pointer to the name
 **
 *******************************************************************************/
-static char* rw_t1t_get_sub_state_name(uint8_t sub_state) {
+static std::string rw_t1t_get_sub_state_name(uint8_t sub_state) {
   switch (sub_state) {
     case RW_T1T_SUBSTATE_NONE:
       return ("NONE");

@@ -960,7 +960,7 @@ void GKI_disable(void) {
 **
 *******************************************************************************/
 
-void GKI_exception(uint16_t code, char* msg) {
+void GKI_exception(uint16_t code, std::string msg) {
   uint8_t task_id;
   int i = 0;
 

@@ -301,9 +301,6 @@ typedef struct {
 
 } tGKI_COM_CB;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /* Internal GKI function prototypes
 */
@@ -324,8 +321,5 @@ extern void OSIntExit(void);
 */
 typedef void (*FP_PRINT)(char*, ...);
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif

@@ -747,9 +747,6 @@ typedef struct {
 **  EXTERNAL FUNCTION DECLARATIONS
 *****************************************************************************/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /* Global NFC data */
 extern tRW_CB rw_cb;
@@ -816,9 +813,5 @@ void rw_main_update_trans_error_stats(void);
 void rw_main_update_fail_stats(void);
 void rw_main_log_stats(void);
 #endif /* RW_STATS_INCLUDED */
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* RW_INT_H_ */

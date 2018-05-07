@@ -841,4 +841,3 @@ uint8_t nci_snd_nfcee_power_link_control (uint8_t nfcee_id, uint8_t pl_config)
     return (NCI_STATUS_OK);
 }
 #endif
-

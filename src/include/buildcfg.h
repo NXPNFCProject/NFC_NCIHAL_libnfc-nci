@@ -84,10 +84,6 @@
 #define GKI_NUM_FIXED_BUF_POOLS 4
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 extern uint8_t* scru_dump_hex(uint8_t* p, char* p_title, uint32_t len,
                               uint32_t trace_layer, uint32_t trace_type);
 extern void ScrLog(uint32_t trace_set_mask, const char* fmt_str, ...);
@@ -112,7 +108,4 @@ void _ftime(struct _timeb*);
 
 #endif
 
-#ifdef __cplusplus
-};
-#endif
 #endif

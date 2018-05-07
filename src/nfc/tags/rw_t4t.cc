@@ -109,8 +109,8 @@
 #endif
 
 #if (BT_TRACE_VERBOSE == true)
-static char* rw_t4t_get_state_name(uint8_t state);
-static char* rw_t4t_get_sub_state_name(uint8_t sub_state);
+static std::string rw_t4t_get_state_name(uint8_t state);
+static std::string rw_t4t_get_sub_state_name(uint8_t sub_state);
 #endif
 
 static bool rw_t4t_send_to_lower(NFC_HDR* p_c_apdu);
@@ -2394,7 +2394,7 @@ tNFC_STATUS RW_T3BtGetPupiID(void) {
 ** Returns          pointer to the name
 **
 *******************************************************************************/
-static char* rw_t4t_get_state_name(uint8_t state) {
+static std::string rw_t4t_get_state_name(uint8_t state) {
   switch (state) {
     case RW_T4T_STATE_NOT_ACTIVATED:
       return ("NOT_ACTIVATED");
@@ -2427,7 +2427,7 @@ static char* rw_t4t_get_state_name(uint8_t state) {
 ** Returns          pointer to the name
 **
 *******************************************************************************/
-static char* rw_t4t_get_sub_state_name(uint8_t sub_state) {
+static std::string rw_t4t_get_sub_state_name(uint8_t sub_state) {
   switch (sub_state) {
     case RW_T4T_SUBSTATE_WAIT_SELECT_APP:
       return ("WAIT_SELECT_APP");

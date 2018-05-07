@@ -70,7 +70,7 @@ static void nfa_p2p_update_active_listen(void);
 
 /* debug functions type */
 #if (BT_TRACE_VERBOSE == true)
-static char* nfa_p2p_llcp_state_code(tNFA_P2P_LLCP_STATE state_code);
+static std::string nfa_p2p_llcp_state_code(tNFA_P2P_LLCP_STATE state_code);
 #endif
 
 /*****************************************************************************
@@ -780,7 +780,7 @@ static bool nfa_p2p_evt_hdlr(NFC_HDR* p_hdr) {
 ** Returns          string of state
 **
 *******************************************************************************/
-static char* nfa_p2p_llcp_state_code(tNFA_P2P_LLCP_STATE state_code) {
+static std::static nfa_p2p_llcp_state_code(tNFA_P2P_LLCP_STATE state_code) {
   switch (state_code) {
     case NFA_P2P_LLCP_STATE_IDLE:
       return "Link IDLE";
@@ -802,7 +802,7 @@ static char* nfa_p2p_llcp_state_code(tNFA_P2P_LLCP_STATE state_code) {
 ** Returns          string of event
 **
 *******************************************************************************/
-char* nfa_p2p_evt_code(uint16_t evt_code) {
+std::static nfa_p2p_evt_code(uint16_t evt_code) {
   switch (evt_code) {
     case NFA_P2P_API_REG_SERVER_EVT:
       return "API_REG_SERVER";

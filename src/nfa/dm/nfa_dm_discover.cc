@@ -85,8 +85,8 @@ static void nfa_dm_disc_kovio_timeout_cback(TIMER_LIST_ENT* p_tle);
 static void nfa_dm_disc_report_kovio_presence_check(tNFC_STATUS status);
 
 #if (BT_TRACE_VERBOSE == true)
-static char* nfa_dm_disc_state_2_str(uint8_t state);
-static char* nfa_dm_disc_event_2_str(uint8_t event);
+static std::string nfa_dm_disc_state_2_str(uint8_t state);
+static std::string nfa_dm_disc_event_2_str(uint8_t event);
 #endif
 
 #if (NXP_EXTNS == TRUE)
@@ -3274,7 +3274,7 @@ tNFA_STATUS nfa_dm_rf_deactivate(tNFA_DEACTIVATE_TYPE deactivate_type) {
 ** Description      convert nfc discovery state to string
 **
 *******************************************************************************/
-static char* nfa_dm_disc_state_2_str(uint8_t state) {
+static std::string nfa_dm_disc_state_2_str(uint8_t state) {
   switch (state) {
     case NFA_DM_RFST_IDLE:
       return "IDLE";
@@ -3313,7 +3313,7 @@ static char* nfa_dm_disc_state_2_str(uint8_t state) {
 ** Description      convert nfc discovery RSP/NTF to string
 **
 *******************************************************************************/
-static char* nfa_dm_disc_event_2_str(uint8_t event) {
+static std::string nfa_dm_disc_event_2_str(uint8_t event) {
   switch (event) {
     case NFA_DM_RF_DISCOVER_CMD:
       return "DISCOVER_CMD";

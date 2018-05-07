@@ -202,9 +202,6 @@ typedef void(tNFA_SNEP_CBACK)(tNFA_SNEP_EVT event, tNFA_SNEP_EVT_DATA* p_data);
 /*****************************************************************************
 **  External Function Declarations
 *****************************************************************************/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*******************************************************************************
 **
@@ -482,8 +479,5 @@ extern tNFA_STATUS NFA_SnepDisconnect(tNFA_HANDLE conn_handle, bool flush);
 *******************************************************************************/
 extern uint8_t NFA_SnepSetTraceLevel(uint8_t new_level);
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* NFA_P2P_API_H */

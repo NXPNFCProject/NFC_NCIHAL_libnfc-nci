@@ -38,10 +38,6 @@
 * If protocol decoder is not present, then decode packets into hex numbers.
 ******************************************************************************/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "data_types.h"
 #include "nfc_types.h"
 
@@ -82,7 +78,3 @@ void DispRWT4Tags(NFC_HDR* p_buf, bool is_rx);
 void DispCET4Tags(NFC_HDR* p_buf, bool is_rx);
 void DispRWI93Tag(NFC_HDR* p_buf, bool is_rx, uint8_t command_to_respond);
 void DispNDEFMsg(uint8_t* pMsg, uint32_t MsgLen, bool is_recv);
-
-#ifdef __cplusplus
-};
-#endif

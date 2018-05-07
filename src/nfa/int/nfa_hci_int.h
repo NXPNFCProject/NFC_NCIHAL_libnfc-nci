@@ -43,6 +43,7 @@
 #ifndef NFA_HCI_INT_H
 #define NFA_HCI_INT_H
 
+#include <string>
 #include "nfa_hci_api.h"
 #include "nfa_sys.h"
 #include "nfa_ee_api.h"
@@ -710,14 +711,12 @@ extern tNFA_STATUS nfa_hciu_send_msg(uint8_t pipe_id, uint8_t type,
                                      uint8_t* p_pkt);
 
 #if (BT_TRACE_VERBOSE == true)
-extern char* nfa_hciu_type_2_str(uint8_t type);
-extern char* nfa_hciu_instr_2_str(uint8_t type);
-extern char* nfa_hciu_get_event_name(uint16_t event);
-extern char* nfa_hciu_get_response_name(uint8_t rsp_code);
-extern char* nfa_hciu_get_state_name(uint8_t state);
+extern std::string nfa_hciu_instr_2_str(uint8_t type);
+extern std::string nfa_hciu_get_event_name(uint16_t event);
+extern std::string nfa_hciu_get_state_name(uint8_t state);
 extern char* nfa_hciu_get_type_inst_names(uint8_t pipe, uint8_t type,
                                           uint8_t inst, char* p_buff);
-extern char* nfa_hciu_evt_2_str(uint8_t pipe_id, uint8_t evt);
+extern std::string nfa_hciu_evt_2_str(uint8_t pipe_id, uint8_t evt);
 #endif
 
 #endif /* NFA_HCI_INT_H */

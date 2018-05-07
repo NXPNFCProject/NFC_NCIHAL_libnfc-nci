@@ -37,16 +37,9 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 int GetStrValue(const char* name, char* p_value, unsigned long len);
 int GetNumValue(const char* name, void* p_value, unsigned long len);
-
-#ifdef __cplusplus
-};
-#endif
 
 #define NAME_POLLING_TECH_MASK "POLLING_TECH_MASK"
 #define NAME_REGISTER_VIRTUAL_SE "REGISTER_VIRTUAL_SE"

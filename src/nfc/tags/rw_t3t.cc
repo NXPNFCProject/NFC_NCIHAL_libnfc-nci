@@ -141,8 +141,8 @@ enum {
 };
 
 #if (BT_TRACE_VERBOSE == true)
-static char* rw_t3t_cmd_str(uint8_t cmd_id);
-static char* rw_t3t_state_str(uint8_t state_id);
+static std::string rw_t3t_cmd_str(uint8_t cmd_id);
+static std::string rw_t3t_state_str(uint8_t state_id);
 #endif
 
 /* Local static functions */
@@ -2472,7 +2472,7 @@ static void rw_t3t_update_ndef_flag(uint8_t* p_flag) {
 ** Returns          command string
 **
 *******************************************************************************/
-static char* rw_t3t_cmd_str(uint8_t cmd_id) {
+static std::string rw_t3t_cmd_str(uint8_t cmd_id) {
   switch (cmd_id) {
     case RW_T3T_CMD_DETECT_NDEF:
       return "RW_T3T_CMD_DETECT_NDEF";
@@ -2509,7 +2509,7 @@ static char* rw_t3t_cmd_str(uint8_t cmd_id) {
 ** Returns          command string
 **
 *******************************************************************************/
-static char* rw_t3t_state_str(uint8_t state_id) {
+static std::string rw_t3t_state_str(uint8_t state_id) {
   switch (state_id) {
     case RW_T3T_STATE_NOT_ACTIVATED:
       return "RW_T3T_STATE_NOT_ACTIVATED";

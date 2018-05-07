@@ -880,9 +880,6 @@ typedef void(tNFA_VSC_CBACK)(uint8_t event, uint16_t param_len,
 /*****************************************************************************
 **  External Function Declarations
 *****************************************************************************/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*******************************************************************************
 **
@@ -1676,9 +1673,6 @@ extern void NFA_SetPreferredUiccId(uint8_t uicc_id);
 **
 *******************************************************************************/
 extern uint8_t NFA_GetNCIVersion();
-#ifdef __cplusplus
-}
-#endif
 
 
 #endif /* NFA_API_H */

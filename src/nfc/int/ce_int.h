@@ -155,10 +155,6 @@ typedef struct {
 /*****************************************************************************
 **  EXTERNAL FUNCTION DECLARATIONS
 *****************************************************************************/
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* Global NFC data */
 extern tCE_CB ce_cb;
 
@@ -173,8 +169,5 @@ tNFC_STATUS ce_select_t3t(uint16_t system_code,
 extern tNFC_STATUS ce_select_t4t(void);
 extern void ce_t4t_process_timeout(TIMER_LIST_ENT* p_tle);
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* CE_INT_H_ */

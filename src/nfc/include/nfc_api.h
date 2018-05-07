@@ -306,19 +306,12 @@ typedef tNCI_DISCOVER_PARAMS tNFC_DISCOVER_PARAMS;
 #define NFC_FIRST_CEVT 0x6000
 #define NFC_FIRST_TEVT 0x8000
 #if (NXP_EXTNS == TRUE)
-#if __cplusplus
-extern "C"
-{
-#endif
   void nfc_ncif_onWiredModeHold_timeout();
   void nfc_ncif_allow_dwp_transmission();
   void nfc_ncif_modeSet_Ntf_timeout();
   void nfc_ncif_modeSet_rsp_timeout();
   void nfc_ncif_resume_dwp_wired_mode();
   void nfc_ncif_pwr_link_rsp_timeout();
-#if __cplusplus
-}
-#endif
 #endif
 /* the events reported on tNFC_RESPONSE_CBACK */
 enum {
@@ -570,11 +563,8 @@ typedef uint8_t tNFC_RF_STS;
 #define NFC_RF_TECHNOLOGY_V NCI_RF_TECHNOLOGY_V
 typedef uint8_t tNFC_RF_TECH;
 
-#ifdef __cplusplus
-extern "C" uint8_t NFC_GetNCIVersion();
-#else
+
 extern uint8_t NFC_GetNCIVersion();
-#endif
 
 /* Supported Protocols */
 #define NFC_PROTOCOL_UNKNOWN NCI_PROTOCOL_UNKNOWN /* Unknown */
@@ -1086,9 +1076,6 @@ typedef void(tNFC_STATUS_CBACK)(tNFC_STATUS status);
 /*****************************************************************************
 **  EXTERNAL FUNCTION DECLARATIONS
 *****************************************************************************/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*******************************************************************************
 **
@@ -1597,7 +1584,7 @@ extern tNFC_STATUS NFC_ISODEPNakPresCheck ();
 ** Returns          pointer to the name
 **
 *******************************************************************************/
-extern char* NFC_GetStatusName(tNFC_STATUS status);
+extern std::string NFC_GetStatusName(tNFC_STATUS status);
 #endif
 
 #if (NXP_EXTNS == TRUE || APPL_DTA_MODE == TRUE)
@@ -1863,9 +1850,6 @@ int32_t NFC_RelForceDwpOnOffWait (void *pdata);
 extern bool NFC_Queue_Is_empty(uint8_t conn_id);
 #endif
 
-#ifdef __cplusplus
-}
-#endif
 
 /*******************************************************************************
 **

@@ -101,7 +101,7 @@ extern unsigned char appl_dta_mode_flag;
 
 /* debug functions type */
 #if (BT_TRACE_VERBOSE == true)
-static char* llcp_pdu_type(uint8_t ptype);
+static std::string llcp_pdu_type(uint8_t ptype);
 #endif
 
 /*******************************************************************************
@@ -1677,7 +1677,7 @@ void llcp_link_connection_cback(uint8_t conn_id, tNFC_CONN_EVT event,
 ** Returns          string of PDU type
 **
 *******************************************************************************/
-static char* llcp_pdu_type(uint8_t ptype) {
+static std::string llcp_pdu_type(uint8_t ptype) {
   switch (ptype) {
     case LLCP_PDU_SYMM_TYPE:
       return "SYMM";
