@@ -545,13 +545,9 @@ void GKI_run(__attribute__((unused)) void* p_task_id) {
     }
 #endif
     if (GKI_TIMER_TICK_EXIT_COND != *p_run_cond) {
-      DLOG_IF(INFO, nfc_debug_enabled)
-          << StringPrintf("%s waiting timer mutex", __func__);
       pthread_mutex_lock(&gki_cb.os.gki_timer_mutex);
       pthread_cond_wait(&gki_cb.os.gki_timer_cond, &gki_cb.os.gki_timer_mutex);
       pthread_mutex_unlock(&gki_cb.os.gki_timer_mutex);
-      DLOG_IF(INFO, nfc_debug_enabled)
-          << StringPrintf("%s exited timer mutex", __func__);
     }
 /* potentially we need to adjust os gki_cb.com.OSTicks */
 
@@ -615,8 +611,6 @@ uint16_t GKI_wait(uint16_t flag, uint32_t timeout) {
   int nano_sec;
 
   rtask = GKI_get_taskid();
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("GKI_wait %d %x %d", rtask, flag, timeout);
   if (rtask >= GKI_MAX_TASKS) {
     LOG(ERROR) << StringPrintf("%s() Exiting thread; rtask %d >= %d", __func__,
                                rtask, GKI_MAX_TASKS);
@@ -727,8 +721,6 @@ uint16_t GKI_wait(uint16_t flag, uint32_t timeout) {
   /* unlock thread_evt_mutex as pthread_cond_wait() does auto lock mutex when
    * cond is met */
   pthread_mutex_unlock(&gki_cb.os.thread_evt_mutex[rtask]);
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-      "GKI_wait %d %x %d %x resumed", rtask, flag, timeout, evt);
 
   return (evt);
 }
@@ -793,9 +785,6 @@ void GKI_delay(uint32_t timeout) {
 **
 *******************************************************************************/
 uint8_t GKI_send_event(uint8_t task_id, uint16_t event) {
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("GKI_send_event %d %x", task_id, event);
-
   /* use efficient coding to avoid pipeline stalls */
   if (task_id < GKI_MAX_TASKS) {
     /* protect OSWaitEvt[task_id] from manipulation in GKI_wait() */
@@ -808,8 +797,6 @@ uint8_t GKI_send_event(uint8_t task_id, uint16_t event) {
 
     pthread_mutex_unlock(&gki_cb.os.thread_evt_mutex[task_id]);
 
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf("GKI_send_event %d %x done", task_id, event);
     return (GKI_SUCCESS);
   }
   return (GKI_FAILURE);
@@ -863,14 +850,9 @@ uint8_t GKI_get_taskid(void) {
   pthread_t thread_id = pthread_self();
   for (i = 0; i < GKI_MAX_TASKS; i++) {
     if (gki_cb.os.thread_id[i] == thread_id) {
-      DLOG_IF(INFO, nfc_debug_enabled)
-          << StringPrintf("GKI_get_taskid %lx %d done", thread_id, i);
       return (i);
     }
   }
-
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-      "GKI_get_taskid: thread id = %lx, task id = -1", thread_id);
 
   return (-1);
 }
@@ -917,11 +899,9 @@ int8_t* GKI_map_taskname(uint8_t task_id) {
 **
 *******************************************************************************/
 void GKI_enable(void) {
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("GKI_enable");
   pthread_mutex_unlock(&gki_cb.os.GKI_mutex);
   /*  pthread_mutex_xx is nesting save, no need for this: already_disabled = 0;
    */
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Leaving GKI_enable");
   return;
 }
 
