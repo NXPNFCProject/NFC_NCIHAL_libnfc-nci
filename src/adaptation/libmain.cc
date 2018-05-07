@@ -93,14 +93,14 @@ extern void nfa_nv_co_read(uint8_t* pBuffer, uint16_t nbytes, uint8_t block) {
     size_t actualReadData = read(fileStream, pBuffer, nbytes);
     close(fileStream);
     if (actualReadData > 0) {
-      ALOGD("%s: data size=%zu", __func__, actualReadData);
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: data size=%zu", __func__, actualReadData);
       nfa_nv_ci_read(actualReadData, NFA_NV_CO_OK, block);
     } else {
       LOG(ERROR) << StringPrintf("%s: fail to read", __func__);
       nfa_nv_ci_read(0, NFA_NV_CO_FAIL, block);
     }
   } else {
-    ALOGD("%s: fail to open", __func__);
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: fail to open", __func__);
     nfa_nv_ci_read(0, NFA_NV_CO_FAIL, block);
   }
 }
@@ -134,7 +134,7 @@ extern void nfa_nv_co_write(const uint8_t* pBuffer, uint16_t nbytes,
     unsigned short checksum = crcChecksumCompute(pBuffer, nbytes);
     size_t actualWrittenCrc = write(fileStream, &checksum, sizeof(checksum));
     size_t actualWrittenData = write(fileStream, pBuffer, nbytes);
-    ALOGD("%s: %zu bytes written", __func__, actualWrittenData);
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: %zu bytes written", __func__, actualWrittenData);
     if ((actualWrittenData == nbytes) &&
         (actualWrittenCrc == sizeof(checksum))) {
       nfa_nv_ci_write(NFA_NV_CO_OK);
@@ -166,7 +166,7 @@ void delete_stack_non_volatile_store(bool forceDelete) {
   if ((firstTime == false) && (forceDelete == false)) return;
   firstTime = false;
 
-  ALOGD("%s", __func__);
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s", __func__);
 
   remove(getFilenameForBlock(DH_NV_BLOCK).c_str());
   remove(getFilenameForBlock(HC_F2_NV_BLOCK).c_str());
@@ -187,7 +187,7 @@ void delete_stack_non_volatile_store(bool forceDelete) {
 **
 *******************************************************************************/
 void verify_stack_non_volatile_store() {
-  ALOGD("%s", __func__);
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s", __func__);
   const std::vector<unsigned> verify_blocks = {DH_NV_BLOCK, HC_F2_NV_BLOCK,
                                                HC_F3_NV_BLOCK, HC_F4_NV_BLOCK,
                                                HC_F5_NV_BLOCK};

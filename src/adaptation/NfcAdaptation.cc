@@ -462,15 +462,15 @@ void NfcAdaptation::InitializeHalDeviceContext() {
   mHalEntryFuncs.control_granted = HalControlGranted;
   mHalEntryFuncs.power_cycle = HalPowerCycle;
   mHalEntryFuncs.get_max_ee = HalGetMaxNfcee;
-  ALOGI("%s: INfc::getService()", func);
+  LOG(INFO) << StringPrintf("%s: INfc::getService()", func);
   mHal = INfc::getService();
   LOG_FATAL_IF(mHal == nullptr, "Failed to retrieve the NFC HAL!");
-  ALOGI("%s: INfc::getService() returned %p (%s)", func, mHal.get(),
+  LOG(INFO) << StringPrintf("%s: INfc::getService() returned %p (%s)", func, mHal.get(),
         (mHal->isRemote() ? "remote" : "local"));
-  ALOGI("%s: INxpNfc::getService()", func);
+  LOG(INFO) << StringPrintf("%s: INxpNfc::getService()", func);
   mHalNxpNfc = INxpNfc::getService();
   LOG_FATAL_IF(mHalNxpNfc == nullptr, "Failed to retrieve the NXP NFC HAL!");
-  ALOGI("%s: INxpNfc::getService() returned %p (%s)", func, mHalNxpNfc.get(),
+  LOG(INFO) << StringPrintf("%s: INxpNfc::getService() returned %p (%s)", func, mHalNxpNfc.get(),
         (mHalNxpNfc->isRemote() ? "remote" : "local"));
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: exit", func);
 }
