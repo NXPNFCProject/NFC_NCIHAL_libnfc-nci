@@ -86,6 +86,7 @@ void ConfigFile::parseFromFile(const std::string& file_name) {
   string config;
   bool config_read = ReadFileToString(file_name, &config);
   CHECK(config_read);
+  LOG(INFO) << "ConfigFile - Parsing file '" << file_name << "'";
   parseFromString(config);
 }
 
@@ -109,6 +110,8 @@ void ConfigFile::parseFromString(const std::string& config) {
     CHECK(value_parsed);
     CHECK(!hasKey(key));
     values_.emplace(key, value);
+
+    LOG(INFO) << "ConfigFile - [" << key << "] = " << value_string;
   }
 }
 
