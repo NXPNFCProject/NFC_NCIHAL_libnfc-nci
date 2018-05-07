@@ -99,6 +99,7 @@ size_t readConfigFile(const char* fileName, uint8_t** p_data) {
     return file_size;
   }
 
+  delete[] buffer;
   return 0;
 }
 
