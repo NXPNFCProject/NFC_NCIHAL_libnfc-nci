@@ -40,10 +40,8 @@
  *  NFA interface to NFCEE - API functions
  *
  ******************************************************************************/
-#include <string.h>
 #include "nfa_ee_api.h"
 #include "nfa_ee_int.h"
-#include "nfa_sys_int.h"
 #include "nfa_dm_int.h"
 
 /*****************************************************************************

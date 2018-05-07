@@ -27,12 +27,8 @@
 #include "bt_types.h"
 #include "trace_api.h"
 
-#include "nfc_api.h"
-#include "nfc_int.h"
 #include "ce_api.h"
 #include "ce_int.h"
-#include "tags_int.h"
-#include "gki.h"
 
 enum {
   CE_T3T_COMMAND_INVALID,

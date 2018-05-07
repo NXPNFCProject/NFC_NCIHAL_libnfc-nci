@@ -27,12 +27,10 @@
 #include "bt_types.h"
 #include "trace_api.h"
 
-#include "nfc_api.h"
 #include "nfc_int.h"
 #include "ce_api.h"
 #include "ce_int.h"
 #include "tags_int.h"
-#include "gki.h"
 
 #if (CE_TEST_INCLUDED == true) /* test only */
 bool mapping_aid_test_enabled = false;

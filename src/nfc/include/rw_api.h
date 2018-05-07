@@ -44,6 +44,7 @@
 
 #ifndef RW_API_H
 #define RW_API_H
+#include "nfc_api.h"
 #include "tags_defs.h"
 
 #define RW_T1T_BLD_ADD(a, k, y) (a) = (((k) & 0xF) << 3) | ((y) & 0x7);

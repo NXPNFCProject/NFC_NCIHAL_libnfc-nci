@@ -42,10 +42,7 @@
  ******************************************************************************/
 #include <string.h>
 #include "nfa_api.h"
-#include "nfa_sys.h"
-#include "nfa_dm_int.h"
 #include "nfa_ce_int.h"
-#include "nfa_sys_int.h"
 #include "ndef_utils.h"
 #if (NXP_EXTNS == TRUE)
 #include "nfc_int.h"

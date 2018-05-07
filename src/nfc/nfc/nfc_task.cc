@@ -46,8 +46,6 @@
 #include "nfc_target.h"
 #include "bt_types.h"
 
-#include "nfc_api.h"
-#include "nfc_hal_api.h"
 #include "nfc_int.h"
 #include "nci_hmsgs.h"
 #include "rw_int.h"
@@ -58,7 +56,6 @@
 #define llcp_cleanup()
 #endif
 
-#include "nfa_sys.h"
 #include "nfa_dm_int.h"
 
 /*******************************************************************************

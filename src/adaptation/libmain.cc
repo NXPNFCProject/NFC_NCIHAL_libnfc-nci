@@ -17,15 +17,8 @@
  ******************************************************************************/
 #include "_OverrideLog.h"
 #include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
-#include <errno.h>
-#include <nfa_nv_ci.h>
-#include "buildcfg.h"
-#include "nfa_nv_co.h"
-#include "config.h"
-#include "nfc_hal_target.h"
+#include "nfa_nv_ci.h"
 #include "nfc_hal_nv_co.h"
 #include "CrcChecksum.h"
 extern char bcm_nfc_location[];

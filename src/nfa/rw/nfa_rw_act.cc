@@ -42,10 +42,8 @@
 #include <string.h>
 #include "nfa_rw_int.h"
 #include "nfa_dm_int.h"
-#include "nfa_sys_int.h"
 #include "nfa_mem_co.h"
 #include "ndef_utils.h"
-#include "rw_api.h"
 
 #define NFA_RW_OPTION_INVALID 0xFF
 

@@ -43,15 +43,12 @@
  *
  ******************************************************************************/
 #include <metricslogger/metrics_logger.h>
-#include <stdlib.h>
-#include <string.h>
 #include "nfc_target.h"
 
 #include "include/debug_nfcsnoop.h"
 #include "nci_defs.h"
 #include "nci_hmsgs.h"
 #include "nfc_api.h"
-#include "nfc_hal_api.h"
 #include "nfc_int.h"
 #include "rw_api.h"
 #include "rw_int.h"

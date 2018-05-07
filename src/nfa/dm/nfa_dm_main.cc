@@ -43,9 +43,7 @@
 
 #include <string.h>
 #include "nfa_api.h"
-#include "nfa_sys.h"
 #include "nfa_dm_int.h"
-#include "nfa_sys_int.h"
 #if (NXP_EXTNS == TRUE)
 #include "nfc_int.h"
 #include "nfa_p2p_int.h"

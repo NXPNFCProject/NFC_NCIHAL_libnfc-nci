@@ -42,14 +42,9 @@
  ******************************************************************************/
 #include <string.h>
 #include "trace_api.h"
-#include "nfc_api.h"
-#include "nfa_sys.h"
-#include "nfa_sys_int.h"
 #include "nfa_dm_int.h"
 #include "nfa_hci_api.h"
 #include "nfa_hci_int.h"
-#include "nfa_nv_co.h"
-#include "nfa_mem_co.h"
 #include "nfa_hci_defs.h"
 
 static void handle_debug_loopback(NFC_HDR* p_buf, uint8_t pipe, uint8_t type,

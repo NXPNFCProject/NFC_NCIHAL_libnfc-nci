@@ -39,11 +39,7 @@
  *  NFA interface to HCI
  *
  ******************************************************************************/
-#include <string.h>
 #include <unistd.h>
-#include "nfc_api.h"
-#include "nfa_sys.h"
-#include "nfa_sys_int.h"
 #include "nfa_hci_api.h"
 #include "nfa_hci_int.h"
 #include "nfa_hci_defs.h"

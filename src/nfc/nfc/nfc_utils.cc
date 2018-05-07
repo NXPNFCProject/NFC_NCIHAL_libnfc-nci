@@ -23,7 +23,6 @@
  *  (callback). On the transmit side, it manages the command transmission.
  *
  ******************************************************************************/
-#include "nfc_target.h"
 #include "bt_types.h"
 #include "nfc_api.h"
 

@@ -51,8 +51,6 @@
 #include "nfc_int.h"
 #include "rw_api.h"
 #include "rw_int.h"
-#include "tags_int.h"
-#include "gki.h"
 
 /* main state */
 /* T4T is not activated                 */

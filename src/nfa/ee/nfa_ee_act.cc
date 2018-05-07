@@ -41,11 +41,8 @@
  *
  ******************************************************************************/
 #include <string.h>
-#include "nfa_sys.h"
 #include "nfa_api.h"
 #include "nfa_dm_int.h"
-#include "nfa_sys_int.h"
-#include "nfc_api.h"
 #include "nfa_ee_int.h"
 #include "nci_hmsgs.h"
 #if (NXP_EXTNS == TRUE)

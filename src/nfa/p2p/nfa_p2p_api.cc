@@ -40,12 +40,6 @@
  *  NFA interface to LLCP
  *
  ******************************************************************************/
-#include <string.h>
-#include "nfc_api.h"
-#include "nfa_sys.h"
-#include "nfa_sys_int.h"
-#include "llcp_defs.h"
-#include "llcp_api.h"
 #include "nfa_p2p_api.h"
 #include "nfa_p2p_int.h"
 #if (NXP_EXTNS == TRUE)

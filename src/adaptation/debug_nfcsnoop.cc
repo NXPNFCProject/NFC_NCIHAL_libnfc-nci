@@ -16,7 +16,6 @@
  *
  ******************************************************************************/
 
-#include <assert.h>
 #include <resolv.h>
 #include <zlib.h>
 #include <mutex>
@@ -25,7 +24,6 @@
 #include "include/debug_nfcsnoop.h"
 #include "include/ringbuffer.h"
 #include "nfc_int.h"
-#include "nfc_types.h"
 
 #define USEC_PER_SEC 1000000ULL
 

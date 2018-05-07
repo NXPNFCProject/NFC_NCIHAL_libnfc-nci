@@ -18,7 +18,6 @@
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
 #include "gki_int.h"
-#include <stdio.h>
 
 #if (GKI_NUM_TOTAL_BUF_POOLS > 16)
 #error Number of pools out of range (16 Max)!

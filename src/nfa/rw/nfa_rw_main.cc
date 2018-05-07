@@ -23,10 +23,8 @@
  ******************************************************************************/
 #include <string.h>
 #include "nfa_rw_api.h"
-#include "nfa_sys.h"
 #include "nfa_rw_int.h"
 #include "nfa_dm_int.h"
-#include "nfa_sys_int.h"
 
 /* NFA_RW control block */
 tNFA_RW_CB nfa_rw_cb;

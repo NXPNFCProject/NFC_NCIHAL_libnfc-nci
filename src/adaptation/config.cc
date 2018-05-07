@@ -35,7 +35,6 @@
  *
  ******************************************************************************/
 #include "_OverrideLog.h"
-#include "config.h"
 #include <stdio.h>
 #include <sys/stat.h>
 #include <string>

@@ -25,10 +25,8 @@
 #include "nfc_target.h"
 #include "bt_types.h"
 
-#include "nfc_api.h"
 #include "rw_api.h"
 #include "rw_int.h"
-#include "tags_int.h"
 
 #define T1T_MAX_NUM_OPCODES 9
 #define T1T_STATIC_OPCODES 5

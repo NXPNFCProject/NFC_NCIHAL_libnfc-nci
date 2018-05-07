@@ -44,11 +44,9 @@
 
 #include <string.h>
 #include "gki.h"
-#include "nfc_target.h"
 #include "bt_types.h"
 #include "llcp_api.h"
 #include "llcp_int.h"
-#include "llcp_defs.h"
 #include "nfa_dm_int.h"
 #if (NXP_EXTNS == TRUE)
 #include "nfa_sys.h"

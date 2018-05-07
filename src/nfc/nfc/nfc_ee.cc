@@ -24,7 +24,6 @@
 #include <string.h>
 #include "gki.h"
 #include "nfc_target.h"
-#include "bt_types.h"
 
 #include "nfc_api.h"
 #include "nfc_int.h"

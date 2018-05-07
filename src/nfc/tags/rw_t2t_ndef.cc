@@ -48,8 +48,6 @@
 #include "nci_hmsgs.h"
 #include "rw_api.h"
 #include "rw_int.h"
-#include "nfc_int.h"
-#include "gki.h"
 
 #if (RW_NDEF_INCLUDED == true)
 

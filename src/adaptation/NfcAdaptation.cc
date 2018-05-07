@@ -34,24 +34,16 @@
  *  limitations under the License.
  *
  ******************************************************************************/
-#include "_OverrideLog.h"
 #include <android/hardware/nfc/1.0/INfc.h>
-#include <android/hardware/nfc/1.0/INfcClientCallback.h>
 #include <base/command_line.h>
 #include <android/hardware/nfc/1.0/types.h>
 #include <hwbinder/ProcessState.h>
-#include <pthread.h>
 #include "NfcAdaptation.h"
 #include "debug_nfcsnoop.h"
-#include "nfc_target.h"
 
-extern "C" {
-#include "gki.h"
 #include "nfa_api.h"
 #include "nfc_int.h"
 #include "nfc_target.h"
-#include "vendor_cfg.h"
-}
 #include "config.h"
 #include "android_logmsg.h"
 #include <hidl/LegacySupport.h>

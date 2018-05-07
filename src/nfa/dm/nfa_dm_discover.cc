@@ -41,11 +41,9 @@
  *
  ******************************************************************************/
 #include <string.h>
-#include "nfa_sys.h"
 #include "nfa_api.h"
 #include "nfa_dm_int.h"
 #include "nfa_p2p_int.h"
-#include "nfa_sys_int.h"
 #include "nci_hmsgs.h"
 #if (NFC_NFCEE_INCLUDED == true)
 #include "nfa_ee_api.h"

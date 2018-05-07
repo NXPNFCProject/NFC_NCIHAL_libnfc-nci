@@ -42,8 +42,6 @@
  ******************************************************************************/
 #include <string.h>
 #include "nfa_ce_int.h"
-#include "nfa_dm_int.h"
-#include "nfa_sys_int.h"
 #include "nfa_mem_co.h"
 #include "ndef_utils.h"
 #include "ce_api.h"

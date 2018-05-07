@@ -49,8 +49,6 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include "nfc_hal_api.h"
-#include "nfc_api.h"
 #include "nfc_int.h"
 #include "nci_hmsgs.h"
 #include "rw_int.h"
@@ -58,8 +56,7 @@
 #include "nfa_sys.h"
 #include <config.h>
 #if (NFC_RW_ONLY == FALSE)
-#include "ce_api.h"
-#include "ce_int.h"
+
 #include "llcp_int.h"
 
 #if (NXP_EXTNS == TRUE)
