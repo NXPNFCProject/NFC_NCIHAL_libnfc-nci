@@ -318,8 +318,9 @@ void nfa_p2p_llcp_link_cback(uint8_t event, uint8_t reason) {
     llcp_activated.remote_wks = LLCP_GetRemoteWKS();
     llcp_activated.remote_version = LLCP_GetRemoteVersion();
 
-    nfa_dm_act_conn_cback_notify(NFA_LLCP_ACTIVATED_EVT,
-                                 (void*)&llcp_activated);
+    tNFA_CONN_EVT_DATA nfa_conn_evt_data;
+    nfa_conn_evt_data.llcp_activated = llcp_activated;
+    nfa_dm_act_conn_cback_notify(NFA_LLCP_ACTIVATED_EVT, &nfa_conn_evt_data);
 
   } else if (event == LLCP_LINK_ACTIVATION_FAILED_EVT) {
     nfa_p2p_cb.llcp_state = NFA_P2P_LLCP_STATE_IDLE;
@@ -364,8 +365,9 @@ void nfa_p2p_llcp_link_cback(uint8_t event, uint8_t reason) {
     }
 
     llcp_deactivated.reason = reason;
-    nfa_dm_act_conn_cback_notify(NFA_LLCP_DEACTIVATED_EVT,
-                                 (void*)&llcp_deactivated);
+    tNFA_CONN_EVT_DATA nfa_conn_evt_data;
+    nfa_conn_evt_data.llcp_deactivated = llcp_deactivated;
+    nfa_dm_act_conn_cback_notify(NFA_LLCP_DEACTIVATED_EVT, &nfa_conn_evt_data);
 
     if (reason != LLCP_LINK_RF_LINK_LOSS_ERR) /* if NFC link is still up */
     {
@@ -747,21 +749,20 @@ static bool nfa_p2p_evt_hdlr(NFC_HDR* p_hdr) {
   bool delete_msg = true;
   uint16_t event;
 
-  tNFA_P2P_MSG* p_msg = (tNFA_P2P_MSG*)p_hdr;
-
 #if (BT_TRACE_VERBOSE == true)
   P2P_TRACE_DEBUG2("nfa_p2p_evt_hdlr (): LLCP State [%s], Event [%s]",
-                   nfa_p2p_llcp_state_code(nfa_p2p_cb.llcp_state),
-                   nfa_p2p_evt_code(p_msg->hdr.event));
+                   nfa_p2p_llcp_state_code(nfa_p2p_cb.llcp_state).c_str(),
+                   nfa_p2p_evt_code(p_hdr->event).c_str());
 #else
   P2P_TRACE_DEBUG2("nfa_p2p_evt_hdlr (): State 0x%02x, Event 0x%02x",
-                   nfa_p2p_cb.llcp_state, p_msg->hdr.event);
+                   nfa_p2p_cb.llcp_state, p_hdr->event);
 #endif
 
-  event = p_msg->hdr.event & 0x00ff;
+  event = p_hdr->event & 0x00ff;
 
   /* execute action functions */
   if (event < NFA_P2P_NUM_ACTIONS) {
+    tNFA_P2P_MSG* p_msg = (tNFA_P2P_MSG*)p_hdr;
     delete_msg = (*nfa_p2p_action[event])(p_msg);
   } else {
     P2P_TRACE_ERROR0("Unhandled event");

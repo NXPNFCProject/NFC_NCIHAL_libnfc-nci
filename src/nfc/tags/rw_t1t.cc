@@ -129,7 +129,7 @@ static void rw_t1t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
     } else {
       /* Raw frame event */
       evt_data.data.p_data = p_pkt;
-      (*rw_cb.p_cback)(RW_T1T_RAW_FRAME_EVT, (tRW_DATA*)&evt_data);
+      (*rw_cb.p_cback)(RW_T1T_RAW_FRAME_EVT, &evt_data);
     }
     return;
   }
@@ -225,7 +225,7 @@ static void rw_t1t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
       evt_data.data.p_data = p_pkt;
     }
     rw_t1t_handle_op_complete();
-    (*rw_cb.p_cback)(rw_event, (tRW_DATA*)&evt_data);
+    (*rw_cb.p_cback)(rw_event, &evt_data);
   } else
     GKI_freebuf(p_pkt);
 
@@ -250,7 +250,6 @@ static void rw_t1t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
 void rw_t1t_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
                        tNFC_CONN* p_data) {
   tRW_T1T_CB* p_t1t = &rw_cb.tcb.t1t;
-  tRW_READ_DATA evt_data;
 
   RW_TRACE_DEBUG2("rw_t1t_conn_cback: conn_id=%i, evt=0x%x", conn_id, event);
   /* Only handle static conn_id */
@@ -303,7 +302,7 @@ void rw_t1t_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
 #if (RW_STATS_INCLUDED == true)
         rw_main_update_trans_error_stats();
 #endif /* RW_STATS_INCLUDED */
-
+        tRW_READ_DATA evt_data;
         if (event == NFC_ERROR_CEVT)
           evt_data.status = (tNFC_STATUS)(*(uint8_t*)p_data);
         else if (p_data)
@@ -312,7 +311,9 @@ void rw_t1t_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
           evt_data.status = NFC_STATUS_FAILED;
 
         evt_data.p_data = NULL;
-        (*rw_cb.p_cback)(RW_T1T_INTF_ERROR_EVT, (void*)&evt_data);
+        tRW_DATA rw_data;
+        rw_data.data = evt_data;
+        (*rw_cb.p_cback)(RW_T1T_INTF_ERROR_EVT, &rw_data);
         break;
       }
       nfc_stop_quick_timer(&p_t1t->timer);
@@ -598,13 +599,11 @@ static void rw_t1t_process_frame_error(void) {
 **
 *******************************************************************************/
 static void rw_t1t_process_error(void) {
-  tRW_READ_DATA evt_data;
   tRW_EVENT rw_event;
   NFC_HDR* p_cmd_buf;
   tRW_T1T_CB* p_t1t = &rw_cb.tcb.t1t;
   tT1T_CMD_RSP_INFO* p_cmd_rsp_info =
       (tT1T_CMD_RSP_INFO*)rw_cb.tcb.t1t.p_cmd_rsp_info;
-  tRW_DETECT_NDEF_DATA ndef_data;
 
   RW_TRACE_DEBUG1("rw_t1t_process_error () State: %u", p_t1t->state);
 
@@ -659,17 +658,23 @@ static void rw_t1t_process_error(void) {
   rw_event = rw_t1t_info_to_event(p_cmd_rsp_info);
   if (p_t1t->state != RW_T1T_STATE_NOT_ACTIVATED) rw_t1t_handle_op_complete();
 
-  evt_data.status = NFC_STATUS_TIMEOUT;
   if (rw_event == RW_T2T_NDEF_DETECT_EVT) {
-    ndef_data.status = evt_data.status;
+    tRW_DETECT_NDEF_DATA ndef_data;
+    ndef_data.status = NFC_STATUS_TIMEOUT;
     ndef_data.protocol = NFC_PROTOCOL_T1T;
     ndef_data.flags = RW_NDEF_FL_UNKNOWN;
     ndef_data.max_size = 0;
     ndef_data.cur_size = 0;
-    (*rw_cb.p_cback)(rw_event, (void*)&ndef_data);
+    tRW_DATA rw_data;
+    rw_data.ndef = ndef_data;
+    (*rw_cb.p_cback)(rw_event, &rw_data);
   } else {
+    tRW_READ_DATA evt_data;
+    evt_data.status = NFC_STATUS_TIMEOUT;
     evt_data.p_data = NULL;
-    (*rw_cb.p_cback)(rw_event, (void*)&evt_data);
+    tRW_DATA rw_data;
+    rw_data.data = evt_data;
+    (*rw_cb.p_cback)(rw_event, &rw_data);
   }
 }
 
@@ -683,13 +688,13 @@ static void rw_t1t_process_error(void) {
 **
 *****************************************************************************/
 void rw_t1t_handle_presence_check_rsp(tNFC_STATUS status) {
-  tRW_READ_DATA evt_data;
+  tRW_DATA rw_data;
 
   /* Notify, Tag is present or not */
-  evt_data.status = status;
+  rw_data.data.status = status;
   rw_t1t_handle_op_complete();
 
-  (*(rw_cb.p_cback))(RW_T1T_PRESENCE_CHECK_EVT, (void*)&evt_data);
+  (*(rw_cb.p_cback))(RW_T1T_PRESENCE_CHECK_EVT, &rw_data);
 }
 
 /*****************************************************************************

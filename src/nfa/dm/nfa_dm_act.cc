@@ -126,8 +126,9 @@ static void nfa_dm_nfcc_power_mode_proc_complete_cback(void) {
 
   power_mode_change.status = NFA_STATUS_OK;
   power_mode_change.power_mode = nfa_dm_cb.nfcc_pwr_mode;
-  (*nfa_dm_cb.p_dm_cback)(NFA_DM_PWR_MODE_CHANGE_EVT,
-                          (void*)&power_mode_change);
+  NFA_DM_CBACK_DATA nfa_dm_cback_data;
+  nfa_dm_cback_data.power_mode = power_mode_change;
+  (*nfa_dm_cb.p_dm_cback)(NFA_DM_PWR_MODE_CHANGE_EVT, &nfa_dm_cback_data);
 }
 /*******************************************************************************
 **
@@ -278,7 +279,6 @@ static void nfa_dm_disable_event(void) {
 static void nfa_dm_nfc_response_cback(tNFC_RESPONSE_EVT event,
                                       tNFC_RESPONSE* p_data) {
   tNFA_DM_CBACK_DATA dm_cback_data;
-  tNFA_GET_CONFIG* p_nfa_get_confg;
 #if (NXP_EXTNS == TRUE)
   tNFA_GET_ROUTING* p_nfa_get_routing;
 #endif
@@ -345,22 +345,12 @@ static void nfa_dm_nfc_response_cback(tNFC_RESPONSE_EVT event,
 
     case NFC_GET_CONFIG_REVT: /* 3  Get Config Response */
       if (p_data->get_config.status == NFC_STATUS_OK) {
-        p_nfa_get_confg = (tNFA_GET_CONFIG*)GKI_getbuf(
-            (uint16_t)(sizeof(tNFA_GET_CONFIG) + p_data->get_config.tlv_size));
-        if (p_nfa_get_confg != NULL) {
-          p_nfa_get_confg->status = NFA_STATUS_OK;
-          p_nfa_get_confg->tlv_size = p_data->get_config.tlv_size;
-          memcpy(p_nfa_get_confg->param_tlvs, p_data->get_config.p_param_tlvs,
-                 p_data->get_config.tlv_size);
-          (*nfa_dm_cb.p_dm_cback)(NFA_DM_GET_CONFIG_EVT,
-                                  (tNFA_DM_CBACK_DATA*)p_nfa_get_confg);
-
-          GKI_freebuf(p_nfa_get_confg);
-          return;
-        } else {
-          NFA_TRACE_DEBUG0(
-              "nfa_dm_nfc_response_cback unable to allocate buffer");
-        }
+        tNFA_GET_CONFIG* p_nfa_get_confg = &dm_cback_data.get_config;
+        p_nfa_get_confg->status = NFA_STATUS_OK;
+        p_nfa_get_confg->tlv_size = p_data->get_config.tlv_size;
+        p_nfa_get_confg->param_tlvs = p_data->get_config.p_param_tlvs;
+        (*nfa_dm_cb.p_dm_cback)(NFA_DM_GET_CONFIG_EVT, &dm_cback_data);
+        return;
       }
 
       /* Return result of getconfig to the app */
@@ -560,8 +550,6 @@ bool nfa_dm_enable(tNFA_DM_MSG* p_data) {
 **
 *******************************************************************************/
 bool nfa_dm_disable(tNFA_DM_MSG* p_data) {
-  tNFC_DEACT_TYPE deactivate_type = NFA_DEACTIVATE_TYPE_IDLE;
-
   NFA_TRACE_DEBUG1("nfa_dm_disable (): graceful:%d", p_data->disable.graceful);
 
   if (p_data->disable.graceful) {
@@ -576,8 +564,10 @@ bool nfa_dm_disable(tNFA_DM_MSG* p_data) {
         }
       } else {
         nfa_dm_cb.disc_cb.disc_flags |= NFA_DM_DISC_FLAGS_DISABLING;
-        nfa_dm_disc_sm_execute(NFA_DM_RF_DEACTIVATE_CMD,
-                               (void*)&deactivate_type);
+        tNFA_DM_RF_DISC_DATA nfa_dm_rf_disc_data;
+        nfa_dm_rf_disc_data.deactivate_type = NFA_DEACTIVATE_TYPE_IDLE;
+
+        nfa_dm_disc_sm_execute(NFA_DM_RF_DEACTIVATE_CMD, &nfa_dm_rf_disc_data);
         if ((nfa_dm_cb.disc_cb.disc_flags &
              (NFA_DM_DISC_FLAGS_W4_RSP | NFA_DM_DISC_FLAGS_W4_NTF)) == 0) {
           /* not waiting to deactivate, clear the flag now */
@@ -1503,11 +1493,11 @@ bool nfa_dm_act_update_rf_params(tNFA_DM_MSG* p_data) {
 **
 *******************************************************************************/
 bool nfa_dm_act_disable_timeout(tNFA_DM_MSG* p_data) {
-  tNFA_DM_API_DISABLE disable;
+  tNFA_DM_MSG nfa_dm_msg;
   (void)p_data;
 
-  disable.graceful = false;
-  nfa_dm_disable((void*)&disable);
+  nfa_dm_msg.disable.graceful = false;
+  nfa_dm_disable(&nfa_dm_msg);
   return (true);
 }
 

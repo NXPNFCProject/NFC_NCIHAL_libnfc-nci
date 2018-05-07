@@ -264,13 +264,13 @@ static void rw_t2t_handle_cc_read_rsp(void) {
 *******************************************************************************/
 static void rw_t2t_ntf_tlv_detect_complete(tNFC_STATUS status) {
   tRW_T2T_CB* p_t2t = &rw_cb.tcb.t2t;
-  tRW_DETECT_NDEF_DATA ndef_data = {.status = 0};
-  tRW_DETECT_TLV_DATA tlv_data;
-  tRW_T2T_DETECT evt_data;
   uint8_t xx;
 
   if (p_t2t->tlv_detect == TAG_NDEF_TLV) {
     /* Notify upper layer the result of NDEF detect op */
+    tRW_DETECT_NDEF_DATA ndef_data = {
+        0,
+    };
     ndef_data.status = status;
     ndef_data.protocol = NFC_PROTOCOL_T2T;
     ndef_data.flags = rw_t2t_get_ndef_flags();
@@ -294,14 +294,19 @@ static void rw_t2t_ntf_tlv_detect_complete(tNFC_STATUS status) {
     }
 
     rw_t2t_handle_op_complete();
-    (*rw_cb.p_cback)(RW_T2T_NDEF_DETECT_EVT, (void*)&ndef_data);
+    tRW_DATA rw_data;
+    rw_data.ndef = ndef_data;
+    (*rw_cb.p_cback)(RW_T2T_NDEF_DETECT_EVT, &rw_data);
   } else if (p_t2t->tlv_detect == TAG_PROPRIETARY_TLV) {
+    tRW_T2T_DETECT evt_data;
     evt_data.msg_len = p_t2t->prop_msg_len;
     evt_data.status = status;
     rw_t2t_handle_op_complete();
+    /* FIXME: Unsafe cast */
     (*rw_cb.p_cback)(RW_T2T_TLV_DETECT_EVT, (void*)&evt_data);
   } else {
     /* Notify upper layer the result of Lock/Mem TLV detect op */
+    tRW_DETECT_TLV_DATA tlv_data;
     tlv_data.protocol = NFC_PROTOCOL_T2T;
     if (p_t2t->tlv_detect == TAG_LOCK_CTRL_TLV) {
       tlv_data.num_bytes = p_t2t->num_lockbytes;
@@ -313,7 +318,9 @@ static void rw_t2t_ntf_tlv_detect_complete(tNFC_STATUS status) {
     }
     tlv_data.status = status;
     rw_t2t_handle_op_complete();
-    (*rw_cb.p_cback)(RW_T2T_TLV_DETECT_EVT, (void*)&tlv_data);
+    tRW_DATA rw_data;
+    rw_data.tlv = tlv_data;
+    (*rw_cb.p_cback)(RW_T2T_TLV_DETECT_EVT, &rw_data);
   }
 }
 
@@ -1522,7 +1529,9 @@ static void rw_t2t_handle_ndef_read_rsp(uint8_t* p_data) {
     evt_data.status = failed ? NFC_STATUS_FAILED : NFC_STATUS_OK;
     evt_data.p_data = NULL;
     rw_t2t_handle_op_complete();
-    (*rw_cb.p_cback)(RW_T2T_NDEF_READ_EVT, (void*)&evt_data);
+    tRW_DATA rw_data;
+    rw_data.data = evt_data;
+    (*rw_cb.p_cback)(RW_T2T_NDEF_READ_EVT, &rw_data);
   }
 }
 
@@ -1688,7 +1697,9 @@ static void rw_t2t_handle_ndef_write_rsp(uint8_t* p_data) {
       p_t2t->ndef_msg_len = p_t2t->new_ndef_msg_len;
     }
     rw_t2t_handle_op_complete();
-    (*rw_cb.p_cback)(RW_T2T_NDEF_WRITE_EVT, (void*)&evt_data);
+    tRW_DATA rw_data;
+    rw_data.data = evt_data;
+    (*rw_cb.p_cback)(RW_T2T_NDEF_READ_EVT, &rw_data);
   }
 }
 
@@ -1733,7 +1744,6 @@ static void rw_t2t_handle_config_tag_readonly(uint8_t* p_data) {
   tNFC_STATUS status = NFC_STATUS_FAILED;
   bool b_notify = false;
   uint8_t write_block[T2T_BLOCK_SIZE];
-  tRW_DATA evt;
   bool b_pending = false;
   uint8_t read_lock = 0;
   uint8_t num_locks = 0;
@@ -1817,9 +1827,10 @@ static void rw_t2t_handle_config_tag_readonly(uint8_t* p_data) {
 
   if (status != NFC_STATUS_OK || b_notify) {
     /* Notify upper layer the result of Configuring Tag as Read only */
+    tRW_DATA evt;
     evt.status = status;
     rw_t2t_handle_op_complete();
-    (*rw_cb.p_cback)(RW_T2T_SET_TAG_RO_EVT, (tRW_DATA*)&evt);
+    (*rw_cb.p_cback)(RW_T2T_SET_TAG_RO_EVT, &evt);
   }
 }
 
@@ -1833,7 +1844,6 @@ static void rw_t2t_handle_config_tag_readonly(uint8_t* p_data) {
 **
 *******************************************************************************/
 static void rw_t2t_handle_format_tag_rsp(uint8_t* p_data) {
-  tRW_DATA evt;
   uint8_t* p;
   tRW_T2T_CB* p_t2t = &rw_cb.tcb.t2t;
   tNFC_STATUS status = NFC_STATUS_FAILED;
@@ -1935,9 +1945,10 @@ static void rw_t2t_handle_format_tag_rsp(uint8_t* p_data) {
 
   if (status != NFC_STATUS_OK || b_notify) {
     /* Notify upper layer the result of Format op */
+    tRW_DATA evt;
     evt.status = status;
     rw_t2t_handle_op_complete();
-    (*rw_cb.p_cback)(RW_T2T_FORMAT_CPLT_EVT, (tRW_DATA*)&evt);
+    (*rw_cb.p_cback)(RW_T2T_FORMAT_CPLT_EVT, &evt);
   }
 }
 

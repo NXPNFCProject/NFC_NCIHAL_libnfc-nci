@@ -499,7 +499,10 @@ void nfa_rw_handle_presence_check_rsp(tNFC_STATUS status) {
        * app of result */
       if (nfa_rw_cb.p_pending_msg->op_req.op == NFA_RW_OP_PRESENCE_CHECK) {
         /* Notify app of presence check status */
-        nfa_dm_act_conn_cback_notify(NFA_PRESENCE_CHECK_EVT, (void*)&status);
+        tNFA_CONN_EVT_DATA nfa_conn_evt_data;
+        nfa_conn_evt_data.status = status;
+        nfa_dm_act_conn_cback_notify(NFA_PRESENCE_CHECK_EVT,
+                                    &nfa_conn_evt_data);
         GKI_freebuf(nfa_rw_cb.p_pending_msg);
         nfa_rw_cb.p_pending_msg = NULL;
       }
@@ -528,12 +531,14 @@ void nfa_rw_handle_presence_check_rsp(tNFC_STATUS status) {
   /* Handle presence check due to NFA_RwPresenceCheck API call */
   else {
     /* Notify app of presence check status */
-    nfa_dm_act_conn_cback_notify(NFA_PRESENCE_CHECK_EVT, (void*)&status);
+    tNFA_CONN_EVT_DATA nfa_conn_evt_data;
+    nfa_conn_evt_data.status = status;
+    nfa_dm_act_conn_cback_notify(NFA_PRESENCE_CHECK_EVT, &nfa_conn_evt_data);
 
     /* If in normal mode (not-exclusive RF mode) then deactivate the link if
      * presence check failed */
     if ((nfa_rw_cb.flags & NFA_RW_FL_NOT_EXCL_RF_MODE) &&
-        (status != NFC_STATUS_OK)) {
+        (nfa_conn_evt_data.status != NFC_STATUS_OK)) {
       NFA_TRACE_DEBUG0("Presence check failed. Deactivating...");
       nfa_dm_rf_deactivate(NFA_DEACTIVATE_TYPE_DISCOVERY);
     }
@@ -2514,7 +2519,6 @@ bool nfa_rw_activate_ntf(tNFA_RW_MSG* p_data) {
   tNFC_ACTIVATE_DEVT* p_activate_params =
       p_data->activate_ntf.p_activate_params;
   tNFA_TAG_PARAMS tag_params;
-  tNFA_RW_OPERATION msg;
   bool activate_notify = true;
   uint8_t* p;
 
@@ -2621,8 +2625,9 @@ bool nfa_rw_activate_ntf(tNFA_RW_MSG* p_data) {
       memcpy(tag_params.t1t.hr,
              p_activate_params->intf_param.intf_param.frame.param,
              NFA_T1T_HR_LEN);
-      msg.op = NFA_RW_OP_T1T_RID;
-      nfa_rw_handle_op_req((tNFA_RW_MSG*)&msg);
+      tNFA_RW_MSG msg;
+      msg.op_req.op = NFA_RW_OP_T1T_RID;
+      nfa_rw_handle_op_req(&msg);
       /* Delay notifying upper layer of NFA_ACTIVATED_EVT
          until HR0/HR1 is received */
       activate_notify = false;
@@ -2642,8 +2647,9 @@ bool nfa_rw_activate_ntf(tNFA_RW_MSG* p_data) {
       activate_notify = false;
 
       /* Issue command to get Felica system codes */
-      msg.op = NFA_RW_OP_T3T_GET_SYSTEM_CODES;
-      nfa_rw_handle_op_req((tNFA_RW_MSG*)&msg);
+      tNFA_RW_MSG msg;
+      msg.op_req.op = NFA_RW_OP_T3T_GET_SYSTEM_CODES;
+      nfa_rw_handle_op_req(&msg);
     }
   }
 #if (NXP_EXTNS == TRUE)
@@ -2652,8 +2658,9 @@ bool nfa_rw_activate_ntf(tNFA_RW_MSG* p_data) {
     activate_notify =
         false; /* Delay notifying upper layer of NFA_ACTIVATED_EVT until system
                   codes are retrieved */
-    msg.op = NFA_RW_OP_T3BT_PUPI;
-    nfa_rw_handle_op_req((void*)&msg);
+    tNFA_RW_MSG msg;
+    msg.op_req.op = NFA_RW_OP_T3BT_PUPI;
+    nfa_rw_handle_op_req(&msg);
   }
 #endif
   else if (NFC_PROTOCOL_T5T == nfa_rw_cb.protocol) {

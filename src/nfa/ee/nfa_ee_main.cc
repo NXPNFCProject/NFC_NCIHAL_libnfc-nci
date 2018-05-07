@@ -231,7 +231,9 @@ void nfa_ee_restore_one_ecb(tNFA_EE_ECB* p_cb) {
       rsp.nfcee_id = p_cb->nfcee_id;
       rsp.status = NFA_STATUS_OK;
       ee_msg.p_data = &rsp;
-      nfa_ee_nci_mode_set_rsp((void*)&ee_msg);
+      tNFA_EE_MSG nfa_ee_msg;
+      nfa_ee_msg.mode_set_rsp = ee_msg;
+      nfa_ee_nci_mode_set_rsp(&nfa_ee_msg);
     }
   }
 }
@@ -333,7 +335,7 @@ void nfa_ee_proc_hci_info_cback(void) {
       if (nfa_ee_cb.discv_timer.in_use) {
         nfa_sys_stop_timer(&nfa_ee_cb.discv_timer);
         data.hdr.event = NFA_EE_DISCV_TIMEOUT_EVT;
-        nfa_ee_evt_hdlr((void*)&data);
+        nfa_ee_evt_hdlr(&data.hdr);
       }
     }
   }
@@ -400,8 +402,10 @@ void nfa_ee_proc_evt(tNFC_RESPONSE_EVT event, void* p_data) {
   if (int_event) {
     cbk.hdr.event = int_event;
     cbk.p_data = p_data;
+    tNFA_EE_MSG nfa_ee_msg;
+    nfa_ee_msg.wait_rsp = cbk;
 
-    nfa_ee_evt_hdlr((void*)&cbk);
+    nfa_ee_evt_hdlr(&nfa_ee_msg.hdr);
   }
 }
 
@@ -713,18 +717,17 @@ static std::string nfa_ee_sm_evt_2_str(uint16_t event) {
 **
 *******************************************************************************/
 bool nfa_ee_evt_hdlr(NFC_HDR* p_msg) {
-  tNFA_EE_MSG* p_evt_data = (tNFA_EE_MSG*)p_msg;
-  uint16_t event = p_msg->event & 0x00ff;
   bool act = false;
 
 #if (BT_TRACE_VERBOSE == true)
-  NFA_TRACE_DEBUG4("nfa_ee_evt_hdlr (): Event %s(0x%02x), State: %s(%d)",
-                   nfa_ee_sm_evt_2_str(p_evt_data->hdr.event),
-                   p_evt_data->hdr.event,
-                   nfa_ee_sm_st_2_str(nfa_ee_cb.em_state), nfa_ee_cb.em_state);
 #else
-  NFA_TRACE_DEBUG2("nfa_ee_evt_hdlr (): Event 0x%02x, State: %d",
-                   p_evt_data->hdr.event, nfa_ee_cb.em_state);
+  NFA_TRACE_DEBUG4("nfa_ee_evt_hdlr (): Event %s(0x%02x), State: %s(%d)",
+                   nfa_ee_sm_evt_2_str(p_msg->event).c_str(), p_msg->event,
+                   nfa_ee_sm_st_2_str(nfa_ee_cb.em_state).c_str(),
+                   nfa_ee_cb.em_state);
+#else
+  NFA_TRACE_DEBUG2("nfa_ee_evt_hdlr (): Event 0x%02x, State: %d", p_msg->event,
+                   nfa_ee_cb.em_state);
 #endif
 
 #if 0
@@ -750,13 +753,15 @@ bool nfa_ee_evt_hdlr(NFC_HDR* p_msg) {
       if (p_msg->event == NFA_EE_NCI_CONN_EVT) act = true;
       break;
   }
+  tNFA_EE_MSG* p_evt_data = (tNFA_EE_MSG*)p_msg;
   if (act) {
+    uint16_t event = p_msg->event & 0x00ff;
     if (event < NFA_EE_NUM_ACTIONS) {
       (*nfa_ee_actions[event])(p_evt_data);
     }
   } else {
-    /* if the data event is not handled by action function, free the data packet
-     */
+    /* If the event is not handled, free the data packet. */
+    /* FIXME: Is it really always tNFA_EE_NCI_CONN? */
     if (p_msg->event == NFA_EE_NCI_DATA_EVT)
       GKI_freebuf(p_evt_data->conn.p_data);
   }

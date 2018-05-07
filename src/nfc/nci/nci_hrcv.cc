@@ -323,15 +323,12 @@ void nci_proc_ee_management_rsp(NFC_HDR* p_msg) {
   uint8_t* p;
   uint8_t* pp, len, op_code;
   tNFC_RESPONSE_CBACK* p_cback = nfc_cb.p_resp_cback;
-  tNFC_NFCEE_DISCOVER_REVT nfcee_discover;
-  tNFC_NFCEE_MODE_SET_REVT mode_set;
-  tNFC_NFCEE_PL_CONTROL_REVT  pl_control;
+  tNFC_RESPONSE nfc_response;
 #if (NXP_EXTNS == TRUE)
   tNFC_NFCEE_MODE_SET_INFO mode_set_info;
   tNFC_NFCEE_EE_PWR_LNK_REVT pwr_lnk_ctrl;
 
 #endif
-  void* p_evt = NULL;
   tNFC_RESPONSE_EVT event = NFC_NFCEE_INFO_REVT;
   uint8_t* p_old = nfc_cb.last_cmd;
 
@@ -344,22 +341,22 @@ void nci_proc_ee_management_rsp(NFC_HDR* p_msg) {
 
   switch (op_code) {
     case NCI_MSG_NFCEE_DISCOVER:
-      p_evt = (void*)&nfcee_discover;
-      nfcee_discover.status = *pp++;
-      nfcee_discover.num_nfcee = *pp++;
+      nfc_response.nfcee_discover.status = *pp++;
+      nfc_response.nfcee_discover.num_nfcee = *pp++;
 
-      if (nfcee_discover.status != NFC_STATUS_OK) nfcee_discover.num_nfcee = 0;
+      if (nfc_response.nfcee_discover.status != NFC_STATUS_OK)
+        nfc_response.nfcee_discover.num_nfcee = 0;
 
       event = NFC_NFCEE_DISCOVER_REVT;
       break;
 
     case NCI_MSG_NFCEE_MODE_SET:
-      p_evt = (void*)&mode_set;
-      mode_set.status = *pp;
-      mode_set.nfcee_id = 0;
+      nfc_response.mode_set.status = *pp;
+      nfc_response.mode_set.nfcee_id = *p_old++;
+      //mode_set.nfcee_id = 0;
       event = NFC_NFCEE_MODE_SET_REVT;
-      mode_set.nfcee_id = *p_old++;
-      mode_set.mode = *p_old++;
+      //mode_set.nfcee_id = *p_old++;
+      nfc_response.mode_set.mode = *p_old++;
       if (nfc_cb.nci_version != NCI_VERSION_2_0 || *pp != NCI_STATUS_OK)
       {
           nfc_cb.flags  &= ~NFC_FL_WAIT_MODE_SET_NTF;
@@ -375,11 +372,10 @@ void nci_proc_ee_management_rsp(NFC_HDR* p_msg) {
 #if (NXP_EXTNS == TRUE)
     case NCI_MSG_NFCEE_PWR_LNK_CTRL:
         if(nfcFL.eseFL._WIRED_MODE_STANDBY) {
-            p_evt = (tNFC_RESPONSE*)&pwr_lnk_ctrl;
-            pwr_lnk_ctrl.status = *pp;
-            pwr_lnk_ctrl.nfcee_id = 0;
+            nfc_response.pl_control.status = *pp;
+            nfc_response.pl_control.nfcee_id = *p_old++;
+            nfc_response.pl_control.pl_control = *p_old++;
             event = NFC_NFCEE_PWR_LNK_CTRL_REVT;
-            pwr_lnk_ctrl.nfcee_id = *p_old++;
             if(nfcFL.eseFL._ESE_DUAL_MODE_PRIO_SCHEME ==
                     nfcFL.eseFL._ESE_WIRED_MODE_RESUME) {
                 if (nfc_cb.bIssueModeSetCmd) {
@@ -410,7 +406,7 @@ void nci_proc_ee_management_rsp(NFC_HDR* p_msg) {
       break;
   }
 
-  if (p_cback) (*p_cback)(event, p_evt);
+  if (p_cback) (*p_cback)(event, &nfc_response);
 }
 
 /*******************************************************************************
@@ -426,19 +422,15 @@ void nci_proc_ee_management_ntf(NFC_HDR* p_msg) {
   uint8_t* p;
   uint8_t* pp, len, op_code;
   tNFC_RESPONSE_CBACK* p_cback = nfc_cb.p_resp_cback;
-  tNFC_NFCEE_INFO_REVT nfcee_info;
-  void* p_evt = (void*)&nfcee_info;
+  tNFC_RESPONSE nfc_response;
   tNFC_RESPONSE_EVT event = NFC_NFCEE_INFO_REVT;
   uint8_t* p_old = nfc_cb.last_cmd;
   uint8_t xx;
   uint8_t yy;
-  uint8_t ee_status;
   tNFC_NFCEE_TLV* p_tlv;
 #if (NXP_EXTNS == TRUE)
   tNFC_NFCEE_MODE_SET_INFO mode_set_info;
 #endif
-  tNFC_NFCEE_MODE_SET_REVT    mode_set;
-  tNFC_NFCEE_STATUS_REVT      nfcee_status;
   /* find the start of the NCI message and parse the NCI header */
   p = (uint8_t*)(p_msg + 1) + p_msg->offset;
   pp = p + 1;
@@ -447,33 +439,33 @@ void nci_proc_ee_management_ntf(NFC_HDR* p_msg) {
   len = *pp++;
 
   if (op_code == NCI_MSG_NFCEE_DISCOVER) {
-    nfcee_info.nfcee_id = *pp++;
-    ee_status = *pp++;
+    nfc_response.nfcee_info.nfcee_id = *pp++;
 
-    nfcee_info.ee_status = ee_status;
+    nfc_response.nfcee_info.ee_status = *pp++;
     yy = *pp;
-    nfcee_info.num_interface = *pp++;
+    nfc_response.nfcee_info.num_interface = *pp++;
     p = pp;
 
-    if (nfcee_info.num_interface > NFC_MAX_EE_INTERFACE)
-      nfcee_info.num_interface = NFC_MAX_EE_INTERFACE;
+    if (nfc_response.nfcee_info.num_interface > NFC_MAX_EE_INTERFACE)
+      nfc_response.nfcee_info.num_interface = NFC_MAX_EE_INTERFACE;
 
     for (xx = 0; xx < nfcee_info.num_interface; xx++) {
       nfcee_info.ee_interface[xx] = *pp++;
     }
 
     pp = p + yy;
-    nfcee_info.num_tlvs = *pp++;
+    nfc_response.nfcee_info.num_tlvs = *pp++;
     NFC_TRACE_DEBUG4("nfcee_id: 0x%x num_interface:0x%x/0x%x, num_tlvs:0x%x",
-                     nfcee_info.nfcee_id, nfcee_info.num_interface, yy,
-                     nfcee_info.num_tlvs);
+                     nfc_response.nfcee_info.nfcee_id,
+                     nfc_response.nfcee_info.num_interface, yy,
+                     nfc_response.nfcee_info.num_tlvs);
 
-    if (nfcee_info.num_tlvs > NFC_MAX_EE_TLVS)
-      nfcee_info.num_tlvs = NFC_MAX_EE_TLVS;
+    if (nfc_response.nfcee_info.num_tlvs > NFC_MAX_EE_TLVS)
+      nfc_response.nfcee_info.num_tlvs = NFC_MAX_EE_TLVS;
 
-    p_tlv = &nfcee_info.ee_tlv[0];
+    p_tlv = &nfc_response.nfcee_info.ee_tlv[0];
 
-    for (xx = 0; xx < nfcee_info.num_tlvs; xx++, p_tlv++) {
+    for (xx = 0; xx < nfc_response.nfcee_info.num_tlvs; xx++, p_tlv++) {
 #if (NXP_EXTNS == TRUE)
       if (*pp < 0xA0) {
         p_tlv->tag = *pp++;
@@ -499,22 +491,26 @@ void nci_proc_ee_management_ntf(NFC_HDR* p_msg) {
       nfc_stop_timer(&nfc_cb.nci_wait_setMode_Ntf_timer);
       if(nfc_cb.nci_version != NCI_VERSION_2_0)
       {
-          p_evt = (tNFC_RESPONSE*)&mode_set_info;
+          //p_evt = (tNFC_RESPONSE*)&mode_set_info;
           event = NFC_NFCEE_MODE_SET_INFO;
-          ee_status = *pp++;
-          mode_set_info.nfcee_id = *pp++;
-          mode_set_info.status = ee_status;
+          //ee_status = *pp++;
+          //mode_set_info.nfcee_id = *pp++;
+          //mode_set_info.status = ee_status;
+          nfc_response.mode_set_info.status = *pp++;
+          nfc_response.mode_set_info.nfceeid = *pp++;
+
       }
       else
       {
           NFC_TRACE_DEBUG2("nci_proc_ee_management_last ntf mode:0x%x, nfceeid:0x%x",
                   mode_set.mode, mode_set.nfcee_id);
-          p_evt   = (tNFC_RESPONSE *) &mode_set;
-          mode_set.status = *pp;
+          nfc_response.mode_set.status = *pp;
+          nfc_response.mode_set.nfcee_id = *p_old++;
+          nfc_response.mode_set.mode = *p_old++;
           /*mode_set.nfcee_id = *p_old++;
       mode_set.mode = *p_old++;*/
-          mode_set.nfcee_id = nfa_ee_cb.nfcee_id;
-          mode_set.mode = nfa_ee_cb.mode;
+          /*mode_set.nfcee_id = nfa_ee_cb.nfcee_id;
+          mode_set.mode = nfa_ee_cb.mode;*/
           event   = NFC_NFCEE_MODE_SET_REVT;
           nfc_cb.flags  &= ~NFC_FL_WAIT_MODE_SET_NTF;
           nfc_stop_timer(&nfc_cb.nci_setmode_ntf_timer);
@@ -530,18 +526,17 @@ void nci_proc_ee_management_ntf(NFC_HDR* p_msg) {
   }
 #endif
   else if (op_code == NCI_MSG_NFCEE_STATUS) {
-      p_evt   = (tNFC_RESPONSE *) &nfcee_status;
       event   = NFC_NFCEE_STATUS_REVT;
-      nfcee_status.status         = NCI_STATUS_OK;
-      nfcee_status.nfcee_id       = *pp++;
-      nfcee_status.nfcee_status   = *pp;
+      nfc_response.nfcee_status.status = NCI_STATUS_OK;
+      nfc_response.nfcee_status.nfcee_id = *pp++;
+      nfc_response.nfcee_status.nfcee_status = *pp;
      }
   else {
     p_cback = NULL;
     NFC_TRACE_ERROR1("unknown opcode:0x%x", op_code);
   }
 
-  if (p_cback) (*p_cback)(event, p_evt);
+  if (p_cback) (*p_cback)(event, &nfc_response);
 }
 
 #endif

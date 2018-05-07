@@ -987,7 +987,9 @@ static void nfa_dm_disc_discovery_cback(tNFC_DISCOVER_EVT event,
       return;
   }
 
-  nfa_dm_disc_sm_execute(dm_disc_event, (tNFA_DM_RF_DISC_DATA*)p_data);
+  tNFA_DM_RF_DISC_DATA nfa_dm_rf_disc_data;
+  nfa_dm_rf_disc_data.nfc_discover = *p_data;
+  nfa_dm_disc_sm_execute(dm_disc_event, &nfa_dm_rf_disc_data);
 }
 
 /*******************************************************************************
@@ -1954,8 +1956,10 @@ static void nfa_dm_disc_end_sleep_wakeup(tNFC_STATUS status) {
       /* Perform pending deactivate command and on response notfiy deactivation
        */
       nfa_dm_cb.disc_cb.deact_notify_pending = true;
-      nfa_dm_disc_sm_execute(NFA_DM_RF_DEACTIVATE_CMD,
-                             (void*)&nfa_dm_cb.disc_cb.pending_deact_type);
+      tNFA_DM_RF_DISC_DATA nfa_dm_rf_disc_data;
+      nfa_dm_rf_disc_data.deactivate_type =
+          nfa_dm_cb.disc_cb.pending_deact_type;
+      nfa_dm_disc_sm_execute(NFA_DM_RF_DEACTIVATE_CMD, &nfa_dm_rf_disc_data);
     }
   }
 }
@@ -1969,9 +1973,8 @@ static void nfa_dm_disc_end_sleep_wakeup(tNFC_STATUS status) {
 ** Returns          void
 **
 *******************************************************************************/
-static void nfa_dm_disc_kovio_timeout_cback(TIMER_LIST_ENT* p_tle) {
-  tNFC_DEACTIVATE_DEVT deact;
-  (void)p_tle;
+static void nfa_dm_disc_kovio_timeout_cback(__attribute__((unused))
+                                            TIMER_LIST_ENT* p_tle) {
   NFA_TRACE_DEBUG0("nfa_dm_disc_kovio_timeout_cback()");
 
   /* notify presence check failure, if presence check is pending */
@@ -1984,10 +1987,13 @@ static void nfa_dm_disc_kovio_timeout_cback(TIMER_LIST_ENT* p_tle) {
                         NFA_DM_DISC_TIMEOUT_KOVIO_PRESENCE_CHECK);
   } else {
     /* notify upper layer deactivated event */
+    tNFC_DEACTIVATE_DEVT deact;
     deact.status = NFC_STATUS_OK;
     deact.type = NFC_DEACTIVATE_TYPE_DISCOVERY;
     deact.is_ntf = true;
-    nfa_dm_disc_notify_deactivation(NFA_DM_RF_DEACTIVATE_NTF, (void*)&deact);
+    tNFC_DISCOVER nfc_discover;
+    nfc_discover.deactivate = deact;
+    nfa_dm_disc_notify_deactivation(NFA_DM_RF_DEACTIVATE_NTF, &nfc_discover);
   }
 }
 
@@ -2052,8 +2058,10 @@ static void nfa_dm_disc_report_kovio_presence_check(tNFC_STATUS status) {
 
     if (nfa_dm_cb.disc_cb.deact_pending) {
       nfa_dm_cb.disc_cb.deact_pending = false;
-      nfa_dm_disc_sm_execute(NFA_DM_RF_DEACTIVATE_CMD,
-                             (void*)&nfa_dm_cb.disc_cb.pending_deact_type);
+      tNFA_DM_RF_DISC_DATA nfa_dm_rf_disc_data;
+      nfa_dm_rf_disc_data.deactivate_type =
+          nfa_dm_cb.disc_cb.pending_deact_type;
+      nfa_dm_disc_sm_execute(NFA_DM_RF_DEACTIVATE_CMD, &nfa_dm_rf_disc_data);
     }
   }
 }
@@ -2176,7 +2184,7 @@ static void nfa_dm_disc_sm_idle(tNFA_DM_RF_DISC_SM_EVENT event,
 
             if (nfa_dm_cb.disc_cb.excl_disc_entry.p_disc_cback)
               (*(nfa_dm_cb.disc_cb.excl_disc_entry.p_disc_cback))(
-                  NFA_DM_RF_DISC_START_EVT, (tNFC_DISCOVER*)p_data);
+                  NFA_DM_RF_DISC_START_EVT, &p_data->nfc_discover);
           }
         } else {
           /* notify event to each module which is waiting for start */
@@ -2192,7 +2200,7 @@ static void nfa_dm_disc_sm_idle(tNFA_DM_RF_DISC_SM_EVENT event,
 
               if (nfa_dm_cb.disc_cb.entry[xx].p_disc_cback)
                 (*(nfa_dm_cb.disc_cb.entry[xx].p_disc_cback))(
-                    NFA_DM_RF_DISC_START_EVT, (tNFC_DISCOVER*)p_data);
+                    NFA_DM_RF_DISC_START_EVT, &p_data->nfc_discover);
             }
           }
         }
@@ -2608,7 +2616,6 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
       (nfa_dm_cb.disc_cb.disc_flags & NFA_DM_DISC_FLAGS_CHECKING);
   bool sleep_wakeup_event = false;
   bool sleep_wakeup_event_processed = false;
-  tNFC_DEACTIVATE_DEVT deact;
 
   switch (event) {
     case NFA_DM_RF_DEACTIVATE_CMD:
@@ -2646,11 +2653,14 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
       if (!(nfa_dm_cb.disc_cb.disc_flags & NFA_DM_DISC_FLAGS_W4_NTF)) {
         /* it's race condition. received deactivate NTF before receiving RSP */
 
+        tNFC_DEACTIVATE_DEVT deact;
         deact.status = NFC_STATUS_OK;
         deact.type = NFC_DEACTIVATE_TYPE_IDLE;
         deact.is_ntf = true;
+        tNFC_DISCOVER nfc_discover;
+        nfc_discover.deactivate = deact;
         nfa_dm_disc_notify_deactivation(NFA_DM_RF_DEACTIVATE_NTF,
-                                        (void*)&deact);
+                                        &nfc_discover);
 
         /* NFCC is in IDLE state */
         nfa_dm_disc_new_state(NFA_DM_RFST_IDLE);
@@ -2785,8 +2795,10 @@ static void nfa_dm_disc_sm_listen_active(tNFA_DM_RF_DISC_SM_EVENT event,
         deact.status = NFC_STATUS_OK;
         deact.type = NFC_DEACTIVATE_TYPE_IDLE;
         deact.is_ntf = true;
+        tNFC_DISCOVER nfc_discover;
+        nfc_discover.deactivate = deact;
         nfa_dm_disc_notify_deactivation(NFA_DM_RF_DEACTIVATE_NTF,
-                                        (void*)&deact);
+                                        &nfc_discover);
 
         /* NFCC is in IDLE state */
         nfa_dm_disc_new_state(NFA_DM_RFST_IDLE);
@@ -3202,8 +3214,9 @@ void nfa_dm_rf_discover_select(uint8_t rf_disc_id, tNFA_NFC_PROTOCOL protocol,
     select_params.rf_interface = rf_interface;
 
     nfa_dm_cb.disc_cb.disc_flags |= NFA_DM_DISC_FLAGS_NOTIFY;
-    nfa_dm_disc_sm_execute(NFA_DM_RF_DISCOVER_SELECT_CMD,
-                           (void*)&select_params);
+    tNFA_DM_RF_DISC_DATA nfa_dm_rf_disc_data;
+    nfa_dm_rf_disc_data.select = select_params;
+    nfa_dm_disc_sm_execute(NFA_DM_RF_DISCOVER_SELECT_CMD, &nfa_dm_rf_disc_data);
   } else {
     /* Wrong state: notify failed status right away */
     conn_evt.status = NFA_STATUS_FAILED;
@@ -3249,7 +3262,9 @@ tNFA_STATUS nfa_dm_rf_deactivate(tNFA_DEACTIVATE_TYPE deactivate_type) {
         nfa_sys_stop_timer(&nfa_dm_cb.disc_cb.kovio_tle);
         nfa_dm_disc_kovio_timeout_cback(&nfa_dm_cb.disc_cb.kovio_tle);
       }
-      nfa_dm_disc_sm_execute(NFA_DM_RF_DEACTIVATE_CMD, (void*)&deactivate_type);
+      tNFA_DM_RF_DISC_DATA nfa_dm_rf_disc_data;
+      nfa_dm_rf_disc_data.deactivate_type = deactivate_type;
+      nfa_dm_disc_sm_execute(NFA_DM_RF_DEACTIVATE_CMD, &nfa_dm_rf_disc_data);
       return NFA_STATUS_OK;
     } else {
       return NFA_STATUS_FAILED;
@@ -3261,7 +3276,9 @@ tNFA_STATUS nfa_dm_rf_deactivate(tNFA_DEACTIVATE_TYPE deactivate_type) {
       nfa_dm_disc_kovio_timeout_cback(&nfa_dm_cb.disc_cb.kovio_tle);
     }
 #endif
-    nfa_dm_disc_sm_execute(NFA_DM_RF_DEACTIVATE_CMD, (void*)&deactivate_type);
+    tNFA_DM_RF_DISC_DATA nfa_dm_rf_disc_data;
+    nfa_dm_rf_disc_data.deactivate_type = deactivate_type;
+    nfa_dm_disc_sm_execute(NFA_DM_RF_DEACTIVATE_CMD, &nfa_dm_rf_disc_data);
     return NFA_STATUS_OK;
   }
 }

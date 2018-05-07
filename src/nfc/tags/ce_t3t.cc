@@ -344,11 +344,12 @@ void ce_t3t_handle_update_cmd(tCE_CB* p_ce_cb, NFC_HDR* p_cmd_msg) {
 
   if (update_flags & CE_T3T_UPDATE_FL_NDEF_UPDATE_CPLT) {
     /* NDEF attribute got updated with WriteF=false */
-    update_info.status = nfc_status;
-    update_info.p_data = p_cb->ndef_info.p_scratch_buf;
-    update_info.length = p_cb->ndef_info.scratch_ln;
+    tCE_DATA ce_data;
+    ce_data.update_info.status = nfc_status;
+    ce_data.update_info.p_data = p_cb->ndef_info.p_scratch_buf;
+    ce_data.update_info.length = p_cb->ndef_info.scratch_ln;
     p_cb->state = CE_T3T_STATE_IDLE;
-    p_ce_cb->p_cback(CE_T3T_NDEF_UPDATE_CPLT_EVT, (void*)&update_info);
+    p_ce_cb->p_cback(CE_T3T_NDEF_UPDATE_CPLT_EVT, &ce_data);
   }
 
   GKI_freebuf(p_cmd_msg);

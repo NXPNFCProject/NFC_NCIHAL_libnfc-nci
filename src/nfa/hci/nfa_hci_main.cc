@@ -1833,16 +1833,14 @@ static void nfa_hci_assemble_msg(uint8_t* p_data, uint16_t data_len)
 **
 *******************************************************************************/
 static bool nfa_hci_evt_hdlr(NFC_HDR* p_msg) {
-  tNFA_HCI_EVENT_DATA* p_evt_data = (tNFA_HCI_EVENT_DATA*)p_msg;
-
 #if (BT_TRACE_VERBOSE == true)
-  NFA_TRACE_EVENT4(
-      "nfa_hci_evt_hdlr state: %s (%d) event: %s (0x%04x)",
-      nfa_hciu_get_state_name(nfa_hci_cb.hci_state), nfa_hci_cb.hci_state,
-      nfa_hciu_get_event_name(p_evt_data->hdr.event), p_evt_data->hdr.event);
+  NFA_TRACE_EVENT4("nfa_hci_evt_hdlr state: %s (%d) event: %s (0x%04x)",
+                    nfa_hciu_get_state_name(nfa_hci_cb.hci_state).c_str(),
+                    nfa_hci_cb.hci_state,
+                   nfa_hciu_get_event_name(p_msg->event).c_str(), p_msg->event);
 #else
   NFA_TRACE_EVENT2("nfa_hci_evt_hdlr state: %d event: 0x%04x",
-                   nfa_hci_cb.hci_state, p_evt_data->hdr.event);
+                   nfa_hci_cb.hci_state, p_msg->event);
 #endif
 
   /* If this is an API request, queue it up */
@@ -1850,6 +1848,7 @@ static bool nfa_hci_evt_hdlr(NFC_HDR* p_msg) {
       (p_msg->event <= NFA_HCI_LAST_API_EVENT)) {
     GKI_enqueue(&nfa_hci_cb.hci_api_q, p_msg);
   } else {
+    tNFA_HCI_EVENT_DATA* p_evt_data = (tNFA_HCI_EVENT_DATA*)p_msg;
     switch (p_msg->event) {
       case NFA_HCI_RSP_NV_READ_EVT:
         nfa_hci_handle_nv_read(p_evt_data->nv_read.block,
@@ -1896,9 +1895,9 @@ static bool nfa_hci_evt_hdlr(NFC_HDR* p_msg) {
       case NFA_HCI_CHECK_QUEUE_EVT:
         if (HCI_LOOPBACK_DEBUG) {
           if (p_msg->len != 0) {
-            tNFC_DATA_CEVT xx;
-            xx.p_data = p_msg;
-            nfa_hci_conn_cback(0, NFC_DATA_CEVT, (void*)&xx);
+            tNFC_CONN nfc_conn;
+            nfc_conn.data.p_data = p_msg;
+            nfa_hci_conn_cback(0, NFC_DATA_CEVT, &nfc_conn);
             return false;
           }
         }

@@ -125,7 +125,7 @@ void nfa_dm_ndef_dereg_all(void) {
 ** Returns          true if message buffer is to be freed by caller
 **
 *******************************************************************************/
-bool nfa_dm_ndef_reg_hdlr(tNFA_DM_MSG* p_data) {
+bool nfa_dm_ndef_handle_message(tNFA_DM_MSG* p_data) {
   tNFA_DM_CB* p_cb = &nfa_dm_cb;
   uint32_t hdlr_idx, i;
   tNFA_DM_API_REG_NDEF_HDLR* p_reg_info = (tNFA_DM_API_REG_NDEF_HDLR*)p_data;
@@ -138,28 +138,7 @@ bool nfa_dm_ndef_reg_hdlr(tNFA_DM_MSG* p_data) {
     if (p_cb->p_ndef_handler[NFA_NDEF_DEFAULT_HANDLER_IDX]) {
       NFA_TRACE_WARNING0("Default NDEF handler being changed.");
 
-      /* Free old registration info */
-      nfa_dm_ndef_dereg_hdlr_by_handle(
-          (tNFA_HANDLE)NFA_NDEF_DEFAULT_HANDLER_IDX);
-    }
-    NFA_TRACE_DEBUG0("Default NDEF handler successfully registered.");
-    hdlr_idx = NFA_NDEF_DEFAULT_HANDLER_IDX;
-  }
-  /* Get available entry in ndef_handler table, and check if requested type is
-     already registered */
-  else {
-    hdlr_idx = NFA_HANDLE_INVALID;
-
-    /* Check if this type is already registered */
-    for (i = (NFA_NDEF_DEFAULT_HANDLER_IDX + 1); i < NFA_NDEF_MAX_HANDLERS;
-         i++) {
-      /* If this is a free slot, then remember it */
-      if (p_cb->p_ndef_handler[i] == NULL) {
-        hdlr_idx = i;
-        break;
-      }
-    }
-  }
+      /* Free old registration info */nfa_dm_ndef_handle_message
 
   if (hdlr_idx != NFA_HANDLE_INVALID) {
     /* Update the table */
@@ -173,7 +152,9 @@ bool nfa_dm_ndef_reg_hdlr(tNFA_DM_MSG* p_data) {
 
     NFA_TRACE_DEBUG1("NDEF handler successfully registered. Handle=0x%08x",
                      p_reg_info->ndef_type_handle);
-    (*(p_reg_info->p_ndef_cback))(NFA_NDEF_REGISTER_EVT, (void*)&ndef_register);
+    tNFA_NDEF_EVT_DATA nfa_ndef_evt_data;
+    nfa_ndef_evt_data.ndef_reg = ndef_register;
+    (*(p_reg_info->p_ndef_cback))(NFA_NDEF_REGISTER_EVT, &nfa_ndef_evt_data);
 
     /* indicate that we will free message buffer when type_handler is
      * deregistered */
@@ -183,7 +164,9 @@ bool nfa_dm_ndef_reg_hdlr(tNFA_DM_MSG* p_data) {
     NFA_TRACE_ERROR0("NDEF handler failed to register.");
     ndef_register.ndef_type_handle = NFA_HANDLE_INVALID;
     ndef_register.status = NFA_STATUS_FAILED;
-    (*(p_reg_info->p_ndef_cback))(NFA_NDEF_REGISTER_EVT, (void*)&ndef_register);
+    tNFA_NDEF_EVT_DATA nfa_ndef_evt_data;
+    nfa_ndef_evt_data.ndef_reg = ndef_register;
+    (*(p_reg_info->p_ndef_cback))(NFA_NDEF_REGISTER_EVT, &nfa_ndef_evt_data);
 
     return true;
   }
@@ -379,7 +362,9 @@ void nfa_dm_ndef_handle_message(tNFA_STATUS status, uint8_t* p_msg_buf,
     ndef_data.ndef_type_handle = 0;
     ndef_data.p_data = p_msg_buf;
     ndef_data.len = len;
-    (*p_cb->p_excl_ndef_cback)(NFA_NDEF_DATA_EVT, (void*)&ndef_data);
+    tNFA_NDEF_EVT_DATA nfa_ndef_evt_data;
+    nfa_ndef_evt_data.ndef_data = ndef_data;
+    (*p_cb->p_excl_ndef_cback)(NFA_NDEF_DATA_EVT, &nfa_ndef_evt_data);
     return;
   }
 
@@ -392,7 +377,9 @@ void nfa_dm_ndef_handle_message(tNFA_STATUS status, uint8_t* p_msg_buf,
       ndef_data.ndef_type_handle = p_handler->ndef_type_handle;
       ndef_data.p_data = NULL; /* Start of record */
       ndef_data.len = 0;
-      (*p_handler->p_ndef_cback)(NFA_NDEF_DATA_EVT, (void*)&ndef_data);
+      tNFA_NDEF_EVT_DATA nfa_ndef_evt_data;
+      nfa_ndef_evt_data.ndef_data = ndef_data;
+      (*p_handler->p_ndef_cback)(NFA_NDEF_DATA_EVT, &nfa_ndef_evt_data);
     }
     return;
   }
@@ -503,7 +490,9 @@ void nfa_dm_ndef_handle_message(tNFA_STATUS status, uint8_t* p_msg_buf,
       }
 
       /* Notify NDEF type handler */
-      (*p_handler->p_ndef_cback)(NFA_NDEF_DATA_EVT, (void*)&ndef_data);
+      tNFA_NDEF_EVT_DATA nfa_ndef_evt_data;
+      nfa_ndef_evt_data.ndef_data = ndef_data;
+      (*p_handler->p_ndef_cback)(NFA_NDEF_DATA_EVT, &nfa_ndef_evt_data);
 
       /* Indicate that at lease one handler has received this record */
       record_handled = true;

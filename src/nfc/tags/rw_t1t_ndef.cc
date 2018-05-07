@@ -595,7 +595,6 @@ tNFC_STATUS rw_t1t_handle_read_rsp(bool* p_notify, uint8_t* p_data) {
   tRW_DETECT_NDEF_DATA ndef_data;
   tRW_DETECT_TLV_DATA tlv_data;
   uint8_t count;
-  tRW_READ_DATA evt_data;
 
   *p_notify = false;
   /* Handle the response based on the current state */
@@ -607,10 +606,11 @@ tNFC_STATUS rw_t1t_handle_read_rsp(bool* p_notify, uint8_t* p_data) {
     case RW_T1T_STATE_READ_NDEF:
       status = rw_t1t_handle_ndef_rall_rsp();
       if (status != NFC_STATUS_CONTINUE) {
-        evt_data.status = status;
-        evt_data.p_data = NULL;
+        tRW_DATA rw_data;
+        rw_data.data.status = status;
+        rw_data.data.p_data = NULL;
         rw_t1t_handle_op_complete();
-        (*rw_cb.p_cback)(RW_T1T_NDEF_READ_EVT, (void*)&evt_data);
+        (*rw_cb.p_cback)(RW_T1T_NDEF_READ_EVT, &rw_data);
       }
       break;
 
@@ -626,7 +626,9 @@ tNFC_STATUS rw_t1t_handle_read_rsp(bool* p_notify, uint8_t* p_data) {
               tlv_data.num_bytes = p_t1t->num_lockbytes;
               tlv_data.status = status;
               rw_t1t_handle_op_complete();
-              (*rw_cb.p_cback)(RW_T1T_TLV_DETECT_EVT, (void*)&tlv_data);
+              tRW_DATA rw_data;
+              rw_data.tlv = tlv_data;
+              (*rw_cb.p_cback)(RW_T1T_TLV_DETECT_EVT, &rw_data);
             } else if (p_t1t->tlv_detect == TAG_NDEF_TLV) {
               ndef_data.protocol = NFC_PROTOCOL_T1T;
               ndef_data.flags = rw_t1t_get_ndef_flags();
@@ -646,7 +648,9 @@ tNFC_STATUS rw_t1t_handle_read_rsp(bool* p_notify, uint8_t* p_data) {
               }
               ndef_data.status = status;
               rw_t1t_handle_op_complete();
-              (*rw_cb.p_cback)(RW_T1T_NDEF_DETECT_EVT, (void*)&ndef_data);
+              tRW_DATA rw_data;
+              rw_data.ndef = ndef_data;
+              (*rw_cb.p_cback)(RW_T1T_NDEF_DETECT_EVT, &rw_data);
             }
           }
           break;
@@ -664,7 +668,9 @@ tNFC_STATUS rw_t1t_handle_read_rsp(bool* p_notify, uint8_t* p_data) {
             }
             rw_t1t_handle_op_complete();
             /* Send response to upper layer */
-            (*rw_cb.p_cback)(RW_T1T_TLV_DETECT_EVT, (void*)&tlv_data);
+            tRW_DATA rw_data;
+            rw_data.tlv = tlv_data;
+            (*rw_cb.p_cback)(RW_T1T_TLV_DETECT_EVT, &rw_data);
           } else if (p_t1t->tlv_detect == TAG_LOCK_CTRL_TLV) {
             tlv_data.status = rw_t1t_handle_tlv_detect_rsp(p_t1t->mem);
             tlv_data.protocol = NFC_PROTOCOL_T1T;
@@ -674,7 +680,9 @@ tNFC_STATUS rw_t1t_handle_read_rsp(bool* p_notify, uint8_t* p_data) {
               rw_t1t_handle_op_complete();
 
               /* Send Negative response to upper layer */
-              (*rw_cb.p_cback)(RW_T1T_TLV_DETECT_EVT, (void*)&tlv_data);
+              tRW_DATA rw_data;
+              rw_data.tlv = tlv_data;
+              (*rw_cb.p_cback)(RW_T1T_TLV_DETECT_EVT, &rw_data);
             } else {
               rw_t1t_extract_lock_bytes(p_data);
               status = rw_t1t_read_locks();
@@ -706,7 +714,9 @@ tNFC_STATUS rw_t1t_handle_read_rsp(bool* p_notify, uint8_t* p_data) {
                 /* Send Negative response to upper layer */
                 rw_t1t_handle_op_complete();
 
-                (*rw_cb.p_cback)(RW_T1T_NDEF_DETECT_EVT, (void*)&ndef_data);
+                tRW_DATA rw_data;
+                rw_data.ndef = ndef_data;
+                (*rw_cb.p_cback)(RW_T1T_NDEF_DETECT_EVT, &rw_data);
               } else {
                 ndef_data.flags |= RW_NDEF_FL_FORMATED;
                 rw_t1t_extract_lock_bytes(p_data);
@@ -727,7 +737,9 @@ tNFC_STATUS rw_t1t_handle_read_rsp(bool* p_notify, uint8_t* p_data) {
                   ndef_data.status = status;
                   rw_t1t_handle_op_complete();
 
-                  (*rw_cb.p_cback)(RW_T1T_NDEF_DETECT_EVT, (void*)&ndef_data);
+                  tRW_DATA rw_data;
+                rw_data.ndef = ndef_data;
+                (*rw_cb.p_cback)(RW_T1T_NDEF_DETECT_EVT, &rw_data);
                 }
               }
             } else {
@@ -745,7 +757,9 @@ tNFC_STATUS rw_t1t_handle_read_rsp(bool* p_notify, uint8_t* p_data) {
               }
               rw_t1t_handle_op_complete();
 
-              (*rw_cb.p_cback)(RW_T1T_NDEF_DETECT_EVT, (void*)&ndef_data);
+              tRW_DATA rw_data;
+              rw_data.ndef = ndef_data;
+              (*rw_cb.p_cback)(RW_T1T_NDEF_DETECT_EVT, &rw_data);
             }
           }
           break;
