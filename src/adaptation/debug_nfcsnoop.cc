@@ -20,9 +20,10 @@
 #include <zlib.h>
 #include <mutex>
 
+#include <ringbuffer.h>
+
 #include "bt_types.h"
 #include "include/debug_nfcsnoop.h"
-#include "include/ringbuffer.h"
 #include "nfc_int.h"
 
 #define USEC_PER_SEC 1000000ULL

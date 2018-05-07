@@ -1,4 +1,4 @@
-subdirs = ["src"]
+subdirs = ["src", "utils"]
 cc_library_shared {
     name: "nfc_nci.pn54x",
     proprietary: true,

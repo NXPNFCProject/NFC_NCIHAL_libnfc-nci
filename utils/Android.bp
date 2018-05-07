@@ -1,0 +1,30 @@
+cc_defaults {
+    name: "nfc_utils_defaults",
+    include_dirs: [
+        "system/nfc",
+    ],
+}
+
+cc_library_static {
+    name: "libnfcutils",
+    defaults: ["nfc_utils_defaults"],
+    export_include_dirs = ["include"],
+    host_supported: true,
+    srcs: [
+        "ringbuffer.cc",
+    ],
+}
+
+cc_test {
+    name: "nfc_test_utils",
+    defaults: ["nfc_utils_defaults"],
+    test_suites: ["device-tests"],
+    host_supported: true,
+    srcs: [
+        "test/ringbuffer_test.cc",
+    ],
+    static_libs: [
+        "libnfcutils",
+        "libgmock",
+    ],
+}

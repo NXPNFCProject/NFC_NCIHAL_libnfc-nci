@@ -24,6 +24,9 @@ cc_library_shared {
         "android.hardware.nfc@1.0",
         "vendor.nxp.nxpnfc@1.0",
     ],
+    static_libs: [
+        "libnfcutils",
+    ],
     cflags: [
         "-DBUILDCFG=1",
         "-Wall",
