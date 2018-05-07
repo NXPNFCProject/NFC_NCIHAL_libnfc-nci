@@ -53,6 +53,9 @@ namespace nfc {
 namespace V1_0 {
 struct INfc;
 struct INfcClientCallback;
+namespace V1_1 {
+struct INfc;
+}
 }
 }
 }
@@ -101,6 +104,7 @@ class NfcAdaptation {
   virtual ~NfcAdaptation();
   void Initialize();
   void Finalize();
+  void FactoryReset();
   static NfcAdaptation& GetInstance();
   tHAL_NFC_ENTRY* GetHalEntryFuncs();
   void DownloadFirmware();
@@ -125,6 +129,7 @@ class NfcAdaptation {
   static ThreadCondVar mHalCloseCompletedEvent;
   static ThreadCondVar mHalIoctlEvent;
   static android::sp<android::hardware::nfc::V1_0::INfc> mHal;
+  static android::sp<android::hardware::nfc::V1_1::INfc> mHal_1_1;
   static android::sp<vendor::nxp::nxpnfc::V1_0::INxpNfc> mHalNxpNfc;
   static android::hardware::nfc::V1_0::INfcClientCallback* mCallback;
 #if (NXP_EXTNS == TRUE)
