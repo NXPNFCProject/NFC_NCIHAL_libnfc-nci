@@ -517,9 +517,9 @@ void rw_t3t_process_timeout(TIMER_LIST_ENT* p_tle) {
   if (p_tle == &p_cb->timer) {
 /* UPDATE/CHECK response timeout */
     LOG(ERROR) << StringPrintf("T3T timeout. state=%s cur_cmd=0x%02X (%s)",
-                    rw_t3t_state_str(rw_cb.tcb.t3t.rw_state),
+                    rw_t3t_state_str(rw_cb.tcb.t3t.rw_state).c_str(),
                     rw_cb.tcb.t3t.cur_cmd,
-                    rw_t3t_cmd_str(rw_cb.tcb.t3t.cur_cmd));
+                    rw_t3t_cmd_str(rw_cb.tcb.t3t.cur_cmd).c_str());
 
     rw_t3t_process_error(NFC_STATUS_TIMEOUT);
   } else {
@@ -570,8 +570,8 @@ void rw_t3t_process_timeout(TIMER_LIST_ENT* p_tle) {
 *******************************************************************************/
 void rw_t3t_process_frame_error(void) {
   LOG(ERROR) << StringPrintf("T3T frame error. state=%s cur_cmd=0x%02X (%s)",
-                  rw_t3t_state_str(rw_cb.tcb.t3t.rw_state),
-                  rw_cb.tcb.t3t.cur_cmd, rw_t3t_cmd_str(rw_cb.tcb.t3t.cur_cmd));
+                  rw_t3t_state_str(rw_cb.tcb.t3t.rw_state).c_str(),
+                  rw_cb.tcb.t3t.cur_cmd, rw_t3t_cmd_str(rw_cb.tcb.t3t.cur_cmd).c_str());
 
 #if (RW_STATS_INCLUDED == true)
   /* Update stats */
@@ -1486,7 +1486,7 @@ void rw_t3t_act_handle_raw_senddata_rsp(tRW_T3T_CB* p_cb,
   NFC_HDR* p_pkt = p_data->p_data;
 
  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("RW T3T Raw Frame: Len [0x%X] Status [%s]", p_pkt->len,
-                  NFC_GetStatusName(p_data->status));
+                  NFC_GetStatusName(p_data->status).c_str());
 
   /* Copy incoming data into buffer */
   evt_data.status = p_data->status;
@@ -1494,7 +1494,9 @@ void rw_t3t_act_handle_raw_senddata_rsp(tRW_T3T_CB* p_cb,
 
   p_cb->rw_state = RW_T3T_STATE_IDLE;
 
-  (*(rw_cb.p_cback))(RW_T3T_RAW_FRAME_EVT, (void*)&evt_data);
+  tRW_DATA ndef_evt_data;
+  ndef_evt_data.data = evt_data;
+  (*(rw_cb.p_cback))(RW_T3T_RAW_FRAME_EVT, &ndef_evt_data);
 }
 
 /*****************************************************************************
@@ -1581,7 +1583,7 @@ void rw_t3t_act_handle_check_ndef_rsp(tRW_T3T_CB* p_cb, NFC_HDR* p_msg_rsp) {
   /* Notify app of RW_T3T_CHECK_CPLT_EVT if entire NDEF has been read, or if
    * failure */
   if (check_complete) {
-    p_cb->rw_state = RW_T3T_STATE_IDLE;.
+    p_cb->rw_state = RW_T3T_STATE_IDLE;
     tRW_DATA evt_data;
     evt_data.status = nfc_status;
     (*(rw_cb.p_cback))(RW_T3T_CHECK_CPLT_EVT, &evt_data);
@@ -2276,9 +2278,8 @@ void rw_t3t_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
         break;
       } else if ((p_data != NULL) && (p_data->data.p_data != NULL)) {
        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-            "rw_t3t_conn_cback: p_data->data.p_data=0x%X "
-            "p_data->data.status=0x%02x",
-            p_data->data.p_data, p_data->data.status);
+            "rw_t3t_conn_cback: p_data->data.p_data=%p , p_data->data.status=0x%02x",
+             p_data->data.p_data, p_data->data.status);
         /* Free the response buffer in case of error response */
         GKI_freebuf((NFC_HDR*)(p_data->data.p_data));
         p_data->data.p_data = NULL;

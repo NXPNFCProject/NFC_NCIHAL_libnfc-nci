@@ -89,7 +89,7 @@ static const unsigned short crctab[256] = {
 unsigned short crcChecksumCompute(const unsigned char* buffer, int bufferLen) {
   unsigned short crc = 0;
   const unsigned char* cp = buffer;
-  int cnt = bufferLen;n;
+  int cnt = bufferLen;
 
   while (cnt--) {
     crc = ((crc >> 8) & 0xff) ^ crctab[(crc & 0xff) ^ *cp++];

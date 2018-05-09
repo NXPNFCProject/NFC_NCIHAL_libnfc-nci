@@ -654,8 +654,8 @@ static void ce_t4t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
             }
           }
         } else {
-          LOG(ERROR) << StringPrintf("CET4T: length (%d) must be less than MLe (%d)",
-                          length, CE_T4T_MAX_LE);
+          LOG(ERROR) << StringPrintf("CET4T: length (%d) must be less than MLe (%lu)",
+                          length, (unsigned long)CE_T4T_MAX_LE);
           length = 0;
         }
 
@@ -685,8 +685,8 @@ static void ce_t4t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
             length = 0;
           }
         } else {
-          LOG(ERROR) << StringPrintf("CET4T: length (%d) must be less than MLc (%d)",
-                          length, CE_T4T_MAX_LC);
+          LOG(ERROR) << StringPrintf("CET4T: length (%d) must be less than MLc (%lu)",
+                          length, (unsigned long)CE_T4T_MAX_LC);
           length = 0;
         }
 
@@ -761,7 +761,7 @@ tNFC_STATUS CE_T4tSetLocalNDEFMsg(bool read_only, uint16_t ndef_msg_max,
   tCE_T4T_MEM* p_t4t = &ce_cb.mem.t4t;
   uint8_t* p;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf((
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "CE_T4tSetLocalNDEFMsg () read_only=%d, ndef_msg_max=%d, ndef_msg_len=%d",
       read_only, ndef_msg_max, ndef_msg_len);
 

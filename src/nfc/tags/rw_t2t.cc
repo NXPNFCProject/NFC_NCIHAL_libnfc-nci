@@ -69,8 +69,8 @@ static void rw_t2t_process_frame_error(void);
 static void rw_t2t_handle_presence_check_rsp(tNFC_STATUS status);
 static void rw_t2t_resume_op(void);
 
-static char* rw_t2t_get_state_name(uint8_t state);
-static char* rw_t2t_get_substate_name(uint8_t substate);
+static std::string rw_t2t_get_state_name(uint8_t state);
+static std::string rw_t2t_get_substate_name(uint8_t substate);
 
 /*******************************************************************************
 **
@@ -96,7 +96,7 @@ static void rw_t2t_proc_data(uint8_t conn_id, tNFC_DATA_CEVT* p_data) {
 
   if ((p_t2t->state == RW_T2T_STATE_IDLE) || (p_cmd_rsp_info == NULL)) {
    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("RW T2T Raw Frame: Len [0x%X] Status [%s]", p_pkt->len,
-                    NFC_GetStatusName(p_data->status));
+                    NFC_GetStatusName(p_data->status).c_str());
     evt_data.status = p_data->status;
     evt_data.p_data = p_pkt;
     tRW_DATA rw_data;
@@ -119,7 +119,7 @@ static void rw_t2t_proc_data(uint8_t conn_id, tNFC_DATA_CEVT* p_data) {
        (p_t2t->substate != RW_T2T_SUBSTATE_WAIT_SELECT_SECTOR)) ||
       (p_t2t->state == RW_T2T_STATE_HALT)) {
     LOG(ERROR) << StringPrintf("T2T Frame error. state=%s ",
-                    rw_t2t_get_state_name(p_t2t->state));
+                    rw_t2t_get_state_name(p_t2t->state).c_str());
     if (p_t2t->state != RW_T2T_STATE_HALT) {
       /* Retrasmit the last sent command if retry-count < max retry */
       rw_t2t_process_frame_error();
@@ -239,7 +239,7 @@ static void rw_t2t_proc_data(uint8_t conn_id, tNFC_DATA_CEVT* p_data) {
       /* Move back to idle state */
       rw_t2t_handle_op_complete();
       tRW_DATA rw_data;
-      rw_data.ndef = evt_data;
+      rw_data.data = evt_data;
       (*rw_cb.p_cback)(rw_event, &rw_data);
     }
   }
@@ -248,8 +248,8 @@ static void rw_t2t_proc_data(uint8_t conn_id, tNFC_DATA_CEVT* p_data) {
 
   if (begin_state != p_t2t->state) {
    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("RW T2T state changed:<%s> -> <%s>",
-                    rw_t2t_get_state_name(begin_state),
-                    rw_t2t_get_state_name(p_t2t->state));
+                    rw_t2t_get_state_name(begin_state).c_str(),
+                    rw_t2t_get_state_name(p_t2t->state).c_str());
   }
 }
 
@@ -411,8 +411,8 @@ tNFC_STATUS rw_t2t_send_cmd(uint8_t opcode, uint8_t* p_dat) {
             (RW_T2T_TOUT_RESP * QUICK_TIMER_TICKS_PER_SEC) / 1000);
       } else {
         LOG(ERROR) << StringPrintf("T2T NFC Send data failed. state=%s substate=%s ",
-                        rw_t2t_get_state_name(p_t2t->state),
-                        rw_t2t_get_substate_name(p_t2t->substate));
+                        rw_t2t_get_state_name(p_t2t->state).c_str(),
+                        rw_t2t_get_substate_name(p_t2t->substate).c_str());
       }
     } else {
       status = NFC_STATUS_NO_BUFFERS;
@@ -462,7 +462,7 @@ void rw_t2t_process_timeout() {
     }
   } else if (p_t2t->state != RW_T2T_STATE_IDLE) {
     LOG(ERROR) << StringPrintf("T2T timeout. state=%s ",
-                    rw_t2t_get_state_name(p_t2t->state));
+                    rw_t2t_get_state_name(p_t2t->state).c_str());
     /* Handle timeout error as no response to the command sent */
     rw_t2t_process_error();
   }

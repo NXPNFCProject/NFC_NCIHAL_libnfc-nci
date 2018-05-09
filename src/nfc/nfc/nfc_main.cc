@@ -93,7 +93,7 @@ tNFC_CB nfc_cb;
 uint8_t i2c_fragmentation_enabled = 0xff;
 
 tNfc_featureList nfcFL;
-static tNFC_chipType chipType = 0;
+static tNFC_chipType chipType = (tNFC_chipType)0x00;
 #if (NFC_RW_ONLY == FALSE)
 #if (NXP_EXTNS == TRUE)
 #define NFC_NUM_INTERFACE_MAP 3
@@ -389,8 +389,8 @@ void nfc_enabled(tNFC_STATUS nfc_status, NFC_HDR* p_init_rsp_msg) {
 *******************************************************************************/
 void nfc_set_state(tNFC_STATE nfc_state) {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfc_set_state %d (%s)->%d (%s)", nfc_cb.nfc_state,
-                   nfc_state_name(nfc_cb.nfc_state), nfc_state,
-                   nfc_state_name(nfc_state));
+                   nfc_state_name(nfc_cb.nfc_state).c_str(), nfc_state,
+                   nfc_state_name(nfc_state).c_str());
   nfc_cb.nfc_state = nfc_state;
 }
 
@@ -672,7 +672,7 @@ void nfc_main_post_hal_evt(uint8_t hal_evt, tHAL_NFC_STATUS status) {
 *******************************************************************************/
 static void nfc_main_hal_cback(uint8_t event, tHAL_NFC_STATUS status) {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfc_main_hal_cback event: %s(0x%x), status=%d",
-                   nfc_hal_event_name(event), event, status);
+                   nfc_hal_event_name(event).c_str(), event, status);
 #if (NXP_EXTNS == TRUE)
   tNFC_RESPONSE eventData;
 #endif
@@ -1365,7 +1365,7 @@ tNFC_STATUS NFC_Deactivate(tNFC_DEACT_TYPE deactivate_type) {
   tNFC_STATUS status = NFC_STATUS_OK;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFC_Deactivate %d (%s) deactivate_type:%d", nfc_cb.nfc_state,
-                 nfc_state_name(nfc_cb.nfc_state), deactivate_type);
+                 nfc_state_name(nfc_cb.nfc_state).c_str(), deactivate_type);
 
   if (nfc_cb.flags & NFC_FL_DISCOVER_PENDING) {
     /* the HAL pre-discover is still active - clear the pending flag */
@@ -1718,12 +1718,11 @@ int32_t NFC_SetP61Status(void* pdata, jcop_dwnld_state_t isJcopState) {
         return -1;
     }
   nfc_nci_IoctlInOutData_t inpOutData;
-  int32_t status;
   if (isJcopState == JCP_DWNLD_START)
-    isJcopState =
+    isJcopState =(jcop_dwnld_state_t)
         nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_SET_JCP_DWNLD_ENABLE, &inpOutData);
   else if (isJcopState == JCP_DWP_DWNLD_COMPLETE)
-    isJcopState =
+    isJcopState =(jcop_dwnld_state_t)
         (nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_SET_JCP_DWNLD_DISABLE, &inpOutData));
   *(tNFC_STATUS*)pdata = inpOutData.out.data.status;
   return isJcopState;

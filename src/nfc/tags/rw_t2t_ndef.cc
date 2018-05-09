@@ -306,8 +306,10 @@ static void rw_t2t_ntf_tlv_detect_complete(tNFC_STATUS status) {
     evt_data.msg_len = p_t2t->prop_msg_len;
     evt_data.status = status;
     rw_t2t_handle_op_complete();
+    tRW_DATA rw_data;
+    rw_data.t2t_detect = evt_data;
     /* FIXME: Unsafe cast */
-    (*rw_cb.p_cback)(RW_T2T_TLV_DETECT_EVT, (void*)&evt_data);
+    (*rw_cb.p_cback)(RW_T2T_TLV_DETECT_EVT, &rw_data);
   } else {
     /* Notify upper layer the result of Lock/Mem TLV detect op */
     tRW_DETECT_TLV_DATA tlv_data;
@@ -2930,7 +2932,7 @@ tNFC_STATUS RW_T2tReadNDef(uint8_t* p_buffer, uint16_t buf_len) {
   }
 
   if (!p_t2t->ndef_msg_len) {
-    LOG(WARNING) << StringPrintf("RW_T2tReadNDef - NDEF Message length is zero ",
+    LOG(WARNING) << StringPrintf("RW_T2tReadNDef - NDEF Message length is zero %u",
                       p_t2t->ndef_msg_len);
     return (NFC_STATUS_NOT_INITIALIZED);
   }

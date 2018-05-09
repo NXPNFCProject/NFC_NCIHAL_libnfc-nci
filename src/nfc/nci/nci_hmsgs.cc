@@ -42,12 +42,21 @@
  *
  ******************************************************************************/
 #include <string.h>
+
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
+
 #include "nfc_target.h"
 
 #include "nci_defs.h"
 #include "nci_hmsgs.h"
 #include "nfc_api.h"
 #include "nfc_int.h"
+
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
+
 /*******************************************************************************
 **
 ** Function         nci_snd_core_reset

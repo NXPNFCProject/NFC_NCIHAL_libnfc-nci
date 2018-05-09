@@ -56,7 +56,8 @@
 
 #if (NXP_EXTNS == TRUE)
 #ifndef __CONFIG_H
-#include <config.h>
+#include <nfc_config.h>
+#include "nfa_sys_int.h"
 #include <stdlib.h>
 #endif
 #endif
@@ -820,8 +821,6 @@ void nfa_hci_enable_one_nfcee(void) {
 *******************************************************************************/
 void nfa_hci_startup(void) {
   tNFA_STATUS status = NFA_STATUS_FAILED;
-  tNFA_EE_INFO ee_info[2];
-  uint8_t num_nfcee = 2;
   uint8_t target_handle;
   uint8_t count = 0;
   bool found = false;
@@ -909,7 +908,6 @@ void nfa_hci_network_enable(void) {
       }
       count++;
     }
-}
 }
 #endif
 /*******************************************************************************
@@ -1082,7 +1080,7 @@ void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   p = (uint8_t*)(p_pkt + 1) + p_pkt->offset;
   pkt_len = p_pkt->len;
 
-  DispHcp(p, pkt_len, true, (bool)!nfa_hci_cb.assembling);
+  DispHcp(p, pkt_len, true);
 
   chaining_bit = ((*p) >> 0x07) & 0x01;
   pipe = (*p++) & 0x7F;
@@ -1441,7 +1439,6 @@ void nfa_hci_rsp_timeout() {
   tNFA_HCI_EVT evt = 0;
   tNFA_HCI_EVT_DATA evt_data;
   uint8_t delete_pipe;
-  (void)p_evt_data;
 #if (NXP_EXTNS == TRUE)
   NFC_HDR* p_buf;
   uint8_t* p_data;
@@ -1725,21 +1722,13 @@ static void nfa_hci_set_receive_buf(uint8_t pipe) {
 
 #if (NXP_EXTNS == TRUE)
 static void read_config_timeout_param_values() {
-  if (GetNumValue(NAME_NXP_DEFAULT_NFCEE_TIMEOUT,
-                  (void*)&nfa_hci_cb.max_hci_session_id_read_count,
-                  sizeof(nfa_hci_cb.max_hci_session_id_read_count)) == false) {
-    nfa_hci_cb.max_hci_session_id_read_count =
-        NFA_HCI_MAX_SESSION_ID_RETRY_CNT; /*Default  maximum session ID read
-                                             count*/
-  }
+  nfa_hci_cb.max_hci_session_id_read_count =
+            NfcConfig::getUnsigned(NAME_NXP_DEFAULT_NFCEE_TIMEOUT,NFA_HCI_MAX_SESSION_ID_RETRY_CNT);
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hci_init() %d",
                    nfa_hci_cb.max_hci_session_id_read_count);
-  if (GetNumValue(NAME_NXP_DEFAULT_NFCEE_DISC_TIMEOUT,
-                  (void*)&nfa_hci_cb.max_nfcee_disc_timeout,
-                  sizeof(nfa_hci_cb.max_nfcee_disc_timeout)) == false) {
-    nfa_hci_cb.max_nfcee_disc_timeout =
-        NFA_HCI_NFCEE_DISC_TIMEOUT; /*Default nfcee discover timeout*/
-  }
+
+  nfa_hci_cb.max_nfcee_disc_timeout =
+            NfcConfig::getUnsigned(NAME_NXP_DEFAULT_NFCEE_DISC_TIMEOUT,NFA_HCI_NFCEE_DISC_TIMEOUT);
   nfa_hci_cb.max_nfcee_disc_timeout = nfa_hci_cb.max_nfcee_disc_timeout * 1000;
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hci_init() %d", nfa_hci_cb.max_nfcee_disc_timeout);
 }

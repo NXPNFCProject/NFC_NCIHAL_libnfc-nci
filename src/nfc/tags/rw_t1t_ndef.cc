@@ -696,8 +696,9 @@ tNFC_STATUS rw_t1t_handle_read_rsp(bool* p_notify, uint8_t* p_data) {
                 /* Send positive response to upper layer */
                 tlv_data.status = status;
                 rw_t1t_handle_op_complete();
-
-                (*rw_cb.p_cback)(RW_T1T_TLV_DETECT_EVT, (void*)&tlv_data);
+                tRW_DATA rw_data;
+                rw_data.tlv = tlv_data;
+                (*rw_cb.p_cback)(RW_T1T_TLV_DETECT_EVT, &rw_data);
               }
             }
           } else if (p_t1t->tlv_detect == TAG_NDEF_TLV) {

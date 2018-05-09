@@ -87,8 +87,8 @@ tLLCP_STATUS llcp_dlsm_execute(tLLCP_DLCB* p_dlcb, tLLCP_DLC_EVENT event,
   tLLCP_STATUS status;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("DLC (0x%02X) - state: %s, evt: %s", p_dlcb->local_sap,
-                    llcp_dlsm_get_state_name(p_dlcb->state),
-                    llcp_dlsm_get_event_name(event));
+                    llcp_dlsm_get_state_name(p_dlcb->state).c_str(),
+                    llcp_dlsm_get_event_name(event).c_str());
 
   switch (p_dlcb->state) {
     case LLCP_DLC_STATE_IDLE:

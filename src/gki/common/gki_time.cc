@@ -338,7 +338,7 @@ void GKI_stop_timer(uint8_t tnum) {
       }
 #else
       gki_cb.com.system_tick_running = false;
-      gki_cb.com.p_tick_cb(false); /* stop system tick */
+      (gki_cb.com.p_tick_cb)(false); /* stop system tick */
 #endif
     }
   }

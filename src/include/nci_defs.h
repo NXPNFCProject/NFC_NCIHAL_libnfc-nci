@@ -274,6 +274,8 @@
 
 #define NCI_CORE_PARAM_SIZE_CON_CLOSE 0x01     /* Conn ID (1 octet) */
 
+/* Keep the NCI configuration (if possible) and perform NCI initialization. */
+#define NCI_RESET_TYPE_KEEP_CFG 0x00
 /* Reset the NCI configuration, and perform NCI initialization. */
 #define NCI_RESET_TYPE_RESET_CFG 0x01
 
@@ -354,6 +356,8 @@ typedef uint8_t tNCI_NFCEE_PL_CONFIG;
 /**********************************************
 * NCI Interface Mode
 **********************************************/
+#define NCI_INTERFACE_MODE_POLL 1
+#define NCI_INTERFACE_MODE_LISTEN 2
 #define NCI_INTERFACE_MODE_POLL_N_LISTEN 3
 
 /**********************************************

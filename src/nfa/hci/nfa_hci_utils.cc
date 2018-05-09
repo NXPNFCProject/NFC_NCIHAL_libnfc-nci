@@ -403,8 +403,7 @@ tNFA_STATUS nfa_hciu_send_msg(uint8_t pipe_id, uint8_t type,
         if (msg_len > 0) p_msg += data_len;
       }
 
-      DispHcp(((uint8_t*)(p_buf + 1) + p_buf->offset), p_buf->len, false,
-              (bool)((p_buf->len - data_len) == 2));
+      DispHcp(((uint8_t*)(p_buf + 1) + p_buf->offset), p_buf->len, false);
 
       if (HCI_LOOPBACK_DEBUG)
         handle_debug_loopback(p_buf, type, instruction);
@@ -852,7 +851,7 @@ tNFA_HCI_RESPONSE nfa_hciu_release_pipe(uint8_t pipe_id) {
   tNFA_HCI_DYN_PIPE* p_pipe;
   uint8_t pipe_index;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(nfa_hciu_release_pipe: %u", pipe_id);
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hciu_release_pipe: %u", pipe_id);
 
   p_pipe = nfa_hciu_find_pipe_by_pid(pipe_id);
   if (p_pipe == NULL) return (NFA_HCI_ANY_E_NOK);
@@ -900,7 +899,7 @@ void nfa_hciu_remove_all_pipes_from_host(uint8_t host) {
   int xx;
   tNFA_HCI_EVT_DATA evt_data;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(nfa_hciu_remove_all_pipes_from_host (0x%02x)", host);
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hciu_remove_all_pipes_from_host (0x%02x)", host);
 
   /* Remove all pipes from the specified host connected to all generic gates */
   for (xx = 0, pp = nfa_hci_cb.cfg.dyn_pipes; xx < NFA_HCI_MAX_PIPE_CB;
@@ -1548,20 +1547,20 @@ char* nfa_hciu_get_type_inst_names(uint8_t pipe, uint8_t type, uint8_t inst,
                                    char* p_buff) {
   int xx;
 
-  xx = sprintf(p_buff, "Type: %s [0x%02x] ", nfa_hciu_type_2_str(type), type);
+  xx = sprintf(p_buff, "Type: %s [0x%02x] ", nfa_hciu_type_2_str(type).c_str(), type);
 
   switch (type) {
     case NFA_HCI_COMMAND_TYPE:
-      sprintf(&p_buff[xx], "Inst: %s [0x%02x] ", nfa_hciu_instr_2_str(inst),
+      sprintf(&p_buff[xx], "Inst: %s [0x%02x] ", nfa_hciu_instr_2_str(inst).c_str(),
               inst);
       break;
     case NFA_HCI_EVENT_TYPE:
-      sprintf(&p_buff[xx], "Evt: %s [0x%02x] ", nfa_hciu_evt_2_str(pipe, inst),
+      sprintf(&p_buff[xx], "Evt: %s [0x%02x] ", nfa_hciu_evt_2_str(pipe, inst).c_str(),
               inst);
       break;
     case NFA_HCI_RESPONSE_TYPE:
       sprintf(&p_buff[xx], "Resp: %s [0x%02x] ",
-              nfa_hciu_get_response_name(inst), inst);
+              nfa_hciu_get_response_name(inst).c_str(), inst);
       break;
     default:
       sprintf(&p_buff[xx], "Inst: %u ", inst);

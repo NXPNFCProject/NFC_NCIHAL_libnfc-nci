@@ -62,7 +62,7 @@
 #include "nfa_sys.h"
 #include "nfa_dm_int.h"
 #include "nfa_hci_int.h"
-#include <config.h>
+#include <nfc_config.h>
 #endif
 
 using android::base::StringPrintf;
@@ -93,13 +93,10 @@ static uint8_t gScreenState = 0x0;  // SCREEN ON UNLOCKED
 static uint16_t maxRoutingTableSize;
 uint8_t sListenActivated;
 extern tNFA_CE_CB nfa_ce_cb;
+extern bool MW_RCVRY_FW_DNLD_ALLOWED;
 bool core_reset_init_num_buff = false;
 uint8_t nfcc_dh_conn_id = 0xFF;
-#if __cplusplus
-extern void nfa_hci_rsp_timeout(tNFA_HCI_EVENT_DATA* p_evt_data);
-#else
-extern void nfa_hci_rsp_timeout(tNFA_HCI_EVENT_DATA* p_evt_data);
-#endif
+extern void nfa_hci_rsp_timeout();
 void disc_deact_ntf_timeout_handler(tNFC_RESPONSE_EVT event);
 extern bool etsi_reader_in_progress;
 void uicc_eeprom_get_config(uint8_t* config_resp);
@@ -429,7 +426,6 @@ uint8_t nfc_ncif_retransmit_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
 *******************************************************************************/
 uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
   uint8_t* pp;
-  uint8_t* ps;
   uint8_t ulen = NCI_MAX_PAYLOAD_SIZE;
   NFC_HDR* p;
   uint8_t pbf = 1;
@@ -2114,9 +2110,7 @@ void nfc_ncif_proc_ee_discover_req(uint8_t* p, uint16_t plen) {
 *******************************************************************************/
 void nfc_ncif_proc_get_routing(__attribute__((unused)) uint8_t* p,
                                __attribute__((unused))uint8_t len) {
-  tNFC_GET_ROUTING_REVT evt_data;
-  uint8_t more, num_entries, xx, yy, *pn, tl;
-  tNFC_STATUS status = NFC_STATUS_CONTINUE;
+  __attribute__((unused)) tNFC_STATUS status = NFC_STATUS_CONTINUE;
 
 #if (NXP_EXTNS == FALSE)
   if (nfc_cb.p_resp_cback) {
@@ -2491,7 +2485,6 @@ void nfc_ncif_proc_init_rsp(NFC_HDR* p_msg) {
   tNFC_FWUpdate_Info_t fw_update_inf;
   uint8_t* init_rsp = NULL;
   uint8_t config_resp[16];
-  int i;
   memset(&fw_update_inf, 0x00, sizeof(tNFC_FWUpdate_Info_t));
 #endif
   p = (uint8_t*)(p_msg + 1) + p_msg->offset;
@@ -2953,7 +2946,6 @@ void nfc_ncif_proc_data(NFC_HDR* p_msg) {
     }
 #if (NXP_EXTNS == TRUE)
     if(!pbf) {
-      NFC_HDR* p_cur;
       if((NFC_HDR*)GKI_getlast(&p_cb->rx_q) != NULL) {
         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfc_ncif_proc_data: Last non chained packet");
         nfc_data_event(p_cb);
@@ -3017,7 +3009,7 @@ void nfc_ncif_credit_ntf_timeout() {
     nfa_sys_stop_timer(&nfa_hci_cb.timer);
 
     // send timeout event to upper layer
-    nfa_hci_rsp_timeout(NULL);
+    nfa_hci_rsp_timeout();
 
     // will be used to reset credit buffer after recovery
     core_reset_init_num_buff = true;
@@ -3149,10 +3141,8 @@ tNFC_STATUS nfc_ncif_reset_nfcc() {
   }
   nfc_nci_IoctlInOutData_t inpOutData;
   uint8_t status = NCI_STATUS_FAILED;
-  int isfound, retry_count = 0;
+  int retry_count = 0;
   long retlen = 0;
-  uint8_t* buffer = NULL;
-  long bufflen = 256;
 
   /*NCI_INIT_CMD*/
   static uint8_t cmd_init_nci[] = {0x20, 0x01, 0x00};
@@ -3238,19 +3228,16 @@ void uicc_eeprom_get_config(uint8_t* config_resp) {
   uint8_t cmd_get_dualUicc_config[] = {0x20, 0x03, 0x03, 0x01, 0xA0, 0xEC};
   nfc_nci_IoctlInOutData_t inpOutData;
   int uicc_mode = 0;
-  uint8_t* config_rsp = NULL;
   uint8_t config_status = NCI_STATUS_FAILED;
   uint8_t retry_count = 0;
 
-  if (GetNumValue(NAME_NXP_DUAL_UICC_ENABLE, &uicc_mode,
-          sizeof(int))) {
+  if (NfcConfig::hasKey(NAME_NXP_DUAL_UICC_ENABLE)) {
+    uicc_mode = NfcConfig::getUnsigned(NAME_NXP_DUAL_UICC_ENABLE);
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NXP_DUAL_UICC_ENABLE : 0x%02x", uicc_mode);
-
   } else {
     uicc_mode = 0x00;
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-        "NXP_DUAL_UICC_ENABLE not found; taking default value : 0x%02x",
-        uicc_mode);
+        "NXP_DUAL_UICC_ENABLE not found; taking default value : 0x%02x", uicc_mode);
   }
   memset(&inpOutData, 0x00, sizeof(nfc_nci_IoctlInOutData_t));
   inpOutData.inp.data.nciCmd.cmd_len = sizeof(cmd_get_dualUicc_config);
@@ -3292,16 +3279,15 @@ void uicc_eeprom_set_config(uint8_t* config_rsp) {
   uint8_t config_status = NCI_STATUS_FAILED;
   uint8_t retry_count = 0;
 
-  if (GetNumValue(NAME_NXP_DUAL_UICC_ENABLE, &uicc_mode,
-          sizeof(int))) {
+  if (NfcConfig::hasKey(NAME_NXP_DUAL_UICC_ENABLE)) {
+    uicc_mode = NfcConfig::getUnsigned(NAME_NXP_DUAL_UICC_ENABLE);
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NXP_DUAL_UICC_ENABLE : 0x%02x", uicc_mode);
-
   } else {
     uicc_mode = 0x00;
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-        "NXP_DUAL_UICC_ENABLE not found; taking default value : 0x%02x",
-        uicc_mode);
+        "NXP_DUAL_UICC_ENABLE not found; taking default value : 0x%02x", uicc_mode);
   }
+
   memset(&inpOutData, 0x00, sizeof(nfc_nci_IoctlInOutData_t));
 
   if (uicc_mode == 0x00) {

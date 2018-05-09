@@ -49,6 +49,7 @@
 #include "nfa_ce_int.h"
 #include "ndef_utils.h"
 #if (NXP_EXTNS == TRUE)
+#include "nfa_sys_int.h"
 #include "nfc_int.h"
 
 uint32_t gFelicaReaderMode;
@@ -1578,7 +1579,7 @@ tNFA_STATUS NFA_ResetNfcc() {
 **
 *******************************************************************************/
 void NFA_EE_HCI_Control(bool flagEnable) {
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_EE_HCI_Control()");
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_EE_HCI_Control()");
     if(!nfcFL.nfccFL._NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH) {
         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH"
                 " feature is not available!!");

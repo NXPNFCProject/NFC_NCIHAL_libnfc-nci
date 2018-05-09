@@ -541,7 +541,8 @@ void nfa_dm_init_cfgs(phNxpNci_getCfg_info_t* mGetCfg_info) {
 **
 *******************************************************************************/
 tNFA_STATUS nfa_dm_get_extended_cmd_buf(tNFC_EXT_HDR **p_msg, uint32_t event,
-                                         uint8_t* p_data, uint16_t data_len) {
+                                         uint8_t* p_data,
+                                         __attribute__((unused)) uint16_t data_len) {
   uint16_t size = 0;
   tNFA_STATUS status = NFA_STATUS_FAILED;
 

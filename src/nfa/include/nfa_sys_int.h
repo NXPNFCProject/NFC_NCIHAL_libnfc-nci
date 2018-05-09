@@ -25,6 +25,7 @@
 #define NFA_SYS_INT_H
 
 #include "nfa_sys_ptim.h"
+#include "nfa_sys.h"
 
 /*****************************************************************************
 **  Constants and data types

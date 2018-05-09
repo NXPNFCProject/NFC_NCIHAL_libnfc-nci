@@ -1167,7 +1167,7 @@ static void llcp_link_proc_agf_pdu(NFC_HDR* p_agf) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
         "llcp_link_proc_agf_pdu (): Rx DSAP:0x%x, PTYPE:%s (0x%x), SSAP:0x%x "
         "in AGF",
-        dsap, llcp_pdu_type(ptype), ptype, ssap);
+        dsap, llcp_pdu_type(ptype).c_str(), ptype, ssap);
 
     if ((ptype == LLCP_PDU_DISC_TYPE) && (dsap == LLCP_SAP_LM) &&
         (ssap == LLCP_SAP_LM)) {
@@ -1331,7 +1331,7 @@ static void llcp_link_proc_rx_data(NFC_HDR* p_msg) {
           DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
               "llcp_link_proc_rx_data (): DSAP:0x%x, PTYPE:%s (0x%x), "
               "SSAP:0x%x",
-              dsap, llcp_pdu_type(ptype), ptype, ssap);
+              dsap, llcp_pdu_type(ptype).c_str(), ptype, ssap);
 
           if (ptype == LLCP_PDU_SYMM_TYPE) {
             if (info_length > 0) {

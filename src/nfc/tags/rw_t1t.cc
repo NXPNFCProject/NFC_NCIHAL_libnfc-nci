@@ -98,7 +98,7 @@ static void rw_t1t_data_cback(__attribute__((unused)) uint8_t conn_id,
   p = (uint8_t*)(p_pkt + 1) + p_pkt->offset;
 
  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("rw_t1t_data_cback (): state:%s (%d)",
-                  rw_t1t_get_state_name(p_t1t->state), p_t1t->state);
+                  rw_t1t_get_state_name(p_t1t->state).c_str(), p_t1t->state);
 
   evt_data.status = NFC_STATUS_OK;
 
@@ -164,7 +164,7 @@ static void rw_t1t_data_cback(__attribute__((unused)) uint8_t conn_id,
       nfc_stop_quick_timer(&p_t1t->timer);
 /* Retrasmit the last sent command if retry-count < max retry */
       LOG(ERROR) << StringPrintf("T1T Frame error. state=%s command (opcode) = 0x%02x",
-                      rw_t1t_get_state_name(p_t1t->state),
+                      rw_t1t_get_state_name(p_t1t->state).c_str(),
                       p_cmd_rsp_info->opcode);
       rw_t1t_process_frame_error();
     }
@@ -223,8 +223,8 @@ static void rw_t1t_data_cback(__attribute__((unused)) uint8_t conn_id,
 
   if (begin_state != p_t1t->state) {
    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("RW T1T state changed:<%s> -> <%s>",
-                    rw_t1t_get_state_name(begin_state),
-                    rw_t1t_get_state_name(p_t1t->state));
+                    rw_t1t_get_state_name(begin_state).c_str(),
+                    rw_t1t_get_state_name(p_t1t->state).c_str());
   }
 }
 
@@ -540,7 +540,7 @@ void rw_t1t_process_timeout(__attribute__((unused)) TIMER_LIST_ENT* p_tle) {
   tRW_T1T_CB* p_t1t = &rw_cb.tcb.t1t;
 
   LOG(ERROR) << StringPrintf("T1T timeout. state=%s command (opcode)=0x%02x ",
-                  rw_t1t_get_state_name(p_t1t->state),
+                  rw_t1t_get_state_name(p_t1t->state).c_str(),
                   (rw_cb.tcb.t1t.p_cmd_rsp_info)->opcode);
 
   if (p_t1t->state == RW_T1T_STATE_CHECK_PRESENCE) {

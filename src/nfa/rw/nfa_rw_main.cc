@@ -56,7 +56,7 @@ const tNFA_RW_ACTION nfa_rw_action_tbl[] = {
 /*****************************************************************************
 ** Local function prototypes
 *****************************************************************************/
-static std::static nfa_rw_evt_2_str(uint16_t event);
+static std::string nfa_rw_evt_2_str(uint16_t event);
 /*******************************************************************************
 **
 ** Function         nfa_rw_init
@@ -124,13 +124,13 @@ void nfa_rw_proc_disc_evt(tNFA_DM_RF_DISC_EVT event, tNFC_DISCOVER* p_data,
       msg.activate_ntf.p_activate_params = &p_data->activate;
       msg.activate_ntf.excl_rf_not_active = excl_rf_not_active;
 
-      nfa_rw_handle_event((void*)&msg);
+      nfa_rw_handle_event((NFC_HDR*)&msg);
       break;
 
     case NFA_DM_RF_DISC_DEACTIVATED_EVT:
       msg.hdr.event = NFA_RW_DEACTIVATE_NTF_EVT;
 
-      nfa_rw_handle_event((void*)&msg);
+      nfa_rw_handle_event((NFC_HDR*)&msg);
       break;
 
     default:
@@ -176,8 +176,8 @@ tNFA_STATUS nfa_rw_send_raw_frame(NFC_HDR* p_data) {
 bool nfa_rw_handle_event(NFC_HDR* p_msg) {
   uint16_t act_idx;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(nfa_rw_handle_event event: %s (0x%02x), flags: %08x",
-                   nfa_rw_evt_2_str(p_msg->event), p_msg->event,
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_rw_handle_event event: %s (0x%02x), flags: %08x",
+                   nfa_rw_evt_2_str(p_msg->event).c_str(), p_msg->event,
                    nfa_rw_cb.flags);
 
   /* Get NFA_RW sub-event */
@@ -198,7 +198,7 @@ bool nfa_rw_handle_event(NFC_HDR* p_msg) {
 ** Description      convert nfa_rw evt to string
 **
 *******************************************************************************/
-static std::static nfa_rw_evt_2_str(uint16_t event) {
+static std::string nfa_rw_evt_2_str(uint16_t event) {
   switch (event) {
     case NFA_RW_OP_REQUEST_EVT:
       return "NFA_RW_OP_REQUEST_EVT";

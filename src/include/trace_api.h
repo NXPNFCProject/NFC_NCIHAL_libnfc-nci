@@ -37,7 +37,7 @@ extern void DispRWI93Tag(NFC_HDR* p_buf, bool is_rx,
                          uint8_t command_to_respond);
 
 extern void DispLLCP(NFC_HDR* p_buf, bool is_rx);
-extern void DispHcp(uint8_t* p, uint16_t len, bool is_recv, bool is_first_seg);
+extern void DispHcp(uint8_t* p, uint16_t len, bool is_recv);
 
 
 #endif /* TRACE_API_H */

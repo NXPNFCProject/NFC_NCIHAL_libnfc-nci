@@ -22,8 +22,16 @@
  *
  ******************************************************************************/
 #include <string.h>
+
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
+
 #include "nfa_ce_api.h"
 #include "nfa_ce_int.h"
+
+using android::base::StringPrintf;
+
+extern bool nfc_debug_enabled;
 
 /* NFA_CE control block */
 tNFA_CE_CB nfa_ce_cb;

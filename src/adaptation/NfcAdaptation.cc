@@ -45,6 +45,7 @@
 #include "nfc_target.h"
 #include "nfc_config.h"
 #include "android_logmsg.h"
+#include <hidl/LegacySupport.h>
 #include "debug_nfcsnoop.h"
 #include "nfa_api.h"
 #include "nfc_int.h"
@@ -466,8 +467,6 @@ tHAL_NFC_ENTRY* NfcAdaptation::GetHalEntryFuncs() { return &mHalEntryFuncs; }
 void NfcAdaptation::InitializeHalDeviceContext() {
   const char* func = "NfcAdaptation::InitializeHalDeviceContext";
 
-  const hw_module_t* hw_module = NULL;
-
   mHalEntryFuncs.initialize = HalInitialize;
   mHalEntryFuncs.terminate = HalTerminate;
   mHalEntryFuncs.open = HalOpen;
@@ -481,19 +480,21 @@ void NfcAdaptation::InitializeHalDeviceContext() {
   mHalEntryFuncs.control_granted = HalControlGranted;
   mHalEntryFuncs.power_cycle = HalPowerCycle;
   mHalEntryFuncs.get_max_ee = HalGetMaxNfcee;
-  LOG(INFO) << StringPrintf("%s: INfc::getService()", func);
-  mHal = mHal_1_1 = INfcV1_1::getService();
+  LOG(INFO) << StringPrintf("%s: Try INfcV1_1::getService()", func);
+  mHal = mHal_1_1 = INfcV1_1::tryGetService();
   if (mHal_1_1 == nullptr) {
-    mHal = INfc::getService();
+    LOG(INFO) << StringPrintf("%s: Try INfc::getService()", func);
+    mHal = INfc::tryGetService();
   }
-  LOG_FATAL_IF(mHal == nullptr, "Failed to retrieve the NFC HAL!");
-  LOG(INFO) << StringPrintf("%s: INfc::getService() returned %p (%s)", func, mHal.get(),
-        (mHal->isRemote() ? "remote" : "local"));
+  //LOG_FATAL_IF(mHal == nullptr, "Failed to retrieve the NFC HAL!");
+  if (mHal == nullptr) {
+    LOG(INFO) << StringPrintf ( "Failed to retrieve the NFC HAL!");
+  }else {
+    LOG(INFO) << StringPrintf("%s: INfc::getService() returned %p (%s)", func, mHal.get(),
+          (mHal->isRemote() ? "remote" : "local"));
+  }
   LOG(INFO) << StringPrintf("%s: INxpNfc::getService()", func);
-  mHalNxpNfc = INxpNfc::getService();
-  LOG_FATAL_IF(mHalNxpNfc == nullptr, "Failed to retrieve the NXP NFC HAL!");
-  LOG(INFO) << StringPrintf("%s: INxpNfc::getService() returned %p (%s)", func, mHalNxpNfc.get(),
-        (mHalNxpNfc->isRemote() ? "remote" : "local"));
+
 }
 
 /*******************************************************************************
@@ -655,7 +656,6 @@ int NfcAdaptation::HalIoctl(long arg, void* p_data) {
   ::android::hardware::nfc::V1_0::NfcData data;
   AutoThreadMutex a(sIoctlLock);
   nfc_nci_IoctlInOutData_t* pInpOutData = (nfc_nci_IoctlInOutData_t*)p_data;
-  int status = 0;
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s arg=%ld", func, arg);
   pInpOutData->inp.context = &NfcAdaptation::GetInstance();
   NfcAdaptation::GetInstance().mCurrentIoctlData = pInpOutData;
@@ -675,7 +675,7 @@ int NfcAdaptation::HalIoctl(long arg, void* p_data) {
 ** Returns:     SUCESS or FAIL.
 **
 *******************************************************************************/
-int NfcAdaptation::HalGetFwDwnldFlag(uint8_t* fwDnldRequest) {
+int NfcAdaptation::HalGetFwDwnldFlag(__attribute__((unused)) uint8_t* fwDnldRequest) {
   const char* func = "NfcAdaptation::HalGetFwDwnldFlag";
   int status = NFA_STATUS_FAILED;
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : Dummy", func);

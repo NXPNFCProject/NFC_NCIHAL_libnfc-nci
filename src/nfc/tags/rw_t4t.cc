@@ -614,7 +614,6 @@ static bool rw_t4t_write_ndef(void) {
 
 #if (NXP_EXTNS == TRUE)
 static bool rw_t3bt_get_pupi(void) {
-  tRW_T4T_CB* p_t4t = &rw_cb.tcb.t4t;
   NFC_HDR* p_c_apdu;
   uint8_t* p;
 
@@ -1127,7 +1126,7 @@ static void rw_t4t_sm_ndef_format(NFC_HDR* p_r_apdu) {
   tRW_DATA rw_data;
 
  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("rw_t4t_sm_ndef_format (): sub_state:%s (%d)",
-                  rw_t4t_get_sub_state_name(p_t4t->sub_state),
+                  rw_t4t_get_sub_state_name(p_t4t->sub_state).c_str(),
                   p_t4t->sub_state);
 
   /* get status words */
@@ -1290,12 +1289,12 @@ static void rw_t4t_sm_ndef_format(NFC_HDR* p_r_apdu) {
 #if (NXP_EXTNS == TRUE)
 static void rw_t3Bt_sm_get_card_id(NFC_HDR* p_r_apdu) {
   tRW_T4T_CB* p_t4t = &rw_cb.tcb.t4t;
-  uint8_t* p, type, length;
-  uint16_t status_words, nlen;
+  uint8_t* p;
+  uint16_t status_words;
   tRW_DATA rw_data;
 
  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("rw_t3Bt_sm_get_id (): sub_state:%s (%d)",
-                  rw_t4t_get_sub_state_name(p_t4t->sub_state),
+                  rw_t4t_get_sub_state_name(p_t4t->sub_state).c_str(),
                   p_t4t->sub_state);
 
   /* get status words */
@@ -1357,7 +1356,7 @@ static void rw_t4t_sm_detect_ndef(NFC_HDR* p_r_apdu) {
   tRW_DATA rw_data;
 
  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("rw_t4t_sm_detect_ndef (): sub_state:%s (%d)",
-                  rw_t4t_get_sub_state_name(p_t4t->sub_state),
+                  rw_t4t_get_sub_state_name(p_t4t->sub_state).c_str(),
                   p_t4t->sub_state);
 
   /* get status words */
@@ -1573,7 +1572,7 @@ static void rw_t4t_sm_read_ndef(NFC_HDR* p_r_apdu) {
   tRW_DATA rw_data;
 
  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("rw_t4t_sm_read_ndef (): sub_state:%s (%d)",
-                  rw_t4t_get_sub_state_name(p_t4t->sub_state),
+                  rw_t4t_get_sub_state_name(p_t4t->sub_state).c_str(),
                   p_t4t->sub_state);
 
   /* get status words */
@@ -1657,7 +1656,7 @@ static void rw_t4t_sm_update_ndef(NFC_HDR* p_r_apdu) {
   tRW_DATA rw_data;
 
  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("rw_t4t_sm_update_ndef (): sub_state:%s (%d)",
-                  rw_t4t_get_sub_state_name(p_t4t->sub_state),
+                  rw_t4t_get_sub_state_name(p_t4t->sub_state).c_str(),
                   p_t4t->sub_state);
 
   /* Get status words */
@@ -1740,7 +1739,7 @@ static void rw_t4t_sm_set_readonly(NFC_HDR* p_r_apdu) {
   tRW_DATA rw_data;
 
  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("rw_t4t_sm_set_readonly (): sub_state:%s (%d)",
-                  rw_t4t_get_sub_state_name(p_t4t->sub_state),
+                  rw_t4t_get_sub_state_name(p_t4t->sub_state).c_str(),
                   p_t4t->sub_state);
 
   /* Get status words */
@@ -1909,14 +1908,14 @@ static void rw_t4t_data_cback(__attribute__((unused)) uint8_t conn_id, tNFC_CONN
   }
 
  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("RW T4T state: <%s (%d)>",
-                  rw_t4t_get_state_name(p_t4t->state), p_t4t->state);
+                  rw_t4t_get_state_name(p_t4t->state).c_str(), p_t4t->state);
 
   switch (p_t4t->state) {
     case RW_T4T_STATE_IDLE:
 /* Unexpected R-APDU, it should be raw frame response */
 /* forward to upper layer without parsing */
      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("RW T4T Raw Frame: Len [0x%X] Status [%s]", p_r_apdu->len,
-                      NFC_GetStatusName(p_data->data.status));
+                      NFC_GetStatusName(p_data->data.status).c_str());
       if (rw_cb.p_cback) {
         rw_data.raw_frame.status = p_data->data.status;
         rw_data.raw_frame.p_data = p_r_apdu;
@@ -1967,8 +1966,8 @@ static void rw_t4t_data_cback(__attribute__((unused)) uint8_t conn_id, tNFC_CONN
 
   if (begin_state != p_t4t->state) {
    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("RW T4T state changed:<%s> -> <%s>",
-                    rw_t4t_get_state_name(begin_state),
-                    rw_t4t_get_state_name(p_t4t->state));
+                    rw_t4t_get_state_name(begin_state).c_str(),
+                    rw_t4t_get_state_name(p_t4t->state).c_str());
   }
 }
 

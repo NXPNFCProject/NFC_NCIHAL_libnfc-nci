@@ -67,7 +67,7 @@ extern bool nfc_debug_enabled;
 tNFA_STATUS NFA_RwDetectNDef(void) {
   tNFA_RW_OPERATION* p_msg;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;NFA_RwDetectNDef");
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
   if (p_msg != NULL) {
@@ -112,7 +112,7 @@ tNFA_STATUS NFA_RwDetectNDef(void) {
 tNFA_STATUS NFA_RwReadNDef(void) {
   tNFA_RW_OPERATION* p_msg;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;NFA_RwReadNDef");
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
   if (p_msg != NULL) {
@@ -151,7 +151,7 @@ tNFA_STATUS NFA_RwReadNDef(void) {
 tNFA_STATUS NFA_RwWriteNDef(uint8_t* p_data, uint32_t len) {
   tNFA_RW_OPERATION* p_msg;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_RwWriteNDef (): ndef p_data=%08x, len: %i", p_data, len);
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_RwWriteNDef (): ndef p_data=%hhu, len: %i", *p_data, len);
 
   /* Validate parameters */
   if (p_data == NULL) return (NFA_STATUS_INVALID_PARAM);
@@ -189,7 +189,7 @@ tNFA_STATUS NFA_RwWriteNDef(uint8_t* p_data, uint32_t len) {
 tNFA_STATUS NFA_RwPresenceCheck(tNFA_RW_PRES_CHK_OPTION option) {
   tNFA_RW_OPERATION* p_msg;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;NFA_RwPresenceCheck");
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
   if (p_msg != NULL) {
@@ -222,7 +222,7 @@ tNFA_STATUS NFA_RwPresenceCheck(tNFA_RW_PRES_CHK_OPTION option) {
 tNFA_STATUS NFA_RwFormatTag(void) {
   tNFA_RW_OPERATION* p_msg;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;NFA_RwFormatTag");
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
   if (p_msg != NULL) {
@@ -334,7 +334,7 @@ tNFA_STATUS NFA_RwSetTagReadOnly(bool b_hard_lock) {
 tNFA_STATUS NFA_RwLocateTlv(uint8_t tlv_type) {
   tNFA_RW_OPERATION* p_msg;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;NFA_RwLocateTlv");
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
   if (p_msg != NULL) {
@@ -870,7 +870,7 @@ tNFA_STATUS NFA_RwI93Inventory(bool afi_present, uint8_t afi, uint8_t* p_uid) {
 tNFA_STATUS NFA_RwI93StayQuiet(void) {
   tNFA_RW_OPERATION* p_msg;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;NFA_RwI93StayQuiet ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   if (nfa_rw_cb.protocol != NFC_PROTOCOL_T5T) {
     return (NFA_STATUS_WRONG_PROTOCOL);
@@ -1195,7 +1195,7 @@ tNFA_STATUS NFA_RwI93Select(uint8_t* p_uid) {
 tNFA_STATUS NFA_RwI93ResetToReady(void) {
   tNFA_RW_OPERATION* p_msg;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;NFA_RwI93ResetToReady ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   if (nfa_rw_cb.protocol != NFC_PROTOCOL_T5T) {
     return (NFA_STATUS_WRONG_PROTOCOL);
@@ -1275,7 +1275,7 @@ tNFA_STATUS NFA_RwI93WriteAFI(uint8_t afi) {
 tNFA_STATUS NFA_RwI93LockAFI(void) {
   tNFA_RW_OPERATION* p_msg;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;NFA_RwI93LockAFI ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   if (nfa_rw_cb.protocol != NFC_PROTOCOL_T5T) {
     return (NFA_STATUS_WRONG_PROTOCOL);
@@ -1355,7 +1355,7 @@ tNFA_STATUS NFA_RwI93WriteDSFID(uint8_t dsfid) {
 tNFA_STATUS NFA_RwI93LockDSFID(void) {
   tNFA_RW_OPERATION* p_msg;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;NFA_RwI93LockDSFID ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   if (nfa_rw_cb.protocol != NFC_PROTOCOL_T5T) {
     return (NFA_STATUS_WRONG_PROTOCOL);
@@ -1395,7 +1395,7 @@ tNFA_STATUS NFA_RwI93LockDSFID(void) {
 tNFA_STATUS NFA_RwI93GetSysInfo(uint8_t* p_uid) {
   tNFA_RW_OPERATION* p_msg;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;NFA_RwI93GetSysInfo ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   if (nfa_rw_cb.protocol != NFC_PROTOCOL_T5T) {
     return (NFA_STATUS_WRONG_PROTOCOL);

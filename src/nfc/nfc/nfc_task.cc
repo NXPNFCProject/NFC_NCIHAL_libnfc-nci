@@ -180,7 +180,7 @@ void nfc_process_timer_evt(void) {
 #endif
 
       default:
-        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfc_process_timer_evt: timer:0x%x event (0x%04x)",
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfc_process_timer_evt: timer:0x%p event (0x%04x)",
                          p_tle, p_tle->event);
         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
             "nfc_process_timer_evt: unhandled timer event (0x%04x)",
@@ -305,7 +305,7 @@ void nfc_process_quick_timer_evt(void) {
         rw_t1t_process_timeout(p_tle);
         break;
       case NFC_TTYPE_RW_T2T_RESPONSE:
-        rw_t2t_process_timeout(p_tle);
+        rw_t2t_process_timeout();
         break;
       case NFC_TTYPE_RW_T3T_RESPONSE:
         rw_t3t_process_timeout(p_tle);

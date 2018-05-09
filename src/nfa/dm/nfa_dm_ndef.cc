@@ -127,6 +127,84 @@ void nfa_dm_ndef_dereg_all(void) {
 **
 ** Description      Register NDEF record type handler
 **
+** Returns          TRUE if message buffer is to be freed by caller
+**
+*******************************************************************************/
+bool nfa_dm_ndef_reg_hdlr(tNFA_DM_MSG* p_data) {
+  tNFA_DM_CB* p_cb = &nfa_dm_cb;
+  uint32_t hdlr_idx, i;
+  tNFA_DM_API_REG_NDEF_HDLR* p_reg_info = (tNFA_DM_API_REG_NDEF_HDLR*)p_data;
+  tNFA_NDEF_REGISTER ndef_register;
+
+  /* If registering default handler, check to see if one is already registered
+   */
+  if (p_reg_info->tnf == NFA_TNF_DEFAULT) {
+    /* check if default handler is already registered */
+    if (p_cb->p_ndef_handler[NFA_NDEF_DEFAULT_HANDLER_IDX]) {
+      LOG(WARNING) << StringPrintf("Default NDEF handler being changed.");
+
+      /* Free old registration info */
+      nfa_dm_ndef_dereg_hdlr_by_handle(
+          (tNFA_HANDLE)NFA_NDEF_DEFAULT_HANDLER_IDX);
+    }
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Default NDEF handler successfully registered.");
+    hdlr_idx = NFA_NDEF_DEFAULT_HANDLER_IDX;
+  }
+  /* Get available entry in ndef_handler table, and check if requested type is
+     already registered */
+  else {
+    hdlr_idx = NFA_HANDLE_INVALID;
+
+    /* Check if this type is already registered */
+    for (i = (NFA_NDEF_DEFAULT_HANDLER_IDX + 1); i < NFA_NDEF_MAX_HANDLERS;
+         i++) {
+      /* If this is a free slot, then remember it */
+      if (p_cb->p_ndef_handler[i] == NULL) {
+        hdlr_idx = i;
+        break;
+      }
+    }
+  }
+
+  if (hdlr_idx != NFA_HANDLE_INVALID) {
+    /* Update the table */
+    p_cb->p_ndef_handler[hdlr_idx] = p_reg_info;
+
+    p_reg_info->ndef_type_handle =
+        (tNFA_HANDLE)(NFA_HANDLE_GROUP_NDEF_HANDLER | hdlr_idx);
+
+    ndef_register.ndef_type_handle = p_reg_info->ndef_type_handle;
+    ndef_register.status = NFA_STATUS_OK;
+
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NDEF handler successfully registered. Handle=0x%08x",
+                     p_reg_info->ndef_type_handle);
+    tNFA_NDEF_EVT_DATA nfa_ndef_evt_data;
+    nfa_ndef_evt_data.ndef_reg = ndef_register;
+    (*(p_reg_info->p_ndef_cback))(NFA_NDEF_REGISTER_EVT, &nfa_ndef_evt_data);
+
+    /* indicate that we will free message buffer when type_handler is
+     * deregistered */
+    return false;
+  } else {
+    /* Error */
+   LOG(ERROR) << StringPrintf("NDEF handler failed to register.");
+    ndef_register.ndef_type_handle = NFA_HANDLE_INVALID;
+    ndef_register.status = NFA_STATUS_FAILED;
+    tNFA_NDEF_EVT_DATA nfa_ndef_evt_data;
+    nfa_ndef_evt_data.ndef_reg = ndef_register;
+    (*(p_reg_info->p_ndef_cback))(NFA_NDEF_REGISTER_EVT, &nfa_ndef_evt_data);
+
+    return true;
+  }
+}
+
+
+/*******************************************************************************
+**
+** Function         nfa_dm_ndef_handle_message
+**
+** Description      Register NDEF record type handler
+**
 ** Returns          true if message buffer is to be freed by caller
 **
 *******************************************************************************/
@@ -143,7 +221,30 @@ bool nfa_dm_ndef_handle_message(tNFA_DM_MSG* p_data) {
     if (p_cb->p_ndef_handler[NFA_NDEF_DEFAULT_HANDLER_IDX]) {
       LOG(WARNING) << StringPrintf("Default NDEF handler being changed.");
 
-      /* Free old registration info */nfa_dm_ndef_handle_message
+      /* Free old registration info */
+      nfa_dm_ndef_dereg_hdlr_by_handle(
+          (tNFA_HANDLE)NFA_NDEF_DEFAULT_HANDLER_IDX);
+    }
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("Default NDEF handler successfully registered.");
+    hdlr_idx = NFA_NDEF_DEFAULT_HANDLER_IDX;
+  }
+  /* Get available entry in ndef_handler table, and check if requested type is
+     already registered */
+  else {
+    hdlr_idx = NFA_HANDLE_INVALID;
+
+    /* Check if this type is already registered */
+    for (i = (NFA_NDEF_DEFAULT_HANDLER_IDX + 1); i < NFA_NDEF_MAX_HANDLERS;
+         i++) {
+      /* If this is a free slot, then remember it */
+      if (p_cb->p_ndef_handler[i] == NULL) {
+        hdlr_idx = i;
+        break;
+      }
+    }
+  }
+
 
   if (hdlr_idx != NFA_HANDLE_INVALID) {
     /* Update the table */
@@ -176,6 +277,7 @@ bool nfa_dm_ndef_handle_message(tNFA_DM_MSG* p_data) {
     return true;
   }
 }
+
 
 /*******************************************************************************
 **
@@ -350,7 +452,7 @@ void nfa_dm_ndef_handle_message(tNFA_STATUS status, uint8_t* p_msg_buf,
   uint8_t rec_count = 0;
   bool record_handled, entire_message_handled;
 
-   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_dm_ndef_handle_message status=%i, msgbuf=%08x, len=%i",
+   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_dm_ndef_handle_message status=%i, msgbuf=%p, len=%i",
                    status, p_msg_buf, len);
 
   if (status != NFA_STATUS_OK) {

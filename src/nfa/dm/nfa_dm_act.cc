@@ -130,7 +130,7 @@ static void nfa_dm_nfcc_power_mode_proc_complete_cback(void) {
 
   power_mode_change.status = NFA_STATUS_OK;
   power_mode_change.power_mode = nfa_dm_cb.nfcc_pwr_mode;
-  NFA_DM_CBACK_DATA nfa_dm_cback_data;
+  tNFA_DM_CBACK_DATA nfa_dm_cback_data;
   nfa_dm_cback_data.power_mode = power_mode_change;
   (*nfa_dm_cb.p_dm_cback)(NFA_DM_PWR_MODE_CHANGE_EVT, &nfa_dm_cback_data);
 }
@@ -1189,7 +1189,7 @@ bool nfa_dm_act_enable_listening(__attribute__((unused)) tNFA_DM_MSG* p_data) {
 ** Returns          true (message buffer to be freed by caller)
 **
 *******************************************************************************/
-bool nfa_dm_act_disable_listening((__attribute__((unused)) tNFA_DM_MSG* p_data) {
+bool nfa_dm_act_disable_listening(__attribute__((unused)) tNFA_DM_MSG* p_data) {
   tNFA_CONN_EVT_DATA evt_data;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_dm_act_disable_listening ()");
@@ -1211,7 +1211,7 @@ bool nfa_dm_act_disable_listening((__attribute__((unused)) tNFA_DM_MSG* p_data) 
 ** Returns          true (message buffer to be freed by caller)
 **
 *******************************************************************************/
-bool nfa_dm_act_disable_passive_listening(tNFA_DM_MSG* p_data) {
+bool nfa_dm_act_disable_passive_listening(__attribute__((unused)) tNFA_DM_MSG* p_data) {
     if(!nfcFL.eseFL._NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION) {
         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFCC_ESE_UICC_CONCURRENT_ACCESS_PROTECTION feature is not available!!");
         return false;

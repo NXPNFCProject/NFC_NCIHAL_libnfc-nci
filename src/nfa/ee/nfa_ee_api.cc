@@ -73,7 +73,7 @@ tNFA_STATUS NFA_EeDiscover(tNFA_EE_CBACK* p_cback) {
   tNFA_EE_API_DISCOVER* p_msg;
   tNFA_STATUS status = NFA_STATUS_FAILED;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;NFA_EeDiscover()");
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   if (nfa_ee_cb.em_state != NFA_EE_EM_STATE_INIT_DONE) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_EeDiscover bad em state: %d", nfa_ee_cb.em_state);
@@ -253,7 +253,7 @@ tNFA_STATUS NFA_EeRegister(tNFA_EE_CBACK* p_cback) {
   tNFA_EE_API_REGISTER* p_msg;
   tNFA_STATUS status = NFA_STATUS_FAILED;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;NFA_EeRegister()");
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   if (p_cback == NULL) {
     LOG(ERROR) << StringPrintf("NFA_EeRegister(): with NULL callback function");
@@ -833,7 +833,7 @@ tNFA_STATUS NFA_EeRemoveAidRouting(uint8_t aid_len, uint8_t* p_aid) {
   tNFA_STATUS status = NFA_STATUS_FAILED;
   uint16_t size = sizeof(tNFA_EE_API_REMOVE_AID) + aid_len;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;NFA_EeRemoveAidRouting()");
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
   if ((aid_len == 0) || (p_aid == NULL) || (aid_len > NFA_MAX_AID_LEN)) {
     LOG(ERROR) << StringPrintf("Bad AID");
     status = NFA_STATUS_INVALID_PARAM;
@@ -880,7 +880,7 @@ tNFA_STATUS NFA_EeRemoveApduPatternRouting(uint8_t apdu_len, uint8_t* p_apdu) {
   tNFA_STATUS status = NFA_STATUS_FAILED;
   uint16_t size = sizeof(tNFA_EE_API_REMOVE_APDU) + apdu_len;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;NFA_EeRemoveApduPatternRouting()");
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
   if ((apdu_len == 0) || (p_apdu == NULL) || (apdu_len > NFC_MAX_APDU_DATA_LEN)) {
     LOG(ERROR) << StringPrintf("Bad handle");
     status = NFA_STATUS_INVALID_PARAM;
@@ -916,7 +916,7 @@ tNFA_STATUS NFA_EeGetLmrtRemainingSize(void) {
   tNFA_EE_API_LMRT_SIZE* p_msg;
   tNFA_STATUS status = NFA_STATUS_FAILED;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;NFA_EeGetLmrtRemainingSize()");
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
   p_msg = (tNFA_EE_API_LMRT_SIZE*)GKI_getbuf(sizeof(tNFA_EE_API_LMRT_SIZE));
   if (p_msg != NULL) {
     p_msg->event = NFA_EE_API_LMRT_SIZE_EVT;
@@ -947,7 +947,7 @@ tNFA_STATUS NFA_EeUpdateNow(void) {
   NFC_HDR* p_msg;
   tNFA_STATUS status = NFA_STATUS_FAILED;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;NFA_EeUpdateNow()");
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
   if (nfa_ee_cb.ee_wait_evt & NFA_EE_WAIT_UPDATE_ALL) {
     LOG(ERROR) << StringPrintf("update in progress");
     status = NFA_STATUS_SEMANTIC_ERROR;

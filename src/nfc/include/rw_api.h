@@ -275,6 +275,7 @@ typedef struct {
 
 typedef union {
   tNFC_STATUS status;
+  tRW_T2T_DETECT t2t_detect;       /* t2t NDEF information                  */
   tRW_T3T_POLL t3t_poll;           /* Response to t3t poll command          */
   tRW_T3T_SYSTEM_CODES t3t_sc;     /* Received system codes from t3 tag     */
   tRW_DETECT_TLV_DATA tlv;         /* The information of detected TLV data  */

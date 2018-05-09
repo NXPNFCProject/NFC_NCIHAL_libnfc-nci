@@ -251,8 +251,7 @@ void GKI_init_q(BUFFER_Q* p_q) {
 ** Returns          A pointer to the buffer, or NULL if none available
 **
 *******************************************************************************/
-void* GKI_getbuf(uint16_t size)
-{
+void* GKI_getbuf(uint16_t size) {
   uint8_t i;
   FREE_QUEUE_T* Q;
   BUFFER_HDR_T* p_hdr;
@@ -285,14 +284,14 @@ void* GKI_getbuf(uint16_t size)
     Q = &p_cb->freeq[p_cb->pool_list[i]];
     if (Q->cur_cnt < Q->total) {
       if (Q->p_first == 0 && gki_alloc_free_queue(i) != true) {
-        LOG(ERROR) << StringPrintf(" out of buffer");
+        LOG(ERROR) << StringPrintf("out of buffer");
         GKI_enable();
         return NULL;
       }
 
       if (Q->p_first == 0) {
         /* gki_alloc_free_queue() failed to alloc memory */
-        LOG(ERROR) << StringPrintf(" fail alloc free queue");
+        LOG(ERROR) << StringPrintf("fail alloc free queue");
         GKI_enable();
         return NULL;
       }
@@ -315,7 +314,7 @@ void* GKI_getbuf(uint16_t size)
     }
   }
 
-  LOG(ERROR) << StringPrintf(" unable to allocate buffer!!!!!");
+  LOG(ERROR) << StringPrintf("unable to allocate buffer!!!!!");
 
   GKI_enable();
 
@@ -338,8 +337,7 @@ void* GKI_getbuf(uint16_t size)
 ** Returns          A pointer to the buffer, or NULL if none available
 **
 *******************************************************************************/
-void* GKI_getpoolbuf(uint8_t pool_id)
-{
+void* GKI_getpoolbuf(uint8_t pool_id) {
   FREE_QUEUE_T* Q;
   BUFFER_HDR_T* p_hdr;
   tGKI_COM_CB* p_cb = &gki_cb.com;
@@ -355,7 +353,7 @@ void* GKI_getpoolbuf(uint8_t pool_id)
 
     if (Q->p_first == 0) {
       /* gki_alloc_free_queue() failed to alloc memory */
-      LOG(ERROR) << StringPrintf("GKI_getpoolbuf() fail alloc free queue");
+      LOG(ERROR) << StringPrintf("fail alloc free queue");
       return NULL;
     }
 
@@ -458,7 +456,7 @@ uint16_t GKI_get_buf_size(void* p_buf) {
 
   p_hdr = (BUFFER_HDR_T*)((uint8_t*)p_buf - BUFFER_HDR_SIZE);
 
-  if ((uint32_t)p_hdr & 1){
+  if ((uintptr_t)p_hdr & 1){
     return (0);
   }
 
@@ -484,7 +482,7 @@ bool gki_chk_buf_damage(void* p_buf) {
   uint32_t* magic;
   magic = (uint32_t*)((uint8_t*)p_buf + GKI_get_buf_size(p_buf));
 
-  if ((uint32_t)magic & 1){
+  if ((uintptr_t)magic & 1){
     return (true);
   }
 

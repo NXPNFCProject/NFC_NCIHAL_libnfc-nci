@@ -57,7 +57,7 @@
 
 #include "nfc_int.h"
 #if (NXP_EXTNS == TRUE)
-#include <config.h>
+#include <nfc_config.h>
 #endif
 
 using android::base::StringPrintf;
@@ -76,7 +76,7 @@ static uint8_t gLastSak = 0x00;
 static uint8_t nfa_dm_get_rf_discover_config(
     tNFA_DM_DISC_TECH_PROTO_MASK dm_disc_mask,
     tNFC_DISCOVER_PARAMS disc_params[], uint8_t max_params);
-static tNFA_STATUS nfa_dm_set_rf_listen_mode_config(
+__attribute__((unused)) static tNFA_STATUS nfa_dm_set_rf_listen_mode_config(
     tNFA_DM_DISC_TECH_PROTO_MASK tech_proto_mask);
 static void nfa_dm_set_rf_listen_mode_raw_config(
     tNFA_DM_DISC_TECH_PROTO_MASK* p_disc_mask);
@@ -110,8 +110,6 @@ uint8_t T2T_SLP_REQ[] ={0x50,0x00};
 
 int getListenTechValue(int listenTechMask);
 #define P2P_RESUME_POLL_TIMEOUT 16 /*mili second timeout value*/
-static uint16_t P2P_PRIO_LOGIC_CLEANUP_TIMEOUT =
-    50; /*timeout value 500 ms for p2p_prio_logic_cleanup*/
 static uint16_t P2P_PRIO_LOGIC_DEACT_NTF_TIMEOUT =
     200; /* timeout value 2 sec waiting for deactivate ntf */
 #endif
@@ -343,15 +341,16 @@ static uint8_t nfa_dm_get_sak(tNFA_DM_DISC_TECH_PROTO_MASK tech_proto_mask) {
   uint8_t tech_list = 0;
   uint8_t hostListenMask = 0x00, fwdEnable = 0x00;
 
-  if ((GetNumValue(NAME_HOST_LISTEN_TECH_MASK, &hostListenMask,
-                   sizeof(hostListenMask)))) {
-     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : HOST_LISTEN_TECH_MASK = 0x%X;", __func__,
-                     hostListenMask);
+  if (NfcConfig::hasKey(NAME_HOST_LISTEN_TECH_MASK)) {
+    hostListenMask = NfcConfig::getUnsigned(NAME_HOST_LISTEN_TECH_MASK);
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : HOST_LISTEN_TECH_MASK = 0x%x;", __func__,
+                    hostListenMask);
   }
-  if ((GetNumValue(NAME_NXP_FWD_FUNCTIONALITY_ENABLE, &fwdEnable,
-                   sizeof(fwdEnable)))) {
-     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s:NXP_FWD_FUNCTIONALITY_ENABLE=0x0%lu;", __func__,
-                     fwdEnable);
+
+  if (NfcConfig::hasKey(NAME_NXP_FWD_FUNCTIONALITY_ENABLE)) {
+    fwdEnable = NfcConfig::getUnsigned(NAME_NXP_FWD_FUNCTIONALITY_ENABLE);
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s:NXP_FWD_FUNCTIONALITY_ENABLE=0x0%x;", __func__,
+                    fwdEnable);
   }
 
   tech_list = nfa_ee_get_supported_tech_list(nfa_dm_cb.selected_uicc_id);
@@ -399,10 +398,10 @@ static tNFA_STATUS nfa_dm_set_listen_mode_set_configs(
 
    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : tech_proto_mask = 0x%08X", __func__, tech_proto_mask);
 
-  if ((GetNumValue(NAME_HOST_LISTEN_TECH_MASK, &hostListenMask,
-                   sizeof(hostListenMask)))) {
-     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : HOST_LISTEN_TECH_MASK = 0x0%lu;", __func__,
-                     hostListenMask);
+  if (NfcConfig::hasKey(NAME_HOST_LISTEN_TECH_MASK)) {
+    hostListenMask = NfcConfig::getUnsigned(NAME_HOST_LISTEN_TECH_MASK);
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : HOST_LISTEN_TECH_MASK = 0x0%lu;", __func__,
+                    hostListenMask);
   }
 
   p = params;
@@ -454,7 +453,6 @@ static tNFA_STATUS nfa_dm_set_listen_mode_set_configs(
   return NFA_STATUS_OK;
 }
 #endif
-
 /*******************************************************************************
 **
 ** Function         nfa_dm_set_rf_listen_mode_config
@@ -1139,14 +1137,15 @@ static tNFC_STATUS nfa_dm_send_deactivate_cmd(tNFC_DEACT_TYPE deactivate_type) {
             "Reading NAME_NFA_DM_DISC_NTF_TIMEOUT val   "
             "nfc_cb.num_disc_maps = %d",
             nfc_cb.num_disc_maps);
-        if (GetNumValue(NAME_NFA_DM_DISC_NTF_TIMEOUT, &num, sizeof(num))) {
-          num *= 1000;
-        } else {
+        if (NfcConfig::hasKey(NAME_NXP_FWD_FUNCTIONALITY_ENABLE)) {
+            num = NfcConfig::getUnsigned(NAME_NXP_FWD_FUNCTIONALITY_ENABLE);
+            num *= 1000;
+          } else {
           num = NFA_DM_DISC_TIMEOUT_W4_DEACT_NTF;
-          DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Overriding NFA_DM_DISC_NTF_TIMEOUT to use %d", num);
+          DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Overriding NFA_DM_DISC_NTF_TIMEOUT to use %lu", num);
         }
       }
-      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Starting timer value %d", num);
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Starting timer value %lu", num);
       /*wait infinite time for deactivate NTF, if the timeout is configured to
        * 0*/
       if (num != 0) nfa_sys_start_timer(&nfa_dm_cb.disc_cb.tle, 0, num);
@@ -1184,11 +1183,11 @@ void nfa_dm_start_rf_discover(void) {
   uint8_t config_params[10], *p;
   uint8_t num_params, xx;
   uint8_t tech_list = 0x00;
-  unsigned long fwdEnable = 0x00;
-  unsigned long hostListenMask = 0x00;
-  unsigned long uiccListenMask = 0x00;
-  unsigned long eseListenMask  = 0x00;
-  unsigned long p2pListenMask = 0x00;
+  unsigned fwdEnable = 0x00;
+  unsigned hostListenMask = 0x00;
+  unsigned uiccListenMask = 0x00;
+  unsigned eseListenMask  = 0x00;
+  unsigned p2pListenMask = 0x00;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_dm_start_rf_discover (): enter");
   /* Make sure that RF discovery was enabled, or some app has exclusive control
@@ -1332,33 +1331,29 @@ void nfa_dm_start_rf_discover(void) {
                      dm_disc_mask);
 
 #if (NXP_EXTNS == TRUE)
-    if ((GetNumValue(NAME_NXP_FWD_FUNCTIONALITY_ENABLE, &fwdEnable,
-                     sizeof(fwdEnable))) == false) {
-      fwdEnable = 0x01;  // default value
-       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s:NXP_FWD_FUNCTIONALITY_ENABLE=0x0%X;", __func__,
-                       fwdEnable);
+    fwdEnable = NfcConfig::getUnsigned(NAME_NXP_FWD_FUNCTIONALITY_ENABLE,0x01);
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s:NXP_FWD_FUNCTIONALITY_ENABLE=0x0%x;", __func__,
+                    fwdEnable);
+    if (NfcConfig::hasKey(NAME_HOST_LISTEN_TECH_MASK)) {
+      hostListenMask = NfcConfig::getUnsigned(NAME_HOST_LISTEN_TECH_MASK);
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s:HOST_LISTEN_TECH_MASK = 0x0%X;", __func__,
+                      hostListenMask);
     }
-    if (GetNumValue(NAME_HOST_LISTEN_TECH_MASK, &hostListenMask,
-                    sizeof(hostListenMask))) {
-       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s:HOST_LISTEN_TECH_MASK = 0x0%X;", __func__,
-                       hostListenMask);
-    }
-    if (GetNumValue(NAME_UICC_LISTEN_TECH_MASK, &uiccListenMask,
-                    sizeof(uiccListenMask))) {
-       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s:UICC_LISTEN_TECH_MASK = 0x0%X;", __func__,
+    if (NfcConfig::hasKey(NAME_UICC_LISTEN_TECH_MASK)) {
+      uiccListenMask = NfcConfig::getUnsigned(NAME_UICC_LISTEN_TECH_MASK);
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s:UICC_LISTEN_TECH_MASK = 0x0%X;", __func__,
                        uiccListenMask);
     }
-    if (GetNumValue(NAME_NXP_ESE_LISTEN_TECH_MASK, &eseListenMask,
-                    sizeof(eseListenMask))) {
-       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s:NXP_ESE_LISTEN_TECH_MASK = 0x0%X;", __func__,
-                       eseListenMask);
+    if (NfcConfig::hasKey(NAME_NXP_ESE_LISTEN_TECH_MASK)) {
+      eseListenMask = NfcConfig::getUnsigned(NAME_NXP_ESE_LISTEN_TECH_MASK);
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s:NXP_ESE_LISTEN_TECH_MASK = 0x0%X;", __func__,
+                        eseListenMask);
     }
-    if (GetNumValue(NAME_P2P_LISTEN_TECH_MASK, &p2pListenMask,
-                    sizeof(p2pListenMask))) {
-       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s:P2P_LISTEN_TECH_MASK = 0x0%X;", __func__,
+    if (NfcConfig::hasKey(NAME_P2P_LISTEN_TECH_MASK)) {
+      p2pListenMask = NfcConfig::getUnsigned(NAME_P2P_LISTEN_TECH_MASK);
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s:P2P_LISTEN_TECH_MASK = 0x0%X;", __func__,
                        p2pListenMask);
     }
-
     tech_list = nfa_ee_get_supported_tech_list(nfa_dm_cb.selected_uicc_id);
 
     if ((fwdEnable == 0x00) || (hostListenMask == 0x00)) {
@@ -2108,8 +2103,8 @@ void nfa_dm_disc_new_state(tNFA_DM_RF_DISC_STATE new_state) {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "old_state: %s (%d), new_state: %s (%d) "
       "disc_flags: 0x%x",
-      nfa_dm_disc_state_2_str(nfa_dm_cb.disc_cb.disc_state),
-      nfa_dm_cb.disc_cb.disc_state, nfa_dm_disc_state_2_str(new_state),
+      nfa_dm_disc_state_2_str(nfa_dm_cb.disc_cb.disc_state).c_str(),
+      nfa_dm_cb.disc_cb.disc_state, nfa_dm_disc_state_2_str(new_state).c_str(),
       new_state, nfa_dm_cb.disc_cb.disc_flags);
 
   nfa_dm_cb.disc_cb.disc_state = new_state;
@@ -2986,8 +2981,8 @@ void nfa_dm_disc_sm_execute(tNFA_DM_RF_DISC_SM_EVENT event,
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "state: %s (%d), event: %s(%d) disc_flags: "
       "0x%x",
-      nfa_dm_disc_state_2_str(nfa_dm_cb.disc_cb.disc_state),
-      nfa_dm_cb.disc_cb.disc_state, nfa_dm_disc_event_2_str(event), event,
+      nfa_dm_disc_state_2_str(nfa_dm_cb.disc_cb.disc_state).c_str(),
+      nfa_dm_cb.disc_cb.disc_state, nfa_dm_disc_event_2_str(event).c_str(), event,
       nfa_dm_cb.disc_cb.disc_flags);
 
   switch (nfa_dm_cb.disc_cb.disc_state) {
@@ -3038,7 +3033,7 @@ void nfa_dm_disc_sm_execute(tNFA_DM_RF_DISC_SM_EVENT event,
   }
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "new state: %s (%d), disc_flags: 0x%x",
-      nfa_dm_disc_state_2_str(nfa_dm_cb.disc_cb.disc_state),
+      nfa_dm_disc_state_2_str(nfa_dm_cb.disc_cb.disc_state).c_str(),
       nfa_dm_cb.disc_cb.disc_state, nfa_dm_cb.disc_cb.disc_flags);
 }
 

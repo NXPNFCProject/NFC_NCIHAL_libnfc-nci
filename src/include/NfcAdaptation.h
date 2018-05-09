@@ -45,6 +45,7 @@
 #include <android/hardware/nfc/1.0/INfcClientCallback.h>
 #include <android/hardware/nfc/1.0/types.h>
 #include <vendor/nxp/nxpnfc/1.0/INxpNfc.h>
+
 using vendor::nxp::nxpnfc::V1_0::INxpNfc;
 
 namespace android {
@@ -53,10 +54,10 @@ namespace nfc {
 namespace V1_0 {
 struct INfc;
 struct INfcClientCallback;
+}
 namespace V1_1 {
 struct INfc;
 struct INfcClientCallback;
-}
 }
 }
 }
@@ -135,7 +136,6 @@ class NfcAdaptation {
   static android::sp<vendor::nxp::nxpnfc::V1_0::INxpNfc> mHalNxpNfc;
   static android::hardware::nfc::V1_1::INfcClientCallback* mCallback;
 #if (NXP_EXTNS == TRUE)
-  pthread_t mThreadId;
   static ThreadCondVar mHalCoreResetCompletedEvent;
   static ThreadCondVar mHalCoreInitCompletedEvent;
   static ThreadCondVar mHalInitCompletedEvent;

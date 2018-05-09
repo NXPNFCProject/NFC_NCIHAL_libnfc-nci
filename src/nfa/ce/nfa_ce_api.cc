@@ -146,7 +146,7 @@ tNFA_STATUS NFA_CeConfigureLocalTag(tNFA_PROTOCOL_MASK protocol_mask,
 {
   tNFA_CE_MSG* p_msg;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;NFA_CeConfigureLocalTag ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   if (protocol_mask) {
     /* If any protocols are specified, then NDEF buffer pointer must be non-NULL
@@ -339,7 +339,7 @@ tNFA_STATUS NFA_CeRegisterFelicaSystemCodeOnDH(uint16_t system_code,
                                                tNFA_CONN_CBACK* p_conn_cback) {
   tNFA_CE_MSG* p_msg;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;NFA_CeRegisterFelicaSystemCodeOnDH ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   /* Validate parameters */
   if (p_conn_cback == NULL) return (NFA_STATUS_INVALID_PARAM);
@@ -415,7 +415,7 @@ tNFA_STATUS NFA_CeRegisterAidOnDH(uint8_t aid[NFC_MAX_AID_LEN], uint8_t aid_len,
                                   tNFA_CONN_CBACK* p_conn_cback) {
   tNFA_CE_MSG* p_msg;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;NFA_CeRegisterAidOnDH ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
 /* Validate parameters */
 #if (NXP_EXTNS == TRUE)

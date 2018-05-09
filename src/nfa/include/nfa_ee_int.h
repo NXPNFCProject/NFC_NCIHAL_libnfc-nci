@@ -639,6 +639,8 @@ typedef struct {
 
 /* Order of Routing entries in Routing Table */
 #define NCI_ROUTE_ORDER_AID 0x01        /* AID routing order */
+#define NCI_ROUTE_ORDER_PATTERN 0x02    /* Pattern routing order*/
+#define NCI_ROUTE_ORDER_SYS_CODE 0x03   /* System Code routing order*/
 #define NCI_ROUTE_ORDER_PROTOCOL 0x04   /* Protocol routing order*/
 #define NCI_ROUTE_ORDER_TECHNOLOGY 0x05 /* Technology routing order*/
 

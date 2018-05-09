@@ -54,9 +54,6 @@ extern uint8_t HCI_LOOPBACK_DEBUG;
 #define NFA_HCI_DEBUG_ON 0x01
 #define NFA_HCI_DEBUG_OFF 0x00
 
-#if (NXP_EXTNS == TRUE)
-bool MW_RCVRY_FW_DNLD_ALLOWED;
-#endif
 /*****************************************************************************
 **  Constants and data types
 *****************************************************************************/

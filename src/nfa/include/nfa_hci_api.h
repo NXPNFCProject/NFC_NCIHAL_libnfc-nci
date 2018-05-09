@@ -539,6 +539,26 @@ extern tNFA_STATUS NFA_HciGetRegistry(tNFA_HANDLE hci_handle, uint8_t pipe,
 
 /*******************************************************************************
 **
+** Function         NFA_HciSetRegistry
+**
+** Description      This function requests a peer host to set the desired
+**                  registry field value for the gate that the pipe is on.
+**
+**                  When the peer host responds,the app is notified with
+**                  NFA_HCI_SET_REG_RSP_EVT or
+**                  if an error occurs in sending the command the app will be
+**                  notified by NFA_HCI_CMD_SENT_EVT
+**
+** Returns          NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_FAILED otherwise
+**
+*******************************************************************************/
+extern tNFA_STATUS NFA_HciSetRegistry(tNFA_HANDLE hci_handle, uint8_t pipe,
+                                      uint8_t reg_inx, uint8_t data_size,
+                                      uint8_t* p_data);
+
+/*******************************************************************************
+**
 ** Function         NFA_HciSendResponse
 **
 ** Description      This function is called to send a response on a pipe created

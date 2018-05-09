@@ -648,6 +648,7 @@ typedef struct {
 } tNFC_EE_ACTION_REVT;
 
 #define NFC_EE_DISC_OP_ADD 0
+#define NFC_EE_DISC_OP_REMOVE 1
 typedef uint8_t tNFC_EE_DISC_OP;
 typedef struct {
   tNFC_EE_DISC_OP op;              /* add or remove this entry         */

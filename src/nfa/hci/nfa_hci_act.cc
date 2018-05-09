@@ -89,8 +89,8 @@ static void nfa_hci_handle_generic_gate_evt(uint8_t* p_data, uint16_t data_len,
                                             tNFA_HCI_DYN_PIPE* p_pipe);
 
 #if (NXP_EXTNS == TRUE)
-static void nfa_hci_api_get_host_id(tNFA_HCI_EVENT_DATA* p_evt_data);
-static void nfa_hci_api_get_host_type(tNFA_HCI_EVENT_DATA* p_evt_data);
+static __attribute__((unused)) void nfa_hci_api_get_host_id(tNFA_HCI_EVENT_DATA* p_evt_data);
+static __attribute__((unused)) void nfa_hci_api_get_host_type(tNFA_HCI_EVENT_DATA* p_evt_data);
 static tNFA_STATUS nfa_hci_api_get_host_type_list();
 static void nfa_hci_api_getnoofhosts(uint8_t* p_data, uint8_t data_len);
 static void nfa_hci_handle_Nfcee_admpipe_rsp(uint8_t* p_data, uint8_t data_len);
@@ -98,11 +98,11 @@ static void nfa_hci_handle_Nfcee_dynpipe_rsp(uint8_t pipeId, uint8_t* p_data,
                                              uint8_t data_len);
 static bool nfa_hci_api_checkforAPDUGate(uint8_t* p_data, uint8_t data_len);
 static bool nfa_hci_api_IspipePresent(uint8_t nfceeId, uint8_t gateId);
-static bool nfa_hci_api_GetpipeId(uint8_t nfceeId, uint8_t gateId,
+static __attribute__((unused)) bool nfa_hci_api_GetpipeId(uint8_t nfceeId, uint8_t gateId,
                                   uint8_t* pipeId);
 static void nfa_hci_poll_session_id_cb(uint8_t event, uint16_t param_len,
                                        uint8_t* p_param);
-static void nfa_hci_read_num_nfcee_config_cb(uint8_t event, uint16_t param_len,
+static __attribute__((unused)) void nfa_hci_read_num_nfcee_config_cb(uint8_t event, uint16_t param_len,
                                              uint8_t* p_param);
 static tNFA_STATUS nfa_hci_poll_session_id(uint8_t host_type);
 static void nfa_hci_get_pipe_state_cb(uint8_t event, uint16_t param_len, uint8_t* p_param);
@@ -320,7 +320,7 @@ static void nfa_hci_api_register(tNFA_HCI_EVENT_DATA* p_evt_data) {
         strncpy(&nfa_hci_cb.cfg.reg_app_names[xx][0], p_app_name,
                 NFA_MAX_HCI_APP_NAME_LEN);
         nfa_hci_cb.nv_write_needed = true;
-        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(nfa_hci_api_register (%s)  Allocated: %u", p_app_name,
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hci_api_register (%s)  Allocated: %u", p_app_name,
                          xx);
         break;
       }
@@ -372,7 +372,7 @@ void nfa_hci_api_deregister(tNFA_HCI_EVENT_DATA* p_evt_data) {
           !strncmp(p_evt_data->app_info.app_name,
                    &nfa_hci_cb.cfg.reg_app_names[xx][0],
                    strlen(p_evt_data->app_info.app_name))) {
-        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(nfa_hci_api_deregister (%s) inx: %u",
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hci_api_deregister (%s) inx: %u",
                          p_evt_data->app_info.app_name, xx);
         break;
       }
@@ -1410,13 +1410,12 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
 #if (NXP_EXTNS == TRUE)
   // Terminal Host Type as ETSI12  Byte1 -Host Id Byte2 - 00
   uint8_t terminal_host_type[NFA_HCI_HOST_TYPE_LEN] = {0x01, 0x00};
-  uint8_t count = 0;
 #endif
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "nfa_hci_handle_admin_gate_rsp - LastCmdSent: %s  App: 0x%04x  Gate: "
       "0x%02x  Pipe: 0x%02x",
-      nfa_hciu_instr_2_str(nfa_hci_cb.cmd_sent), nfa_hci_cb.app_in_use,
+      nfa_hciu_instr_2_str(nfa_hci_cb.cmd_sent).c_str(), nfa_hci_cb.app_in_use,
       nfa_hci_cb.local_gate_in_use, nfa_hci_cb.pipe_in_use);
 
   /* If starting up, handle events here */
@@ -1805,7 +1804,6 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
 void nfa_hci_handle_admin_gate_evt() {
   tNFA_HCI_EVT_DATA evt_data;
   tNFA_HCI_API_GET_HOST_LIST* p_msg;
-  (void)p_data;
   if (nfa_hci_cb.inst != NFA_HCI_EVT_HOT_PLUG) {
     LOG(ERROR) << StringPrintf(
         "nfa_hci_handle_admin_gate_evt - Unknown event on ADMIN Pipe");
@@ -2064,7 +2062,6 @@ static void nfa_hci_handle_generic_gate_cmd(uint8_t* p_data, uint8_t data_len,
                                             tNFA_HCI_DYN_PIPE* p_pipe) {
   tNFA_HCI_EVT_DATA evt_data;
   tNFA_HANDLE app_handle = nfa_hciu_get_pipe_owner(p_pipe->pipe_id);
-  (void)p_gate;
 
   switch (nfa_hci_cb.inst) {
     case NFA_HCI_ANY_SET_PARAMETER:
@@ -2134,7 +2131,6 @@ static void nfa_hci_handle_generic_gate_rsp(uint8_t* p_data, uint8_t data_len,
                                             tNFA_HCI_DYN_PIPE* p_pipe) {
   tNFA_HCI_EVT_DATA evt_data;
   tNFA_STATUS status = NFA_STATUS_OK;
-  (void)p_gate;
 
   if (nfa_hci_cb.inst != NFA_HCI_ANY_OK) status = NFA_STATUS_FAILED;
 
@@ -2437,7 +2433,6 @@ static void nfa_hci_api_get_host_type(tNFA_HCI_EVENT_DATA* p_evt_data) {
 tNFA_STATUS nfa_hci_api_get_host_type_list() {
   tNFA_STATUS status = NFA_STATUS_FAILED;
   tNFA_HCI_EVT_DATA evt_data;
-  tNFA_HANDLE app_handle;
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hci_api_get_host_type_list - enter!!");
   if ((nfa_hci_cb.host_controller_version == NFA_HCI_CONTROLLER_VERSION_12) &&
       (nfa_hci_cb.hci_state == NFA_HCI_STATE_NFCEE_ENABLE)) {
@@ -2467,9 +2462,6 @@ tNFA_STATUS nfa_hci_api_get_host_type_list() {
 tNFA_STATUS nfa_hci_api_config_nfcee(uint8_t hostId) {
   tNFA_STATUS status = NFA_STATUS_OK;
   tNFA_HCI_EVT_DATA evt_data;
-  uint8_t count = 0;
-  uint8_t pipeId = 0;
-  bool bCreatepipe = false;
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hci_api_config_nfcee - enter!!");
 
   nfa_hciu_set_nfceeid_config_mask(NFA_HCI_SET_CONFIG_EVENT, hostId);
@@ -2572,9 +2564,8 @@ static tNFA_STATUS nfa_hci_get_num_nfcee_configured() {
 **
 *********************************************************************************/
 static tNFA_STATUS nfa_hci_poll_all_nfcee_session_id() {
-  uint8_t discovered_num_nfcee = NFA_HCI_MAX_HOST_IN_NETWORK, xx;
+  uint8_t xx;
   tNFA_STATUS status = NFA_STATUS_OK;
-  uint8_t host_index = 0x00;
   for (xx = 0; xx < nfa_hci_cb.num_nfcee; xx++) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hci_pollsession_id   -%x",
                      nfa_hci_cb.hci_ee_info[xx].ee_handle);
@@ -2650,7 +2641,7 @@ static tNFA_STATUS nfa_hci_poll_session_id(uint8_t host_type) {
 ** Returns          None
 **
 *******************************************************************************/
-static void nfa_hci_poll_session_id_cb(uint8_t event, uint16_t param_len,
+static void nfa_hci_poll_session_id_cb(__attribute__((unused)) uint8_t event, uint16_t param_len,
                                        uint8_t* p_param) {
   uint8_t default_session[NFA_HCI_SESSION_ID_LEN] = {0xFF, 0xFF, 0xFF, 0xFF,
                                                      0xFF, 0xFF, 0xFF, 0xFF};
@@ -2717,7 +2708,6 @@ void nfa_hci_handle_nfcee_config_evt(uint16_t event) {
         nfa_hci_cb.nfcee_cfg.config_nfcee_state =
             NFA_HCI_GET_NUM_NFCEE_CONFIGURED;
         if (nfa_hci_get_num_nfcee_configured() != NFA_STATUS_BUSY) {
-          tNFA_HCI_API_CONFIGURE_EVT* p_msg;
           /* Send read session event to continue with other initialization*/
           /*Read the session ID of the host discovered */
           nfa_hci_cb.nfcee_cfg.config_nfcee_state = NFA_HCI_READ_SESSIONID;
@@ -2905,7 +2895,7 @@ static void nfa_hci_handle_Nfcee_admpipe_rsp(uint8_t* p_data,
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "nfa_hci_handle_Nfcee_admpipe_rsp - LastCmdSent: %s  App: 0x%04x  Gate: "
       "0x%02x  Pipe: 0x%02x",
-      nfa_hciu_instr_2_str(nfa_hci_cb.cmd_sent), nfa_hci_cb.app_in_use,
+      nfa_hciu_instr_2_str(nfa_hci_cb.cmd_sent).c_str(), nfa_hci_cb.app_in_use,
       nfa_hci_cb.local_gate_in_use, nfa_hci_cb.pipe_in_use);
   if (nfa_hci_cb.inst != NFA_HCI_ANY_OK) {
 
@@ -2988,7 +2978,6 @@ static void nfa_hci_handle_Nfcee_admpipe_rsp(uint8_t* p_data,
 static void nfa_hci_handle_Nfcee_dynpipe_rsp(uint8_t pipeId, uint8_t* p_data,
                                              uint8_t data_len) {
   tNFA_HCI_DYN_PIPE* p_pipe = nfa_hciu_find_pipe_by_pid(pipeId);
-  tNFA_HCI_DYN_GATE* p_gate;
   tNFA_STATUS status = NFA_STATUS_FAILED;
   bool wStatus = false;
   tNFA_HCI_EVT_DATA evt_data;
@@ -3181,9 +3170,9 @@ tNFA_STATUS nfa_hci_getApduAndConnectivity_PipeStatus()
 ** Returns          None
 **
 *******************************************************************************/
-static void nfa_hci_get_pipe_state_cb(uint8_t event, uint16_t param_len, uint8_t* p_param)
-{
-    uint8_t num_param_id         = 0x00, xx;
+static void nfa_hci_get_pipe_state_cb(__attribute__((unused)) uint8_t event, __attribute__((unused))
+                                          uint16_t param_len, uint8_t* p_param) {
+    uint8_t num_param_id         = 0x00;
     uint8_t NFA_PARAM_ID_INDEX   = 0x04;
     uint8_t param_id1 = 0x00;
     uint8_t param_id2 = 0x00;

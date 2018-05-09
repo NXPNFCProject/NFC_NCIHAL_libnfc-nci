@@ -138,7 +138,7 @@ static void nfa_rw_send_data_to_upper(tRW_DATA* p_rw_data) {
 
    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_rw_send_data_to_upper: Len [0x%X] Status [%s]",
                    p_rw_data->data.p_data->len,
-                   NFC_GetStatusName(p_rw_data->data.status));
+                   NFC_GetStatusName(p_rw_data->data.status).c_str());
 
   /* Notify conn cback of NFA_DATA_EVT */
   conn_evt_data.data.status = p_rw_data->data.status;
@@ -1621,13 +1621,13 @@ static tNFC_STATUS nfa_rw_start_ndef_write(void) {
   if (nfa_rw_cb.flags & NFA_RW_FL_TAG_IS_READONLY) {
     /* error: ndef tag is read-only */
     status = NFC_STATUS_FAILED;
-    LOG(ERROR) << StringPrintf("Unable to write NDEF. Tag is read-only")
+    LOG(ERROR) << StringPrintf("Unable to write NDEF. Tag is read-only");
   } else if (nfa_rw_cb.ndef_max_size < nfa_rw_cb.ndef_wr_len) {
     /* error: ndef tag size is too small */
     status = NFC_STATUS_BUFFER_FULL;
     LOG(ERROR) << StringPrintf(
         "Unable to write NDEF. Tag maxsize=%i, request write size=%i",
-        nfa_rw_cb.ndef_max_size, nfa_rw_cb.ndef_wr_len)
+        nfa_rw_cb.ndef_max_size, nfa_rw_cb.ndef_wr_len);
   } else {
     if (NFC_PROTOCOL_T1T == protocol) { /* Type1Tag    - NFC-A */
       status = RW_T1tWriteNDef((uint16_t)nfa_rw_cb.ndef_wr_len,
@@ -2310,7 +2310,7 @@ static bool nfa_rw_t3t_get_system_codes() {
 }
 
 #if (NXP_EXTNS == TRUE)
-static bool nfa_rw_t3bt_get_pupi(tNFA_RW_MSG* p_data) {
+static bool nfa_rw_t3bt_get_pupi(__attribute__((unused)) tNFA_RW_MSG* p_data) {
   tNFC_STATUS status;
 
   status = RW_T3BtGetPupiID();

@@ -206,7 +206,6 @@ void ce_t3t_handle_update_cmd(tCE_CB* p_ce_cb, NFC_HDR* p_cmd_msg) {
   tCE_T3T_NDEF_INFO ndef_info;
   tNFC_STATUS nfc_status = NFC_STATUS_OK;
   uint8_t update_flags = 0;
-  tCE_UPDATE_INFO update_info;
 
   /* If in idle state, notify app that update is starting */
   if (p_cb->state == CE_T3T_STATE_IDLE) {
@@ -737,7 +736,7 @@ void ce_t3t_data_cback(tNFC_DATA_CEVT* p_data) {
                * more data remaining after reading block list */
               if (remaining) {
                 LOG(ERROR) << StringPrintf(
-                    "CE: unexpected data after after CHECK command (#i bytes)",
+                    "CE: unexpected data after after CHECK command (%x bytes)",
                     remaining);
               }
               ce_t3t_handle_check_cmd(p_ce_cb, p_msg);

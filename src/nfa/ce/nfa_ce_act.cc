@@ -279,7 +279,7 @@ void nfa_ce_handle_t4t_aid_evt(tCE_EVENT event, tCE_DATA* p_ce_data) {
       LOG(ERROR) << StringPrintf(
           "nfa_ce_handle_t4t_aid_evt: unable to find listen_info for aid hdl "
           "%i",
-          p_ce_data->raw_frame.aid_handle)
+          p_ce_data->raw_frame.aid_handle);
     }
 
     GKI_freebuf(p_ce_data->raw_frame.p_data);
@@ -318,7 +318,9 @@ void nfa_ce_discovery_cback(tNFA_DM_RF_DISC_EVT event, tNFC_DISCOVER* p_data) {
 #endif
       ce_msg.activate_ntf.hdr.event = NFA_CE_ACTIVATE_NTF_EVT;
       ce_msg.activate_ntf.p_activation_params = &p_data->activate;
-      nfa_ce_hdl_event((void*)&ce_msg);
+      NFC_HDR pmsg;
+      pmsg = ce_msg.activate_ntf.hdr;
+      nfa_ce_hdl_event(&pmsg);
       break;
 
     case NFA_DM_RF_DISC_DEACTIVATED_EVT:
@@ -331,7 +333,9 @@ void nfa_ce_discovery_cback(tNFA_DM_RF_DISC_EVT event, tNFC_DISCOVER* p_data) {
         /*clear the p61 ce*/
         nfa_ee_ce_p61_active = 0;
 #endif
-        nfa_ce_hdl_event((void*)&ce_msg);
+        NFC_HDR pmsg;
+        pmsg = ce_msg.hdr;
+        nfa_ce_hdl_event(&pmsg);
       }
       break;
 
@@ -1338,7 +1342,7 @@ bool nfa_ce_api_cfg_local_tag(tNFA_CE_MSG* p_ce_msg) {
 
    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "Configuring local NDEF tag: protocol_mask=%01x cur_size=%i, "
-      "max_size=%i, readonly=%i",
+      "max_size=%i, readonly=%i, uid_len=%i",
       p_ce_msg->local_tag.protocol_mask, p_ce_msg->local_tag.ndef_cur_size,
       p_ce_msg->local_tag.ndef_max_size, p_ce_msg->local_tag.read_only,
       p_ce_msg->local_tag.uid_len);

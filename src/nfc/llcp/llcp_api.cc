@@ -44,6 +44,8 @@
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
 
+#include <string>
+#include <string.h>
 #include "gki.h"
 #include "llcp_api.h"
 #include "llcp_int.h"
@@ -144,8 +146,8 @@ void LLCP_SetConfig(uint16_t link_miu, uint8_t opt, uint8_t wt,
   /* if Link MIU is bigger than GKI buffer */
   if (link_miu > LLCP_MIU) {
     LOG(ERROR) << StringPrintf(
-        "LLCP_SetConfig (): link_miu shall not be bigger than LLCP_MIU (%d)",
-        LLCP_MIU);
+        "LLCP_SetConfig (): link_miu shall not be bigger than LLCP_MIU (%lu)",
+        (unsigned long)LLCP_MIU);
     llcp_cb.lcb.local_link_miu = LLCP_MIU;
   } else
     llcp_cb.lcb.local_link_miu = link_miu;
@@ -379,7 +381,7 @@ tLLCP_STATUS LLCP_DeactivateLink(void) {
 **
 *******************************************************************************/
 uint8_t LLCP_RegisterServer(uint8_t reg_sap, uint8_t link_type,
-                            char* p_service_name,
+                            std::string p_service_name,
                             tLLCP_APP_CBACK* p_app_cback) {
   uint8_t sap;
   uint16_t length;
@@ -389,7 +391,7 @@ uint8_t LLCP_RegisterServer(uint8_t reg_sap, uint8_t link_type,
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "LLCP_RegisterServer (): SAP:0x%x, link_type:0x%x, ServiceName:<%s>",
-      reg_sap, link_type, ((p_service_name == NULL) ? "" : p_service_name));
+      reg_sap, link_type, p_service_name.c_str());
 
   if (!p_app_cback) {
     LOG(ERROR) << StringPrintf("LLCP_RegisterServer (): Callback must be provided");
@@ -454,22 +456,20 @@ uint8_t LLCP_RegisterServer(uint8_t reg_sap, uint8_t link_type,
 
   memset(p_app_cb, 0x00, sizeof(tLLCP_APP_CB));
 
-  if (p_service_name) {
-    length = (uint8_t)strlen(p_service_name);
-    if (length > LLCP_MAX_SN_LEN) {
-      LOG(ERROR) << StringPrintf(
-          "LLCP_RegisterServer (): Service Name (%d bytes) is too long",
-          length);
-      return LLCP_INVALID_SAP;
-    }
+  length = p_service_name.length();
+  if (length > LLCP_MAX_SN_LEN) {
+    LOG(ERROR) << StringPrintf(
+        "LLCP_RegisterServer (): Service Name (%d bytes) is too long",
+        length);
+    return LLCP_INVALID_SAP;
 
-    p_app_cb->p_service_name = (uint8_t*)GKI_getbuf((uint16_t)(length + 1));
+    p_app_cb->p_service_name = (char*)GKI_getbuf((uint16_t)(length + 1));
     if (p_app_cb->p_service_name == NULL) {
       LOG(ERROR) << StringPrintf("LLCP_RegisterServer (): Out of resource");
       return LLCP_INVALID_SAP;
     }
 
-    strncpy((char*)p_app_cb->p_service_name, (char*)p_service_name, length + 1);
+    strncpy((char*)p_app_cb->p_service_name, p_service_name.c_str(), length + 1);
     p_app_cb->p_service_name[length] = 0;
   } else
     p_app_cb->p_service_name = NULL;
@@ -910,7 +910,7 @@ tLLCP_STATUS LLCP_ConnectReq(uint8_t reg_sap, uint8_t dsap,
   if (dsap == LLCP_SAP_SDP) {
     if (strlen(p_params->sn) > LLCP_MAX_SN_LEN) {
       LOG(ERROR) << StringPrintf(
-          "LLCP_ConnectReq (): Service Name (%d bytes) is too long",
+          "LLCP_ConnectReq (): Service Name (%zu bytes) is too long",
           strlen(p_params->sn));
       return LLCP_STATUS_FAIL;
     }

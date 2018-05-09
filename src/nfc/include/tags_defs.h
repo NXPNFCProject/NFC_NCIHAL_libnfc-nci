@@ -143,7 +143,6 @@
 #define T1T_CC_RWA_RW 0x00
 /* RWA - Read only                                */
 #define T1T_CC_RWA_RO 0x0F
-s
 /* Tlv len for LOCK_CTRL/MEM TLV per spec         */
 #define T1T_DEFAULT_TLV_LEN 3
 /* Tlv type identifier len                        */
@@ -269,6 +268,9 @@ s
 /* Lock */
 /* Number of static lock bytes in tag   */
 #define T2T_NUM_STATIC_LOCK_BYTES 2
+
+#define T2T_CC2_TMS_MUL 0x06
+#define T2T_CC2_TMS_MULC 0x12
 /*
  **
  **  Type 3 Tag Definitions

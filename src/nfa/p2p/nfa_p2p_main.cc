@@ -72,6 +72,7 @@ static void nfa_p2p_update_active_listen(void);
 
 /* debug functions type */
 static std::string nfa_p2p_llcp_state_code(tNFA_P2P_LLCP_STATE state_code);
+static std::string nfa_p2p_evt_code(uint16_t evt_code);
 
 /*****************************************************************************
 **  Constants
@@ -747,11 +748,9 @@ static bool nfa_p2p_evt_hdlr(NFC_HDR* p_hdr) {
   bool delete_msg = true;
   uint16_t event;
 
-
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_p2p_evt_hdlr (): LLCP State [%s], Event [%s]",
                    nfa_p2p_llcp_state_code(nfa_p2p_cb.llcp_state).c_str(),
                    nfa_p2p_evt_code(p_hdr->event).c_str());
-
 
   event = p_hdr->event & 0x00ff;
 
@@ -775,7 +774,7 @@ static bool nfa_p2p_evt_hdlr(NFC_HDR* p_hdr) {
 ** Returns          string of state
 **
 *******************************************************************************/
-static std::static nfa_p2p_llcp_state_code(tNFA_P2P_LLCP_STATE state_code) {
+static std::string nfa_p2p_llcp_state_code(tNFA_P2P_LLCP_STATE state_code) {
   switch (state_code) {
     case NFA_P2P_LLCP_STATE_IDLE:
       return "Link IDLE";
@@ -797,7 +796,7 @@ static std::static nfa_p2p_llcp_state_code(tNFA_P2P_LLCP_STATE state_code) {
 ** Returns          string of event
 **
 *******************************************************************************/
-std::static nfa_p2p_evt_code(uint16_t evt_code) {
+static std::string nfa_p2p_evt_code(uint16_t evt_code) {
   switch (evt_code) {
     case NFA_P2P_API_REG_SERVER_EVT:
       return "API_REG_SERVER";

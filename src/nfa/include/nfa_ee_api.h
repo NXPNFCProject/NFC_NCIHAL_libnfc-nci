@@ -54,6 +54,7 @@
 #define NFA_MAX_APDU_DATA_LEN NFC_MAX_APDU_DATA_LEN
 #define NFA_MAX_APDU_MASK_LEN NFC_MAX_APDU_MASK_LEN
 
+#define NFA_EE_HANDLE_DH (NFA_HANDLE_GROUP_EE | NFC_DH_ID)
 #if (NXP_EXTNS == TRUE)
 extern uint8_t NFA_REMOVE_ALL_AID[];
 #define NFA_REMOVE_ALL_AID_LEN (0x08)
@@ -88,6 +89,7 @@ enum {
   NFA_EE_NO_MEM_ERR_EVT,   /* Error - out of GKI buffers */
   NFA_EE_NO_CB_ERR_EVT, /* Error - Can not find control block or wrong state */
 #if (NXP_EXTNS == TRUE)
+  NFA_EE_ROUT_ERR_EVT,     /* Error - exceed NFCC CE Routing size */
   NFA_EE_SET_MODE_INFO_EVT,
   NFA_EE_PWR_LINK_CTRL_EVT, /* NFCEE Pwr and link cotnrol command Evt */
 #endif
@@ -102,6 +104,8 @@ typedef uint8_t tNFA_EE_EVT;
 typedef uint8_t tNFA_EE_INTERFACE;
 
 #if (NXP_EXTNS == TRUE)
+/* Broadcom Proprietary */
+#define NFA_EE_TAG_HCI_HOST_ID NFC_NFCEE_TAG_HCI_HOST_ID
 typedef uint16_t tNFA_EE_TAG;
 #else
 typedef uint8_t tNFA_EE_TAG;
