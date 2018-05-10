@@ -189,6 +189,7 @@ void NfcAdaptation::GetVendorConfigs(
                         ConfigValue(config.nfaPollBailOutMode ? 1 : 0));
       configMap.emplace(NAME_DEFAULT_OFFHOST_ROUTE,
                         ConfigValue(config.defaultOffHostRoute));
+      configMap.emplace(NAME_DEFAULT_ROUTE, ConfigValue(config.defaultRoute));
       configMap.emplace(NAME_DEFAULT_NFCF_ROUTE,
                         ConfigValue(config.defaultOffHostRouteFelica));
       configMap.emplace(NAME_DEFAULT_SYS_CODE_ROUTE,
