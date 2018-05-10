@@ -807,8 +807,7 @@ tNFA_STATUS NFA_SetRfDiscoveryDuration(uint16_t discovery_period_ms) {
   DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   /* Post the API message */
-  p_msg = (tNFA_DM_API_SET_RF_DISC_DUR*)GKI_getbuf(
-      sizeof(tNFA_DM_API_SET_RF_DISC_DUR));
+  p_msg = (tNFA_DM_API_SET_RF_DISC_DUR*)GKI_getbuf(sizeof(NFC_HDR));
   if (p_msg != NULL) {
     p_msg->hdr.event = NFA_DM_API_SET_RF_DISC_DURATION_EVT;
 

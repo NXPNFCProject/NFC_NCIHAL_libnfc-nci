@@ -224,6 +224,7 @@ typedef uint8_t tNFC_STATUS;
 /* Protocol based routing  */
 #define NFC_ROUTE_TAG_PROTO NCI_ROUTE_TAG_PROTO
 #define NFC_ROUTE_TAG_AID NCI_ROUTE_TAG_AID /* AID routing */
+#define NFC_ROUTE_TAG_SYSCODE NCI_ROUTE_TAG_SYSCODE /* System Code routing*/
 /* tag, len, 2 byte value for technology/protocol based routing */
 
 /* For routing */

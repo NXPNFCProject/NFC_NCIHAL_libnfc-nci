@@ -235,6 +235,8 @@ typedef struct {
 
   uint8_t nci_version; /* NCI version used for NCI communication*/
 
+  bool isScbrSupported; /* indicating if system code based route is supported */
+
   uint8_t hci_packet_size; /* maximum hci payload size*/
 
   uint8_t hci_conn_credits; /* maximum conn credits for static HCI*/

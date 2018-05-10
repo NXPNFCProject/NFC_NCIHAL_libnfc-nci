@@ -167,6 +167,7 @@
 #define NCI_STATUS_UNKNOWN_OID 0x08
 #define NCI_STATUS_INVALID_PARAM 0x09
 #define NCI_STATUS_MSG_SIZE_TOO_BIG 0x0A
+#define NCI_STATUS_NOT_SUPPORTED 0x0B
 /* discovery */
 #define NCI_STATUS_ALREADY_STARTED 0xA0
 #define NCI_STATUS_ACTIVATION_FAILED 0xA1
@@ -433,6 +434,7 @@ typedef uint8_t tNCI_DISCOVERY_TYPE;
 /* Protocol based routing  */
 #define NCI_ROUTE_TAG_PROTO 0x01
 #define NCI_ROUTE_TAG_AID 0x02 /* AID routing */
+#define NCI_ROUTE_TAG_SYSCODE 0x03 /* SystemCode routing */
 
 #define NCI_ROUTE_PWR_STATE_ON 0x01 /* The device is on */
 /* The device is switched off */
@@ -584,6 +586,8 @@ typedef uint8_t tNCI_DISCOVERY_TYPE;
 #define NCI_POLLING_DH_DISABLE_MASK 0x00
 /* The DH polling is considered as a enable NFCEE */
 #define NCI_POLLING_DH_ENABLE_MASK 0x01
+/* SCBR support check with Core Init resp OCT1 byte */
+#define NCI_SCBR_MASK 0x10
 
 /* AID matching is allowed when the SELECT AID is longer */
 #define NCI_ROUTE_QUAL_LONG_SELECT 0x10

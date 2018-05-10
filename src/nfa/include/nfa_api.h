@@ -68,6 +68,8 @@
 #define NFA_STATUS_BUFFER_FULL NCI_STATUS_BUFFER_FULL
 /* failed               */
 #define NFA_STATUS_FAILED NCI_STATUS_FAILED
+/* Optional feature of NCI Spec not supported */
+#define NFA_STATUS_NOT_SUPPORTED NCI_STATUS_NOT_SUPPORTED
 /* Semantic error       */
 #define NFA_STATUS_SEMANTIC_ERROR NCI_STATUS_SEMANTIC_ERROR
 /* Unknown NCI Group ID */

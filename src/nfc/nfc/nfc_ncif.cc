@@ -1471,6 +1471,10 @@ void nfc_ncif_proc_init_rsp(NFC_HDR* p_msg) {
       nci_snd_core_reset(NCI_RESET_TYPE_RESET_CFG);
     } else {
       p_cb->id = NFC_RF_CONN_ID;
+      // check scbr bit as per NCI 2.0 spec
+      nfc_cb.isScbrSupported = p[5] & NCI_SCBR_MASK;
+      DLOG_IF(INFO, nfc_debug_enabled)
+          << StringPrintf("scbr support: 0x%x", nfc_cb.isScbrSupported);
       p_cb->act_protocol = NCI_PROTOCOL_UNKNOWN;
 
       nfc_set_state(NFC_STATE_W4_POST_INIT_CPLT);
