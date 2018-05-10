@@ -612,7 +612,7 @@ static void nfa_ee_add_apdu_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
 **
 *******************************************************************************/
 static void nfa_ee_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
-                              tNFC_CONN* p_data) {
+                              __attribute__((unused)) tNFC_CONN* p_data) {
   tNFA_EE_NCI_CONN cbk;
 
    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ee_conn_cback: conn_id: %d, event=0x%02x", conn_id,
@@ -623,13 +623,13 @@ static void nfa_ee_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
     /* Treat data event specially to avoid potential memory leak */
     cbk.hdr.event = NFA_EE_NCI_DATA_EVT;
   }
-  cbk.conn_id = conn_id;
+  /*cbk.conn_id = conn_id;
   cbk.event = event;
-  cbk.p_data = p_data;
+  cbk.p_data = p_data;*/
   tNFA_EE_MSG nfa_ee_msg;
   nfa_ee_msg.conn = cbk;
 
-  nfa_ee_evt_hdlr(&nfa_ee_msg.hdr);
+  nfa_ee_evt_hdlr(&nfa_ee_msg.conn.hdr);
 }
 
 /*******************************************************************************
