@@ -17,7 +17,7 @@
  ******************************************************************************/
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
-#include <cutils/log.h>
+#include <log/log.h>
 
 #include "android_logmsg.h"
 #include "buildcfg.h"
