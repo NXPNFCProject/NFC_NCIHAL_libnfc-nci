@@ -128,6 +128,8 @@ typedef union {
 #define NFA_CE_LISTEN_INFO_FELICA 0x00000200
 /* This is a listen_info for UICC                                   */
 #define NFA_CE_LISTEN_INFO_UICC 0x00000400
+/* App has not been notified of ACTIVATE_EVT yet for this HCEF NFCID2 */
+#define NFA_CE_LISTEN_INFO_T3T_ACTIVATE_PND 0x00010000
 
 /* Structure for listen look up table */
 typedef struct {

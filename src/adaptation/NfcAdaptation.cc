@@ -193,6 +193,8 @@ void NfcAdaptation::GetVendorConfigs(
                         ConfigValue(config.defaultOffHostRouteFelica));
       configMap.emplace(NAME_DEFAULT_SYS_CODE_ROUTE,
                         ConfigValue(config.defaultSystemCodeRoute));
+      configMap.emplace(NAME_DEFAULT_SYS_CODE_PWR_STATE,
+                        ConfigValue(config.defaultSystemCodePowerState));
       configMap.emplace(NAME_OFF_HOST_SIM_PIPE_ID,
                         ConfigValue(config.offHostSIMPipeId));
       configMap.emplace(NAME_OFF_HOST_ESE_PIPE_ID,
