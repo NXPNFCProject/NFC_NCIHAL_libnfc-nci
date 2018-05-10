@@ -149,9 +149,7 @@ typedef uint8_t tRW_EVENT;
 typedef uint8_t tRW_NDEF_FLAG;
 
 /* options for RW_T4tPresenceCheck  */
-#define RW_T4T_CHK_READ_BINARY_CH0 0
-#define RW_T4T_CHK_READ_BINARY_CH3 3
-#define RW_T4T_CHK_EMPTY_I_BLOCK 4
+#define RW_T4T_CHK_EMPTY_I_BLOCK 1
 #define RW_T4T_CHK_ISO_DEP_NAK_PRES_CHK 5
 
 typedef struct {

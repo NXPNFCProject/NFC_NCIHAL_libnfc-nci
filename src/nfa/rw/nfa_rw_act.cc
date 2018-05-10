@@ -1743,48 +1743,14 @@ void nfa_rw_presence_check(tNFA_RW_MSG* p_data) {
         option = RW_T4T_CHK_EMPTY_I_BLOCK;
         break;
 
-      case NFA_RW_PRES_CHK_RESET:
-        /* option is initialized to NFA_RW_OPTION_INVALID, which will Deactivate
-         * to Sleep; Re-activate */
-        break;
-
-      case NFA_RW_PRES_CHK_RB_CH0:
-        option = RW_T4T_CHK_READ_BINARY_CH0;
-        break;
-
-      case NFA_RW_PRES_CHK_RB_CH3:
-        option = RW_T4T_CHK_READ_BINARY_CH3;
-        break;
-
       case NFA_RW_PRES_CHK_ISO_DEP_NAK:
         if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
           option = RW_T4T_CHK_ISO_DEP_NAK_PRES_CHK;
         }
         break;
       default:
-        if (nfa_rw_cb.flags & NFA_RW_FL_NDEF_OK) {
-          /* read binary on channel 0 */
-          option = RW_T4T_CHK_READ_BINARY_CH0;
-        } else {
-          /* NDEF DETECT failed.*/
-          if (nfa_dm_is_raw_frame_session()) {
-            /* NFA_SendRawFrame() is called */
-            if (p_nfa_dm_cfg->presence_check_option &
-                NFA_DM_PCO_EMPTY_I_BLOCK) {
-              /* empty I block */
-              option = RW_T4T_CHK_EMPTY_I_BLOCK;
-            } else {
-              /* read binary on channel 3 */
-              option = RW_T4T_CHK_READ_BINARY_CH3;
-            }
-          } else if (!(p_nfa_dm_cfg->presence_check_option &
-                       NFA_DM_PCO_ISO_SLEEP_WAKE) &&
-                     (nfa_rw_cb.intf_type == NFC_INTERFACE_ISO_DEP)) {
-            /* the option indicates to use empty I block && ISODEP interface is
-             * activated */
-            option = RW_T4T_CHK_EMPTY_I_BLOCK;
-          }
-        }
+        /* empty I block */
+        option = RW_T4T_CHK_EMPTY_I_BLOCK;
     }
 
     if (option != NFA_RW_OPTION_INVALID) {
