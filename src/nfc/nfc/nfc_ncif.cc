@@ -1648,7 +1648,10 @@ void nfc_ncif_proc_data(NFC_HDR* p_msg) {
         << StringPrintf("nfc_ncif_proc_data len:%d", len);
 
     p_msg->layer_specific = 0;
-    if (pbf) p_msg->layer_specific = NFC_RAS_FRAGMENTED;
+    if (pbf) {
+      NFC_SetReassemblyFlag(true);
+      p_msg->layer_specific = NFC_RAS_FRAGMENTED;
+    }
     p_last = (NFC_HDR*)GKI_getlast(&p_cb->rx_q);
     if (p_last && (p_last->layer_specific & NFC_RAS_FRAGMENTED)) {
       /* last data buffer is not last fragment, append this new packet to the
