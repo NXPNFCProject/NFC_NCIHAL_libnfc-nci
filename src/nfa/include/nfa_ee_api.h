@@ -358,15 +358,10 @@ extern tNFA_STATUS NFA_EeModeSet(tNFA_HANDLE ee_handle, tNFA_EE_MD mode);
 extern tNFA_STATUS NFA_EeSetDefaultTechRouting(
     tNFA_HANDLE ee_handle, tNFA_TECHNOLOGY_MASK technologies_switch_on,
     tNFA_TECHNOLOGY_MASK technologies_switch_off,
-    tNFA_TECHNOLOGY_MASK technologies_battery_off
-#if (NXP_EXTNS == TRUE)
-    ,
+    tNFA_TECHNOLOGY_MASK technologies_battery_off,
     tNFA_TECHNOLOGY_MASK technologies_screen_lock,
     tNFA_TECHNOLOGY_MASK technologies_screen_off,
-    tNFA_TECHNOLOGY_MASK technologies_screen_off_lock
-#endif
-
-    );
+    tNFA_TECHNOLOGY_MASK technologies_screen_off_lock);
 
 /*******************************************************************************
 **
@@ -392,14 +387,10 @@ extern tNFA_STATUS NFA_EeSetDefaultTechRouting(
 extern tNFA_STATUS NFA_EeSetDefaultProtoRouting(
     tNFA_HANDLE ee_handle, tNFA_PROTOCOL_MASK protocols_switch_on,
     tNFA_PROTOCOL_MASK protocols_switch_off,
-    tNFA_PROTOCOL_MASK protocols_battery_off
-#if (NXP_EXTNS == TRUE)
-    ,
-    tNFA_PROTOCOL_MASK protocols_screen_lock,
-    tNFA_PROTOCOL_MASK protocols_screen_off,
-    tNFA_PROTOCOL_MASK protocols_screen_off_lock
-#endif
-    );
+    tNFA_PROTOCOL_MASK protocols_battery_off,
+    tNFA_PROTOCOL_MASK technologies_screen_lock,
+    tNFA_PROTOCOL_MASK technologies_screen_off,
+    tNFA_PROTOCOL_MASK technologies_screen_off_lock);
 
 /*******************************************************************************
 **

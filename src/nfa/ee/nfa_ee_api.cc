@@ -414,14 +414,10 @@ tNFA_STATUS NFA_EeModeSet(tNFA_HANDLE ee_handle, tNFA_EE_MD mode) {
 tNFA_STATUS NFA_EeSetDefaultTechRouting(
     tNFA_HANDLE ee_handle, tNFA_TECHNOLOGY_MASK technologies_switch_on,
     tNFA_TECHNOLOGY_MASK technologies_switch_off,
-    tNFA_TECHNOLOGY_MASK technologies_battery_off
-#if (NXP_EXTNS == TRUE)
-    ,
+    tNFA_TECHNOLOGY_MASK technologies_battery_off,
     tNFA_TECHNOLOGY_MASK technologies_screen_lock,
     tNFA_TECHNOLOGY_MASK technologies_screen_off,
-    tNFA_TECHNOLOGY_MASK technologies_screen_off_lock
-#endif
-    ) {
+    tNFA_TECHNOLOGY_MASK technologies_screen_off_lock) {
   tNFA_EE_API_SET_TECH_CFG* p_msg;
   tNFA_STATUS status = NFA_STATUS_FAILED;
   uint8_t nfcee_id = (uint8_t)(ee_handle & 0xFF);
@@ -429,15 +425,10 @@ tNFA_STATUS NFA_EeSetDefaultTechRouting(
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       ""
-      "handle:<0x%x>technology_mask:<0x%x>/<0x%x>/<0x%x>",
+      "handle:<0x%x>technology_mask:<0x%x>/<0x%x>/<0x%x><0x%x><0x%x><0x%x>",
       ee_handle, technologies_switch_on, technologies_switch_off,
-      technologies_battery_off);
-#if (NXP_EXTNS == TRUE)
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-      "technology_mask:<0x%x>/<0x%x>/<0x%x>",
-      technologies_screen_lock, technologies_screen_off,
-      technologies_screen_off_lock);
-#endif
+      technologies_battery_off, technologies_screen_lock,
+      technologies_screen_off, technologies_screen_off_lock);
   p_cb = nfa_ee_find_ecb(nfcee_id);
 
   if (p_cb == NULL) {
@@ -453,11 +444,10 @@ tNFA_STATUS NFA_EeSetDefaultTechRouting(
       p_msg->technologies_switch_on = technologies_switch_on;
       p_msg->technologies_switch_off = technologies_switch_off;
       p_msg->technologies_battery_off = technologies_battery_off;
-#if (NXP_EXTNS == TRUE)
       p_msg->technologies_screen_lock = technologies_screen_lock;
       p_msg->technologies_screen_off = technologies_screen_off;
       p_msg->technologies_screen_off_lock = technologies_screen_off_lock;
-#endif
+
       nfa_sys_sendmsg(p_msg);
 
       status = NFA_STATUS_OK;
@@ -491,30 +481,20 @@ tNFA_STATUS NFA_EeSetDefaultTechRouting(
 tNFA_STATUS NFA_EeSetDefaultProtoRouting(
     tNFA_HANDLE ee_handle, tNFA_PROTOCOL_MASK protocols_switch_on,
     tNFA_PROTOCOL_MASK protocols_switch_off,
-    tNFA_PROTOCOL_MASK protocols_battery_off
-#if (NXP_EXTNS == TRUE)
-    ,
+    tNFA_PROTOCOL_MASK protocols_battery_off,
     tNFA_PROTOCOL_MASK protocols_screen_lock,
     tNFA_PROTOCOL_MASK protocols_screen_off,
-    tNFA_PROTOCOL_MASK protocols_screen_off_lock
-#endif
-    ) {
+    tNFA_PROTOCOL_MASK protocols_screen_off_lock) {
   tNFA_EE_API_SET_PROTO_CFG* p_msg;
   tNFA_STATUS status = NFA_STATUS_FAILED;
   uint8_t nfcee_id = (uint8_t)(ee_handle & 0xFF);
   tNFA_EE_ECB* p_cb;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-       " "
-      "handle:<0x%x>protocol_mask:<0x%x>/<0x%x>/<0x%x>",
+      "handle:<0x%x>protocol_mask:<0x%x>/<0x%x>/<0x%x><0x%x><0x%x><0x%x>",
       ee_handle, protocols_switch_on, protocols_switch_off,
-      protocols_battery_off);
-#if (NXP_EXTNS == TRUE)
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-      "protocol_mask:<0x%x>/<0x%x>/<0x%x>",
-      protocols_screen_lock, protocols_screen_off,
+      protocols_battery_off, protocols_screen_lock, protocols_screen_off,
       protocols_screen_off_lock);
-#endif
   p_cb = nfa_ee_find_ecb(nfcee_id);
 
   if (p_cb == NULL) {
@@ -530,11 +510,10 @@ tNFA_STATUS NFA_EeSetDefaultProtoRouting(
       p_msg->protocols_switch_on = protocols_switch_on;
       p_msg->protocols_switch_off = protocols_switch_off;
       p_msg->protocols_battery_off = protocols_battery_off;
-#if (NXP_EXTNS == TRUE)
       p_msg->protocols_screen_lock = protocols_screen_lock;
       p_msg->protocols_screen_off = protocols_screen_off;
       p_msg->protocols_screen_off_lock = protocols_screen_off_lock;
-#endif
+
       nfa_sys_sendmsg(p_msg);
 
       status = NFA_STATUS_OK;

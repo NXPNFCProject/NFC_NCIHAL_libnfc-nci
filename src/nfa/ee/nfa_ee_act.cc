@@ -180,8 +180,17 @@ static void nfa_ee_update_route_size(tNFA_EE_ECB* p_cb) {
       power_cfg |= NCI_ROUTE_PWR_STATE_SWITCH_OFF;
     if (p_cb->tech_battery_off & nfa_ee_tech_mask_list[xx])
       power_cfg |= NCI_ROUTE_PWR_STATE_BATT_OFF;
+    if ((power_cfg & NCI_ROUTE_PWR_STATE_ON) &&
+        (NFC_GetNCIVersion() == NCI_VERSION_2_0)) {
+      if (p_cb->tech_screen_lock & nfa_ee_tech_mask_list[xx])
+        power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_ON_LOCK();
+      if (p_cb->tech_screen_off & nfa_ee_tech_mask_list[xx])
+        power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_UNLOCK();
+      if (p_cb->tech_screen_off_lock & nfa_ee_tech_mask_list[xx])
+        power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_LOCK();
+    }
     if (power_cfg) {
-      /* 5 = 1 (tag) + 1 (len) + 1(nfcee_id) + 1(power cfg) + 1 (techonogy) */
+      /* 5 = 1 (tag) + 1 (len) + 1(nfcee_id) + 1(power cfg) + 1 (technology) */
       p_cb->size_mask += 5;
     }
   }
@@ -195,6 +204,15 @@ static void nfa_ee_update_route_size(tNFA_EE_ECB* p_cb) {
       power_cfg |= NCI_ROUTE_PWR_STATE_SWITCH_OFF;
     if (p_cb->proto_battery_off & nfa_ee_proto_mask_list[xx])
       power_cfg |= NCI_ROUTE_PWR_STATE_BATT_OFF;
+    if ((power_cfg & NCI_ROUTE_PWR_STATE_ON) &&
+        (NFC_GetNCIVersion() == NCI_VERSION_2_0)) {
+      if (p_cb->proto_screen_lock & nfa_ee_proto_mask_list[xx])
+        power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_ON_LOCK();
+      if (p_cb->proto_screen_off & nfa_ee_proto_mask_list[xx])
+        power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_UNLOCK();
+      if (p_cb->proto_screen_off_lock & nfa_ee_proto_mask_list[xx])
+        power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_LOCK();
+    }
     if (power_cfg) {
       /* 5 = 1 (tag) + 1 (len) + 1(nfcee_id) + 1(power cfg) + 1 (protocol) */
       p_cb->size_mask += 5;
@@ -312,16 +330,15 @@ static void nfa_ee_add_tech_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
       power_cfg |= NCI_ROUTE_PWR_STATE_SWITCH_OFF;
     if (p_cb->tech_battery_off & nfa_ee_tech_mask_list[xx])
       power_cfg |= NCI_ROUTE_PWR_STATE_BATT_OFF;
-#if(NXP_EXTNS == TRUE)
-    if (power_cfg & NCI_ROUTE_PWR_STATE_ON) {
-       if (p_cb->tech_screen_lock & nfa_ee_tech_mask_list[xx])
-          power_cfg |= NCI_ROUTE_POWER_STATE_SCREEN_ON_LOCK();
-       if (p_cb->tech_screen_off & nfa_ee_tech_mask_list[xx])
-          power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_UNLOCK();
-       if (p_cb->tech_screen_off_lock & nfa_ee_tech_mask_list[xx])
-          power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_LOCK();
-     }
-#endif
+    if ((power_cfg & NCI_ROUTE_PWR_STATE_ON) &&
+        (NFC_GetNCIVersion() == NCI_VERSION_2_0)) {
+      if (p_cb->tech_screen_lock & nfa_ee_tech_mask_list[xx])
+        power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_ON_LOCK();
+      if (p_cb->tech_screen_off & nfa_ee_tech_mask_list[xx])
+        power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_UNLOCK();
+      if (p_cb->tech_screen_off_lock & nfa_ee_tech_mask_list[xx])
+        power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_LOCK();
+    }
     if (power_cfg) {
       add_route_tech_proto_tlv(&pp, NFC_ROUTE_TAG_TECH, p_cb->nfcee_id,
                                power_cfg, nfa_ee_tech_list[xx]);
@@ -359,23 +376,15 @@ static void nfa_ee_add_proto_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
 
         /* Enable screen on lock power state for ISO-DEP protocol to
            enable HCE screen lock */
-#if(NXP_EXTNS != TRUE)//FIX THIS
-        if (NFC_GetNCIVersion() == NCI_VERSION_2_0)
-          power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_ON_LOCK;
-#else
-    if (power_cfg & NCI_ROUTE_PWR_STATE_ON) {
-       if (p_cb->nfcee_id == NFC_DH_ID)
-          power_cfg |= NCI_ROUTE_POWER_STATE_SCREEN_ON_LOCK();
-       else {
-        if (p_cb->proto_screen_lock & nfa_ee_proto_mask_list[xx])
-           power_cfg |= NCI_ROUTE_POWER_STATE_SCREEN_ON_LOCK();
-        if (p_cb->proto_screen_off & nfa_ee_proto_mask_list[xx])
-           power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_UNLOCK();
-        if (p_cb->proto_screen_off_lock & nfa_ee_proto_mask_list[xx])
-           power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_LOCK();
+        if ((power_cfg & NCI_ROUTE_PWR_STATE_ON) &&
+            (NFC_GetNCIVersion() == NCI_VERSION_2_0)) {
+          if (p_cb->proto_screen_lock & nfa_ee_proto_mask_list[xx])
+            power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_ON_LOCK();
+          if (p_cb->proto_screen_off & nfa_ee_proto_mask_list[xx])
+            power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_UNLOCK();
+          if (p_cb->proto_screen_off_lock & nfa_ee_proto_mask_list[xx])
+            power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_LOCK();
         }
-    }
-#endif
       } else {
         proto_tag = NFC_ROUTE_TAG_PROTO;
       }
@@ -943,23 +952,18 @@ void nfa_ee_api_set_tech_cfg(tNFA_EE_MSG* p_data) {
   tNFA_TECHNOLOGY_MASK old_tech_switch_on = p_cb->tech_switch_on;
   tNFA_TECHNOLOGY_MASK old_tech_switch_off = p_cb->tech_switch_off;
   tNFA_TECHNOLOGY_MASK old_tech_battery_off = p_cb->tech_battery_off;
-#if (NXP_EXTNS == TRUE)
   tNFA_TECHNOLOGY_MASK old_tech_screen_lock = p_cb->tech_screen_lock;
   tNFA_TECHNOLOGY_MASK old_tech_screen_off = p_cb->tech_screen_off;
   tNFA_TECHNOLOGY_MASK old_tech_screen_off_lock = p_cb->tech_screen_off_lock;
-#endif
   uint8_t old_size_mask = p_cb->size_mask;
 
   if ((p_cb->tech_switch_on == p_data->set_tech.technologies_switch_on) &&
       (p_cb->tech_switch_off == p_data->set_tech.technologies_switch_off) &&
-      (p_cb->tech_battery_off == p_data->set_tech.technologies_battery_off)
-#if (NXP_EXTNS == TRUE)
-      &&
+      (p_cb->tech_battery_off == p_data->set_tech.technologies_battery_off) &&
       (p_cb->tech_screen_lock == p_data->set_tech.technologies_screen_lock) &&
       (p_cb->tech_screen_off == p_data->set_tech.technologies_screen_off) &&
-      (p_cb->tech_screen_off_lock == p_data->set_tech.technologies_screen_off_lock)
-#endif
-          ) {
+      (p_cb->tech_screen_off_lock ==
+       p_data->set_tech.technologies_screen_off_lock)) {
     /* nothing to change */
     evt_data.status = NFA_STATUS_OK;
     nfa_ee_report_event(p_cb->p_ee_cback, NFA_EE_SET_TECH_CFG_EVT, &evt_data);
@@ -969,11 +973,9 @@ void nfa_ee_api_set_tech_cfg(tNFA_EE_MSG* p_data) {
   p_cb->tech_switch_on = p_data->set_tech.technologies_switch_on;
   p_cb->tech_switch_off = p_data->set_tech.technologies_switch_off;
   p_cb->tech_battery_off = p_data->set_tech.technologies_battery_off;
-#if (NXP_EXTNS == TRUE)
   p_cb->tech_screen_lock = p_data->set_tech.technologies_screen_lock;
   p_cb->tech_screen_off = p_data->set_tech.technologies_screen_off;
   p_cb->tech_screen_off_lock = p_data->set_tech.technologies_screen_off_lock;
-#endif
   nfa_ee_update_route_size(p_cb);
   if (nfa_ee_total_lmrt_size() > NFC_GetLmrtSize()) {
     LOG(ERROR) << StringPrintf("nfa_ee_api_set_tech_cfg Exceed LMRT size");
@@ -981,19 +983,15 @@ void nfa_ee_api_set_tech_cfg(tNFA_EE_MSG* p_data) {
     p_cb->tech_switch_on = old_tech_switch_on;
     p_cb->tech_switch_off = old_tech_switch_off;
     p_cb->tech_battery_off = old_tech_battery_off;
-#if (NXP_EXTNS == TRUE)
     p_cb->tech_screen_lock = old_tech_screen_lock;
     p_cb->tech_screen_off = old_tech_screen_off;
     p_cb->tech_screen_off_lock = old_tech_screen_off_lock;
-#endif
     p_cb->size_mask = old_size_mask;
   } else {
     p_cb->ecb_flags |= NFA_EE_ECB_FLAGS_TECH;
-    if (p_cb->tech_switch_on | p_cb->tech_switch_off | p_cb->tech_battery_off
-#if (NXP_EXTNS == TRUE)
-        | p_cb->tech_screen_lock | p_cb->tech_screen_off | p_cb->tech_screen_off_lock
-#endif
-        ) {
+    if (p_cb->tech_switch_on | p_cb->tech_switch_off | p_cb->tech_battery_off |
+        p_cb->tech_screen_lock | p_cb->tech_screen_off |
+        p_cb->tech_screen_off_lock) {
       /* if any technology in any power mode is configured, mark this entry as
        * configured */
       nfa_ee_cb.ee_cfged |= nfa_ee_ecb_to_mask(p_cb);
@@ -1020,22 +1018,18 @@ void nfa_ee_api_set_proto_cfg(tNFA_EE_MSG* p_data) {
   tNFA_PROTOCOL_MASK old_proto_switch_on = p_cb->proto_switch_on;
   tNFA_PROTOCOL_MASK old_proto_switch_off = p_cb->proto_switch_off;
   tNFA_PROTOCOL_MASK old_proto_battery_off = p_cb->proto_battery_off;
-#if (NXP_EXTNS == TRUE)
   tNFA_PROTOCOL_MASK old_proto_screen_lock = p_cb->proto_screen_lock;
   tNFA_PROTOCOL_MASK old_proto_screen_off = p_cb->proto_screen_off;
   tNFA_PROTOCOL_MASK old_proto_screen_off_lock = p_cb->proto_screen_off_lock;
-#endif
   uint8_t old_size_mask = p_cb->size_mask;
 
   if ((p_cb->proto_switch_on == p_data->set_proto.protocols_switch_on) &&
       (p_cb->proto_switch_off == p_data->set_proto.protocols_switch_off) &&
-      (p_cb->proto_battery_off == p_data->set_proto.protocols_battery_off)
-#if (NXP_EXTNS == TRUE)
-      && (p_cb->proto_screen_lock == p_data->set_proto.protocols_screen_lock) &&
+      (p_cb->proto_battery_off == p_data->set_proto.protocols_battery_off) &&
+      (p_cb->proto_screen_lock == p_data->set_proto.protocols_screen_lock) &&
       (p_cb->proto_screen_off == p_data->set_proto.protocols_screen_off) &&
-      (p_cb->proto_screen_off_lock == p_data->set_proto.protocols_screen_off_lock)
-#endif
-          ) {
+      (p_cb->proto_screen_off_lock ==
+       p_data->set_proto.protocols_screen_off_lock)) {
     /* nothing to change */
     evt_data.status = NFA_STATUS_OK;
     nfa_ee_report_event(p_cb->p_ee_cback, NFA_EE_SET_PROTO_CFG_EVT, &evt_data);
@@ -1045,11 +1039,9 @@ void nfa_ee_api_set_proto_cfg(tNFA_EE_MSG* p_data) {
   p_cb->proto_switch_on = p_data->set_proto.protocols_switch_on;
   p_cb->proto_switch_off = p_data->set_proto.protocols_switch_off;
   p_cb->proto_battery_off = p_data->set_proto.protocols_battery_off;
-#if (NXP_EXTNS == TRUE)
   p_cb->proto_screen_lock = p_data->set_proto.protocols_screen_lock;
   p_cb->proto_screen_off = p_data->set_proto.protocols_screen_off;
   p_cb->proto_screen_off_lock = p_data->set_proto.protocols_screen_off_lock;
-#endif
   nfa_ee_update_route_size(p_cb);
   if (nfa_ee_total_lmrt_size() > NFC_GetLmrtSize()) {
     LOG(ERROR) << StringPrintf("nfa_ee_api_set_proto_cfg Exceed LMRT size");
@@ -1057,19 +1049,15 @@ void nfa_ee_api_set_proto_cfg(tNFA_EE_MSG* p_data) {
     p_cb->proto_switch_on = old_proto_switch_on;
     p_cb->proto_switch_off = old_proto_switch_off;
     p_cb->proto_battery_off = old_proto_battery_off;
-#if (NXP_EXTNS == TRUE)
     p_cb->proto_screen_lock = old_proto_screen_lock;
     p_cb->proto_screen_off = old_proto_screen_off;
     p_cb->proto_screen_off_lock = old_proto_screen_off_lock;
-#endif
     p_cb->size_mask = old_size_mask;
   } else {
     p_cb->ecb_flags |= NFA_EE_ECB_FLAGS_PROTO;
-    if (p_cb->proto_switch_on | p_cb->proto_switch_off | p_cb->proto_battery_off
-#if (NXP_EXTNS == TRUE)
-        | p_cb->proto_screen_lock | p_cb->proto_screen_off | p_cb->proto_screen_off_lock
-#endif
-        ) {
+    if (p_cb->proto_switch_on | p_cb->proto_switch_off |
+        p_cb->proto_battery_off | p_cb->proto_screen_lock |
+        p_cb->proto_screen_off | p_cb->proto_screen_off_lock) {
       /* if any protocol in any power mode is configured, mark this entry as
        * configured */
       nfa_ee_cb.ee_cfged |= nfa_ee_ecb_to_mask(p_cb);
@@ -1117,7 +1105,7 @@ void nfa_ee_api_add_aid(tNFA_EE_MSG* p_data) {
     }
     if(p_add->power_state & 0x10){
       p_add->power_state &= ~0x10;
-      p_add->power_state |= NCI_ROUTE_POWER_STATE_SCREEN_ON_LOCK();
+      p_add->power_state |= NCI_ROUTE_PWR_STATE_SCREEN_ON_LOCK();
     }
   }
 #endif
