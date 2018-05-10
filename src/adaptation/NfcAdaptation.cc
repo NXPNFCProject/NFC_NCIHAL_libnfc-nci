@@ -27,6 +27,7 @@
 #include "android_logmsg.h"
 #include "debug_nfcsnoop.h"
 #include "nfa_api.h"
+#include "nfa_rw_api.h"
 #include "nfc_config.h"
 #include "nfc_int.h"
 #include "nfca_version.h"
@@ -40,7 +41,9 @@ using android::hardware::ProcessState;
 using android::hardware::Return;
 using android::hardware::Void;
 using android::hardware::nfc::V1_0::INfc;
+using android::hardware::nfc::V1_1::PresenceCheckAlgorithm;
 using INfcV1_1 = android::hardware::nfc::V1_1::INfc;
+using NfcVendorConfig = android::hardware::nfc::V1_1::NfcConfig;
 using android::hardware::nfc::V1_1::INfcClientCallback;
 using android::hardware::hidl_vec;
 
@@ -172,6 +175,51 @@ NfcAdaptation& NfcAdaptation::GetInstance() {
   return *mpInstance;
 }
 
+void NfcAdaptation::GetVendorConfigs(
+    std::map<std::string, ConfigValue>& configMap) {
+  if (mHal_1_1) {
+    mHal_1_1->getConfig([&configMap](NfcVendorConfig config) {
+      std::vector<uint8_t> nfaPropCfg = {
+          config.nfaProprietaryCfg.protocol18092Active,
+          config.nfaProprietaryCfg.protocolBPrime,
+          config.nfaProprietaryCfg.protocolDual,
+          config.nfaProprietaryCfg.protocol15693,
+          config.nfaProprietaryCfg.protocolKovio,
+          config.nfaProprietaryCfg.protocolMifare,
+          config.nfaProprietaryCfg.discoveryPollKovio,
+          config.nfaProprietaryCfg.discoveryPollBPrime,
+          config.nfaProprietaryCfg.discoveryListenBPrime};
+      configMap.emplace(NAME_NFA_PROPRIETARY_CFG, ConfigValue(nfaPropCfg));
+      configMap.emplace(NAME_NFA_POLL_BAIL_OUT_MODE,
+                        ConfigValue(config.nfaPollBailOutMode ? 1 : 0));
+      configMap.emplace(NAME_DEFAULT_OFFHOST_ROUTE,
+                        ConfigValue(config.defaultOffHostRoute));
+      configMap.emplace(NAME_DEFAULT_NFCF_ROUTE,
+                        ConfigValue(config.defaultOffHostRouteFelica));
+      configMap.emplace(NAME_DEFAULT_SYS_CODE_ROUTE,
+                        ConfigValue(config.defaultSystemCodeRoute));
+      configMap.emplace(NAME_OFF_HOST_SIM_PIPE_ID,
+                        ConfigValue(config.offHostSIMPipeId));
+      configMap.emplace(NAME_OFF_HOST_ESE_PIPE_ID,
+                        ConfigValue(config.offHostESEPipeId));
+      configMap.emplace(NAME_ISO_DEP_MAX_TRANSCEIVE,
+                        ConfigValue(config.maxIsoDepTransceiveLength));
+      if (config.hostWhitelist.size() != 0) {
+        configMap.emplace(NAME_DEVICE_HOST_WHITE_LIST,
+                          ConfigValue(config.hostWhitelist));
+      }
+      /* For Backwards compatibility */
+      if (config.presenceCheckAlgorithm ==
+          PresenceCheckAlgorithm::ISO_DEP_NAK) {
+        configMap.emplace(NAME_PRESENCE_CHECK_ALGORITHM,
+                          ConfigValue((uint32_t)NFA_RW_PRES_CHK_ISO_DEP_NAK));
+      } else {
+        configMap.emplace(NAME_PRESENCE_CHECK_ALGORITHM,
+                          ConfigValue((uint32_t)config.presenceCheckAlgorithm));
+      }
+    });
+  }
+}
 /*******************************************************************************
 **
 ** Function:    NfcAdaptation::Initialize()

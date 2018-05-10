@@ -23,6 +23,10 @@ class ConfigValue {
  public:
   enum Type { UNSIGNED, STRING, BYTES };
 
+  ConfigValue();
+  ConfigValue(std::string);
+  ConfigValue(unsigned);
+  ConfigValue(std::vector<uint8_t>);
   Type getType() const;
   std::string getString() const;
   unsigned getUnsigned() const;
@@ -41,6 +45,7 @@ class ConfigFile {
  public:
   void parseFromFile(const std::string& file_name);
   void parseFromString(const std::string& config);
+  void addConfig(const std::string& config, ConfigValue& value);
 
   bool hasKey(const std::string& key);
   std::string getString(const std::string& key);
