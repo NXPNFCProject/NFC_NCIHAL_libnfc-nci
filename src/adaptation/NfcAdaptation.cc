@@ -494,6 +494,14 @@ void NfcAdaptation::InitializeHalDeviceContext() {
           (mHal->isRemote() ? "remote" : "local"));
   }
   LOG(INFO) << StringPrintf("%s: INxpNfc::getService()", func);
+  mHalNxpNfc = INxpNfc::tryGetService();
+  if(mHalNxpNfc == nullptr) {
+    LOG(INFO) << StringPrintf ( "Failed to retrieve the NXPNFC HAL!");
+  } else {
+    LOG(INFO) << StringPrintf("%s: INxpNfc::getService() returned %p (%s)", func, mHalNxpNfc.get(),
+          (mHalNxpNfc->isRemote() ? "remote" : "local"));
+  }
+
 
 }
 
