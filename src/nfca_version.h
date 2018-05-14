@@ -25,4 +25,4 @@ const uint8_t nfca_version_string[] = "NFC_NCIHALx_AR";
 //
 // NOTE: IF additional branches are used add a "+" at the end of the string
 */
-const uint8_t nfa_version_string[] = "0040.9.0.1";
+const uint8_t nfa_version_string[] = "0040.9.0.2";
