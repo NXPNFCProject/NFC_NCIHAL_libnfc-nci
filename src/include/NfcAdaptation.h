@@ -37,6 +37,7 @@
 #pragma once
 #include <pthread.h>
 
+#include "config.h"
 #include "nfc_target.h"
 #include "nfc_hal_api.h"
 #include <hardware/nfc.h>
@@ -111,6 +112,7 @@ class NfcAdaptation {
   static NfcAdaptation& GetInstance();
   tHAL_NFC_ENTRY* GetHalEntryFuncs();
   void DownloadFirmware();
+  void GetVendorConfigs(std::map<std::string, ConfigValue>& configMap);
   void Dump(int fd);
 #if (NXP_EXTNS == TRUE)
   void MinInitialize();

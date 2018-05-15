@@ -24,7 +24,6 @@ cc_library_static {
     host_supported: true,
     srcs: [
         "config.cc",
-        "nfc_config.cc",
         "ringbuffer.cc",
     ],
     shared_libs: [

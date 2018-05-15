@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #include "nfc_config.h"
+#include "NfcAdaptation.h"
 
 #include <android-base/file.h>
 #include <android-base/logging.h>
@@ -46,6 +47,13 @@ NfcConfig::NfcConfig() {
   string config_path = findConfigPath();
   CHECK(config_path != "");
   config_.parseFromFile(config_path);
+  /* Read vendor specific configs */
+  NfcAdaptation& theInstance = NfcAdaptation::GetInstance();
+  std::map<std::string, ConfigValue> configMap;
+  theInstance.GetVendorConfigs(configMap);
+  for (auto config : configMap) {
+    config_.addConfig(config.first, config.second);
+  }
 }
 
 NfcConfig& NfcConfig::getInstance() {

@@ -41,6 +41,26 @@ bool parseBytesString(std::string in, std::vector<uint8_t>& out) {
 
 }  // namespace
 
+ConfigValue::ConfigValue() {}
+
+ConfigValue::ConfigValue(std::string value) {
+  // Don't allow empty strings
+  CHECK(!(value.empty()));
+  type_ = STRING;
+  value_string_ = value;
+}
+
+ConfigValue::ConfigValue(unsigned value) {
+  type_ = UNSIGNED;
+  value_unsigned_ = value;
+}
+
+ConfigValue::ConfigValue(std::vector<uint8_t> value) {
+  CHECK(!(value.empty()));
+  type_ = BYTES;
+  value_bytes_ = value;
+}
+
 ConfigValue::Type ConfigValue::getType() const { return type_; }
 
 std::string ConfigValue::getString() const {
@@ -82,6 +102,11 @@ bool ConfigValue::parseFromString(std::string in) {
   return false;
 }
 
+void ConfigFile::addConfig(const std::string& key, ConfigValue& value) {
+  CHECK(!hasKey(key));
+  values_.emplace(key, value);
+}
+
 void ConfigFile::parseFromFile(const std::string& file_name) {
   string config;
   bool config_read = ReadFileToString(file_name, &config);
@@ -108,8 +133,7 @@ void ConfigFile::parseFromString(const std::string& config) {
     ConfigValue value;
     bool value_parsed = value.parseFromString(value_string);
     CHECK(value_parsed);
-    CHECK(!hasKey(key));
-    values_.emplace(key, value);
+    addConfig(key, value);
 
     LOG(INFO) << "ConfigFile - [" << key << "] = " << value_string;
   }
