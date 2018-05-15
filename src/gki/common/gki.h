@@ -294,19 +294,20 @@
 
 /* Timer list entry callback type
 */
-typedef void(TIMER_CBACK)(void* p_tle);
+struct TIMER_LIST_ENT;
+typedef void(TIMER_CBACK)(TIMER_LIST_ENT* p_tle);
 
 /* Define a timer list entry
 */
-typedef struct _tle {
-  struct _tle* p_next;
-  struct _tle* p_prev;
+struct TIMER_LIST_ENT {
+  TIMER_LIST_ENT* p_next;
+  TIMER_LIST_ENT* p_prev;
   TIMER_CBACK* p_cback;
   int32_t ticks;
   uintptr_t param;
   uint16_t event;
   uint8_t in_use;
-} TIMER_LIST_ENT;
+};
 
 /* Define a timer list queue
 */

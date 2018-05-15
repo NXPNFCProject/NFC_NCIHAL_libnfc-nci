@@ -89,7 +89,7 @@ static void nfa_hci_rsp_timeout(void);
 static void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
                                tNFC_CONN* p_data);
 #if(NXP_EXTNS == TRUE)
-static void nfa_hci_timer_cback (void *p_tle);
+static void nfa_hci_timer_cback (TIMER_LIST_ENT *p_tle);
 static void nfa_hci_set_receive_buf(tNFA_HCI_PIPE_CMDRSP_INFO  *p_pipe_cmdrsp_info);
 static bool nfa_hci_assemble_msg(uint8_t* p_data, uint16_t data_len);
 #else
@@ -1784,7 +1784,7 @@ void nfa_hci_release_transceive(uint8_t host_id) {
 ** Returns          None
 **
 *******************************************************************************/
-static void nfa_hci_timer_cback (void *p_tle)
+static void nfa_hci_timer_cback (TIMER_LIST_ENT *p_tle)
 {
     uint8_t                     *p_pipe_id;
     uint8_t                     cmd_inst;
@@ -1806,7 +1806,7 @@ static void nfa_hci_timer_cback (void *p_tle)
     }
     else
     {
-        p_timer   = (TIMER_LIST_ENT *) p_tle;
+        p_timer   = p_tle;
         p_pipe_id = (uint8_t *) p_timer->param;
 
         p_pipe = nfa_hciu_find_pipe_by_pid (*p_pipe_id);
