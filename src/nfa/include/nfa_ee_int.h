@@ -172,26 +172,24 @@ typedef struct {
       tech_switch_off; /* default routing - technologies switch_off */
   tNFA_TECHNOLOGY_MASK
       tech_battery_off; /* default routing - technologies battery_off*/
+  tNFA_TECHNOLOGY_MASK
+      tech_screen_lock; /* default routing - technologies screen_lock*/
+  tNFA_TECHNOLOGY_MASK
+      tech_screen_off; /* default routing - technologies screen_off*/
+  tNFA_TECHNOLOGY_MASK
+      tech_screen_off_lock; /* default routing - technologies screen_off_lock*/
   tNFA_PROTOCOL_MASK
       proto_switch_on; /* default routing - protocols switch_on     */
   tNFA_PROTOCOL_MASK
       proto_switch_off; /* default routing - protocols switch_off    */
   tNFA_PROTOCOL_MASK
       proto_battery_off;     /* default routing - protocols battery_off   */
-#if (NXP_EXTNS == TRUE)
   tNFA_PROTOCOL_MASK
       proto_screen_lock; /* default routing - protocols screen_lock    */
   tNFA_PROTOCOL_MASK
       proto_screen_off; /* default routing - protocols screen_off  */
   tNFA_PROTOCOL_MASK
-      proto_screen_off_lock; /* default routing - protocols screen_off  */
-  tNFA_TECHNOLOGY_MASK
-      tech_screen_lock; /* default routing - technologies screen_lock*/
-  tNFA_TECHNOLOGY_MASK
-      tech_screen_off; /* default routing - technologies screen_off*/
-  tNFA_TECHNOLOGY_MASK
-      tech_screen_off_lock; /* default routing - technologies screen_off*/
-#endif
+      proto_screen_off_lock; /* default routing - protocols screen_off_lock  */
   tNFA_EE_CONN_ST conn_st;   /* connection status */
   uint8_t conn_id;           /* connection id */
   tNFA_EE_CBACK* p_ee_cback; /* the callback function */

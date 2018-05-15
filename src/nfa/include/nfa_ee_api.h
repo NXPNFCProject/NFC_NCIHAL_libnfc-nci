@@ -388,9 +388,9 @@ extern tNFA_STATUS NFA_EeSetDefaultProtoRouting(
     tNFA_HANDLE ee_handle, tNFA_PROTOCOL_MASK protocols_switch_on,
     tNFA_PROTOCOL_MASK protocols_switch_off,
     tNFA_PROTOCOL_MASK protocols_battery_off,
-    tNFA_PROTOCOL_MASK technologies_screen_lock,
-    tNFA_PROTOCOL_MASK technologies_screen_off,
-    tNFA_PROTOCOL_MASK technologies_screen_off_lock);
+    tNFA_PROTOCOL_MASK protocols_screen_lock,
+    tNFA_PROTOCOL_MASK protocols_screen_off,
+    tNFA_PROTOCOL_MASK protocols_screen_off_lock);
 
 /*******************************************************************************
 **
