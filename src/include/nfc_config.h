@@ -94,10 +94,9 @@ class NfcConfig {
   static unsigned getUnsigned(const std::string& key, unsigned default_value);
   static std::vector<uint8_t> getBytes(const std::string& key);
   static void clear();
-#if(NXP_EXTNS == TRUE)
-  static void parseConfigFile();
-#endif
+
  private:
+  void loadConfig();
   static NfcConfig& getInstance();
   NfcConfig();
 

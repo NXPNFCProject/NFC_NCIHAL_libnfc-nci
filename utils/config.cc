@@ -161,4 +161,5 @@ std::vector<uint8_t> ConfigFile::getBytes(const std::string& key) {
   return getValue(key).getBytes();
 }
 
+bool ConfigFile::isEmpty() { return values_.empty(); }
 void ConfigFile::clear() { values_.clear(); }

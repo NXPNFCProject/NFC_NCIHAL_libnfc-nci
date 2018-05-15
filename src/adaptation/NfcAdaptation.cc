@@ -241,9 +241,7 @@ void NfcAdaptation::Initialize() {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: enter", func);
   LOG(INFO) << StringPrintf("%s: ver=%s nfa=%s", func, nfca_version_string,
                             nfa_version_string);
-#if(NXP_EXTNS == TRUE)
-  NfcConfig::parseConfigFile();
-#endif
+
   nfc_storage_path = NfcConfig::getString(NAME_NFA_STORAGE, "/data/nfc");
 
   if (NfcConfig::hasKey(NAME_NFA_DM_CFG)) {
