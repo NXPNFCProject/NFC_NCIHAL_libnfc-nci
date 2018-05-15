@@ -86,6 +86,7 @@ class NfcConfig {
   static void clear();
 
  private:
+  void loadConfig();
   static NfcConfig& getInstance();
   NfcConfig();
 

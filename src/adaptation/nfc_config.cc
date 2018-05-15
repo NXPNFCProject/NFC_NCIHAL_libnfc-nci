@@ -43,7 +43,7 @@ std::string findConfigPath() {
 
 }  // namespace
 
-NfcConfig::NfcConfig() {
+void NfcConfig::loadConfig() {
   string config_path = findConfigPath();
   CHECK(config_path != "");
   config_.parseFromFile(config_path);
@@ -56,8 +56,14 @@ NfcConfig::NfcConfig() {
   }
 }
 
+NfcConfig::NfcConfig() { loadConfig(); }
+
 NfcConfig& NfcConfig::getInstance() {
   static NfcConfig theInstance;
+  if (theInstance.config_.isEmpty()) {
+    theInstance.loadConfig();
+  }
+  }
   return theInstance;
 }
 

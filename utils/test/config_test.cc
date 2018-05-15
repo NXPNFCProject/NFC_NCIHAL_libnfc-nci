@@ -110,6 +110,15 @@ TEST(ConfigTestFromString, test_clear) {
   EXPECT_DEATH(config.getUnsigned("NUM_VALUE"), "");
 }
 
+TEST(ConfigTestFromString, test_isEmpty) {
+  ConfigFile config;
+  EXPECT_TRUE(config.isEmpty());
+  config.parseFromString(SIMPLE_CONFIG);
+  EXPECT_FALSE(config.isEmpty());
+  config.clear();
+  EXPECT_TRUE(config.isEmpty());
+}
+
 TEST_F(ConfigTestFromFile, test_file_based_config) {
   ConfigFile config;
   config.parseFromFile(SIMPLE_CONFIG_FILE);
