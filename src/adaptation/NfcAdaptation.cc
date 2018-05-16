@@ -224,6 +224,7 @@ void NfcAdaptation::GetVendorConfigs(
                         ConfigValue(config.nfaPollBailOutMode ? 1 : 0));
       configMap.emplace(NAME_DEFAULT_OFFHOST_ROUTE,
                         ConfigValue(config.defaultOffHostRoute));
+      configMap.emplace(NAME_DEFAULT_ROUTE, ConfigValue(config.defaultRoute));
       configMap.emplace(NAME_DEFAULT_NFCF_ROUTE,
                         ConfigValue(config.defaultOffHostRouteFelica));
       configMap.emplace(NAME_DEFAULT_SYS_CODE_ROUTE,
@@ -236,6 +237,10 @@ void NfcAdaptation::GetVendorConfigs(
                         ConfigValue(config.offHostESEPipeId));
       configMap.emplace(NAME_ISO_DEP_MAX_TRANSCEIVE,
                         ConfigValue(config.maxIsoDepTransceiveLength));
+      if (config.hostWhitelist.size() != 0) {
+        configMap.emplace(NAME_DEVICE_HOST_WHITE_LIST,
+                          ConfigValue(config.hostWhitelist));
+      }
       /* For Backwards compatibility */
       if (config.presenceCheckAlgorithm ==
           PresenceCheckAlgorithm::ISO_DEP_NAK) {
