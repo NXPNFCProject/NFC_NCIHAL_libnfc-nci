@@ -73,6 +73,8 @@ enum {
   NFA_EE_API_SET_PROTO_CFG_EVT,
   NFA_EE_API_ADD_AID_EVT,
   NFA_EE_API_REMOVE_AID_EVT,
+  NFA_EE_API_ADD_SYSCODE_EVT,
+  NFA_EE_API_REMOVE_SYSCODE_EVT,
   NFA_EE_API_LMRT_SIZE_EVT,
   NFA_EE_API_UPDATE_NOW_EVT,
   NFA_EE_API_CONNECT_EVT,
@@ -185,6 +187,12 @@ typedef uint8_t tNFA_EE_CONN_ST;
 #endif
 #define NFA_EE_TOTAL_APDU_PATTERN_SIZE 250
 #define NFA_EE_APDU_ROUTE_MASK 8 /* APDU route location mask*/
+#define NFA_EE_SYSTEM_CODE_LEN 02
+#define NFA_EE_SYSTEM_CODE_TLV_SIZE 06
+#define NFA_EE_MAX_SYSTEM_CODE_ENTRIES 10
+#define NFA_EE_MAX_SYSTEM_CODE_CFG_LEN \
+  (NFA_EE_MAX_SYSTEM_CODE_ENTRIES * NFA_EE_SYSTEM_CODE_TLV_SIZE)
+
 /* NFA EE control block flags:
  * use to indicate an API function has changed the configuration of the
  * associated NFCEE
@@ -195,6 +203,8 @@ typedef uint8_t tNFA_EE_CONN_ST;
 #define NFA_EE_ECB_FLAGS_PROTO 0x04
 /* AID routing changed                */
 #define NFA_EE_ECB_FLAGS_AID 0x08
+/* System Code routing changed        */
+#define NFA_EE_ECB_FLAGS_SYSCODE 0xE0
 /* VS changed                         */
 #define NFA_EE_ECB_FLAGS_VS 0x10
 /* Restore related                    */
@@ -290,6 +300,14 @@ typedef struct {
   uint8_t aid_info[NFA_EE_MAX_AID_ENTRIES]; /* route/vs info for this AID
                                                   entry */
 #endif
+  /*System Code Based Routing Variables*/
+  uint8_t sys_code_cfg[NFA_EE_MAX_SYSTEM_CODE_ENTRIES * NFA_EE_SYSTEM_CODE_LEN];
+  uint8_t sys_code_pwr_cfg[NFA_EE_MAX_SYSTEM_CODE_ENTRIES];
+  uint8_t sys_code_rt_loc[NFA_EE_MAX_SYSTEM_CODE_ENTRIES];
+  uint8_t sys_code_rt_loc_vs_info[NFA_EE_MAX_SYSTEM_CODE_ENTRIES];
+  /* The number of SC entries in sys_code_cfg buffer*/
+  uint8_t sys_code_cfg_entries;
+  uint16_t size_sys_code; /* The size for system code routing */
   uint8_t aid_entries;
   uint8_t nfcee_id;      /* ID for this NFCEE */
   uint8_t ee_status;     /* The NFCEE status */
@@ -416,6 +434,21 @@ typedef struct {
   uint8_t* p_apdu;
 } tNFA_EE_API_REMOVE_APDU;
 
+/* data type for NFA_EE_API_ADD_SYSCODE_EVT */
+typedef struct {
+  NFC_HDR hdr;
+  tNFA_EE_ECB* p_cb;
+  uint8_t nfcee_id;
+  uint16_t syscode;
+  tNFA_EE_PWR_STATE power_state;
+} tNFA_EE_API_ADD_SYSCODE;
+
+/* data type for NFA_EE_API_REMOVE_SYSCODE_EVT */
+typedef struct {
+  NFC_HDR hdr;
+  uint16_t syscode;
+} tNFA_EE_API_REMOVE_SYSCODE;
+
 /* data type for NFA_EE_API_LMRT_SIZE_EVT */
 typedef NFC_HDR tNFA_EE_API_LMRT_SIZE;
 
@@ -527,6 +560,8 @@ typedef union {
   tNFA_EE_API_SET_PROTO_CFG set_proto;
   tNFA_EE_API_ADD_AID add_aid;
   tNFA_EE_API_REMOVE_AID rm_aid;
+  tNFA_EE_API_ADD_SYSCODE add_syscode;
+  tNFA_EE_API_REMOVE_SYSCODE rm_syscode;
   tNFA_EE_API_ADD_APDU add_apdu;
   tNFA_EE_API_REMOVE_APDU rm_apdu;
   tNFA_EE_API_LMRT_SIZE lmrt_size;
@@ -694,6 +729,8 @@ void nfa_ee_api_set_tech_cfg(tNFA_EE_MSG* p_data);
 void nfa_ee_api_set_proto_cfg(tNFA_EE_MSG* p_data);
 void nfa_ee_api_add_aid(tNFA_EE_MSG* p_data);
 void nfa_ee_api_remove_aid(tNFA_EE_MSG* p_data);
+void nfa_ee_api_add_sys_code(tNFA_EE_MSG* p_data);
+void nfa_ee_api_remove_sys_code(tNFA_EE_MSG* p_data);
 void nfa_ee_api_lmrt_size(tNFA_EE_MSG* p_data);
 void nfa_ee_api_update_now(tNFA_EE_MSG* p_data);
 void nfa_ee_api_connect(tNFA_EE_MSG* p_data);
@@ -725,7 +762,8 @@ void nfa_ee_report_event(tNFA_EE_CBACK* p_cback, tNFA_EE_EVT event,
                          tNFA_EE_CBACK_DATA* p_data);
 tNFA_EE_ECB* nfa_ee_find_aid_offset(uint8_t aid_len, uint8_t* p_aid,
                                     int* p_offset, int* p_entry);
-
+tNFA_EE_ECB* nfa_ee_find_sys_code_offset(uint16_t sys_code, int* p_offset,
+                                         int* p_entry);
 int nfa_ee_find_total_aid_len(tNFA_EE_ECB* p_cb, int start_entry);
 void nfa_ee_start_timer(void);
 void nfa_ee_reg_cback_enable_done(tNFA_EE_ENABLE_DONE_CBACK* p_cback);

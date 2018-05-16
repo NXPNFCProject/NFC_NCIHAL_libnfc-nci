@@ -85,6 +85,8 @@ const tNFA_EE_SM_ACT nfa_ee_actions[] = {
     nfa_ee_api_add_aid,       /* NFA_EE_API_ADD_AID_EVT       */
     nfa_ee_api_remove_aid,    /* NFA_EE_API_REMOVE_AID_EVT    */
     nfa_ee_api_lmrt_size,     /* NFA_EE_API_LMRT_SIZE_EVT     */
+    nfa_ee_api_add_sys_code,    /* NFA_EE_API_ADD_SYSCODE_EVT   */
+    nfa_ee_api_remove_sys_code, /* NFA_EE_API_REMOVE_SYSCODE_EVT*/
     nfa_ee_api_update_now,    /* NFA_EE_API_UPDATE_NOW_EVT    */
     nfa_ee_api_connect,       /* NFA_EE_API_CONNECT_EVT       */
     nfa_ee_api_send_data,     /* NFA_EE_API_SEND_DATA_EVT     */
@@ -657,6 +659,10 @@ static std::string nfa_ee_sm_evt_2_str(uint16_t event) {
       return "API_ADD_AID";
     case NFA_EE_API_REMOVE_AID_EVT:
       return "API_REMOVE_AID";
+    case NFA_EE_API_ADD_SYSCODE_EVT:
+      return "NFA_EE_API_ADD_SYSCODE_EVT";
+    case NFA_EE_API_REMOVE_SYSCODE_EVT:
+      return "NFA_EE_API_REMOVE_SYSCODE_EVT";
     case NFA_EE_API_LMRT_SIZE_EVT:
       return "API_LMRT_SIZE";
     case NFA_EE_API_UPDATE_NOW_EVT:

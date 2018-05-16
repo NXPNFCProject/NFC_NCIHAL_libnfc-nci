@@ -246,6 +246,7 @@ typedef uint8_t tNFC_STATUS;
 #define NFC_ROUTE_TAG_PROTO NCI_ROUTE_TAG_PROTO
 #define NFC_ROUTE_TAG_AID NCI_ROUTE_TAG_AID /* AID routing */
 #define NFC_ROUTE_TAG_APDU NCI_ROUTE_TAG_APDU /* APDU routing*/
+#define NFC_ROUTE_TAG_SYSCODE NCI_ROUTE_TAG_SYSCODE /* System Code routing*/
 
 /* For routing */
 #define NFC_DH_ID NCI_DH_ID /* for DH */
