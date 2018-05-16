@@ -72,24 +72,21 @@ void nfa_ce_handle_t3t_evt(tCE_EVENT event, tCE_DATA* p_ce_data) {
   tNFA_CONN_EVT_DATA conn_evt;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ce_handle_t3t_evt: event 0x%x", event);
-#if (NXP_EXTNS == TRUE && NXP_NFCC_HCE_F == TRUE)
-  uint8_t listen_info_idx;
+
   /* For the felica on host for nfcFcallback */
-  for (listen_info_idx = 0; listen_info_idx < NFA_CE_LISTEN_INFO_IDX_INVALID;
-       listen_info_idx++) {
-    if ((p_cb->listen_info[listen_info_idx].flags &
+  for (uint8_t idx = 0; idx < NFA_CE_LISTEN_INFO_IDX_INVALID; idx++) {
+    if ((p_cb->listen_info[idx].flags &
          NFA_CE_LISTEN_INFO_IN_USE) &&
-        (p_cb->listen_info[listen_info_idx].flags &
+        (p_cb->listen_info[idx].flags &
          NFA_CE_LISTEN_INFO_FELICA) &&
-        (p_cb->listen_info[listen_info_idx].flags &
+        (p_cb->listen_info[idx].flags &
          NFA_CE_LISTEN_INFO_T3T_ACTIVATE_PND)) {
-      p_cb->idx_cur_active = listen_info_idx;
+      p_cb->idx_cur_active = idx;
       p_cb->p_active_conn_cback =
           p_cb->listen_info[p_cb->idx_cur_active].p_conn_cback;
       break;
     }
   }
-#endif
 
   switch (event) {
     case CE_T3T_NDEF_UPDATE_START_EVT:
@@ -126,7 +123,6 @@ void nfa_ce_handle_t3t_evt(tCE_EVENT event, tCE_DATA* p_ce_data) {
         conn_evt.data.len = p_ce_data->raw_frame.p_data->len;
         (*p_cb->p_active_conn_cback)(NFA_DATA_EVT, &conn_evt);
       } else {
-#if (NXP_EXTNS == TRUE && NXP_NFCC_HCE_F == TRUE)
         /* If we have not notified the app of activation, do so now */
         if (p_cb->listen_info[p_cb->idx_cur_active].flags &
             NFA_CE_LISTEN_INFO_T3T_ACTIVATE_PND) {
@@ -141,7 +137,6 @@ void nfa_ce_handle_t3t_evt(tCE_EVENT event, tCE_DATA* p_ce_data) {
 
           (*p_cb->p_active_conn_cback)(NFA_CE_ACTIVATED_EVT, &conn_evt);
         }
-#endif
         /* Notify app of t3t raw data */
         conn_evt.ce_data.status = p_ce_data->raw_frame.status;
         conn_evt.ce_data.handle =
@@ -877,12 +872,10 @@ bool nfa_ce_activate_ntf(tNFA_CE_MSG* p_ce_msg) {
   uint8_t* p_nfcid2 = NULL;
   uint8_t i;
   bool t4t_activate_pending = false;
-#if (NXP_EXTNS == TRUE)
   bool t3t_activate_pending = false;
   bool t3t_offhost_entry_found = false;
   uint8_t t3t_activate_idx = 0;
   uint8_t t3t_offhost_idx = 0;
-#endif
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ce_activate_ntf () protocol=%d",
                    p_ce_msg->activate_ntf.p_activation_params->protocol);
@@ -954,18 +947,6 @@ bool nfa_ce_activate_ntf(tNFA_CE_MSG* p_ce_msg) {
     }
 
     p_ce_cback = nfa_ce_handle_t3t_evt;
-    /* If listening for PROTO_T3T on DH and eSE/UICC, then notify CE module now
-     * and wait for reader/writer to SELECT a target */
-    if (t3t_activate_pending && t3t_offhost_entry_found) {
-      CE_SetActivatedTagType(&p_cb->activation_params, t3t_system_code,
-                             p_ce_cback);
-      return true;
-    } else if (t3t_activate_pending) {
-      listen_info_idx = t3t_activate_idx;
-    } else if (t3t_offhost_entry_found) {
-      listen_info_idx = t3t_offhost_idx;
-    }
-  }
 #else
   /* Find the listen_info entry corresponding to this activation */
   if (p_cb->activation_params.protocol == NFA_PROTOCOL_T3T) {
@@ -1003,8 +984,19 @@ bool nfa_ce_activate_ntf(tNFA_CE_MSG* p_ce_msg) {
     }
 
     p_ce_cback = nfa_ce_handle_t3t_evt;
-  }
 #endif
+  }
+      /* If listening for PROTO_T3T on DH and eSE/UICC, then notify CE module now
+     * and wait for reader/writer to SELECT a target */
+    if (t3t_activate_pending && t3t_offhost_entry_found) {
+      CE_SetActivatedTagType(&p_cb->activation_params, t3t_system_code,
+                             p_ce_cback);
+      return true;
+    } else if (t3t_activate_pending) {
+      listen_info_idx = t3t_activate_idx;
+    } else if (t3t_offhost_entry_found) {
+      listen_info_idx = t3t_offhost_idx;
+    }
   else if (p_cb->activation_params.protocol == NFA_PROTOCOL_ISO_DEP) {
     p_ce_cback = nfa_ce_handle_t4t_evt;
 
@@ -1109,10 +1101,8 @@ bool nfa_ce_activate_ntf(tNFA_CE_MSG* p_ce_msg) {
   p_cb->listen_info[listen_info_idx].flags &=
       ~NFA_CE_LISTEN_INFO_T4T_ACTIVATE_PND;
 
-#if (NXP_EXTNS == TRUE)
   p_cb->listen_info[listen_info_idx].flags &=
       ~NFA_CE_LISTEN_INFO_T3T_ACTIVATE_PND;
-#endif
 
   /* Get CONN_CBACK for this activation */
   p_cb->p_active_conn_cback = p_cb->listen_info[listen_info_idx].p_conn_cback;
@@ -1236,11 +1226,9 @@ bool nfa_ce_deactivate_ntf(tNFA_CE_MSG* p_ce_msg) {
         }
       } else if ((p_cb->activation_params.protocol == NFA_PROTOCOL_T3T) &&
                  (p_cb->listen_info[i].protocol_mask & NFA_PROTOCOL_MASK_T3T)) {
-#if (NXP_EXTNS == TRUE)
         /* Don't send NFA_DEACTIVATED_EVT if NFA_ACTIVATED_EVT wasn't sent */
         if (!(p_cb->listen_info[i].flags &
               NFA_CE_LISTEN_INFO_T3T_ACTIVATE_PND)) {
-#endif
           if (i == NFA_CE_LISTEN_INFO_IDX_NDEF) {
             conn_evt.deactivated.type = deact_type;
             if (p_cb->p_active_conn_cback)
@@ -1252,9 +1240,7 @@ bool nfa_ce_deactivate_ntf(tNFA_CE_MSG* p_ce_msg) {
             if (p_cb->p_active_conn_cback)
                 (*p_cb->p_active_conn_cback)(NFA_CE_DEACTIVATED_EVT, &conn_evt);
           }
-#if (NXP_EXTNS == TRUE)
         }
-#endif
       }
     }
   }
