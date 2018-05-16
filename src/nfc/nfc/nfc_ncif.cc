@@ -2871,11 +2871,9 @@ void nfc_ncif_proc_data(NFC_HDR* p_msg) {
 
     p_msg->layer_specific = 0;
     if (pbf) {
-#if (NXP_EXTNS == TRUE)
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
           "nfc_ncif_proc_data requesting reassembly for chained data");
-      nfc_cb.reassembly = true;
-#endif
+      NFC_SetReassemblyFlag(true);
       p_msg->layer_specific = NFC_RAS_FRAGMENTED;
     }
     p_last = (NFC_HDR*)GKI_getlast(&p_cb->rx_q);
