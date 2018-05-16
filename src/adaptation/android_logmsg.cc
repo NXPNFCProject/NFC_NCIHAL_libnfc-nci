@@ -44,6 +44,7 @@
 using android::base::StringPrintf;
 
 extern bool nfc_debug_enabled;
+extern char appl_dta_mode_flag;
 
 #define MAX_NCI_PACKET_SIZE 259
 #define BTE_LOG_BUF_SIZE 1024
@@ -134,4 +135,16 @@ void DispHcp(uint8_t* data, uint16_t len, bool is_recv) {
       << StringPrintf("%s:%s", is_recv ? "HcpR" : "HcpX", log_line);
 }
 
-
+/***************************************************************************
+**
+** Function         initializeGlobalAppDtaMode.
+**
+** Description      initialize Dta App Mode flag.
+**
+** Returns          None.
+**
+***************************************************************************/
+void initializeGlobalAppDtaMode() {
+  appl_dta_mode_flag = 0x01;
+  ALOGD("%s: DTA Enabled", __func__);
+}
