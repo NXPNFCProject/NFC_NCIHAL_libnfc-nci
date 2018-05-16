@@ -39,7 +39,7 @@
 #include <base/logging.h>
 #include "android_logmsg.h"
 #include "buildcfg.h"
-#include <cutils/log.h>
+#include <log/log.h>
 
 using android::base::StringPrintf;
 
