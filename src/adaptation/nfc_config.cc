@@ -29,7 +29,8 @@ using namespace ::android::base;
 namespace {
 
 std::string findConfigPath() {
-  const vector<string> search_path = {"/odm/etc/", "/product/etc/", "/etc/"};
+  const vector<string> search_path = {"/odm/etc/", "/vendor/etc/",
+                                      "/product/etc/", "/etc/"};
   const string file_name = "libnfc-nci.conf";
 
   for (string path : search_path) {
