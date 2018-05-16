@@ -50,7 +50,6 @@
 #include "nfa_api.h"
 #include "nfa_rw_api.h"
 #include "nfc_int.h"
-#include "nfca_version.h"
 
 using android::OK;
 using android::sp;
@@ -106,9 +105,6 @@ extern tNFA_PROPRIETARY_CFG nfa_proprietary_cfg;
 extern tNFA_HCI_CFG nfa_hci_cfg;
 extern uint8_t nfa_ee_max_ee_cfg;
 extern bool nfa_poll_bail_out_mode;
-
-extern const uint8_t nfca_version_string[];
-extern const uint8_t nfa_version_string[];
 
 // Whitelist for hosts allowed to create a pipe
 // See ADM_CREATE_PIPE command in the ETSI test specification
@@ -270,8 +266,6 @@ void NfcAdaptation::Initialize() {
   logging::SetLogItems(false, false, false, false);
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: enter", func);
-  LOG(INFO) << StringPrintf("%s: ver=%s nfa=%s", func, nfca_version_string,
-                            nfa_version_string);
 
   nfc_storage_path = NfcConfig::getString(NAME_NFA_STORAGE, "/data/nfc");
 
