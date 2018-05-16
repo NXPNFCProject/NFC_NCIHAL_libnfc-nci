@@ -888,6 +888,9 @@ static tNFC_STATUS nfa_dm_send_deactivate_cmd(tNFC_DEACT_TYPE deactivate_type) {
   tNFA_DM_DISC_FLAGS w4_flags =
       nfa_dm_cb.disc_cb.disc_flags &
       (NFA_DM_DISC_FLAGS_W4_RSP | NFA_DM_DISC_FLAGS_W4_NTF);
+#if (NXP_EXTNS == TRUE)
+  unsigned long num = 0;
+#endif
 
   if (!w4_flags) {
     /* if deactivate CMD was not sent to NFCC */
@@ -899,8 +902,34 @@ static tNFC_STATUS nfa_dm_send_deactivate_cmd(tNFC_DEACT_TYPE deactivate_type) {
     if (!nfa_dm_cb.disc_cb.tle.in_use) {
       nfa_dm_cb.disc_cb.tle.p_cback =
           (TIMER_CBACK*)nfa_dm_disc_deact_ntf_timeout_cback;
+#if (NXP_EXTNS == TRUE)
+      num = NFA_DM_DISC_TIMEOUT_W4_DEACT_NTF;
+      DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("num_disc_maps=%d", nfc_cb.num_disc_maps);
+      if (nfc_cb.num_disc_maps == 1) {
+        DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf(
+            "Reading NAME_NFA_DM_DISC_NTF_TIMEOUT val   "
+            "nfc_cb.num_disc_maps = %d",
+            nfc_cb.num_disc_maps);
+        if (NfcConfig::hasKey(NAME_NFA_DM_DISC_NTF_TIMEOUT)) {
+           num = NfcConfig::getUnsigned(NAME_NFA_DM_DISC_NTF_TIMEOUT);
+           num *= 1000;
+        } else {
+          num = NFA_DM_DISC_TIMEOUT_W4_DEACT_NTF;
+          DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("Overriding NFA_DM_DISC_NTF_TIMEOUT to use %lu", num);
+        }
+      }
+      DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("Starting timer value %lu", num);
+      /*wait infinite time for deactivate NTF, if the timeout is configured to
+       * 0*/
+      if (num != 0) nfa_sys_start_timer(&nfa_dm_cb.disc_cb.tle, 0, num);
+#else
       nfa_sys_start_timer(&nfa_dm_cb.disc_cb.tle, 0,
                           NFA_DM_DISC_TIMEOUT_W4_DEACT_NTF);
+#endif
     }
   } else {
     if (deactivate_type == NFC_DEACTIVATE_TYPE_SLEEP) {

@@ -861,7 +861,9 @@ tNFC_STATUS NFC_DiscoveryMap(uint8_t num, tNFC_DISCOVER_MAPS* p_maps,
   tNFC_DISCOVER_MAPS
       max_maps[NFC_NFCC_MAX_NUM_VS_INTERFACE + NCI_INTERFACE_MAX];
   bool is_supported;
-
+#if (NXP_EXTNS == TRUE)
+  nfc_cb.num_disc_maps = num;
+#endif
   nfc_cb.p_discv_cback = p_cback;
   num_intf = 0;
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
