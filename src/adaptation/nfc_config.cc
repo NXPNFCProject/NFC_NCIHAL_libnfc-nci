@@ -64,7 +64,6 @@ NfcConfig& NfcConfig::getInstance() {
   if (theInstance.config_.isEmpty()) {
     theInstance.loadConfig();
   }
-  }
   return theInstance;
 }
 

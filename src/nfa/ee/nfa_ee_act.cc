@@ -697,7 +697,7 @@ static void nfa_ee_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   nfa_ee_evt_hdlr(&nfa_ee_msg.conn.hdr);
 }
 
-static void nfa_ee_add_sys_code_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
+__attribute__((unused)) static void nfa_ee_add_sys_code_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
                                              uint8_t* p, uint8_t* p_buff,
                                              int* p_cur_offset,
                                              int* p_max_len) {

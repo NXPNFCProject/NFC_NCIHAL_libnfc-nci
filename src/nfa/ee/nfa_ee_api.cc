@@ -46,6 +46,7 @@
 #include "nfa_ee_api.h"
 #include "nfa_ee_int.h"
 #include "nfa_dm_int.h"
+#include "nfc_int.h"
 
 using android::base::StringPrintf;
 
@@ -494,12 +495,11 @@ tNFA_STATUS NFA_EeSetDefaultProtoRouting(
   uint8_t nfcee_id = (uint8_t)(ee_handle & 0xFF);
   tNFA_EE_ECB* p_cb;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-      "NFA_EeSetDefaultProtoRouting(): "
-      "handle:<0x%x>protocol_mask:<0x%x>/<0x%x>/<0x%x><0x%x><0x%x><0x%x>",
-      ee_handle, protocols_switch_on, protocols_switch_off,
-      protocols_battery_off, protocols_screen_lock, protocols_screen_off
-      protocols_screen_off_lock);
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_EeSetDefaultProtoRouting():\
+              handle:<0x%x>protocol_mask:<0x%x>/<0x%x>/<0x%x><0x%x><0x%x><0x%x>",
+              ee_handle, protocols_switch_on, protocols_switch_off,
+              protocols_battery_off, protocols_screen_lock,
+              protocols_screen_off, protocols_screen_off_lock);
 
   p_cb = nfa_ee_find_ecb(nfcee_id);
 
