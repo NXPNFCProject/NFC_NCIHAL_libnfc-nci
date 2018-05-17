@@ -314,17 +314,17 @@ uint8_t llcp_sdp_get_sap_by_name(char* p_name, uint8_t length) {
 
   for (sap = LLCP_SAP_SDP; sap <= LLCP_UPPER_BOUND_SDP_SAP; sap++) {
     p_app_cb = llcp_util_get_app_cb(sap);
-
-    if ((p_app_cb) && (p_app_cb->p_app_cback) &&
-        (strlen((char*)p_app_cb->p_service_name) == length) &&
-        (!strncmp((char*)p_app_cb->p_service_name, p_name, length))) {
-      /* if device is under LLCP DTA testing */
-      if (llcp_cb.p_dta_cback && (!strncmp((char*)p_app_cb->p_service_name,
-                                           "urn:nfc:sn:cl-echo-in", length))) {
-        llcp_cb.dta_snl_resp = true;
+    if((p_app_cb != nullptr) && (p_app_cb->p_service_name!=nullptr)) {
+      if ((p_app_cb) && (p_app_cb->p_app_cback) &&
+          (strlen((char*)p_app_cb->p_service_name) == length) &&
+          (!strncmp((char*)p_app_cb->p_service_name, p_name, length))) {
+        /* if device is under LLCP DTA testing */
+        if (llcp_cb.p_dta_cback && (!strncmp((char*)p_app_cb->p_service_name,
+                                             "urn:nfc:sn:cl-echo-in", length))) {
+          llcp_cb.dta_snl_resp = true;
+        }
+        return (sap);
       }
-
-      return (sap);
     }
   }
   return 0;
