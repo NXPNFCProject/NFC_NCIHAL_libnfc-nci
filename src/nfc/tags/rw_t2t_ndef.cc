@@ -1705,7 +1705,7 @@ static void rw_t2t_handle_ndef_write_rsp(uint8_t* p_data) {
     rw_t2t_handle_op_complete();
     tRW_DATA rw_data;
     rw_data.data = evt_data;
-    (*rw_cb.p_cback)(RW_T2T_NDEF_READ_EVT, &rw_data);
+    (*rw_cb.p_cback)(RW_T2T_NDEF_WRITE_EVT, &rw_data);
   }
 }
 
