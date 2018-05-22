@@ -547,7 +547,7 @@ tNFA_STATUS NFA_P2pSendUI(tNFA_HANDLE handle, uint8_t dsap, uint16_t length,
     p_msg->dsap = dsap;
 
 #if (NXP_EXTNS == TRUE)
-    if(length > p_cb->buff_size){
+    if((length + LLCP_PDU_HEADER_SIZE) > p_cb->buff_size){
       if(nfa_dm_get_extended_cmd_buf((tNFC_EXT_HDR **)&p_msg->p_msg, NFA_P2P_API_SEND_UI_EVT, p_data, length)){
         LOG(ERROR) << StringPrintf("NFA_P2pSendUI () memory allocation for extended length is un-successfull");
         return NFA_STATUS_FAILED;
@@ -564,7 +564,7 @@ tNFA_STATUS NFA_P2pSendUI(tNFA_HANDLE handle, uint8_t dsap, uint16_t length,
       p_msg->p_msg->len = length;
       p_msg->p_msg->offset = LLCP_MIN_OFFSET;
 #if (NXP_EXTNS == TRUE)
-      if(length <= p_cb->buff_size){
+      if((length + LLCP_PDU_HEADER_SIZE) <= p_cb->buff_size){
 #endif
         memcpy(((uint8_t*)(p_msg->p_msg + 1) + p_msg->p_msg->offset), p_data,
              length);
@@ -740,7 +740,7 @@ tNFA_STATUS NFA_P2pSendData(tNFA_HANDLE handle, uint16_t length,
     p_msg->conn_handle = handle;
 
 #if (NXP_EXTNS == TRUE)
-    if(length > p_cb->buff_size){
+    if((length + LLCP_PDU_HEADER_SIZE) > p_cb->buff_size){
       if(nfa_dm_get_extended_cmd_buf((tNFC_EXT_HDR **)&p_msg->p_msg, NFA_P2P_API_SEND_DATA_EVT, p_data, length)){
         LOG(ERROR) << StringPrintf("NFA_P2pSendData () memory allocation for extended length is un-successfull");
         return NFA_STATUS_FAILED;
@@ -758,7 +758,7 @@ tNFA_STATUS NFA_P2pSendData(tNFA_HANDLE handle, uint16_t length,
       p_msg->p_msg->len = length;
       p_msg->p_msg->offset = LLCP_MIN_OFFSET;
 #if (NXP_EXTNS == TRUE)
-      if(length <= p_cb->buff_size){
+      if((length + LLCP_PDU_HEADER_SIZE) <= p_cb->buff_size){
 #endif
         memcpy(((uint8_t*)(p_msg->p_msg + 1) + p_msg->p_msg->offset), p_data,
              length);
