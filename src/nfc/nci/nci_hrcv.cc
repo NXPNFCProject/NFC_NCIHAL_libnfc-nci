@@ -35,6 +35,9 @@
 #include "nci_hmsgs.h"
 #include "nfc_api.h"
 #include "nfc_int.h"
+#if (NXP_EXTNS == TRUE)
+#include "nfa_ee_int.h"
+#endif
 
 using android::base::StringPrintf;
 
@@ -377,7 +380,10 @@ void nci_proc_ee_management_ntf(NFC_HDR* p_msg) {
   tNFC_RESPONSE_CBACK* p_cback = nfc_cb.p_resp_cback;
   tNFC_RESPONSE nfc_response;
   tNFC_RESPONSE_EVT event = NFC_NFCEE_INFO_REVT;
+#if (NXP_EXTNS != TRUE)
   uint8_t* p_old = nfc_cb.last_cmd;
+#endif
+
   uint8_t xx;
   uint8_t yy;
   tNFC_NFCEE_TLV* p_tlv;
@@ -428,8 +434,13 @@ void nci_proc_ee_management_ntf(NFC_HDR* p_msg) {
     }
   } else if (op_code == NCI_MSG_NFCEE_MODE_SET) {
     nfc_response.mode_set.status = *pp;
+#if (NXP_EXTNS != TRUE)
     nfc_response.mode_set.nfcee_id = *p_old++;
     nfc_response.mode_set.mode = *p_old++;
+#else
+    nfc_response.mode_set.nfcee_id = nfa_ee_cb.nfcee_id;
+    nfc_response.mode_set.mode = nfa_ee_cb.mode;
+#endif
     event = NFC_NFCEE_MODE_SET_REVT;
     nfc_cb.flags &= ~NFC_FL_WAIT_MODE_SET_NTF;
     nfc_stop_timer(&nfc_cb.nci_mode_set_ntf_timer);
