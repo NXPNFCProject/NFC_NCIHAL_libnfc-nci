@@ -2056,7 +2056,6 @@ void nfa_ee_api_add_sys_code(tNFA_EE_MSG* p_data) {
   tNFA_EE_CBACK_DATA evt_data = {0};
   tNFA_EE_API_ADD_SYSCODE* p_add = &p_data->add_syscode;
   tNFA_EE_ECB* p_cb = p_data->cfg_hdr.p_cb;
-
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "%s id:0x%x SC:0x%X ", __func__, p_add->nfcee_id, p_add->syscode);
 

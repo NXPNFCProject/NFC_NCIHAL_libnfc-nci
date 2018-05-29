@@ -49,6 +49,7 @@
 #include "debug_nfcsnoop.h"
 #include "nfa_api.h"
 #include "nfa_rw_api.h"
+#include "hal_nxpese.h"
 #include "nfc_int.h"
 
 using android::OK;
@@ -231,9 +232,9 @@ void NfcAdaptation::GetVendorConfigs(
                         ConfigValue(config.defaultSystemCodeRoute));
       configMap.emplace(NAME_DEFAULT_SYS_CODE_PWR_STATE,
                         ConfigValue(config.defaultSystemCodePowerState));
-      configMap.emplace(NAME_NFA_HCI_STATIC_PIPE_ID_SIM,
+      configMap.emplace(NAME_OFF_HOST_SIM_PIPE_ID,
                         ConfigValue(config.offHostSIMPipeId));
-      configMap.emplace(NAME_NFA_HCI_STATIC_PIPE_ID_ESE,
+      configMap.emplace(NAME_OFF_HOST_ESE_PIPE_ID,
                         ConfigValue(config.offHostESEPipeId));
       configMap.emplace(NAME_ISO_DEP_MAX_TRANSCEIVE,
                         ConfigValue(config.maxIsoDepTransceiveLength));

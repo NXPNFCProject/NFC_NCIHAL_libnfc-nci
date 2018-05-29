@@ -59,6 +59,7 @@
 #include "rw_int.h"
 #include "ce_int.h"
 #include "nfa_sys.h"
+#include "hal_nxpese.h"
 #include <config.h>
 #if (NFC_RW_ONLY == FALSE)
 

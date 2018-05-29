@@ -56,7 +56,7 @@
 #include "rw_api.h"
 #include "rw_int.h"
 #include "nfc_hal_api.h"
-
+#include "hal_nxpese.h"
 #if (NXP_EXTNS == TRUE)
 #include "nfa_ce_int.h"
 #include "nfa_sys.h"
