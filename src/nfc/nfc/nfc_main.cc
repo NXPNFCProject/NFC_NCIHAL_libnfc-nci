@@ -682,7 +682,11 @@ static void nfc_main_hal_data_cback(uint16_t data_len, uint8_t* p_data) {
   NFC_HDR* p_msg;
 
   /* ignore all data while shutting down NFCC */
-  if (nfc_cb.nfc_state == NFC_STATE_W4_HAL_CLOSE || nfc_cb.nfc_state == NFC_STATE_W4_HAL_OPEN) {
+  if (nfc_cb.nfc_state == NFC_STATE_W4_HAL_CLOSE
+#if (NXP_EXTNS == TRUE)
+    || nfc_cb.nfc_state == NFC_STATE_W4_HAL_OPEN
+#endif
+    ) {
     return;
   }
 

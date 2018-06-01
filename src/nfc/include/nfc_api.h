@@ -913,13 +913,10 @@ typedef void(tNFC_CONN_CBACK)(uint8_t conn_id, tNFC_CONN_EVT event,
 #define NFC_ILLEGAL_CONN_ID 0xFF
 /* the static connection ID for RF traffic */
 #define NFC_RF_CONN_ID 0
-#if(NXP_EXTNS != TRUE)
 /* the static connection ID for HCI transport */
-#define NFC_HCI_CONN_ID 3
-#endif
+#define NFC_HCI_CONN_ID 1
 #if (NXP_EXTNS == TRUE)
 #define NFC_NFCEE_CONN_ID 0x03 /* the connection ID for NFCEE */
-#define NFC_HCI_CONN_ID   0x01
 #endif
 
 /*****************************************************************************

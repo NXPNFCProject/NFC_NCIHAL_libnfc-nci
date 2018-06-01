@@ -364,11 +364,14 @@ void NfcAdaptation::Finalize() {
 **
 *******************************************************************************/
 void NfcAdaptation::FactoryReset() {
+#if(NXP_EXTNS == TRUE)
   const char* func = "NfcAdaptation::FactoryReset";
   int status;
   const char config_eseinfo_path[] = "/data/nfc/nfaStorage.bin1";
+#endif
   if (mHal_1_1 != nullptr) {
     mHal_1_1->factoryReset();
+#if(NXP_EXTNS == TRUE)
     status=remove(config_eseinfo_path);
     if(status==0){
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: Storage file deleted... ", func);
@@ -376,6 +379,7 @@ void NfcAdaptation::FactoryReset() {
     else{
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: Storage file delete failed... ", func);
     }
+#endif
   }
 }
 

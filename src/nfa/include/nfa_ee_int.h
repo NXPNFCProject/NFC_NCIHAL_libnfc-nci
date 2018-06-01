@@ -307,11 +307,9 @@ typedef struct {
   tNFA_TECHNOLOGY_MASK technologies_switch_on;
   tNFA_TECHNOLOGY_MASK technologies_switch_off;
   tNFA_TECHNOLOGY_MASK technologies_battery_off;
-#if (NXP_EXTNS == TRUE)
   tNFA_TECHNOLOGY_MASK technologies_screen_lock;
   tNFA_TECHNOLOGY_MASK technologies_screen_off;
   tNFA_TECHNOLOGY_MASK technologies_screen_off_lock;
-#endif
 } tNFA_EE_API_SET_TECH_CFG;
 
 /* data type for NFA_EE_API_SET_PROTO_CFG_EVT */
@@ -322,11 +320,9 @@ typedef struct {
   tNFA_PROTOCOL_MASK protocols_switch_on;
   tNFA_PROTOCOL_MASK protocols_switch_off;
   tNFA_PROTOCOL_MASK protocols_battery_off;
-#if (NXP_EXTNS == TRUE)
   tNFA_PROTOCOL_MASK protocols_screen_lock;
   tNFA_PROTOCOL_MASK protocols_screen_off;
   tNFA_PROTOCOL_MASK protocols_screen_off_lock;
-#endif
 } tNFA_EE_API_SET_PROTO_CFG;
 
 /* data type for NFA_EE_API_ADD_AID_EVT */

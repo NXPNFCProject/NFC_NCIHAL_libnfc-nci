@@ -1306,7 +1306,7 @@ void nfa_ee_api_remove_aid(tNFA_EE_MSG* p_data) {
   }
 #endif
   else {
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+    LOG(ERROR) << StringPrintf(
         "nfa_ee_api_remove_aid The AID entry is not in the database");
     evt_data.status = NFA_STATUS_INVALID_PARAM;
   }
@@ -2904,6 +2904,7 @@ void nfa_ee_lmrt_to_nfcc(__attribute__((unused)) tNFA_EE_MSG* p_data) {
   for (int rt = NCI_ROUTE_ORDER_AID; rt <= NCI_ROUTE_ORDER_TECHNOLOGY; rt++) {
     /* add the routing entries for NFCEEs */
     p_cb = &nfa_ee_cb.ecb[0];
+
     for (xx = 0; (xx < nfa_ee_cb.cur_ee) && check; xx++, p_cb++) {
       if (p_cb->ee_status == NFC_NFCEE_STATUS_ACTIVE) {
         DLOG_IF(INFO, nfc_debug_enabled)

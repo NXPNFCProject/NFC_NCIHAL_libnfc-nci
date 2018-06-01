@@ -299,6 +299,7 @@ void nfc_ncif_check_cmd_queue(NFC_HDR* p_buf) {
 #endif
     }
   }
+
   /* If controller can accept another command, then send the next command */
   if (nfc_cb.nci_cmd_window > 0) {
     /* If no command was provided, or if older commands were in the queue, then

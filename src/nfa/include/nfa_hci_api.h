@@ -147,6 +147,7 @@ typedef struct {
   uint8_t dest_host; /* Peer host to which this pipe is connected */
   uint8_t dest_gate; /* Peer gate to which this pipe is connected */
 } tNFA_HCI_PIPE_INFO;
+
 /* Data for NFA_HCI_REGISTER_EVT */
 typedef struct {
   tNFA_STATUS status;     /* Status of registration */
