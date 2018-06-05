@@ -38,7 +38,7 @@ struct INfcClientCallback;
 }
 }
 }
-
+class NfcDeathRecipient;
 class ThreadMutex {
  public:
   ThreadMutex();
@@ -104,6 +104,7 @@ class NfcAdaptation {
   static tHAL_NFC_DATA_CBACK* mHalDataCallback;
   static ThreadCondVar mHalOpenCompletedEvent;
   static ThreadCondVar mHalCloseCompletedEvent;
+  static android::sp<NfcDeathRecipient> mDeathRecipient;
 
   static uint32_t NFCA_TASK(uint32_t arg);
   static uint32_t Thread(uint32_t arg);

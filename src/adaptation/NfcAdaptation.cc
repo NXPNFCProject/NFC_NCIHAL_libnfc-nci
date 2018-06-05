@@ -44,6 +44,8 @@ using INfcV1_1 = android::hardware::nfc::V1_1::INfc;
 using NfcVendorConfig = android::hardware::nfc::V1_1::NfcConfig;
 using android::hardware::nfc::V1_1::INfcClientCallback;
 using android::hardware::hidl_vec;
+using android::hardware::hidl_death_recipient;
+using ::android::sp;
 
 extern bool nfc_debug_enabled;
 
@@ -60,6 +62,7 @@ ThreadCondVar NfcAdaptation::mHalCloseCompletedEvent;
 sp<INfc> NfcAdaptation::mHal;
 sp<INfcV1_1> NfcAdaptation::mHal_1_1;
 INfcClientCallback* NfcAdaptation::mCallback;
+sp<NfcDeathRecipient> NfcAdaptation::mDeathRecipient = NULL;
 
 bool nfc_debug_enabled = false;
 std::string nfc_storage_path;
@@ -125,6 +128,18 @@ class NfcClientCallback : public INfcClientCallback {
  private:
   tHAL_NFC_CBACK* mEventCallback;
   tHAL_NFC_DATA_CBACK* mDataCallback;
+};
+
+class NfcDeathRecipient : public hidl_death_recipient {
+ public:
+  NfcDeathRecipient() {}
+
+  virtual void serviceDied(
+      uint64_t /* cookie */,
+      const android::wp<::android::hidl::base::V1_0::IBase>& /* who */) {
+    ALOGE("NfcDeathRecipient::serviceDied - Nfc Hal service died");
+    abort();
+  }
 };
 
 /*******************************************************************************
@@ -544,10 +559,13 @@ void NfcAdaptation::HalOpen(tHAL_NFC_CBACK* p_hal_cback,
   const char* func = "NfcAdaptation::HalOpen";
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s", func);
   mCallback = new NfcClientCallback(p_hal_cback, p_data_cback);
+  mDeathRecipient = new NfcDeathRecipient();
   if (mHal_1_1 != nullptr) {
     mHal_1_1->open_1_1(mCallback);
+    mHal_1_1->linkToDeath(mDeathRecipient, 0);
   } else {
     mHal->open(mCallback);
+    mHal->linkToDeath(mDeathRecipient, 0);
   }
 }
 
@@ -564,6 +582,7 @@ void NfcAdaptation::HalClose() {
   const char* func = "NfcAdaptation::HalClose";
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s", func);
   mHal->close();
+  mHal->unlinkToDeath(mDeathRecipient);
 }
 
 /*******************************************************************************
