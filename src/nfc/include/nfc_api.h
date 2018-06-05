@@ -119,9 +119,9 @@
 #define NXP_EN_PN553_MR2 0
 #define NXP_EN_PN557     0
 #define NXP_EN_PN81T     0
-#define NXP_ANDROID_VER (8U)        /* NXP android version */
-#define NFC_NXP_MW_VERSION_MAJ (0x04) /* MW Major Version */
-#define NFC_NXP_MW_VERSION_MIN (0x04) /* MW Minor Version */
+#define NXP_ANDROID_VER (9U)        /* NXP android version */
+#define NFC_NXP_MW_VERSION_MAJ (0x00) /* MW Major Version */
+#define NFC_NXP_MW_VERSION_MIN (0x09) /* MW Minor Version */
 #endif
 /* 0xE0 ~0xFF are proprietary status codes */
 /* Command started successfully                     */
