@@ -800,6 +800,13 @@ bool nfa_hci_enable_one_nfcee(void) {
                         enable_cmplt = true;
                         break;
                     }
+                    else
+                    {
+                        if(nfceeid == NFA_HCI_FIRST_PROP_HOST)
+                        {
+                            nfa_hciu_send_msg (NFA_HCI_APDUESE_PIPE, NFA_HCI_EVENT_TYPE, NFA_HCI_EVT_ABORT, 0, 0);
+                        }
+                    }
                     nfa_hci_cb.next_nfcee_idx = xx + 1;
                 }
                 else if(nfa_hci_cb.ee_info[xx].hci_enable_state == NFA_HCI_FL_EE_ENABLING ||
