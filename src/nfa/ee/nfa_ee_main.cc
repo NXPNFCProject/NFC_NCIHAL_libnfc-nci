@@ -96,7 +96,8 @@ const tNFA_EE_SM_ACT nfa_ee_actions[] = {
     nfa_ee_lmrt_to_nfcc       /* NFA_EE_CFG_TO_NFCC_EVT       */
 #if (NXP_EXTNS == TRUE)
     ,nfa_ee_api_power_link_set, /* NFA_EE_NCI_PWR_LNK_CTRL_SET_EVT */
-    nfa_ee_nci_pwr_link_ctrl_rsp /*NFA_EE_NCI_PWR_LNK_CTRL_RSP_EVT*/
+    nfa_ee_nci_pwr_link_ctrl_rsp, /*NFA_EE_NCI_PWR_LNK_CTRL_RSP_EVT*/
+    nfa_ee_nci_nfcee_status_ntf   /*NFA_EE_NCI_NFCEE_STATUS_NTF_EVT*/
 #endif
 };
 

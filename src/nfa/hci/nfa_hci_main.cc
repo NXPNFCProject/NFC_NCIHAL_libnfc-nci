@@ -139,7 +139,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                   NFA_EeGetInfo(&nfa_hci_cb.num_nfcee, nfa_hci_cb.ee_info);
                   for (int yy = 0; yy < NFA_HCI_MAX_HOST_IN_NETWORK; yy++) {
                       nfa_hci_cb.ee_info[yy].hci_enable_state = NFA_HCI_FL_EE_NONE;
-                      nfa_hciu_add_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_REINIT);
+                      nfa_hciu_add_host_resetting((nfa_hci_cb.ee_info[yy].ee_handle & ~NFA_HANDLE_GROUP_EE), NFCEE_REINIT);
                   }
                   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
                          " NFCEE_UNRECOVERABLE_ERRROR  reset handling");
@@ -282,10 +282,6 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                  }
             }
 
-       /* Discovery operation is complete, retrieve discovery result */
-        NFA_EeGetInfo(&nfa_hci_cb.num_nfcee, nfa_hci_cb.ee_info);
-        nfa_hci_enable_one_nfcee();
-
         }
         break;
     case NFA_EE_UNRECOVERABLE_ERROR:
@@ -300,7 +296,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
               DLOG_IF(INFO, nfc_debug_enabled)
                 << StringPrintf("NFA_EE_RECOVERY %x",nfa_ee_cb.ecb[ee_entry_index].nfcee_id);
               if(!nfa_hciu_is_host_reseting(nfa_ee_cb.ecb[ee_entry_index].nfcee_id)) {
-                nfa_hciu_add_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_UNRECOVERABLE_ERRROR);
+                nfa_hciu_add_host_resetting(nfa_ee_cb.ecb[ee_entry_index].nfcee_id, NFCEE_UNRECOVERABLE_ERRROR);
                 nfa_hci_release_transceive(nfa_ee_cb.ecb[ee_entry_index].nfcee_id);
                 nfa_hci_cb.curr_nfcee = nfa_ee_cb.ecb[ee_entry_index].nfcee_id;
                 nfa_hci_cb.next_nfcee_idx = 0x00;
