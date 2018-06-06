@@ -1117,10 +1117,19 @@ static bool nfa_hci_api_send_event(tNFA_HCI_EVENT_DATA* p_evt_data) {
             }
 #endif
             if (p_evt_data->send_evt.rsp_timeout) {
+#if(NXP_EXTNS == TRUE)
+              if(p_pipe_cmdrsp_info != NULL) {
+                nfa_hci_cb.hci_state = NFA_HCI_STATE_WAIT_RSP;
+                nfa_sys_start_timer (&(p_pipe_cmdrsp_info->rsp_timer),
+                                         NFA_HCI_RSP_TIMEOUT_EVT,
+                                         p_evt_data->send_evt.rsp_timeout);
+              }
+#else
               nfa_hci_cb.w4_rsp_evt = true;
               nfa_hci_cb.hci_state = NFA_HCI_STATE_WAIT_RSP;
               nfa_sys_start_timer(&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT,
                                   p_evt_data->send_evt.rsp_timeout);
+#endif
             } else if (p_pipe->local_gate == NFA_HCI_LOOP_BACK_GATE) {
               nfa_sys_start_timer(&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT,
                                   p_nfa_hci_cfg->hcp_response_timeout);
