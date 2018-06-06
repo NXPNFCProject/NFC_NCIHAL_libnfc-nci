@@ -56,8 +56,8 @@
 #define NXP_EN_SN100U    1
 #define NXP_ANDROID_VER (9U)        /* NXP android version */
 #define NFC_NXP_MW_VERSION_MAJ (0x00) /* MW Major Version */
-#define NFC_NXP_MW_VERSION_MIN (0x03) /* MW Minor Version */
-#define NFC_NXP_MW_RC_VERSION (0x03) /* MW Minor Version */
+#define NFC_NXP_MW_VERSION_MIN (0x04) /* MW Minor Version */
+#define NFC_NXP_MW_RC_VERSION (0x01) /* MW Minor Version */
 #endif
 /* NFC application return status codes */
 /* Command succeeded    */
