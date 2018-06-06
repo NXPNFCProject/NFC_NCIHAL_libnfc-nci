@@ -336,6 +336,12 @@ tNFA_STATUS nfa_hciu_send_msg(uint8_t pipe_id, uint8_t type,
 
   if (instruction == NFA_HCI_ANY_GET_PARAMETER)
     nfa_hci_cb.param_in_use = *p_msg;
+#if (NXP_EXTNS == TRUE)
+  if(pipe_id == NFA_HCI_APDUESE_PIPE)
+  {
+    nfa_hci_cb.m_wtx_count = 0;
+  }
+#endif
 
   while ((first_pkt == true) || (msg_len != 0)) {
 #if (NXP_EXTNS == TRUE)

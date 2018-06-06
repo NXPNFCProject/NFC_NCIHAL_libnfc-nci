@@ -368,6 +368,7 @@ void nfa_hci_init(void) {
   nfa_hci_cb.num_nfcee = NFA_HCI_MAX_HOST_IN_NETWORK;
 #if(NXP_EXTNS == TRUE)
   nfa_hci_cb.pipe_in_use = NFA_HCI_INVALID_PIPE;
+  nfa_hci_cb.m_wtx_count = 0;
   /* initialize timer callback */
   for (xx = 0; xx < NFA_HCI_MAX_PIPE_CB; xx++)
   {
@@ -1283,7 +1284,9 @@ void nfa_hci_rsp_timeout() {
   tNFA_HCI_EVT evt = 0;
   tNFA_HCI_EVT_DATA evt_data;
   uint8_t delete_pipe;
-
+#if(NXP_EXTNS == TRUE)
+  uint8_t ee_entry_index = 0;
+#endif
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "State: %u  Cmd: %u", nfa_hci_cb.hci_state, nfa_hci_cb.cmd_sent);
 
@@ -1339,7 +1342,12 @@ void nfa_hci_rsp_timeout() {
 
     case NFA_HCI_STATE_WAIT_RSP:
       nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
-
+#if(NXP_EXTNS == TRUE)
+      while (ee_entry_index < nfa_ee_max_ee_cfg) {
+        nfa_hci_release_transceive(nfa_ee_cb.ecb[ee_entry_index].nfcee_id);
+        ee_entry_index++;
+      }
+#endif
       if (nfa_hci_cb.w4_rsp_evt) {
         nfa_hci_cb.w4_rsp_evt = false;
         evt = NFA_HCI_EVENT_RCVD_EVT;
@@ -1648,9 +1656,14 @@ void nfa_hci_release_transceive(uint8_t host_id) {
   tNFA_HCI_DYN_GATE         *p_gate;
 
   p_pipe = nfa_hciu_find_dyn_apdu_pipe_for_host (host_id);
-  if (p_pipe->pipe_id != NFA_HCI_INVALID_PIPE)
+  if ((p_pipe == NULL) || (p_pipe->pipe_id != NFA_HCI_INVALID_PIPE))
   {
       p_pipe_cmdrsp_info = nfa_hciu_get_pipe_cmdrsp_info (p_pipe->pipe_id);
+  }
+  else
+  {
+    DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("nfa_hci_release_transcieve ():pipe is not valid or NULL ");
   }
   if(p_pipe_cmdrsp_info == NULL) return;
 

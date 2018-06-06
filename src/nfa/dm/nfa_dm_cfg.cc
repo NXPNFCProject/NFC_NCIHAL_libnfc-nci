@@ -87,6 +87,10 @@ tNFA_HCI_CFG nfa_hci_cfg = {
     NFA_HCI_NETWK_INIT_IDLE_TIMEOUT,
     /* Maximum HCP Response time to any HCP Command */
     NFA_HCI_RESPONSE_TIMEOUT,
+#if (NXP_EXTNS == TRUE)
+    /* infinite wait for HCI reponse as lon as wtx is received */
+    0x00,
+#endif
     /* Number of host in the whitelist of Terminal host */
     0x03,
     /* Pointer to the Whitelist of Terminal Host */

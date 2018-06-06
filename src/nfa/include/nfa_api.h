@@ -616,6 +616,10 @@ typedef struct {
   /* Maximum time to wait for EE DISC REQ NTF(s) after HOT PLUG EVT(s) */
   uint16_t hcp_response_timeout;
   /* Number of host in the whitelist of Terminal host */
+#if(NXP_EXTNS == TRUE)
+  /* Maximum  time to wait for HCI response */
+  uint8_t max_wtx_count;
+#endif
   uint8_t num_whitelist_host;
   /* Whitelist of Terminal Host */
   uint8_t* p_whitelist;

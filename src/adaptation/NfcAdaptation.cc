@@ -248,9 +248,15 @@ void NfcAdaptation::Initialize() {
     nfa_hci_cfg.num_whitelist_host = host_whitelist.size();
     nfa_hci_cfg.p_whitelist = &host_whitelist[0];
   }
-
   initializeGlobalDebugEnabledFlag();
-
+#if(NXP_EXTNS == TRUE)
+  if (NfcConfig::hasKey(NAME_NXP_WM_MAX_WTX_COUNT)) {
+    nfa_hci_cfg.max_wtx_count = NfcConfig::getUnsigned(NAME_NXP_WM_MAX_WTX_COUNT);
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("%s: MAX_WTX_COUNT to wait for HCI response %d",
+                        func, nfa_hci_cfg.max_wtx_count);
+  }
+#endif
   verify_stack_non_volatile_store();
   if (NfcConfig::hasKey(NAME_PRESERVE_STORAGE) &&
       NfcConfig::getUnsigned(NAME_PRESERVE_STORAGE) == 1) {
