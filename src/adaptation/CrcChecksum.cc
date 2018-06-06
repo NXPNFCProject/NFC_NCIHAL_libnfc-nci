@@ -18,7 +18,9 @@
 #include "CrcChecksum.h"
 
 #include <fcntl.h>
+#if (NXP_EXTNS == FALSE)
 #include <unistd.h>
+#endif
 #include <string>
 
 #include <android-base/stringprintf.h>

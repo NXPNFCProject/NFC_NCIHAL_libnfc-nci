@@ -97,7 +97,11 @@ void* gki_task_entry(void* params) {
 
   LOG(ERROR) << StringPrintf("gki_task task_id=%i terminating",
                              p_pthread_info->task_id);
+#if (NXP_EXTNS == TRUE)
+  memset(&(gki_cb.os.thread_id[p_pthread_info->task_id]), 0, sizeof(pthread_t));
+#else
   gki_cb.os.thread_id[p_pthread_info->task_id] = 0;
+#endif
 
   return NULL;
 }
@@ -665,8 +669,11 @@ uint16_t GKI_wait(uint16_t flag, uint32_t timeout) {
       pthread_mutex_unlock(&gki_cb.os.thread_evt_mutex[rtask]);
       LOG(ERROR) << StringPrintf("GKI TASK_DEAD received. exit thread %d...",
                                  rtask);
-
+#if (NXP_EXTNS == TRUE)
+      memset(&(gki_cb.os.thread_id[rtask]), 0, sizeof(pthread_t));
+#else
       gki_cb.os.thread_id[rtask] = 0;
+#endif
       return (EVENT_MASK(GKI_SHUTDOWN_EVT));
     }
   }
@@ -809,7 +816,11 @@ uint8_t GKI_get_taskid(void) {
   int i;
   pthread_t thread_id = pthread_self();
   for (i = 0; i < GKI_MAX_TASKS; i++) {
+#if (NXP_EXTNS == TRUE)
+      if (0 == memcmp(&(gki_cb.os.thread_id[i]), &thread_id, sizeof(pthread_t))) {
+#else
     if (gki_cb.os.thread_id[i] == thread_id) {
+#endif
       return (i);
     }
   }
