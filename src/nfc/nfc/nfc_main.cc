@@ -45,6 +45,7 @@
 #include <string.h>
 
 #include <android-base/stringprintf.h>
+#include <android/hardware/nfc/1.1/types.h>
 #include <base/logging.h>
 
 #include "nfc_target.h"
@@ -74,8 +75,9 @@
 #endif /* NFC_RW_ONLY */
 
 using android::base::StringPrintf;
-
+using android::hardware::nfc::V1_1::NfcEvent;
 extern bool nfc_debug_enabled;
+extern void delete_stack_non_volatile_store(bool forceDelete);
 
 /****************************************************************************
 ** Declarations
@@ -179,6 +181,8 @@ static std::string nfc_hal_event_name(uint8_t event) {
       return "HAL_NFC_RELEASE_CONTROL_EVT";
     case HAL_NFC_ERROR_EVT:
       return "HAL_NFC_ERROR_EVT";
+    case (uint32_t)NfcEvent::HCI_NETWORK_RESET:
+      return "HCI_NETWORK_RESET";
     default:
       return "???? UNKNOWN EVENT";
   }
@@ -515,8 +519,11 @@ void nfc_main_handle_hal_evt(tNFC_HAL_EVT_MSG* p_msg) {
             return;
           }
           break;
-
-        default:
+	case (uint32_t)NfcEvent::HCI_NETWORK_RESET:
+          delete_stack_non_volatile_store(true);
+          break;
+        
+	default:
           break;
       }
       break;
@@ -624,7 +631,8 @@ static void nfc_main_hal_cback(uint8_t event, tHAL_NFC_STATUS status) {
     case HAL_NFC_REQUEST_CONTROL_EVT:
     case HAL_NFC_RELEASE_CONTROL_EVT:
     case HAL_NFC_ERROR_EVT:
-      nfc_main_post_hal_evt(event, status);
+    case (uint32_t)NfcEvent::HCI_NETWORK_RESET:
+     nfc_main_post_hal_evt(event, status);
       break;
 
     default:
