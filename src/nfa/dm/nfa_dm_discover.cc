@@ -63,7 +63,9 @@
 using android::base::StringPrintf;
 
 extern bool nfc_debug_enabled;
-
+#if (NXP_EXTNS == TRUE)
+static bool is_emvco_active;
+#endif
 /*
 **  static functions
 */
@@ -1287,6 +1289,38 @@ static tNFA_STATUS nfa_dm_disc_notify_activation(tNFC_DISCOVER* p_data) {
     return (NFA_STATUS_FAILED);
   }
 
+#if (NXP_EXTNS == TRUE)
+  /*
+   * if this is Proprietary RF interface, notify activation as START_READER_EVT.
+   *
+   * Code to handle the Reader over SWP.
+   * 1. Pass this info to JNI as START_READER_EVT.
+   * return (NFA_STATUS_OK)
+   */
+  if (p_data->activate.intf_param.type == nfcFL.nfcMwFL._NCI_INTERFACE_UICC_DIRECT ||
+      p_data->activate.intf_param.type == nfcFL.nfcMwFL._NCI_INTERFACE_ESE_DIRECT) {
+    for (xx = 0; xx < NFA_DM_DISC_NUM_ENTRIES; xx++) {
+      if ((nfa_dm_cb.disc_cb.entry[xx].in_use)) {
+        nfa_dm_cb.disc_cb.activated_rf_interface =
+            p_data->activate.intf_param.type;
+        nfa_dm_cb.disc_cb.activated_handle = xx;
+
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+            "activated_rf_uicc-ese_interface:0x%x, activated_handle: 0x%x",
+            nfa_dm_cb.disc_cb.activated_rf_interface,
+            nfa_dm_cb.disc_cb.activated_handle);
+
+        if (nfa_dm_cb.disc_cb.entry[xx].p_disc_cback)
+          (*(nfa_dm_cb.disc_cb.entry[xx].p_disc_cback))(
+              NFA_DM_RF_DISC_ACTIVATED_EVT, p_data);
+
+        return (NFA_STATUS_OK);
+      }
+    }
+    return (NFA_STATUS_FAILED);
+  }
+#endif
+
   /* get bit mask of technolgies/mode and protocol */
   activated_disc_mask = nfa_dm_disc_get_disc_mask(tech_n_mode, protocol);
 
@@ -1945,7 +1979,21 @@ static void nfa_dm_disc_sm_discovery(tNFA_DM_RF_DISC_SM_EVENT event,
         if (p_data->nfc_discover.activate.intf_param.type ==
             NFC_INTERFACE_EE_DIRECT_RF) {
           nfa_dm_disc_new_state(NFA_DM_RFST_LISTEN_ACTIVE);
-        } else if (p_data->nfc_discover.activate.rf_tech_param.mode & 0x80) {
+        }
+#if (NXP_EXTNS == TRUE)
+        /*
+         * Handle the Reader over SWP.
+         * Add condition UICC_DIRECT_INTF/ESE_DIRECT_INTF
+         * set new state NFA_DM_RFST_POLL_ACTIVE
+         * */
+        else if (p_data->nfc_discover.activate.intf_param.type ==
+                nfcFL.nfcMwFL._NCI_INTERFACE_UICC_DIRECT ||
+                 p_data->nfc_discover.activate.intf_param.type ==
+                         nfcFL.nfcMwFL._NCI_INTERFACE_ESE_DIRECT) {
+          nfa_dm_disc_new_state(NFA_DM_RFST_POLL_ACTIVE);
+        }
+#endif
+        else if (p_data->nfc_discover.activate.rf_tech_param.mode & 0x80) {
           /* Listen mode */
           nfa_dm_disc_new_state(NFA_DM_RFST_LISTEN_ACTIVE);
         } else {
@@ -2927,6 +2975,13 @@ bool nfa_dm_p2p_prio_logic(uint8_t event, uint8_t* p, uint8_t event_type) {
         "returning from nfa_dm_p2p_prio_logic  Disable p2p_prio_logic");
     return true;
   }
+#if (NXP_EXTNS == TRUE)
+  if (true == is_emvco_active) {
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+        "returning from nfa_dm_p2p_prio_logic  reconnect_in_progress");
+    return true;
+  }
+#endif
   if (appl_dta_mode_flag == 0x01) {
     /*Disable the P2P Prio Logic when DTA is running*/
     return TRUE;
@@ -2970,6 +3025,13 @@ bool nfa_dm_p2p_prio_logic(uint8_t event, uint8_t* p, uint8_t event_type) {
     DLOG_IF(INFO, nfc_debug_enabled)
         << StringPrintf("nfa_dm_p2p_prio_logic event_type = 0x%x", event_type);
 
+#if (NXP_EXTNS == TRUE)
+    if (type == nfcFL.nfcMwFL._NCI_INTERFACE_UICC_DIRECT || type == nfcFL.nfcMwFL._NCI_INTERFACE_ESE_DIRECT) {
+      DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("Disable the p2p prio logic RDR_SWP");
+      return true;
+    }
+#endif
     if (event == NCI_MSG_RF_INTF_ACTIVATED && tech_mode >= 0x80) {
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
           "nfa_dm_p2p_prio_logic listen mode activated reset all the "
@@ -3063,7 +3125,12 @@ bool nfa_dm_p2p_prio_logic(uint8_t event, uint8_t* p, uint8_t event_type) {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("returning TRUE");
   return true;
 }
-
+#if (NXP_EXTNS == TRUE)
+void NFA_SetEmvCoState(bool flag) {
+  is_emvco_active = flag;
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_SetEmvCoState = 0x%x", is_emvco_active);
+}
+#endif
 /*******************************************************************************
 **
 ** Function         p2p_prio_logic_timeout

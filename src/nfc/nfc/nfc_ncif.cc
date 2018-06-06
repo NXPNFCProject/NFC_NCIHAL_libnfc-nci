@@ -1085,6 +1085,19 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
       p_pa->hr[1] = *p++;
     }
   }
+#if (NXP_EXTNS == TRUE)
+  /*
+   * Code to handle the Reader over SWP.
+   * 1. Do not activate tag for this NTF.
+   * 2. Pass this info to JNI as START_READER_EVT.
+   */
+  else if (evt_data.activate.intf_param.type == nfcFL.nfcMwFL._NCI_INTERFACE_UICC_DIRECT ||
+           evt_data.activate.intf_param.type == nfcFL.nfcMwFL._NCI_INTERFACE_ESE_DIRECT) {
+    DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("nfc_ncif_proc_activate:interface type  %x",
+                     evt_data.activate.intf_param.type);
+  }
+#endif
 
   p_cb->act_protocol = evt_data.activate.protocol;
   p_cb->act_interface = evt_data.activate.intf_param.type;

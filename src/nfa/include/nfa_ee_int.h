@@ -225,6 +225,8 @@ typedef struct {
   uint8_t aid_info[NFA_EE_MAX_AID_ENTRIES]; /* Aid Info Prefix/Suffix/Exact */
 #if (NXP_EXTNS == TRUE)
   uint8_t hci_enable_state;
+  tNFA_NFC_PROTOCOL pa_protocol; /* Passive poll A SWP Reader   */
+  tNFA_NFC_PROTOCOL pb_protocol; /* Passive poll B SWP Reader   */
   uint8_t ee_req_op;             /* add or remove req ntf*/
 #endif
 } tNFA_EE_ECB;

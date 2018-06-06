@@ -723,7 +723,19 @@ extern tNFA_STATUS NFA_RwI93LockDSFID(void);
 **
 *******************************************************************************/
 extern tNFA_STATUS NFA_RwI93GetSysInfo(uint8_t* p_uid);
-
+#if (NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         NFA_SetEmvCoState
+**
+** Description:
+**      This function enable/disable p2p prio logic if emvco polling is enabled.
+**
+** Returns:
+**      void
+*******************************************************************************/
+extern void NFA_SetEmvCoState(bool flag);
+#endif
 /*******************************************************************************
 **
 ** Function         NFA_RwI93GetMultiBlockSecurityStatus

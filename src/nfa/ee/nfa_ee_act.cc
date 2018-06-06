@@ -1784,6 +1784,13 @@ static void nfa_ee_build_discover_req_evt(tNFA_EE_DISCOVER_REQ* p_evt_data) {
     p_info->lb_protocol = p_cb->lb_protocol;
     p_info->lf_protocol = p_cb->lf_protocol;
     p_info->lbp_protocol = p_cb->lbp_protocol;
+#if (NXP_EXTNS == TRUE)
+    // code to handle and store Reader type(A/B) requested for Reader over SWP.
+    /*Reader over SWP*/
+    p_info->pa_protocol = p_cb->pa_protocol;
+    p_info->pb_protocol = p_cb->pb_protocol;
+    p_info->ee_req_op = p_cb->ee_req_op;
+#endif
     p_evt_data->num_ee++;
     p_info++;
 
@@ -2155,6 +2162,16 @@ void nfa_ee_nci_disc_req_ntf(tNFA_EE_MSG* p_data) {
                  NFC_DISCOVERY_TYPE_LISTEN_B_PRIME) {
         p_cb->lbp_protocol = p_cbk->info[xx].protocol;
       }
+#if (NXP_EXTNS == TRUE)
+      // code to handle and store Reader type(A/B) requested for Reader over
+      // SWP.
+      /*Reader over SWP*/
+      else if (p_cbk->info[xx].tech_n_mode == NFC_DISCOVERY_TYPE_POLL_A) {
+        p_cb->pa_protocol = p_cbk->info[xx].protocol;
+      } else if (p_cbk->info[xx].tech_n_mode == NFC_DISCOVERY_TYPE_POLL_B) {
+        p_cb->pb_protocol = p_cbk->info[xx].protocol;
+      }
+#endif
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
           "nfcee_id=0x%x ee_status=0x%x ecb_flags=0x%x la_protocol=0x%x "
           "la_protocol=0x%x la_protocol=0x%x",
@@ -2171,6 +2188,16 @@ void nfa_ee_nci_disc_req_ntf(tNFA_EE_MSG* p_data) {
                  NFC_DISCOVERY_TYPE_LISTEN_B_PRIME) {
         p_cb->lbp_protocol = 0;
       }
+#if (NXP_EXTNS == TRUE)
+      // code to handle and store Reader type(A/B) requested for Reader over
+      // SWP.
+      /*Reader over SWP*/
+      else if (p_cbk->info[xx].tech_n_mode == NFC_DISCOVERY_TYPE_POLL_A) {
+        p_cb->pa_protocol = 0xFF;
+      } else if (p_cbk->info[xx].tech_n_mode == NFC_DISCOVERY_TYPE_POLL_B) {
+        p_cb->pb_protocol = 0xFF;
+      }
+#endif
     }
   }
 

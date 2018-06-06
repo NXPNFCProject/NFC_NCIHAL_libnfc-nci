@@ -198,6 +198,11 @@ typedef struct {
   tNFA_NFC_PROTOCOL lb_protocol;  /* Listen B protocol    */
   tNFA_NFC_PROTOCOL lf_protocol;  /* Listen F protocol    */
   tNFA_NFC_PROTOCOL lbp_protocol; /* Listen B' protocol   */
+#if (NXP_EXTNS == TRUE)
+  tNFA_NFC_PROTOCOL pa_protocol; /* Passive poll A SWP Reader   */
+  tNFA_NFC_PROTOCOL pb_protocol; /* Passive poll B SWP Reader   */
+  uint8_t ee_req_op;             /* add or remove req ntf*/
+#endif
 } tNFA_EE_DISCOVER_INFO;
 
 /* Data for NFA_EE_DISCOVER_REQ_EVT */
