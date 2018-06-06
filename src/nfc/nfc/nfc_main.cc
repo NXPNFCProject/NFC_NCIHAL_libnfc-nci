@@ -55,8 +55,7 @@
 #include "nci_hmsgs.h"
 #include "nfc_int.h"
 #include "rw_int.h"
-#include "NfcAdaptation.h"
-#include <fcntl.h>
+
 #if (NFC_RW_ONLY == FALSE)
 
 #include "llcp_int.h"
@@ -77,13 +76,13 @@
 using android::base::StringPrintf;
 
 extern bool nfc_debug_enabled;
+
 /****************************************************************************
 ** Declarations
 ****************************************************************************/
 tNFC_CB nfc_cb;
 #if (NXP_EXTNS == TRUE)
 extern uint8_t nfa_ee_max_ee_cfg;
-extern std::string nfc_storage_path;
 tNfc_featureList nfcFL;
 static tNFC_chipType chipType;
 static void NFC_GetFeatureList();
@@ -580,30 +579,7 @@ void nfc_main_post_hal_evt(uint8_t hal_evt, tHAL_NFC_STATUS status) {
     LOG(ERROR) << StringPrintf("No buffer");
   }
 }
-#if (NXP_EXTNS == TRUE)
-/*******************************************************************************
-**
-** Function         check_nfcee_session_and_reset
-**
-** Description      check bin file not present call reset session
-**
-** Returns          void
-**
-*******************************************************************************/
-void  check_nfcee_session_and_reset()
-{
-      std::string filename(nfc_storage_path);
-      std::string sConfigFile = "/nfaStorage.bin1";
-      filename.append(sConfigFile);
-      int fileStream = open(filename.c_str(), O_RDONLY);
-      if (fileStream < 0) {
-        DLOG_IF(INFO, nfc_debug_enabled)
-            << StringPrintf("%s: file not found %s", __func__, filename.c_str());
-        NfcAdaptation& theInstance = NfcAdaptation::GetInstance();
-        theInstance.FactoryReset();
-      }
-}
-#endif
+
 /*******************************************************************************
 **
 ** Function         nfc_main_hal_cback
