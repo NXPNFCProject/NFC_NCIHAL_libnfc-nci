@@ -563,6 +563,9 @@ typedef struct {
 
   uint8_t power_state; /* current screen/power  state */
   uint32_t eDtaMode;   /* To enable the DTA type modes. */
+#if (NXP_EXTNS == TRUE)
+  uint8_t nfa_pending_power_state;
+#endif
 } tNFA_DM_CB;
 
 /* Internal function prototypes */

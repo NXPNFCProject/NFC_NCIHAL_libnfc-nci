@@ -624,6 +624,9 @@ bool nfa_dm_set_power_sub_state(tNFA_DM_MSG* p_data) {
         << StringPrintf("NFA_DM_RFST_LISTEN_ACTIVE");
     /* NFCC will give semantic error for power sub state command in Rf listen
      * active state */
+#if (NXP_EXTNS == TRUE)
+    nfa_dm_cb.nfa_pending_power_state = nfa_dm_cb.power_state;
+#endif
     status = NFC_STATUS_SEMANTIC_ERROR;
   } else {
     status = NFC_SetPowerSubState(p_data->set_power_state.screen_state);

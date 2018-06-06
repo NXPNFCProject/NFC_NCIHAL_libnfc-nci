@@ -124,6 +124,9 @@ void nfa_dm_init(void) {
 
   /* register message handler on NFA SYS */
   nfa_sys_register(NFA_ID_DM, &nfa_dm_sys_reg);
+#if (NXP_EXTNS == TRUE)
+  nfa_dm_cb.nfa_pending_power_state = SCREEN_STATE_INVALID;
+#endif
 }
 
 /*******************************************************************************
