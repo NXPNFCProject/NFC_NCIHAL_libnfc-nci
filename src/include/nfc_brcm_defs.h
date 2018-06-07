@@ -49,13 +49,14 @@
 #define NCI_INTERFACE_VS_MIFARE 0x80
 #define NCI_INTERFACE_VS_T2T_CE 0x82 /* for Card Emulation side */
 
+#if (NXP_EXTNS==FALSE)
 /**********************************************
  * NCI Proprietary Parameter IDs
  **********************************************/
 #define NCI_PARAM_ID_HOST_LISTEN_MASK 0xA2
 #define NCI_PARAM_ID_TAGSNIFF_CFG 0xB9
 #define NCI_PARAM_ID_ACT_ORDER 0xC5
-
+#endif
 #define NFC_SNOOZE_MODE_UART 0x01    /* Snooze mode for UART    */
 
 #define NFC_SNOOZE_ACTIVE_LOW 0x00  /* high to low voltage is asserting */
