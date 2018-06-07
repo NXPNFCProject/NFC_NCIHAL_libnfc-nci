@@ -158,8 +158,8 @@ void nfa_ee_sys_enable(void) {
 
   nfa_ee_cb.route_block_control = 0x00;
 
-  if (NfcConfig::hasKey(NAME_NFA_AID_BLOCK_ROUTE)) {
-    unsigned retlen = NfcConfig::getUnsigned(NAME_NFA_AID_BLOCK_ROUTE);
+  if (NfcConfig::hasKey(NAME_AID_BLOCK_ROUTE)) {
+    unsigned retlen = NfcConfig::getUnsigned(NAME_AID_BLOCK_ROUTE);
     if ((retlen == 0x01) && ((NFC_GetNCIVersion() == NCI_VERSION_2_0)
         || (nfcFL.nfccFL._NFCC_ROUTING_BLOCK_BIT == true))) {
       nfa_ee_cb.route_block_control = NCI_ROUTE_QUAL_BLOCK_ROUTE;

@@ -206,6 +206,34 @@ NfcAdaptation& NfcAdaptation::GetInstance() {
   return *mpInstance;
 }
 
+void NfcAdaptation::GetNxpConfigs(
+    std::map<std::string, ConfigValue>& configMap) {
+  nfc_nci_IoctlInOutData_t inpOutData;
+  int ret = HalIoctl(HAL_NFC_GET_NXP_CONFIG, &inpOutData);
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("HAL_NFC_GET_NXP_CONFIG ioctl return value = %d", ret);
+  configMap.emplace(
+      NAME_NAME_NXP_ESE_LISTEN_TECH_MASK,
+      ConfigValue(inpOutData.out.data.nxpConfigs.ese_listen_tech_mask));
+  configMap.emplace(
+      NAME_NXP_DEFAULT_NFCEE_DISC_TIMEOUT,
+      ConfigValue(inpOutData.out.data.nxpConfigs.default_nfcee_disc_timeout));
+  configMap.emplace(
+      NAME_NXP_DEFAULT_NFCEE_TIMEOUT,
+      ConfigValue(inpOutData.out.data.nxpConfigs.default_nfcee_timeout));
+  configMap.emplace(
+      NAME_NXP_ESE_WIRED_PRT_MASK,
+      ConfigValue(inpOutData.out.data.nxpConfigs.ese_wired_prt_mask));
+  configMap.emplace(
+      NAME_NXP_UICC_WIRED_PRT_MASK,
+      ConfigValue(inpOutData.out.data.nxpConfigs.uicc_wired_prt_mask));
+  configMap.emplace(
+      NAME_NXP_WIRED_MODE_RF_FIELD_ENABLE,
+      ConfigValue(inpOutData.out.data.nxpConfigs.wired_mode_rf_field_enable));
+  configMap.emplace(NAME_AID_BLOCK_ROUTE,
+                    ConfigValue(inpOutData.out.data.nxpConfigs.aid_block_route));
+}
+
 void NfcAdaptation::GetVendorConfigs(
     std::map<std::string, ConfigValue>& configMap) {
   if (mHal_1_1) {
@@ -272,6 +300,7 @@ void NfcAdaptation::Initialize() {
 
   // Android already logs thread_id, proc_id, timestamp, so disable those.
   logging::SetLogItems(false, false, false, false);
+  initializeGlobalDebugEnabledFlag();
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: enter", func);
 
@@ -332,7 +361,6 @@ void NfcAdaptation::Initialize() {
     nfa_hci_cfg.p_whitelist = &host_whitelist[0];
   }
 
-  initializeGlobalDebugEnabledFlag();
 
   verify_stack_non_volatile_store();
   if (NfcConfig::hasKey(NAME_PRESERVE_STORAGE) &&
