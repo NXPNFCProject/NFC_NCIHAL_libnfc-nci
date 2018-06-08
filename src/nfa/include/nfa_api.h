@@ -98,6 +98,7 @@
 #define NFA_STATUS_ALREADY_INITIALIZED NFC_STATUS_ALREADY_INITIALIZED
 /* API is called to perform illegal function */
 #define NFA_STATUS_REFUSED NFC_STATUS_REFUSED
+#define NFA_STATUS_HCI_WTX_TIMEOUT  0xE0
 #endif
 typedef uint8_t tNFA_STATUS;
 
