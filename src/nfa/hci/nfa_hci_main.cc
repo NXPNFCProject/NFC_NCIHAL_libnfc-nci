@@ -241,6 +241,22 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                 DLOG_IF(INFO, nfc_debug_enabled)
                      << StringPrintf("NFA_EE_MODE_SET_COMPLETE handling 2");
                 if(nfa_hci_cb.ee_info[nfa_hci_cb.next_nfcee_idx].hci_enable_state == NFA_HCI_FL_EE_ENABLING) {
+                  for (uint8_t xx = 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++) {
+                    if((nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED) && (nfa_hci_cb.reset_host[xx].host_id == nfa_hci_cb.curr_nfcee)) {
+                                      DLOG_IF(INFO, nfc_debug_enabled)
+                     << StringPrintf("NFA_EE_MODE_SET_COMPLETE  handling here");
+                      nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED);
+                      if(nfa_hci_cb.curr_nfcee == NFA_HCI_FIRST_PROP_HOST)
+                      {
+                        if(nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD)
+                          NFC_NfceePLConfig(NFA_HCI_FIRST_PROP_HOST, 0x03);
+                        status = NFC_NfceeModeSet(NFA_HCI_FIRST_PROP_HOST, NFC_MODE_ACTIVATE);
+                        if(status == NFA_STATUS_OK)
+                          return;
+                      }
+                      break;
+                    }
+                 }
                     nfa_hciu_send_get_param_cmd(NFA_HCI_ADMIN_PIPE,
                             NFA_HCI_HOST_LIST_INDEX);
                     nfa_hci_cb.ee_info[nfa_hci_cb.next_nfcee_idx].hci_enable_state = NFA_HCI_FL_EE_ENABLED;
@@ -291,6 +307,8 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
 
         }
         break;
+#endif
+#if(NXP_EXTNS == TRUE)
     case NFA_EE_UNRECOVERABLE_ERROR:
     case NFA_EE_STATUS_INIT_COMPLETED:
         /*NFCEE recovery in progress*/

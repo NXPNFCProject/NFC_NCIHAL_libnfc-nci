@@ -520,6 +520,7 @@ typedef uint8_t tNFA_EE_FLAGS;
 #if (NXP_EXTNS == TRUE)
 /* received NFCEE_MODE_SET NTF  */
 #define NFA_EE_UNRECOVERABLE_ERROR 0x05
+#define NFA_EE_STATUS_INIT_COMPLETED 0x07
 #define NFA_EE_STATUS_NFCEE_REMOVED 0x06
 #endif
 typedef uint8_t tNFA_EE_DISC_STS;
