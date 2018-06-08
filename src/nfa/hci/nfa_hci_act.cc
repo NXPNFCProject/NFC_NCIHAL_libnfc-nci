@@ -1493,8 +1493,10 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
           "nfa_hci_handle_admin_gate_rsp - Initialization failed");
 #if(NXP_EXTNS == TRUE)
       if (!nfa_hci_enable_one_nfcee ())
-#endif
+        nfa_hci_startup_complete (NFA_STATUS_OK);
+#else
         nfa_hci_startup_complete (NFA_STATUS_FAILED);
+#endif
       return;
     }
 
@@ -2575,7 +2577,14 @@ void nfa_hci_handle_pending_host_reset() {
     uint8_t xx;
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hci_handle_pending_host_reset");
     for(xx = 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++) {
-      if(nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED) {
+      if(nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_INIT_COMPLETED) {
+        nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_INIT_COMPLETED);
+        tNFA_HCI_EVT_DATA             evt_data;
+        evt_data.status  = NFA_STATUS_OK;
+        evt_data.rcvd_evt.evt_code = NFA_HCI_EVT_INIT_COMPLETED;
+        nfa_hciu_send_to_all_apps(NFA_HCI_EVENT_RCVD_EVT, &evt_data);
+      }
+      else if(nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED) {
         nfa_hci_handle_clear_all_pipe_cmd(nfa_hci_cb.reset_host[xx].host_id);
         break;
       } else if (nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_UNRECOVERABLE_ERRROR) {
@@ -3261,7 +3270,8 @@ static bool nfa_hci_api_abort_apdu (tNFA_HCI_EVENT_DATA *p_evt_data)
             status = NFA_STATUS_OK;
         }
     }
-
+    evt_data.apdu_aborted.atr_len = 0x00;
+    evt_data.apdu_aborted.p_atr = NULL;
     evt_data.apdu_aborted.status  = status;
     evt_data.apdu_aborted.host_id = p_abort_apdu->host_id;
 

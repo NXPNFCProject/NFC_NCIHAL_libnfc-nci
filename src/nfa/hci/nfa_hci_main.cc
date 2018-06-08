@@ -273,6 +273,13 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                        nfa_hci_enable_one_nfcee();
                      }
                      break;
+                 } else if (nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_INIT_COMPLETED) {
+                     if(nfa_hci_cb.next_nfcee_idx < nfa_hci_cb.num_nfcee) {
+                       DLOG_IF(INFO, nfc_debug_enabled)
+                          << StringPrintf("delayed NFCEE_INIT_COMPLETED  handling");
+                       nfa_hci_enable_one_nfcee();
+                     }
+                     break;
                  } else if (nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_REMOVED_NTF) {
                      DLOG_IF(INFO, nfc_debug_enabled)
                         << StringPrintf("NFCEE_REMOVED_NTF handling");
@@ -285,11 +292,34 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
         }
         break;
     case NFA_EE_UNRECOVERABLE_ERROR:
+    case NFA_EE_STATUS_INIT_COMPLETED:
         /*NFCEE recovery in progress*/
     {
         int ee_entry_index = 0;
         while (ee_entry_index < nfa_ee_max_ee_cfg) {
-          if (nfa_ee_cb.ecb[ee_entry_index].nfcee_status == NFC_NFCEE_STS_UNRECOVERABLE_ERROR) {
+          if (nfa_ee_cb.ecb[ee_entry_index].nfcee_status == NFC_NFCEE_STS_INIT_COMPLETED) {
+              DLOG_IF(INFO, nfc_debug_enabled)
+                << StringPrintf("NFA_EE_STATUS_NTF received  %x",nfa_ee_cb.ecb[ee_entry_index].nfcee_id);
+            if (!((nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_NETWK_ENABLE) ||
+              (nfa_hci_cb.hci_state == NFA_HCI_STATE_RESTORE_NETWK_ENABLE))) {
+                             DLOG_IF(INFO, nfc_debug_enabled)
+                << StringPrintf("NFA_EE_STATUS_NTF received  %x",nfa_ee_cb.ecb[ee_entry_index].nfcee_id);
+                if (nfa_hciu_find_dyn_apdu_pipe_for_host (nfa_ee_cb.ecb[ee_entry_index].nfcee_id) == NULL)
+                {
+                  nfa_hci_cb.curr_nfcee = nfa_ee_cb.ecb[ee_entry_index].nfcee_id;
+                  nfa_hci_cb.next_nfcee_idx = 0x00;
+                  if(nfa_ee_cb.ecb[ee_entry_index].nfcee_id == NFA_HCI_FIRST_PROP_HOST) {
+                    NFC_NfceePLConfig(nfa_ee_cb.ecb[ee_entry_index].nfcee_id, 0x03);
+                    nfa_hciu_add_host_resetting(nfa_ee_cb.ecb[ee_entry_index].nfcee_id, NFCEE_INIT_COMPLETED);
+                    status = NFC_NfceeModeSet(nfa_ee_cb.ecb[ee_entry_index].nfcee_id, NFC_MODE_ACTIVATE);
+                    if(status == NFA_STATUS_OK) {
+                      break;
+                    }
+                }
+              }
+            }
+          }
+          else if (nfa_ee_cb.ecb[ee_entry_index].nfcee_status == NFC_NFCEE_STS_UNRECOVERABLE_ERROR) {
             nfa_ee_cb.ecb[ee_entry_index].nfcee_status = NFC_NFCEE_STS_INIT_STARTED;
             if (!((nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_NETWK_ENABLE) ||
               (nfa_hci_cb.hci_state == NFA_HCI_STATE_RESTORE_NETWK_ENABLE))) {

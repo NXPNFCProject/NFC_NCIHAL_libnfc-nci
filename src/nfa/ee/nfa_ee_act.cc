@@ -2044,6 +2044,9 @@ void nfa_ee_nci_nfcee_status_ntf(tNFA_EE_MSG* p_data) {
       if(p_ee->nfcee_status == NFC_NFCEE_STS_UNRECOVERABLE_ERROR) {
           if (nfa_ee_cb.p_enable_cback)
                       (*nfa_ee_cb.p_enable_cback) (NFA_EE_UNRECOVERABLE_ERROR);
+      } else if(p_ee->nfcee_status == NFC_NFCEE_STS_INIT_COMPLETED) {
+          if (nfa_ee_cb.p_enable_cback)
+                      (*nfa_ee_cb.p_enable_cback) (NFA_EE_STATUS_INIT_COMPLETED);
       }
   }
 }
@@ -2209,9 +2212,10 @@ void nfa_ee_nci_mode_set_rsp(tNFA_EE_MSG* p_data) {
                                p_rsp->nfcee_id);
     return;
   }
-
+#if (NXP_EXTNS != TRUE)
   /* update routing table and vs on mode change */
   nfa_ee_start_timer();
+#endif
   LOG(ERROR) << StringPrintf("%s p_rsp->status:0x%02x", __func__,
                              p_rsp->status);
   if (p_rsp->status == NFA_STATUS_OK) {
