@@ -1087,6 +1087,7 @@ static void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   pipe = (*p++) & 0x7F;
   if (pkt_len != 0) pkt_len--;
 #if(NXP_EXTNS == TRUE)
+
   p_pipe_cmdrsp_info = nfa_hciu_get_pipe_cmdrsp_info (pipe);
   if (!p_pipe_cmdrsp_info)
   {
@@ -1214,6 +1215,8 @@ static void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
           &&(p_pipe_cmdrsp_info->w4_rsp_apdu_evt)) {
           /* Response APDU: stop the timers */
       nfa_sys_stop_timer (&(p_pipe_cmdrsp_info->rsp_timer));
+      /*Clear chaining resp pending once full resp is received*/
+      p_pipe_cmdrsp_info->msg_rx_len = 0;
       nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
     }
 #endif
@@ -1923,7 +1926,8 @@ static void nfa_hci_timer_cback (TIMER_LIST_ENT *p_tle)
 
             p_pipe_cmdrsp_info->p_rsp_buf    = NULL;
             p_pipe_cmdrsp_info->rsp_buf_size = 0;
-
+            /*In case of chaining Rx timeout clear resp len*/
+            p_pipe_cmdrsp_info->msg_rx_len = 0;
             if (p_pipe_cmdrsp_info->w4_atr_evt)
             {
                 /* Timeout to ETSI_HCI_EVT_ATR after ETSI_HCI_EVT_ABORT is sent on the APDU pipe
