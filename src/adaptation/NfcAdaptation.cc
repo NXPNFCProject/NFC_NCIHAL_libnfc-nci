@@ -352,9 +352,30 @@ void NfcAdaptation::Finalize() {
   delete this;
 }
 
+/*******************************************************************************
+**
+** Function:    NfcAdaptation::FactoryReset
+**
+** Description: Native support for FactoryReset function.
+** It will delete the nfaStorage file and invoke the factory reset function
+** in HAL level to set the session ID to default value.
+**
+** Returns:     None.
+**
+*******************************************************************************/
 void NfcAdaptation::FactoryReset() {
+  const char* func = "NfcAdaptation::FactoryReset";
+  int status;
+  const char config_eseinfo_path[] = "/data/nfc/nfaStorage.bin1";
   if (mHal_1_1 != nullptr) {
     mHal_1_1->factoryReset();
+    status=remove(config_eseinfo_path);
+    if(status==0){
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: Storage file deleted... ", func);
+    }
+    else{
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: Storage file delete failed... ", func);
+    }
   }
 }
 
