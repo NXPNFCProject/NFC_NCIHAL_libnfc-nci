@@ -591,14 +591,12 @@ void nfc_main_handle_hal_evt(tNFC_HAL_EVT_MSG* p_msg) {
             return;
           }
           break;
-
-        case (uint32_t)NfcEvent::HCI_NETWORK_RESET:
-          delete_stack_non_volatile_store(true);
-          break;
-
         default:
           break;
       }
+      break;
+    case (uint32_t)NfcEvent::HCI_NETWORK_RESET:
+      delete_stack_non_volatile_store(true);
       break;
 #if (NXP_EXTNS == TRUE)
     case HAL_NFC_POST_MIN_INIT_CPLT_EVT:

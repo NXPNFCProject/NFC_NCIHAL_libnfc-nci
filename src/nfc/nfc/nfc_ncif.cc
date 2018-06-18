@@ -2483,7 +2483,6 @@ void nfc_ncif_proc_init_rsp(NFC_HDR* p_msg) {
   uint16_t fw_status, fw_dwnld_status = NCI_STATUS_FAILED,
                       fw_mw_ver_status = NCI_STATUS_FAILED;
   tNFC_FWUpdate_Info_t fw_update_inf;
-  uint8_t* init_rsp = NULL;
   uint8_t config_resp[16];
   memset(&fw_update_inf, 0x00, sizeof(tNFC_FWUpdate_Info_t));
 #endif
@@ -2492,42 +2491,6 @@ void nfc_ncif_proc_init_rsp(NFC_HDR* p_msg) {
   /* handle init params in nfc_enabled */
   status = *(p + NCI_MSG_HDR_SIZE);
 #if (NXP_EXTNS == TRUE)
-  if (NCI_STATUS_OK == status) {
-    // MW_FW recovery disabling at time of sig/crash/die
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("MW_RCVRY_FW_DNLD_ALLOWED  -> %d",
-                     MW_RCVRY_FW_DNLD_ALLOWED);
-    if (((nfcFL.nfccFL._NFCC_MW_RCVRY_BLK_FW_DNLD) &&
-            ((NFC_STATE_CORE_INIT == nfc_cb.nfc_state) &&
-                    (MW_RCVRY_FW_DNLD_ALLOWED == false))) ||
-            ((!nfcFL.nfccFL._NFCC_MW_RCVRY_BLK_FW_DNLD) &&
-                    (NFC_STATE_CORE_INIT == nfc_cb.nfc_state)))
-    {
-      nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_CHECK_FLASH_REQ, &inpOutData);
-      fw_update_inf = *(tNFC_FWUpdate_Info_t*)&inpOutData.out.data.fwUpdateInf;
-      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("fw_update required  -> %d",
-                       fw_update_inf.fw_update_reqd);
-
-      if (fw_update_inf.fw_update_reqd == true) {
-          if(nfcFL.nfccFL._NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH) {
-              uicc_eeprom_get_config(config_resp);
-          }
-        nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_FW_DWNLD, &inpOutData);
-        fw_dwnld_status = inpOutData.out.data.fwDwnldStatus;
-        status = nfc_hal_nfcc_reset();
-        if (NCI_STATUS_OK == status) {
-          status = nfc_hal_nfcc_init(&init_rsp);
-          if (NCI_STATUS_OK == status) {
-            /* Initialize NFC_HDR */
-            p_msg->len = init_rsp[2] + 3;
-            /* copying init rsp to p_msg  */
-            memcpy((uint8_t*)(p_msg + 1) + p_msg->offset, init_rsp, p_msg->len);
-          }
-          if (init_rsp)
-              GKI_freebuf(init_rsp);
-        }
-      }
-    }
-  }
   if(nfc_cb.nci_version != NCI_VERSION_2_0)
   {
       fw_status = nfc_ncif_store_FWVersion(p);
