@@ -58,4 +58,5 @@ extern void DispNci(uint8_t* p, uint16_t len, bool is_recv);
 void ProtoDispAdapterDisplayNciPacket(uint8_t* nciPacket, uint16_t nciPacketLen,
                                       bool is_recv);
 #define DISP_NCI ProtoDispAdapterDisplayNciPacket
+void initializeGlobalAppDtaMode();
 #endif
