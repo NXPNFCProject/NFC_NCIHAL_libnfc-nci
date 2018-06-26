@@ -105,6 +105,58 @@ void uicc_eeprom_set_config(uint8_t* config_resp);
 
 /*******************************************************************************
 **
+** Function         nfc_hal_nfcc_get_reset_info
+**
+** Description      Register dump when CORE_RESET_NTF happens
+**
+** Returns          status of command transceive
+**
+*******************************************************************************/
+uint8_t nfc_hal_nfcc_get_reset_info(void) {
+  nfc_nci_IoctlInOutData_t inpOutData;
+  /*NCI_RESET_CMD*/
+  uint8_t nfc_hal_nfcc_get_reset_info[6][6] = {
+      {
+       0x20, 0x00, 0x01, 0x00,
+      },
+      {
+       0x20, 0x01, 0x00,
+      },
+      {0x20, 0x03, 0x03, 0x01, 0xA0, 0x1A},
+      {0x20, 0x03, 0x03, 0x01, 0xA0, 0x1B},
+      {0x20, 0x03, 0x03, 0x01, 0xA0, 0x1C},
+      {0x20, 0x03, 0x03, 0x01, 0xA0, 0x27}};
+  uint8_t core_status = NCI_STATUS_FAILED;
+  uint8_t retry_count = 0;
+  uint8_t i = 0, j = 0;
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s Enter", __func__);
+
+  for (i = 0; i < 6; i++) {
+    memset(&inpOutData, 0x00, sizeof(nfc_nci_IoctlInOutData_t));
+    inpOutData.inp.data.nciCmd.cmd_len = nfc_hal_nfcc_get_reset_info[i][2] + 3;
+    memcpy(inpOutData.inp.data.nciCmd.p_cmd,
+           (uint8_t*)&nfc_hal_nfcc_get_reset_info[i],
+           nfc_hal_nfcc_get_reset_info[i][2] + 3);
+    do {
+      core_status =
+          nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_NCI_TRANSCEIVE, &inpOutData);
+      retry_count++;
+    } while (NCI_STATUS_OK != core_status &&
+             retry_count < (NFC_NFCC_INIT_MAX_RETRY + 1));
+    if (core_status == NCI_STATUS_OK) {
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+          "%s No.%d response for nfc_hal_nfcc_get_reset_info", __func__, i);
+      for (j = 0; j < inpOutData.out.data.nciRsp.rsp_len; j++) {
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+            " %s 0x%02x", __func__, inpOutData.out.data.nciRsp.p_rsp[j]);
+      }
+    }
+  }
+  return core_status;
+}
+
+/*******************************************************************************
+**
 ** Function         nfc_ncif_update_window
 **
 ** Description      Update tx cmd window to indicate that NFCC can received
@@ -241,6 +293,16 @@ void nfc_ncif_cmd_timeout(void) {
             nfc_enabled(NFC_STATUS_FAILED, NULL);
 #endif
     }
+
+    /*For debug purpose,register dump when CORE_RESET_NTF happens*/
+    if (core_reset_init_num_buff) {
+      uint8_t stat = 0;
+      stat = nfc_hal_nfcc_get_reset_info();
+      if (stat != NCI_STATUS_OK)
+        DLOG_IF(INFO, nfc_debug_enabled)
+            << StringPrintf("Failed to get reset info");
+    }
+
     /*Prepare the DISCOVERY command*/
     if (!(nfa_dm_cb.disc_cb.disc_state > NFA_DM_RFST_IDLE)) {
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFCC last NCI RF state is IDLE");
