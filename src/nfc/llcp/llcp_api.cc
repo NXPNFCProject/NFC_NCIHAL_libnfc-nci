@@ -456,13 +456,14 @@ uint8_t LLCP_RegisterServer(uint8_t reg_sap, uint8_t link_type,
 
   memset(p_app_cb, 0x00, sizeof(tLLCP_APP_CB));
 
-  length = p_service_name.length();
-  if (length > LLCP_MAX_SN_LEN) {
-    LOG(ERROR) << StringPrintf(
-        "LLCP_RegisterServer (): Service Name (%d bytes) is too long",
-        length);
-    return LLCP_INVALID_SAP;
-
+  if (p_service_name.c_str()) {
+    length = p_service_name.length();
+    if (length > LLCP_MAX_SN_LEN) {
+      LOG(ERROR) << StringPrintf(
+          "LLCP_RegisterServer (): Service Name (%d bytes) is too long",
+          length);
+      return LLCP_INVALID_SAP;
+    }
     p_app_cb->p_service_name = (char*)GKI_getbuf((uint16_t)(length + 1));
     if (p_app_cb->p_service_name == NULL) {
       LOG(ERROR) << StringPrintf("LLCP_RegisterServer (): Out of resource");
