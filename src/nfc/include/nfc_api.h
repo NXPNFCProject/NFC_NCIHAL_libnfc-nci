@@ -210,6 +210,11 @@ typedef uint8_t tNFC_STATUS;
   ((unsigned char)0xEA) /* param for retrieveing HCI session ID for UICC */
 #define NXP_NFC_PARAM_SWP_SESSIONID_INT1A \
   ((unsigned char)0x1E) /* param for retrieveing HCI session ID for UICC2 */
+
+/**********************************************
+ * NFC self test Parameter IDs defined by NXP NFC
+ **********************************************/
+#define NXP_NFC_NCI_PACM_BIT_RATE 0x68
 #endif
 
 /**********************************************
@@ -278,6 +283,27 @@ typedef tNCI_DISCOVER_PARAMS tNFC_DISCOVER_PARAMS;
   void nfc_ncif_modeSet_rsp_timeout();
   void nfc_ncif_resume_dwp_wired_mode();
   void nfc_ncif_pwr_link_rsp_timeout();
+
+/**********************************************
+ * NFC self test Parameter IDs defined by NXP NFC
+ **********************************************/
+enum {
+  NFC_CMD_TYPE_SWP           =  0x00,
+  NFC_CMD_TYPE_PRBS_START,
+  NFC_CMD_TYPE_PRBS_STOP,
+  NFC_CMD_TYPE_CORE_RESET,
+  NFC_CMD_TYPE_CORE_INIT,
+  NFC_CMD_TYPE_ACT_PROP_EXTN,
+  NFC_CMD_TYPE_RF_ON,
+  NFC_CMD_TYPE_RF_OFF,
+  NFC_CMD_TYPE_TRANSAC_A,
+  NFC_CMD_TYPE_TRANSAC_B,
+  NFC_CMD_TYPE_DISC_MAP,
+  NFC_CMD_TYPE_DEACTIVATE,
+  NFC_CMD_TYPE_NFCC_STANDBY_ON,
+  NFC_CMD_TYPE_NFCC_STANDBY_OFF,
+  NFC_CMD_TYPE_TYPE_NONE     = 0xFF
+};
 #endif
 /* the events reported on tNFC_RESPONSE_CBACK */
 enum {
