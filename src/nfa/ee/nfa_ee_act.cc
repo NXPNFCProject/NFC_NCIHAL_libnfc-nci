@@ -3485,6 +3485,10 @@ void nfa_ee_route_add_one_ecb_by_route_order(tNFA_EE_ECB* p_cb, int rout_type,
     case NCI_ROUTE_ORDER_PATTERN: {
         nfa_ee_add_apdu_route_to_ecb(p_cb, pp, p, ps, p_cur_offset, p_max_len);
     } break;
+    case NCI_ROUTE_ORDER_SYS_CODE: {
+      nfa_ee_add_sys_code_route_to_ecb(p_cb, pp, p, ps, p_cur_offset,
+                                       p_max_len);
+    } break;
     default: {
        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s -  Route type - NA:- %d", __func__, rout_type);
     }
