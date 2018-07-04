@@ -982,9 +982,13 @@ void NfcAdaptation::DownloadFirmware() {
         goto TheEnd;
       }
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: try init HAL", func);
+      isSignaled = SIGNAL_NONE;
       HalCoreInitialized(sizeof(uint8_t), &p_core_init_rsp_params);
       mHalInitCompletedEvent.lock();
-      mHalInitCompletedEvent.wait();
+      if (SIGNAL_NONE == isSignaled) {
+        mHalInitCompletedEvent.wait();
+      }
+      isSignaled = SIGNAL_NONE;
       mHalInitCompletedEvent.unlock();
     }
   }
@@ -1029,6 +1033,9 @@ void NfcAdaptation::HalDownloadFirmwareCallback(nfc_event_t event,
     }
     case HAL_NFC_POST_INIT_CPLT_EVT: {
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: HAL_NFC_POST_INIT_CPLT_EVT", func);
+#if (NXP_EXTNS == TRUE)
+      isSignaled = SIGNAL_SIGNALED;
+#endif
       mHalInitCompletedEvent.signal();
       break;
     }
