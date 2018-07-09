@@ -893,7 +893,7 @@ tNFA_EE_ECB* nfa_ee_find_aid_offset(uint8_t aid_len, uint8_t* p_aid,
 
   p_ecb = &nfa_ee_cb.ecb[NFA_EE_CB_4_DH];
   aid_len_offset = 1; /* skip the tag */
-  for (yy = 0; yy < nfa_ee_cb.cur_ee; yy++, p_ecb++) {
+  for (yy = 0; yy <= nfa_ee_cb.cur_ee; yy++) {
     if (p_ecb->aid_entries) {
       offset = 0;
       for (xx = 0; xx < p_ecb->aid_entries; xx++) {
