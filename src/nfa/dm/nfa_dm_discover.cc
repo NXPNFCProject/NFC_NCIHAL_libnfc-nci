@@ -2685,8 +2685,8 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
               NFC_DEACTIVATE_REASON_DH_REQ_FAILED) {
             /* count for number of times deactivate cmd sent */
             nfa_dm_cb.deactivate_cmd_retry_count = 0;
+            nfa_dm_disc_new_state(NFA_DM_RFST_W4_HOST_SELECT);
           }
-          nfa_dm_disc_new_state(NFA_DM_RFST_W4_HOST_SELECT);
           if (old_sleep_wakeup_flag) {
             sleep_wakeup_event_processed = true;
             /* process pending deactivate request */
