@@ -52,7 +52,6 @@
 #include "nfa_ee_int.h"
 #include "nfa_nv_co.h"
 #include "nfa_hci_defs.h"
-#include "trace_api.h"
 
 #if (NXP_EXTNS == TRUE)
 #ifndef __CONFIG_H
@@ -1079,8 +1078,6 @@ void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
 
   p = (uint8_t*)(p_pkt + 1) + p_pkt->offset;
   pkt_len = p_pkt->len;
-
-  DispHcp(p, pkt_len, true);
 
   chaining_bit = ((*p) >> 0x07) & 0x01;
   pipe = (*p++) & 0x7F;

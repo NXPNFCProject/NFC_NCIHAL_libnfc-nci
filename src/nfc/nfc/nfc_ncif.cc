@@ -2946,12 +2946,6 @@ void nfc_ncif_proc_data(NFC_HDR* p_msg) {
         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfc_ncif_proc_data len:%d", p_last->len);
         p_last->layer_specific = p_msg->layer_specific;
         GKI_freebuf(p_msg);
-#ifdef DISP_NCI
-        if (!(p_last->layer_specific & NFC_RAS_FRAGMENTED)) {
-          /* this packet was reassembled. display the complete packet */
-          DISP_NCI((uint8_t*)(p_last + 1) + p_last->offset, p_last->len, true);
-        }
-#endif
         nfc_data_event(p_cb);
       } else {
         /* Not enough memory to add new buffer

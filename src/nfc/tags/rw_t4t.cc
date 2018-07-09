@@ -49,7 +49,6 @@
 
 #include "nfc_target.h"
 #include "bt_types.h"
-#include "trace_api.h"
 
 #include "nfc_api.h"
 #include "nfc_int.h"

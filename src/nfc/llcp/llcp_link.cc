@@ -48,7 +48,6 @@
 
 #include "gki.h"
 #include "bt_types.h"
-#include "trace_api.h"
 #include "llcp_int.h"
 #include "llcp_defs.h"
 #include "nfc_int.h"
@@ -1594,7 +1593,6 @@ static NFC_HDR* llcp_link_build_next_pdu(NFC_HDR* p_pdu) {
 **
 *******************************************************************************/
 static void llcp_link_send_to_lower(NFC_HDR* p_pdu) {
-  DispLLCP(p_pdu, false);
   llcp_cb.lcb.symm_state = LLCP_LINK_SYMM_REMOTE_XMIT_NEXT;
   NFC_SendData(NFC_RF_CONN_ID, p_pdu);
 }
@@ -1612,7 +1610,6 @@ void llcp_link_connection_cback(__attribute__((unused)) uint8_t conn_id,
                                 tNFC_CONN_EVT event, tNFC_CONN* p_data) {
 
   if (event == NFC_DATA_CEVT) {
-    DispLLCP((NFC_HDR*)p_data->data.p_data, true);
     if (llcp_cb.lcb.link_state == LLCP_LINK_STATE_DEACTIVATED) {
       /* respoding SYMM while LLCP is deactivated but RF link is not deactivated
        * yet */

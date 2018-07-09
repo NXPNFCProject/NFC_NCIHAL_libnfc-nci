@@ -45,7 +45,6 @@
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
 
-#include "trace_api.h"
 #include "nfa_dm_int.h"
 #include "nfa_hci_api.h"
 #include "nfa_hci_int.h"
@@ -402,8 +401,6 @@ tNFA_STATUS nfa_hciu_send_msg(uint8_t pipe_id, uint8_t type,
         msg_len -= data_len;
         if (msg_len > 0) p_msg += data_len;
       }
-
-      DispHcp(((uint8_t*)(p_buf + 1) + p_buf->offset), p_buf->len, false);
 
       if (HCI_LOOPBACK_DEBUG)
         handle_debug_loopback(p_buf, type, instruction);
