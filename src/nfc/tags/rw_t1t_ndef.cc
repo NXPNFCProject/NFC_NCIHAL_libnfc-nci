@@ -1039,7 +1039,10 @@ static tNFC_STATUS rw_t1t_handle_tlv_detect_rsp(uint8_t* p_data) {
             bytes_count--;
             if ((p_t1t->tlv_detect == TAG_LOCK_CTRL_TLV) ||
                 (p_t1t->tlv_detect == TAG_NDEF_TLV)) {
+              if(bytes_count < 3)
+              {
               tlv_value[2 - bytes_count] = p_readbytes[offset];
+              }
               if (bytes_count == 0) {
                 if (p_t1t->num_lock_tlvs < RW_T1T_MAX_LOCK_TLVS) {
                   p_t1t->lock_tlv[p_t1t->num_lock_tlvs].offset =

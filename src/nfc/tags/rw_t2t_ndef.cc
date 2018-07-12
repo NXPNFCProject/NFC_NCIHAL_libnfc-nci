@@ -1272,7 +1272,10 @@ tNFC_STATUS rw_t2t_write_ndef_next_block(uint16_t block, uint16_t msg_len,
              p_t2t->work_offset < p_t2t->new_ndef_msg_len) {
         if (rw_t2t_is_lock_res_byte(
                 (uint16_t)((block * T2T_BLOCK_SIZE) + index)) == false) {
+          if(p_t2t->work_offset < 3)
+          {
           write_block[index] = length_field[p_t2t->work_offset];
+          }
           p_t2t->work_offset++;
         }
         index++;
