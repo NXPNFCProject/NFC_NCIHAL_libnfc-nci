@@ -246,7 +246,8 @@ static void nfa_ee_update_route_size(tNFA_EE_ECB* p_cb) {
   int xx;
   uint8_t power_cfg = 0;
 
-  p_cb->size_mask = 0;
+  p_cb->size_mask_proto = 0;
+  p_cb->size_mask_tech = 0;
   /* add the Technology based routing */
   for (xx = 0; xx < NFA_EE_NUM_TECH; xx++) {
     power_cfg = 0;
@@ -267,7 +268,7 @@ static void nfa_ee_update_route_size(tNFA_EE_ECB* p_cb) {
     }
     if (power_cfg) {
       /* 5 = 1 (tag) + 1 (len) + 1(nfcee_id) + 1(power cfg) + 1 (techonogy) */
-      p_cb->size_mask += 5;
+      p_cb->size_mask_tech += 5;
     }
   }
 
@@ -289,13 +290,16 @@ static void nfa_ee_update_route_size(tNFA_EE_ECB* p_cb) {
       if (p_cb->proto_screen_off_lock & nfa_ee_proto_mask_list[xx])
         power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_LOCK();
     }
-    if (power_cfg) {
+    if (power_cfg ||
+        (p_cb->nfcee_id == NFC_DH_ID &&
+         nfa_ee_proto_mask_list[xx] == NFA_PROTOCOL_MASK_NFC_DEP)) {
       /* 5 = 1 (tag) + 1 (len) + 1(nfcee_id) + 1(power cfg) + 1 (protocol) */
-      p_cb->size_mask += 5;
+      p_cb->size_mask_proto += 5;
     }
   }
-   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ee_update_route_size nfcee_id:0x%x size_mask:%d",
-                   p_cb->nfcee_id, p_cb->size_mask);
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+      "nfa_ee_update_route_size nfcee_id:0x%x size_mask_proto:%d size_mask_tech:%d",
+      p_cb->nfcee_id, p_cb->size_mask_proto, p_cb->size_mask_tech);
 }
 
 /*******************************************************************************
@@ -409,14 +413,16 @@ static uint16_t nfa_ee_total_lmrt_size(void) {
   tNFA_EE_ECB* p_cb;
 
   p_cb = &nfa_ee_cb.ecb[NFA_EE_CB_4_DH];
-  lmrt_size += p_cb->size_mask;
+  lmrt_size += p_cb->size_mask_proto;
+  lmrt_size += p_cb->size_mask_tech;
   lmrt_size += p_cb->size_aid;
   lmrt_size += p_cb->size_apdu;
   lmrt_size += p_cb->size_sys_code;
   p_cb = &nfa_ee_cb.ecb[nfa_ee_cb.cur_ee - 1];
   for (xx = 0; xx < nfa_ee_cb.cur_ee; xx++, p_cb--) {
     if (p_cb->ee_status == NFC_NFCEE_STATUS_ACTIVE) {
-      lmrt_size += p_cb->size_mask;
+      lmrt_size += p_cb->size_mask_proto;
+      lmrt_size += p_cb->size_mask_tech;
       lmrt_size += p_cb->size_aid;
       lmrt_size += p_cb->size_apdu;
       lmrt_size += p_cb->size_sys_code;
@@ -477,7 +483,9 @@ static void nfa_ee_add_proto_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
       power_cfg |= NCI_ROUTE_PWR_STATE_SWITCH_OFF;
     if (p_cb->proto_battery_off & nfa_ee_proto_mask_list[xx])
       power_cfg |= NCI_ROUTE_PWR_STATE_BATT_OFF;
-    if (power_cfg) {
+    if (power_cfg ||
+        (p_cb->nfcee_id == NFC_DH_ID &&
+         nfa_ee_proto_mask_list[xx] == NFA_PROTOCOL_MASK_NFC_DEP)) {
       /* Applying Route Block for ISO DEP Protocol, so that AIDs
        * which are not in the routing table can also be blocked */
       if (nfa_ee_proto_mask_list[xx] == NFA_PROTOCOL_MASK_ISO_DEP
@@ -515,9 +523,17 @@ static void nfa_ee_add_proto_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
       } else {
         proto_tag = NFC_ROUTE_TAG_PROTO;
       }
-
-      add_route_tech_proto_tlv(&pp, proto_tag, p_cb->nfcee_id, power_cfg,
-                               nfa_ee_proto_list[xx]);
+      if (p_cb->nfcee_id == NFC_DH_ID &&
+          nfa_ee_proto_mask_list[xx] == NFA_PROTOCOL_MASK_NFC_DEP) {
+        /* add NFC-DEP routing to HOST */
+        add_route_tech_proto_tlv(&pp, NFC_ROUTE_TAG_PROTO, NFC_DH_ID,
+                                 NCI_ROUTE_PWR_STATE_ON, NFC_PROTOCOL_NFC_DEP);
+        DLOG_IF(INFO, nfc_debug_enabled)
+            << StringPrintf("%s - NFC DEP added for DH!!!", __func__);
+      } else {
+        add_route_tech_proto_tlv(&pp, proto_tag, p_cb->nfcee_id, power_cfg,
+                                 nfa_ee_proto_list[xx]);
+      }
       num_tlv++;
       if (power_cfg != NCI_ROUTE_PWR_STATE_ON)
         nfa_ee_cb.ee_cfged |= NFA_EE_CFGED_OFF_ROUTING;
@@ -1396,7 +1412,8 @@ void nfa_ee_api_set_tech_cfg(tNFA_EE_MSG* p_data) {
   tNFA_TECHNOLOGY_MASK old_tech_screen_lock = p_cb->tech_screen_lock;
   tNFA_TECHNOLOGY_MASK old_tech_screen_off = p_cb->tech_screen_off;
   tNFA_TECHNOLOGY_MASK old_tech_screen_off_lock = p_cb->tech_screen_off_lock;
-  uint8_t old_size_mask = p_cb->size_mask;
+
+  uint8_t old_size_mask_tech = p_cb->size_mask_tech;
 
   if ((p_cb->tech_switch_on == p_data->set_tech.technologies_switch_on) &&
       (p_cb->tech_switch_off == p_data->set_tech.technologies_switch_off) &&
@@ -1426,7 +1443,7 @@ void nfa_ee_api_set_tech_cfg(tNFA_EE_MSG* p_data) {
     p_cb->tech_screen_lock = old_tech_screen_lock;
     p_cb->tech_screen_off = old_tech_screen_off;
     p_cb->tech_screen_off_lock = old_tech_screen_off_lock;
-    p_cb->size_mask = old_size_mask;
+    p_cb->size_mask_tech = old_size_mask_tech;
   } else {
     p_cb->ecb_flags |= NFA_EE_ECB_FLAGS_TECH;
     if (p_cb->tech_switch_on | p_cb->tech_switch_off | p_cb->tech_battery_off |
@@ -1460,7 +1477,7 @@ void nfa_ee_api_set_proto_cfg(tNFA_EE_MSG* p_data) {
   tNFA_PROTOCOL_MASK old_proto_screen_lock = p_cb->proto_screen_lock;
   tNFA_PROTOCOL_MASK old_proto_screen_off = p_cb->proto_screen_off;
   tNFA_PROTOCOL_MASK old_proto_screen_off_lock = p_cb->proto_screen_off_lock;
-  uint8_t old_size_mask = p_cb->size_mask;
+  uint8_t old_size_mask_proto = p_cb->size_mask_proto;
 
   if ((p_cb->proto_switch_on == p_data->set_proto.protocols_switch_on) &&
       (p_cb->proto_switch_off == p_data->set_proto.protocols_switch_off) &&
@@ -1489,7 +1506,7 @@ void nfa_ee_api_set_proto_cfg(tNFA_EE_MSG* p_data) {
     p_cb->proto_screen_lock = old_proto_screen_lock;
     p_cb->proto_screen_off = old_proto_screen_off;
     p_cb->proto_screen_off_lock = old_proto_screen_off_lock;
-    p_cb->size_mask = old_size_mask;
+    p_cb->size_mask_proto = old_size_mask_proto;
   } else {
     p_cb->ecb_flags |= NFA_EE_ECB_FLAGS_PROTO;
     if (p_cb->proto_switch_on | p_cb->proto_switch_off | p_cb->proto_battery_off |
@@ -3463,8 +3480,13 @@ void nfa_ee_check_set_routing(uint16_t new_size, int* p_max_len, uint8_t* p,
 void nfa_ee_route_add_one_ecb_by_route_order(tNFA_EE_ECB* p_cb, int rout_type,
                                              int* p_max_len, bool more,
                                              uint8_t* ps, int* p_cur_offset) {
-  nfa_ee_check_set_routing(p_cb->size_mask, p_max_len, ps, p_cur_offset);
+  uint8_t size_mask = 0;
 
+  size_mask = p_cb->size_mask_proto + p_cb->size_mask_tech;
+  if ((rout_type != NCI_ROUTE_ORDER_TECHNOLOGY) &&
+      (rout_type != NCI_ROUTE_ORDER_PROTOCOL)) {
+    nfa_ee_check_set_routing(size_mask, p_max_len, ps, p_cur_offset);
+  }
   /* use the first byte of the buffer (ps) to keep the num_tlv */
   uint8_t num_tlv = *ps;
    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
@@ -3476,10 +3498,18 @@ void nfa_ee_route_add_one_ecb_by_route_order(tNFA_EE_ECB* p_cb, int rout_type,
 
   switch (rout_type) {
     case NCI_ROUTE_ORDER_TECHNOLOGY: {
+      nfa_ee_check_set_routing(p_cb->size_mask_tech, p_max_len, ps,
+                               p_cur_offset);
+      pp = ps + 1 + *p_cur_offset;
+      p = pp;
       nfa_ee_add_tech_route_to_ecb(p_cb, pp, p, ps, p_cur_offset);
     } break;
 
     case NCI_ROUTE_ORDER_PROTOCOL: {
+      nfa_ee_check_set_routing(p_cb->size_mask_proto, p_max_len, ps,
+                               p_cur_offset);
+      pp = ps + 1 + *p_cur_offset;
+      p = pp;
       nfa_ee_add_proto_route_to_ecb(p_cb, pp, p, ps, p_cur_offset);
     } break;
     case NCI_ROUTE_ORDER_AID: {

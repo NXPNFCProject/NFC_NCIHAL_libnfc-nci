@@ -322,7 +322,8 @@ typedef struct {
   tNFA_NFC_PROTOCOL lb_protocol;   /* Listen B protocol    */
   tNFA_NFC_PROTOCOL lf_protocol;   /* Listen F protocol    */
   tNFA_NFC_PROTOCOL lbp_protocol;  /* Listen B' protocol   */
-  uint8_t size_mask; /* the size for technology and protocol routing */
+  uint8_t size_mask_proto;         /* the size for protocol routing */
+  uint8_t size_mask_tech;          /* the size for technology routing */
   uint16_t size_aid; /* the size for aid routing */
   uint16_t size_apdu;/* the size for apdu routing */
 #if (NXP_EXTNS == TRUE)
