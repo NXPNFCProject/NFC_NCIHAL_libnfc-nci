@@ -112,13 +112,13 @@
 #define NXP_EN_PN66T 0
 #define NXP_EN_PN551 0
 #define NXP_EN_PN67T 0
-#define NXP_EN_PN553 1
-#define NXP_EN_PN80T 1
+#define NXP_EN_PN553 0
+#define NXP_EN_PN80T 0
 #define NXP_EN_PN553_MR1 0
 #define NXP_EN_PN81A     0
 #define NXP_EN_PN553_MR2 0
-#define NXP_EN_PN557     0
-#define NXP_EN_PN81T     0
+#define NXP_EN_PN557     1
+#define NXP_EN_PN81T     1
 #define NXP_ANDROID_VER (9U)        /* NXP android version */
 #define NFC_NXP_MW_VERSION_MAJ (0x00) /* MW Major Version */
 #define NFC_NXP_MW_VERSION_MIN (0x0F) /* MW Minor Version */
