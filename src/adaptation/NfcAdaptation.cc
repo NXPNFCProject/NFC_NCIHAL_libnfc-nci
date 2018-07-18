@@ -29,6 +29,7 @@
 #include "nfa_rw_api.h"
 #include "nfc_config.h"
 #include "nfc_int.h"
+#include <hidl/LegacySupport.h>
 
 using android::OK;
 using android::sp;
@@ -45,7 +46,7 @@ using NfcVendorConfig = android::hardware::nfc::V1_1::NfcConfig;
 using android::hardware::nfc::V1_1::INfcClientCallback;
 using android::hardware::hidl_vec;
 using android::hardware::hidl_death_recipient;
-using ::android::sp;
+using android::hardware::configureRpcThreadpool;
 
 extern bool nfc_debug_enabled;
 
@@ -342,6 +343,7 @@ void NfcAdaptation::Initialize() {
   }
 
   debug_nfcsnoop_init();
+  configureRpcThreadpool(2, false);
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: exit", func);
 }
 
