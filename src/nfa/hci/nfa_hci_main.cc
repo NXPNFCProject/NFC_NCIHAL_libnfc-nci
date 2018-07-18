@@ -1203,10 +1203,12 @@ static void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
       ** is not the last fragment and will continue to reassemble
       */
       p_pipe_cmdrsp_info->msg_rx_len = nfa_hci_cb.msg_len;
+          /* if not last packet, release GKI buffer */
+      nfa_sys_start_timer (&(p_pipe_cmdrsp_info->rsp_timer),
+        NFA_HCI_RSP_TIMEOUT_EVT, p_pipe_cmdrsp_info->rsp_timeout);
 #else
   if (nfa_hci_cb.assembling) {
 #endif
-    /* if not last packet, release GKI buffer */
     GKI_freebuf(p_pkt);
     return;
   }
@@ -1934,6 +1936,7 @@ static void nfa_hci_timer_cback (TIMER_LIST_ENT *p_tle)
                 ** and so cannot send next command APDU on the pipe till APDU server initialize
                 ** and sends ETSI_HCI_EVT_ATR on the pipe
                 */
+                p_pipe_cmdrsp_info->w4_atr_evt = false;
                 p_pipe_cmdrsp_info->w4_rsp_apdu_evt = false;
 
                 evt_data.apdu_aborted.status  = NFA_STATUS_TIMEOUT;
@@ -1951,7 +1954,7 @@ static void nfa_hci_timer_cback (TIMER_LIST_ENT *p_tle)
                 evt_data.apdu_rcvd.status  = NFA_STATUS_TIMEOUT;
                 evt_data.apdu_rcvd.p_apdu  = NULL;
                 evt_data.apdu_rcvd.host_id = p_pipe->dest_host;
-
+                nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
                 /* notify NFA_HCI_RSP_APDU_RCVD_EVT to the application */
                 nfa_hciu_send_to_app (NFA_HCI_RSP_APDU_RCVD_EVT, &evt_data,
                                       p_pipe_cmdrsp_info->pipe_user);

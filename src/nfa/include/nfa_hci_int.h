@@ -145,7 +145,7 @@ extern uint8_t HCI_LOOPBACK_DEBUG;
 /* NFCEE ETSI 12 configuration complete*/
 #define NFA_HCI_NFCEE_CONFIG_COMPLETE 0xF9
 
-#define NFA_HCI_EVT_SW_PROC_LATENCY          200     /* Time taken for the event sent from ese / uicc HOST to reach Terminal host and begin processing */
+#define NFA_HCI_EVT_SW_PROC_LATENCY          1000     /* Time taken for the event sent from ese / uicc HOST to reach Terminal host and begin processing */
 #endif
 
 typedef uint8_t tNFA_HCI_STATE;
@@ -455,6 +455,7 @@ typedef struct
     uint8_t                   *p_rsp_buf;             /* Buffer to hold response for the event sent */
     uint8_t                   cmd_inst_sent;          /* Instruction of the command sent on the pipe */
     uint8_t                   cmd_inst_param_sent;    /* Instruction parameter of the command sent on the pipe */
+    uint32_t                   rsp_timeout;
 } tNFA_HCI_PIPE_CMDRSP_INFO;
 
 
@@ -628,7 +629,6 @@ typedef struct {
     tNFA_LINK_MGMT_GATE_INFO link_mgmt_gate;
     tNFA_ID_MGMT_GATE_INFO id_mgmt_gate;
   } cfg;
-
 } tNFA_HCI_CB;
 
 /*****************************************************************************

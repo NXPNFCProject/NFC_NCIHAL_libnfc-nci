@@ -2917,18 +2917,29 @@ static void nfa_hci_handle_apdu_app_gate_hcp_msg_data (uint8_t *p_data, uint16_t
             break;
 
         case NFA_HCI_EVT_WTX:
-            if (p_pipe_cmdrsp_info->w4_rsp_apdu_evt)
+            if (p_pipe_cmdrsp_info->w4_rsp_apdu_evt || 
+              p_pipe_cmdrsp_info->w4_atr_evt)
             {
                 if(p_nfa_hci_cfg->max_wtx_count) {
                   if(nfa_hci_cb.m_wtx_count >= p_nfa_hci_cfg->max_wtx_count) {
                     DLOG_IF(INFO, nfc_debug_enabled)
                        << StringPrintf ("%s:  Max WTX count reached",__func__);
                     nfa_hci_cb.m_wtx_count = 0;
-                    evt_data.apdu_rcvd.apdu_len = 0;
-                    evt_data.apdu_rcvd.p_apdu = NULL;
-                    evt_data.apdu_rcvd.status = NFA_STATUS_HCI_WTX_TIMEOUT;
-                    nfa_hciu_send_to_app (NFA_HCI_RSP_APDU_RCVD_EVT, &evt_data,
+                    if(p_pipe_cmdrsp_info->w4_rsp_apdu_evt) {
+                        evt_data.apdu_rcvd.apdu_len = 0;
+                        evt_data.apdu_rcvd.p_apdu = NULL;
+                        evt_data.apdu_rcvd.status = NFA_STATUS_HCI_WTX_TIMEOUT;
+                        nfa_hciu_send_to_app (NFA_HCI_RSP_APDU_RCVD_EVT, &evt_data,
                                       p_pipe_cmdrsp_info->pipe_user);
+                    } else if(p_pipe_cmdrsp_info->w4_atr_evt) {
+                        evt_data.apdu_aborted.atr_len = 0;
+                        evt_data.apdu_aborted.status  = NFA_STATUS_HCI_WTX_TIMEOUT;
+                        evt_data.apdu_aborted.host_id = p_pipe->dest_host;
+                         p_pipe_cmdrsp_info->w4_atr_evt = false;
+                /* notify NFA_HCI_APDU_ABORTED_EVT to app that requested to ABORT command APDU */
+                        nfa_hciu_send_to_app (NFA_HCI_APDU_ABORTED_EVT, &evt_data,
+                                      p_pipe_cmdrsp_info->pipe_user);
+                    }
                     return;
                   }
                   else
@@ -2938,7 +2949,10 @@ static void nfa_hci_handle_apdu_app_gate_hcp_msg_data (uint8_t *p_data, uint16_t
                 }
                 /* More processing time needed for APDU sent to UICC */
                 nfa_sys_start_timer (&(p_pipe_cmdrsp_info->rsp_timer),
-                          NFA_HCI_RSP_TIMEOUT_EVT, p_apdu_pipe_reg_info->max_wait_time);
+                          NFA_HCI_RSP_TIMEOUT_EVT, p_pipe_cmdrsp_info->rsp_timeout);
+                DLOG_IF(INFO, nfc_debug_enabled)
+                        << StringPrintf ("nfa_hci_handle_apdu_app_gate_hcp_msg_data ()p_pipe_cmdrsp_info->rsp_timeout %x",p_pipe_cmdrsp_info->rsp_timeout);//debug
+
             }
             break;
 
@@ -2991,7 +3005,7 @@ static bool nfa_hci_api_send_apdu (tNFA_HCI_EVENT_DATA *p_evt_data)
 {
     uint8_t                       pipe_id= 0;;
     uint8_t                       evt_code;
-    uint16_t                      max_wait_time = NFA_HCI_EVT_SW_PROC_LATENCY;
+    uint32_t                      max_wait_time = NFA_HCI_EVT_SW_PROC_LATENCY;
     tNFC_STATUS                 status = NFA_STATUS_FAILED;
     tNFA_HCI_EVT_DATA           evt_data;
     tNFA_HCI_DYN_PIPE           *p_pipe;
@@ -3092,21 +3106,16 @@ static bool nfa_hci_api_send_apdu (tNFA_HCI_EVENT_DATA *p_evt_data)
                 ** the pipe for routing the response APDU later to it
                 */
                 p_pipe_cmdrsp_info->pipe_user = p_send_apdu->hci_handle;
+                p_pipe_cmdrsp_info->rsp_timeout = p_send_apdu->rsp_timeout;
+                max_wait_time += p_send_apdu->rsp_timeout;
+                /* Response APDU/ETSI_HCI_EVT_WTX is expected
+                   ** within specified interval of time */
 
-                if (p_apdu_pipe_reg_info->reg_info_valid)
-                {
-                    if(p_send_apdu->rsp_timeout < p_apdu_pipe_reg_info->max_wait_time)
-                        max_wait_time += p_apdu_pipe_reg_info->max_wait_time;
-                    else
-                        max_wait_time += p_send_apdu->rsp_timeout;
-
-                    /* Response APDU/ETSI_HCI_EVT_WTX is expected
-                    ** within specified interval of time
-                    */
-                    nfa_sys_start_timer (&(p_pipe_cmdrsp_info->rsp_timer),
+                nfa_sys_start_timer (&(p_pipe_cmdrsp_info->rsp_timer),
                                          NFA_HCI_RSP_TIMEOUT_EVT,
                                          max_wait_time);
-                }
+                LOG(ERROR) << StringPrintf ("nfa_hci_api_send_apdu (): Wait time[0x%02x]",
+                                   max_wait_time);
                 p_pipe_cmdrsp_info->rsp_buf_size = p_send_apdu->rsp_apdu_buf_size;
                 p_pipe_cmdrsp_info->p_rsp_buf    = p_send_apdu->p_rsp_apdu_buf;
             }
@@ -3252,6 +3261,7 @@ static bool nfa_hci_api_abort_apdu (tNFA_HCI_EVENT_DATA *p_evt_data)
             if (status == NFA_STATUS_OK)
             {
                 /* Restart timer to wait for EVT_ATR for the EVT_ABORT sent */
+                p_pipe_cmdrsp_info->rsp_timeout = p_abort_apdu->rsp_timeout;
                 nfa_sys_start_timer (&(p_pipe_cmdrsp_info->rsp_timer),
                                         NFA_HCI_RSP_TIMEOUT_EVT,
                                         (p_abort_apdu->rsp_timeout + NFA_HCI_EVT_SW_PROC_LATENCY));
