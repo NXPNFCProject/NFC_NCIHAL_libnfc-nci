@@ -437,7 +437,14 @@ typedef uint8_t tNCI_DISCOVERY_TYPE;
 #define NCI_ROUTE_TAG_PROTO 0x01
 #define NCI_ROUTE_TAG_AID 0x02 /* AID routing */
 #define NCI_ROUTE_TAG_SYSCODE 0x03 /* SystemCode routing */
+#if (NXP_EXTNS == TRUE)
+#define NCI_ROUTE_TAG_APDU 0x4 /* APDU routing*/
 
+#define NCI_MIN_APDU_DATA_LEN 1
+#define NCI_MIN_APDU_MASK_LEN 1
+#define NCI_MAX_APDU_DATA_LEN 124
+#define NCI_MAX_APDU_MASK_LEN 124
+#endif
 #define NCI_ROUTE_PWR_STATE_ON 0x01 /* The device is on */
 /* The device is switched off */
 #define NCI_ROUTE_PWR_STATE_SWITCH_OFF 0x02

@@ -95,6 +95,8 @@ enum {
   NFA_EE_NCI_PWR_LNK_CTRL_SET_EVT,
   NFA_EE_NCI_PWR_LNK_CTRL_RSP_EVT,
   NFA_EE_NCI_NFCEE_STATUS_NTF_EVT,
+  NFA_EE_API_ADD_APDU_EVT,
+  NFA_EE_API_REMOVE_APDU_EVT,
 #endif
   NFA_EE_MAX_EVT
 
@@ -127,7 +129,10 @@ enum {
 typedef uint8_t tNFA_EE_CONN_ST;
 
 #define NFA_EE_MAX_AID_CFG_LEN (510)
-
+#if (NXP_EXTNS == TRUE)
+#define NFA_EE_TOTAL_APDU_PATTERN_SIZE 250
+#define NFA_EE_APDU_ROUTE_MASK 8 /* APDU route location mask*/
+#endif
 #define NFA_EE_SYSTEM_CODE_LEN 02
 #define NFA_EE_SYSTEM_CODE_TLV_SIZE 06
 #define NFA_EE_MAX_SYSTEM_CODE_ENTRIES 10
@@ -156,8 +161,14 @@ typedef uint8_t tNFA_EE_CONN_ST;
 #define NFA_EE_ECB_FLAGS_DISC_REQ 0x40
 /* DISC_REQ N reported before DISC N  */
 #define NFA_EE_ECB_FLAGS_ORDER 0x80
-typedef uint8_t tNFA_EE_ECB_FLAGS;
+#if (NXP_EXTNS == TRUE)
+/* APDU routing changed                */
+#define NFA_EE_ECB_FLAGS_APDU 0x0100
 
+typedef uint16_t tNFA_EE_ECB_FLAGS;
+#else
+typedef uint8_t tNFA_EE_ECB_FLAGS;
+#endif
 /* part of tNFA_EE_STATUS; for internal use only  */
 /* waiting for restore to full power mode to complete */
 #define NFA_EE_STATUS_RESTORING 0x20
@@ -193,7 +204,19 @@ typedef struct {
   tNFA_EE_CONN_ST conn_st;   /* connection status */
   uint8_t conn_id;           /* connection id */
   tNFA_EE_CBACK* p_ee_cback; /* the callback function */
-
+  #if (NXP_EXTNS == TRUE)
+  /* Each APDU entry has an associated apdu_pwr_cfg ,apdu_rt_info ,apdu_len
+   * apdu_cfg[] contains APDU and APDU mask and maybe some other VS information in TLV format
+   * The first T is always NFA_EE_APDU_CFG_TAG_NAME, the L is the actual APDU length and mask length
+   * the apdu_len is the total length of all the TLVs associated with this AID
+   * entry
+   */
+  uint8_t apdu_len[NFA_EE_MAX_APDU_PATTERN_ENTRIES]; /* the actual lengths in apdu_cfg */
+  uint8_t apdu_pwr_cfg[NFA_EE_MAX_APDU_PATTERN_ENTRIES]; /* power configuration of this APDU Pattern entry */
+  uint16_t apdu_rt_info[NFA_EE_MAX_APDU_PATTERN_ENTRIES]; /* route/vs info for this APDU PATTERN entry */
+  uint8_t apdu_cfg[NFA_EE_TOTAL_APDU_PATTERN_SIZE];     /* routing entries based on APDU PATTERN */
+  uint8_t apdu_pattern_entries;   /* The number of APDU PATTERN entries in aid_cfg */
+  #endif
   /* Each AID entry has an ssociated aid_len, aid_pwr_cfg, aid_rt_info.
    * aid_cfg[] contains AID and maybe some other VS information in TLV format
    * The first T is always NFA_EE_AID_CFG_TAG_NAME, the L is the actual AID
@@ -240,6 +263,7 @@ typedef struct {
   uint8_t sys_code_cfg_entries;
   uint16_t size_sys_code; /* The size for system code routing */
 #if (NXP_EXTNS == TRUE)
+  uint16_t size_apdu;/* the size for apdu routing */
   uint8_t hci_enable_state;
   tNFA_NFC_PROTOCOL pa_protocol; /* Passive poll A SWP Reader   */
   tNFA_NFC_PROTOCOL pb_protocol; /* Passive poll B SWP Reader   */
@@ -342,7 +366,26 @@ typedef struct {
   uint8_t aid_len;
   uint8_t* p_aid;
 } tNFA_EE_API_REMOVE_AID;
+#if (NXP_EXTNS == TRUE)
+/* data type for NFA_EE_API_ADD_APDU_EVT */
+typedef struct {
+  NFC_HDR hdr;
+  tNFA_EE_ECB* p_cb;
+  uint8_t nfcee_id;
+  uint8_t* p_apdu;
+  uint8_t apdu_len;
+  uint8_t* p_mask;
+  uint8_t mask_len;
+  tNFA_EE_PWR_STATE power_state;
+} tNFA_EE_API_ADD_APDU;
 
+/* data type for NFA_EE_API_REMOVE_APDU_EVT */
+typedef struct {
+  NFC_HDR hdr;
+  uint8_t apdu_len;
+  uint8_t* p_apdu;
+} tNFA_EE_API_REMOVE_APDU;
+#endif
 /* data type for NFA_EE_API_ADD_SYSCODE_EVT */
 typedef struct {
   NFC_HDR hdr;
@@ -468,6 +511,8 @@ typedef union {
   tNFA_EE_API_POWER_LINK_EVT pwr_lnk_ctrl_set;
   tNFA_EE_NCI_PWR_LNK_CTRL pwr_lnk_ctrl_rsp;
   tNFA_EE_NCI_NFCEE_STATUS_NTF nfcee_status_ntf;
+  tNFA_EE_API_ADD_APDU add_apdu;
+  tNFA_EE_API_REMOVE_APDU rm_apdu;
 #endif
 } tNFA_EE_MSG;
 
@@ -553,6 +598,9 @@ typedef struct {
 
 /* Order of Routing entries in Routing Table */
 #define NCI_ROUTE_ORDER_AID 0x01        /* AID routing order */
+#if (NXP_EXTNS == TRUE)
+#define NCI_ROUTE_ORDER_PATTERN 0x02    /* Pattern routing order*/
+#endif
 #define NCI_ROUTE_ORDER_SYS_CODE 0x03   /* System Code routing order*/
 #define NCI_ROUTE_ORDER_PROTOCOL 0x04   /* Protocol routing order*/
 #define NCI_ROUTE_ORDER_TECHNOLOGY 0x05 /* Technology routing order*/
@@ -627,12 +675,13 @@ extern void nfa_ee_proc_hci_info_cback(void);
 void nfa_ee_check_disable(void);
 bool nfa_ee_restore_ntf_done(void);
 void nfa_ee_check_restore_complete(void);
-
 #if (NXP_EXTNS == TRUE)
 void nfa_ee_nci_set_mode_info(tNFA_EE_MSG* p_data);
 void nfa_ee_nci_pwr_link_ctrl_rsp(tNFA_EE_MSG* p_data);
 void nfa_ee_api_power_link_set(tNFA_EE_MSG* p_data);
 void nfa_ee_nci_nfcee_status_ntf(tNFA_EE_MSG* p_data);
+void nfa_ee_api_add_apdu(tNFA_EE_MSG* p_data);
+void nfa_ee_api_remove_apdu(tNFA_EE_MSG* p_data);
 #endif
 
 #endif /* NFA_P2P_INT_H */
