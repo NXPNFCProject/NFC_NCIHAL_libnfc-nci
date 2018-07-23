@@ -89,7 +89,12 @@ extern void nfa_nv_co_read(uint8_t* pBuffer, uint16_t nbytes, uint8_t block) {
   int fileStream = open(filename.c_str(), O_RDONLY);
   if (fileStream >= 0) {
     unsigned short checksum = 0;
-    read(fileStream, &checksum, sizeof(checksum));
+    int status = read(fileStream, &checksum, sizeof(checksum));
+    if (!status) {
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: fail to read checksum", __func__);
+      close(fileStream);
+      return;
+    }
     size_t actualReadData = read(fileStream, pBuffer, nbytes);
     close(fileStream);
     if (actualReadData > 0) {

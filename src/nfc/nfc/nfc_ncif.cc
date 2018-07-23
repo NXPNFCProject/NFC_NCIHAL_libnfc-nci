@@ -554,7 +554,7 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
   p_data = (NFC_HDR*)GKI_getfirst(&p_cb->tx_q);
 
   /* post data fragment to NCIT task as credits are available */
-  while (p_data && (p_data->len >= 0) && (p_cb->num_buff > 0)) {
+  while (p_data && (p_cb->num_buff > 0)) {
     if (p_data->len <= buffer_size) {
       pbf = 0; /* last fragment */
       ulen = (uint8_t)(p_data->len);
@@ -1297,6 +1297,11 @@ void nfc_ncif_resume_dwp_wired_mode() {
   }
   tNFC_CONN_CB* p_cb;
   p_cb = nfc_find_conn_cb_by_conn_id(nfa_hci_cb.conn_id);
+  if (p_cb == NULL) {
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Control block not found. Returning");
+    return;
+  }
+
   nfc_cb.bBlkPwrlinkAndModeSetCmd = false;
   nfc_cb.bIssueModeSetCmd = false;
   if (nfc_cb.pwr_link_cmd.bPwrLinkCmdRequested) {

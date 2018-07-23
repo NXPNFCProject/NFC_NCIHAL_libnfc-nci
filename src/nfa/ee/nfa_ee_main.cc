@@ -407,6 +407,7 @@ void nfa_ee_proc_evt(tNFC_RESPONSE_EVT event, void* p_data) {
   if (int_event) {
     cbk.hdr.event = int_event;
     cbk.p_data = p_data;
+    cbk.opcode = 0;
     tNFA_EE_MSG nfa_ee_msg;
     nfa_ee_msg.wait_rsp = cbk;
 

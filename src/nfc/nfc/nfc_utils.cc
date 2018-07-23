@@ -186,6 +186,7 @@ extern void nfc_reset_all_conn_cbs(void) {
   deact.status = NFC_STATUS_NOT_INITIALIZED;
   deact.type = NFC_DEACTIVATE_TYPE_IDLE;
   deact.is_ntf = true;
+  deact.reason = NCI_DEACTIVATE_REASON_DH_REQ;
   for (xx = 0; xx < NCI_MAX_CONN_CBS; xx++, p_conn_cb++) {
     if (p_conn_cb->conn_id != NFC_ILLEGAL_CONN_ID) {
       if (p_conn_cb->p_cback) {

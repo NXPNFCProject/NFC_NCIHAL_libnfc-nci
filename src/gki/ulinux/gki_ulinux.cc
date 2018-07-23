@@ -340,7 +340,7 @@ void GKI_shutdown(void) {
       }
 #endif
       DLOG_IF(INFO, nfc_debug_enabled)
-          << StringPrintf("task %s dead", gki_cb.com.OSTName[task_id]);
+          << StringPrintf("task %s dead", gki_cb.com.OSTName[task_id-1]);
       GKI_exit_task(task_id - 1);
     }
   }
@@ -663,7 +663,13 @@ uint16_t GKI_wait(uint16_t flag, uint32_t timeout) {
       //            abstime.tv_sec = currSysTime.time;
       //            abstime.tv_nsec = NANOSEC_PER_MILLISEC *
       //            currSysTime.millitm;
-      clock_gettime(CLOCK_MONOTONIC, &abstime);
+
+
+      /* TODO: Need to check for the return status for ret_clk */
+      int ret_clk = clock_gettime(CLOCK_MONOTONIC, &abstime);
+      if (ret_clk == -1) {
+        LOG(ERROR) << StringPrintf("%s: clock_gettime failed\n", __func__);
+      }
 
       /* add timeout */
       sec = timeout / 1000;

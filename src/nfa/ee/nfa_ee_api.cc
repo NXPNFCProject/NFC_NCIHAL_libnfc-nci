@@ -637,6 +637,10 @@ tNFA_STATUS NFA_EeAddApduPatternRouting(uint8_t apdu_data_len,uint8_t* apdu_data
     status = NFA_STATUS_INVALID_PARAM;
   } else {
       p_msg = (tNFA_EE_API_ADD_APDU*)GKI_getbuf(size);
+      if (p_msg == NULL) {
+	LOG(ERROR) << StringPrintf("%s: failed to allocate memory\n",__func__);
+	return NFA_STATUS_FAILED;
+      }
       p_msg->hdr.event = NFA_EE_API_ADD_APDU_EVT;
       p_msg->apdu_len = apdu_data_len;
       p_msg->mask_len = apdu_mask_len;

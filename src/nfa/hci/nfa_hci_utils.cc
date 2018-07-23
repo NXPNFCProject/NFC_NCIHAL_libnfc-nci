@@ -268,6 +268,9 @@ tNFA_HCI_DYN_GATE* nfa_hciu_alloc_gate(uint8_t gate_id,
       /* Skip connectivity gate */
       if (gate_id == NFA_HCI_CONNECTIVITY_GATE) gate_id++;
 
+      /* All possible gate IDs are exhausted. */
+      if (gate_id == 0) break;
+
       /* Check if the gate is already allocated */
       if (nfa_hciu_find_gate_by_gid(gate_id) == NULL) break;
     }

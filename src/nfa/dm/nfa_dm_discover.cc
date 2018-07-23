@@ -1991,6 +1991,7 @@ static void nfa_dm_disc_kovio_timeout_cback(__attribute__((unused))
     deact.status = NFC_STATUS_OK;
     deact.type = NFC_DEACTIVATE_TYPE_DISCOVERY;
     deact.is_ntf = true;
+    deact.reason = NCI_DEACTIVATE_REASON_DH_REQ;
     tNFC_DISCOVER nfc_discover;
     nfc_discover.deactivate = deact;
     nfa_dm_disc_notify_deactivation(NFA_DM_RF_DEACTIVATE_NTF, &nfc_discover);
@@ -2650,6 +2651,7 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
         deact.status = NFC_STATUS_OK;
         deact.type = NFC_DEACTIVATE_TYPE_IDLE;
         deact.is_ntf = true;
+	deact.reason = NCI_DEACTIVATE_REASON_DH_REQ;
         tNFC_DISCOVER nfc_discover;
         nfc_discover.deactivate = deact;
         nfa_dm_disc_notify_deactivation(NFA_DM_RF_DEACTIVATE_NTF,
@@ -2788,6 +2790,7 @@ static void nfa_dm_disc_sm_listen_active(tNFA_DM_RF_DISC_SM_EVENT event,
         deact.status = NFC_STATUS_OK;
         deact.type = NFC_DEACTIVATE_TYPE_IDLE;
         deact.is_ntf = true;
+	deact.reason = NCI_DEACTIVATE_REASON_DH_REQ;
         tNFC_DISCOVER nfc_discover;
         nfc_discover.deactivate = deact;
         nfa_dm_disc_notify_deactivation(NFA_DM_RF_DEACTIVATE_NTF,
