@@ -1137,8 +1137,8 @@ static tNFC_STATUS nfa_dm_send_deactivate_cmd(tNFC_DEACT_TYPE deactivate_type) {
             "Reading NAME_NFA_DM_DISC_NTF_TIMEOUT val   "
             "nfc_cb.num_disc_maps = %d",
             nfc_cb.num_disc_maps);
-        if (NfcConfig::hasKey(NAME_NXP_FWD_FUNCTIONALITY_ENABLE)) {
-            num = NfcConfig::getUnsigned(NAME_NXP_FWD_FUNCTIONALITY_ENABLE);
+        if (NfcConfig::hasKey(NAME_NFA_DM_DISC_NTF_TIMEOUT)) {
+            num = NfcConfig::getUnsigned(NAME_NFA_DM_DISC_NTF_TIMEOUT);
             num *= 1000;
           } else {
           num = NFA_DM_DISC_TIMEOUT_W4_DEACT_NTF;
