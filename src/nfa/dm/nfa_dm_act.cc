@@ -53,8 +53,10 @@
 #include "nci_hmsgs.h"
 
 #if (NFC_NFCEE_INCLUDED == true)
+#include "hal_nxpese.h"
 #include "nfa_ee_int.h"
 #include "nfa_hci_int.h"
+#include "nfc_int.h"
 #endif
 
 #if (NFA_SNEP_INCLUDED == true)
@@ -1226,6 +1228,28 @@ bool nfa_dm_act_disable_passive_listening(__attribute__((unused)) tNFA_DM_MSG* p
 
   return (true);
 }
+/*******************************************************************************
+**
+** Function         nfa_dm_set_transit_config
+**
+** Description      Sends transit configuration NFC Hal
+**
+** Returns          true (message buffer to be freed by caller)
+**
+*******************************************************************************/
+bool nfa_dm_set_transit_config(tNFA_DM_MSG* p_data) {
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s", __func__);
+  nfc_nci_IoctlInOutData_t inpOutData;
+  tNFA_DM_CBACK_DATA dm_cback_data;
+  dm_cback_data.set_transit_config.status = NFA_STATUS_OK;
+  inpOutData.inp.data.transitConfig.transitConfigVal =
+      p_data->transit_config.transitConfig;
+  inpOutData.inp.data.transitConfig.transitConfigLen =
+      strlen(p_data->transit_config.transitConfig);
+  nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_SET_TRANSIT_CONFIG, (void*)&inpOutData);
+  (*nfa_dm_cb.p_dm_cback)(NFA_DM_SET_TRANSIT_CONFIG_EVT, &dm_cback_data);
+  return true;
+}
 #endif
 /*******************************************************************************
 **
@@ -1487,7 +1511,6 @@ bool nfa_dm_act_update_rf_params(tNFA_DM_MSG* p_data) {
 *******************************************************************************/
 bool nfa_dm_act_disable_timeout(__attribute__((unused)) tNFA_DM_MSG* p_data) {
   tNFA_DM_MSG nfa_dm_msg;
-
   nfa_dm_msg.disable.graceful = false;
   nfa_dm_disable(&nfa_dm_msg);
   return (true);

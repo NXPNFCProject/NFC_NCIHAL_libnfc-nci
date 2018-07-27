@@ -34,22 +34,23 @@
  *  limitations under the License.
  *
  ******************************************************************************/
+#include "NfcAdaptation.h"
 #include <android-base/stringprintf.h>
+#include <android/hardware/nfc/1.0/types.h>
 #include <android/hardware/nfc/1.1/INfc.h>
 #include <base/command_line.h>
 #include <base/logging.h>
 #include <cutils/properties.h>
-#include <android/hardware/nfc/1.0/types.h>
-#include <hwbinder/ProcessState.h>
-#include "NfcAdaptation.h"
-#include "nfc_target.h"
-#include "nfc_config.h"
 #include <hidl/LegacySupport.h>
+#include <hwbinder/ProcessState.h>
+#include <vector>
 #include "debug_nfcsnoop.h"
+#include "hal_nxpese.h"
 #include "nfa_api.h"
 #include "nfa_rw_api.h"
-#include "hal_nxpese.h"
+#include "nfc_config.h"
 #include "nfc_int.h"
+#include "nfc_target.h"
 
 using android::OK;
 using android::sp;
@@ -742,6 +743,16 @@ int NfcAdaptation::HalIoctl(long arg, void* p_data) {
   pInpOutData->inp.context = &NfcAdaptation::GetInstance();
   NfcAdaptation::GetInstance().mCurrentIoctlData = pInpOutData;
   data.setToExternal((uint8_t*)pInpOutData, sizeof(nfc_nci_IoctlInOutData_t));
+  if (arg == HAL_NFC_IOCTL_SET_TRANSIT_CONFIG) {
+    /*Insert Transit config at the end of IOCTL data as transit buffer also
+    needs to be part of NfcData(hidl_vec)*/
+    std::vector<uint8_t> tempStdVec(data);
+    tempStdVec.insert(
+        tempStdVec.end(), pInpOutData->inp.data.transitConfig.transitConfigVal,
+        pInpOutData->inp.data.transitConfig.transitConfigVal +
+            (pInpOutData->inp.data.transitConfig.transitConfigLen));
+    data = tempStdVec;
+  }
   if(mHalNxpNfc != nullptr)
       mHalNxpNfc->ioctl(arg, data, IoctlCallback);
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s Ioctl Completed for Type=%llu", func, (unsigned long long)pInpOutData->out.ioctlType);

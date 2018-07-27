@@ -204,6 +204,8 @@ typedef uint8_t tNFA_PROTOCOL_MASK;
 #define NFA_DM_EE_HCI_DISABLE 12
 /*Status when EE HCI susbsystems enabled*/
 #define NFA_DM_EE_HCI_ENABLE 13
+/*Status when Transit Config is set*/
+#define NFA_DM_SET_TRANSIT_CONFIG_EVT 14
 #endif
 
 /* T1T HR length            */
@@ -245,6 +247,7 @@ typedef struct {
   uint8_t tlv_size;        /* the total len of all TLVs                */
   uint8_t param_tlvs[150]; /* TLV (Parameter ID-Len-Value byte stream) */
 } tNFA_GET_ROUTING;
+typedef struct { tNFA_STATUS status; } tNFA_SET_TRANSIT_CONFIG;
 #endif
 
 #define NFA_DM_PWR_MODE_FULL 0x04
@@ -299,6 +302,7 @@ typedef union {
   tNFA_GET_CONFIG get_config; /* NFA_DM_GET_CONFIG_EVT    */
 #if (NXP_EXTNS == TRUE)
   tNFA_GET_ROUTING get_routing; /* NFA_DM_GET_ROUTING_EVT    */
+  tNFA_SET_TRANSIT_CONFIG set_transit_config; /* NFA_DM_SET_TRANSIT_CONFIG */
 #endif
   tNFA_DM_PWR_MODE_CHANGE power_mode; /* NFA_DM_PWR_MODE_CHANGE_EVT   */
   tNFA_DM_RF_FIELD rf_field;          /* NFA_DM_RF_FIELD_EVT      */
@@ -902,6 +906,20 @@ extern tNFA_STATUS NFA_SetConfig(tNFA_PMID param_id, uint8_t length,
 **
 *******************************************************************************/
 extern tNFA_STATUS NFA_GetConfig(uint8_t num_ids, tNFA_PMID* p_param_ids);
+/*******************************************************************************
+**
+** Function         NFA_SetTransitConfig
+**
+** Description      Get the Transit configuration value from NFC Service. The
+**                  result is reported with an NFA_DM_SET_TRANSIT_CONFIG_EVT in
+**                  the tNFA_DM_CBACK callback.
+**
+** Returns          NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_BUSY if previous setting is on-going
+**                  NFA_STATUS_FAILED otherwise
+**
+*******************************************************************************/
+extern tNFA_STATUS NFA_SetTransitConfig(std::string config);
 
 /*******************************************************************************
 **

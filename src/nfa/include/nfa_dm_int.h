@@ -67,6 +67,7 @@ enum {
   NFA_DM_API_DISABLE_LISTENING_EVT,
 #if (NXP_EXTNS == TRUE)
   NFA_DM_API_DISABLE_PASSIVE_LISTENING_EVT,
+  NFA_DM_SET_TRANSIT_CONFIG,
 #endif
   NFA_DM_API_PAUSE_P2P_EVT,
   NFA_DM_API_RESUME_P2P_EVT,
@@ -164,6 +165,13 @@ typedef struct {
   uint16_t rf_disc_dur_ms;
 } tNFA_DM_API_SET_RF_DISC_DUR;
 
+/* data type for NFA_DM_SET_TRANSIT_CONFIG*/
+typedef struct {
+  NFC_HDR hdr;
+  tNFA_DM_CBACK* p_dm_cback;
+  char* transitConfig;
+} tNFA_DM_API_SET_TRANSIT_CONFIG;
+
 /* data type for NFA_DM_API_REG_NDEF_HDLR_EVT */
 #define NFA_NDEF_FLAGS_HANDLE_WHOLE_MESSAGE 0x01
 #define NFA_NDEF_FLAGS_WKT_URI 0x02
@@ -232,6 +240,7 @@ typedef union {
                                     /* NFA_DM_API_STOP_RF_DISCOVERY_EVT     */
 #if (NXP_EXTNS == TRUE)
   tNFC_EXT_HDR ext_hdr;             /* NFA_DM_API_RAW_FRAME_EVT             */
+  tNFA_DM_API_SET_TRANSIT_CONFIG transit_config; /* NFA_DM_SET_TRANSIT_CONFIG */
 #endif
   tNFA_DM_API_ENABLE enable;        /* NFA_DM_API_ENABLE_EVT                */
   tNFA_DM_API_DISABLE disable;      /* NFA_DM_API_DISABLE_EVT               */
@@ -664,6 +673,7 @@ bool nfa_dm_act_enable_listening(tNFA_DM_MSG* p_data);
 bool nfa_dm_act_disable_listening(tNFA_DM_MSG* p_data);
 #if (NXP_EXTNS == TRUE)
 bool nfa_dm_act_disable_passive_listening(tNFA_DM_MSG* p_data);
+bool nfa_dm_set_transit_config(tNFA_DM_MSG* p_data);
 #endif
 bool nfa_dm_act_pause_p2p(tNFA_DM_MSG* p_data);
 bool nfa_dm_act_resume_p2p(tNFA_DM_MSG* p_data);

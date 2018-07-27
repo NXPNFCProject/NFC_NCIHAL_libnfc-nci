@@ -90,7 +90,8 @@ const tNFA_DM_ACTION nfa_dm_action[] = {
     nfa_dm_act_disable_listening,    /* NFA_DM_API_DISABLE_LISTENING_EVT     */
 #if (NXP_EXTNS == TRUE)
     nfa_dm_act_disable_passive_listening, /* NFA_DM_API_DISABLE_PASSIVE_LISTENING_EVT
-                                             */
+                                           */
+    nfa_dm_set_transit_config, /* NFA_DM_SET_TRANSIT_CONFIG            */
 #endif
     nfa_dm_act_pause_p2p,            /* NFA_DM_API_PAUSE_P2P_EVT             */
     nfa_dm_act_resume_p2p,           /* NFA_DM_API_RESUME_P2P_EVT            */
@@ -656,6 +657,9 @@ static std::string nfa_dm_evt_2_str(uint16_t event) {
 
     case NFA_DM_API_SET_POWER_SUB_STATE_EVT:
       return "NFA_DM_API_SET_POWER_SUB_STATE_EVT";
+
+    case NFA_DM_SET_TRANSIT_CONFIG:
+      return "NFA_DM_SET_TRANSIT_CONFIG";
   }
 
   return "Unknown or Vendor Specific";

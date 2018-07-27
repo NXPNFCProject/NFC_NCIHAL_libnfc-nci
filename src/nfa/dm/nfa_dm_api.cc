@@ -49,6 +49,7 @@
 #include "nfa_ce_int.h"
 #include "ndef_utils.h"
 #if (NXP_EXTNS == TRUE)
+#include "hal_nxpese.h"
 #include "nfa_sys_int.h"
 #include "nfc_int.h"
 
@@ -348,6 +349,33 @@ tNFA_STATUS NFA_GetConfig(uint8_t num_ids, tNFA_PMID* p_param_ids) {
   return (NFA_STATUS_FAILED);
 }
 
+/*******************************************************************************
+**
+** Function         NFA_SetTransitConfig
+**
+** Description      Get the Transit configuration value from NFC Service. The
+**                  result is reported with an NFA_DM_SET_TRANSIT_CONFIG_EVT in
+**                  the tNFA_DM_CBACK callback.
+**
+** Returns          NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_FAILED otherwise
+**
+*******************************************************************************/
+tNFA_STATUS NFA_SetTransitConfig(std::string config) {
+  tNFA_DM_API_SET_TRANSIT_CONFIG* p_msg;
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s ", __func__);
+  p_msg = (tNFA_DM_API_SET_TRANSIT_CONFIG*)GKI_getbuf(
+      sizeof(tNFA_DM_API_SET_TRANSIT_CONFIG));
+
+  if (p_msg != NULL) {
+    p_msg->hdr.event = NFA_DM_SET_TRANSIT_CONFIG;
+    p_msg->transitConfig = (char*)config.c_str();
+
+    nfa_sys_sendmsg(p_msg);
+    return (NFA_STATUS_OK);
+  }
+  return (NFA_STATUS_FAILED);
+}
 /*******************************************************************************
 **
 ** Function         NFA_RequestExclusiveRfControl
