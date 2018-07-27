@@ -748,9 +748,9 @@ int NfcAdaptation::HalIoctl(long arg, void* p_data) {
     needs to be part of NfcData(hidl_vec)*/
     std::vector<uint8_t> tempStdVec(data);
     tempStdVec.insert(
-        tempStdVec.end(), pInpOutData->inp.data.transitConfig.transitConfigVal,
-        pInpOutData->inp.data.transitConfig.transitConfigVal +
-            (pInpOutData->inp.data.transitConfig.transitConfigLen));
+        tempStdVec.end(), pInpOutData->inp.data.transitConfig.val,
+        pInpOutData->inp.data.transitConfig.val +
+            (pInpOutData->inp.data.transitConfig.len));
     data = tempStdVec;
   }
   if(mHalNxpNfc != nullptr)
