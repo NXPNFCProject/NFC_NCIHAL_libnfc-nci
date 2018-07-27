@@ -25,7 +25,7 @@
 
 using namespace ::std;
 using namespace ::android::base;
-
+#define PATH_TRANSIT_CONF "/data/nfc/libnfc-nxpTransit.conf"
 namespace {
 
 std::string findConfigPath() {
@@ -48,6 +48,10 @@ void NfcConfig::loadConfig() {
   string config_path = findConfigPath();
   CHECK(config_path != "");
   config_.parseFromFile(config_path);
+  struct stat file_stat;
+  /* Read Transit configs if available */
+  if (stat(PATH_TRANSIT_CONF, &file_stat) == 0)
+    config_.parseFromFile(PATH_TRANSIT_CONF);
   /* Read vendor specific configs */
   NfcAdaptation& theInstance = NfcAdaptation::GetInstance();
   std::map<std::string, ConfigValue> configMap;

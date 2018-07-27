@@ -57,6 +57,8 @@ class ConfigFile {
 
  private:
   ConfigValue& getValue(const std::string& key);
-
+  bool updateConfig(const std::string& config, ConfigValue& value);
+  bool isUpdateAllowed(const std::string& key);
+  std::string cur_file_name_ = "";
   std::map<std::string, ConfigValue> values_;
 };
