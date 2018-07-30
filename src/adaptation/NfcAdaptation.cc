@@ -185,7 +185,7 @@ NfcAdaptation::NfcAdaptation() {
 ** Returns:     none
 **
 *******************************************************************************/
-NfcAdaptation::~NfcAdaptation() { mpInstance = NULL; }
+NfcAdaptation::~NfcAdaptation() {}
 
 /*******************************************************************************
 **
@@ -449,7 +449,7 @@ void NfcAdaptation::Finalize() {
   memset(&mHalEntryFuncs, 0, sizeof(mHalEntryFuncs));
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: exit", func);
-  delete this;
+  mpInstance = NULL;
 }
 
 /*******************************************************************************
