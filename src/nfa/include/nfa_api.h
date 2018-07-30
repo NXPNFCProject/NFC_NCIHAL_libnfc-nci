@@ -1041,6 +1041,30 @@ extern tNFA_STATUS NFA_EnableListening(void);
 *******************************************************************************/
 extern tNFA_STATUS NFA_DisableListening(void);
 
+#if (NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         NFA_ChangeDiscoveryTech
+**
+** Description      Change listening mask.
+**                  NFA_LISTEN_CHANGED_EVT will be returned.
+**
+**                  The actual listening technologies are specified by other NFA
+**                  API functions. Such functions include (but not limited to)
+**                  NFA_CeConfigureUiccListenTech.
+**                  If NFA_DisableListening () is called to ignore the listening technologies,
+**                  NFA_EnableListening () is called to restore the listening technologies
+**                  set by these functions. NFA_ChangeDiscoveryTech() is called to set the listening mask.
+**
+** Note:            If RF discovery is started, NFA_StopRfDiscovery()/NFA_RF_DISCOVERY_STOPPED_EVT
+**                  may happen before calling this function
+**
+** Returns          NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_FAILED otherwise
+**
+*******************************************************************************/
+extern tNFA_STATUS NFA_ChangeDiscoveryTech (tNFA_TECHNOLOGY_MASK pollTech, tNFA_TECHNOLOGY_MASK listenTech);
+#endif
 /*******************************************************************************
 **
 ** Function         NFA_PauseP2p

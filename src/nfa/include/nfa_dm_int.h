@@ -82,6 +82,9 @@ enum {
   NFA_DM_TIMEOUT_DISABLE_EVT,
   NFA_DM_API_SET_POWER_SUB_STATE_EVT,
   NFA_DM_API_SEND_RAW_VS_EVT,
+#if (NXP_EXTNS == TRUE)
+  NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT,
+#endif
   NFA_DM_MAX_EVT
 };
 
@@ -128,6 +131,15 @@ typedef struct {
   tNFA_TECHNOLOGY_MASK poll_mask;
 } tNFA_DM_API_ENABLE_POLL;
 
+#if (NXP_EXTNS == TRUE)
+/* data type for NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT*/
+typedef struct
+{
+    NFC_HDR               hdr;
+    tNFA_TECHNOLOGY_MASK listenTech;
+    tNFA_TECHNOLOGY_MASK pollTech;
+} tNFA_DM_API_CHANGE_DISCOVERY_TECH;
+#endif
 /* data type for NFA_DM_API_SET_P2P_LISTEN_TECH_EVT */
 typedef struct {
   NFC_HDR hdr;
@@ -239,6 +251,9 @@ typedef union {
   tNFA_DM_API_REG_VSC reg_vsc;       /* NFA_DM_API_REG_VSC_EVT               */
   /* NFA_DM_API_SET_POWER_SUB_STATE_EVT */
   tNFA_DM_API_SET_POWER_SUB_STATE set_power_state;
+#if (NXP_EXTNS == TRUE)
+  tNFA_DM_API_CHANGE_DISCOVERY_TECH       change_discovery_tech;      /* NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT        */
+#endif
 } tNFA_DM_MSG;
 
 /* DM RF discovery state */
@@ -462,6 +477,9 @@ typedef struct {
 #define NFA_DM_FLAGS_P2P_PAUSED 0x00002000
 /* Power Off Sleep                                                      */
 #define NFA_DM_FLAGS_POWER_OFF_SLEEP 0x00008000
+#if (NXP_EXTNS == TRUE)
+#define NFA_DM_FLAGS_DISCOVERY_TECH_CHANGED     0x20000000  /* NFA_ChangeDiscoveryTech() is called and engaged                         */
+#endif
 /* stored parameters */
 typedef struct {
   uint8_t total_duration[NCI_PARAM_LEN_TOTAL_DURATION];
@@ -565,6 +583,8 @@ typedef struct {
   uint32_t eDtaMode;   /* To enable the DTA type modes. */
 #if (NXP_EXTNS == TRUE)
   uint8_t nfa_pending_power_state;
+  tNFA_TECHNOLOGY_MASK        pollTech;
+  tNFA_TECHNOLOGY_MASK        listenTech;
 #endif
 } tNFA_DM_CB;
 
@@ -575,7 +595,9 @@ void nfa_dm_ndef_dereg_all(void);
 void nfa_dm_act_conn_cback_notify(uint8_t event, tNFA_CONN_EVT_DATA* p_data);
 void nfa_dm_notify_activation_status(tNFA_STATUS status,
                                      tNFA_TAG_PARAMS* p_params);
-
+#if (NXP_EXTNS == TRUE)
+bool nfa_dm_act_change_discovery_tech(tNFA_DM_MSG *p_data);
+#endif
 bool nfa_dm_act_send_raw_vs(tNFA_DM_MSG* p_data);
 
 void nfa_dm_disable_complete(void);

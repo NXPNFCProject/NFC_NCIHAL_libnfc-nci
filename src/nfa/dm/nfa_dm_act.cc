@@ -1126,7 +1126,36 @@ bool nfa_dm_act_disable_listening(__attribute__((unused)) tNFA_DM_MSG* p_data) {
 
   return true;
 }
+#if (NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         nfa_dm_act_change_discovery_tech
+**
+** Description      Process change listening command
+**
+** Returns          true (message buffer to be freed by caller)
+**
+*******************************************************************************/
+bool nfa_dm_act_change_discovery_tech (tNFA_DM_MSG *p_data)
+{
+    tNFA_CONN_EVT_DATA evt_data;
 
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf ("nfa_dm_act_change_discovery_tech ()");
+
+    if(p_data->change_discovery_tech.listenTech == 0xFF && p_data->change_discovery_tech.pollTech == 0xFF)
+        nfa_dm_cb.flags &= ~NFA_DM_FLAGS_DISCOVERY_TECH_CHANGED;
+    else
+        nfa_dm_cb.flags |= NFA_DM_FLAGS_DISCOVERY_TECH_CHANGED;
+
+    nfa_dm_cb.pollTech = p_data->change_discovery_tech.pollTech;
+    nfa_dm_cb.listenTech = p_data->change_discovery_tech.listenTech;
+    evt_data.status = NFA_STATUS_OK;
+    nfa_dm_conn_cback_event_notify (NFA_LISTEN_ENABLED_EVT, &evt_data);
+
+    return (true);
+}
+#endif
 /*******************************************************************************
 **
 ** Function         nfa_dm_act_pause_p2p

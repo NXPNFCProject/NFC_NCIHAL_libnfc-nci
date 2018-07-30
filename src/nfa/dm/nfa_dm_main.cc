@@ -100,6 +100,9 @@ const tNFA_DM_ACTION nfa_dm_action[] = {
     nfa_dm_act_disable_timeout,      /* NFA_DM_TIMEOUT_DISABLE_EVT           */
     nfa_dm_set_power_sub_state,      /* NFA_DM_API_SET_POWER_SUB_STATE_EVT   */
     nfa_dm_act_send_raw_vs           /* NFA_DM_API_SEND_RAW_VS_EVT           */
+#if (NXP_EXTNS == TRUE)
+    ,nfa_dm_act_change_discovery_tech /* NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT  */
+#endif
 };
 
 /*****************************************************************************
@@ -528,6 +531,10 @@ static std::string nfa_dm_evt_2_str(uint16_t event) {
       return "NFA_DM_TIMEOUT_DISABLE_EVT";
     case NFA_DM_API_SET_POWER_SUB_STATE_EVT:
       return "NFA_DM_API_SET_POWER_SUB_STATE_EVT";
+#if (NXP_EXTNS == TRUE)
+    case NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT:
+      return "NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT";
+#endif
   }
 
   return "Unknown or Vendor Specific";

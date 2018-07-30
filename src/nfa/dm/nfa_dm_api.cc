@@ -608,7 +608,48 @@ tNFA_STATUS NFA_DisableListening(void) {
 
   return (NFA_STATUS_FAILED);
 }
+#if (NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         NFA_ChangeDiscoveryTech
+**
+** Description      Enable listening.
+**                  NFA_LISTEN_ENABLED_EVT will be returned after listening is allowed.
+**
+**                  The actual listening technologies are specified by other NFA
+**                  API functions. Such functions include (but not limited to)
+**                  NFA_CeConfigureUiccListenTech.
+**                  If NFA_DisableListening () is called to ignore the listening technologies,
+**                  NFA_EnableListening () is called to restore the listening technologies
+**                  set by these functions.
+**
+** Note:            If RF discovery is started, NFA_StopRfDiscovery()/NFA_RF_DISCOVERY_STOPPED_EVT
+**                  should happen before calling this function
+**
+** Returns          NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_FAILED otherwise
+**
+*******************************************************************************/
+tNFA_STATUS NFA_ChangeDiscoveryTech (tNFA_TECHNOLOGY_MASK pollTech, tNFA_TECHNOLOGY_MASK listenTech)
+{
+    tNFA_DM_API_CHANGE_DISCOVERY_TECH *p_msg;
 
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf ("NFA_ChangeDiscoveryTech () 0x%X 0x%X", pollTech, listenTech);
+
+    if ((p_msg = (tNFA_DM_API_CHANGE_DISCOVERY_TECH *) GKI_getbuf (sizeof (tNFA_DM_API_CHANGE_DISCOVERY_TECH))) != NULL)
+    {
+        p_msg->hdr.event = NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT;
+        p_msg->pollTech = pollTech;
+        p_msg->listenTech = listenTech;
+        nfa_sys_sendmsg (p_msg);
+
+        return (NFA_STATUS_OK);
+    }
+
+    return (NFA_STATUS_FAILED);
+}
+#endif
 /*******************************************************************************
 **
 ** Function         NFA_PauseP2p
