@@ -48,6 +48,9 @@
 #include <vendor/nxp/nxpnfc/1.0/INxpNfc.h>
 
 using vendor::nxp::nxpnfc::V1_0::INxpNfc;
+using ::android::hardware::hidl_death_recipient;
+using ::android::wp;
+using ::android::hidl::base::V1_0::IBase;
 
 namespace android {
 namespace hardware {
@@ -102,7 +105,7 @@ class AutoThreadMutex {
   ThreadMutex& mm;
 };
 
-class NfcAdaptation {
+class NfcAdaptation : public hidl_death_recipient {
  public:
   virtual ~NfcAdaptation();
   void Initialize();
@@ -115,6 +118,7 @@ class NfcAdaptation {
   void GetNxpConfigs(std::map<std::string, ConfigValue>& configMap);
   void GetVendorConfigs(std::map<std::string, ConfigValue>& configMap);
   void Dump(int fd);
+  virtual void serviceDied(uint64_t cookie, const wp<IBase>& /*who*/) override;
 #if (NXP_EXTNS == TRUE)
   void MinInitialize();
   int HalGetFwDwnldFlag(uint8_t* fwDnldRequest);
@@ -124,7 +128,7 @@ class NfcAdaptation {
  private:
   NfcAdaptation();
   void signal();
-  static NfcAdaptation* mpInstance;
+  static android::sp<NfcAdaptation> mpInstance;
   static ThreadMutex sLock;
   static ThreadMutex sIoctlLock;
   ThreadCondVar mCondVar;
