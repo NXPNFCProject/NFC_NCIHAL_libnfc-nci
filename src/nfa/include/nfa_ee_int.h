@@ -61,6 +61,41 @@
 #define NFA_EE_AID_CFG_TAG_NAME 0x4F
 #endif
 
+#if (NXP_EXTNS == TRUE)
+#define NFA_EE_NUM_PROTO 5
+
+#define NFA_EE_NUM_TECH 3
+#define NFA_EE_BUFFER_FUTURE_EXT 15
+#define NFA_EE_PROTO_ROUTE_ENTRY_SIZE 5
+#define NFA_EE_TECH_ROUTE_ENTRY_SIZE 5
+/**
+ * Max Routing Table Size = 720
+ * After allocating size for Technology based routing and Protocol based
+ *routing,
+ * the remaining size can be used for AID based routing
+ *
+ * Size for 1 Technology route entry = 5 bytes (includes Type(1 byte),
+ * Length (1 byte), Value (3 bytes - Power state, Tech Type, Location)
+ * TOTAL TECH ROUTE SIZE = 5 * 3  = 15 (For Tech A, B, F)
+ *
+ * Size for 1 Protocol route entry = 5 bytes (includes Type(1 byte),
+ * Length (1 byte), Value (3 bytes - Power state, Tech Type, Location)
+ * TOTAL PROTOCOL ROUTE SIZE = 5 * 6 = 30 (Protocols ISO-DEP, NFC-DEP, ISO-7816,
+ *T1T, T2T, T3T)
+ *
+ * SIZE FOR AID = 720 - 15 - 30 = 675
+ * BUFFER for future extensions = 15
+ * TOTAL SIZE FOR AID = 675 - 15 = 660
+ */
+#define NFA_EE_TOTAL_TECH_ROUTE_SIZE \
+  (NFA_EE_PROTO_ROUTE_ENTRY_SIZE * NFA_EE_NUM_TECH)
+#define NFA_EE_TOTAL_PROTO_ROUTE_SIZE \
+  (NFA_EE_PROTO_ROUTE_ENTRY_SIZE * NFA_EE_NUM_PROTO)
+
+#define NFA_EE_TOTAL_PROTO_TECH_FUTURE_EXT_ROUTE_SIZE             \
+  (NFA_EE_TOTAL_TECH_ROUTE_SIZE + NFA_EE_TOTAL_PROTO_ROUTE_SIZE + \
+   NFA_EE_BUFFER_FUTURE_EXT)
+#endif
 /* NFA EE events */
 enum {
   NFA_EE_API_DISCOVER_EVT = NFA_SYS_EVT_START(NFA_ID_EE),
@@ -682,6 +717,8 @@ void nfa_ee_api_power_link_set(tNFA_EE_MSG* p_data);
 void nfa_ee_nci_nfcee_status_ntf(tNFA_EE_MSG* p_data);
 void nfa_ee_api_add_apdu(tNFA_EE_MSG* p_data);
 void nfa_ee_api_remove_apdu(tNFA_EE_MSG* p_data);
+uint16_t nfa_ee_find_max_aid_config_length();
+uint16_t nfa_ee_api_get_max_aid_config_length();
+uint16_t nfa_ee_lmrt_size();
 #endif
-
 #endif /* NFA_P2P_INT_H */

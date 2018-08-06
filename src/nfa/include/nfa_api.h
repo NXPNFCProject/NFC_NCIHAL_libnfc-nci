@@ -200,6 +200,8 @@ typedef uint8_t tNFA_PROTOCOL_MASK;
 #define NFA_DM_EE_HCI_DISABLE 24
 /*Status when EE HCI susbsystems enabled*/
 #define NFA_DM_EE_HCI_ENABLE 25
+/*Status when Transit Config is set*/
+#define NFA_DM_SET_TRANSIT_CONFIG_EVT 14
 #endif
 /* T1T HR length            */
 #define NFA_T1T_HR_LEN T1T_HR_LEN
@@ -254,7 +256,9 @@ typedef enum power_substate {
 } epower_substate_t;
 
 #define NFA_SCREEN_STATE_MASK 0x0F
-
+#if (NXP_EXTNS == TRUE)
+typedef struct { tNFA_STATUS status; } tNFA_SET_TRANSIT_CONFIG;
+#endif
 /* CONN_DISCOVER_PARAM */
 #define NFA_DM_PWR_MODE_FULL 0x04
 #define NFA_DM_PWR_MODE_OFF_SLEEP 0x00
@@ -292,6 +296,9 @@ typedef union {
   tNFA_DM_RF_FIELD rf_field;          /* NFA_DM_RF_FIELD_EVT      */
   void* p_vs_evt_data;                /* Vendor-specific evt data */
   tNFA_DM_POWER_STATE power_sub_state; /* power sub state */
+#if (NXP_EXTNS == TRUE)
+  tNFA_SET_TRANSIT_CONFIG set_transit_config; /* NFA_DM_SET_TRANSIT_CONFIG */
+#endif
 } tNFA_DM_CBACK_DATA;
 
 /* NFA_DM callback */
@@ -887,7 +894,22 @@ extern tNFA_STATUS NFA_SetConfig(tNFA_PMID param_id, uint8_t length,
 **
 *******************************************************************************/
 extern tNFA_STATUS NFA_GetConfig(uint8_t num_ids, tNFA_PMID* p_param_ids);
-
+#if (NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         NFA_SetTransitConfig
+**
+** Description      Get the Transit configuration value from NFC Service. The
+**                  result is reported with an NFA_DM_SET_TRANSIT_CONFIG_EVT in
+**                  the tNFA_DM_CBACK callback.
+**
+** Returns          NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_BUSY if previous setting is on-going
+**                  NFA_STATUS_FAILED otherwise
+**
+*******************************************************************************/
+extern tNFA_STATUS NFA_SetTransitConfig(std::string config);
+#endif
 /*******************************************************************************
 **
 ** Function         NFA_RequestExclusiveRfControl
@@ -1515,5 +1537,29 @@ extern tNFA_STATUS NFA_ResetNfcc();
 **
 +*******************************************************************************/
 extern bool NFA_checkNfcStateBusy();
+/*******************************************************************************
+**
+** Function         nfc_ncif_getMaxRoutingTableSize
+**
+** Description      This function is called to get the Max supported routing
+*Table size.
+**
+** Returns           Max supported routing Table size
+**
+*******************************************************************************/
+extern uint16_t nfc_ncif_getMaxRoutingTableSize();
+
+/*******************************************************************************
+**
+** Function:        NFA_SetPreferredUiccId
+**
+** Description:     Set Preferred Uicc ID
+**                  0x02 - UICC1
+**                  0x81 - UICC2
+**
+** Returns:         none:
+**
+*******************************************************************************/
+extern void NFA_SetPreferredUiccId(uint8_t uicc_id);
 #endif
 #endif /* NFA_API_H */

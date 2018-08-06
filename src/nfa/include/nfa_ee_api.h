@@ -647,5 +647,27 @@ extern tNFA_STATUS NFA_AllEeGetInfo(uint8_t* p_num_nfcee, tNFA_EE_INFO* p_info);
 **
 *******************************************************************************/
 extern tNFA_STATUS NFA_SendPowerLinkCommand(uint8_t nfcee_id, uint8_t cfg_value);
-#endif
+/*******************************************************************************
+**
+** Function         NFA_GetAidTableSize
+**
+** Description      This function is called to get the AID routing table size.
+**
+** Returns          Maximum AID routing table size.
+**
+*******************************************************************************/
+extern uint16_t NFA_GetAidTableSize();
+
+/*******************************************************************************
+**
+** Function         NFA_GetRemainingAidTableSize
+**
+** Description      This function is called to get the remaining AID routing
+**                  table size.
+**
+** Returns          Remaining AID routing table size.
+**
+*******************************************************************************/
+extern uint16_t NFA_GetRemainingAidTableSize();
+#endif /* #if (NXP_EXTNS == TRUE) */
 #endif /* NFA_EE_API_H */

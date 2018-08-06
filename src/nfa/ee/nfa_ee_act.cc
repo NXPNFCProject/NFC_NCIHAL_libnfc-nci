@@ -64,23 +64,28 @@ extern bool nfc_debug_enabled;
 
 #define NFA_EE_ROUT_BUF_SIZE 540
 #define NFA_EE_ROUT_MAX_TLV_SIZE 0xFD
-
+#if (NXP_EXTNS != TRUE)
 /* the following 2 tables convert the technology mask in API and control block
  * to the command for NFCC */
 #define NFA_EE_NUM_TECH 3
+#endif
 const uint8_t nfa_ee_tech_mask_list[NFA_EE_NUM_TECH] = {
     NFA_TECHNOLOGY_MASK_A, NFA_TECHNOLOGY_MASK_B, NFA_TECHNOLOGY_MASK_F};
 
 const uint8_t nfa_ee_tech_list[NFA_EE_NUM_TECH] = {
     NFC_RF_TECHNOLOGY_A, NFC_RF_TECHNOLOGY_B, NFC_RF_TECHNOLOGY_F};
 
+#if (NXP_EXTNS != TRUE)
 /* the following 2 tables convert the protocol mask in API and control block to
  * the command for NFCC */
 #define NFA_EE_NUM_PROTO 5
+#endif
 #if (NXP_EXTNS == TRUE)
 uint8_t NFA_REMOVE_ALL_AID[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 uint8_t NFA_REMOVE_ALL_APDU[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xEF};
+
 #endif
+
 static void add_route_tech_proto_tlv(uint8_t** pp, uint8_t tlv_type,
                                      uint8_t nfcee_id, uint8_t pwr_cfg,
                                      uint8_t tech_proto) {
@@ -3440,3 +3445,23 @@ void nfa_ee_update_rout(void) {
       << StringPrintf("nfa_ee_update_rout ee_cfg_sts:0x%02x ee_cfged:0x%02x",
                       nfa_ee_cb.ee_cfg_sts, nfa_ee_cb.ee_cfged);
 }
+
+#if(NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         nfa_ee_lmrt_size
+**
+** Description      This function is called to get the AID routing table size.
+**
+** Returns          AID routing table currently used size.
+**
+*******************************************************************************/
+uint16_t nfa_ee_lmrt_size() {
+  DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("nfa_ee_lmrt_size");
+  int len;
+  len = nfa_all_ee_find_total_aid_len() + 2 /* tag/len */ +
+        2 /*route/power state*/;
+  return len < NFA_EE_MAX_AID_CFG_LEN ? len : NFA_EE_MAX_AID_CFG_LEN;
+}
+#endif

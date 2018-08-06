@@ -1042,3 +1042,34 @@ tNFA_STATUS NFA_EeDisconnect(tNFA_HANDLE ee_handle) {
 
   return status;
 }
+#if (NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         NFA_GetAidTableSize
+**
+** Description      This function is called to get the Maximum AID routing table
+*size.
+**
+** Returns          AID routing table maximum size
+**
+*******************************************************************************/
+uint16_t NFA_GetAidTableSize() {
+  return NFA_EE_MAX_AID_CFG_LEN;
+}
+
+/*******************************************************************************
+**
+** Function         NFA_GetRemainingAidTableSize
+**
+** Description      This function is called to get the remaining AID routing
+**                  table size.
+**
+** Returns          Remaining AID routing table size.
+**
+*******************************************************************************/
+uint16_t NFA_GetRemainingAidTableSize() {
+  uint16_t size = 0;
+  size = NFA_EE_MAX_AID_CFG_LEN - nfa_ee_lmrt_size();
+  return size;
+}
+#endif

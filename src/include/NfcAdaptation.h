@@ -38,6 +38,17 @@ struct INfcClientCallback;
 }
 }
 }
+#if (NXP_EXTNS == TRUE)
+namespace vendor {
+namespace nxp {
+namespace nxpnfc {
+namespace V1_0 {
+struct INxpNfc;
+}
+}
+}
+}
+#endif
 class NfcDeathRecipient;
 class ThreadMutex {
  public:
@@ -89,16 +100,24 @@ class NfcAdaptation {
   void DownloadFirmware();
   void GetVendorConfigs(std::map<std::string, ConfigValue>& configMap);
   void Dump(int fd);
-
+#if (NXP_EXTNS == TRUE)
+  nfc_nci_IoctlInOutData_t* mCurrentIoctlData;
+#endif
  private:
   NfcAdaptation();
   void signal();
   static NfcAdaptation* mpInstance;
   static ThreadMutex sLock;
+#if (NXP_EXTNS == TRUE)
+  static ThreadMutex sIoctlLock;
+#endif
   ThreadCondVar mCondVar;
   tHAL_NFC_ENTRY mHalEntryFuncs;  // function pointers for HAL entry points
   static android::sp<android::hardware::nfc::V1_0::INfc> mHal;
   static android::sp<android::hardware::nfc::V1_1::INfc> mHal_1_1;
+#if (NXP_EXTNS == TRUE)
+  static android::sp<vendor::nxp::nxpnfc::V1_0::INxpNfc> mHalNxpNfc;
+#endif
   static android::hardware::nfc::V1_1::INfcClientCallback* mCallback;
   static tHAL_NFC_CBACK* mHalCallback;
   static tHAL_NFC_DATA_CBACK* mHalDataCallback;
@@ -121,6 +140,9 @@ class NfcAdaptation {
   static void HalCoreInitialized(uint16_t data_len,
                                  uint8_t* p_core_init_rsp_params);
   static void HalWrite(uint16_t data_len, uint8_t* p_data);
+#if (NXP_EXTNS == TRUE)
+  static int HalIoctl(long arg, void* p_data);
+#endif
   static bool HalPrediscover();
   static void HalControlGranted();
   static void HalPowerCycle();

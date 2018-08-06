@@ -346,7 +346,35 @@ tNFA_STATUS NFA_GetConfig(uint8_t num_ids, tNFA_PMID* p_param_ids) {
 
   return (NFA_STATUS_FAILED);
 }
+#if (NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         NFA_SetTransitConfig
+**
+** Description      Get the Transit configuration value from NFC Service. The
+**                  result is reported with an NFA_DM_SET_TRANSIT_CONFIG_EVT in
+**                  the tNFA_DM_CBACK callback.
+**
+** Returns          NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_FAILED otherwise
+**
+*******************************************************************************/
+tNFA_STATUS NFA_SetTransitConfig(std::string config) {
+  tNFA_DM_API_SET_TRANSIT_CONFIG* p_msg;
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s ", __func__);
+  p_msg = (tNFA_DM_API_SET_TRANSIT_CONFIG*)GKI_getbuf(
+      sizeof(tNFA_DM_API_SET_TRANSIT_CONFIG));
 
+  if (p_msg != NULL) {
+    p_msg->hdr.event = NFA_DM_API_SET_TRANSIT_CONFIG_EVT;
+    p_msg->transitConfig = (char*)config.c_str();
+
+    nfa_sys_sendmsg(p_msg);
+    return (NFA_STATUS_OK);
+  }
+  return (NFA_STATUS_FAILED);
+}
+#endif
 /*******************************************************************************
 **
 ** Function         NFA_RequestExclusiveRfControl
@@ -1434,5 +1462,25 @@ bool NFA_checkNfcStateBusy() {
   if (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_DISCOVERY) return false;
 
   return true;
+}
+/*******************************************************************************
+**
+** Function:        NFA_SetPreferredUiccId
+**
+** Description:     Set Preferred Uicc ID
+**                  0x02 - UICC1
+**                  0x81 - UICC2
+**
+** Returns:         none:
+**
+*******************************************************************************/
+void NFA_SetPreferredUiccId(uint8_t uicc_id) {
+    DLOG_IF(INFO, nfc_debug_enabled) << __func__;
+    if(!nfcFL.nfccFL._NFCC_DYNAMIC_DUAL_UICC) {
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("_NFCC_DYNAMIC_DUAL_UICC"
+                " feature is not available!!");
+        return;
+    }
+    nfa_dm_cb.selected_uicc_id = uicc_id;
 }
 #endif

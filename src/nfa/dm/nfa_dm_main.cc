@@ -101,7 +101,8 @@ const tNFA_DM_ACTION nfa_dm_action[] = {
     nfa_dm_set_power_sub_state,      /* NFA_DM_API_SET_POWER_SUB_STATE_EVT   */
     nfa_dm_act_send_raw_vs           /* NFA_DM_API_SEND_RAW_VS_EVT           */
 #if (NXP_EXTNS == TRUE)
-    ,nfa_dm_act_change_discovery_tech /* NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT  */
+    ,nfa_dm_act_change_discovery_tech, /* NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT  */
+    nfa_dm_set_transit_config        /* NFA_DM_API_SET_TRANSIT_CONFIG_EVT    */
 #endif
 };
 
@@ -129,6 +130,7 @@ void nfa_dm_init(void) {
   nfa_sys_register(NFA_ID_DM, &nfa_dm_sys_reg);
 #if (NXP_EXTNS == TRUE)
   nfa_dm_cb.nfa_pending_power_state = SCREEN_STATE_INVALID;
+  nfa_dm_cb.selected_uicc_id = UICC1_HOST;
 #endif
 }
 
@@ -534,6 +536,8 @@ static std::string nfa_dm_evt_2_str(uint16_t event) {
 #if (NXP_EXTNS == TRUE)
     case NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT:
       return "NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT";
+    case NFA_DM_API_SET_TRANSIT_CONFIG_EVT:
+      return "NFA_DM_API_SET_TRANSIT_CONFIG_EVT";
 #endif
   }
 

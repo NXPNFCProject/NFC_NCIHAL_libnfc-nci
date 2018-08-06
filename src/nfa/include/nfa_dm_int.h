@@ -84,6 +84,7 @@ enum {
   NFA_DM_API_SEND_RAW_VS_EVT,
 #if (NXP_EXTNS == TRUE)
   NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT,
+  NFA_DM_API_SET_TRANSIT_CONFIG_EVT,
 #endif
   NFA_DM_MAX_EVT
 };
@@ -171,7 +172,14 @@ typedef struct {
   NFC_HDR hdr;
   uint16_t rf_disc_dur_ms;
 } tNFA_DM_API_SET_RF_DISC_DUR;
-
+#if (NXP_EXTNS == TRUE)
+/* data type for NFA_DM_SET_TRANSIT_CONFIG*/
+typedef struct {
+  NFC_HDR hdr;
+  tNFA_DM_CBACK* p_dm_cback;
+  char* transitConfig;
+} tNFA_DM_API_SET_TRANSIT_CONFIG;
+#endif
 /* data type for NFA_DM_API_REG_NDEF_HDLR_EVT */
 #define NFA_NDEF_FLAGS_HANDLE_WHOLE_MESSAGE 0x01
 #define NFA_NDEF_FLAGS_WKT_URI 0x02
@@ -253,6 +261,7 @@ typedef union {
   tNFA_DM_API_SET_POWER_SUB_STATE set_power_state;
 #if (NXP_EXTNS == TRUE)
   tNFA_DM_API_CHANGE_DISCOVERY_TECH       change_discovery_tech;      /* NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT        */
+  tNFA_DM_API_SET_TRANSIT_CONFIG transit_config; /* NFA_DM_SET_TRANSIT_CONFIG */
 #endif
 } tNFA_DM_MSG;
 
@@ -585,6 +594,7 @@ typedef struct {
   uint8_t nfa_pending_power_state;
   tNFA_TECHNOLOGY_MASK        pollTech;
   tNFA_TECHNOLOGY_MASK        listenTech;
+  uint8_t selected_uicc_id; /* Current selected UICC ID */
 #endif
 } tNFA_DM_CB;
 
@@ -678,7 +688,9 @@ bool nfa_dm_act_disable_timeout(tNFA_DM_MSG* p_data);
 bool nfa_dm_set_power_sub_state(tNFA_DM_MSG* p_data);
 
 void nfa_dm_proc_nfcc_power_mode(uint8_t nfcc_power_mode);
-
+#if (NXP_EXTNS == TRUE)
+bool nfa_dm_set_transit_config(tNFA_DM_MSG* p_data);
+#endif
 /* Main function prototypes */
 bool nfa_dm_evt_hdlr(NFC_HDR* p_msg);
 void nfa_dm_sys_enable(void);

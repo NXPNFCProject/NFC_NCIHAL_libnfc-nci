@@ -23,6 +23,7 @@ cc_library_shared {
         "libutils",
         "android.hardware.nfc@1.0",
         "android.hardware.nfc@1.1",
+        "vendor.nxp.nxpnfc@1.0",
     ],
     static_libs: [
         "libnfcutils",
@@ -39,6 +40,10 @@ cc_library_shared {
         "gki/common",
         "nfa/include",
         "nfc/include",
+	   ],
+    include_dirs: [
+        "hardware/nxp/secure_element/extns/impl/",
+	"hardware/nxp/nfc/extns/impl/",
     ],
     srcs: [
         "nfa/ce/*.cc",
@@ -56,9 +61,6 @@ cc_library_shared {
         "adaptation/*.cc",
         "gki/common/*.cc",
         "gki/ulinux/*.cc",
-    ],
-    include_dirs: [
-        "hardware/nxp/nfc/extns/impl/",
     ],
     product_variables: {
         debuggable: {
