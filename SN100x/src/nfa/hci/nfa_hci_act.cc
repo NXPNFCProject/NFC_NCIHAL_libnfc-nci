@@ -2413,7 +2413,7 @@ static void nfa_hci_get_pipe_state_cb(__attribute__((unused))uint8_t event, __at
             if(status == 1)
             {
                 /*UINT8 local_gate, UINT8 pipe_id, UINT8 dest_host, UINT8 dest_gate*/
-                if(!nfa_hciu_check_pipe_between_gates(NFA_HCI_APDU_APP_GATE, NFA_HCI_FIRST_PROP_HOST, 
+                if(!nfa_hciu_check_pipe_between_gates(NFA_HCI_APDU_APP_GATE, NFA_HCI_FIRST_PROP_HOST,
                                  NFA_HCI_APDU_GATE))
                 {
                     nfa_hci_update_pipe_status(NFA_HCI_APDU_GATE, NFA_HCI_APDUESE_PIPE);
@@ -2449,7 +2449,7 @@ static void nfa_hci_get_pipe_state_cb(__attribute__((unused))uint8_t event, __at
             /*Update eSE Connectivity pipe status*/
             if(status == 1)
             {
-                if(!nfa_hciu_check_pipe_between_gates(NFA_HCI_CONNECTIVITY_GATE, NFA_HCI_FIRST_PROP_HOST, 
+                if(!nfa_hciu_check_pipe_between_gates(NFA_HCI_CONNECTIVITY_GATE, NFA_HCI_FIRST_PROP_HOST,
                                  NFA_HCI_CONNECTIVITY_GATE))
                 {
                     nfa_hci_update_pipe_status(NFA_HCI_CONNECTIVITY_GATE, NFA_HCI_CONN_ESE_PIPE);
@@ -2917,7 +2917,7 @@ static void nfa_hci_handle_apdu_app_gate_hcp_msg_data (uint8_t *p_data, uint16_t
             break;
 
         case NFA_HCI_EVT_WTX:
-            if (p_pipe_cmdrsp_info->w4_rsp_apdu_evt || 
+            if (p_pipe_cmdrsp_info->w4_rsp_apdu_evt ||
               p_pipe_cmdrsp_info->w4_atr_evt)
             {
                 if(p_nfa_hci_cfg->max_wtx_count) {

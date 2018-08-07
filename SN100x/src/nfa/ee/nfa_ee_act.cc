@@ -2693,7 +2693,7 @@ void nfa_ee_nci_mode_set_rsp(tNFA_EE_MSG* p_data) {
 #if (NXP_EXTNS == TRUE)
            |
           p_cb->aid_entries | p_cb->apdu_pattern_entries
-#endif 
+#endif
           ) {
         /* this NFCEE still has configuration when deactivated. clear the
          * configuration */

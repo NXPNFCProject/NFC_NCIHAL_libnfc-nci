@@ -423,7 +423,7 @@ tNFA_STATUS nfa_hciu_send_msg(uint8_t pipe_id, uint8_t type,
                   p_nfa_hci_cfg->hcp_response_timeout);
       }
 #endif
-  } 
+  }
 #if(NXP_EXTNS == TRUE)
   else if(type == NFA_HCI_EVENT_TYPE)
   {

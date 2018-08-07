@@ -761,7 +761,7 @@ void nfa_hci_startup_complete(tNFA_STATUS status) {
     nfa_ee_proc_hci_info_cback();
     nfa_sys_cback_notify_nfcc_power_mode_proc_complete(NFA_ID_HCI);
 
-  } else 
+  } else
 #if(NXP_EXTNS == TRUE)
   if(nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_NETWK_ENABLE ||
         nfa_hci_cb.hci_state == NFA_HCI_STATE_STARTUP)
