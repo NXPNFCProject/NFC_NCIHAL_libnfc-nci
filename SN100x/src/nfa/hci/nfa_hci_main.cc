@@ -996,8 +996,8 @@ static void nfa_hci_sys_disable(void) {
       if (NFC_GetNCIVersion() == NCI_VERSION_1_0) {
         nfa_hciu_send_to_all_apps(NFA_HCI_EXIT_EVT, &evt_data);
         NFC_ConnClose(nfa_hci_cb.conn_id);
+        return;
       }
-      return;
     }
     nfa_hci_cb.conn_id = 0;
   }
