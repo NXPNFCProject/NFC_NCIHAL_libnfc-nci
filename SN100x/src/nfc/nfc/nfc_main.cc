@@ -58,6 +58,10 @@
 #include "rw_int.h"
 #include "NfcAdaptation.h"
 #include <fcntl.h>
+#if (NXP_EXTNS == TRUE)
+#include <config.h>
+#include "nfc_config.h"
+#endif
 #if (NFC_RW_ONLY == FALSE)
 
 #include "llcp_int.h"
@@ -86,6 +90,7 @@ extern void delete_stack_non_volatile_store(bool forceDelete);
 ****************************************************************************/
 tNFC_CB nfc_cb;
 #if (NXP_EXTNS == TRUE)
+#define NFC_NCI_CREDIT_NTF_TOUT 2
 extern uint8_t nfa_ee_max_ee_cfg;
 extern std::string nfc_storage_path;
 tNfc_featureList nfcFL;
@@ -818,6 +823,18 @@ void NFC_Init(tHAL_NFC_ENTRY* p_hal_entry_tbl) {
   nfc_cb.nci_ctrl_size = NCI_CTRL_INIT_SIZE;
   nfc_cb.reassembly = true;
   nfc_cb.nci_version = NCI_VERSION_UNKNOWN;
+#if(NXP_EXTNS == TRUE)
+  if (NfcConfig::hasKey(NAME_NXP_NCI_CREDIT_NTF_TIMEOUT)) {
+    nfc_cb.nci_credit_ntf_timeout = NfcConfig::getUnsigned(NAME_NXP_NCI_CREDIT_NTF_TIMEOUT);
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("NAME_NXP_NCI_CREDIT_NTF_TIMEOUT to wait for credit ntf %d"
+            , nfc_cb.nci_credit_ntf_timeout);
+  }
+  else
+  {
+    nfc_cb.nci_credit_ntf_timeout = NFC_NCI_CREDIT_NTF_TOUT;
+  }
+#endif
   rw_init();
   ce_init();
   llcp_init();

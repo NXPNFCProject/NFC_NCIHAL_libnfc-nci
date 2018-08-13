@@ -80,7 +80,6 @@ extern unsigned char appl_dta_mode_flag;
 extern bool nfc_debug_enabled;
 
 #if (NXP_EXTNS == TRUE)
-#define NFC_NCI_WAIT_DATA_NTF_TOUT 2
 // Global Structure varibale for FW Version
 static tNFC_FW_VERSION nfc_fw_version;
 uint8_t nfcc_dh_conn_id = 0xFF;
@@ -110,7 +109,6 @@ void nfc_ncif_update_window(void) {
 
   nfc_cb.p_vsc_cback = NULL;
   nfc_cb.nci_cmd_window++;
-
   /* Check if there were any commands waiting to be sent */
   nfc_ncif_check_cmd_queue(NULL);
 }
@@ -259,7 +257,9 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
       // Start waiting for credit ntf
       nfc_start_timer(&nfc_cb.nci_wait_data_ntf_timer,
                       (uint16_t)(NFC_TTYPE_NCI_WAIT_DATA_NTF),
-                      NFC_NCI_WAIT_DATA_NTF_TOUT);
+                        nfc_cb.nci_credit_ntf_timeout);
+      DLOG_IF(INFO, nfc_debug_enabled)
+          << StringPrintf("nfc_ncif_send_data :%d", nfc_cb.nci_credit_ntf_timeout);
     }
 #endif
     if (!fragmented) {

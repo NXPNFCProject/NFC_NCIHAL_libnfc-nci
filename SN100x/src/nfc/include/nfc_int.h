@@ -250,6 +250,7 @@ typedef struct {
 #if (NXP_EXTNS == TRUE)
   TIMER_LIST_ENT
   nci_wait_data_ntf_timer; /* Timer for waiting for core credit ntf*/
+  uint16_t nci_credit_ntf_timeout;
 #endif
 
 } tNFC_CB;
