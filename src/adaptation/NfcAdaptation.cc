@@ -75,7 +75,7 @@ extern void GKI_shutdown();
 extern void verify_stack_non_volatile_store();
 extern void delete_stack_non_volatile_store(bool forceDelete);
 
-sp<NfcAdaptation> NfcAdaptation::mpInstance = NULL;
+NfcAdaptation* NfcAdaptation::mpInstance = NULL;
 ThreadMutex NfcAdaptation::sLock;
 ThreadMutex NfcAdaptation::sIoctlLock;
 sp<INxpNfc> NfcAdaptation::mHalNxpNfc;
@@ -576,7 +576,8 @@ void NfcAdaptation::InitializeHalDeviceContext() {
     LOG(INFO) << StringPrintf("%s: INxpNfc::getService() returned %p (%s)", func, mHalNxpNfc.get(),
           (mHalNxpNfc->isRemote() ? "remote" : "local"));
   }
-  mHal->linkToDeath(mpInstance, 0);
+
+
 }
 
 /*******************************************************************************
@@ -629,23 +630,6 @@ void NfcAdaptation::HalOpen(tHAL_NFC_CBACK* p_hal_cback,
     mHal->open(mCallback);
   }
 }
-/*******************************************************************************
-**
-** Function:    NfcAdaptation::serviceDied
-**
-** Description: Kill NFC service , if NFC hidl service get killed.
-**
-** Returns:     None.
-**
-*******************************************************************************/
-void NfcAdaptation::serviceDied(__attribute__((unused)) uint64_t cookie,
-                                const wp<IBase>& /*who*/) {
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s", __func__);
-  mHal->unlinkToDeath(mpInstance);
-  /* killing NFC service so that Service Died notified to all NFC users.*/
-  abort();
-}
-
 /*******************************************************************************
 **
 ** Function:    NfcAdaptation::HalClose
