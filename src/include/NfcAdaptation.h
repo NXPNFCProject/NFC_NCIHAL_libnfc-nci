@@ -48,6 +48,7 @@
 #include <vendor/nxp/nxpnfc/1.0/INxpNfc.h>
 
 using vendor::nxp::nxpnfc::V1_0::INxpNfc;
+using ::android::sp;
 
 namespace android {
 namespace hardware {
@@ -102,6 +103,8 @@ class AutoThreadMutex {
   ThreadMutex& mm;
 };
 
+class NfcDeathRecipient ;
+
 class NfcAdaptation {
  public:
   virtual ~NfcAdaptation();
@@ -138,6 +141,7 @@ class NfcAdaptation {
   static android::sp<android::hardware::nfc::V1_1::INfc> mHal_1_1;
   static android::sp<vendor::nxp::nxpnfc::V1_0::INxpNfc> mHalNxpNfc;
   static android::hardware::nfc::V1_1::INfcClientCallback* mCallback;
+  sp<NfcDeathRecipient> mNfcHalDeathRecipient;
 #if (NXP_EXTNS == TRUE)
   static ThreadCondVar mHalCoreResetCompletedEvent;
   static ThreadCondVar mHalCoreInitCompletedEvent;
