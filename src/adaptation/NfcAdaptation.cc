@@ -1112,8 +1112,8 @@ void NfcAdaptation::DownloadFirmware() {
       }
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: try init HAL", func);
       isSignaled = SIGNAL_NONE;
-      HalCoreInitialized(sizeof(uint8_t), &p_core_init_rsp_params);
       mHalInitCompletedEvent.lock();
+      HalCoreInitialized(sizeof(uint8_t), &p_core_init_rsp_params);
       if (SIGNAL_NONE == isSignaled) {
         mHalInitCompletedEvent.wait();
       }
