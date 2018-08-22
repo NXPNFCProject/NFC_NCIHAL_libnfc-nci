@@ -23,7 +23,6 @@ cc_library_shared {
         "libutils",
         "android.hardware.nfc@1.0",
         "android.hardware.nfc@1.1",
-        "ese_spi_nxp",
         "vendor.nxp.nxpnfc@1.0",
     ],
     static_libs: [
@@ -48,6 +47,7 @@ cc_library_shared {
     ],
     include_dirs: [
         "hardware/nxp/nfc/extns/impl/",
+        "hardware/nxp/secure_element/extns/impl/",
     ],
     srcs: [
         "nfa/ce/*.cc",
