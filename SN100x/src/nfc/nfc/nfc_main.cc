@@ -527,16 +527,20 @@ void nfc_main_handle_hal_evt(tNFC_HAL_EVT_MSG* p_msg) {
             return;
           }
           break;
-
+#if (NXP_EXTNS == FALSE)
         case (uint32_t)NfcEvent::HCI_NETWORK_RESET:
           delete_stack_non_volatile_store(true);
           break;
-
+#endif
         default:
           break;
       }
       break;
-
+#if (NXP_EXTNS == TRUE)
+    case (uint32_t)NfcEvent::HCI_NETWORK_RESET:
+      delete_stack_non_volatile_store(true);
+      break;
+#endif
     default:
       LOG(ERROR) << StringPrintf("unhandled event (0x%x).", p_msg->hal_evt);
       break;
