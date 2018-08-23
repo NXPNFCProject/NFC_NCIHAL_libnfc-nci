@@ -981,7 +981,6 @@ bool nfa_ce_activate_ntf(tNFA_CE_MSG* p_ce_msg) {
 
     p_ce_cback = nfa_ce_handle_t3t_evt;
 #endif
-  }
       /* If listening for PROTO_T3T on DH and eSE/UICC, then notify CE module now
      * and wait for reader/writer to SELECT a target */
     if (t3t_activate_pending && t3t_offhost_entry_found) {
@@ -993,6 +992,7 @@ bool nfa_ce_activate_ntf(tNFA_CE_MSG* p_ce_msg) {
     } else if (t3t_offhost_entry_found) {
       listen_info_idx = t3t_offhost_idx;
     }
+  }
   else if (p_cb->activation_params.protocol == NFA_PROTOCOL_ISO_DEP) {
     p_ce_cback = nfa_ce_handle_t4t_evt;
 
