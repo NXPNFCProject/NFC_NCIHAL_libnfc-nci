@@ -185,7 +185,11 @@ typedef uint8_t tNFA_EE_CONN_ST;
 /* AID routing changed                */
 #define NFA_EE_ECB_FLAGS_AID 0x08
 /* System Code routing changed        */
+#if (NXP_EXTNS == TRUE)
+#define NFA_EE_ECB_FLAGS_SYSCODE 0x0200
+#else
 #define NFA_EE_ECB_FLAGS_SYSCODE 0xE0
+#endif
 /* VS changed                         */
 #define NFA_EE_ECB_FLAGS_VS 0x10
 /* Restore related                    */
