@@ -779,6 +779,11 @@ void nfa_hci_startup_complete(tNFA_STATUS status) {
   else
     nfa_hci_cb.hci_state = NFA_HCI_STATE_DISABLED;
 #if(NXP_EXTNS == TRUE)
+  if (nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD) {
+        if (nfa_hci_cb.curr_nfcee == NFA_HCI_FIRST_PROP_HOST) {
+            NFC_NfceePLConfig(NFA_HCI_FIRST_PROP_HOST, 0x01);
+        }
+  }
   nfa_hci_handle_pending_host_reset();
 #endif
 }
@@ -862,13 +867,10 @@ bool nfa_hci_enable_one_nfcee(void) {
                           continue;
                         }
                     }
-                    if (nfa_hciu_find_dyn_apdu_pipe_for_host (nfceeid) == NULL)
+                    if(nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD)
                     {
-                      if(nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD)
-                      {
-                        if(nfceeid == NFA_HCI_FIRST_PROP_HOST)
-                          status = NFC_NfceePLConfig(nfceeid, 0x03);
-                      }
+                      if(nfceeid == NFA_HCI_FIRST_PROP_HOST)
+                        status = NFC_NfceePLConfig(nfceeid, 0x03);
                     }
                     status = NFC_NfceeModeSet(nfceeid, NFC_MODE_ACTIVATE);
                     if(status == NFA_STATUS_OK) {

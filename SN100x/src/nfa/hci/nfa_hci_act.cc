@@ -2859,11 +2859,6 @@ static void nfa_hci_handle_apdu_app_gate_hcp_msg_data (uint8_t *p_data, uint16_t
                     STREAM_TO_UINT16 (p_apdu_pipe_reg_info->max_wait_time, p_data);
 
                     p_apdu_pipe_reg_info->reg_info_valid = true;
-                    if(p_pipe->dest_host == 0xC0)
-                    {
-                      if(nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD)
-                        NFC_NfceePLConfig(p_pipe->dest_host, 0x01);
-                    }
                     if (!nfa_hci_enable_one_nfcee ())
                     {
                         nfa_hci_startup_complete (NFA_STATUS_OK);
