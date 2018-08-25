@@ -326,7 +326,11 @@ tNFA_STATUS nfa_hciu_send_msg(uint8_t pipe_id, uint8_t type,
   bool first_pkt = true;
   uint16_t data_len;
   tNFA_STATUS status = NFA_STATUS_OK;
+#if(NXP_EXTNS == TRUE)
+  uint16_t max_seg_hcp_pkt_size = nfa_hci_cb.buff_size;
+#else
   uint16_t max_seg_hcp_pkt_size = nfa_hci_cb.buff_size - NCI_DATA_HDR_SIZE;
+#endif
 
   char buff[100];
 
