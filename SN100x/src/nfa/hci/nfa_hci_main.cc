@@ -1842,9 +1842,11 @@ static void nfa_hci_timer_cback (TIMER_LIST_ENT *p_tle)
     tNFA_HCI_PIPE_CMDRSP_INFO *p_pipe_cmdrsp_info = NULL;
 
     DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf ("nfa_hci_timer_cback () Timeout on pipe connected to Generic gate");
+      << StringPrintf
+    ("nfa_hci_timer_cback() state = %d", nfa_hci_cb.hci_state);
 
-    if (nfa_hci_cb.hci_state == NFA_HCI_STATE_STARTUP)
+    if ((nfa_hci_cb.hci_state == NFA_HCI_STATE_STARTUP)
+      || (nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_NETWK_ENABLE))
     {
         LOG(ERROR) << StringPrintf ("nfa_hci_timer_cback - Initialization failed!");
         /* Timeout to Read Registry from APDU gate pipe */
