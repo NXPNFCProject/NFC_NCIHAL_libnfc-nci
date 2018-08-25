@@ -110,6 +110,11 @@
 #define NCI_DEST_TYPE_REMOTE 2 /* Remote NFC Endpoint */
 #define NCI_DEST_TYPE_NFCEE 3  /* NFCEE */
 
+#if (NXP_EXTNS == TRUE)
+/*NCI packet Status Byte*/
+#define NCI_MSG_STATUS_BYTE 0x03
+#endif
+
 /* builds byte0 of NCI Command and Notification packet */
 #define NCI_MSG_BLD_HDR0(p, mt, gid) \
   *(p)++ = (uint8_t)(((mt) << NCI_MT_SHIFT) | (gid));
@@ -181,6 +186,7 @@
 #define NCI_STATUS_EE_TRANSMISSION_ERR 0xC1
 #define NCI_STATUS_EE_PROTOCOL_ERR 0xC2
 #define NCI_STATUS_EE_TIMEOUT 0xC3
+
 
 /* RF Technologies */
 #define NCI_RF_TECHNOLOGY_A 0x00

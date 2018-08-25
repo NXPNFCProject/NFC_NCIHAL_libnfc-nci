@@ -420,7 +420,16 @@ bool nfc_ncif_process_event(NFC_HDR* p_msg) {
   p = (uint8_t*)(p_msg + 1) + p_msg->offset;
 
   pp = p;
+
   NCI_MSG_PRS_HDR0(pp, mt, pbf, gid);
+#if (NXP_EXTNS == TRUE)
+  //Check if we received NCI_STATUS_SEMANTIC_ERROR
+  if ((NCI_MT_DATA != mt) && (NCI_STATUS_SEMANTIC_ERROR==p[NCI_MSG_STATUS_BYTE]))
+  {
+      LOG(ERROR) << StringPrintf("nfc_ncif_process_event: Received NCI_STATUS_SEMANTIC_ERROR\nAborting...");
+      abort();
+  }
+#endif
   oid = ((*pp) & NCI_OID_MASK);
   if (nfc_cb.rawVsCbflag == true &&
       nfc_ncif_proc_proprietary_rsp(mt, gid, oid) == true) {
