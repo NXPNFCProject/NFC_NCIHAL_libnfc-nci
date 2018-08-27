@@ -25,7 +25,9 @@
 using android::base::StringPrintf;
 
 extern bool nfc_debug_enabled;
+#if (NXP_EXTNS == TRUE)
 extern char appl_dta_mode_flag;
+#endif
 
 #define MAX_NCI_PACKET_SIZE 259
 #define BTE_LOG_BUF_SIZE 1024
