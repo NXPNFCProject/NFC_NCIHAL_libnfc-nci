@@ -2344,6 +2344,7 @@ static void nfa_hci_handle_generic_gate_evt(uint8_t* p_data, uint16_t data_len,
   evt_data.rcvd_evt.pipe = p_pipe->pipe_id;
   evt_data.rcvd_evt.evt_code = nfa_hci_cb.inst;
   evt_data.rcvd_evt.evt_len = data_len;
+  evt_data.rcvd_evt.last_SentEvtType = 0;
 
   if (nfa_hci_cb.assembly_failed)
     evt_data.rcvd_evt.status = NFA_STATUS_BUFFER_FULL;
