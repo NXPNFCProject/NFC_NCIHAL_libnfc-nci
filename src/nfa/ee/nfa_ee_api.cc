@@ -1020,7 +1020,6 @@ tNFA_STATUS NFA_EeGetLmrtRemainingSize(void) {
 tNFA_STATUS NFA_EeUpdateNow(void) {
   NFC_HDR* p_msg;
   tNFA_STATUS status = NFA_STATUS_FAILED;
-
   DLOG_IF(INFO, nfc_debug_enabled) << __func__;
   if (nfa_ee_cb.ee_wait_evt & NFA_EE_WAIT_UPDATE_ALL) {
     LOG(ERROR) << StringPrintf("update in progress");

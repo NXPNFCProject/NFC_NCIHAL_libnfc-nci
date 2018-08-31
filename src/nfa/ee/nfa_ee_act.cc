@@ -3079,8 +3079,9 @@ void nfa_ee_report_update_evt(void) {
 void nfa_ee_nci_wait_rsp(tNFA_EE_MSG* p_data) {
   tNFA_EE_NCI_WAIT_RSP* p_rsp = &p_data->wait_rsp;
 
-   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ee_nci_wait_rsp() ee_wait_evt:0x%x wait_rsp:%d",
-                   nfa_ee_cb.ee_wait_evt, nfa_ee_cb.wait_rsp);
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+      "nfa_ee_nci_wait_rsp() ee_wait_evt:0x%x wait_rsp:%d p_rsp->opcode : %d",
+      nfa_ee_cb.ee_wait_evt, nfa_ee_cb.wait_rsp, p_rsp->opcode);
   if (nfa_ee_cb.wait_rsp) {
     if (p_rsp->opcode == NCI_MSG_RF_SET_ROUTING) nfa_ee_cb.wait_rsp--;
   }

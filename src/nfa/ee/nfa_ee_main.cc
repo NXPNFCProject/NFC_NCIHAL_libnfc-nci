@@ -410,7 +410,6 @@ void nfa_ee_proc_evt(tNFC_RESPONSE_EVT event, void* p_data) {
     cbk.opcode = 0;
     tNFA_EE_MSG nfa_ee_msg;
     nfa_ee_msg.wait_rsp = cbk;
-
     nfa_ee_evt_hdlr(&nfa_ee_msg.hdr);
   }
 }
