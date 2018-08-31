@@ -3434,7 +3434,10 @@ bool nfa_dm_p2p_prio_logic(uint8_t event, uint8_t* p, uint8_t event_type) {
        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
           "nfa_dm_p2p_prio_logic listen mode activated reset all the "
           "nfa_dm_p2p_prio_logic variables ");
-       nfc_stop_quick_timer(&p2p_prio_logic_data.timer_list);
+       if (p2p_prio_logic_data.timer_list.in_use){
+         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Stop quick timer");
+         nfc_stop_quick_timer(&p2p_prio_logic_data.timer_list);
+       }
        nfa_dm_p2p_prio_logic_cleanup();
     }
 
