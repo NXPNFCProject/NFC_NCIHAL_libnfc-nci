@@ -419,7 +419,11 @@ uint32_t nfc_task(__attribute__((unused)) uint32_t arg) {
   /* main loop */
   while (true) {
     event = GKI_wait(0xFFFF, 0);
-    if (event == EVENT_MASK(GKI_SHUTDOWN_EVT)) {
+    if (event == EVENT_MASK(GKI_UNKNOWN_TASK_EVT)) {
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("GKI_UNKNOWN_TASK_EVT");
+      break;
+    } else if (event == EVENT_MASK(GKI_SHUTDOWN_EVT)) {
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("GKI_SHUTDOWN_EVT");
       break;
     }
     /* Handle NFC_TASK_EVT_TRANSPORT_READY from NFC HAL */
@@ -496,7 +500,5 @@ uint32_t nfc_task(__attribute__((unused)) uint32_t arg) {
   }
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfc_task terminated");
-
-  GKI_exit_task(GKI_get_taskid());
   return 0;
 }

@@ -319,7 +319,6 @@ void GKI_shutdown(void) {
   for (task_id = GKI_MAX_TASKS; task_id > 0; task_id--) {
     if (gki_cb.com.OSRdyTbl[task_id - 1] != TASK_DEAD) {
       gki_cb.com.OSRdyTbl[task_id - 1] = TASK_DEAD;
-
       /* paranoi settings, make sure that we do not execute any mailbox events
        */
       gki_cb.com.OSWaitEvt[task_id - 1] &=
@@ -327,9 +326,15 @@ void GKI_shutdown(void) {
             TASK_MBOX_3_EVT_MASK);
       GKI_send_event(task_id - 1, EVENT_MASK(GKI_SHUTDOWN_EVT));
 
+      if (((task_id - 1) == BTU_TASK) && gki_cb.com.p_tick_cb &&
+          gki_cb.com.system_tick_running) {
+        gki_cb.com.system_tick_running = false;
+        (gki_cb.com.p_tick_cb)(false); /* stop system tick */
+      }
+
 #if (false == GKI_PTHREAD_JOINABLE)
       i = 0;
-      while ((gki_cb.com.OSWaitEvt[task_id - 1] != 0) && (++i < 5))
+      while ((gki_cb.com.OSWaitEvt[task_id - 1] != 0) && (++i < 15))
         usleep(2 * 1000);
 #else
       /* wait for proper Arnold Schwarzenegger task state */
@@ -618,7 +623,7 @@ uint16_t GKI_wait(uint16_t flag, uint32_t timeout) {
   if (rtask >= GKI_MAX_TASKS) {
     LOG(ERROR) << StringPrintf("%s() Exiting thread; rtask %d >= %d", __func__,
                                rtask, GKI_MAX_TASKS);
-    return EVENT_MASK(GKI_SHUTDOWN_EVT);
+    return EVENT_MASK(GKI_UNKNOWN_TASK_EVT);
   }
 
   gki_pthread_info_t* p_pthread_info = &gki_pthread_info[rtask];
