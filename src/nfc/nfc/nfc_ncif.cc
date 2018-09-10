@@ -2446,6 +2446,9 @@ void nfc_ncif_proc_reset_rsp(uint8_t* p, bool is_ntf) {
                              (uint16_t)(NFC_TTYPE_NCI_WAIT_RSP),
                              nfc_cb.nci_wait_rsp_tout);
           } else {
+            /*MW tries to reInitialize, so clear nfa_dm_cb.params before
+             *proceeding, to avoid having previously initialized values if any*/
+            memset(&nfa_dm_cb.params, 0x00, sizeof(tNFA_DM_PARAMS));
             if (nfc_cb.nci_version == NCI_VERSION_1_0)
               nci_snd_core_init(NCI_VERSION_1_0);
             else
