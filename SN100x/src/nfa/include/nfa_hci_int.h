@@ -57,6 +57,7 @@ extern uint8_t HCI_LOOPBACK_DEBUG;
 
 #define NFA_HCI_HOST_ID_UICC0 0x02 /* Host ID for UICC 0 */
 #if (NXP_EXTNS == TRUE)
+#define NFA_HCI_HOST_ID_DYNAMIC_HOST0 0x80 /*Host ID for prop dyn host 0*/
 #define NFA_HCI_HOST_ID_PROP_HOST0 0xC0 /*Host ID for prop eSE 0*/
 
 #define NFA_HCI_FIRST_UICC_HOST         NFA_HCI_HOST_ID_UICC0 /* Host ID for UICC 0 */
@@ -64,6 +65,9 @@ extern uint8_t HCI_LOOPBACK_DEBUG;
 
 #define NFA_HCI_FIRST_PROP_HOST         NFA_HCI_HOST_ID_PROP_HOST0 /* Host ID for PROP HOST 0 */
 #define NFA_HCI_LAST_PROP_HOST          (NFA_HCI_HOST_ID_PROP_HOST0 + NFA_HCI_MAX_NUM_PROP_HOST - 1)
+
+#define NFA_HCI_FIRST_DYNAMIC_HOST      NFA_HCI_HOST_ID_DYNAMIC_HOST0 /* Host ID for DYN HOST 0 */
+#define NFA_HCI_LAST_DYNAMIC_HOST       (NFA_HCI_HOST_ID_DYNAMIC_HOST0 + NFA_HCI_MAX_NUM_PROP_HOST - 1)
 
 /* Static pipes - ADMIN Pipe, Link Management pipe and Static APDU pipes */
 #define NFA_HCI_MAX_NUM_STATIC_PIPES         (2)
@@ -757,6 +761,6 @@ extern void nfa_hciu_update_host_list (uint8_t data_len, uint8_t *p_host_list);
 extern void nfa_hciu_add_host_resetting(uint8_t host_id, uint8_t reset_cfg);
 extern void nfa_hciu_clear_host_resetting(uint8_t host_id, uint8_t reset_cfg);
 extern void nfa_hci_handle_pending_host_reset();
-
+extern uint8_t nfa_hciu_get_hci_host_id(uint8_t nfceeid);
 #endif
 #endif /* NFA_HCI_INT_H */

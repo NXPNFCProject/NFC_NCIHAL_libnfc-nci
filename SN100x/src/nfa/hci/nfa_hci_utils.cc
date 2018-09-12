@@ -2109,4 +2109,31 @@ void nfa_hciu_add_host_resetting(uint8_t host_id, uint8_t reset_type) {
       }
   }
 }
+
+/*******************************************************************************
+**
+** Function         nfa_hciu_get_hci_host_id
+**
+** Description      This function returns hci host id for given nfceeid
+**
+** Returns          hci host id
+**
+*******************************************************************************/
+uint8_t nfa_hciu_get_hci_host_id(uint8_t nfceeid)
+{
+  switch(nfceeid)
+  {
+    case NFA_HCI_FIRST_DYNAMIC_HOST:
+      return NFA_HCI_UICC_HOST;
+    case NFA_HCI_FIRST_PROP_HOST:
+      return NFA_HCI_FIRST_PROP_HOST;
+    case NFA_HCI_FIRST_DYNAMIC_HOST + 1:
+      return NFA_HCI_FIRST_DYNAMIC_HOST + 1;
+    case NFA_HCI_FIRST_DYNAMIC_HOST + 2:
+      return NFA_HCI_FIRST_DYNAMIC_HOST + 2;
+    default:
+      return 0x00;
+  }
+    return 0x00;
+}
 #endif
