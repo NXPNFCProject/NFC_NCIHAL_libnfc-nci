@@ -2500,7 +2500,8 @@ void nfa_ee_nci_nfcee_status_ntf(tNFA_EE_MSG* p_data) {
   tNFA_EE_ECB* p_cb = nfa_ee_find_ecb(p_ee->nfcee_id);
   if(p_cb != NULL) {
       p_cb->nfcee_status = p_ee->nfcee_status;
-      if(p_ee->nfcee_status == NFC_NFCEE_STS_UNRECOVERABLE_ERROR) {
+      if(p_ee->nfcee_status == NFC_NFCEE_STS_UNRECOVERABLE_ERROR ||
+        ((p_ee->nfcee_status & 0xF0 ) == NFC_NFCEE_STS_PROP_UNRECOVERABLE_ERROR)) {
           if (nfa_ee_cb.p_enable_cback)
                       (*nfa_ee_cb.p_enable_cback) (NFA_EE_UNRECOVERABLE_ERROR);
       } else if(p_ee->nfcee_status == NFC_NFCEE_STS_INIT_COMPLETED) {
