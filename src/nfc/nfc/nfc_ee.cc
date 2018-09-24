@@ -81,9 +81,11 @@ tNFC_STATUS NFC_NfceeModeSet(uint8_t nfcee_id, tNFC_NFCEE_MODE mode) {
     LOG(ERROR) << StringPrintf("NFC_NfceeModeSet bad mode:%d", mode);
     return NFC_STATUS_FAILED;
   }
-  if(nfc_cb.nci_version != NCI_VERSION_2_0)
+  /* PN553 and PN80T supports proprierty mode set notifications */
+  if ((nfc_cb.nci_version != NCI_VERSION_2_0) &&
+      ((nfcFL.chipType != pn553) || (nfcFL.chipType != pn80T))) {
     status = nci_snd_nfcee_mode_set (nfcee_id, mode);
-  else {
+  } else {
     if (nfc_cb.flags & NFC_FL_WAIT_MODE_SET_NTF)
       status = NFC_STATUS_REFUSED;
     else {
