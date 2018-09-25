@@ -349,7 +349,8 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
               }
             }
           }
-          else if (nfa_ee_cb.ecb[ee_entry_index].nfcee_status == NFC_NFCEE_STS_UNRECOVERABLE_ERROR) {
+          else if (nfa_ee_cb.ecb[ee_entry_index].nfcee_status == NFC_NFCEE_STS_UNRECOVERABLE_ERROR
+                  || (nfa_ee_cb.ecb[ee_entry_index].nfcee_status &  0xF0 ) == NFC_NFCEE_STS_PROP_UNRECOVERABLE_ERROR) {
             nfa_ee_cb.ecb[ee_entry_index].nfcee_status = NFC_NFCEE_STS_INIT_STARTED;
             if (!((nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_NETWK_ENABLE) ||
               (nfa_hci_cb.hci_state == NFA_HCI_STATE_RESTORE_NETWK_ENABLE))) {
