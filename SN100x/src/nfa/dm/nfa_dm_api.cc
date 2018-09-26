@@ -1468,7 +1468,7 @@ bool NFA_checkNfcStateBusy() {
 ** Function:        NFA_SetPreferredUiccId
 **
 ** Description:     Set Preferred Uicc ID
-**                  0x02 - UICC1
+**                  0x80 - UICC1
 **                  0x81 - UICC2
 **
 ** Returns:         none:
@@ -1476,11 +1476,6 @@ bool NFA_checkNfcStateBusy() {
 *******************************************************************************/
 void NFA_SetPreferredUiccId(uint8_t uicc_id) {
     DLOG_IF(INFO, nfc_debug_enabled) << __func__;
-    if(!nfcFL.nfccFL._NFCC_DYNAMIC_DUAL_UICC) {
-        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("_NFCC_DYNAMIC_DUAL_UICC"
-                " feature is not available!!");
-        return;
-    }
     nfa_dm_cb.selected_uicc_id = uicc_id;
 }
 #endif
