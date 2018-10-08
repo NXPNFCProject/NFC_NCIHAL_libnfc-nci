@@ -423,8 +423,9 @@ bool nfc_ncif_process_event(NFC_HDR* p_msg) {
 
   NCI_MSG_PRS_HDR0(pp, mt, pbf, gid);
 #if (NXP_EXTNS == TRUE)
-  if ((NCI_MT_RSP == mt) && (NCI_STATUS_SEMANTIC_ERROR == p[NCI_MSG_STATUS_BYTE]))
-  {/*if we have received NCI_STATUS_SEMANTIC_ERROR, abort the process*/
+  //Check if we received NCI_STATUS_SEMANTIC_ERROR
+  if ((NCI_MT_DATA != mt) && (NCI_STATUS_SEMANTIC_ERROR==p[NCI_MSG_STATUS_BYTE]))
+  {
       LOG(ERROR) << StringPrintf("nfc_ncif_process_event: Received NCI_STATUS_SEMANTIC_ERROR\nAborting...");
       abort();
   }
