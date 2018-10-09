@@ -359,9 +359,9 @@ uint8_t nci_snd_pwr_nd_lnk_ctrl_cmd(uint8_t nfcee_id, uint8_t cfg_value) {
           DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("pwr link cmd ignored due to RF session");
           nfc_cb.pwr_link_cmd.bPwrLinkCmdRequested = true;
           nfc_cb.pwr_link_cmd.param = cfg_value;
-          nfc_start_quick_timer(&nfc_cb.nci_wait_pwrLinkRsp_timer,
-                  NFC_TTYPE_PWR_LINK_RSP,
-                  ((uint32_t)100) * QUICK_TIMER_TICKS_PER_SEC / 1000);
+          nfc_start_quick_timer(
+              &nfc_cb.nci_wait_pwrLinkRsp_timer, NFC_TTYPE_PWR_LINK_RSP,
+              ((uint32_t)DWP_BLOCK_TIMEOUT) * QUICK_TIMER_TICKS_PER_SEC / 1000);
           return (NCI_STATUS_OK);
       }
   }
@@ -432,9 +432,9 @@ uint8_t nci_snd_nfcee_mode_set(uint8_t nfcee_id, uint8_t nfcee_mode) {
           nfcFL.eseFL._ESE_WIRED_MODE_RESUME) {
       if ((nfc_cb.bBlkPwrlinkAndModeSetCmd) && (NFCEE_ID_ESE == nfcee_id)) {
           DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("mode set cmd ignored due to RF session");
-          nfc_start_quick_timer(&nfc_cb.nci_wait_pwrLinkRsp_timer,
-                  NFC_TTYPE_SET_MODE_RSP,
-                  ((uint32_t)100) * QUICK_TIMER_TICKS_PER_SEC / 1000);
+          nfc_start_quick_timer(
+              &nfc_cb.nci_wait_setModeRsp_timer, NFC_TTYPE_SET_MODE_RSP,
+              ((uint32_t)DWP_BLOCK_TIMEOUT) * QUICK_TIMER_TICKS_PER_SEC / 1000);
           nfc_cb.bSetmodeOnReq = true;
           return NCI_STATUS_OK;
       }

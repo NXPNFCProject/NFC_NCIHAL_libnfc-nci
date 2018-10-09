@@ -48,6 +48,8 @@
 #include "nfc_types.h"
 
 #include <stdbool.h>
+/*Timeout in ms blocks powerLink/modeSet notifying upperLayer*/
+#define DWP_BLOCK_TIMEOUT 3500
 
 bool nci_proc_core_rsp(NFC_HDR* p_msg);
 void nci_proc_rf_management_rsp(NFC_HDR* p_msg);
