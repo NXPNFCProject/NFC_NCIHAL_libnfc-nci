@@ -43,7 +43,7 @@ cc_library_shared {
 	   ],
     include_dirs: [
         "hardware/nxp/secure_element/extns/impl/",
-	"hardware/nxp/nfc/extns/impl/",
+	"hardware/nxp/nfc/SN100x/extns/impl/",
     ],
     srcs: [
         "nfa/ce/*.cc",
