@@ -136,6 +136,9 @@ void nci_proc_core_ntf(NFC_HDR* p_msg) {
       /* in case of timeout: notify the static connection callback */
       nfc_ncif_event_status(NFC_GEN_ERROR_REVT, *pp);
       nfc_ncif_error_status(NFC_RF_CONN_ID, *pp);
+#if (NXP_EXTNS == TRUE)
+      nfc_ncif_proc_generic_error_ntf(*pp);
+#endif
       break;
 
     case NCI_MSG_CORE_INTF_ERR_STATUS:

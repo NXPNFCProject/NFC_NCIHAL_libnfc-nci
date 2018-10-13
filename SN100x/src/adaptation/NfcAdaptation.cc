@@ -223,6 +223,10 @@ void NfcAdaptation::GetVendorConfigs(
                         ConfigValue(config.defaultSystemCodePowerState));
       configMap.emplace(NAME_OFF_HOST_SIM_PIPE_ID,
                         ConfigValue(config.offHostSIMPipeId));
+#if(NXP_EXTNS == TRUE)
+      configMap.emplace(NAME_NXP_SE_COLD_TEMP_ERROR_DELAY,
+                              ConfigValue(config.eSeLowTempErrorDelay));
+#endif
       configMap.emplace(NAME_OFF_HOST_ESE_PIPE_ID,
                         ConfigValue(config.offHostESEPipeId));
       configMap.emplace(NAME_ISO_DEP_MAX_TRANSCEIVE,

@@ -155,8 +155,12 @@ void nfc_process_timer_evt(void) {
 #if (NXP_EXTNS == TRUE)
       case NFC_TTYPE_NCI_WAIT_DATA_NTF: {
         nfc_ncif_credit_ntf_timeout();
-        break;
       }
+        break;
+      case NFC_TTYPE_SE_TEMP_ERROR_DELAY:{
+        nfc_ee_temp_error_delay_timeout();
+      }
+      break;
 #endif
 
       default:

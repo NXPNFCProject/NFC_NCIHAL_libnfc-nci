@@ -67,6 +67,7 @@
 #define NFC_TTYPE_WAIT_MODE_SET_NTF 2
 #if (NXP_EXTNS == TRUE)
 #define NFC_TTYPE_NCI_WAIT_DATA_NTF 3
+#define NFC_TTYPE_SE_TEMP_ERROR_DELAY 4
 #endif
 
 #define NFC_TTYPE_LLCP_LINK_MANAGER 100
@@ -251,6 +252,10 @@ typedef struct {
   TIMER_LIST_ENT
   nci_wait_data_ntf_timer; /* Timer for waiting for core credit ntf*/
   uint16_t nci_credit_ntf_timeout;
+  TIMER_LIST_ENT
+  nci_wait_se_temp_error_delay;  /* Timer to wait for the eSE Temperature to go back
+                          to an acceptable range once eSe detected COLD_TEMP_ERROR*/
+  uint8_t nci_ese_cold_temp_timeout;
 #endif
 
 } tNFC_CB;
@@ -352,5 +357,7 @@ void nfc_process_quick_timer_evt(void);
 #if (NXP_EXTNS == TRUE)
 extern void nfc_ncif_credit_ntf_timeout(void);
 void check_nfcee_session_and_reset();
+extern void nfc_ncif_proc_generic_error_ntf(tNFC_STATUS status);
+extern void nfc_ee_temp_error_delay_timeout();
 #endif
 #endif /* NFC_INT_H_ */

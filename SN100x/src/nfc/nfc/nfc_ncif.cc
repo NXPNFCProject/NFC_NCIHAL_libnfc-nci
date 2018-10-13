@@ -58,6 +58,7 @@
 
 #if (NXP_EXTNS == TRUE)
 #include "nfa_ce_int.h"
+#include "nfa_ee_int.h"
 #include "nfa_dm_int.h"
 #include "nfa_hci_int.h"
 #include "nfc_config.h"
@@ -1911,5 +1912,56 @@ void nfc_ncif_credit_ntf_timeout() {
       << StringPrintf("cmd timeout sending core reset!!!");
   nfc_ncif_cmd_timeout();
   // nci_snd_core_reset(0x00);
+}
+
+/*******************************************************************************
+**
+** Function         nfc_ncif_proc_generic_error_ntf
+**
+** Description      Process core generic notification to handle
+**                  ESE_COLD_TEMP_ERROR
+**
+** Returns          true if proprietary response else false
+**
+*******************************************************************************/
+void nfc_ncif_proc_generic_error_ntf(tNFC_STATUS status)
+{
+  DLOG_IF(INFO, nfc_debug_enabled)
+          << StringPrintf("nfc_ncif_proc_generic_error_ntf: enter, status=%d",status);
+  if( NCI_NFCEE_STS_COLD_TEMP_THRESOLD_REACHED== status){
+      /*if Low Temp Error, wait for the predefined time*/
+      nfc_cb.nci_ese_cold_temp_timeout =
+                            NfcConfig::getUnsigned(NAME_NXP_SE_COLD_TEMP_ERROR_DELAY, 0x05);
+      DLOG_IF(INFO, nfc_debug_enabled)
+              << StringPrintf("Waiting for nci_ese_cold_temp_timeout = %d",nfc_cb.nci_ese_cold_temp_timeout);
+      nfc_start_timer(&nfc_cb.nci_wait_se_temp_error_delay ,
+                  (uint16_t)(NFC_TTYPE_SE_TEMP_ERROR_DELAY),
+                  nfc_cb.nci_ese_cold_temp_timeout);
+  }
+}
+/*******************************************************************************
+**
+** Function         nfc_ee_temp_error_delay_timeout
+**
+** Description      Handle ESE_COLD_TEMP_ERROR timeout
+**
+** Returns          void
+**
+*******************************************************************************/
+void nfc_ee_temp_error_delay_timeout(){
+  LOG_IF(INFO, nfc_debug_enabled)
+    << StringPrintf("nfc_ee_temp_error_delay_timeout: enter");
+  tNFA_EE_ECB* p_cb = nfa_ee_find_ecb(ESE_HOST);
+  if(p_cb != NULL) {
+    /*Override eSE status to be able to start ee_discovery*/
+    p_cb->nfcee_status =NFC_NFCEE_STS_UNRECOVERABLE_ERROR;
+
+    if (nfa_ee_cb.p_enable_cback){
+      (*nfa_ee_cb.p_enable_cback) (NFA_EE_UNRECOVERABLE_ERROR);
+    }else{
+      LOG(ERROR) << StringPrintf("%s: nfa_ee_cb.p_enable_cback is NULL. Aborting", __func__);
+      abort();
+    }
+  }
 }
 #endif
