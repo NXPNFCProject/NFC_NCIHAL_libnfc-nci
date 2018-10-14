@@ -1978,7 +1978,7 @@ static void nfa_hci_timer_cback (TIMER_LIST_ENT *p_tle)
             {
                 /* Timeout to Response APDU (ETSI_HCI_EVT_R_APDU) */
                 p_pipe_cmdrsp_info->w4_rsp_apdu_evt = false;
-
+                NFC_FlushData(NFC_HCI_CONN_ID);
                 evt_data.apdu_rcvd.status  = NFA_STATUS_TIMEOUT;
                 evt_data.apdu_rcvd.p_apdu  = NULL;
                 evt_data.apdu_rcvd.host_id = p_pipe->dest_host;
