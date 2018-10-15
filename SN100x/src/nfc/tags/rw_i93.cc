@@ -15,6 +15,25 @@
  *  limitations under the License.
  *
  ******************************************************************************/
+/******************************************************************************
+ *
+ *  The original Work has been changed by NXP.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  Copyright 2018 NXP
+ *
+ ******************************************************************************/
 
 /******************************************************************************
  *
@@ -2925,6 +2944,12 @@ static void rw_i93_data_cback(__attribute__((unused)) uint8_t conn_id,
       }
 
       rw_i93_handle_error((tNFC_STATUS)(*(uint8_t*)p_data));
+#if(NXP_EXTNS == TRUE)
+      if(event == NFC_DATA_CEVT) {
+        p_resp = (NFC_HDR*)p_data->data.p_data;
+        GKI_freebuf(p_resp);
+      }
+#endif
     } else {
       /* free retry buffer */
       if (p_i93->p_retry_cmd) {
