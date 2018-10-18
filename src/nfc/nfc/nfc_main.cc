@@ -1825,6 +1825,7 @@ int32_t NFC_RelSvddWait(void* pdata) {
         return NFC_STATUS_EPERM;
     }
   nfc_nci_IoctlInOutData_t inpOutData;
+  inpOutData.inp.level = *(uint32_t*)pdata;
   int32_t status;
   status = nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_REL_SVDD_WAIT, &inpOutData);
   *(tNFC_STATUS*)pdata = inpOutData.out.data.status;
@@ -1842,7 +1843,9 @@ int32_t NFC_RelSvddWait(void* pdata) {
 *******************************************************************************/
 int32_t NFC_RelForceDwpOnOffWait (void *pdata)
 {
-    return (nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_REL_DWP_WAIT, pdata));
+  nfc_nci_IoctlInOutData_t inpOutData;
+  inpOutData.inp.level = *(uint32_t*)pdata;
+  return (nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_REL_DWP_WAIT, &inpOutData));
 }
 #endif
 
