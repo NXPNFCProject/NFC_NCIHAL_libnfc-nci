@@ -794,7 +794,22 @@ void nfa_hci_startup_complete(tNFA_STATUS status) {
 #if(NXP_EXTNS == TRUE)
   if (nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD) {
         if (nfa_hci_cb.curr_nfcee == NFA_HCI_FIRST_PROP_HOST) {
-            NFC_NfceePLConfig(NFA_HCI_FIRST_PROP_HOST, 0x01);
+            switch (nfa_ee_cb.ese_prv_pwr_cfg) {
+            case 0xFF:
+                NFC_NfceePLConfig(NFA_HCI_FIRST_PROP_HOST, 0x01);
+                break;
+            case 0x03:
+                /*Already sent as part of recovery*/
+                break;
+            case 0x02:
+            case 0x01:
+            case 0x00:
+                NFC_NfceePLConfig(NFA_HCI_FIRST_PROP_HOST, nfa_ee_cb.ese_prv_pwr_cfg);
+                break;
+            default:
+                /*Should never be here*/
+                LOG(ERROR) << StringPrintf("%s: Invalid Value received!!",__func__);
+            }
         }
   }
   nfa_hci_handle_pending_host_reset();

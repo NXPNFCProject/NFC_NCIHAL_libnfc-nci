@@ -134,6 +134,7 @@ void nfa_ee_init(void) {
   nfa_ee_cb.ecb[NFA_EE_CB_4_DH].nfcee_id = NFC_DH_ID;
 #if (NXP_EXTNS == TRUE)
   nfa_ee_cb.ecb[NFA_EE_CB_4_DH].nfcee_status = NFC_NFCEE_STS_INIT_COMPLETED;
+  nfa_ee_cb.ese_prv_pwr_cfg = 0xFF;
 #endif
   /* register message handler on NFA SYS */
   nfa_sys_register(NFA_ID_EE, &nfa_ee_sys_reg);

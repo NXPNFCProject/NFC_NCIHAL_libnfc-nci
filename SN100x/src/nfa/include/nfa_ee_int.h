@@ -631,6 +631,8 @@ typedef struct {
   uint8_t route_block_control; /* controls route block feature   */
 #if (NXP_EXTNS == TRUE)
   uint8_t nfcee_id;
+  uint8_t ese_prv_pwr_cfg;     /* Power mode of the eSE, set by the
+                                  Application                       */
   uint8_t mode;
 #endif
 } tNFA_EE_CB;
