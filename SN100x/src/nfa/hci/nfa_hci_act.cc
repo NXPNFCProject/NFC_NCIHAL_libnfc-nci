@@ -2578,7 +2578,7 @@ void nfa_hci_handle_pending_host_reset() {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hci_handle_pending_host_reset");
     for(xx = 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++) {
       if(nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_INIT_COMPLETED) {
-        nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_INIT_COMPLETED);
+        //nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_INIT_COMPLETED);
         tNFA_HCI_EVT_DATA             evt_data;
         evt_data.status  = NFA_STATUS_OK;
         evt_data.rcvd_evt.evt_code = NFA_HCI_EVT_INIT_COMPLETED;
