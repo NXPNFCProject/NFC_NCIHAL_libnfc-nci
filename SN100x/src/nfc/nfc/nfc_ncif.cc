@@ -70,10 +70,6 @@ using android::base::StringPrintf;
 static const uint8_t nfc_mpl_code_to_size[] = {64, 128, 192, 254};
 
 #endif /* NFC_RW_ONLY */
-#if (APPL_DTA_MODE == TRUE)
-// Global Structure varibale for FW Version
-static tNFC_FW_VERSION nfc_fw_version;
-#endif
 #define NFC_PB_ATTRIB_REQ_FIXED_BYTES 1
 #define NFC_LB_ATTRIB_REQ_FIXED_BYTES 8
 
@@ -361,19 +357,6 @@ void nfc_ncif_check_cmd_queue(NFC_HDR* p_buf) {
     }
   }
 }
-
-#if (APPL_DTA_MODE == TRUE)
-/*******************************************************************************
-**
-** Function         nfc_ncif_getFWVersion
-**
-** Description      This function is called to fet the FW Version
-**
-** Returns          tNFC_FW_VERSION
-**
-*******************************************************************************/
-tNFC_FW_VERSION nfc_ncif_getFWVersion() { return nfc_fw_version; }
-#endif
 
 /*******************************************************************************
 **

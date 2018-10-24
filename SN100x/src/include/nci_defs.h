@@ -52,7 +52,9 @@
 #define NCI_MAX_PAYLOAD_SIZE 0xFE
 #define NCI_CTRL_INIT_SIZE 32  /* initial NFCC control payload size */
 #define NCI_MAX_VSC_SIZE 0xFF
-#define APPL_DTA_MODE FALSE
+#if (NXP_EXTNS == TRUE)
+#define APPL_DTA_MODE TRUE
+#endif
 /* NCI header (3) + callback function pointer(8; use 8 to be safe) + HCIT (1
  * byte) */
 #define NCI_VSC_MSG_HDR_SIZE 12

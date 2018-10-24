@@ -414,14 +414,6 @@ typedef struct {
   tNFC_NFCEE_MODE mode; /* NFCEE mode       */
 } tNFC_NFCEE_MODE_SET_REVT;
 
-#if (APPL_DTA_MODE == TRUE)
-/* This data type is for FW Version */
-typedef struct {
-  uint8_t rom_code_version; /* ROM code Version  */
-  uint8_t major_version;    /* Major Version */
-  uint8_t minor_version;    /* Minor Version  */
-} tNFC_FW_VERSION;
-#endif
 #define NFC_MAX_AID_LEN NCI_MAX_AID_LEN /* 16 */
 #if (NXP_EXTNS == TRUE)
 #define NFC_MIN_APDU_DATA_LEN NCI_MIN_APDU_DATA_LEN
