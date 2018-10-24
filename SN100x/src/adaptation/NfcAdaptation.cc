@@ -15,6 +15,23 @@
  *  limitations under the License.
  *
  ******************************************************************************/
+/******************************************************************************
+*
+*  Licensed under the Apache License, Version 2.0 (the "License");
+*  you may not use this file except in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*  http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing, software
+*  distributed under the License is distributed on an "AS IS" BASIS,
+*  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+*  See the License for the specific language governing permissions and
+*  limitations under the License.
+*
+*  Copyright 2018 NXP
+*
+******************************************************************************/
 #include <android-base/stringprintf.h>
 #include <android/hardware/nfc/1.1/INfc.h>
 #include <base/command_line.h>
@@ -53,6 +70,7 @@ using android::hardware::hidl_death_recipient;
 using android::hardware::configureRpcThreadpool;
 #if (NXP_EXTNS == TRUE)
 using vendor::nxp::nxpnfc::V1_0::INxpNfc;
+using ::android::hardware::nfc::V1_0::NfcStatus;
 
 ThreadMutex NfcAdaptation::sIoctlLock;
 sp<INxpNfc> NfcAdaptation::mHalNxpNfc;
@@ -823,9 +841,27 @@ void NfcAdaptation::DownloadFirmware() {
   const char* func = "NfcAdaptation::DownloadFirmware";
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: enter", func);
   HalInitialize();
-
   mHalOpenCompletedEvent.lock();
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: try open HAL", func);
+#if (NXP_EXTNS == TRUE)
+  NfcStatus status;
+  mCallback = new NfcClientCallback(HalDownloadFirmwareCallback, HalDownloadFirmwareDataCallback);
+  mDeathRecipient = new NfcDeathRecipient();
+  if (mHal_1_1 != nullptr) {
+    status = mHal_1_1->open_1_1(mCallback);
+    mHal_1_1->linkToDeath(mDeathRecipient, 0);
+  } else {
+    status = mHal->open(mCallback);
+    mHal->linkToDeath(mDeathRecipient, 0);
+  }
+  if(status == NfcStatus::OK){
+    mHalOpenCompletedEvent.wait();
+    status =mHal->close();
+    mHalCloseCompletedEvent.lock();
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: try close HAL", func);
+    mHalCloseCompletedEvent.wait();
+  }
+#else
   HalOpen(HalDownloadFirmwareCallback, HalDownloadFirmwareDataCallback);
   mHalOpenCompletedEvent.wait();
 
@@ -833,7 +869,7 @@ void NfcAdaptation::DownloadFirmware() {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: try close HAL", func);
   HalClose();
   mHalCloseCompletedEvent.wait();
-
+#endif
   HalTerminate();
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: exit", func);
 }
@@ -857,13 +893,19 @@ void NfcAdaptation::HalDownloadFirmwareCallback(nfc_event_t event,
     case HAL_NFC_OPEN_CPLT_EVT: {
       DLOG_IF(INFO, nfc_debug_enabled)
           << StringPrintf("%s: HAL_NFC_OPEN_CPLT_EVT", func);
+#if (NXP_EXTNS == TRUE)
+    if(event_status == HAL_NFC_STATUS_OK)
+#endif
       mHalOpenCompletedEvent.signal();
       break;
     }
     case HAL_NFC_CLOSE_CPLT_EVT: {
       DLOG_IF(INFO, nfc_debug_enabled)
           << StringPrintf("%s: HAL_NFC_CLOSE_CPLT_EVT", func);
-      mHalCloseCompletedEvent.signal();
+#if (NXP_EXTNS == TRUE)
+     if(event_status == HAL_NFC_STATUS_OK)
+#endif
+        mHalCloseCompletedEvent.signal();
       break;
     }
   }
