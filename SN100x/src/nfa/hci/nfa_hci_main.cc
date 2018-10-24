@@ -1106,7 +1106,11 @@ static void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
     /* deregister message handler on NFA SYS */
     nfa_sys_deregister(NFA_ID_HCI);
   }
-
+#if(NXP_EXTNS == TRUE)
+    else if(event == NFC_HCI_FC_STARTED_EVT || event  == NFC_HCI_FC_STOPPED_EVT) {
+    nfa_hci_handle_control_evt(event , p_data);
+  }
+#endif
   if ((event != NFC_DATA_CEVT) || (p_pkt == NULL)) return;
 
   if ((nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_NETWK_ENABLE) ||

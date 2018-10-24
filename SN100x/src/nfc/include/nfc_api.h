@@ -293,7 +293,8 @@ enum {
 #if (NXP_EXTNS == TRUE)
   ,NFC_RF_WTX_CEVT, /* 6  received rf wtx */
   NFC_RF_TRANSMISSION_ERROR, /* 7 CE Error events */
-  NFC_HCI_RESTART_TIMER
+  NFC_HCI_FC_STOPPED_EVT,
+  NFC_HCI_FC_STARTED_EVT
 #endif
 };
 typedef uint16_t tNFC_CONN_EVT;

@@ -3317,6 +3317,44 @@ static void nfa_hci_api_add_prop_host_info ()
 }
 /*******************************************************************************
  **
+ ** Function         nfa_hci_handle_control_evt
+ **
+ ** Description      handle conn evt  from NFC layer.
+ **                  Based on the evt  the rsp timer
+ **                  is restarted for specified time.
+ **
+ ** Returns
+ **
+ *******************************************************************************/
+void nfa_hci_handle_control_evt(tNFC_CONN_EVT event,
+                               __attribute__((unused))tNFC_CONN* p_data){
+    tNFA_HCI_PIPE_CMDRSP_INFO *p_pipe_cmdrsp_info = NULL;
+    tNFA_HCI_DYN_PIPE           *p_pipe = NULL;
+
+    p_pipe = nfa_hciu_find_dyn_apdu_pipe_for_host (NFA_HCI_FIRST_PROP_HOST);
+    if(p_pipe != NULL)
+      p_pipe_cmdrsp_info = nfa_hciu_get_pipe_cmdrsp_info (p_pipe->pipe_id);
+
+    if (p_pipe_cmdrsp_info != NULL && (p_pipe_cmdrsp_info->w4_cmd_rsp ||
+      p_pipe_cmdrsp_info->w4_rsp_apdu_evt))
+    {
+      nfa_sys_stop_timer(&p_pipe_cmdrsp_info->rsp_timer);
+      if(event == NFC_HCI_FC_STARTED_EVT)
+      {
+        /* More processing time needed for APDU sent to UICC */
+        nfa_sys_start_timer (&(p_pipe_cmdrsp_info->rsp_timer),
+                          NFA_HCI_RSP_TIMEOUT_EVT, p_pipe_cmdrsp_info->rsp_timeout + NFA_HCI_EVT_SW_PROC_LATENCY);
+      } else if(event == NFC_HCI_FC_STOPPED_EVT)
+      {
+        /* More processing time needed for APDU sent to UICC */
+        nfa_sys_start_timer (&(p_pipe_cmdrsp_info->rsp_timer),
+                          NFA_HCI_RSP_TIMEOUT_EVT, p_pipe_cmdrsp_info->rsp_timeout * p_nfa_hci_cfg->max_wtx_count);
+      }
+    }
+}
+
+/*******************************************************************************
+ **
  ** Function         nfa_hci_handle_clear_all_pipe_cmd
  **
  ** Description      handle clear all pipe cmd from host

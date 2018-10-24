@@ -131,7 +131,13 @@ enum {
 #define NFC_CONN_ID_ID_MASK NCI_CID_MASK
 /* set num_buff to this for no flow control */
 #define NFC_CONN_NO_FC 0xFF
+#if (NXP_EXTNS == TRUE)
+/* Flags to indicate the HCI credit control*/
+#define NFC_FL_HCI_FC_READY   0x00
+#define NFC_FL_HCI_FC_STOPPED 0x01
 
+#define NFC_CONN_NO_CREDITS 0x00
+#endif
 #if (NFC_RW_ONLY == FALSE)
 /* only allow the entries that the NFCC can support */
 #define NFC_CHECK_MAX_CONN()                          \
@@ -256,8 +262,8 @@ typedef struct {
   nci_wait_se_temp_error_delay;  /* Timer to wait for the eSE Temperature to go back
                           to an acceptable range once eSe detected COLD_TEMP_ERROR*/
   uint8_t nci_ese_cold_temp_timeout;
+  uint8_t hci_fc_flags;
 #endif
-
 } tNFC_CB;
 
 #if (NXP_EXTNS == TRUE)

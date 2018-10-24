@@ -248,7 +248,6 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
     NCI_DATA_PBLD_HDR(pp, pbf, hdr0, ulen);
 
     if (p_cb->num_buff != NFC_CONN_NO_FC) p_cb->num_buff--;
-
     /* send to HAL */
     HAL_WRITE(p);
   nfcsnoop_capture(p, false);
@@ -670,6 +669,20 @@ void nfc_ncif_proc_credits(uint8_t* p, __attribute__((unused)) uint16_t plen) {
 #if (NXP_EXTNS == TRUE)
       if (p_cb->conn_id != NFC_RF_CONN_ID) {
         nfc_stop_timer(&nfc_cb.nci_wait_data_ntf_timer);
+      }
+      tNFC_CONN evt_data;
+      if (p_cb->conn_id == NFC_HCI_CONN_ID) {
+        if(p_cb->num_buff == NFC_CONN_NO_CREDITS) {
+          LOG(ERROR) << StringPrintf("nfc_ncif_proc_credits  no credits");
+          nfc_cb.flags |= NFC_FL_HCI_FC_STOPPED;
+          if(p_cb->p_cback)
+            (*p_cb->p_cback)(NFC_HCI_CONN_ID , NFC_HCI_FC_STOPPED_EVT, &evt_data);
+        } else if(p_cb->num_buff && (nfc_cb.flags & NFC_FL_HCI_FC_STOPPED)) {
+            LOG(ERROR) << StringPrintf("nfc_ncif_proc_credits   credits received");
+            nfc_cb.flags &= ~NFC_FL_HCI_FC_STOPPED;
+            if(p_cb->p_cback)
+              (*p_cb->p_cback)(NFC_HCI_CONN_ID , NFC_HCI_FC_STARTED_EVT, &evt_data);
+        }
       }
 #endif
       /* check if there's nay data in tx q to be sent */
