@@ -311,8 +311,17 @@ void nfa_p2p_llcp_link_cback(uint8_t event, uint8_t reason) {
       /* notify NFA DM to send Activate Event to applicaiton with status  */
       nfa_dm_notify_activation_status(NFA_STATUS_FAILED, NULL);
     }
+#if (NXP_EXTNS == TRUE)
+    if ((appl_dta_mode_flag == 1) && !(nfa_p2p_cb.is_initiator)) {
+      DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("DTA Mode, No activity");
 
-    nfa_dm_rf_deactivate(NFA_DEACTIVATE_TYPE_DISCOVERY);
+    } else {
+#endif
+      nfa_dm_rf_deactivate(NFA_DEACTIVATE_TYPE_DISCOVERY);
+#if (NXP_EXTNS == TRUE)
+    }
+#endif
   } else if (event == LLCP_LINK_FIRST_PACKET_RECEIVED_EVT) {
     nfa_dm_act_conn_cback_notify(NFA_LLCP_FIRST_PACKET_RECEIVED_EVT, NULL);
   } else /* LLCP_LINK_DEACTIVATED_EVT       */
