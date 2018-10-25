@@ -220,15 +220,6 @@ typedef struct {
   uint8_t screen_state;
 } tNFA_DM_API_SET_POWER_SUB_STATE;
 
-#if (NXP_EXTNS == TRUE)
-typedef struct {
-  NFC_HDR hdr;
-  uint8_t hdr_info[NCI_EXT_DATA_MAX_HDR_SIZE];
-  uint8_t hdr_len;
-  uint8_t* p_data_buf;
-} tNFC_EXT_HDR;
-#endif
-
 /* union of all data types */
 typedef union {
   /* GKI event buffer header */
@@ -239,7 +230,6 @@ typedef union {
                                     /* NFA_DM_API_START_RF_DISCOVERY_EVT    */
                                     /* NFA_DM_API_STOP_RF_DISCOVERY_EVT     */
 #if (NXP_EXTNS == TRUE)
-  tNFC_EXT_HDR ext_hdr;             /* NFA_DM_API_RAW_FRAME_EVT             */
   tNFA_DM_API_SET_TRANSIT_CONFIG transit_config; /* NFA_DM_SET_TRANSIT_CONFIG */
 #endif
   tNFA_DM_API_ENABLE enable;        /* NFA_DM_API_ENABLE_EVT                */
@@ -694,8 +684,6 @@ bool nfa_dm_act_send_vsc(tNFA_DM_MSG* p_data);
 #if (NXP_EXTNS == TRUE)
 void nfa_dm_p2p_prio_logic_disable();
 uint16_t nfa_dm_act_get_rf_disc_duration();
-tNFA_STATUS nfa_dm_get_extended_cmd_buf(tNFC_EXT_HDR** p_msg, uint32_t event,
-                                        uint8_t* p_data, uint16_t data_len) ;
 #endif
 bool nfa_dm_act_disable_timeout(tNFA_DM_MSG* p_data);
 bool nfa_dm_set_power_sub_state(tNFA_DM_MSG* p_data);

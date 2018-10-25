@@ -45,9 +45,6 @@
 
 #include "nfa_p2p_api.h"
 #include "nfa_p2p_int.h"
-#if (NXP_EXTNS == TRUE)
-#include "nfc_int.h"
-#endif
 
 using android::base::StringPrintf;
 
@@ -505,9 +502,6 @@ tNFA_STATUS NFA_P2pSendUI(tNFA_HANDLE handle, uint8_t dsap, uint16_t length,
   tNFA_P2P_API_SEND_UI* p_msg;
   tNFA_STATUS ret_status = NFA_STATUS_FAILED;
   tNFA_HANDLE xx;
-#if (NXP_EXTNS == TRUE)
-  tNFC_CONN_CB* p_cb = &nfc_cb.conn_cb[NFC_RF_CONN_ID];
-#endif
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_P2pSendUI (): handle:0x%X, DSAP:0x%02X, length:%d",
                  handle, dsap, length);
@@ -546,32 +540,13 @@ tNFA_STATUS NFA_P2pSendUI(tNFA_HANDLE handle, uint8_t dsap, uint16_t length,
     p_msg->handle = handle;
     p_msg->dsap = dsap;
 
-#if (NXP_EXTNS == TRUE)
-    if((length + LLCP_PDU_HEADER_SIZE) > p_cb->buff_size){
-      if(nfa_dm_get_extended_cmd_buf((tNFC_EXT_HDR **)&p_msg->p_msg, NFA_P2P_API_SEND_UI_EVT, p_data, length)){
-        LOG(ERROR) << StringPrintf("NFA_P2pSendUI () memory allocation for extended length is un-successfull");
-        return NFA_STATUS_FAILED;
-      }else{
-        /*Do nothing*/
-      }
-    }else{
-      p_msg->p_msg = (NFC_HDR*)GKI_getpoolbuf(LLCP_POOL_ID);
-    }
-#else
     p_msg->p_msg = (NFC_HDR*)GKI_getpoolbuf(LLCP_POOL_ID);
-#endif
+
     if (p_msg->p_msg != NULL) {
       p_msg->p_msg->len = length;
       p_msg->p_msg->offset = LLCP_MIN_OFFSET;
-#if (NXP_EXTNS == TRUE)
-      if((length + LLCP_PDU_HEADER_SIZE) <= p_cb->buff_size){
-#endif
-        memcpy(((uint8_t*)(p_msg->p_msg + 1) + p_msg->p_msg->offset), p_data,
+      memcpy(((uint8_t*)(p_msg->p_msg + 1) + p_msg->p_msg->offset), p_data,
              length);
-
-#if (NXP_EXTNS == TRUE)
-      }
-#endif
       /* increase number of tx UI PDU which is not processed by NFA for
        * congestion control */
       nfa_p2p_cb.sap_cb[xx].num_pending_ui_pdu++;
@@ -691,9 +666,6 @@ tNFA_STATUS NFA_P2pSendData(tNFA_HANDLE handle, uint16_t length,
   tNFA_P2P_API_SEND_DATA* p_msg;
   tNFA_STATUS ret_status = NFA_STATUS_FAILED;
   tNFA_HANDLE xx;
-#if (NXP_EXTNS == TRUE)
-  tNFC_CONN_CB* p_cb = &nfc_cb.conn_cb[NFC_RF_CONN_ID];
-#endif
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_P2pSendData (): handle:0x%X, length:%d", handle, length);
 
@@ -739,33 +711,13 @@ tNFA_STATUS NFA_P2pSendData(tNFA_HANDLE handle, uint16_t length,
 
     p_msg->conn_handle = handle;
 
-#if (NXP_EXTNS == TRUE)
-    if((length + LLCP_PDU_HEADER_SIZE) > p_cb->buff_size){
-      if(nfa_dm_get_extended_cmd_buf((tNFC_EXT_HDR **)&p_msg->p_msg, NFA_P2P_API_SEND_DATA_EVT, p_data, length)){
-        LOG(ERROR) << StringPrintf("NFA_P2pSendData () memory allocation for extended length is un-successfull");
-        return NFA_STATUS_FAILED;
-      }else{
-        /*Do nothing*/
-      }
-    }else{
-      p_msg->p_msg = (NFC_HDR*)GKI_getpoolbuf(LLCP_POOL_ID);
-    }
-#else
     p_msg->p_msg = (NFC_HDR*)GKI_getpoolbuf(LLCP_POOL_ID);
-#endif
 
     if (p_msg->p_msg != NULL) {
       p_msg->p_msg->len = length;
       p_msg->p_msg->offset = LLCP_MIN_OFFSET;
-#if (NXP_EXTNS == TRUE)
-      if((length + LLCP_PDU_HEADER_SIZE) <= p_cb->buff_size){
-#endif
-        memcpy(((uint8_t*)(p_msg->p_msg + 1) + p_msg->p_msg->offset), p_data,
+      memcpy(((uint8_t*)(p_msg->p_msg + 1) + p_msg->p_msg->offset), p_data,
              length);
-
-#if (NXP_EXTNS == TRUE)
-      }
-#endif
       /* increase number of tx I PDU which is not processed by NFA for
        * congestion control */
       nfa_p2p_cb.conn_cb[xx].num_pending_i_pdu++;

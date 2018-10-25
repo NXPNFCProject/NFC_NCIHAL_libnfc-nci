@@ -51,9 +51,6 @@
 #include "llcp_int.h"
 #include "llcp_defs.h"
 #include "nfc_int.h"
-#if (NXP_EXTNS == TRUE)
-#include "nfa_dm_int.h"
-#endif
 
 using android::base::StringPrintf;
 
@@ -276,23 +273,12 @@ tLLCP_STATUS llcp_util_send_ui(uint8_t ssap, uint8_t dsap,
                                tLLCP_APP_CB* p_app_cb, NFC_HDR* p_msg) {
   uint8_t* p;
   tLLCP_STATUS status = LLCP_STATUS_SUCCESS;
-#if (NXP_EXTNS == TRUE)
-  tNFC_CONN_CB* p_cb = &nfc_cb.conn_cb[NFC_RF_CONN_ID];
-#endif
 
   p_msg->offset -= LLCP_PDU_HEADER_SIZE;
   p_msg->len += LLCP_PDU_HEADER_SIZE;
 
-#if (NXP_EXTNS == TRUE)
-  if(p_msg->len > p_cb->buff_size) {
-    ((tNFC_EXT_HDR*)p_msg)->hdr_len = LLCP_PDU_HEADER_SIZE;
-    p = ((tNFC_EXT_HDR*)p_msg)->hdr_info;
-  } else {
-    p = (uint8_t*)(p_msg + 1) + p_msg->offset;
-  }
-#else
   p = (uint8_t*)(p_msg + 1) + p_msg->offset;
-#endif
+
   UINT16_TO_BE_STREAM(p, LLCP_GET_PDU_HEADER(dsap, LLCP_PDU_UI_TYPE, ssap));
 
   GKI_enqueue(&p_app_cb->ui_xmit_q, p_msg);
@@ -723,20 +709,9 @@ void llcp_util_build_info_pdu(tLLCP_DLCB* p_dlcb, NFC_HDR* p_msg) {
 
   p_msg->offset -= LLCP_PDU_HEADER_SIZE + LLCP_SEQUENCE_SIZE;
   p_msg->len += LLCP_PDU_HEADER_SIZE + LLCP_SEQUENCE_SIZE;
-#if (NXP_EXTNS == TRUE)
-  tNFC_CONN_CB* p_cb = &nfc_cb.conn_cb[NFC_RF_CONN_ID];
-#endif
 
-#if (NXP_EXTNS == TRUE )
-  if(p_msg->len > p_cb->buff_size) {
-    ((tNFC_EXT_HDR*)p_msg)->hdr_len = LLCP_PDU_HEADER_SIZE + LLCP_SEQUENCE_SIZE;
-    p = ((tNFC_EXT_HDR*)p_msg)->hdr_info;
-  }else{
-    p = (uint8_t*)(p_msg + 1) + p_msg->offset;
-  }
-#else
   p = (uint8_t*)(p_msg + 1) + p_msg->offset;
-#endif
+
   UINT16_TO_BE_STREAM(p,
                       LLCP_GET_PDU_HEADER(p_dlcb->remote_sap, LLCP_PDU_I_TYPE,
                                           p_dlcb->local_sap));

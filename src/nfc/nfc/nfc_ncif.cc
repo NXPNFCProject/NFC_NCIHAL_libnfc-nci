@@ -489,6 +489,7 @@ uint8_t nfc_ncif_retransmit_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
 *******************************************************************************/
 uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
   uint8_t* pp;
+  uint8_t* ps;
   uint8_t ulen = NCI_MAX_PAYLOAD_SIZE;
   NFC_HDR* p;
   uint8_t pbf = 1;
@@ -496,8 +497,6 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
   uint8_t hdr0 = p_cb->conn_id;
   bool fragmented = false;
 #if (NXP_EXTNS == TRUE)
-  tNFC_EXT_HDR* p_ext_hdr;
-  NFC_HDR* p_last;
   uint8_t* pTemp;
   if (core_reset_init_num_buff == true) {
     LOG(ERROR) << StringPrintf("Reinitializing the num_buff");
@@ -573,61 +572,21 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
       /* the data packet is too big and need to be fragmented
        * prepare a new GKI buffer
        * (even the last fragment to avoid issues) */
-#if (NXP_EXTNS == TRUE)
-      p_ext_hdr = (tNFC_EXT_HDR *)p_data;
-      p = NCI_GET_CMD_BUF(sizeof(NFC_HDR) + NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE + ulen);
-#else
       p = NCI_GET_CMD_BUF(ulen);
-#endif
-      if (p == NULL) return (NCI_STATUS_BUFFER_FULL);
+      if (p == NULL)
+        return (NCI_STATUS_BUFFER_FULL);
+
       p->len = ulen;
-#if (NXP_EXTNS == TRUE)
-      p->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
-#else
       p->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE + 1;
-#endif
+
       if (p->len) {
         pp = (uint8_t*)(p + 1) + p->offset;
-#if (NXP_EXTNS == TRUE)
-        if(p_ext_hdr->p_data_buf) {
-          if(p_ext_hdr->hdr_len) {
-            memcpy(pp, p_ext_hdr->hdr_info, p_ext_hdr->hdr_len);
-            pp += p_ext_hdr->hdr_len;
-            memset(p_ext_hdr->hdr_info, 0, sizeof(p_ext_hdr->hdr_info));
-          }
-          memcpy(pp, p_ext_hdr->p_data_buf+p_data->offset, ulen - p_ext_hdr->hdr_len);
-        }
-#else
         ps = (uint8_t*)(p_data + 1) + p_data->offset;
         memcpy(pp, ps, ulen);
-#endif
       }
       /* adjust the NFC_HDR on the old fragment */
       p_data->len -= ulen;
       p_data->offset += ulen;
-
-#if (NXP_EXTNS == TRUE)
-      if(p_ext_hdr->hdr_len) {
-        p_data->offset -= p_ext_hdr->hdr_len;
-        p_ext_hdr->hdr_len = 0;
-      }
-
-      if(p_data->len <= ulen) {
-        p_last = NCI_GET_CMD_BUF(sizeof(NFC_HDR) + NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE + p_data->len);
-        if (p_last == NULL) return (NCI_STATUS_BUFFER_FULL);
-        p_last->len = p_data->len;
-        p_last->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
-        if (p_last->len) {
-          uint8_t* pp = (uint8_t*)(p_last + 1) + p_last->offset;
-          if(p_ext_hdr->p_data_buf){
-            memcpy(pp, (p_ext_hdr->p_data_buf+(p_data->offset)), p_data->len);
-          }
-        }
-        p_data = (NFC_HDR*)GKI_dequeue(&p_cb->tx_q);
-        GKI_freebuf(p_data);
-        GKI_enqueue(&p_cb->tx_q, p_last);
-      }
-#endif
     }
 
     p->event = BT_EVT_TO_NFC_NCI;
@@ -2995,16 +2954,6 @@ void nfc_ncif_proc_data(NFC_HDR* p_msg) {
       GKI_enqueue(&p_cb->rx_q, p_msg);
       nfc_data_event(p_cb);
     }
-#if (NXP_EXTNS == TRUE)
-    if(!pbf) {
-      if((NFC_HDR*)GKI_getlast(&p_cb->rx_q) != NULL) {
-        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfc_ncif_proc_data: Last non chained packet");
-        nfc_data_event(p_cb);
-      } else {
-        /*Do nothing*/
-      }
-    }
-#endif
     return;
   }
   GKI_freebuf(p_msg);

@@ -50,7 +50,6 @@
 #include "nfa_dm_int.h"
 #if (NXP_EXTNS == TRUE)
 #include "nfc_int.h"
-#include "nfa_p2p_int.h"
 #endif
 
 using android::base::StringPrintf;
@@ -530,44 +529,6 @@ void nfa_dm_init_cfgs(phNxpNci_getCfg_info_t* mGetCfg_info) {
   memcpy(&nfa_dm_cb.params.wt, mGetCfg_info->pmid_wt,
          mGetCfg_info->pmid_wt_len);
 }
-
-/*******************************************************************************
-**
-** Function         nfa_dm_get_extended_cmd_buf
-**
-** Description      Initializes command buffer
-**
-** Returns          NFA_STATUS_FAILED, If memory allocation is not successfull.
-                    NFA_STATUS_OK, If memory allocation and pointer initialization is successfull
-**
-*******************************************************************************/
-tNFA_STATUS nfa_dm_get_extended_cmd_buf(tNFC_EXT_HDR **p_msg, uint32_t event,
-                                         uint8_t* p_data,
-                                         __attribute__((unused)) uint16_t data_len) {
-  uint16_t size = 0;
-  tNFA_STATUS status = NFA_STATUS_FAILED;
-
-  if(p_data)
-  {
-    if(event == NFA_DM_API_RAW_FRAME_EVT) {
-        size = NFC_EXT_HDR_SIZE + NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
-    }else if(event == NFA_P2P_API_SEND_UI_EVT || event == NFA_P2P_API_SEND_DATA_EVT) {
-        size = NFC_EXT_HDR_SIZE + LLCP_MIN_OFFSET;
-    }
-    if((*p_msg = (tNFC_EXT_HDR *)GKI_getbuf(size)) != NULL) {
-      memset(*p_msg, 0, sizeof(tNFC_EXT_HDR));
-      (*p_msg)->p_data_buf = p_data;
-      status = NFA_STATUS_OK;
-    }else{
-      status = NFA_STATUS_FAILED;
-    }
-  }else{
-    status = NFA_STATUS_FAILED;
-  }
-
-  return status;
-}
-
 #endif
 /*******************************************************************************
 **

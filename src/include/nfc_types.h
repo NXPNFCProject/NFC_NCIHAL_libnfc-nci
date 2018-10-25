@@ -48,9 +48,6 @@ typedef struct {
   uint16_t layer_specific;
 } NFC_HDR;
 #define NFC_HDR_SIZE (sizeof(NFC_HDR))
-#if (NXP_EXTNS == TRUE)
-#define NFC_EXT_HDR_SIZE (sizeof(tNFC_EXT_HDR))
-#endif
 
 /* Mask for NFC_HDR event field */
 #define NFC_EVT_MASK 0xFF00
