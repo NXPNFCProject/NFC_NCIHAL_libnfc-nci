@@ -137,7 +137,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                   /* Discovery operation is complete, retrieve discovery result */
                   nfa_hci_cb.num_nfcee = NFA_HCI_MAX_HOST_IN_NETWORK;
                   NFA_EeGetInfo(&nfa_hci_cb.num_nfcee, nfa_hci_cb.ee_info);
-                  for (int yy = 0; yy < NFA_HCI_MAX_HOST_IN_NETWORK; yy++) {
+                  for (int yy = 0; yy < nfa_hci_cb.num_nfcee; yy++) {
                       nfa_hci_cb.ee_info[yy].hci_enable_state = NFA_HCI_FL_EE_NONE;
                       nfa_hciu_add_host_resetting((nfa_hci_cb.ee_info[yy].ee_handle & ~NFA_HANDLE_GROUP_EE), NFCEE_REINIT);
                   }
@@ -276,6 +276,14 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                    (nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_INIT_COMPLETED)) {
                      nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED);
                      nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_INIT_COMPLETED);
+                    if(nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_REINIT)
+                    {
+                      DLOG_IF(INFO, nfc_debug_enabled)
+                          << StringPrintf("NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED () handling pending NFCEE_UNRECOVERABLE_ERRROR");
+                      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("resetting 11");
+                      nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_REINIT);
+                      nfa_hci_cb.next_nfcee_idx += 1;
+                    }
                     if(!nfa_hci_check_set_apdu_pipe_ready_for_next_host ()) {
                       DLOG_IF(INFO, nfc_debug_enabled)
                           << StringPrintf("NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED () reset handling");
@@ -327,7 +335,6 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                 if (nfa_hciu_find_dyn_apdu_pipe_for_host (nfa_ee_cb.ecb[ee_entry_index].nfcee_id) == NULL)
                 {
                   nfa_hci_cb.curr_nfcee = nfa_ee_cb.ecb[ee_entry_index].nfcee_id;
-                  nfa_hci_cb.next_nfcee_idx = 0x00;
                   if(nfa_ee_cb.ecb[ee_entry_index].nfcee_id == NFA_HCI_FIRST_PROP_HOST) {
                     NFC_NfceePLConfig(nfa_ee_cb.ecb[ee_entry_index].nfcee_id, 0x03);
                     nfa_hciu_add_host_resetting(nfa_ee_cb.ecb[ee_entry_index].nfcee_id, NFCEE_INIT_COMPLETED);
