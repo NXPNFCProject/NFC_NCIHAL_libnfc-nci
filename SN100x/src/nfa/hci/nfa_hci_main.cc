@@ -1436,7 +1436,6 @@ void nfa_hci_rsp_timeout() {
         nfa_hci_release_transceive(nfa_ee_cb.ecb[ee_entry_index].nfcee_id);
         ee_entry_index++;
       }
-      nfa_hci_notify_w4_atr_timeout(0);
 #endif
       if (nfa_hci_cb.w4_rsp_evt) {
         nfa_hci_cb.w4_rsp_evt = false;
@@ -2006,7 +2005,6 @@ static void nfa_hci_timer_cback (TIMER_LIST_ENT *p_tle)
                 p_pipe_cmdrsp_info->pipe_user = NFA_HCI_APP_HANDLE_NONE;
             }
         }
-        nfa_hci_notify_w4_atr_timeout(*p_pipe_id);
         //p_pipe_cmdrsp_info->cmd_inst_sent        = 0;
         //p_pipe_cmdrsp_info->cmd_inst_param_sent  = 0;
     }
