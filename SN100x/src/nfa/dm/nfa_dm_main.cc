@@ -205,7 +205,11 @@ bool nfa_dm_is_protocol_supported(tNFC_PROTOCOL protocol, uint8_t sel_res) {
            (sel_res == NFC_SEL_RES_NFC_FORUM_T2T)) ||
           (protocol == NFC_PROTOCOL_T3T) ||
           (protocol == NFC_PROTOCOL_ISO_DEP) ||
-          (protocol == NFC_PROTOCOL_NFC_DEP) || (protocol == NFC_PROTOCOL_T5T));
+          (protocol == NFC_PROTOCOL_NFC_DEP) || (protocol == NFC_PROTOCOL_T5T)
+#if (NXP_EXTNS == TRUE)
+          || (protocol == NFC_PROTOCOL_T3BT)
+#endif
+          );
 }
 /*******************************************************************************
 **

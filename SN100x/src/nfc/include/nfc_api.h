@@ -497,6 +497,7 @@ extern uint8_t NFC_GetNCIVersion();
 
 #if (NXP_EXTNS == TRUE)
 #define NFC_PROTOCOL_ISO7816 NCI_PROTOCOL_ISO7816
+#define NFC_PROTOCOL_T3BT NCI_PROTOCOL_T3BT
 #endif
 typedef uint8_t tNFC_PROTOCOL;
 
@@ -674,11 +675,18 @@ typedef tNFC_STATUS tNFC_START_DEVT;
 typedef tNCI_RF_PA_PARAMS tNFC_RF_PA_PARAMS;
 #define NFC_MAX_SENSB_RES_LEN NCI_MAX_SENSB_RES_LEN
 #define NFC_NFCID0_MAX_LEN 4
+#if (NXP_EXTNS == TRUE)
+#define NFC_PUPIID_MAX_LEN 8
+#endif
 typedef struct {
   uint8_t sensb_res_len; /* Length of SENSB_RES Response (Byte 2 - Byte 12 or
                             13) Available after Technology Detection */
   uint8_t sensb_res[NFC_MAX_SENSB_RES_LEN]; /* SENSB_RES Response (ATQ) */
   uint8_t nfcid0[NFC_NFCID0_MAX_LEN];
+#if (NXP_EXTNS == TRUE)
+  uint8_t pupiid_len;
+  uint8_t pupiid[NFC_PUPIID_MAX_LEN];
+#endif
 } tNFC_RF_PB_PARAMS;
 
 #define NFC_MAX_SENSF_RES_LEN NCI_MAX_SENSF_RES_LEN

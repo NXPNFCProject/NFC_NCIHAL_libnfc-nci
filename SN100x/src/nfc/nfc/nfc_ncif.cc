@@ -915,6 +915,12 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
   if (evt_data.activate.protocol == NCI_PROTOCOL_18092_ACTIVE)
     evt_data.activate.protocol = NCI_PROTOCOL_NFC_DEP;
 
+#if(NXP_EXTNS == TRUE)
+  if ((evt_data.activate.protocol == NCI_PROTOCOL_UNKNOWN) &&
+      (p_intf->type == NCI_INTERFACE_FRAME))
+    evt_data.activate.protocol = NCI_PROTOCOL_T3BT;
+#endif
+
   evt_data.activate.rf_tech_param.mode = *p++;
   buff_size = *p++;
   num_buff = *p++;
