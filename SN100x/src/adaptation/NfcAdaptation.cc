@@ -549,9 +549,6 @@ void NfcAdaptation::InitializeHalDeviceContext() {
   mHalEntryFuncs.close = HalClose;
   mHalEntryFuncs.core_initialized = HalCoreInitialized;
   mHalEntryFuncs.write = HalWrite;
- #if (NXP_EXTNS == TRUE)
-  mHalEntryFuncs.ioctl = HalIoctl;
-#endif
   mHalEntryFuncs.prediscover = HalPrediscover;
   mHalEntryFuncs.control_granted = HalControlGranted;
   mHalEntryFuncs.power_cycle = HalPowerCycle;
@@ -565,6 +562,16 @@ void NfcAdaptation::InitializeHalDeviceContext() {
   LOG(INFO) << StringPrintf("%s: INfc::getService() returned %p (%s)", func,
                             mHal.get(),
                             (mHal->isRemote() ? "remote" : "local"));
+#if (NXP_EXTNS == TRUE)
+  LOG(INFO) << StringPrintf("%s: INxpNfc::tryGetService()", func);
+  mHalNxpNfc = INxpNfc::tryGetService();
+  if (mHalNxpNfc != nullptr) {
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: INxpNfc::getService() returned %p (%s)",
+             func, mHalNxpNfc.get(),
+             (mHalNxpNfc->isRemote() ? "remote" : "local"));
+  }
+  mHalEntryFuncs.ioctl = HalIoctl;
+#endif
 }
 
 /*******************************************************************************
