@@ -872,9 +872,9 @@ void NfcAdaptation::DownloadFirmware() {
   }
   if(status == NfcStatus::OK){
     mHalOpenCompletedEvent.wait();
-    status =mHal->close();
-    mHalCloseCompletedEvent.lock();
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: try close HAL", func);
+    mHalCloseCompletedEvent.lock();
+    status =mHal->close();
     mHalCloseCompletedEvent.wait();
   }
 #else
