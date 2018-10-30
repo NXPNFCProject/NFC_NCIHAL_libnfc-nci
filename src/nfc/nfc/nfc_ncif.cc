@@ -1924,7 +1924,7 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
 **
 *******************************************************************************/
 void nfc_ncif_proc_deactivate(uint8_t status, uint8_t deact_type, bool is_ntf) {
-  tNFC_DISCOVER evt_data;
+  tNFC_DISCOVER evt_data = {0};
   tNFC_CONN_CB* p_cb = &nfc_cb.conn_cb[NFC_RF_CONN_ID];
 #if (NXP_EXTNS == TRUE)
     tRW_T3T_CB *p_t3tcb = &rw_cb.tcb.t3t;
