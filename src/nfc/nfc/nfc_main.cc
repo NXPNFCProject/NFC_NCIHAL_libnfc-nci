@@ -923,6 +923,7 @@ void NFC_Init(tHAL_NFC_ENTRY* p_hal_entry_tbl)
   nfc_cb.bIssueModeSetCmd = false;
   nfc_cb.bCeActivatedeSE = false;
   nfc_cb.pwr_link_cmd.bPwrLinkCmdRequested = false;
+  nfc_cb.pwr_link_cmd.isSpiOnReq = false;
   nfc_cb.bBlkPwrlinkAndModeSetCmd = false;
   nfc_cb.isLowRam = p_hal_entry_cntxt->isLowRam;
   if (p_hal_entry_cntxt->boot_mode != NFC_FAST_BOOT_MODE)
@@ -1698,13 +1699,13 @@ NFCEEs.
 ** Returns          tNFC_STATUS
 **
 *******************************************************************************/
-tNFC_STATUS NFC_Nfcee_PwrLinkCtrl(uint8_t nfcee_id, uint8_t cfg_value) {
+tNFC_STATUS NFC_Nfcee_PwrLinkCtrl(uint8_t nfcee_id, uint8_t cfg_value, bool isSpiOnReq) {
     if(!nfcFL.eseFL._WIRED_MODE_STANDBY) {
         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFC_Nfcee_PwrLinkCtrl :"
                 "WIRED_MODE_STANDBY is not available.. Returning");
         return NFC_STATUS_FAILED;
     }
-  return nci_snd_pwr_nd_lnk_ctrl_cmd(nfcee_id, cfg_value);
+  return nci_snd_pwr_nd_lnk_ctrl_cmd(nfcee_id, cfg_value, isSpiOnReq);
 }
 
 /*******************************************************************************

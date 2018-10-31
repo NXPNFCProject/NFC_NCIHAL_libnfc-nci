@@ -81,7 +81,7 @@ uint8_t nci_snd_parameter_update_cmd(uint8_t* p_param_tlvs, uint8_t tlv_size);
 uint8_t nci_snd_iso_dep_nak_presence_check_cmd();
 uint8_t nci_snd_core_set_power_sub_state(uint8_t screen_state);
 #if (NXP_EXTNS == TRUE)
-uint8_t nci_snd_pwr_nd_lnk_ctrl_cmd(uint8_t nfcee_id, uint8_t cfg_value);
+uint8_t nci_snd_pwr_nd_lnk_ctrl_cmd(uint8_t nfcee_id, uint8_t cfg_value, bool isSpiOnReq);
 #endif
 #if ((NFC_NFCEE_INCLUDED == true) && (NFC_RW_ONLY == false))
 uint8_t nci_snd_nfcee_discover(uint8_t discover_action);

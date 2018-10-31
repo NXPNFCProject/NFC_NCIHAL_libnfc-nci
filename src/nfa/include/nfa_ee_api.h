@@ -373,7 +373,7 @@ extern tNFA_STATUS NFA_EeDeregister(tNFA_EE_CBACK* p_cback);
 **                  NFA_STATUS_INVALID_PARAM If bad parameter
 **
 *******************************************************************************/
-extern tNFA_STATUS NFA_SendPowerLinkCommand(uint8_t nfcee_id, uint8_t cfg_value);
+extern tNFA_STATUS NFA_SendPowerLinkCommand(uint8_t nfcee_id, uint8_t cfg_value, bool isSpiOnReq);
 /*******************************************************************************
 **
 ** Function         NFA_EeModeSet

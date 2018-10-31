@@ -1579,7 +1579,8 @@ extern uint16_t nfc_ncif_getMaxRoutingTableSize();
 ** Returns          tNFC_STATUS
 **
 *******************************************************************************/
-extern tNFC_STATUS NFC_Nfcee_PwrLinkCtrl(uint8_t nfcee_id, uint8_t cfg_value);
+extern tNFC_STATUS NFC_Nfcee_PwrLinkCtrl(uint8_t nfcee_id, uint8_t cfg_value,
+                                         bool isSpiOnReq);
 
 /*******************************************************************************
 **

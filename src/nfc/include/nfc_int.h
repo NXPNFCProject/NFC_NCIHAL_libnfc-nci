@@ -214,6 +214,7 @@ typedef struct {
 #endif
 typedef struct {
   bool bPwrLinkCmdRequested;
+  bool isSpiOnReq;
   uint16_t param;
 } tNFC_PWRLINK_CMD;
 
