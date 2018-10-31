@@ -244,22 +244,6 @@ void NfcAdaptation::GetVendorConfigs(
 #if(NXP_EXTNS == TRUE)
       configMap.emplace(NAME_NXP_SE_COLD_TEMP_ERROR_DELAY,
                               ConfigValue(config.eSeLowTempErrorDelay));
-      if(0xFF != config.p2pListenTechMask){
-      configMap.emplace(NAME_P2P_LISTEN_TECH_MASK,
-                              ConfigValue(config.p2pListenTechMask));
-      }
-      if(0xFF != config.hostListenTechMask){
-      configMap.emplace(NAME_HOST_LISTEN_TECH_MASK,
-                              ConfigValue(config.hostListenTechMask));
-      }
-      if(0xFF != config.uiccListenTechMask){
-      configMap.emplace(NAME_UICC_LISTEN_TECH_MASK,
-                              ConfigValue(config.uiccListenTechMask));
-      }
-      if(0xFF != config.pollingTechMask){
-      configMap.emplace(NAME_POLLING_TECH_MASK,
-                              ConfigValue(config.pollingTechMask));
-      }
 #endif
       configMap.emplace(NAME_OFF_HOST_ESE_PIPE_ID,
                         ConfigValue(config.offHostESEPipeId));

@@ -64,9 +64,7 @@ class ConfigFile {
   void parseFromFile(const std::string& file_name);
   void parseFromString(const std::string& config);
   void addConfig(const std::string& config, ConfigValue& value);
-#if(NXP_EXTNS == TRUE)
-  void overideConfig(const std::string& config, ConfigValue& value);
-#endif
+
   bool hasKey(const std::string& key);
   std::string getString(const std::string& key);
   unsigned getUnsigned(const std::string& key);
@@ -77,6 +75,10 @@ class ConfigFile {
 
  private:
   ConfigValue& getValue(const std::string& key);
-
+#if(NXP_EXTNS == TRUE)
+  bool updateConfig(const std::string& config, ConfigValue& value);
+  bool isUpdateAllowed(const std::string& key);
+  std::string cur_file_name_ = "";
+#endif
   std::map<std::string, ConfigValue> values_;
 };

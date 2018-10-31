@@ -124,19 +124,35 @@ void ConfigFile::addConfig(const std::string& key, ConfigValue& value) {
   CHECK(!hasKey(key));
   values_.emplace(key, value);
 }
+
 #if(NXP_EXTNS == TRUE)
-void ConfigFile::overideConfig(const std::string& key, ConfigValue& value) {
-  if(hasKey(key)){
-    values_.erase(key);
+bool ConfigFile::updateConfig(const std::string& key, ConfigValue& value) {
+  std::map<std::string, ConfigValue>::iterator it = values_.find(key);
+  if (it != values_.end() && isUpdateAllowed(key)) {
+    it->second = value;
+    return true;
   }
-  values_.emplace(key, value);
+  return false;
+}
+
+bool ConfigFile::isUpdateAllowed(const std::string& key) {
+  if ((key.compare("P2P_LISTEN_TECH_MASK") == 0) ||
+      (key.compare("HOST_LISTEN_TECH_MASK") == 0) ||
+      (key.compare("UICC_LISTEN_TECH_MASK") == 0) ||
+      (key.compare("POLLING_TECH_MASK") == 0))
+    return true;
+  return false;
 }
 #endif
+
 void ConfigFile::parseFromFile(const std::string& file_name) {
   string config;
   bool config_read = ReadFileToString(file_name, &config);
   CHECK(config_read);
   LOG(INFO) << "ConfigFile - Parsing file '" << file_name << "'";
+#if(NXP_EXTNS == TRUE)
+  cur_file_name_ = file_name;
+#endif
   parseFromString(config);
 }
 
@@ -158,10 +174,18 @@ void ConfigFile::parseFromString(const std::string& config) {
     ConfigValue value;
     bool value_parsed = value.parseFromString(value_string);
     CHECK(value_parsed);
-    addConfig(key, value);
 
-    LOG(INFO) << "ConfigFile - [" << key << "] = " << value_string;
+#if(NXP_EXTNS == TRUE)
+    if (cur_file_name_.find("nxpTransit") != std::string::npos) {
+      if (updateConfig(key, value))
+        LOG(INFO) << "ConfigFile Updated - [" << key << "] = " << value_string;
+    } else {
+      addConfig(key, value);
+      LOG(INFO) << "ConfigFile - [" << key << "] = " << value_string;
+    }
   }
+  cur_file_name_ = "";
+#endif
 }
 
 bool ConfigFile::hasKey(const std::string& key) {
