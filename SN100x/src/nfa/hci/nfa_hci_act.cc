@@ -2632,7 +2632,7 @@ void nfa_hci_handle_pending_host_reset() {
         nfa_hci_handle_clear_all_pipe_cmd(nfa_hci_cb.reset_host[xx].host_id);
         break;
       } else if (nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_UNRECOVERABLE_ERRROR) {
-          nfa_hci_release_transceive(nfa_hci_cb.reset_host[xx].host_id);
+          nfa_hci_release_transceive(nfa_hci_cb.reset_host[xx].host_id, NFA_STATUS_HCI_UNRECOVERABLE_ERROR);
           nfa_hci_cb.curr_nfcee = nfa_hci_cb.reset_host[xx].host_id;
           nfa_hci_cb.next_nfcee_idx = 0x00;
           if(NFC_NfceeDiscover(true) == NFC_STATUS_FAILED) {

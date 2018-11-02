@@ -99,6 +99,8 @@
 /* API is called to perform illegal function */
 #define NFA_STATUS_REFUSED NFC_STATUS_REFUSED
 #define NFA_STATUS_HCI_WTX_TIMEOUT  0xE0
+#define NFA_STATUS_HCI_UNRECOVERABLE_ERROR 0xE1
+#define NFA_STATUS_EE_REMOVED_ERROR 0xE2
 #endif
 typedef uint8_t tNFA_STATUS;
 

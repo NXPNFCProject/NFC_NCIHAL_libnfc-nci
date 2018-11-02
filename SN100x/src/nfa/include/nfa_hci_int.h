@@ -656,7 +656,7 @@ extern void nfa_hci_startup(void);
 extern void nfa_hci_restore_default_config(uint8_t* p_session_id);
 #if(NXP_EXTNS == TRUE)
 extern bool nfa_hci_enable_one_nfcee(void);
-extern void nfa_hci_release_transceive(uint8_t host_id);
+extern void nfa_hci_release_transceive(uint8_t host_id, uint8_t status);
 #else
 extern void nfa_hci_enable_one_nfcee(void);
 #endif
