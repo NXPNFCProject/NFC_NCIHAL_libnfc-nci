@@ -246,6 +246,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                                       DLOG_IF(INFO, nfc_debug_enabled)
                      << StringPrintf("NFA_EE_MODE_SET_COMPLETE  handling here");
                       nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED);
+                      /*
                       if(nfa_hci_cb.curr_nfcee == NFA_HCI_FIRST_PROP_HOST)
                       {
                         if(nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD)
@@ -253,7 +254,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                         status = NFC_NfceeModeSet(NFA_HCI_FIRST_PROP_HOST, NFC_MODE_ACTIVATE);
                         if(status == NFA_STATUS_OK)
                           return;
-                      }
+                      }*/
                       break;
                     }
                  }
@@ -901,10 +902,14 @@ bool nfa_hci_enable_one_nfcee(void) {
                           continue;
                         }
                     }
-                    if(nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD)
+
+                    if (nfa_hciu_find_dyn_apdu_pipe_for_host (nfceeid) == NULL)
                     {
-                      if(nfceeid == NFA_HCI_FIRST_PROP_HOST)
-                        status = NFC_NfceePLConfig(nfceeid, 0x03);
+                      if(nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD)
+                      {
+                        if(nfceeid == NFA_HCI_FIRST_PROP_HOST)
+                          status = NFC_NfceePLConfig(nfceeid, 0x03);
+                      }
                     }
                     status = NFC_NfceeModeSet(nfceeid, NFC_MODE_ACTIVATE);
                     if(status == NFA_STATUS_OK) {

@@ -3485,6 +3485,12 @@ static void nfa_hci_handle_clear_all_pipe_cmd(uint8_t source_host) {
         }
     }
     else {
+      if(source_host == 0xC0) {
+        if ((p_pipe = nfa_hciu_find_dyn_apdu_pipe_for_host (source_host)) != NULL) {
+          if(nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD)
+            NFC_NfceePLConfig(source_host, 0x03);
+        }
+      }
         nfa_hciu_remove_all_pipes_from_host(source_host);
     }
 }
