@@ -801,7 +801,12 @@ bool nfa_dm_act_deactivate(tNFA_DM_MSG* p_data) {
         deact_type = NFA_DEACTIVATE_TYPE_SLEEP;
       }
     }
+#if (NXP_EXTNS == TRUE)
+    if ((nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_W4_ALL_DISCOVERIES)
+        || (nfa_dm_cb.disc_cb.activated_protocol == NFA_PROTOCOL_T3BT)) {
+#else
     if (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_W4_ALL_DISCOVERIES) {
+#endif
       /* Only deactivate to IDLE is allowed in this state. */
       deact_type = NFA_DEACTIVATE_TYPE_IDLE;
     }
@@ -958,6 +963,9 @@ tNFA_STATUS nfa_dm_start_polling(void) {
     }
     if (poll_tech_mask & NFA_TECHNOLOGY_MASK_B) {
       poll_disc_mask |= NFA_DM_DISC_MASK_PB_ISO_DEP;
+#if (NXP_EXTNS == TRUE)
+      poll_disc_mask |= NFA_DM_DISC_MASK_PB_T3BT;
+#endif
     }
     if (poll_tech_mask & NFA_TECHNOLOGY_MASK_F) {
       poll_disc_mask |= NFA_DM_DISC_MASK_PF_T3T;
@@ -1815,8 +1823,14 @@ void nfa_dm_notify_activation_status(tNFA_STATUS status,
         p_nfcid = p_params->t1t.uid;
         evt_data.activated.activate_ntf.rf_tech_param.param.pa.nfcid1_len =
             nfcid_len;
+#if (NXP_EXTNS == TRUE)
+        if (nfcid_len > 0 && p_nfcid != NULL) {
+#endif
         memcpy(evt_data.activated.activate_ntf.rf_tech_param.param.pa.nfcid1,
                p_nfcid, nfcid_len);
+#if (NXP_EXTNS == TRUE)
+        }
+#endif
       } else {
         nfcid_len = p_tech_params->param.pa.nfcid1_len;
         p_nfcid = p_tech_params->param.pa.nfcid1;
@@ -1824,6 +1838,21 @@ void nfa_dm_notify_activation_status(tNFA_STATUS status,
     } else if (p_tech_params->mode == NFC_DISCOVERY_TYPE_POLL_B) {
       nfcid_len = NFC_NFCID0_MAX_LEN;
       p_nfcid = p_tech_params->param.pb.nfcid0;
+#if (NXP_EXTNS == TRUE)
+      if (nfa_dm_cb.disc_cb.activated_protocol == NFC_PROTOCOL_T3BT) {
+        if (p_tech_params->param.pb.pupiid_len != 0) {
+          tNFC_ACTIVATE_DEVT* activate_ntf =
+              (tNFC_ACTIVATE_DEVT*)nfa_dm_cb.p_activate_ntf;
+          p_nfcid = activate_ntf->rf_tech_param.param.pb.pupiid;
+          nfcid_len = activate_ntf->rf_tech_param.param.pb.pupiid_len;
+          DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+              "nfa_dm_notify_activation_status (): update pupi_len=%x",
+              nfcid_len);
+          memcpy(evt_data.activated.activate_ntf.rf_tech_param.param.pb.pupiid,
+                 p_nfcid, nfcid_len);
+        }
+      }
+#endif
     } else if (p_tech_params->mode == NFC_DISCOVERY_TYPE_POLL_F) {
       nfcid_len = NFC_NFCID2_LEN;
       p_nfcid = p_tech_params->param.pf.nfcid2;

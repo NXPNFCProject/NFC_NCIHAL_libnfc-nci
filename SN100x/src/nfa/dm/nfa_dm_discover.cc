@@ -196,7 +196,12 @@ static uint8_t nfa_dm_get_rf_discover_config(
   }
 
   /* Check polling B */
+#if (NXP_EXTNS == TRUE)
+  if (dm_disc_mask & (NFA_DM_DISC_MASK_PB_ISO_DEP
+                      | NFA_DM_DISC_MASK_PB_T3BT)) {
+#else
   if (dm_disc_mask & NFA_DM_DISC_MASK_PB_ISO_DEP) {
+#endif
     disc_params[num_params].type = NFC_DISCOVERY_TYPE_POLL_B;
     disc_params[num_params].frequency = p_nfa_dm_rf_disc_freq_cfg->pb;
     num_params++;
@@ -721,6 +726,10 @@ static tNFA_DM_DISC_TECH_PROTO_MASK nfa_dm_disc_get_disc_mask(
   } else if (NFC_DISCOVERY_TYPE_POLL_B == tech_n_mode) {
     if (protocol == NFC_PROTOCOL_ISO_DEP)
       disc_mask = NFA_DM_DISC_MASK_PB_ISO_DEP;
+#if (NXP_EXTNS == TRUE)
+    else if (protocol == NFC_PROTOCOL_T3BT)
+      disc_mask = NFA_DM_DISC_MASK_PB_T3BT;
+#endif
   } else if (NFC_DISCOVERY_TYPE_POLL_F == tech_n_mode) {
     if (protocol == NFC_PROTOCOL_T3T)
       disc_mask = NFA_DM_DISC_MASK_PF_T3T;
