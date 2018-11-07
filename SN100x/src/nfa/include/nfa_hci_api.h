@@ -107,6 +107,7 @@
 #define NFA_HCI_CMD_APDU_SENT_EVT  0x17    /* Command APDU sent to server APDU Host        */
 #define NFA_HCI_APDU_ABORTED_EVT   0x18    /* Stopped waiting for Response APDU            */
 #define NFA_HCI_RSP_APDU_RCVD_EVT  0x19    /* Response APDU received from server APDU Host */
+#define NFA_HCI_INIT_COMPLETED     0x20
 #endif
 typedef uint8_t tNFA_HCI_EVT;
 
@@ -256,6 +257,11 @@ typedef struct
     uint16_t          atr_len;                           /* Length of Response ATR received */
     uint8_t           *p_atr;                            /* Response ATR */
 } tNFA_HCI_APDU_ABORTED;
+/* Data for NFA_HCI_INIT_COMPLETED */
+typedef struct {
+  tNFA_STATUS status; /* Status of Enabling HCI Network */
+} tNFA_HCI_INIT_COMPLETED;
+
 #endif
 /* Data for NFA_HCI_RSP_RCVD_EVT */
 typedef struct {
@@ -362,6 +368,7 @@ typedef union {
   tNFA_HCI_CMD_APDU_SENT          apdu_sent;      /* NFA_HCI_CMD_APDU_SENT_EVT      */
   tNFA_HCI_APDU_ABORTED           apdu_aborted;   /* NFA_HCI_APDU_ABORTED_EVT       */
   tNFA_HCI_RSP_APDU_RCVD          apdu_rcvd;      /* NFA_HCI_RSP_APDU_RCVD_EVT      */
+  tNFA_HCI_INIT_COMPLETED         init_completed;
 #endif
   tNFA_HCI_ADD_STATIC_PIPE_EVT pipe_added; /* NFA_HCI_ADD_STATIC_PIPE_EVT    */
 } tNFA_HCI_EVT_DATA;

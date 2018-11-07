@@ -246,15 +246,6 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                                       DLOG_IF(INFO, nfc_debug_enabled)
                      << StringPrintf("NFA_EE_MODE_SET_COMPLETE  handling here");
                       nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED);
-                      /*
-                      if(nfa_hci_cb.curr_nfcee == NFA_HCI_FIRST_PROP_HOST)
-                      {
-                        if(nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD)
-                          NFC_NfceePLConfig(NFA_HCI_FIRST_PROP_HOST, 0x03);
-                        status = NFC_NfceeModeSet(NFA_HCI_FIRST_PROP_HOST, NFC_MODE_ACTIVATE);
-                        if(status == NFA_STATUS_OK)
-                          return;
-                      }*/
                       break;
                     }
                  }
@@ -297,6 +288,13 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                        DLOG_IF(INFO, nfc_debug_enabled)
                           << StringPrintf("NFCEE_UNRECOVERABLE_ERRROR reset handling");
                        nfa_hci_enable_one_nfcee();
+                     } else if(nfa_hci_cb.next_nfcee_idx == nfa_hci_cb.num_nfcee)
+                     {
+                       tNFA_HCI_EVT_DATA evt_data;
+                       evt_data.init_completed.status = NFA_STATUS_OK;
+                       DLOG_IF(INFO, nfc_debug_enabled)
+                          << StringPrintf("All NFCEE's Initialized");
+                       nfa_hciu_send_to_all_apps(NFA_HCI_INIT_COMPLETED, &evt_data);
                      }
                      break;
                  } else if (nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_INIT_COMPLETED) {
@@ -902,7 +900,6 @@ bool nfa_hci_enable_one_nfcee(void) {
                           continue;
                         }
                     }
-
                     if (nfa_hciu_find_dyn_apdu_pipe_for_host (nfceeid) == NULL)
                     {
                       if(nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD)

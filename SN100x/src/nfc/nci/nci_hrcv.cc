@@ -458,6 +458,22 @@ void nci_proc_ee_management_ntf(NFC_HDR* p_msg) {
   }
 
   if (p_cback) (*p_cback)(event, &nfc_response);
+
+#if 0
+  if(op_code == NCI_MSG_NFCEE_MODE_SET)
+  {
+    if(nfc_response.mode_set.nfcee_id == 0xC0 && nfc_response.mode_set.mode
+      && nfc_response.mode_set.status == 0x03)
+    {
+      LOG(ERROR) << StringPrintf("Mode set STATUS_FAILED:0x%x", op_code);
+      event = NFC_NFCEE_STATUS_REVT;
+      nfc_response.nfcee_status.status = NCI_STATUS_OK;
+      nfc_response.nfcee_status.nfcee_id = nfa_ee_cb.nfcee_id;
+      nfc_response.nfcee_status.nfcee_status = NFC_NFCEE_STS_UNRECOVERABLE_ERROR;
+      if (p_cback) (*p_cback)(event, &nfc_response);
+    }
+  }
+#endif
 }
 
 #endif

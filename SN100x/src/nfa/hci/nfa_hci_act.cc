@@ -2991,6 +2991,9 @@ static void nfa_hci_handle_apdu_app_gate_hcp_msg_data (uint8_t *p_data, uint16_t
                        << StringPrintf ("%s:  Max WTX count reached",__func__);
                     nfa_hci_cb.m_wtx_count = 0;
                     if(p_pipe_cmdrsp_info->w4_rsp_apdu_evt) {
+                        DLOG_IF(INFO, nfc_debug_enabled)
+                           << StringPrintf ("%s:  Max WTX count w4_rsp_apdu_evt",__func__);
+
                         evt_data.apdu_rcvd.apdu_len = 0;
                         evt_data.apdu_rcvd.p_apdu = NULL;
                         evt_data.apdu_rcvd.status = NFA_STATUS_HCI_WTX_TIMEOUT;
@@ -3485,7 +3488,7 @@ static void nfa_hci_handle_clear_all_pipe_cmd(uint8_t source_host) {
         }
     }
     else {
-      if(source_host == 0xC0) {
+      if(source_host == NFA_HCI_FIRST_PROP_HOST) {
         if ((p_pipe = nfa_hciu_find_dyn_apdu_pipe_for_host (source_host)) != NULL) {
           if(nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD)
             NFC_NfceePLConfig(source_host, 0x03);
