@@ -298,10 +298,17 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                      }
                      break;
                  } else if (nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_INIT_COMPLETED) {
-                     if(nfa_hci_cb.next_nfcee_idx < nfa_hci_cb.num_nfcee) {
+                     if(nfa_hciu_find_dyn_apdu_pipe_for_host (nfa_hci_cb.reset_host[xx].host_id) == NULL)
+                     {
                        DLOG_IF(INFO, nfc_debug_enabled)
-                          << StringPrintf("delayed NFCEE_INIT_COMPLETED  handling");
-                       nfa_hci_enable_one_nfcee();
+                         << StringPrintf("delayed NFCEE_INIT_COMPLETED handling");
+                       if(!nfa_hci_check_set_apdu_pipe_ready_for_next_host ()) {
+                         nfa_hci_handle_pending_host_reset();
+                       }
+                     }
+                     else
+                     {
+                       nfa_hciu_clear_host_resetting(nfa_hci_cb.reset_host[xx].host_id, NFCEE_INIT_COMPLETED);
                      }
                      break;
                  } else if (nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_REMOVED_NTF) {
@@ -1891,8 +1898,12 @@ static void nfa_hci_timer_cback (TIMER_LIST_ENT *p_tle)
       || (nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_NETWK_ENABLE))
     {
         LOG(ERROR) << StringPrintf ("nfa_hci_timer_cback - Initialization failed!");
+#if(NXP_EXTNS == TRUE)
+        nfa_hci_startup_complete (NFA_STATUS_OK);
+#else
         /* Timeout to Read Registry from APDU gate pipe */
         nfa_hci_startup_complete (NFA_STATUS_FAILED);
+#endif
     }
     else
     {

@@ -2451,8 +2451,19 @@ static void nfa_hci_get_pipe_state_cb(__attribute__((unused))uint8_t event, __at
       DLOG_IF(INFO, nfc_debug_enabled)
         << StringPrintf("nfa_hci_get_pipe_state_cb APDU pipe not available");
       if(nfa_hci_check_nfcee_init_complete(NFA_HCI_FIRST_PROP_HOST) || conn_status)
+      {
         nfa_hciu_send_create_pipe_cmd (NFA_HCI_APDU_APP_GATE,
             NFA_HCI_FIRST_PROP_HOST, NFA_HCI_APDU_GATE);
+      } else {
+        DLOG_IF(INFO, nfc_debug_enabled)
+          << StringPrintf("nfa_hci_get_pipe_state_cb APDU pipe not available wait for status NFCEE_INIT_COMPLETED");
+        if ((nfa_hci_cb.hci_state == NFA_HCI_STATE_STARTUP)
+          || (nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_NETWK_ENABLE))
+        {
+          if (!nfa_hci_enable_one_nfcee ())
+            nfa_hci_startup_complete (NFA_STATUS_OK);
+       }
+      }
     }
 }
 
