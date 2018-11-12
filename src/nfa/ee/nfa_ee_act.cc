@@ -3966,8 +3966,7 @@ void nfa_ee_update_rout(void) {
 uint16_t nfa_ee_lmrt_size() {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ee_lmrt_size");
   int len;
-  len = nfa_all_ee_find_total_aid_len() + 2 /* tag/len */ +
-        2 /*route/power state*/;
+  len = nfa_all_ee_find_total_aid_len();
   if((nfcFL.chipType != pn547C2) &&
           (nfcFL.nfcMwFL._NFC_NXP_AID_MAX_SIZE_DYN == true)) {
       return len < max_aid_config_length ? len : max_aid_config_length;
