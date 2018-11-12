@@ -362,7 +362,7 @@ typedef struct {
   NFC_HDR hdr;
   uint8_t nfcee_id;
   uint8_t cfg_value;
-  bool isSpiOnReq;
+  tNFC_INTF_REQ_SRC reqSrc;
 } tNFA_EE_API_POWER_LINK_EVT;
 
 /* data type for NFA_EE_API_SET_TECH_CFG_EVT */

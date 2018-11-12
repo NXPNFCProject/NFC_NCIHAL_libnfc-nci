@@ -357,6 +357,12 @@ enum {
   NFC_RF_TRANSMISSION_ERROR, /* 7 CE Error events */
   NFC_HCI_RESTART_TIMER
 };
+
+typedef enum {
+    NFC_INTF_REQ_SRC_SPI,
+    NFC_INTF_REQ_SRC_DWP
+} tNFC_INTF_REQ_SRC;
+
 typedef uint16_t tNFC_CONN_EVT;
 
 #define NFC_NFCC_INFO_LEN 4
@@ -1580,7 +1586,7 @@ extern uint16_t nfc_ncif_getMaxRoutingTableSize();
 **
 *******************************************************************************/
 extern tNFC_STATUS NFC_Nfcee_PwrLinkCtrl(uint8_t nfcee_id, uint8_t cfg_value,
-                                         bool isSpiOnReq);
+                                         tNFC_INTF_REQ_SRC reqSrc);
 
 /*******************************************************************************
 **

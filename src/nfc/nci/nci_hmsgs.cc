@@ -345,8 +345,10 @@ uint8_t nci_snd_nfcee_discover(uint8_t discover_action) {
 ** Returns          status
 **
 *******************************************************************************/
-uint8_t nci_snd_pwr_nd_lnk_ctrl_cmd(uint8_t nfcee_id, uint8_t cfg_value, bool isSpiOnReq) {
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nci_snd_pwr_nd_lnk_ctrl_cmd() Enter ");
+uint8_t nci_snd_pwr_nd_lnk_ctrl_cmd(uint8_t nfcee_id, uint8_t cfg_value,
+                                    tNFC_INTF_REQ_SRC reqSrc) {
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("nci_snd_pwr_nd_lnk_ctrl_cmd() Enter ");
     if(!nfcFL.eseFL._WIRED_MODE_STANDBY) {
         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("WIRED_MODE_STANDBY not available. Returning");
         return (NCI_STATUS_FAILED);
@@ -355,7 +357,7 @@ uint8_t nci_snd_pwr_nd_lnk_ctrl_cmd(uint8_t nfcee_id, uint8_t cfg_value, bool is
   uint8_t* pp;
   if (nfcFL.eseFL._ESE_DUAL_MODE_PRIO_SCHEME ==
           nfcFL.eseFL._ESE_WIRED_MODE_RESUME) {
-          nfc_cb.pwr_link_cmd.isSpiOnReq = isSpiOnReq;
+          nfc_cb.pwr_link_cmd.reqSrc = reqSrc;
       if (nfc_cb.bBlkPwrlinkAndModeSetCmd && (cfg_value != 0x00)) {
           DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("pwr link cmd ignored due to RF session");
           nfc_cb.pwr_link_cmd.bPwrLinkCmdRequested = true;

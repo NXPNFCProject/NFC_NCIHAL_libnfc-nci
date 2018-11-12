@@ -1057,7 +1057,7 @@ void nfc_ncif_event_status(tNFC_RESPONSE_EVT event, uint8_t status) {
     nfc_cb.bBlkPwrlinkAndModeSetCmd = true;
     p_cb = nfc_find_conn_cb_by_conn_id(nfa_hci_cb.conn_id);
     /*Stop rf_filed timer only if SPI is not open*/
-    if(!nfc_cb.pwr_link_cmd.isSpiOnReq)
+    if(NFC_INTF_REQ_SRC_DWP == nfc_cb.pwr_link_cmd.reqSrc)
     nfc_stop_timer(&nfc_cb.rf_filed_event_timeout_timer);
     if (!nfc_cb.bIsCreditNtfRcvd) {
       nfc_stop_timer(&nfc_cb.nci_wait_data_ntf_timer);
@@ -1270,9 +1270,10 @@ void nfc_ncif_resume_dwp_wired_mode() {
   if (nfc_cb.pwr_link_cmd.bPwrLinkCmdRequested) {
     nfc_stop_quick_timer(&nfc_cb.nci_wait_pwrLinkRsp_timer);
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("pwr link cmd to send");
-    nci_snd_pwr_nd_lnk_ctrl_cmd(NFCEE_ID_ESE, nfc_cb.pwr_link_cmd.param, nfc_cb.pwr_link_cmd.isSpiOnReq);
+    nci_snd_pwr_nd_lnk_ctrl_cmd(NFCEE_ID_ESE, nfc_cb.pwr_link_cmd.param,
+                                nfc_cb.pwr_link_cmd.reqSrc);
     nfc_cb.pwr_link_cmd.bPwrLinkCmdRequested = false;
-    nfc_cb.pwr_link_cmd.isSpiOnReq = false;
+    nfc_cb.pwr_link_cmd.reqSrc = NFC_INTF_REQ_SRC_DWP;
     if (!nfc_cb.bCeActivatedeSE) nfc_cb.bIssueModeSetCmd = true;
   } else if (((nfc_cb.bSetmodeOnReq) || (!GKI_queue_is_empty(&p_cb->tx_q))) &&
              (!nfc_cb.bCeActivatedeSE)) {
@@ -1712,10 +1713,11 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
     nfc_start_timer(&nfc_cb.listen_activation_timer_list,
                     (uint16_t)(NFC_TTYPE_LISTEN_ACTIVATION), 2);
   }
-/*Stop rf_filed timer only if SPI is not open*/
+  /*Stop rf_filed timer only if SPI is not open*/
   if ((nfcFL.eseFL._ESE_DUAL_MODE_PRIO_SCHEME ==
        nfcFL.eseFL._ESE_WIRED_MODE_RESUME) &&
-      nfc_cb.bBlockWiredMode && !nfc_cb.pwr_link_cmd.isSpiOnReq) {
+      nfc_cb.bBlockWiredMode &&
+      (NFC_INTF_REQ_SRC_DWP == nfc_cb.pwr_link_cmd.reqSrc)) {
     nfc_stop_timer(&nfc_cb.rf_filed_event_timeout_timer);
   }
 #endif
@@ -1961,8 +1963,8 @@ void nfc_ncif_proc_deactivate(uint8_t status, uint8_t deact_type, bool is_ntf) {
     if((nfcFL.eseFL._ESE_DUAL_MODE_PRIO_SCHEME == nfcFL.eseFL._ESE_WIRED_MODE_RESUME) &&
         (deact_type != NFC_DEACTIVATE_TYPE_SLEEP) && is_ntf)
     {
-        if(nfc_cb.bBlockWiredMode && !nfc_cb.pwr_link_cmd.isSpiOnReq)
-        {
+      if (nfc_cb.bBlockWiredMode &&
+          (NFC_INTF_REQ_SRC_DWP == nfc_cb.pwr_link_cmd.reqSrc)) {
             nfc_stop_timer(&nfc_cb.rf_filed_event_timeout_timer);
             nfc_start_timer(&nfc_cb.rf_filed_event_timeout_timer, (uint16_t)(NFC_TTYPE_NCI_WAIT_RF_FIELD_NTF), NFC_NCI_RFFIELD_EVT_TIMEOUT);
         }
@@ -2058,7 +2060,7 @@ void nfc_ncif_proc_ee_action(uint8_t* p, uint16_t plen) {
     if(nfcFL.eseFL._ESE_DUAL_MODE_PRIO_SCHEME ==
             nfcFL.eseFL._ESE_WIRED_MODE_RESUME) {
       /*Stop rf_filed timer only if SPI is not open*/
-      if (!nfc_cb.pwr_link_cmd.isSpiOnReq)
+      if (NFC_INTF_REQ_SRC_DWP == nfc_cb.pwr_link_cmd.reqSrc)
         nfc_stop_timer(&nfc_cb.rf_filed_event_timeout_timer);
         tNFC_CONN_CB* p_cb;
         p_cb = nfc_find_conn_cb_by_conn_id(nfa_hci_cb.conn_id);

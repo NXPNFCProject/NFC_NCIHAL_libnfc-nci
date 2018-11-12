@@ -327,7 +327,8 @@ tNFA_STATUS NFA_EeDeregister(tNFA_EE_CBACK* p_cback) {
 **                  NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_SendPowerLinkCommand(uint8_t nfcee_id, uint8_t cfg_value, bool isSpiOnReq) {
+tNFA_STATUS NFA_SendPowerLinkCommand(uint8_t nfcee_id, uint8_t cfg_value,
+                                     tNFC_INTF_REQ_SRC reqSrc) {
   tNFA_EE_API_POWER_LINK_EVT* p_msg;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_SendPowerLinkCommand() nfcee_id=0x%x", nfcee_id);
@@ -336,7 +337,7 @@ tNFA_STATUS NFA_SendPowerLinkCommand(uint8_t nfcee_id, uint8_t cfg_value, bool i
     p_msg->hdr.event = NFA_EE_NCI_PWR_LNK_CTRL_SET_EVT;
     p_msg->nfcee_id= nfcee_id;
     p_msg->cfg_value = cfg_value;
-    p_msg->isSpiOnReq = isSpiOnReq;
+    p_msg->reqSrc = reqSrc;
 
     nfa_sys_sendmsg(p_msg);
 
