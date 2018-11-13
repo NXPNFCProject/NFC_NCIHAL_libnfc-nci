@@ -459,7 +459,7 @@ void nci_proc_ee_management_ntf(NFC_HDR* p_msg) {
 
   if (p_cback) (*p_cback)(event, &nfc_response);
 
-#if 0
+#if (NXP_EXTNS == TRUE)
   if(op_code == NCI_MSG_NFCEE_MODE_SET)
   {
     if(nfc_response.mode_set.nfcee_id == 0xC0 && nfc_response.mode_set.mode
