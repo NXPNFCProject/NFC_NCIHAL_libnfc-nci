@@ -1052,7 +1052,13 @@ tNFA_STATUS NFA_SendRawFrame(uint8_t* p_raw_data, uint16_t data_len,
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("data_len:%d", data_len);
 
   /* Validate parameters */
-  if ((data_len == 0) || (p_raw_data == NULL))
+#if (NXP_EXTNS == TRUE)
+    if (((data_len == 0 ) || (p_raw_data == NULL))
+      && (!(nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_LISTEN_ACTIVE
+      && nfa_dm_cb.disc_cb.activated_protocol == NFA_PROTOCOL_T3T)))
+#else
+    if ((data_len == 0) || (p_raw_data == NULL))
+#endif
     return (NFA_STATUS_INVALID_PARAM);
 
   size = NFC_HDR_SIZE + NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE + data_len;
@@ -1064,7 +1070,13 @@ tNFA_STATUS NFA_SendRawFrame(uint8_t* p_raw_data, uint16_t data_len,
     p_msg->len = data_len;
 
     p = (uint8_t*)(p_msg + 1) + p_msg->offset;
+#if (NXP_EXTNS == TRUE)
+    if(p_raw_data != NULL) {
+      memcpy (p, p_raw_data, data_len);
+    }
+#else
     memcpy(p, p_raw_data, data_len);
+#endif
 
     nfa_sys_sendmsg(p_msg);
 
