@@ -129,7 +129,6 @@ class NfcAdaptation {
   void signal();
   static NfcAdaptation* mpInstance;
   static ThreadMutex sLock;
-  static ThreadMutex sIoctlLock;
   ThreadCondVar mCondVar;
   tHAL_NFC_ENTRY mHalEntryFuncs;  // function pointers for HAL entry points
   static tHAL_NFC_CBACK* mHalCallback;

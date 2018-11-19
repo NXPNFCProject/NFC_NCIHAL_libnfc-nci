@@ -80,7 +80,7 @@ extern void delete_stack_non_volatile_store(bool forceDelete);
 
 NfcAdaptation* NfcAdaptation::mpInstance = NULL;
 ThreadMutex NfcAdaptation::sLock;
-ThreadMutex NfcAdaptation::sIoctlLock;
+android::Mutex sIoctlMutex;
 sp<INxpNfc> NfcAdaptation::mHalNxpNfc;
 sp<INfc> NfcAdaptation::mHal;
 sp<INfcV1_1> NfcAdaptation::mHal_1_1;
@@ -558,7 +558,12 @@ void NfcAdaptation::DeviceShutdown() {
 void NfcAdaptation::Finalize() {
   const char* func = "NfcAdaptation::Finalize";
   AutoThreadMutex a(sLock);
-
+  /* Releasing if ioctl mutex is in locked state */
+  if (!sIoctlMutex.tryLock()) {
+      DLOG_IF(INFO, nfc_debug_enabled)
+          << StringPrintf("%s: Ioctl found in locked state", __func__);
+  }
+  sIoctlMutex.unlock();
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: enter", func);
   GKI_shutdown();
 
@@ -856,7 +861,7 @@ void IoctlCallback(::android::hardware::nfc::V1_0::NfcData outputData) {
 int NfcAdaptation::HalIoctl(long arg, void* p_data) {
   const char* func = "NfcAdaptation::HalIoctl";
   ::android::hardware::nfc::V1_0::NfcData data;
-  AutoThreadMutex a(sIoctlLock);
+  sIoctlMutex.lock();
   nfc_nci_IoctlInOutData_t* pInpOutData = (nfc_nci_IoctlInOutData_t*)p_data;
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s arg=%ld", func, arg);
   pInpOutData->inp.context = &NfcAdaptation::GetInstance();
@@ -875,6 +880,7 @@ int NfcAdaptation::HalIoctl(long arg, void* p_data) {
   if(mHalNxpNfc != nullptr)
       mHalNxpNfc->ioctl(arg, data, IoctlCallback);
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s Ioctl Completed for Type=%llu", func, (unsigned long long)pInpOutData->out.ioctlType);
+  sIoctlMutex.unlock();
   return (pInpOutData->out.result);
 }
 
