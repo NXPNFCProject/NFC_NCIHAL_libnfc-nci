@@ -1892,6 +1892,12 @@ static void rw_t4t_data_cback(__attribute__((unused)) uint8_t conn_id,
       return;
 
     case NFC_ERROR_CEVT:
+#if (NXP_EXTNS == TRUE)
+      if(NFC_STATUS_TIMEOUT == (tNFC_STATUS)(*(uint8_t*)p_data))
+      {
+        p_t4t->state = RW_T4T_STATE_IDLE;
+      }
+#endif
       if (p_t4t->state == RW_T4T_STATE_PRESENCE_CHECK) {
         p_t4t->state = RW_T4T_STATE_IDLE;
         rw_data.status = NFC_STATUS_FAILED;
