@@ -1054,7 +1054,7 @@ tNFA_STATUS NFA_EeDisconnect(tNFA_HANDLE ee_handle) {
 **
 *******************************************************************************/
 uint16_t NFA_GetAidTableSize() {
-  return NFA_EE_MAX_AID_CFG_LEN;
+  return NFA_EE_MAX_AID_CFG_LEN - 4;
 }
 
 /*******************************************************************************

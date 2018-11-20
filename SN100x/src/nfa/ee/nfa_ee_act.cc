@@ -3461,8 +3461,7 @@ uint16_t nfa_ee_lmrt_size() {
   DLOG_IF(INFO, nfc_debug_enabled)
         << StringPrintf("nfa_ee_lmrt_size");
   int len;
-  len = nfa_all_ee_find_total_aid_len() + 2 /* tag/len */ +
-        2 /*route/power state*/;
+  len = nfa_all_ee_find_total_aid_len();
   return len < NFA_EE_MAX_AID_CFG_LEN ? len : NFA_EE_MAX_AID_CFG_LEN;
 }
 #endif
