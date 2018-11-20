@@ -639,7 +639,7 @@ typedef struct {
   /* Number of host in the whitelist of Terminal host */
 #if(NXP_EXTNS == TRUE)
   /* Maximum  time to wait for HCI response */
-  uint16_t max_wtx_count;
+  uint8_t max_wtx_count;
 #endif
   uint8_t num_whitelist_host;
   /* Whitelist of Terminal Host */

@@ -564,7 +564,7 @@ typedef struct {
   uint8_t next_nfcee_idx;                          /* Index of NFCEE which is configured*/
   uint8_t active_host[NFA_HCI_MAX_HOST_IN_NETWORK]; /* active host in the
                                                          host network */
-  uint16_t m_wtx_count;
+  uint8_t m_wtx_count;
 #else
   uint8_t inactive_host[NFA_HCI_MAX_HOST_IN_NETWORK]; /* Inactive host in the
                                                          host network */
