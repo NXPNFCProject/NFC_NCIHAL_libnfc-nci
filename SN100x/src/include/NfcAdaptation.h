@@ -99,6 +99,9 @@ class NfcAdaptation {
   tHAL_NFC_ENTRY* GetHalEntryFuncs();
   void DownloadFirmware();
   void GetVendorConfigs(std::map<std::string, ConfigValue>& configMap);
+#if (NXP_EXTNS == TRUE)
+  void GetNxpConfigs(std::map<std::string, ConfigValue>& configMap);
+#endif
   void Dump(int fd);
 #if (NXP_EXTNS == TRUE)
   nfc_nci_IoctlInOutData_t* mCurrentIoctlData;

@@ -78,6 +78,9 @@ void NfcConfig::loadConfig() {
   NfcAdaptation& theInstance = NfcAdaptation::GetInstance();
   std::map<std::string, ConfigValue> configMap;
   theInstance.GetVendorConfigs(configMap);
+#if(NXP_EXTNS == TRUE)
+  theInstance.GetNxpConfigs(configMap);
+#endif
   for (auto config : configMap) {
     config_.addConfig(config.first, config.second);
   }
