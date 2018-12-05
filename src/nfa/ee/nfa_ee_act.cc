@@ -483,9 +483,7 @@ static void nfa_ee_add_proto_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
       power_cfg |= NCI_ROUTE_PWR_STATE_SWITCH_OFF;
     if (p_cb->proto_battery_off & nfa_ee_proto_mask_list[xx])
       power_cfg |= NCI_ROUTE_PWR_STATE_BATT_OFF;
-    if (power_cfg ||
-        (p_cb->nfcee_id == NFC_DH_ID &&
-         nfa_ee_proto_mask_list[xx] == NFA_PROTOCOL_MASK_NFC_DEP)) {
+    if (power_cfg) {
       /* Applying Route Block for ISO DEP Protocol, so that AIDs
        * which are not in the routing table can also be blocked */
       if (nfa_ee_proto_mask_list[xx] == NFA_PROTOCOL_MASK_ISO_DEP
@@ -523,17 +521,8 @@ static void nfa_ee_add_proto_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
       } else {
         proto_tag = NFC_ROUTE_TAG_PROTO;
       }
-      if (p_cb->nfcee_id == NFC_DH_ID &&
-          nfa_ee_proto_mask_list[xx] == NFA_PROTOCOL_MASK_NFC_DEP) {
-        /* add NFC-DEP routing to HOST */
-        add_route_tech_proto_tlv(&pp, NFC_ROUTE_TAG_PROTO, NFC_DH_ID,
-                                 NCI_ROUTE_PWR_STATE_ON, NFC_PROTOCOL_NFC_DEP);
-        DLOG_IF(INFO, nfc_debug_enabled)
-            << StringPrintf("%s - NFC DEP added for DH!!!", __func__);
-      } else {
-        add_route_tech_proto_tlv(&pp, proto_tag, p_cb->nfcee_id, power_cfg,
-                                 nfa_ee_proto_list[xx]);
-      }
+      add_route_tech_proto_tlv(&pp, proto_tag, p_cb->nfcee_id, power_cfg,
+                               nfa_ee_proto_list[xx]);
       num_tlv++;
       if (power_cfg != NCI_ROUTE_PWR_STATE_ON)
         nfa_ee_cb.ee_cfged |= NFA_EE_CFGED_OFF_ROUTING;
