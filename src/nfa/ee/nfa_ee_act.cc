@@ -4022,7 +4022,7 @@ bool nfa_ee_nfeeid_active(uint8_t nfee_id) {
 uint16_t nfa_ee_find_max_aid_config_length() {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ee_find_max_aid_config_length");
   /**
-   * Max Routing Table Size = 720
+   * Max Routing Table Size = M
    * After allocating size for Technology based routing and Protocol based
    *routing,
    * the remaining size can be used for AID based routing
@@ -4033,12 +4033,23 @@ uint16_t nfa_ee_find_max_aid_config_length() {
    *
    * Size for 1 Protocol route entry = 5 bytes (includes Type(1 byte),
    * Length (1 byte), Value (3 bytes - Power state, Tech Type, Location)
-   * TOTAL PROTOCOL ROUTE SIZE = 5 * 6 = 30 (Protocols ISO-DEP, NFC-DEP,
-   *ISO-7816, T1T, T2T, T3T)
+   * TOTAL PROTOCOL ROUTE SIZE NCI_1.0 = 5 * 6 = 30 (Protocols ISO-DEP, NFC-DEP,
+   * ISO-7816, T1T, T2T, T3T)
    *
-   * SIZE FOR AID = 720 - 15 - 30 = 675
-   * BUFFER for future extensions = 15
-   * TOTAL SIZE FOR AID = 675 - 15 = 660
+   * In NCI2.0 Protocol 7816 routing is replaced with empty AID, so NFA_EE_BUFFER_FUTURE_EXT
+   * should minus NFA_EE_EMPTY_AID_ENTRY_SIZE (size for empty aid entry = 4 bytes (includes Type(1 byte),
+   * Length (1 byte), Value (2 bytes - Power state, Location))
+   * TOTAL PROTOCOL ROUTE SIZE NCI_2.0 = (5 * 5) + 4 = 29 (Protocols ISO-DEP, NFC-DEP,
+   * T1T, T2T, T3T) + EMPTY AID ROUTE
+   *
+   * DEFAULT_SYS_CODE_ROUTE_SIZE_NCI_2.0 = 6
+   *
+   * BUFFER for future extensions NCI1.0 = 15
+   * BUFFER for future extensions NCI2.0 = 10
+   * TOTAL SIZE FOR AID NCI1.0 = M - 15 - 30 - 15     = M-60
+   * TOTAL SIZE FOR AID NCI2.0 = M - 15 - 29 - 6 - 10 = M-60
+   * In effect, Size for AID is same for NCI1.0/2.0
+   *
    */
     if((nfcFL.chipType != pn547C2) &&
             (nfcFL.nfcMwFL._NFC_NXP_AID_MAX_SIZE_DYN == true)) {
