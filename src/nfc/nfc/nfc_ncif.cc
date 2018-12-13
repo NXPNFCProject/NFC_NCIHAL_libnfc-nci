@@ -2658,18 +2658,24 @@ tNFC_STATUS nfc_ncif_store_FWVersion(uint8_t* p_buf) {
 **
 *******************************************************************************/
 tNFC_STATUS nfc_ncif_set_MaxRoutingTableSize(uint8_t* p_buf) {
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfc_ncif_set_MaxRoutingTableSize Enter");
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("nfc_ncif_set_MaxRoutingTableSize Enter");
 
-    if(!((nfcFL.chipType != pn547C2) && nfcFL.nfcMwFL._NFC_NXP_AID_MAX_SIZE_DYN)) {
-        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("chipType : pn547C2 or NFC_NXP_AID_MAX_SIZE_DYN"
-                " not available.. Returning");
-        return NFC_STATUS_FAILED;
-
-    }
+  if (!((nfcFL.chipType != pn547C2) &&
+        nfcFL.nfcMwFL._NFC_NXP_AID_MAX_SIZE_DYN)) {
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+        "chipType : pn547C2 or NFC_NXP_AID_MAX_SIZE_DYN not available.. Returning");
+    return NFC_STATUS_FAILED;
+  }
   uint8_t status = NFC_STATUS_OK;
-  int len = p_buf[2] + 2; /*include 2 byte header*/
-  maxRoutingTableSize = p_buf[len - 8];
-  maxRoutingTableSize = maxRoutingTableSize << 8 | p_buf[len - 9];
+  if (nfc_cb.nci_version == NCI_VERSION_2_0) {
+    maxRoutingTableSize = p_buf[9];
+    maxRoutingTableSize = maxRoutingTableSize | p_buf[10] << 8;
+  } else {
+    int len = p_buf[2] + 2; /*include 2 byte header*/
+    maxRoutingTableSize = p_buf[len - 8];
+    maxRoutingTableSize = maxRoutingTableSize << 8 | p_buf[len - 9];
+  }
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("MAX Routing size : %d", maxRoutingTableSize);
   if (maxRoutingTableSize == 0) {
     status = NFC_STATUS_FAILED;
