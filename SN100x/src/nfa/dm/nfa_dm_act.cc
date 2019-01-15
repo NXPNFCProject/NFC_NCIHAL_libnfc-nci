@@ -1189,6 +1189,28 @@ bool nfa_dm_set_transit_config(tNFA_DM_MSG* p_data) {
 
   return true;
 }
+
+/*******************************************************************************
+**
+** Function         nfa_dm_get_sems_output
+**
+** Description      Get Sems output response file from SE hal to NFC
+**
+** Returns          true (message buffer to be freed by caller)
+**
+*******************************************************************************/
+bool nfa_dm_get_sems_output(tNFA_DM_MSG* p_data) {
+  tNFA_DM_CBACK_DATA dm_cback_data;
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s", __func__);
+
+  dm_cback_data.get_sems_output.status = NFA_STATUS_FAILED;
+
+  if(NFC_GetSemsResponseOutput(p_data->get_sems_output.sems_type))
+    dm_cback_data.get_sems_output.status = NFA_STATUS_OK;
+  (*nfa_dm_cb.p_dm_cback)(NFA_DM_GET_SEMS_OUTPUT_EVT, &dm_cback_data);
+
+  return true;
+}
 #endif
 /*******************************************************************************
 **

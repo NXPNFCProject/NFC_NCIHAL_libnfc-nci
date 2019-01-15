@@ -102,7 +102,8 @@ const tNFA_DM_ACTION nfa_dm_action[] = {
     nfa_dm_act_send_raw_vs           /* NFA_DM_API_SEND_RAW_VS_EVT           */
 #if (NXP_EXTNS == TRUE)
     ,nfa_dm_act_change_discovery_tech, /* NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT  */
-    nfa_dm_set_transit_config        /* NFA_DM_API_SET_TRANSIT_CONFIG_EVT    */
+    nfa_dm_set_transit_config,        /* NFA_DM_API_SET_TRANSIT_CONFIG_EVT    */
+    nfa_dm_get_sems_output            /*NFA_DM_API_GET_SEMS_OUTPUT_RESP*/
 #endif
 };
 
@@ -542,6 +543,8 @@ static std::string nfa_dm_evt_2_str(uint16_t event) {
       return "NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT";
     case NFA_DM_API_SET_TRANSIT_CONFIG_EVT:
       return "NFA_DM_API_SET_TRANSIT_CONFIG_EVT";
+    case NFA_DM_API_GET_SEMS_OUTPUT_RESP:
+      return "NFA_DM_API_GET_SEMS_OUTPUT_RESP";
 #endif
   }
 

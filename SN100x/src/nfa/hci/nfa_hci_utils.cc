@@ -427,7 +427,7 @@ tNFA_STATUS nfa_hciu_send_msg(uint8_t pipe_id, uint8_t type,
                   p_nfa_hci_cfg->hcp_response_timeout);
       }
 #endif
-  }
+  } 
 #if(NXP_EXTNS == TRUE)
   else if(type == NFA_HCI_EVENT_TYPE)
   {
@@ -2116,7 +2116,7 @@ void nfa_hciu_add_host_resetting(uint8_t host_id, uint8_t reset_type) {
 **
 ** Description      This function returns hci host id for given nfceeid
 **
-** Returns          hci host id
+** Returns          hci host id 
 **
 *******************************************************************************/
 uint8_t nfa_hciu_get_hci_host_id(uint8_t nfceeid)

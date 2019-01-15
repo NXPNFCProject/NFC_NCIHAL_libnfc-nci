@@ -1575,4 +1575,93 @@ void NFC_GetFeatureList() {
 tNFC_chipType NFC_GetChipType() {
     return chipType;
 }
+
+/*******************************************************************************
+ **
+ ** Function         NFC_GetSemsResponseOutput
+ **
+ ** Description      Get SEMS response output/Status of previous execution
+ **
+ *******************************************************************************/
+bool NFC_GetSemsResponseOutput(tNFA_DM_API_SEMS_TYPE type) {
+  int ret = -1;
+  nfc_nci_IoctlInOutData_t inpOutData;
+  uint32_t lengthOfoutResp = 0;
+  int32_t remainingLen = 0;
+
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("Inside get sems response output");
+
+  memset(&inpOutData, 0x00, sizeof(nfc_nci_IoctlInOutData_t));
+
+  if(type == SEMS_RESP_OUTPUT) {
+    ret = nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_GET_SEMS_OUTPUT_LEN, &inpOutData);
+    if(ret == -1) {
+      return false;
+    }
+    lengthOfoutResp = inpOutData.out.data.semsRsp.rsp_len;
+    DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("Length of file = %d", lengthOfoutResp);
+
+    remainingLen = lengthOfoutResp;
+
+    if(remainingLen)
+    {
+      FILE* fIn= fopen(NXP_SEMS_OUPUT_PATH, "w+");
+      if(fIn == NULL)
+        return false;
+
+      do {
+        nfc_nci_IoctlInOutData_t iOData;
+        memset(&iOData, 0x00, sizeof(nfc_nci_IoctlInOutData_t));
+
+        if(remainingLen > MAX_SEMS_OUTPUT_READ_LEN) {
+          iOData.inp.data.semsCmd.semsLen = MAX_SEMS_OUTPUT_READ_LEN;
+          remainingLen -= MAX_SEMS_OUTPUT_READ_LEN;
+        }
+        else {
+          iOData.inp.data.semsCmd.semsLen = remainingLen;
+          remainingLen = 0;
+        }
+        ret = nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_READ_SEMS_OUTPUT, &iOData);
+        if((iOData.out.data.status == 0xFF) || (ret == -1))
+        {
+          DLOG_IF(INFO, nfc_debug_enabled)
+           << StringPrintf("Error while reading sems output");
+          break;
+        }
+        ret = fwrite(&iOData.out.data.semsRsp.semsOutResp[0], 1, iOData.inp.data.semsCmd.semsLen, fIn);
+        if(ret != iOData.inp.data.semsCmd.semsLen) {
+          DLOG_IF(INFO, nfc_debug_enabled)
+            << StringPrintf("Error while copying sems output");
+          return false;
+        }
+
+      } while(remainingLen > 0);
+
+      fflush(fIn);
+      fclose(fIn);
+    }
+    else
+    {
+      DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("Sems output not available");
+      return false;
+    }
+  } else if(type == SEMS_GET_STATUS){
+    nfc_nci_IoctlInOutData_t iOData;
+    memset(&iOData, 0x00, sizeof(nfc_nci_IoctlInOutData_t));
+    DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("Get Sems status");
+
+    ret = nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_GET_SEMS_STATUS, &iOData);
+    if((iOData.out.data.status == 0xFF) || (ret == -1)) {
+      return false;
+    } else if(iOData.out.data.status == 0x00) {
+      return true;
+    }
+  }
+  return true;
+}
+
 #endif

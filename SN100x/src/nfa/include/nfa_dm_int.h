@@ -85,6 +85,7 @@ enum {
 #if (NXP_EXTNS == TRUE)
   NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT,
   NFA_DM_API_SET_TRANSIT_CONFIG_EVT,
+  NFA_DM_API_GET_SEMS_OUTPUT_RESP,
 #endif
   NFA_DM_MAX_EVT
 };
@@ -179,6 +180,13 @@ typedef struct {
   tNFA_DM_CBACK* p_dm_cback;
   char* transitConfig;
 } tNFA_DM_API_SET_TRANSIT_CONFIG;
+
+typedef struct {
+  NFC_HDR hdr;
+  tNFA_DM_CBACK* p_dm_cback;
+  tNFA_DM_API_SEMS_TYPE sems_type;
+} tNFA_DM_API_GET_SEMS_OUTPUT_RESP;
+
 #endif
 /* data type for NFA_DM_API_REG_NDEF_HDLR_EVT */
 #define NFA_NDEF_FLAGS_HANDLE_WHOLE_MESSAGE 0x01
@@ -262,6 +270,7 @@ typedef union {
 #if (NXP_EXTNS == TRUE)
   tNFA_DM_API_CHANGE_DISCOVERY_TECH       change_discovery_tech;      /* NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT        */
   tNFA_DM_API_SET_TRANSIT_CONFIG transit_config; /* NFA_DM_SET_TRANSIT_CONFIG */
+  tNFA_DM_API_GET_SEMS_OUTPUT_RESP get_sems_output;
 #endif
 } tNFA_DM_MSG;
 
@@ -691,6 +700,7 @@ bool nfa_dm_set_power_sub_state(tNFA_DM_MSG* p_data);
 void nfa_dm_proc_nfcc_power_mode(uint8_t nfcc_power_mode);
 #if (NXP_EXTNS == TRUE)
 bool nfa_dm_set_transit_config(tNFA_DM_MSG* p_data);
+bool nfa_dm_get_sems_output(tNFA_DM_MSG* p_data);
 #endif
 /* Main function prototypes */
 bool nfa_dm_evt_hdlr(NFC_HDR* p_msg);

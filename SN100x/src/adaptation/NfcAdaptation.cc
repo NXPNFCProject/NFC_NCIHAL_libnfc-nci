@@ -697,7 +697,7 @@ void IoctlCallback(::android::hardware::nfc::V1_0::NfcData outputData) {
    * This data will be sent back to libnfc*/
   memcpy(&pAdaptation->mCurrentIoctlData->out, &outputData[0],
          sizeof(nfc_nci_ExtnOutputData_t));
-}
+} 
 /*******************************************************************************
 **
 ** Function:    NfcAdaptation::HalIoctl

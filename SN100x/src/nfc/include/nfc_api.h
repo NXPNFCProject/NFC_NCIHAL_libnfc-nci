@@ -56,9 +56,10 @@
 #define NXP_EN_SN100U    1
 #define NXP_ANDROID_VER (9U)        /* NXP android version */
 #define NFC_NXP_MW_VERSION_MAJ (0x00) /* MW Major Version */
-#define NFC_NXP_MW_VERSION_MIN (0x17) /* MW Minor Version */
+#define NFC_NXP_MW_VERSION_MIN (0x18) /* MW Minor Version */
 #define NFC_NXP_MW_RC_VERSION (0x01) /* MW Minor Version */
 #define NFC_EE_DISC_OP_REMOVE 1
+#define NXP_SEMS_OUPUT_PATH "/data/nfc/sems.txt"
 #endif
 /* NFC application return status codes */
 /* Command succeeded    */
@@ -676,6 +677,12 @@ typedef tNCI_RF_PA_PARAMS tNFC_RF_PA_PARAMS;
 #define NFC_MAX_SENSB_RES_LEN NCI_MAX_SENSB_RES_LEN
 #define NFC_NFCID0_MAX_LEN 4
 #if (NXP_EXTNS == TRUE)
+typedef enum {
+  SEMS_RESP_OUTPUT,
+  SEMS_GET_STATUS,
+} tNFA_DM_API_SEMS_TYPE;
+
+
 #define NFC_PUPIID_MAX_LEN 8
 #endif
 typedef struct {
@@ -1408,6 +1415,15 @@ extern tNFC_STATUS NFC_ISODEPNakPresCheck();
 **
 *******************************************************************************/
 extern tNFC_FW_VERSION nfc_ncif_getFWVersion();
+/*******************************************************************************
+ **
+ ** Function         NFC_GetSemsResponseOutput
+ **
+ ** Description      Get SEMS response output/Status of previous execution
+ **
+ *******************************************************************************/
+extern bool NFC_GetSemsResponseOutput(tNFA_DM_API_SEMS_TYPE type);
+
 #endif
 
 /*******************************************************************************

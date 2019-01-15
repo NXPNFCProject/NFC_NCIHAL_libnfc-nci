@@ -374,6 +374,33 @@ tNFA_STATUS NFA_SetTransitConfig(std::string config) {
   }
   return (NFA_STATUS_FAILED);
 }
+
+/*******************************************************************************
+**
+** Function         NFA_GetSemsOutputResponse
+**
+** Description      Get the SEMS output response from SE HAL. The
+**                  result is copied to /data/nfc/ folder.
+**
+** Returns          NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_FAILED otherwise
+**
+*******************************************************************************/
+tNFA_STATUS NFA_GetSemsOutputResponse(tNFA_DM_API_SEMS_TYPE type) {
+  tNFA_DM_API_GET_SEMS_OUTPUT_RESP* p_msg;
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s ", __func__);
+
+  p_msg = (tNFA_DM_API_GET_SEMS_OUTPUT_RESP*)GKI_getbuf(
+      sizeof(tNFA_DM_API_GET_SEMS_OUTPUT_RESP));
+  if (p_msg != NULL) {
+    p_msg->hdr.event = NFA_DM_API_GET_SEMS_OUTPUT_RESP;
+    p_msg->sems_type = type;
+
+    nfa_sys_sendmsg(p_msg);
+    return (NFA_STATUS_OK);
+  }
+  return (NFA_STATUS_FAILED);
+}
 #endif
 /*******************************************************************************
 **

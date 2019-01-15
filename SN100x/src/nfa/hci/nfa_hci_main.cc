@@ -270,7 +270,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                     if(nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_REINIT)
                     {
                       DLOG_IF(INFO, nfc_debug_enabled)
-                          << StringPrintf("NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED () handling pending NFCEE_UNRECOVERABLE_ERRROR");
+                          << StringPrintf("NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED () handling pending NFCEE_UNRECOVERABLE_ERRROR");                      
                       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("resetting 11");
                       nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_REINIT);
                       nfa_hci_cb.next_nfcee_idx += 1;
@@ -786,7 +786,7 @@ void nfa_hci_startup_complete(tNFA_STATUS status) {
     nfa_ee_proc_hci_info_cback();
     nfa_sys_cback_notify_nfcc_power_mode_proc_complete(NFA_ID_HCI);
 
-  } else
+  } else 
 #if(NXP_EXTNS == TRUE)
   if(nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_NETWK_ENABLE ||
         nfa_hci_cb.hci_state == NFA_HCI_STATE_STARTUP)

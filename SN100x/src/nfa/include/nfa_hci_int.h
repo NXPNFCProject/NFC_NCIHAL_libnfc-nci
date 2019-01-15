@@ -197,7 +197,7 @@ enum {
 #if(NXP_EXTNS == TRUE)
   NFA_HCI_API_SEND_APDU_EVT,                                    /* Send Command APDU on APDU Pipe */
   NFA_HCI_API_ABORT_APDU_EVT,                                   /* Abort the Command APDU sent on APDU Pipe */
-#endif
+#endif  
   NFA_HCI_API_SEND_EVENT_EVT, /* Send event via pipe */
   NFA_HCI_RSP_NV_READ_EVT,           /* Non volatile read complete event */
   NFA_HCI_RSP_NV_WRITE_EVT,          /* Non volatile write complete event */

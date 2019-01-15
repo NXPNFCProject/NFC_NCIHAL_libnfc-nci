@@ -2993,7 +2993,7 @@ static void nfa_hci_handle_apdu_app_gate_hcp_msg_data (uint8_t *p_data, uint16_t
             break;
 
         case NFA_HCI_EVT_WTX:
-            if (p_pipe_cmdrsp_info->w4_rsp_apdu_evt ||
+            if (p_pipe_cmdrsp_info->w4_rsp_apdu_evt || 
               p_pipe_cmdrsp_info->w4_atr_evt)
             {
                 if(p_nfa_hci_cfg->max_wtx_count) {

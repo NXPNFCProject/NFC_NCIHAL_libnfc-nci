@@ -117,8 +117,12 @@ typedef uint8_t tNFA_HCI_EVT;
 #define NFA_MAX_HCI_CMD_LEN 255
 /* Max HCI event length */
 #define NFA_MAX_HCI_RSP_LEN 255
+#if (NXP_EXTNS == TRUE)
 /* Max HCI event length */
+#define NFA_MAX_HCI_EVENT_LEN 0x2FC
+#else
 #define NFA_MAX_HCI_EVENT_LEN 260
+#endif
 /* Max HCI data length */
 #define NFA_MAX_HCI_DATA_LEN 260
 

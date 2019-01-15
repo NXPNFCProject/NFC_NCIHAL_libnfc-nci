@@ -204,6 +204,8 @@ typedef uint8_t tNFA_PROTOCOL_MASK;
 #define NFA_DM_EE_HCI_ENABLE 25
 /*Status when Transit Config is set*/
 #define NFA_DM_SET_TRANSIT_CONFIG_EVT 14
+/*Status when Get SEMS output is read*/
+#define NFA_DM_GET_SEMS_OUTPUT_EVT    15
 #endif
 /* T1T HR length            */
 #define NFA_T1T_HR_LEN T1T_HR_LEN
@@ -260,6 +262,7 @@ typedef enum power_substate {
 #define NFA_SCREEN_STATE_MASK 0x0F
 #if (NXP_EXTNS == TRUE)
 typedef struct { tNFA_STATUS status; } tNFA_SET_TRANSIT_CONFIG;
+typedef struct { tNFA_STATUS status; } tNFA_GET_SEMS_OUTPUT;
 #endif
 /* CONN_DISCOVER_PARAM */
 #define NFA_DM_PWR_MODE_FULL 0x04
@@ -300,6 +303,7 @@ typedef union {
   tNFA_DM_POWER_STATE power_sub_state; /* power sub state */
 #if (NXP_EXTNS == TRUE)
   tNFA_SET_TRANSIT_CONFIG set_transit_config; /* NFA_DM_SET_TRANSIT_CONFIG */
+  tNFA_GET_SEMS_OUTPUT get_sems_output;
 #endif
 } tNFA_DM_CBACK_DATA;
 
@@ -913,6 +917,21 @@ extern tNFA_STATUS NFA_GetConfig(uint8_t num_ids, tNFA_PMID* p_param_ids);
 **
 *******************************************************************************/
 extern tNFA_STATUS NFA_SetTransitConfig(std::string config);
+
+/*******************************************************************************
+**
+** Function         NFA_GetSemsOutputResponse
+**
+** Description      Get the SEMS output response from SE HAL. The
+**                  result is copied to /data/nfc/ folder.
+**
+** Returns          NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_BUSY if previous setting is on-going
+**                  NFA_STATUS_FAILED otherwise
+**
+*******************************************************************************/
+extern tNFA_STATUS NFA_GetSemsOutputResponse(tNFA_DM_API_SEMS_TYPE type);
+
 #endif
 /*******************************************************************************
 **
