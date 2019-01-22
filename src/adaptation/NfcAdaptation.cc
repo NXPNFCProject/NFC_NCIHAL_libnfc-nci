@@ -234,7 +234,7 @@ void NfcAdaptation::GetNxpConfigs(
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("HAL_NFC_GET_NXP_CONFIG ioctl return value = %d", ret);
   configMap.emplace(
-      NAME_NAME_NXP_ESE_LISTEN_TECH_MASK,
+      NAME_NXP_ESE_LISTEN_TECH_MASK,
       ConfigValue(inpOutData.out.data.nxpConfigs.ese_listen_tech_mask));
   configMap.emplace(
       NAME_NXP_DEFAULT_NFCEE_DISC_TIMEOUT,
