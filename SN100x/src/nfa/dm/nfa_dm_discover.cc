@@ -2230,9 +2230,17 @@ static void nfa_dm_disc_sm_w4_host_select(tNFA_DM_RF_DISC_SM_EVENT event,
   switch (event) {
     case NFA_DM_RF_DISCOVER_SELECT_CMD:
       /* if not waiting to deactivate */
+#if (NXP_EXTNS == TRUE)
+      if ((!(nfa_dm_cb.disc_cb.disc_flags & NFA_DM_DISC_FLAGS_W4_RSP)) &&
+        (!(nfa_dm_cb.disc_cb.disc_flags & NFA_DM_DISC_FLAGS_W4_SELECT_RSP))) {
+#else
       if (!(nfa_dm_cb.disc_cb.disc_flags & NFA_DM_DISC_FLAGS_W4_RSP)) {
+#endif
         NFC_DiscoverySelect(p_data->select.rf_disc_id, p_data->select.protocol,
                             p_data->select.rf_interface);
+#if (NXP_EXTNS == TRUE)
+        nfa_dm_cb.disc_cb.disc_flags |= NFA_DM_DISC_FLAGS_W4_SELECT_RSP;
+#endif
       } else {
         nfa_dm_disc_conn_event_notify(NFA_SELECT_RESULT_EVT, NFA_STATUS_FAILED);
       }
@@ -2248,7 +2256,9 @@ static void nfa_dm_disc_sm_w4_host_select(tNFA_DM_RF_DISC_SM_EVENT event,
         NFC_SetStaticRfCback(nfa_dm_disc_data_cback);
       } else
         conn_evt.status = NFA_STATUS_FAILED;
-
+#if (NXP_EXTNS == TRUE)
+      nfa_dm_cb.disc_cb.disc_flags &= ~NFA_DM_DISC_FLAGS_W4_SELECT_RSP;
+#endif
       if (!old_sleep_wakeup_flag) {
         nfa_dm_disc_conn_event_notify(NFA_SELECT_RESULT_EVT,
                                       p_data->nfc_discover.status);
@@ -2428,10 +2438,19 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
           } else {
             /* Successfully went to sleep mode for sleep wakeup */
             /* Now wake up the tag to complete the operation */
-            NFC_DiscoverySelect(nfa_dm_cb.disc_cb.activated_rf_disc_id,
+#if (NXP_EXTNS == TRUE)
+              if (p_data->nfc_discover.deactivate.reason !=
+                      NFC_DEACTIVATE_REASON_DH_REQ_FAILED) {
+#endif
+                NFC_DiscoverySelect(nfa_dm_cb.disc_cb.activated_rf_disc_id,
                                 nfa_dm_cb.disc_cb.activated_protocol,
                                 nfa_dm_cb.disc_cb.activated_rf_interface);
-          }
+#if (NXP_EXTNS == TRUE)
+              } else {
+                DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Deactivate to sleep failed");
+              }
+#endif
+            }
         }
         if (p_data->nfc_discover.deactivate.reason ==
             NFC_DEACTIVATE_REASON_DH_REQ_FAILED) {

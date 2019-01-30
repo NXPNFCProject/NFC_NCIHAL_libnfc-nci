@@ -389,7 +389,9 @@ typedef void(tNFA_DISCOVER_CBACK)(tNFA_DM_RF_DISC_EVT event,
 #define NFA_DM_DISC_FLAGS_W4_RSP 0x0020
 /* wait for NTF before changing discovery state */
 #define NFA_DM_DISC_FLAGS_W4_NTF 0x0040
-
+#if (NXP_EXTNS == TRUE)
+#define NFA_DM_DISC_FLAGS_W4_SELECT_RSP 0x0080
+#endif
 typedef uint16_t tNFA_DM_DISC_FLAGS;
 
 /* DM Discovery control block */
