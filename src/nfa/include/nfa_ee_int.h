@@ -147,10 +147,13 @@ typedef uint8_t tNFA_EE_CONN_ST;
 #define NFA_EE_NUM_TECH 3
 #if (NXP_EXTNS == TRUE)
 #define NFA_UICC_ID 0x02
+
 #define NFA_ESE_ID 0xC0
-#define NFA_EE_BUFFER_FUTURE_EXT 15
 #define NFA_EE_PROTO_ROUTE_ENTRY_SIZE 5
 #define NFA_EE_TECH_ROUTE_ENTRY_SIZE 5
+#define NFA_EE_BUFFER_FUTURE_EXT_NCI_1_0 15
+#define NFA_EE_BUFFER_FUTURE_EXT_NCI_2_0 10
+#define DEFAULT_SYS_CODE_ROUTE_SIZE_NCI_2_0 6
 
 /**
  * Max Routing Table Size = M
@@ -167,11 +170,11 @@ typedef uint8_t tNFA_EE_CONN_ST;
  * TOTAL PROTOCOL ROUTE SIZE NCI_1.0 = 5 * 6 = 30 (Protocols ISO-DEP, NFC-DEP,
  * ISO-7816, T1T, T2T, T3T)
  *
- * In NCI2.0 Protocol 7816 routing is replaced with empty AID, so NFA_EE_BUFFER_FUTURE_EXT
- * should minus NFA_EE_EMPTY_AID_ENTRY_SIZE (size for empty aid entry = 4 bytes (includes Type(1 byte),
- * Length (1 byte), Value (2 bytes - Power state, Location))
- * TOTAL PROTOCOL ROUTE SIZE NCI_2.0 = (5 * 5) + 4 = 29 (Protocols ISO-DEP, NFC-DEP,
- * T1T, T2T, T3T) + EMPTY AID ROUTE
+ * In NCI2.0 Protocol 7816 routing is replaced with empty AID,
+ * TOTAL PROTOCOL ROUTE SIZE NCI_2.0 = 5 * 5 = 25 (Protocols ISO-DEP, NFC-DEP,
+ * T1T, T2T, T3T)
+ * size for Empty AID is considered to be handled dynamically during AID
+ *registration
  *
  * DEFAULT_SYS_CODE_ROUTE_SIZE_NCI_2.0 = 6
  *
@@ -179,23 +182,24 @@ typedef uint8_t tNFA_EE_CONN_ST;
  * BUFFER for future extensions NCI2.0 = 10
  *
  * TOTAL SIZE FOR AID NCI1.0 = M - 15 - 30 - 15     = M-60
- * TOTAL SIZE FOR AID NCI2.0 = M - 15 - 29 - 6 - 10 = M-60
- * In effect, Size for AID is same for NCI1.0/2.0
+ * TOTAL SIZE FOR AID NCI2.0 = M - 15 - 25 - 6 - 10 = M-56
  *
  */
 #define NFA_EE_TOTAL_TECH_ROUTE_SIZE \
-  (NFA_EE_PROTO_ROUTE_ENTRY_SIZE * NFA_EE_NUM_TECH)
-#define NFA_EE_TOTAL_PROTO_ROUTE_SIZE \
+  (NFA_EE_TECH_ROUTE_ENTRY_SIZE * NFA_EE_NUM_TECH)
+#define NFA_EE_TOTAL_PROTO_ROUTE_SIZE_NCI_1_0 \
   (NFA_EE_PROTO_ROUTE_ENTRY_SIZE * NFA_EE_NUM_PROTO)
+#define NFA_EE_TOTAL_PROTO_ROUTE_SIZE_NCI_2_0 \
+  (NFA_EE_PROTO_ROUTE_ENTRY_SIZE * (NFA_EE_NUM_PROTO - 1))
 
-#define NFA_EE_TOTAL_PROTO_TECH_FUTURE_EXT_ROUTE_SIZE             \
-  (NFA_EE_TOTAL_TECH_ROUTE_SIZE + NFA_EE_TOTAL_PROTO_ROUTE_SIZE + \
-   NFA_EE_BUFFER_FUTURE_EXT)
-#define NFA_EE_MAX_AID_CFG_LEN \
-  (NFA_EE_ROUT_BUF_SIZE - NFA_EE_TOTAL_PROTO_TECH_FUTURE_EXT_ROUTE_SIZE)
+#define NFA_EE_TOTAL_PROTO_TECH_FUTURE_EXT_ROUTE_SIZE_NCI_1_0             \
+  (NFA_EE_TOTAL_TECH_ROUTE_SIZE + NFA_EE_TOTAL_PROTO_ROUTE_SIZE_NCI_1_0 + \
+   NFA_EE_BUFFER_FUTURE_EXT_NCI_1_0)
+#define NFA_EE_TOTAL_PROTO_TECH_FUTURE_EXT_ROUTE_SIZE_NCI_2_0             \
+  (NFA_EE_TOTAL_TECH_ROUTE_SIZE + NFA_EE_TOTAL_PROTO_ROUTE_SIZE_NCI_2_0 + \
+   NFA_EE_BUFFER_FUTURE_EXT_NCI_2_0 + DEFAULT_SYS_CODE_ROUTE_SIZE_NCI_2_0)
+
 #define NFA_EE_MAX_AID_CFG_LEN_STAT (160)
-#else
-#define NFA_EE_MAX_AID_CFG_LEN (510)
 #endif
 #define NFA_EE_TOTAL_APDU_PATTERN_SIZE 250
 #define NFA_EE_APDU_ROUTE_MASK 8 /* APDU route location mask*/
@@ -299,16 +303,8 @@ typedef struct {
                                                      AID entry */
   uint8_t aid_rt_info_stat[NFA_EE_MAX_AID_ENTRIES]; /* route/vs info for this AID
                                                      entry */
-  uint8_t aid_cfg_stat[NFA_EE_MAX_AID_CFG_LEN];     /* routing entries based on AID */
-#else
-  uint8_t aid_len[NFA_EE_MAX_AID_ENTRIES]; /* the actual lengths in aid_cfg */
-  uint8_t aid_pwr_cfg[NFA_EE_MAX_AID_ENTRIES]; /* power configuration of this
-                                                  AID entry */
-  uint8_t aid_rt_info[NFA_EE_MAX_AID_ENTRIES]; /* route/vs info for this AID
-                                                  entry */
-  uint8_t aid_cfg[NFA_EE_MAX_AID_CFG_LEN];     /* routing entries based on AID */
-  uint8_t aid_info[NFA_EE_MAX_AID_ENTRIES]; /* route/vs info for this AID
-                                                  entry */
+  uint8_t aid_cfg_stat
+      [NFA_EE_MAX_AID_CFG_LEN_STAT]; /* routing entries based on AID */
 #endif
   /*System Code Based Routing Variables*/
   uint8_t sys_code_cfg[NFA_EE_MAX_SYSTEM_CODE_ENTRIES * NFA_EE_SYSTEM_CODE_LEN];

@@ -1218,9 +1218,9 @@ void nfa_ee_api_register(tNFA_EE_MSG* p_data) {
   if((nfcFL.chipType != pn547C2) &&
           (nfcFL.nfcMwFL._NFC_NXP_AID_MAX_SIZE_DYN == true)) {
       max_routing_table_size = nfc_ncif_getMaxRoutingTableSize();
-      if (max_routing_table_size <
-              (NFA_EE_TOTAL_TECH_ROUTE_SIZE + NFA_EE_TOTAL_PROTO_ROUTE_SIZE)) {
-          max_routing_table_size = NFA_EE_ROUT_BUF_SIZE;
+      if (max_routing_table_size < (NFA_EE_TOTAL_TECH_ROUTE_SIZE +
+                                    NFA_EE_TOTAL_PROTO_ROUTE_SIZE_NCI_2_0)) {
+        max_routing_table_size = NFA_EE_ROUT_BUF_SIZE;
       }
       max_aid_config_length = nfa_ee_find_max_aid_config_length();
       max_aid_entries = max_aid_config_length / NFA_EE_MIN_AID_ENTRY_SIZE;
@@ -1255,13 +1255,7 @@ void nfa_ee_api_register(tNFA_EE_MSG* p_data) {
       }
   }
   else {
-      for (xx = 0; xx < NFA_EE_NUM_ECBS; xx++) {
-          nfa_ee_cb.ecb[xx].aid_len = nfa_ee_cb.ecb[xx].aid_len_stat;
-          nfa_ee_cb.ecb[xx].aid_pwr_cfg = nfa_ee_cb.ecb[xx].aid_pwr_cfg_stat;
-          nfa_ee_cb.ecb[xx].aid_rt_info = nfa_ee_cb.ecb[xx].aid_rt_info_stat;
-          nfa_ee_cb.ecb[xx].aid_rt_loc = nfa_ee_cb.ecb[xx].aid_rt_loc_stat;
-          nfa_ee_cb.ecb[xx].aid_cfg = nfa_ee_cb.ecb[xx].aid_cfg_stat;
-      }
+    LOG(ERROR) << StringPrintf("Static AID allocation not allowed!");
   }
 #endif
 
@@ -1596,24 +1590,11 @@ void nfa_ee_api_add_aid(tNFA_EE_MSG* p_data) {
         aid_config_length_max = NFA_EE_MAX_AID_CFG_LEN_STAT;
         aid_entries_max = nfcFL.nfcMwFL._NFA_EE_MAX_AID_ENTRIES;
     }
-    if ((len_needed + len) >
-#if (NXP_EXTNS == TRUE)
-    aid_config_length_max
-#else
-    NFA_EE_MAX_AID_CFG_LEN
-#endif
-        ) {
-#if (NXP_EXTNS == TRUE)
+    if ((len_needed + len) > aid_config_length_max) {
       LOG(ERROR) << StringPrintf(
           "Exceed capacity: (len_needed:%d + len:%d) > "
           "max_aid_config_length:%d",
           len_needed, len, aid_config_length_max);
-#else
-      LOG(ERROR) << StringPrintf(
-          "Exceed capacity: (len_needed:%d + len:%d) > "
-          "NFA_EE_MAX_AID_CFG_LEN:%d",
-          len_needed, len, NFA_EE_MAX_AID_CFG_LEN);
-#endif
       evt_data.status = NFA_STATUS_BUFFER_FULL;
     }
 #if (NXP_EXTNS == TRUE)
@@ -4021,40 +4002,48 @@ bool nfa_ee_nfeeid_active(uint8_t nfee_id) {
 *******************************************************************************/
 uint16_t nfa_ee_find_max_aid_config_length() {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ee_find_max_aid_config_length");
-  /**
-   * Max Routing Table Size = M
-   * After allocating size for Technology based routing and Protocol based
-   *routing,
-   * the remaining size can be used for AID based routing
-   *
-   * Size for 1 Technology route entry = 5 bytes (includes Type(1 byte),
-   * Length (1 byte), Value (3 bytes - Power state, Tech Type, Location)
-   * TOTAL TECH ROUTE SIZE = 5 * 3  = 15 (For Tech A, B, F)
-   *
-   * Size for 1 Protocol route entry = 5 bytes (includes Type(1 byte),
-   * Length (1 byte), Value (3 bytes - Power state, Tech Type, Location)
-   * TOTAL PROTOCOL ROUTE SIZE NCI_1.0 = 5 * 6 = 30 (Protocols ISO-DEP, NFC-DEP,
-   * ISO-7816, T1T, T2T, T3T)
-   *
-   * In NCI2.0 Protocol 7816 routing is replaced with empty AID, so NFA_EE_BUFFER_FUTURE_EXT
-   * should minus NFA_EE_EMPTY_AID_ENTRY_SIZE (size for empty aid entry = 4 bytes (includes Type(1 byte),
-   * Length (1 byte), Value (2 bytes - Power state, Location))
-   * TOTAL PROTOCOL ROUTE SIZE NCI_2.0 = (5 * 5) + 4 = 29 (Protocols ISO-DEP, NFC-DEP,
-   * T1T, T2T, T3T) + EMPTY AID ROUTE
-   *
-   * DEFAULT_SYS_CODE_ROUTE_SIZE_NCI_2.0 = 6
-   *
-   * BUFFER for future extensions NCI1.0 = 15
-   * BUFFER for future extensions NCI2.0 = 10
-   * TOTAL SIZE FOR AID NCI1.0 = M - 15 - 30 - 15     = M-60
-   * TOTAL SIZE FOR AID NCI2.0 = M - 15 - 29 - 6 - 10 = M-60
-   * In effect, Size for AID is same for NCI1.0/2.0
-   *
-   */
+    /**
+     * Max Routing Table Size = M
+     * After allocating size for Technology based routing and Protocol based
+     *routing,
+     * the remaining size can be used for AID based routing
+     *
+     * Size for 1 Technology route entry = 5 bytes (includes Type(1 byte),
+     * Length (1 byte), Value (3 bytes - Power state, Tech Type, Location)
+     * TOTAL TECH ROUTE SIZE = 5 * 3  = 15 (For Tech A, B, F)
+     *
+     * Size for 1 Protocol route entry = 5 bytes (includes Type(1 byte),
+     * Length (1 byte), Value (3 bytes - Power state, Tech Type, Location)
+     * TOTAL PROTOCOL ROUTE SIZE NCI_1.0 = 5 * 6 = 30 (Protocols ISO-DEP,
+     *NFC-DEP, ISO-7816, T1T, T2T, T3T)
+     *
+     * In NCI2.0 Protocol 7816 routing is replaced with empty AID,
+     * TOTAL PROTOCOL ROUTE SIZE NCI_2.0 = 5 * 5 = 25 (Protocols ISO-DEP,
+     *NFC-DEP, T1T, T2T, T3T) size for Empty AID is considered to be handled
+     *dynamically during AID registration
+     *
+     * DEFAULT_SYS_CODE_ROUTE_SIZE_NCI_2.0 = 6
+     *
+     * BUFFER for future extensions NCI1.0 = 15
+     * BUFFER for future extensions NCI2.0 = 10
+     *
+     * TOTAL SIZE FOR AID NCI1.0 = M - 15 - 30 - 15     = M-60
+     * TOTAL SIZE FOR AID NCI2.0 = M - 15 - 25 - 6 - 10 = M-56
+     *
+     */
     if((nfcFL.chipType != pn547C2) &&
             (nfcFL.nfcMwFL._NFC_NXP_AID_MAX_SIZE_DYN == true)) {
-        return (max_routing_table_size -
-                NFA_EE_TOTAL_PROTO_TECH_FUTURE_EXT_ROUTE_SIZE);
+      int proto_tech_future_ext_size = 0;
+      if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+        proto_tech_future_ext_size =
+            NFA_EE_TOTAL_PROTO_TECH_FUTURE_EXT_ROUTE_SIZE_NCI_2_0;
+      } else {
+        proto_tech_future_ext_size =
+            NFA_EE_TOTAL_PROTO_TECH_FUTURE_EXT_ROUTE_SIZE_NCI_1_0;
+      }
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+          "proto_tech_future_ext_size : %d", proto_tech_future_ext_size);
+      return (max_routing_table_size - proto_tech_future_ext_size);
     }
     else{
         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Not allowed for chip type. Returning");
