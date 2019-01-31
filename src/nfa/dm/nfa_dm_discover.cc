@@ -1354,19 +1354,17 @@ void nfa_dm_start_rf_discover(void) {
                        p2pListenMask);
     }
     tech_list = nfa_ee_get_supported_tech_list(nfa_dm_cb.selected_uicc_id);
+    bool isFwdFuncValid =
+        (fwdEnable == 0x01) && ((hostListenMask & NFA_TECHNOLOGY_MASK_A) &&
+                                (hostListenMask & NFA_TECHNOLOGY_MASK_B));
 
-    if ((fwdEnable == 0x00) || (hostListenMask == 0x00)) {
-      if (tech_list == NFA_TECHNOLOGY_MASK_B) {
-         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-            "TypeB only sim handling in case of no FWD functionality");
-        dm_disc_mask &=
-            ~(NFA_DM_DISC_MASK_LA_ISO_DEP | NFA_DM_DISC_MASK_LA_NFC_DEP);
-      } else if (tech_list == NFA_TECHNOLOGY_MASK_A) {
-         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-            "TypeA only sim handling in case of no FWD functionality");
-        dm_disc_mask &= ~(NFA_DM_DISC_MASK_LB_ISO_DEP);
-      }
-    }
+    bool isTypeAReq = (hostListenMask & NFA_TECHNOLOGY_MASK_A) ||
+                      isFwdFuncValid || (tech_list & NFA_TECHNOLOGY_MASK_A);
+    if (!isTypeAReq) dm_disc_mask &= ~(NFA_DM_DISC_MASK_LA_ISO_DEP);
+
+    bool isTypeBReq = (hostListenMask & NFA_TECHNOLOGY_MASK_B) ||
+                      isFwdFuncValid || (tech_list & NFA_TECHNOLOGY_MASK_B);
+    if (!isTypeBReq) dm_disc_mask &= ~(NFA_DM_DISC_MASK_LB_ISO_DEP);
 #endif
 
     /* Let P2P set GEN bytes for LLCP to NFCC */
