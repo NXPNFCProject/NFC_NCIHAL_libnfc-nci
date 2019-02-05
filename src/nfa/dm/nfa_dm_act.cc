@@ -289,7 +289,7 @@ static void nfa_dm_nfc_response_cback(tNFC_RESPONSE_EVT event,
   tNFA_GET_ROUTING* p_nfa_get_routing;
 #endif
   tNFA_CONN_EVT_DATA conn_evt;
-  uint8_t dm_cback_evt;
+  uint8_t dm_cback_evt = 0;
   uint8_t max_ee = 0;
 
 DLOG_IF(INFO, nfc_debug_enabled)

@@ -3152,7 +3152,6 @@ tNFC_STATUS nfc_ncif_reset_nfcc() {
   nfc_nci_IoctlInOutData_t inpOutData;
   uint8_t status = NCI_STATUS_FAILED;
   int retry_count = 0;
-  long retlen = 0;
 
   /*NCI_INIT_CMD*/
   static uint8_t cmd_init_nci[] = {0x20, 0x01, 0x00};
@@ -3192,7 +3191,6 @@ tNFC_STATUS nfc_ncif_reset_nfcc() {
 
   /*Transceive NXP_ACT_PROP_EXTN*/
   retry_count = 0;
-  retlen = 0;
   memset(&inpOutData, 0x00, sizeof(nfc_nci_IoctlInOutData_t));
   inpOutData.inp.data.nciCmd.cmd_len = sizeof(cmd_act_prop_extn);
   memcpy(inpOutData.inp.data.nciCmd.p_cmd, cmd_act_prop_extn,
