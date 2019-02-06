@@ -22,24 +22,47 @@
 #include <android-base/strings.h>
 
 #include <config.h>
+#include <cutils/properties.h>
 
 using namespace ::std;
 using namespace ::android::base;
 #define PATH_TRANSIT_CONF "/data/nfc/libnfc-nxpTransit.conf"
 namespace {
 
-std::string findConfigPath() {
+std::string getPathInfoIfFileExists(const string& configName) {
   const vector<string> search_path = {"/odm/etc/", "/vendor/etc/",
                                       "/product/etc/", "/etc/"};
-  const string file_name = "libnfc-nci.conf";
-
   for (string path : search_path) {
-    path.append(file_name);
+    path.append(configName);
     struct stat file_stat;
     if (stat(path.c_str(), &file_stat) != 0) continue;
     if (S_ISREG(file_stat.st_mode)) return path;
   }
   return "";
+}
+
+std::string findConfigPath() {
+  char valueStr[PROPERTY_VALUE_MAX] = {0};
+  const string defaultConfigFileName = "libnfc-nci.conf";
+  string config_file_name = "libnfc-nci";
+  // update config file based on system property
+  int len = property_get("persist.nfc.config_file_name", valueStr, "");
+  if (len > 0) {
+    config_file_name = config_file_name + "_" + valueStr + ".conf";
+  } else {
+    config_file_name = defaultConfigFileName;
+  }
+  LOG(INFO) << __func__
+            << " nci config file name = " << config_file_name.c_str();
+
+  string filePath = getPathInfoIfFileExists(config_file_name);
+  if (filePath.length() == 0) {
+    LOG(INFO) << __func__ << " Unable to find nci Config file - "
+              << config_file_name.c_str() << " . Using Default Config file.";
+    filePath = getPathInfoIfFileExists(defaultConfigFileName);
+  }
+
+  return filePath;
 }
 
 }  // namespace
