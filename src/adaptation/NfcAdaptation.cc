@@ -300,9 +300,6 @@ void NfcAdaptation::GetNxpConfigs(
       NAME_NXP_CORE_SCRN_OFF_AUTONOMOUS_ENABLE,
       ConfigValue(inpOutData.out.data.nxpConfigs.coreScrnOffAutonomousEnable));
   configMap.emplace(
-      NAME_NXP_P61_LS_DEFAULT_INTERFACE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.p61LsDefaultInterface));
-  configMap.emplace(
       NAME_NXP_P61_JCOP_DEFAULT_INTERFACE,
       ConfigValue(inpOutData.out.data.nxpConfigs.p61JcopDefaultInterface));
   configMap.emplace(NAME_NXP_AGC_DEBUG_ENABLE,
