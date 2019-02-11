@@ -1269,12 +1269,13 @@ void nfc_ncif_resume_dwp_wired_mode() {
   nfc_cb.bIssueModeSetCmd = false;
   if (nfc_cb.pwr_link_cmd.bPwrLinkCmdRequested) {
     nfc_stop_quick_timer(&nfc_cb.nci_wait_pwrLinkRsp_timer);
+    if (!nfc_cb.bCeActivatedeSE && nfc_cb.bSetmodeOnReq)
+      nfc_cb.bIssueModeSetCmd = true;
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("pwr link cmd to send");
     nci_snd_pwr_nd_lnk_ctrl_cmd(NFCEE_ID_ESE, nfc_cb.pwr_link_cmd.param,
                                 nfc_cb.pwr_link_cmd.reqSrc);
     nfc_cb.pwr_link_cmd.bPwrLinkCmdRequested = false;
     nfc_cb.pwr_link_cmd.reqSrc = NFC_INTF_REQ_SRC_DWP;
-    if (!nfc_cb.bCeActivatedeSE) nfc_cb.bIssueModeSetCmd = true;
   } else if (((nfc_cb.bSetmodeOnReq) || (!GKI_queue_is_empty(&p_cb->tx_q))) &&
              (!nfc_cb.bCeActivatedeSE)) {
     nfc_stop_quick_timer(&nfc_cb.nci_wait_setModeRsp_timer);
