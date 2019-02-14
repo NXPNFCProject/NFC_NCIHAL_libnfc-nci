@@ -1731,6 +1731,7 @@ static void rw_t2t_handle_config_tag_readonly(uint8_t* p_data) {
     /* Coverity: [FALSE-POSITIVE error] intended fall through */
     /* Missing break statement between cases in switch statement */
     /* fall through */
+      [[fallthrough]];
     case RW_T2T_SUBSTATE_WAIT_SET_DYN_LOCK_BITS:
 
       num_locks = 0;
@@ -1874,7 +1875,8 @@ static void rw_t2t_handle_format_tag_rsp(uint8_t* p_data) {
           break;
       }
 
-    /* falls through */
+      /* falls through */
+      [[fallthrough]];
     case RW_T2T_SUBSTATE_WAIT_SET_LOCK_TLV:
 
       /* Prepare NULL NDEF TLV, TERMINATOR_TLV */

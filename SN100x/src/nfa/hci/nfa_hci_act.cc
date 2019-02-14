@@ -2854,6 +2854,7 @@ static void nfa_hci_handle_apdu_app_gate_hcp_msg_data (uint8_t *p_data, uint16_t
             nfa_hciu_reset_apdu_pipe_registry_info_of_host (p_pipe->dest_host);
             /* Set flag to indicate waiting for ETSI_HCI_EVT_ATR */
             p_pipe_cmdrsp_info->w4_atr_evt = true;
+            [[fallthrough]];
         case NFA_HCI_ANY_CLOSE_PIPE:
             nfa_hci_handle_pipe_open_close_cmd (p_pipe);
             break;

@@ -85,6 +85,6 @@ extern uint8_t t2t_info_to_evt(const tT2T_CMD_RSP_INFO* p_info);
 extern const char* t1t_info_to_str(const tT1T_CMD_RSP_INFO* p_info);
 extern const char* t2t_info_to_str(const tT2T_CMD_RSP_INFO* p_info);
 extern int tags_pow(int x, int y);
-extern unsigned int tags_log2(register unsigned int x);
+extern unsigned int tags_log2(unsigned int x);
 
 #endif /* TAGS_INT_H */

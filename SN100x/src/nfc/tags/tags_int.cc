@@ -93,7 +93,7 @@ const char* const t1t_cmd_str[] = {
 const char* const t2t_cmd_str[] = {"T2T_CMD_READ", "T2T_CMD_WRITE",
                                    "T2T_CMD_SEC_SEL"};
 
-static unsigned int tags_ones32(register unsigned int x);
+static unsigned int tags_ones32(unsigned int x);
 
 /*******************************************************************************
 **
@@ -284,7 +284,7 @@ int tags_pow(int x, int y) {
 ** Returns          int
 **
 *******************************************************************************/
-static unsigned int tags_ones32(register unsigned int x) {
+static unsigned int tags_ones32(unsigned int x) {
   /* 32-bit recursive reduction using SWAR...
      but first step is mapping 2-bit values
      into sum of 2 1-bit values in sneaky way
@@ -306,7 +306,7 @@ static unsigned int tags_ones32(register unsigned int x) {
 ** Returns          int
 **
 *******************************************************************************/
-unsigned int tags_log2(register unsigned int x) {
+unsigned int tags_log2(unsigned int x) {
   x |= (x >> 1);
   x |= (x >> 2);
   x |= (x >> 4);

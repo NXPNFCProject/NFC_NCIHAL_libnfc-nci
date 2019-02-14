@@ -289,8 +289,8 @@ void rw_t2t_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
           p_data->data.p_data = NULL;
         }
       }
-    /* Data event with error status...fall through to NFC_ERROR_CEVT case */
-
+      /* Data event with error status...fall through to NFC_ERROR_CEVT case */
+      [[fallthrough]];
     case NFC_ERROR_CEVT:
       if ((p_t2t->state == RW_T2T_STATE_NOT_ACTIVATED) ||
           (p_t2t->state == RW_T2T_STATE_IDLE) ||
