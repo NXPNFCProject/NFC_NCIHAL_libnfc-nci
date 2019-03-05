@@ -553,7 +553,7 @@ void NfcAdaptation::InitializeHalDeviceContext() {
   LOG(INFO) << StringPrintf("%s: INfc::getService()", func);
   mHal = mHal_1_1 = mHal_1_2 = INfcV1_2::getService();
   if (mHal_1_2 == nullptr) {
-    mHal = mHal_1_1 = INfcV1_2::getService();
+    mHal = mHal_1_1 = INfcV1_1::getService();
     if (mHal_1_1 == nullptr) {
       mHal = INfc::getService();
     }
