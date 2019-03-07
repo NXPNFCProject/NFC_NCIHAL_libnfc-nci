@@ -75,7 +75,9 @@ const tNFA_EE_SM_ACT nfa_ee_actions[] = {
     nfa_ee_api_deregister,      /* NFA_EE_API_DEREGISTER_EVT    */
     nfa_ee_api_mode_set,        /* NFA_EE_API_MODE_SET_EVT      */
     nfa_ee_api_set_tech_cfg,    /* NFA_EE_API_SET_TECH_CFG_EVT  */
+    nfa_ee_api_clear_tech_cfg,  /*NFA_EE_API_CLEAR_TECH_CFG_EVT */
     nfa_ee_api_set_proto_cfg,   /* NFA_EE_API_SET_PROTO_CFG_EVT */
+    nfa_ee_api_clear_proto_cfg, /*NFA_EE_API_CLEAR_PROTO_CFG_EVT*/
     nfa_ee_api_add_aid,         /* NFA_EE_API_ADD_AID_EVT       */
     nfa_ee_api_remove_aid,      /* NFA_EE_API_REMOVE_AID_EVT    */
     nfa_ee_api_add_sys_code,    /* NFA_EE_API_ADD_SYSCODE_EVT   */
@@ -607,8 +609,12 @@ static std::string nfa_ee_sm_evt_2_str(uint16_t event) {
       return "API_MODE_SET";
     case NFA_EE_API_SET_TECH_CFG_EVT:
       return "API_SET_TECH_CFG";
+    case NFA_EE_API_CLEAR_TECH_CFG_EVT:
+      return "API_CLEAR_TECH_CFG";
     case NFA_EE_API_SET_PROTO_CFG_EVT:
       return "API_SET_PROTO_CFG";
+    case NFA_EE_API_CLEAR_PROTO_CFG_EVT:
+      return "API_CLEAR_PROTO_CFG";
     case NFA_EE_API_ADD_AID_EVT:
       return "API_ADD_AID";
     case NFA_EE_API_REMOVE_AID_EVT:

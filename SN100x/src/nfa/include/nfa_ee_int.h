@@ -103,7 +103,9 @@ enum {
   NFA_EE_API_DEREGISTER_EVT,
   NFA_EE_API_MODE_SET_EVT,
   NFA_EE_API_SET_TECH_CFG_EVT,
+  NFA_EE_API_CLEAR_TECH_CFG_EVT,
   NFA_EE_API_SET_PROTO_CFG_EVT,
+  NFA_EE_API_CLEAR_PROTO_CFG_EVT,
   NFA_EE_API_ADD_AID_EVT,
   NFA_EE_API_REMOVE_AID_EVT,
   NFA_EE_API_ADD_SYSCODE_EVT,
@@ -373,7 +375,7 @@ typedef struct {
   tNFA_TECHNOLOGY_MASK technologies_screen_lock;
   tNFA_TECHNOLOGY_MASK technologies_screen_off;
   tNFA_TECHNOLOGY_MASK technologies_screen_off_lock;
-} tNFA_EE_API_SET_TECH_CFG;
+} tNFA_EE_API_SET_TECH_CFG, tNFA_EE_API_CLEAR_TECH_CFG;
 
 /* data type for NFA_EE_API_SET_PROTO_CFG_EVT */
 typedef struct {
@@ -386,7 +388,7 @@ typedef struct {
   tNFA_PROTOCOL_MASK protocols_screen_lock;
   tNFA_PROTOCOL_MASK protocols_screen_off;
   tNFA_PROTOCOL_MASK protocols_screen_off_lock;
-} tNFA_EE_API_SET_PROTO_CFG;
+} tNFA_EE_API_SET_PROTO_CFG, tNFA_EE_API_CLEAR_PROTO_CFG;
 
 /* data type for NFA_EE_API_ADD_AID_EVT */
 typedef struct {
@@ -529,7 +531,9 @@ typedef union {
   tNFA_EE_API_DEREGISTER deregister;
   tNFA_EE_API_MODE_SET mode_set;
   tNFA_EE_API_SET_TECH_CFG set_tech;
+  tNFA_EE_API_CLEAR_TECH_CFG clear_tech;
   tNFA_EE_API_SET_PROTO_CFG set_proto;
+  tNFA_EE_API_CLEAR_PROTO_CFG clear_proto;
   tNFA_EE_API_ADD_AID add_aid;
   tNFA_EE_API_REMOVE_AID rm_aid;
   tNFA_EE_API_ADD_SYSCODE add_syscode;
@@ -679,7 +683,9 @@ void nfa_ee_api_register(tNFA_EE_MSG* p_data);
 void nfa_ee_api_deregister(tNFA_EE_MSG* p_data);
 void nfa_ee_api_mode_set(tNFA_EE_MSG* p_data);
 void nfa_ee_api_set_tech_cfg(tNFA_EE_MSG* p_data);
+void nfa_ee_api_clear_tech_cfg(tNFA_EE_MSG* p_data);
 void nfa_ee_api_set_proto_cfg(tNFA_EE_MSG* p_data);
+void nfa_ee_api_clear_proto_cfg(tNFA_EE_MSG* p_data);
 void nfa_ee_api_add_aid(tNFA_EE_MSG* p_data);
 void nfa_ee_api_remove_aid(tNFA_EE_MSG* p_data);
 void nfa_ee_api_add_sys_code(tNFA_EE_MSG* p_data);

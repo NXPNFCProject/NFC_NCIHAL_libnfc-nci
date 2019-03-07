@@ -459,6 +459,70 @@ tNFA_STATUS NFA_EeSetDefaultTechRouting(
 
 /*******************************************************************************
 **
+** Function         NFA_EeClearDefaultTechRouting
+**
+** Description      This function is called to remove the default routing based
+**                  on RF technology in the listen mode routing table for the
+**                  given ee_handle. The status of this operation is reported
+**                  as the NFA_EE_CLEAR_TECH_CFG_EVT.
+**
+** Note:            If RF discovery is started,
+**                  NFA_StopRfDiscovery()/NFA_RF_DISCOVERY_STOPPED_EVT should
+**                  happen before calling this function
+**
+** Note:            NFA_EeUpdateNow() should be called after last NFA-EE
+**                  function to change the listen mode routing is called.
+**
+** Returns          NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_FAILED otherwise
+**                  NFA_STATUS_INVALID_PARAM If bad parameter
+**
+*******************************************************************************/
+tNFA_STATUS NFA_EeClearDefaultTechRouting(
+    tNFA_HANDLE ee_handle, tNFA_TECHNOLOGY_MASK clear_technology) {
+  tNFA_EE_API_SET_TECH_CFG* p_msg;
+  tNFA_STATUS status = NFA_STATUS_FAILED;
+  uint8_t nfcee_id = (uint8_t)(ee_handle & 0xFF);
+  tNFA_EE_ECB* p_cb;
+
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+      "handle:<0x%x>clear technology_mask:<0x%x>", ee_handle, clear_technology);
+  if (!clear_technology) {
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nothing to clear");
+    status = NFA_STATUS_OK;
+    return status;
+  }
+
+  p_cb = nfa_ee_find_ecb(nfcee_id);
+
+  if (p_cb == nullptr) {
+    LOG(ERROR) << StringPrintf("Bad ee_handle");
+    status = NFA_STATUS_INVALID_PARAM;
+  } else {
+    p_msg = (tNFA_EE_API_CLEAR_TECH_CFG*)GKI_getbuf(
+        sizeof(tNFA_EE_API_CLEAR_TECH_CFG));
+    if (p_msg != nullptr) {
+      p_msg->hdr.event = NFA_EE_API_CLEAR_TECH_CFG_EVT;
+      p_msg->nfcee_id = nfcee_id;
+      p_msg->p_cb = p_cb;
+      p_msg->technologies_switch_on = clear_technology;
+      p_msg->technologies_switch_off = clear_technology;
+      p_msg->technologies_battery_off = clear_technology;
+      p_msg->technologies_screen_lock = clear_technology;
+      p_msg->technologies_screen_off = clear_technology;
+      p_msg->technologies_screen_off_lock = clear_technology;
+
+      nfa_sys_sendmsg(p_msg);
+
+      status = NFA_STATUS_OK;
+    }
+  }
+
+  return status;
+}
+
+/*******************************************************************************
+**
 ** Function         NFA_EeSetDefaultProtoRouting
 **
 ** Description      This function is called to add, change or remove the
@@ -513,6 +577,70 @@ tNFA_STATUS NFA_EeSetDefaultProtoRouting(
       p_msg->protocols_screen_lock = protocols_screen_lock;
       p_msg->protocols_screen_off = protocols_screen_off;
       p_msg->protocols_screen_off_lock = protocols_screen_off_lock;
+
+      nfa_sys_sendmsg(p_msg);
+
+      status = NFA_STATUS_OK;
+    }
+  }
+
+  return status;
+}
+
+/*******************************************************************************
+**
+** Function         NFA_EeClearDefaultProtoRouting
+**
+** Description      This function is called to remove the default routing based
+**                  on RF technology in the listen mode routing table for the
+**                  given ee_handle. The status of this operation is reported
+**                  as the NFA_EE_CLEAR_TECH_CFG_EVT.
+**
+** Note:            If RF discovery is started,
+**                  NFA_StopRfDiscovery()/NFA_RF_DISCOVERY_STOPPED_EVT should
+**                  happen before calling this function
+**
+** Note:            NFA_EeUpdateNow() should be called after last NFA-EE
+**                  function to change the listen mode routing is called.
+**
+** Returns          NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_FAILED otherwise
+**                  NFA_STATUS_INVALID_PARAM If bad parameter
+**
+*******************************************************************************/
+tNFA_STATUS NFA_EeClearDefaultProtoRouting(tNFA_HANDLE ee_handle,
+                                           tNFA_PROTOCOL_MASK clear_protocol) {
+  tNFA_EE_API_SET_PROTO_CFG* p_msg;
+  tNFA_STATUS status = NFA_STATUS_FAILED;
+  uint8_t nfcee_id = (uint8_t)(ee_handle & 0xFF);
+  tNFA_EE_ECB* p_cb;
+
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+      "handle:<0x%x>clear protocol_mask:<0x%x>", ee_handle, clear_protocol);
+  if (!clear_protocol) {
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nothing to clear");
+    status = NFA_STATUS_OK;
+    return status;
+  }
+
+  p_cb = nfa_ee_find_ecb(nfcee_id);
+
+  if (p_cb == nullptr) {
+    LOG(ERROR) << StringPrintf("Bad ee_handle");
+    status = NFA_STATUS_INVALID_PARAM;
+  } else {
+    p_msg = (tNFA_EE_API_SET_PROTO_CFG*)GKI_getbuf(
+        sizeof(tNFA_EE_API_SET_PROTO_CFG));
+    if (p_msg != nullptr) {
+      p_msg->hdr.event = NFA_EE_API_CLEAR_PROTO_CFG_EVT;
+      p_msg->nfcee_id = nfcee_id;
+      p_msg->p_cb = p_cb;
+      p_msg->protocols_switch_on = clear_protocol;
+      p_msg->protocols_switch_off = clear_protocol;
+      p_msg->protocols_battery_off = clear_protocol;
+      p_msg->protocols_screen_lock = clear_protocol;
+      p_msg->protocols_screen_off = clear_protocol;
+      p_msg->protocols_screen_off_lock = clear_protocol;
 
       nfa_sys_sendmsg(p_msg);
 
