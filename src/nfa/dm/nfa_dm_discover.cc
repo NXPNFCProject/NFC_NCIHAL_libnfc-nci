@@ -1358,12 +1358,14 @@ void nfa_dm_start_rf_discover(void) {
         (fwdEnable == 0x01) && ((hostListenMask & NFA_TECHNOLOGY_MASK_A) &&
                                 (hostListenMask & NFA_TECHNOLOGY_MASK_B));
 
-    bool isTypeAReq = (hostListenMask & NFA_TECHNOLOGY_MASK_A) ||
-                      isFwdFuncValid || (tech_list & NFA_TECHNOLOGY_MASK_A);
+    bool isTypeAReq =
+        ((hostListenMask | eseListenMask) & NFA_TECHNOLOGY_MASK_A) ||
+        isFwdFuncValid || (tech_list & NFA_TECHNOLOGY_MASK_A);
     if (!isTypeAReq) dm_disc_mask &= ~(NFA_DM_DISC_MASK_LA_ISO_DEP);
 
-    bool isTypeBReq = (hostListenMask & NFA_TECHNOLOGY_MASK_B) ||
-                      isFwdFuncValid || (tech_list & NFA_TECHNOLOGY_MASK_B);
+    bool isTypeBReq =
+        ((hostListenMask | eseListenMask) & NFA_TECHNOLOGY_MASK_B) ||
+        isFwdFuncValid || (tech_list & NFA_TECHNOLOGY_MASK_B);
     if (!isTypeBReq) dm_disc_mask &= ~(NFA_DM_DISC_MASK_LB_ISO_DEP);
 #endif
 
