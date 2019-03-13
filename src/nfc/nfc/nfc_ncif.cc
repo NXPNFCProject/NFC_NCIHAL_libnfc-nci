@@ -1276,6 +1276,13 @@ void nfc_ncif_resume_dwp_wired_mode() {
                                 nfc_cb.pwr_link_cmd.reqSrc);
     nfc_cb.pwr_link_cmd.bPwrLinkCmdRequested = false;
     nfc_cb.pwr_link_cmd.reqSrc = NFC_INTF_REQ_SRC_DWP;
+    if (nfc_cb.pwr_link_cmd.param == 0x01) {
+      /* Mode set command not sent during Standby , so allow DWP
+       * transmission need to be called to unblock Standby command. */
+      nfc_cb.bBlockWiredMode = false;
+      nfc_cb.bCeActivatedeSE = false;
+      nfc_ncif_allow_dwp_transmission();
+    }
   } else if (((nfc_cb.bSetmodeOnReq) || (!GKI_queue_is_empty(&p_cb->tx_q))) &&
              (!nfc_cb.bCeActivatedeSE)) {
     nfc_stop_quick_timer(&nfc_cb.nci_wait_setModeRsp_timer);
