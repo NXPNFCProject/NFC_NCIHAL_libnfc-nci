@@ -486,19 +486,16 @@ void nci_proc_ee_management_ntf(NFC_HDR* p_msg) {
   }
 #if (NXP_EXTNS == TRUE)
   else if (op_code == NCI_MSG_NFCEE_MODE_SET) {
-      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nci_proc_ee_management_ntf status:0x%x, nfceeid:0x%x",
-              *pp, *(pp + 1));
-      nfc_stop_timer(&nfc_cb.nci_wait_setMode_Ntf_timer);
-      if(nfc_cb.nci_version != NCI_VERSION_2_0)
-      {
-          //p_evt = (tNFC_RESPONSE*)&mode_set_info;
-          event = NFC_NFCEE_MODE_SET_INFO;
-          //ee_status = *pp++;
-          //mode_set_info.nfcee_id = *pp++;
-          //mode_set_info.status = ee_status;
-          nfc_response.mode_set_info.status = *pp++;
-          nfc_response.mode_set_info.nfcee_id = *pp++;
-
+    bool isModeSetNtfForEse = false;
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+        "nci_proc_ee_management_ntf status:0x%x, nfceeid:0x%x", *pp, *(pp + 1));
+    nfc_stop_timer(&nfc_cb.nci_wait_setMode_Ntf_timer);
+    if (nfc_cb.nci_version != NCI_VERSION_2_0) {
+      event = NFC_NFCEE_MODE_SET_INFO;
+      nfc_response.mode_set_info.status = *pp++;
+      nfc_response.mode_set_info.nfcee_id = *pp++;
+      isModeSetNtfForEse =
+          (nfc_response.mode_set_info.nfcee_id == NFCEE_ID_ESE);
       }
       else
       {
@@ -507,21 +504,19 @@ void nci_proc_ee_management_ntf(NFC_HDR* p_msg) {
           nfc_response.mode_set.status = *pp;
           nfc_response.mode_set.nfcee_id = nfa_ee_cb.nfcee_id;
           nfc_response.mode_set.mode = nfa_ee_cb.mode;
-          /*mode_set.nfcee_id = *p_old++;
-      mode_set.mode = *p_old++;*/
-          /*mode_set.nfcee_id = nfa_ee_cb.nfcee_id;
-          mode_set.mode = nfa_ee_cb.mode;*/
+          isModeSetNtfForEse = (nfc_response.mode_set.nfcee_id == NFCEE_ID_ESE);
           event   = NFC_NFCEE_MODE_SET_REVT;
           nfc_cb.flags  &= ~NFC_FL_WAIT_MODE_SET_NTF;
           nfc_stop_timer(&nfc_cb.nci_setmode_ntf_timer);
       }
-      if ((nfcFL.eseFL._ESE_DUAL_MODE_PRIO_SCHEME ==
-              nfcFL.eseFL._ESE_WIRED_MODE_RESUME) &&
-              ((nfc_cb.bBlockWiredMode) && (nfc_cb.bSetmodeOnReq))) {
-          nfc_cb.bSetmodeOnReq = false;
+      if (isModeSetNtfForEse && (nfcFL.eseFL._ESE_DUAL_MODE_PRIO_SCHEME ==
+                                 nfcFL.eseFL._ESE_WIRED_MODE_RESUME)) {
+        if (nfc_cb.bSetmodeOnReq) nfc_cb.bSetmodeOnReq = false;
+        if (nfc_cb.bBlockWiredMode) {
           nfc_cb.bBlockWiredMode = false;
           nfc_cb.bCeActivatedeSE = false;
           nfc_ncif_allow_dwp_transmission();
+        }
       }
   }
 #endif
