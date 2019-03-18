@@ -88,7 +88,6 @@ extern void nfa_dm_init_cfgs(phNxpNci_getCfg_info_t* mGetCfg_info_main);
 
 using android::base::StringPrintf;
 using android::hardware::nfc::V1_1::NfcEvent;
-using vendor::nxp::nxpnfc::V1_0::NxpNfcEvent;
 
 extern bool nfc_debug_enabled;
 extern void delete_stack_non_volatile_store(bool forceDelete);
@@ -737,11 +736,11 @@ static void nfc_main_hal_cback(uint8_t event, tHAL_NFC_STATUS status) {
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfc_main_hal_cback handled  event  %x", event);
       set_i2c_fragmentation_enabled(I2C_FRAGMENATATION_ENABLED);
     } break;
-    case (uint32_t)NxpNfcEvent::HAL_NXPNFC_HCI_NETWORK_RESET:
+    case (uint32_t)HAL_NFC_HCI_NV_RESET:
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("JCOP Update complete : remove NV memory for HCI_NETWORK_RESET ");
       delete_stack_non_volatile_store(true);
       break;
-    case (uint32_t)NxpNfcEvent::HAL_NXPNFC_RESTART:
+    case (uint32_t)HAL_NFC_STATUS_RESTART:
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("ESE Update complete : Restart NFC service");
       abort();
       break;
