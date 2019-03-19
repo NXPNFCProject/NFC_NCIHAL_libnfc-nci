@@ -915,7 +915,7 @@ tNFC_STATUS rw_i93_send_cmd_lock_block(uint8_t block_number) {
   /* Parameters */
   ARRAY8_TO_STREAM(p, rw_cb.tcb.i93.uid); /* UID */
   if (rw_cb.tcb.i93.intl_flags & RW_I93_FLAG_EXT_COMMANDS) {
-    UINT16_TO_STREAM(p, block_number); /* Block number */
+    UINT8_TO_STREAM(p, block_number); /* Block number */
     p_cmd->len++;
   } else {
     UINT8_TO_STREAM(p, block_number); /* Block number */

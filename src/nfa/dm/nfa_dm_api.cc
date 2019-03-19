@@ -1428,14 +1428,9 @@ tNFA_STATUS NFA_SendRawVsCommand(uint8_t cmd_params_len, uint8_t* p_cmd_params,
   if (p_msg != NULL) {
     p_msg->hdr.event = NFA_DM_API_SEND_RAW_VS_EVT;
     p_msg->p_cback = p_cback;
-    if (cmd_params_len && p_cmd_params) {
-      p_msg->cmd_params_len = cmd_params_len;
-      p_msg->p_cmd_params = (uint8_t*)(p_msg + 1);
-      memcpy(p_msg->p_cmd_params, p_cmd_params, cmd_params_len);
-    } else {
-      p_msg->cmd_params_len = 0;
-      p_msg->p_cmd_params = NULL;
-    }
+    p_msg->cmd_params_len = cmd_params_len;
+    p_msg->p_cmd_params = (uint8_t*)(p_msg + 1);
+    memcpy(p_msg->p_cmd_params, p_cmd_params, cmd_params_len);
 
     nfa_sys_sendmsg(p_msg);
 

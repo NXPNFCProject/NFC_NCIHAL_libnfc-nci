@@ -685,8 +685,9 @@ static void nfa_ee_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
                               __attribute__((unused)) tNFC_CONN* p_data) {
   tNFA_EE_NCI_CONN cbk;
 
-   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ee_conn_cback: conn_id: %d, event=0x%02x", conn_id,
-                   event);
+  memset(&cbk, 0x00, sizeof(tNFA_EE_NCI_CONN));
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+      "nfa_ee_conn_cback: conn_id: %d, event=0x%02x", conn_id, event);
 
   cbk.hdr.event = NFA_EE_NCI_CONN_EVT;
   if (event == NFC_DATA_CEVT) {
@@ -2200,7 +2201,11 @@ void nfa_ee_api_remove_sys_code(tNFA_EE_MSG* p_data) {
     evt_data.status = NFA_STATUS_INVALID_PARAM;
   }
   /* report the status of this operation */
-  nfa_ee_report_event(p_cb->p_ee_cback, NFA_EE_REMOVE_SYSCODE_EVT, &evt_data);
+  if (p_cb) {
+    nfa_ee_report_event(p_cb->p_ee_cback, NFA_EE_REMOVE_SYSCODE_EVT, &evt_data);
+  } else {
+    nfa_ee_report_event(NULL, NFA_EE_REMOVE_SYSCODE_EVT, &evt_data);
+  }
 }
 
 /*******************************************************************************
