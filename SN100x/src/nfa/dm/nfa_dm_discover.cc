@@ -2629,7 +2629,6 @@ static void nfa_dm_disc_sm_lp_listen(tNFA_DM_RF_DISC_SM_EVENT event,
   switch (event) {
     case NFA_DM_RF_INTF_ACTIVATED_NTF:
       nfa_dm_disc_new_state(NFA_DM_RFST_LP_ACTIVE);
-      nfa_dm_disc_notify_activation(&(p_data->nfc_discover));
       if (nfa_dm_disc_notify_activation(&(p_data->nfc_discover)) ==
           NFA_STATUS_FAILED) {
         DLOG_IF(INFO, nfc_debug_enabled)

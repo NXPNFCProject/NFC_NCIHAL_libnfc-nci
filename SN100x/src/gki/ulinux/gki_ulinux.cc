@@ -625,7 +625,10 @@ uint16_t GKI_wait(uint16_t flag, uint32_t timeout) {
       //            abstime.tv_sec = currSysTime.time;
       //            abstime.tv_nsec = NANOSEC_PER_MILLISEC *
       //            currSysTime.millitm;
-      clock_gettime(CLOCK_MONOTONIC, &abstime);
+      if (clock_gettime(CLOCK_MONOTONIC, &abstime) == -1) {
+        LOG(ERROR) << StringPrintf(
+            "Retrieve of CLOCK_MONOTONIC failed, errno = 0x%02X", errno);
+      }
 
       /* add timeout */
       sec = timeout / 1000;
