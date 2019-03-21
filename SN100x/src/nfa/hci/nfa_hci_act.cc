@@ -2314,25 +2314,24 @@ static void nfa_hci_handle_generic_gate_evt(uint8_t* p_data, uint16_t data_len,
                                             tNFA_HCI_DYN_GATE* p_gate,
                                             tNFA_HCI_DYN_PIPE* p_pipe) {
   tNFA_HCI_EVT_DATA evt_data;
-#if(NXP_EXTNS == TRUE)
-  tNFA_HCI_PIPE_CMDRSP_INFO   *p_pipe_cmdrsp_info = NULL;
-#endif
+
   evt_data.rcvd_evt.pipe = p_pipe->pipe_id;
   evt_data.rcvd_evt.evt_code = nfa_hci_cb.inst;
   evt_data.rcvd_evt.evt_len = data_len;
+
 #if(NXP_EXTNS == TRUE)
-  if ((p_pipe_cmdrsp_info) && (!p_pipe_cmdrsp_info->reassembly_failed))
-  {
+  evt_data.rcvd_evt.status = NFA_STATUS_BUFFER_FULL;
+
 #else
   if (nfa_hci_cb.assembly_failed)
   {
-#endif
       evt_data.rcvd_evt.status = NFA_STATUS_OK;
   }
   else
   {
       evt_data.rcvd_evt.status = NFA_STATUS_BUFFER_FULL;
   }
+#endif
 
   evt_data.rcvd_evt.p_evt_buf = p_data;
 #if(NXP_EXTNS != TRUE)
@@ -2649,8 +2648,8 @@ void nfa_hci_handle_pending_host_reset() {
           if(NFC_NfceeDiscover(true) == NFC_STATUS_FAILED) {
             DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFCEE_UNRECOVERABLE_ERRROR unable to handle");
           }
+          break;
         }
-        break;
       }
     if(xx == NFA_HCI_MAX_HOST_IN_NETWORK)
       nfa_hci_check_pending_api_requests();
