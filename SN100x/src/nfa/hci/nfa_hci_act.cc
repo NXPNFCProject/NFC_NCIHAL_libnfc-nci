@@ -3082,13 +3082,13 @@ static void nfa_hci_handle_apdu_app_gate_hcp_msg_data (uint8_t *p_data, uint16_t
 *******************************************************************************/
 static bool nfa_hci_api_send_apdu (tNFA_HCI_EVENT_DATA *p_evt_data)
 {
-    uint8_t                       pipe_id= 0;;
-    uint8_t                       evt_code;
+    uint8_t                       pipe_id= 0;
+    uint8_t                       evt_code = NFA_HCI_EVT_UNKNOWN;
     uint32_t                      max_wait_time = NFA_HCI_EVT_SW_PROC_LATENCY;
     tNFC_STATUS                 status = NFA_STATUS_FAILED;
     tNFA_HCI_EVT_DATA           evt_data;
     tNFA_HCI_DYN_PIPE           *p_pipe;
-    tNFA_HCI_PIPE_STATE         pipe_state;
+    tNFA_HCI_PIPE_STATE         pipe_state = NFA_HCI_PIPE_CLOSED;
     tNFA_HCI_API_SEND_APDU_EVT  *p_send_apdu = (tNFA_HCI_API_SEND_APDU_EVT*)&p_evt_data->send_evt;
     tNFA_HCI_PIPE_CMDRSP_INFO   *p_pipe_cmdrsp_info = NULL;
     tNFA_HCI_APDU_PIPE_REG_INFO *p_apdu_pipe_reg_info = NULL;

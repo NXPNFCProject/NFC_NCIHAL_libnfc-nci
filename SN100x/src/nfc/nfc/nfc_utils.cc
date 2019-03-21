@@ -177,7 +177,7 @@ void nfc_free_conn_cb(tNFC_CONN_CB* p_cb) {
 extern void nfc_reset_all_conn_cbs(void) {
   int xx;
   tNFC_CONN_CB* p_conn_cb = &nfc_cb.conn_cb[0];
-  tNFC_DEACTIVATE_DEVT deact;
+  tNFC_DEACTIVATE_DEVT deact = tNFC_DEACTIVATE_DEVT();
 
   deact.status = NFC_STATUS_NOT_INITIALIZED;
   deact.type = NFC_DEACTIVATE_TYPE_IDLE;

@@ -195,5 +195,6 @@
 #define NFA_HCI_GATES_LIST_INDEX 0x06
 #if(NXP_EXTNS == TRUE)
 #define NFA_HCI_MAX_CURRENT_INDEX 0x08
+#define NFA_HCI_EVT_UNKNOWN 0xFF
 #endif
 #endif /* NFA_HCI_DEFS_H */
