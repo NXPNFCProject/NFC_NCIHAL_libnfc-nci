@@ -1912,7 +1912,11 @@ static void nfa_hci_timer_cback (TIMER_LIST_ENT *p_tle)
 
         p_pipe = nfa_hciu_find_pipe_by_pid (*p_pipe_id);
         p_pipe_cmdrsp_info = nfa_hciu_get_pipe_cmdrsp_info (*p_pipe_id);
-
+        if (!p_pipe_cmdrsp_info) {
+          LOG(ERROR) << StringPrintf(
+              "nfa_hci_timer_cback - Pipe Info is NULL returning...");
+          return;
+        }
         memset (&evt_data, 0, sizeof (evt_data));
 
         if (p_pipe_cmdrsp_info->w4_cmd_rsp)

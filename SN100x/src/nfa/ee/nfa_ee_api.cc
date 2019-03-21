@@ -748,7 +748,6 @@ tNFA_STATUS NFA_EeAddAidRouting(tNFA_HANDLE ee_handle, uint8_t aid_len,
 tNFA_STATUS NFA_EeAddApduPatternRouting(uint8_t apdu_data_len,uint8_t* apdu_data, uint8_t apdu_mask_len,
   uint8_t* apdu_mask, tNFA_HANDLE ee_handle, uint8_t power_state) {
   tNFA_EE_API_ADD_APDU* p_msg;
-  tNFA_STATUS status = NFA_STATUS_FAILED;
   tNFA_EE_ECB* p_cb;
   uint16_t size = sizeof(tNFA_EE_API_ADD_AID) + apdu_data_len + apdu_mask_len;
   uint8_t nfcee_id = (uint8_t)(ee_handle & 0xFF);
@@ -761,23 +760,24 @@ tNFA_STATUS NFA_EeAddApduPatternRouting(uint8_t apdu_data_len,uint8_t* apdu_data
      || apdu_mask_len > NFC_MAX_APDU_MASK_LEN || apdu_data_len != apdu_mask_len) {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf
   ("Bad ee_handle or AID (len=%d)", apdu_data_len+apdu_mask_len);
-   status = NFA_STATUS_INVALID_PARAM;
- } else {
-    p_msg = (tNFA_EE_API_ADD_APDU*)GKI_getbuf(size);
-    p_msg->hdr.event = NFA_EE_API_ADD_APDU_EVT;
-    p_msg->apdu_len = apdu_data_len;
-    p_msg->mask_len = apdu_mask_len;
-    p_msg->power_state = power_state;
-    p_msg->nfcee_id = nfcee_id;
-    p_msg->p_cb = p_cb;
-    p_msg->p_apdu = (uint8_t*)(p_msg + 1);
-    memcpy(p_msg->p_apdu, apdu_data, apdu_data_len);
-    p_msg->p_mask = (uint8_t*)(p_msg->p_apdu + apdu_data_len);
-    memcpy(p_msg->p_mask, apdu_mask, apdu_mask_len);
-    nfa_sys_sendmsg(p_msg);
-    status = NFA_STATUS_OK;
-  }
-  return status;
+  return NFA_STATUS_INVALID_PARAM;
+ }
+ p_msg = (tNFA_EE_API_ADD_APDU*)GKI_getbuf(size);
+ if (p_msg == NULL) {
+   return NFA_STATUS_FAILED;
+ }
+ p_msg->hdr.event = NFA_EE_API_ADD_APDU_EVT;
+ p_msg->apdu_len = apdu_data_len;
+ p_msg->mask_len = apdu_mask_len;
+ p_msg->power_state = power_state;
+ p_msg->nfcee_id = nfcee_id;
+ p_msg->p_cb = p_cb;
+ p_msg->p_apdu = (uint8_t*)(p_msg + 1);
+ memcpy(p_msg->p_apdu, apdu_data, apdu_data_len);
+ p_msg->p_mask = (uint8_t*)(p_msg->p_apdu + apdu_data_len);
+ memcpy(p_msg->p_mask, apdu_mask, apdu_mask_len);
+ nfa_sys_sendmsg(p_msg);
+ return NFA_STATUS_OK;
 }
 
 /*******************************************************************************
