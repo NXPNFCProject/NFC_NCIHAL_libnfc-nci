@@ -911,8 +911,14 @@ bool nfa_hci_enable_one_nfcee(void) {
                     {
                       if(nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD)
                       {
-                        if(nfceeid == NFA_HCI_FIRST_PROP_HOST)
+                        if (nfceeid == NFA_HCI_FIRST_PROP_HOST) {
                           status = NFC_NfceePLConfig(nfceeid, 0x03);
+                          if (status != NFA_STATUS_OK) {
+                            LOG(ERROR) << StringPrintf(
+                                "%s: Power link configuration is unsuccessfull",
+                                __func__);
+                          }
+                        }
                       }
                     }
                     status = NFC_NfceeModeSet(nfceeid, NFC_MODE_ACTIVATE);
