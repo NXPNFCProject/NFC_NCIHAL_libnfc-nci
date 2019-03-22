@@ -2230,7 +2230,7 @@ void rw_t3t_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
                                (p_data->data.status == NFC_STATUS_CONTINUE))) {
         rw_t3t_data_cback(conn_id, &(p_data->data));
         break;
-      } else if (p_data->data.p_data != NULL) {
+      } else if (p_data && p_data->data.p_data != NULL) {
         /* Free the response buffer in case of error response */
         GKI_freebuf((NFC_HDR*)(p_data->data.p_data));
         p_data->data.p_data = NULL;

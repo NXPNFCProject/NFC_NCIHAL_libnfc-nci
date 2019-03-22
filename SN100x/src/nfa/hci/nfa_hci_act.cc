@@ -3299,15 +3299,17 @@ static bool nfa_hci_api_abort_apdu (tNFA_HCI_EVENT_DATA *p_evt_data)
         p_apdu_pipe_reg_info = nfa_hciu_find_apdu_pipe_registry_info_for_host (p_abort_apdu->host_id);
     }
 
-    if (  (p_pipe_cmdrsp_info == NULL)
-        ||(p_apdu_pipe_reg_info == NULL)  )
-    {
-        LOG(ERROR) << StringPrintf ("nfa_hci_api_abort_apdu (): Pipe [0x%02x] Info not available", pipe_id);
+    if (p_apdu_pipe_reg_info == NULL) {
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+          "nfa_hci_api_abort_apdu (): Pipe [0x%02x] Info not available",
+          pipe_id);
     }
-    if (pipe_state != NFA_HCI_PIPE_OPENED)
-    {
-      DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf ("nfa_hci_api_abort_apdu (): APDU Pipe[0x%02x] is closed", pipe_id);
+    if ((p_pipe_cmdrsp_info == NULL) || (pipe_state != NFA_HCI_PIPE_OPENED)) {
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+          "nfa_hci_api_abort_apdu (): APDU Pipe [0x%02x] is closed or Info not "
+          "available",
+          pipe_id);
+
       nfa_hci_notify_w4_atr_timeout();
       return true;
     }
