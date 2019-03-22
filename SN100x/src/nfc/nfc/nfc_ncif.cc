@@ -203,7 +203,7 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
   p_data = (NFC_HDR*)GKI_getfirst(&p_cb->tx_q);
 
   /* post data fragment to NCIT task as credits are available */
-  while (p_data && (p_data->len >= 0) && (p_cb->num_buff > 0)) {
+  while (p_data && (p_cb->num_buff > 0)) {
     if (p_data->len <= buffer_size) {
       pbf = 0; /* last fragment */
       ulen = (uint8_t)(p_data->len);
