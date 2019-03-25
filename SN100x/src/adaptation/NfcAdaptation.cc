@@ -184,9 +184,9 @@ class NfcDeathRecipient : public hidl_death_recipient {
 **
 *******************************************************************************/
 NfcAdaptation::NfcAdaptation() {
+  mCurrentIoctlData = NULL;
   memset(&mHalEntryFuncs, 0, sizeof(mHalEntryFuncs));
 }
-
 /*******************************************************************************
 **
 ** Function:    NfcAdaptation::~NfcAdaptation()
