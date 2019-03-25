@@ -324,7 +324,7 @@ void GKI_shutdown(void) {
       }
 #endif
       DLOG_IF(INFO, nfc_debug_enabled)
-          << StringPrintf("task %s dead", gki_cb.com.OSTName[task_id]);
+          << StringPrintf("task %s dead", gki_cb.com.OSTName[task_id - 1]);
       GKI_exit_task(task_id - 1);
     }
   }
