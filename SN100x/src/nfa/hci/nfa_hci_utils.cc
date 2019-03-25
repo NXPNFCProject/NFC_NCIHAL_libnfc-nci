@@ -268,8 +268,8 @@ tNFA_HCI_DYN_GATE* nfa_hciu_alloc_gate(uint8_t gate_id,
   } else {
     /* If gate_id is 0, we need to assign a free one */
     /* Loop through all possible gate IDs checking if they are already used */
-    for (gate_id = NFA_HCI_FIRST_HOST_SPECIFIC_GENERIC_GATE;
-         gate_id <= NFA_HCI_LAST_PROP_GATE; gate_id++) {
+    gate_id = NFA_HCI_FIRST_HOST_SPECIFIC_GENERIC_GATE;
+    while (gate_id++) {
       /* Skip connectivity gate */
       if (gate_id == NFA_HCI_CONNECTIVITY_GATE) gate_id++;
 
