@@ -732,6 +732,24 @@ static void nfa_ee_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
 
 /*******************************************************************************
 **
+** Function         nfa_ee_find_max_aid_cfg_len
+**
+** Description      Find the max len for aid_cfg
+**
+** Returns          max length
+**
+*******************************************************************************/
+int nfa_ee_find_max_aid_cfg_len(void) {
+  int max_lmrt_size = NFC_GetLmrtSize();
+  if (max_lmrt_size) {
+    return max_lmrt_size - NFA_EE_MAX_PROTO_TECH_EXT_ROUTE_LEN;
+  } else {
+    return NFA_EE_MAX_AID_CFG_LEN - 4;
+  }
+}
+
+/*******************************************************************************
+**
 ** Function         nfa_ee_find_total_aid_len
 **
 ** Description      Find the total len in aid_cfg from start_entry to the last
@@ -1090,6 +1108,34 @@ void nfa_ee_api_register(tNFA_EE_MSG* p_data) {
       }
     }
   }
+
+  int max_aid_cfg_length = nfa_ee_find_max_aid_cfg_len();
+  int max_aid_entries = max_aid_cfg_length / NFA_MIN_AID_LEN + 1;
+
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("max_aid_cfg_length: %d and max_aid_entries: %d",
+                      max_aid_cfg_length, max_aid_entries);
+
+  for (xx = 0; xx < NFA_EE_NUM_ECBS; xx++) {
+    nfa_ee_cb.ecb[xx].aid_len = (uint8_t*)GKI_getbuf(max_aid_entries);
+    nfa_ee_cb.ecb[xx].aid_pwr_cfg = (uint8_t*)GKI_getbuf(max_aid_entries);
+    nfa_ee_cb.ecb[xx].aid_rt_info = (uint8_t*)GKI_getbuf(max_aid_entries);
+    nfa_ee_cb.ecb[xx].aid_info = (uint8_t*)GKI_getbuf(max_aid_entries);
+    nfa_ee_cb.ecb[xx].aid_cfg = (uint8_t*)GKI_getbuf(max_aid_cfg_length);
+    if ((NULL != nfa_ee_cb.ecb[xx].aid_len) &&
+        (NULL != nfa_ee_cb.ecb[xx].aid_pwr_cfg) &&
+        (NULL != nfa_ee_cb.ecb[xx].aid_info) &&
+        (NULL != nfa_ee_cb.ecb[xx].aid_cfg)) {
+      memset(nfa_ee_cb.ecb[xx].aid_len, 0, max_aid_entries);
+      memset(nfa_ee_cb.ecb[xx].aid_pwr_cfg, 0, max_aid_entries);
+      memset(nfa_ee_cb.ecb[xx].aid_rt_info, 0, max_aid_entries);
+      memset(nfa_ee_cb.ecb[xx].aid_info, 0, max_aid_entries);
+      memset(nfa_ee_cb.ecb[xx].aid_cfg, 0, max_aid_cfg_length);
+    } else {
+      LOG(ERROR) << StringPrintf("GKI_getbuf allocation for ECB failed !");
+    }
+  }
+
   /* This callback is verified (not NULL) in NFA_EeRegister() */
   (*p_cback)(NFA_EE_REGISTER_EVT, &evt_data);
 
@@ -1113,6 +1159,15 @@ void nfa_ee_api_deregister(tNFA_EE_MSG* p_data) {
   tNFA_EE_CBACK_DATA evt_data = {0};
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ee_api_deregister");
+
+  for (int xx = 0; xx < NFA_EE_NUM_ECBS; xx++) {
+    GKI_freebuf(nfa_ee_cb.ecb[xx].aid_len);
+    GKI_freebuf(nfa_ee_cb.ecb[xx].aid_pwr_cfg);
+    GKI_freebuf(nfa_ee_cb.ecb[xx].aid_rt_info);
+    GKI_freebuf(nfa_ee_cb.ecb[xx].aid_info);
+    GKI_freebuf(nfa_ee_cb.ecb[xx].aid_cfg);
+  }
+
   p_cback = nfa_ee_cb.p_ee_cback[index];
   nfa_ee_cb.p_ee_cback[index] = NULL;
   if (p_cback) (*p_cback)(NFA_EE_DEREGISTER_EVT, &evt_data);
@@ -1437,6 +1492,9 @@ void nfa_ee_api_add_aid(tNFA_EE_MSG* p_data) {
 
   nfa_ee_trace_aid("nfa_ee_api_add_aid", p_cb->nfcee_id, p_add->aid_len,
                    p_add->p_aid);
+  int max_aid_cfg_length = nfa_ee_find_max_aid_cfg_len();
+  int max_aid_entries = max_aid_cfg_length / NFA_MIN_AID_LEN + 1;
+
   p_chk_cb =
       nfa_ee_find_aid_offset(p_add->aid_len, p_add->p_aid, &offset, &entry);
 #if (NXP_EXTNS == TRUE)
@@ -1490,17 +1548,17 @@ void nfa_ee_api_add_aid(tNFA_EE_MSG* p_data) {
     /* make sure the control block has enough room to hold this entry */
     len_needed = p_add->aid_len + 2; /* tag/len */
 
-    if ((len_needed + len) > NFA_EE_MAX_AID_CFG_LEN) {
+    if ((len_needed + len) > max_aid_cfg_length) {
       LOG(ERROR) << StringPrintf(
           "Exceed capacity: (len_needed:%d + len:%d) > "
           "NFA_EE_MAX_AID_CFG_LEN:%d",
-          len_needed, len, NFA_EE_MAX_AID_CFG_LEN);
+          len_needed, len, max_aid_cfg_length);
       evt_data.status = NFA_STATUS_BUFFER_FULL;
     }
 #if (NXP_EXTNS == TRUE)
-    else if (dh_ecb->aid_entries < NFA_EE_MAX_AID_ENTRIES)
+    else if (dh_ecb->aid_entries < max_aid_entries)
 #else
-    else if (p_cb->aid_entries < NFA_EE_MAX_AID_ENTRIES)
+    else if (p_cb->aid_entries < max_aid_entries)
 #endif
     {
       /* 4 = 1 (tag) + 1 (len) + 1(nfcee_id) + 1(power cfg) */
@@ -1538,7 +1596,7 @@ void nfa_ee_api_add_aid(tNFA_EE_MSG* p_data) {
       }
     } else {
       LOG(ERROR) << StringPrintf("Exceed NFA_EE_MAX_AID_ENTRIES:%d",
-                                 NFA_EE_MAX_AID_ENTRIES);
+                                 max_aid_entries);
       evt_data.status = NFA_STATUS_BUFFER_FULL;
     }
   }
@@ -2788,10 +2846,9 @@ void nfa_ee_nci_mode_set_rsp(tNFA_EE_MSG* p_data) {
           p_cb->tech_battery_off | p_cb->proto_switch_on |
           p_cb->proto_switch_off | p_cb->proto_battery_off
 #if (NXP_EXTNS == TRUE)
-           |
-          p_cb->aid_entries | p_cb->apdu_pattern_entries
+          | p_cb->aid_entries | p_cb->apdu_pattern_entries
 #endif
-          ) {
+      ) {
         /* this NFCEE still has configuration when deactivated. clear the
          * configuration */
         nfa_ee_cb.ee_cfged &= ~nfa_ee_ecb_to_mask(p_cb);
@@ -3442,7 +3499,9 @@ void nfa_ee_lmrt_to_nfcc(__attribute__((unused)) tNFA_EE_MSG* p_data) {
   uint8_t max_tlv;
 
   /* update routing table: DH and the activated NFCEEs */
-  p = (uint8_t*)GKI_getbuf(NFA_EE_ROUT_BUF_SIZE);
+  max_len = (NFC_GetLmrtSize() > NFA_EE_ROUT_BUF_SIZE) ? NFC_GetLmrtSize()
+                                                       : NFA_EE_ROUT_BUF_SIZE;
+  p = (uint8_t*)GKI_getbuf(max_len);
   if (p == NULL) {
     LOG(ERROR) << StringPrintf("no buffer to send routing info.");
     tNFA_EE_CBACK_DATA nfa_ee_cback_data;

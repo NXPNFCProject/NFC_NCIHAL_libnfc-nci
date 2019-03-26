@@ -166,6 +166,10 @@ enum {
 typedef uint8_t tNFA_EE_CONN_ST;
 
 #define NFA_EE_MAX_AID_CFG_LEN (510)
+// Technology A/B/F reserved: 5*3 = 15
+// Protocol ISODEP/NFCDEP/T3T reserved: 5*3 = 15
+// Extends (APDU pattern/SC)reserved: 30
+#define NFA_EE_MAX_PROTO_TECH_EXT_ROUTE_LEN 60
 #if (NXP_EXTNS == TRUE)
 #define NFA_EE_TOTAL_APDU_PATTERN_SIZE 250
 #define NFA_EE_APDU_ROUTE_MASK 8 /* APDU route location mask*/
@@ -265,12 +269,13 @@ typedef struct {
    * the aid_len is the total length of all the TLVs associated with this AID
    * entry
    */
-  uint8_t aid_len[NFA_EE_MAX_AID_ENTRIES]; /* the actual lengths in aid_cfg */
-  uint8_t aid_pwr_cfg[NFA_EE_MAX_AID_ENTRIES]; /* power configuration of this
-                                                  AID entry */
-  uint8_t aid_rt_info[NFA_EE_MAX_AID_ENTRIES]; /* route/vs info for this AID
-                                                  entry */
-  uint8_t aid_cfg[NFA_EE_MAX_AID_CFG_LEN]; /* routing entries based on AID */
+  uint8_t* aid_len;      /* the actual lengths in aid_cfg */
+  uint8_t* aid_pwr_cfg;  /* power configuration of this
+                                                   AID entry */
+  uint8_t* aid_rt_info;  /* route/vs info for this AID
+                                                   entry */
+  uint8_t* aid_cfg;      /* routing entries based on AID */
+  uint8_t* aid_info;     /* Aid Info Prefix/Suffix/Exact */
   uint8_t aid_entries;   /* The number of AID entries in aid_cfg */
   uint8_t nfcee_id;      /* ID for this NFCEE */
   uint8_t ee_status;     /* The NFCEE status */
@@ -294,7 +299,6 @@ typedef struct {
   tNFA_NFC_PROTOCOL lbp_protocol;  /* Listen B' protocol   */
   uint8_t size_mask; /* the size for technology and protocol routing */
   uint16_t size_aid; /* the size for aid routing */
-  uint8_t aid_info[NFA_EE_MAX_AID_ENTRIES]; /* Aid Info Prefix/Suffix/Exact */
   /*System Code Based Routing Variables*/
   uint8_t sys_code_cfg[NFA_EE_MAX_SYSTEM_CODE_ENTRIES * NFA_EE_SYSTEM_CODE_LEN];
   uint8_t sys_code_pwr_cfg[NFA_EE_MAX_SYSTEM_CODE_ENTRIES];
@@ -722,6 +726,7 @@ extern void nfa_ee_proc_hci_info_cback(void);
 void nfa_ee_check_disable(void);
 bool nfa_ee_restore_ntf_done(void);
 void nfa_ee_check_restore_complete(void);
+int nfa_ee_find_max_aid_cfg_len(void);
 #if (NXP_EXTNS == TRUE)
 void nfa_ee_nci_set_mode_info(tNFA_EE_MSG* p_data);
 void nfa_ee_nci_pwr_link_ctrl_rsp(tNFA_EE_MSG* p_data);
@@ -729,7 +734,6 @@ void nfa_ee_api_power_link_set(tNFA_EE_MSG* p_data);
 void nfa_ee_nci_nfcee_status_ntf(tNFA_EE_MSG* p_data);
 void nfa_ee_api_add_apdu(tNFA_EE_MSG* p_data);
 void nfa_ee_api_remove_apdu(tNFA_EE_MSG* p_data);
-uint16_t nfa_ee_find_max_aid_config_length();
 uint16_t nfa_ee_api_get_max_aid_config_length();
 uint16_t nfa_ee_lmrt_size();
 #endif
