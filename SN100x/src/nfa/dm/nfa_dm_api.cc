@@ -362,8 +362,7 @@ tNFA_STATUS NFA_GetConfig(uint8_t num_ids, tNFA_PMID* p_param_ids) {
 tNFA_STATUS NFA_SetTransitConfig(std::string config) {
   tNFA_DM_API_SET_TRANSIT_CONFIG* p_msg;
   uint16_t strsize = strlen(config.c_str());
-  if(strsize <= 0)
-  {
+  if (strsize == 0) {
     LOG(ERROR) << StringPrintf("Invalid string, returning...");
     return NFA_STATUS_FAILED;
   }
