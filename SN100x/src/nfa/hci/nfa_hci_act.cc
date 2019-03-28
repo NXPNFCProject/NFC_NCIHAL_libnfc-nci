@@ -2628,9 +2628,9 @@ static bool nfa_hci_set_apdu_pipe_ready_for_host (uint8_t host_id)
  **
  *******************************************************************************/
 void nfa_hci_handle_pending_host_reset() {
-    uint8_t xx = 0;
+    uint8_t xx;
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hci_handle_pending_host_reset");
-    while (xx++ < NFA_HCI_MAX_HOST_IN_NETWORK) {
+    for(xx = 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++) {
       if(nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_INIT_COMPLETED) {
         //nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_INIT_COMPLETED);
         tNFA_HCI_EVT_DATA             evt_data;
