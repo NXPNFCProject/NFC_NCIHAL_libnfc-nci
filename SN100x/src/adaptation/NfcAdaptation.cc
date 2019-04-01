@@ -254,6 +254,8 @@ void NfcAdaptation::GetVendorConfigs(
         configMap.emplace(NAME_OFFHOST_ROUTE_ESE,
                           ConfigValue(configValue.offHostRouteEse));
       }
+        configMap.emplace(NAME_DEFAULT_ISODEP_ROUTE,
+                          ConfigValue(configValue.defaultIsoDepRoute));
       configMap.emplace(NAME_DEFAULT_ROUTE, ConfigValue(configValue.v1_1.defaultRoute));
       configMap.emplace(NAME_DEFAULT_NFCF_ROUTE,
                         ConfigValue(configValue.v1_1.defaultOffHostRouteFelica));
@@ -786,6 +788,72 @@ void NfcAdaptation::GetNxpConfigs(
   configMap.emplace(
       NAME_NXP_SE_COLD_TEMP_ERROR_DELAY,
       ConfigValue(inpOutData.out.data.nxpConfigs.eSeLowTempErrorDelay));
+  configMap.emplace(
+      NAME_NXP_SWP_RD_TAG_OP_TIMEOUT,
+      ConfigValue(inpOutData.out.data.nxpConfigs.tagOpTimeout));
+  configMap.emplace(
+      NAME_NXP_DUAL_UICC_ENABLE,
+      ConfigValue(inpOutData.out.data.nxpConfigs.dualUiccEnable));
+  configMap.emplace(
+      NAME_DEFAULT_AID_ROUTE,
+      ConfigValue(inpOutData.out.data.nxpConfigs.defaultAidRoute));
+  configMap.emplace(
+      NAME_DEFAULT_MIFARE_CLT_ROUTE,
+      ConfigValue(inpOutData.out.data.nxpConfigs.defaultMifareCltRoute));
+  configMap.emplace(
+      NAME_DEFAULT_FELICA_CLT_ROUTE,
+      ConfigValue(inpOutData.out.data.nxpConfigs.defautlFelicaCltRoute));
+  configMap.emplace(
+      NAME_DEFAULT_AID_PWR_STATE,
+      ConfigValue(inpOutData.out.data.nxpConfigs.defaultAidPwrState));
+  configMap.emplace(
+      NAME_DEFAULT_DESFIRE_PWR_STATE,
+      ConfigValue(inpOutData.out.data.nxpConfigs.defaultDesfirePwrState));
+  configMap.emplace(
+      NAME_DEFAULT_MIFARE_CLT_PWR_STATE,
+      ConfigValue(inpOutData.out.data.nxpConfigs.defaultMifareCltPwrState));
+  configMap.emplace(
+      NAME_HOST_LISTEN_TECH_MASK,
+      ConfigValue(inpOutData.out.data.nxpConfigs.hostListenTechMask));
+  configMap.emplace(
+      NAME_FORWARD_FUNCTIONALITY_ENABLE,
+      ConfigValue(inpOutData.out.data.nxpConfigs.fwdFunctionalityEnable));
+  configMap.emplace(
+      NAME_DEFUALT_GSMA_PWR_STATE,
+      ConfigValue(inpOutData.out.data.nxpConfigs.gsmaPwrState));
+  configMap.emplace(
+      NAME_NXP_DEFAULT_UICC2_SELECT,
+      ConfigValue(inpOutData.out.data.nxpConfigs.defaultUicc2Select));
+  configMap.emplace(
+      NAME_NXP_SMB_TRANSCEIVE_TIMEOUT,
+      ConfigValue(inpOutData.out.data.nxpConfigs.smbTransceiveTimeout));
+  configMap.emplace(
+      NAME_NXP_SMB_ERROR_RETRY,
+      ConfigValue(inpOutData.out.data.nxpConfigs.smbErrorRetry));
+  configMap.emplace(
+      NAME_DEFAULT_FELICA_CLT_PWR_STATE,
+      ConfigValue(inpOutData.out.data.nxpConfigs.felicaCltPowerState));
+  configMap.emplace(
+      NAME_CHECK_DEFAULT_PROTO_SE_ID,
+      ConfigValue(inpOutData.out.data.nxpConfigs.checkDefaultProtoSeId));
+  configMap.emplace(
+      NAME_NXPLOG_NCIHAL_LOGLEVEL,
+      ConfigValue(inpOutData.out.data.nxpConfigs.nxpLogHalLoglevel));
+  configMap.emplace(
+      NAME_NXPLOG_EXTNS_LOGLEVEL,
+      ConfigValue(inpOutData.out.data.nxpConfigs.nxpLogExtnsLogLevel));
+  configMap.emplace(
+      NAME_NXPLOG_TML_LOGLEVEL,
+      ConfigValue(inpOutData.out.data.nxpConfigs.nxpLogTmlLogLevel));
+  configMap.emplace(
+      NAME_NXPLOG_FWDNLD_LOGLEVEL,
+      ConfigValue(inpOutData.out.data.nxpConfigs.nxpLogFwDnldLogLevel));
+  configMap.emplace(
+      NAME_NXPLOG_NCIX_LOGLEVEL,
+      ConfigValue(inpOutData.out.data.nxpConfigs.nxpLogNcixLogLevel));
+  configMap.emplace(
+      NAME_NXPLOG_NCIR_LOGLEVEL,
+      ConfigValue(inpOutData.out.data.nxpConfigs.nxpLogNcirLogLevel));
 }
 #endif
 /*******************************************************************************
