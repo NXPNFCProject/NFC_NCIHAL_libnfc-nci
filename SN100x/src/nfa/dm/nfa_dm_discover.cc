@@ -2519,12 +2519,10 @@ static void nfa_dm_disc_sm_listen_active(tNFA_DM_RF_DISC_SM_EVENT event,
         } else if (p_data->nfc_discover.deactivate.type ==
                    NFC_DEACTIVATE_TYPE_DISCOVERY) {
           /* Discovery */
-#if (NXP_EXTNS == TRUE)
-          if(nfa_dm_cb.nfa_pending_power_state != SCREEN_STATE_INVALID) {
-            NFC_SetPowerSubState(nfa_dm_cb.nfa_pending_power_state);
-            nfa_dm_cb.nfa_pending_power_state = SCREEN_STATE_INVALID;
+          if(nfa_dm_cb.pending_power_state != SCREEN_STATE_INVALID) {
+            NFC_SetPowerSubState(nfa_dm_cb.pending_power_state);
+            nfa_dm_cb.pending_power_state = SCREEN_STATE_INVALID;
           }
-#endif
           nfa_dm_disc_new_state(NFA_DM_RFST_DISCOVERY);
           if (nfa_dm_cb.disc_cb.disc_flags & NFA_DM_DISC_FLAGS_STOPPING) {
             /* stop discovery */

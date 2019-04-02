@@ -252,9 +252,7 @@ typedef enum power_substate {
   SCREEN_STATE_OFF_UNLOCKED,
   SCREEN_STATE_ON_LOCKED,
   SCREEN_STATE_OFF_LOCKED,
-#if (NXP_EXTNS == TRUE)
   SCREEN_STATE_INVALID = 0xFF
-#endif
 } epower_substate_t;
 
 #define NFA_SCREEN_STATE_MASK 0x0F

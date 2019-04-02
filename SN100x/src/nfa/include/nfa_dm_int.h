@@ -591,8 +591,10 @@ typedef struct {
 
   uint8_t power_state; /* current screen/power  state */
   uint32_t eDtaMode;   /* To enable the DTA type modes. */
+  uint8_t pending_power_state; /* pending screen state change received in
+                                  LISTEN_ACTIVE state which needs to be applied
+                                  after current transaction is completed*/
 #if (NXP_EXTNS == TRUE)
-  uint8_t nfa_pending_power_state;
   tNFA_TECHNOLOGY_MASK        pollTech;
   tNFA_TECHNOLOGY_MASK        listenTech;
   uint8_t selected_uicc_id; /* Current selected UICC ID */
