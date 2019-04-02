@@ -2607,7 +2607,9 @@ bool nfa_rw_activate_ntf(tNFA_RW_MSG* p_data) {
              NFA_T1T_HR_LEN);
       tNFA_RW_MSG msg;
       msg.op_req.op = NFA_RW_OP_T1T_RID;
-      nfa_rw_handle_op_req(&msg);
+      bool free_buf = nfa_rw_handle_op_req(&msg);
+      CHECK(free_buf)
+          << "nfa_rw_handle_op_req is holding on to soon-garbage stack memory.";
       /* Delay notifying upper layer of NFA_ACTIVATED_EVT
          until HR0/HR1 is received */
       activate_notify = false;
@@ -2629,7 +2631,9 @@ bool nfa_rw_activate_ntf(tNFA_RW_MSG* p_data) {
       /* Issue command to get Felica system codes */
       tNFA_RW_MSG msg;
       msg.op_req.op = NFA_RW_OP_T3T_GET_SYSTEM_CODES;
-      nfa_rw_handle_op_req(&msg);
+      bool free_buf = nfa_rw_handle_op_req(&msg);
+      CHECK(free_buf)
+          << "nfa_rw_handle_op_req is holding on to soon-garbage stack memory.";
     }
   }
 #if (NXP_EXTNS == TRUE)
