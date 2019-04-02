@@ -1645,7 +1645,7 @@ static void rw_t4t_sm_read_ndef(NFC_HDR* p_r_apdu) {
                 << StringPrintf("Sent RW_T4T_NDEF_READ_CPLT_EVT");
           }
 
-          p_r_apdu = NULL;
+          p_r_apdu = nullptr;
         } else {
           p_t4t->rw_length = 0;
           p_t4t->state = RW_T4T_STATE_IDLE;
@@ -1707,7 +1707,7 @@ static void rw_t4t_sm_update_ndef(NFC_HDR* p_r_apdu) {
 
         if (!rw_t4t_update_file()) {
           rw_t4t_handle_error(NFC_STATUS_FAILED, 0, 0);
-          p_t4t->p_update_data = NULL;
+          p_t4t->p_update_data = nullptr;
         }
       } else {
         p_t4t->state = RW_T4T_STATE_IDLE;
@@ -1729,10 +1729,10 @@ static void rw_t4t_sm_update_ndef(NFC_HDR* p_r_apdu) {
       if (p_t4t->rw_length > 0) {
         if (!rw_t4t_update_file()) {
           rw_t4t_handle_error(NFC_STATUS_FAILED, 0, 0);
-          p_t4t->p_update_data = NULL;
+          p_t4t->p_update_data = nullptr;
         }
       } else {
-        p_t4t->p_update_data = NULL;
+        p_t4t->p_update_data = nullptr;
 
         /* update NLEN as last step of updating file */
         if (!rw_t4t_update_nlen(p_t4t->ndef_length)) {
@@ -1886,7 +1886,7 @@ static void rw_t4t_data_cback(__attribute__((unused)) uint8_t conn_id,
 
   switch (event) {
     case NFC_DEACTIVATE_CEVT:
-      NFC_SetStaticRfCback(NULL);
+      NFC_SetStaticRfCback(nullptr);
       p_t4t->state = RW_T4T_STATE_NOT_ACTIVATED;
       return;
 
@@ -1938,7 +1938,7 @@ if (rw_cb.p_cback) {
   rw_data.raw_frame.status = p_data->data.status;
   rw_data.raw_frame.p_data = p_r_apdu;
   (*(rw_cb.p_cback))(RW_T4T_RAW_FRAME_EVT, &rw_data);
-  p_r_apdu = NULL;
+  p_r_apdu = nullptr;
       } else {
         GKI_freebuf(p_r_apdu);
       }
@@ -2243,7 +2243,7 @@ tNFC_STATUS RW_T4tPresenceCheck(uint8_t option) {
     if (option == RW_T4T_CHK_EMPTY_I_BLOCK) {
       /* use empty I block for presence check */
       p_data = (NFC_HDR*)GKI_getbuf(NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE);
-      if (p_data != NULL) {
+      if (p_data != nullptr) {
         p_data->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
         p_data->len = 0;
         if (NFC_SendData(NFC_RF_CONN_ID, (NFC_HDR*)p_data) == NFC_STATUS_OK)

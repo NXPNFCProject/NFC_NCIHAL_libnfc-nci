@@ -827,7 +827,7 @@ void rw_t2t_extract_default_locks_info(void) {
      * default location */
     /* Add a virtual Lock tlv to map this default lock location */
     p_ret = t2t_tag_init_data(p_t2t->tag_hdr[0], false, 0);
-    if (p_ret != NULL) bytes_locked_per_lock_bit = p_ret->default_lock_blpb;
+    if (p_ret != nullptr) bytes_locked_per_lock_bit = p_ret->default_lock_blpb;
 
     num_dynamic_lock_bits =
         ((p_t2t->tag_hdr[T2T_CC2_TMS_BYTE] * T2T_TMS_TAG_FACTOR) -
@@ -1344,7 +1344,7 @@ static uint8_t rw_t2t_get_ndef_flags(void) {
   if ((p_t2t->tag_hdr[T2T_CC3_RWA_BYTE] & T2T_CC3_RWA_RO) == T2T_CC3_RWA_RO)
     flags |= RW_NDEF_FL_READ_ONLY;
 
-  if (((p_ret = t2t_tag_init_data(p_t2t->tag_hdr[0], false, 0)) != NULL) &&
+  if (((p_ret = t2t_tag_init_data(p_t2t->tag_hdr[0], false, 0)) != nullptr) &&
       (p_ret->b_otp)) {
     /* Set otp flag */
     flags |= RW_NDEF_FL_OTP;
@@ -1486,7 +1486,7 @@ static void rw_t2t_handle_ndef_read_rsp(uint8_t* p_data) {
 
   if (failed || done) {
     evt_data.status = failed ? NFC_STATUS_FAILED : NFC_STATUS_OK;
-    evt_data.p_data = NULL;
+    evt_data.p_data = nullptr;
     rw_t2t_handle_op_complete();
     tRW_DATA rw_data;
     rw_data.data = evt_data;
@@ -1642,7 +1642,7 @@ static void rw_t2t_handle_ndef_write_rsp(uint8_t* p_data) {
   }
 
   if (failed || done) {
-    evt_data.p_data = NULL;
+    evt_data.p_data = nullptr;
     /* NDEF WRITE Operation is done, inform up the stack */
     evt_data.status = failed ? NFC_STATUS_FAILED : NFC_STATUS_OK;
     if (done) {
@@ -1829,7 +1829,7 @@ static void rw_t2t_handle_format_tag_rsp(uint8_t* p_data) {
       p_t2t->b_read_data = true;
       version_no = (uint16_t)p_data[0] << 8 | p_data[1];
       p_ret = t2t_tag_init_data(p_t2t->tag_hdr[0], true, version_no);
-      if (p_ret != NULL) {
+      if (p_ret != nullptr) {
         /* Valid Version Number */
         if (p_ret->b_calc_cc) /* Calculate tag size from Version Information */
           tms = rw_t2t_get_tag_size(p_data);
@@ -1849,7 +1849,7 @@ static void rw_t2t_handle_format_tag_rsp(uint8_t* p_data) {
       version_no = (uint16_t)p_t2t->tag_data[0] << 8 | p_t2t->tag_data[1];
       if ((version_no == 0) ||
           ((p_ret = t2t_tag_init_data(p_t2t->tag_hdr[0], true, version_no)) ==
-           NULL) ||
+           nullptr) ||
           (!p_ret->b_multi_version) || (!p_ret->b_calc_cc)) {
         /* Currently Formating a non blank tag or a blank tag with manufacturer
          * has only one variant of tag. Set Null NDEF TLV and complete Format
@@ -1882,7 +1882,7 @@ static void rw_t2t_handle_format_tag_rsp(uint8_t* p_data) {
       UINT8_TO_BE_STREAM(p, TAG_NDEF_TLV);
       UINT8_TO_BE_STREAM(p, 0);
 
-      if (((p_ret = t2t_tag_init_data(p_t2t->tag_hdr[0], false, 0)) != NULL) &&
+      if (((p_ret = t2t_tag_init_data(p_t2t->tag_hdr[0], false, 0)) != nullptr) &&
           (!p_ret->b_otp)) {
         UINT8_TO_BE_STREAM(p, TAG_TERMINATOR_TLV);
       } else
@@ -2558,7 +2558,7 @@ tNFC_STATUS rw_t2t_format_tag(void) {
   bool b_blank_tag = true;
 
   p_ret = t2t_tag_init_data(p_t2t->tag_hdr[0], false, 0);
-  if (p_ret == NULL) {
+  if (p_ret == nullptr) {
     LOG(WARNING) << StringPrintf(
         "rw_t2t_format_tag - Unknown Manufacturer ID: %u, Cannot Format the "
         "tag!",
@@ -2972,7 +2972,7 @@ tNFC_STATUS RW_T2tWriteNDef(uint16_t msg_len, uint8_t* p_msg) {
   /* If OTP tag and tag has valid NDEF Message, stop writting new NDEF Message
    * as it may corrupt the tag */
   if ((p_t2t->ndef_msg_len > 0) &&
-      ((p_ret = t2t_tag_init_data(p_t2t->tag_hdr[0], false, 0)) != NULL) &&
+      ((p_ret = t2t_tag_init_data(p_t2t->tag_hdr[0], false, 0)) != nullptr) &&
       (p_ret->b_otp)) {
     LOG(WARNING) << StringPrintf(
         "RW_T2tWriteNDef - Cannot Overwrite NDEF Message on a OTP tag!");

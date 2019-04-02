@@ -40,8 +40,8 @@ tNFA_RW_CB nfa_rw_cb;
 /*****************************************************************************
 ** Constants and types
 *****************************************************************************/
-static const tNFA_SYS_REG nfa_rw_sys_reg = {NULL, nfa_rw_handle_event,
-                                            nfa_rw_sys_disable, NULL};
+static const tNFA_SYS_REG nfa_rw_sys_reg = {nullptr, nfa_rw_handle_event,
+                                            nfa_rw_sys_disable, nullptr};
 
 /* NFA_RW actions */
 const tNFA_RW_ACTION nfa_rw_action_tbl[] = {
@@ -88,7 +88,7 @@ void nfa_rw_init(void) {
 *******************************************************************************/
 void nfa_rw_sys_disable(void) {
   /* Return to idle */
-  NFC_SetStaticRfCback(NULL);
+  NFC_SetStaticRfCback(nullptr);
 
   /* Stop presence check timer (if started) */
   nfa_rw_stop_presence_check_timer();
@@ -99,7 +99,7 @@ void nfa_rw_sys_disable(void) {
   /* Free pending command if any */
   if (nfa_rw_cb.p_pending_msg) {
     GKI_freebuf(nfa_rw_cb.p_pending_msg);
-    nfa_rw_cb.p_pending_msg = NULL;
+    nfa_rw_cb.p_pending_msg = nullptr;
   }
 
   nfa_sys_deregister(NFA_ID_RW);
@@ -151,7 +151,7 @@ tNFA_STATUS nfa_rw_send_raw_frame(NFC_HDR* p_data) {
   tNFA_RW_MSG* p_msg;
 
   p_msg = (tNFA_RW_MSG*)GKI_getbuf((uint16_t)sizeof(tNFA_RW_MSG));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op_req.op = NFA_RW_OP_SEND_RAW_FRAME;
 

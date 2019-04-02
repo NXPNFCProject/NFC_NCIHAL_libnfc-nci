@@ -58,7 +58,7 @@ tNFC_STATUS NFC_RegVSCback(bool is_register, tNFC_VS_CBACK* p_cback) {
   if (is_register) {
     for (i = 0; i < NFC_NUM_VS_CBACKS; i++) {
       /* find an empty spot to hold the callback function */
-      if (nfc_cb.p_vs_cb[i] == NULL) {
+      if (nfc_cb.p_vs_cb[i] == nullptr) {
         nfc_cb.p_vs_cb[i] = p_cback;
         status = NFC_STATUS_OK;
         break;
@@ -68,7 +68,7 @@ tNFC_STATUS NFC_RegVSCback(bool is_register, tNFC_VS_CBACK* p_cback) {
     for (i = 0; i < NFC_NUM_VS_CBACKS; i++) {
       /* find the callback to de-register */
       if (nfc_cb.p_vs_cb[i] == p_cback) {
-        nfc_cb.p_vs_cb[i] = NULL;
+        nfc_cb.p_vs_cb[i] = nullptr;
         status = NFC_STATUS_OK;
         break;
       }
@@ -92,7 +92,7 @@ tNFC_STATUS NFC_RegVSCback(bool is_register, tNFC_VS_CBACK* p_cback) {
 *******************************************************************************/
 tNFC_STATUS NFC_SendRawVsCommand(NFC_HDR* p_data, tNFC_VS_CBACK* p_cback) {
   /* Validate parameters */
-  if (p_data == NULL || (p_data->len > NCI_MAX_VSC_SIZE)) {
+  if (p_data == nullptr || (p_data->len > NCI_MAX_VSC_SIZE)) {
     LOG(ERROR) << StringPrintf("buffer offset must be >= %d",
                                NCI_VSC_MSG_HDR_SIZE);
     if (p_data) GKI_freebuf(p_data);
@@ -128,7 +128,7 @@ tNFC_STATUS NFC_SendVsCommand(uint8_t oid, NFC_HDR* p_data,
   uint8_t* pp;
 
   /* Allow VSC with 0-length payload */
-  if (p_data == NULL) {
+  if (p_data == nullptr) {
     p_data = NCI_GET_CMD_BUF(0);
     if (p_data) {
       p_data->offset = NCI_VSC_MSG_HDR_SIZE;
@@ -137,7 +137,7 @@ tNFC_STATUS NFC_SendVsCommand(uint8_t oid, NFC_HDR* p_data,
   }
 
   /* Validate parameters */
-  if ((p_data == NULL) || (p_data->offset < NCI_VSC_MSG_HDR_SIZE) ||
+  if ((p_data == nullptr) || (p_data->offset < NCI_VSC_MSG_HDR_SIZE) ||
       (p_data->len > NCI_MAX_VSC_SIZE)) {
     LOG(ERROR) << StringPrintf("buffer offset must be >= %d",
                                NCI_VSC_MSG_HDR_SIZE);

@@ -594,7 +594,7 @@ void nfa_p2p_proc_llcp_link_status(tLLCP_SAP_CBACK_DATA* p_data) {
         nfa_p2p_cb.sap_cb[local_sap].flags = NFA_P2P_SAP_FLAG_CLIENT;
       } else /* if this is not registered service */
       {
-        nfa_p2p_cb.sap_cb[local_sap].p_cback = NULL;
+        nfa_p2p_cb.sap_cb[local_sap].p_cback = nullptr;
       }
     }
   }
@@ -736,7 +736,7 @@ bool nfa_p2p_dereg(tNFA_P2P_MSG* p_msg) {
   }
 
   LLCP_Deregister(local_sap);
-  nfa_p2p_cb.sap_cb[local_sap].p_cback = NULL;
+  nfa_p2p_cb.sap_cb[local_sap].p_cback = nullptr;
 
   if (nfa_p2p_cb.is_p2p_listening) {
     /* check if this is the last server on NFA P2P */

@@ -227,7 +227,7 @@ tNFC_STATUS RW_SetActivatedTagType(tNFC_ACTIVATE_DEVT* p_activate_params,
       p_activate_params->protocol, p_activate_params->rf_tech_param.mode,
       p_activate_params->rf_tech_param.param.pa.sel_rsp);
 
-  if (p_cback == NULL) {
+  if (p_cback == nullptr) {
     LOG(ERROR) << StringPrintf(
         "RW_SetActivatedTagType called with NULL callback");
     return (NFC_STATUS_FAILED);
@@ -285,6 +285,6 @@ tNFC_STATUS RW_SetActivatedTagType(tNFC_ACTIVATE_DEVT* p_activate_params,
     LOG(ERROR) << StringPrintf("RW_SetActivatedTagType Invalid protocol");
   }
 
-  if (status != NFC_STATUS_OK) rw_cb.p_cback = NULL;
+  if (status != NFC_STATUS_OK) rw_cb.p_cback = nullptr;
   return status;
 }

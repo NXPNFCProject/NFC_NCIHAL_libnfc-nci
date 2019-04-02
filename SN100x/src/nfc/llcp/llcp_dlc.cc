@@ -600,7 +600,7 @@ tLLCP_DLCB* llcp_dlc_find_dlcb_by_sap(uint8_t local_sap, uint8_t remote_sap) {
       }
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 /*******************************************************************************
@@ -651,7 +651,7 @@ static void llcp_dlc_proc_connect_pdu(uint8_t dsap, uint8_t ssap,
 
   p_app_cb = llcp_util_get_app_cb(dsap);
 
-  if ((p_app_cb == NULL) || (p_app_cb->p_app_cback == NULL) ||
+  if ((p_app_cb == nullptr) || (p_app_cb->p_app_cback == nullptr) ||
       ((p_app_cb->link_type & LLCP_LINK_TYPE_DATA_LINK_CONNECTION) == 0)) {
     LOG(ERROR) << StringPrintf("Unregistered SAP:0x%x", dsap);
     llcp_util_send_dm(ssap, dsap, LLCP_SAP_DM_REASON_NO_SERVICE);
@@ -719,7 +719,7 @@ static void llcp_dlc_proc_connect_pdu(uint8_t dsap, uint8_t ssap,
       /* check if this application can support connection-oriented transport */
       p_app_cb = llcp_util_get_app_cb(dsap);
 
-      if ((p_app_cb == NULL) || (p_app_cb->p_app_cback == NULL) ||
+      if ((p_app_cb == nullptr) || (p_app_cb->p_app_cback == nullptr) ||
           ((p_app_cb->link_type & LLCP_LINK_TYPE_DATA_LINK_CONNECTION) == 0)) {
         LOG(ERROR) << StringPrintf(
             "SAP(0x%x) doesn't support "
@@ -781,9 +781,9 @@ static void llcp_dlc_proc_disc_pdu(uint8_t dsap, uint8_t ssap,
       llcp_util_send_frmr(p_dlcb,
                           LLCP_FRMR_W_ERROR_FLAG | LLCP_FRMR_I_ERROR_FLAG,
                           LLCP_PDU_DISC_TYPE, 0);
-      llcp_dlsm_execute(p_dlcb, LLCP_DLC_EVENT_FRAME_ERROR, NULL);
+      llcp_dlsm_execute(p_dlcb, LLCP_DLC_EVENT_FRAME_ERROR, nullptr);
     } else {
-      llcp_dlsm_execute(p_dlcb, LLCP_DLC_EVENT_PEER_DISCONNECT_IND, NULL);
+      llcp_dlsm_execute(p_dlcb, LLCP_DLC_EVENT_PEER_DISCONNECT_IND, nullptr);
     }
   } else {
     LOG(ERROR) << StringPrintf("No data link for SAP (0x%x,0x%x)", dsap, ssap);
@@ -826,7 +826,7 @@ static void llcp_dlc_proc_cc_pdu(uint8_t dsap, uint8_t ssap, uint16_t length,
       llcp_util_send_frmr(p_dlcb,
                           LLCP_FRMR_W_ERROR_FLAG | LLCP_FRMR_I_ERROR_FLAG,
                           LLCP_PDU_DISC_TYPE, 0);
-      llcp_dlsm_execute(p_dlcb, LLCP_DLC_EVENT_FRAME_ERROR, NULL);
+      llcp_dlsm_execute(p_dlcb, LLCP_DLC_EVENT_FRAME_ERROR, nullptr);
     }
   } else {
     LOG(ERROR) << StringPrintf("No data link for SAP (0x%x,0x%x)", dsap, ssap);
@@ -953,7 +953,7 @@ void llcp_dlc_proc_i_pdu(uint8_t dsap, uint8_t ssap, uint16_t i_pdu_length,
     /* if any error is found */
     if (error_flags) {
       llcp_util_send_frmr(p_dlcb, error_flags, LLCP_PDU_I_TYPE, *p);
-      llcp_dlsm_execute(p_dlcb, LLCP_DLC_EVENT_FRAME_ERROR, NULL);
+      llcp_dlsm_execute(p_dlcb, LLCP_DLC_EVENT_FRAME_ERROR, nullptr);
     } else {
       /* update local sequence variables */
       p_dlcb->next_rx_seq = (p_dlcb->next_rx_seq + 1) % LLCP_SEQ_MODULO;
@@ -986,7 +986,7 @@ void llcp_dlc_proc_i_pdu(uint8_t dsap, uint8_t ssap, uint16_t i_pdu_length,
 
           if (p_msg) {
             GKI_freebuf(p_msg);
-            p_msg = NULL;
+            p_msg = nullptr;
           }
 
           appended = true;
@@ -1030,7 +1030,7 @@ void llcp_dlc_proc_i_pdu(uint8_t dsap, uint8_t ssap, uint16_t i_pdu_length,
         /* insert I PDU in rx queue */
         if (p_msg) {
           GKI_enqueue(&p_dlcb->i_rx_q, p_msg);
-          p_msg = NULL;
+          p_msg = nullptr;
           llcp_cb.total_rx_i_pdu++;
 
           llcp_util_check_rx_congested_status();
@@ -1042,7 +1042,7 @@ void llcp_dlc_proc_i_pdu(uint8_t dsap, uint8_t ssap, uint16_t i_pdu_length,
       if ((!p_dlcb->local_busy) && (p_dlcb->num_rx_i_pdu == 1)) {
         /* notify rx data is available so upper layer reads data until queue is
          * empty */
-        llcp_dlsm_execute(p_dlcb, LLCP_DLC_EVENT_PEER_DATA_IND, NULL);
+        llcp_dlsm_execute(p_dlcb, LLCP_DLC_EVENT_PEER_DATA_IND, nullptr);
       }
 
       if ((!p_dlcb->is_rx_congested) &&
@@ -1087,7 +1087,7 @@ static void llcp_dlc_proc_rr_rnr_pdu(uint8_t dsap, uint8_t ptype, uint8_t ssap,
   DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   p_dlcb = llcp_dlc_find_dlcb_by_sap(dsap, ssap);
-  if (p_dlcb != NULL) {
+  if (p_dlcb != nullptr) {
     error_flags = 0;
 
     rcv_seq = LLCP_GET_NR(*p_data);
@@ -1110,7 +1110,7 @@ static void llcp_dlc_proc_rr_rnr_pdu(uint8_t dsap, uint8_t ptype, uint8_t ssap,
 
     if (error_flags) {
       llcp_util_send_frmr(p_dlcb, error_flags, ptype, *p_data);
-      llcp_dlsm_execute(p_dlcb, LLCP_DLC_EVENT_FRAME_ERROR, NULL);
+      llcp_dlsm_execute(p_dlcb, LLCP_DLC_EVENT_FRAME_ERROR, nullptr);
     } else {
       p_dlcb->rcvd_ack_seq = rcv_seq;
 
@@ -1213,7 +1213,7 @@ void llcp_dlc_proc_rx_pdu(uint8_t dsap, uint8_t ptype, uint8_t ssap,
     case LLCP_PDU_FRMR_TYPE:
       p_dlcb = llcp_dlc_find_dlcb_by_sap(dsap, ssap);
       if (p_dlcb) {
-        llcp_dlsm_execute(p_dlcb, LLCP_DLC_EVENT_FRAME_ERROR, NULL);
+        llcp_dlsm_execute(p_dlcb, LLCP_DLC_EVENT_FRAME_ERROR, nullptr);
       }
       break;
 
@@ -1228,7 +1228,7 @@ void llcp_dlc_proc_rx_pdu(uint8_t dsap, uint8_t ptype, uint8_t ssap,
       p_dlcb = llcp_dlc_find_dlcb_by_sap(dsap, ssap);
       if (p_dlcb) {
         llcp_util_send_frmr(p_dlcb, LLCP_FRMR_W_ERROR_FLAG, ptype, 0);
-        llcp_dlsm_execute(p_dlcb, LLCP_DLC_EVENT_FRAME_ERROR, NULL);
+        llcp_dlsm_execute(p_dlcb, LLCP_DLC_EVENT_FRAME_ERROR, nullptr);
       }
       break;
   }
@@ -1308,7 +1308,7 @@ bool llcp_dlc_is_rw_open(tLLCP_DLCB* p_dlcb) {
 **
 *******************************************************************************/
 NFC_HDR* llcp_dlc_get_next_pdu(tLLCP_DLCB* p_dlcb) {
-  NFC_HDR* p_msg = NULL;
+  NFC_HDR* p_msg = nullptr;
   bool flush = true;
   tLLCP_SAP_CBACK_DATA data;
 
@@ -1335,7 +1335,7 @@ NFC_HDR* llcp_dlc_get_next_pdu(tLLCP_DLCB* p_dlcb) {
       LOG(ERROR) << StringPrintf("offset (%d) must be %d at least",
                                  p_msg->offset, LLCP_MIN_OFFSET);
       GKI_freebuf(p_msg);
-      p_msg = NULL;
+      p_msg = nullptr;
     }
   }
 

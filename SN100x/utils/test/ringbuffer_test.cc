@@ -4,7 +4,7 @@
 
 TEST(RingbufferTest, test_new_simple) {
   ringbuffer_t* rb = ringbuffer_init(4096);
-  ASSERT_TRUE(rb != NULL);
+  ASSERT_TRUE(rb != nullptr);
   EXPECT_EQ((size_t)4096, ringbuffer_available(rb));
   EXPECT_EQ((size_t)0, ringbuffer_size(rb));
   ringbuffer_free(rb);

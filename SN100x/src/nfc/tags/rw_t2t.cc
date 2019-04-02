@@ -74,7 +74,7 @@ static void rw_t2t_proc_data(uint8_t conn_id, tNFC_DATA_CEVT* p_data) {
   tRW_DETECT_NDEF_DATA ndef_data;
   uint8_t begin_state = p_t2t->state;
 
-  if ((p_t2t->state == RW_T2T_STATE_IDLE) || (p_cmd_rsp_info == NULL)) {
+  if ((p_t2t->state == RW_T2T_STATE_IDLE) || (p_cmd_rsp_info == nullptr)) {
     DLOG_IF(INFO, nfc_debug_enabled)
         << StringPrintf("RW T2T Raw Frame: Len [0x%X] Status [%s]", p_pkt->len,
                         NFC_GetStatusName(p_data->status).c_str());
@@ -119,7 +119,7 @@ static void rw_t2t_proc_data(uint8_t conn_id, tNFC_DATA_CEVT* p_data) {
       "rw_t2t_proc_data State: %u  conn_id: %u  len: %u  data[0]: 0x%02x",
       p_t2t->state, conn_id, p_pkt->len, *p);
 
-  evt_data.p_data = NULL;
+  evt_data.p_data = nullptr;
 
   if (p_t2t->substate == RW_T2T_SUBSTATE_WAIT_SELECT_SECTOR_SUPPORT) {
     /* The select process happens in two steps */
@@ -265,28 +265,28 @@ void rw_t2t_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
       /* Free cmd buf for retransmissions */
       if (p_t2t->p_cur_cmd_buf) {
         GKI_freebuf(p_t2t->p_cur_cmd_buf);
-        p_t2t->p_cur_cmd_buf = NULL;
+        p_t2t->p_cur_cmd_buf = nullptr;
       }
       /* Free cmd buf used to hold command before sector change */
       if (p_t2t->p_sec_cmd_buf) {
         GKI_freebuf(p_t2t->p_sec_cmd_buf);
-        p_t2t->p_sec_cmd_buf = NULL;
+        p_t2t->p_sec_cmd_buf = nullptr;
       }
 
       p_t2t->state = RW_T2T_STATE_NOT_ACTIVATED;
-      NFC_SetStaticRfCback(NULL);
+      NFC_SetStaticRfCback(nullptr);
       break;
 
     case NFC_DATA_CEVT:
-      if (p_data != NULL) {
+      if (p_data != nullptr) {
         if ((p_data->data.status == NFC_STATUS_OK) ||
             (p_data->data.status == NFC_STATUS_CONTINUE)) {
           rw_t2t_proc_data(conn_id, &(p_data->data));
           break;
-        } else if (p_data->data.p_data != NULL) {
+        } else if (p_data->data.p_data != nullptr) {
           /* Free the response buffer in case of error response */
           GKI_freebuf((NFC_HDR*)(p_data->data.p_data));
-          p_data->data.p_data = NULL;
+          p_data->data.p_data = nullptr;
         }
       }
       /* Data event with error status...fall through to NFC_ERROR_CEVT case */
@@ -305,7 +305,7 @@ void rw_t2t_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
         else
           evt_data.status = NFC_STATUS_FAILED;
 
-        evt_data.p_data = NULL;
+        evt_data.p_data = nullptr;
         tRW_DATA rw_data;
         rw_data.data = evt_data;
         (*rw_cb.p_cback)(RW_T2T_INTF_ERROR_EVT, &rw_data);
@@ -430,7 +430,7 @@ void rw_t2t_process_timeout() {
       /* Notify that select sector op is successfull */
       rw_t2t_handle_op_complete();
       evt_data.status = NFC_STATUS_OK;
-      evt_data.p_data = NULL;
+      evt_data.p_data = nullptr;
       tRW_DATA rw_data;
       rw_data.data = evt_data;
       (*rw_cb.p_cback)(RW_T2T_SELECT_CPLT_EVT, &rw_data);
@@ -496,7 +496,7 @@ static void rw_t2t_process_error(void) {
 
     /* allocate a new buffer for message */
     p_cmd_buf = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID);
-    if (p_cmd_buf != NULL) {
+    if (p_cmd_buf != nullptr) {
       memcpy(p_cmd_buf, p_t2t->p_cur_cmd_buf, sizeof(NFC_HDR) +
                                                   p_t2t->p_cur_cmd_buf->offset +
                                                   p_t2t->p_cur_cmd_buf->len);
@@ -549,7 +549,7 @@ static void rw_t2t_process_error(void) {
     rw_data.ndef = ndef_data;
     (*rw_cb.p_cback)(rw_event, &rw_data);
   } else {
-    evt_data.p_data = NULL;
+    evt_data.p_data = nullptr;
     /* If activated and not Halt move to idle state */
     if (p_t2t->state != RW_T2T_STATE_NOT_ACTIVATED) rw_t2t_handle_op_complete();
 
@@ -607,7 +607,7 @@ static void rw_t2t_resume_op(void) {
 
   /* allocate a new buffer for message */
   p_cmd_buf = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID);
-  if (p_cmd_buf != NULL) {
+  if (p_cmd_buf != nullptr) {
     memcpy(p_cmd_buf, p_t2t->p_sec_cmd_buf, sizeof(NFC_HDR) +
                                                 p_t2t->p_sec_cmd_buf->offset +
                                                 p_t2t->p_sec_cmd_buf->len);
@@ -626,7 +626,7 @@ static void rw_t2t_resume_op(void) {
           (RW_T2T_TOUT_RESP * QUICK_TIMER_TICKS_PER_SEC) / 1000);
     } else {
       /* failure - could not send buffer */
-      evt_data.p_data = NULL;
+      evt_data.p_data = nullptr;
       evt_data.status = NFC_STATUS_FAILED;
       event = rw_t2t_info_to_event(p_cmd_rsp_info);
       rw_t2t_handle_op_complete();
@@ -654,7 +654,7 @@ tNFC_STATUS rw_t2t_sector_change(uint8_t sector) {
   tRW_T2T_CB* p_t2t = &rw_cb.tcb.t2t;
 
   p_data = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID);
-  if (p_data == NULL) {
+  if (p_data == nullptr) {
     LOG(ERROR) << StringPrintf("rw_t2t_sector_change - No buffer");
     return (NFC_STATUS_NO_BUFFERS);
   }
@@ -672,7 +672,7 @@ tNFC_STATUS rw_t2t_sector_change(uint8_t sector) {
   status = NFC_SendData(NFC_RF_CONN_ID, p_data);
   if (status == NFC_STATUS_OK) {
     /* Passive rsp command and suppose not to get response to this command */
-    p_t2t->p_cmd_rsp_info = NULL;
+    p_t2t->p_cmd_rsp_info = nullptr;
     p_t2t->substate = RW_T2T_SUBSTATE_WAIT_SELECT_SECTOR;
 
     DLOG_IF(INFO, nfc_debug_enabled)
@@ -820,18 +820,18 @@ tNFC_STATUS rw_t2t_select(void) {
   p_t2t->ndef_status = T2T_NDEF_NOT_DETECTED;
 
   /* Alloc cmd buf for retransmissions */
-  if (p_t2t->p_cur_cmd_buf == NULL) {
+  if (p_t2t->p_cur_cmd_buf == nullptr) {
     p_t2t->p_cur_cmd_buf = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID);
-    if (p_t2t->p_cur_cmd_buf == NULL) {
+    if (p_t2t->p_cur_cmd_buf == nullptr) {
       LOG(ERROR) << StringPrintf(
           "rw_t2t_select: unable to allocate buffer for retransmission");
       return (NFC_STATUS_FAILED);
     }
   }
   /* Alloc cmd buf for holding a command untill sector changes */
-  if (p_t2t->p_sec_cmd_buf == NULL) {
+  if (p_t2t->p_sec_cmd_buf == nullptr) {
     p_t2t->p_sec_cmd_buf = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID);
-    if (p_t2t->p_sec_cmd_buf == NULL) {
+    if (p_t2t->p_sec_cmd_buf == nullptr) {
       LOG(ERROR) << StringPrintf(
           "rw_t2t_select: unable to allocate buffer used during sector change");
       return (NFC_STATUS_FAILED);

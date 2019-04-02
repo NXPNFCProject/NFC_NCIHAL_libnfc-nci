@@ -121,8 +121,8 @@ tNFC_STATUS CE_SetActivatedTagType(tNFC_ACTIVATE_DEVT* p_activate_params,
   }
 
   if (status != NFC_STATUS_OK) {
-    NFC_SetStaticRfCback(NULL);
-    ce_cb.p_cback = NULL;
+    NFC_SetStaticRfCback(nullptr);
+    ce_cb.p_cback = nullptr;
   }
   return status;
 }

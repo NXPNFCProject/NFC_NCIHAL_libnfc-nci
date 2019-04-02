@@ -44,7 +44,7 @@ tNFA_CE_CB nfa_ce_cb;
 static void nfa_ce_proc_nfcc_power_mode(uint8_t nfcc_power_mode);
 
 static const tNFA_SYS_REG nfa_ce_sys_reg = {
-    NULL, nfa_ce_hdl_event, nfa_ce_sys_disable, nfa_ce_proc_nfcc_power_mode};
+    nullptr, nfa_ce_hdl_event, nfa_ce_sys_disable, nfa_ce_proc_nfcc_power_mode};
 
 /* NFA_CE actions */
 const tNFA_CE_ACTION nfa_ce_action_tbl[] = {
@@ -105,7 +105,7 @@ void nfa_ce_sys_disable(void) {
   tNFA_CE_LISTEN_INFO* p_info;
   uint8_t xx;
 
-  NFC_SetStaticRfCback(NULL);
+  NFC_SetStaticRfCback(nullptr);
 
   /* Free scratch buf if any */
   nfa_ce_free_scratch_buf();

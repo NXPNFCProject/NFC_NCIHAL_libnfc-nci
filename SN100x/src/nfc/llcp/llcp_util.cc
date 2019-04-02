@@ -326,7 +326,7 @@ void llcp_util_send_disc(uint8_t dsap, uint8_t ssap) {
 **
 ******************************************************************************/
 tLLCP_DLCB* llcp_util_allocate_data_link(uint8_t reg_sap, uint8_t remote_sap) {
-  tLLCP_DLCB* p_dlcb = NULL;
+  tLLCP_DLCB* p_dlcb = nullptr;
   int idx;
 
   DLOG_IF(INFO, nfc_debug_enabled)
@@ -839,7 +839,7 @@ void llcp_util_send_rr_rnr(tLLCP_DLCB* p_dlcb) {
 **
 *******************************************************************************/
 tLLCP_APP_CB* llcp_util_get_app_cb(uint8_t local_sap) {
-  tLLCP_APP_CB* p_app_cb = NULL;
+  tLLCP_APP_CB* p_app_cb = nullptr;
 
   if (local_sap <= LLCP_UPPER_BOUND_WK_SAP) {
     if ((local_sap != LLCP_SAP_LM) && (local_sap < LLCP_MAX_WKS)) {

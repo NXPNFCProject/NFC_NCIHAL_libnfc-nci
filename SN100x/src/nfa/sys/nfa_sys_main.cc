@@ -239,7 +239,7 @@ void nfa_sys_enable_subsystems(void) {
   /* Enable all subsystems except SYS */
   for (id = NFA_ID_DM; id < NFA_ID_MAX; id++) {
     if (nfa_sys_cb.is_reg[id]) {
-      if (nfa_sys_cb.reg[id]->enable != NULL) {
+      if (nfa_sys_cb.reg[id]->enable != nullptr) {
         /* Subsytem has a Disable funciton. Call it now */
         (*nfa_sys_cb.reg[id]->enable)();
       } else {
@@ -273,7 +273,7 @@ void nfa_sys_disable_subsystems(bool graceful) {
   for (id = (NFA_ID_DM + 1); id < NFA_ID_MAX; id++) {
     if (nfa_sys_cb.is_reg[id]) {
       done = false;
-      if (nfa_sys_cb.reg[id]->disable != NULL) {
+      if (nfa_sys_cb.reg[id]->disable != nullptr) {
         /* Subsytem has a Disable funciton. Call it now */
         (*nfa_sys_cb.reg[id]->disable)();
       } else {

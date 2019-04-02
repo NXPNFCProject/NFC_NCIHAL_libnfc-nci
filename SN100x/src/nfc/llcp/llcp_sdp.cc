@@ -79,7 +79,7 @@ void llcp_sdp_check_send_snl(void) {
         p, LLCP_GET_PDU_HEADER(LLCP_SAP_SDP, LLCP_PDU_SNL_TYPE, LLCP_SAP_SDP));
 
     GKI_enqueue(&llcp_cb.lcb.sig_xmit_q, llcp_cb.sdp_cb.p_snl);
-    llcp_cb.sdp_cb.p_snl = NULL;
+    llcp_cb.sdp_cb.p_snl = nullptr;
   } else {
     /* Notify DTA after sending out SNL with SDRES not to send SNLs in AGF PDU
      */
@@ -333,7 +333,7 @@ static void llcp_sdp_return_sap(uint8_t tid, uint8_t sap) {
         (llcp_cb.sdp_cb.transac[i].tid == tid)) {
       (*llcp_cb.sdp_cb.transac[i].p_cback)(tid, sap);
 
-      llcp_cb.sdp_cb.transac[i].p_cback = NULL;
+      llcp_cb.sdp_cb.transac[i].p_cback = nullptr;
     }
   }
 }
@@ -358,14 +358,14 @@ void llcp_sdp_proc_deactivation(void) {
     if (llcp_cb.sdp_cb.transac[i].p_cback) {
       (*llcp_cb.sdp_cb.transac[i].p_cback)(llcp_cb.sdp_cb.transac[i].tid, 0x00);
 
-      llcp_cb.sdp_cb.transac[i].p_cback = NULL;
+      llcp_cb.sdp_cb.transac[i].p_cback = nullptr;
     }
   }
 
   /* free any pending SNL PDU */
   if (llcp_cb.sdp_cb.p_snl) {
     GKI_freebuf(llcp_cb.sdp_cb.p_snl);
-    llcp_cb.sdp_cb.p_snl = NULL;
+    llcp_cb.sdp_cb.p_snl = nullptr;
   }
 
   llcp_cb.sdp_cb.next_tid = 0;

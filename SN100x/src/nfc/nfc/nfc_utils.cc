@@ -46,7 +46,7 @@ extern bool nfc_debug_enabled;
 *******************************************************************************/
 tNFC_CONN_CB* nfc_alloc_conn_cb(tNFC_CONN_CBACK* p_cback) {
   int xx, max = NCI_MAX_CONN_CBS;
-  tNFC_CONN_CB* p_conn_cb = NULL;
+  tNFC_CONN_CB* p_conn_cb = nullptr;
 
   NFC_CHECK_MAX_CONN();
   for (xx = 0; xx < max; xx++) {
@@ -74,7 +74,7 @@ tNFC_CONN_CB* nfc_alloc_conn_cb(tNFC_CONN_CBACK* p_cback) {
 void nfc_set_conn_id(tNFC_CONN_CB* p_cb, uint8_t conn_id) {
   uint8_t handle;
 
-  if (p_cb == NULL) return;
+  if (p_cb == nullptr) return;
 
   p_cb->conn_id = conn_id;
   handle = (uint8_t)(p_cb - nfc_cb.conn_cb + 1);
@@ -95,7 +95,7 @@ void nfc_set_conn_id(tNFC_CONN_CB* p_cb, uint8_t conn_id) {
 *******************************************************************************/
 tNFC_CONN_CB* nfc_find_conn_cb_by_handle(uint8_t id) {
   int xx;
-  tNFC_CONN_CB* p_conn_cb = NULL;
+  tNFC_CONN_CB* p_conn_cb = nullptr;
 
   for (xx = 0; xx < NCI_MAX_CONN_CBS; xx++) {
     if (nfc_cb.conn_cb[xx].id == id) {
@@ -117,7 +117,7 @@ tNFC_CONN_CB* nfc_find_conn_cb_by_handle(uint8_t id) {
 **
 *******************************************************************************/
 tNFC_CONN_CB* nfc_find_conn_cb_by_conn_id(uint8_t conn_id) {
-  tNFC_CONN_CB* p_conn_cb = NULL;
+  tNFC_CONN_CB* p_conn_cb = nullptr;
   uint8_t handle;
   uint8_t id;
   int xx;
@@ -153,14 +153,14 @@ tNFC_CONN_CB* nfc_find_conn_cb_by_conn_id(uint8_t conn_id) {
 void nfc_free_conn_cb(tNFC_CONN_CB* p_cb) {
   void* p_buf;
 
-  if (p_cb == NULL) return;
+  if (p_cb == nullptr) return;
 
-  while ((p_buf = GKI_dequeue(&p_cb->rx_q)) != NULL) GKI_freebuf(p_buf);
+  while ((p_buf = GKI_dequeue(&p_cb->rx_q)) != nullptr) GKI_freebuf(p_buf);
 
-  while ((p_buf = GKI_dequeue(&p_cb->tx_q)) != NULL) GKI_freebuf(p_buf);
+  while ((p_buf = GKI_dequeue(&p_cb->tx_q)) != nullptr) GKI_freebuf(p_buf);
 
   nfc_cb.conn_id[p_cb->conn_id] = 0;
-  p_cb->p_cback = NULL;
+  p_cb->p_cback = nullptr;
   p_cb->conn_id = NFC_ILLEGAL_CONN_ID;
 }
 

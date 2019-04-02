@@ -66,7 +66,7 @@ void nfa_sys_cback_notify_enable_complete(uint8_t id) {
   if ((nfa_sys_cb.enable_cplt_flags == nfa_sys_cb.enable_cplt_mask) &&
       (nfa_sys_cb.p_enable_cback)) {
     nfa_sys_cb.p_enable_cback();
-    nfa_sys_cb.p_enable_cback = NULL;
+    nfa_sys_cb.p_enable_cback = nullptr;
   }
 }
 
@@ -108,6 +108,6 @@ void nfa_sys_cback_notify_nfcc_power_mode_proc_complete(uint8_t id) {
        nfa_sys_cb.proc_nfcc_pwr_mode_cplt_mask) &&
       (nfa_sys_cb.p_proc_nfcc_pwr_mode_cmpl_cback)) {
     nfa_sys_cb.p_proc_nfcc_pwr_mode_cmpl_cback();
-    nfa_sys_cb.p_proc_nfcc_pwr_mode_cmpl_cback = NULL;
+    nfa_sys_cb.p_proc_nfcc_pwr_mode_cmpl_cback = nullptr;
   }
 }

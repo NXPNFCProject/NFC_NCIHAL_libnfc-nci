@@ -40,7 +40,7 @@ void nfa_nv_ci_read(uint16_t num_bytes_read, tNFA_NV_CO_STATUS status,
   tNFA_HCI_EVENT_DATA* p_msg;
 
   p_msg = (tNFA_HCI_EVENT_DATA*)GKI_getbuf(sizeof(tNFA_HCI_EVENT_DATA));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     p_msg->nv_read.hdr.event = NFA_HCI_RSP_NV_READ_EVT;
 
     if ((status == NFA_STATUS_OK) && (num_bytes_read != 0))
@@ -67,7 +67,7 @@ void nfa_nv_ci_write(tNFA_NV_CO_STATUS status) {
   tNFA_HCI_EVENT_DATA* p_msg;
 
   p_msg = (tNFA_HCI_EVENT_DATA*)GKI_getbuf(sizeof(tNFA_HCI_EVENT_DATA));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     p_msg->nv_write.hdr.event = NFA_HCI_RSP_NV_WRITE_EVT;
     p_msg->nv_write.status =
         (status == NFA_NV_CO_OK) ? NFA_STATUS_OK : NFA_STATUS_FAILED;

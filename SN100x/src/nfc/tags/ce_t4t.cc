@@ -152,7 +152,7 @@ static bool ce_t4t_select_file(uint16_t file_id) {
 *******************************************************************************/
 static bool ce_t4t_read_binary(uint16_t offset, uint8_t length) {
   tCE_T4T_MEM* p_t4t = &ce_cb.mem.t4t;
-  uint8_t *p_src = NULL, *p_dst;
+  uint8_t *p_src = nullptr, *p_dst;
   NFC_HDR* p_r_apdu;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
@@ -290,7 +290,7 @@ static bool ce_t4t_update_binary(uint16_t offset, uint8_t length,
         &p_t4t->timer, NFC_TTYPE_CE_T4T_UPDATE,
         (CE_T4T_TOUT_UPDATE * QUICK_TIMER_TICKS_PER_SEC) / 1000);
 
-    if (ce_cb.p_cback) (*ce_cb.p_cback)(CE_T4T_NDEF_UPDATE_START_EVT, NULL);
+    if (ce_cb.p_cback) (*ce_cb.p_cback)(CE_T4T_NDEF_UPDATE_START_EVT, nullptr);
   }
 
   if (!ce_t4t_send_status(T4T_RSP_CMD_CMPLTED)) {
@@ -436,7 +436,7 @@ static void ce_t4t_process_select_app_cmd(uint8_t* p_cmd, NFC_HDR* p_c_apdu) {
     ce_data.raw_frame.p_data = p_c_apdu;
     ce_data.raw_frame.aid_handle = ce_cb.mem.t4t.selected_aid_idx;
 
-    p_c_apdu = NULL;
+    p_c_apdu = nullptr;
 
     (*(ce_cb.mem.t4t.reg_aid[ce_cb.mem.t4t.selected_aid_idx].p_cback))(
         CE_T4T_RAW_FRAME_EVT, &ce_data);
@@ -466,7 +466,7 @@ static void ce_t4t_process_select_app_cmd(uint8_t* p_cmd, NFC_HDR* p_c_apdu) {
     ce_data.raw_frame.status = NFC_STATUS_OK;
     ce_data.raw_frame.p_data = p_c_apdu;
     ce_data.raw_frame.aid_handle = CE_T4T_WILDCARD_AID_HANDLE;
-    p_c_apdu = NULL;
+    p_c_apdu = nullptr;
 
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
         "CET4T: Forward raw frame (SELECT APP) to wildcard AID handler");
@@ -545,7 +545,7 @@ static void ce_t4t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   tCE_DATA ce_data;
 
   if (event == NFC_DEACTIVATE_CEVT) {
-    NFC_SetStaticRfCback(NULL);
+    NFC_SetStaticRfCback(nullptr);
     return;
   }
   if (event != NFC_DATA_CEVT) {
@@ -593,7 +593,7 @@ static void ce_t4t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
       ce_data.raw_frame.status = p_data->data.status;
       ce_data.raw_frame.p_data = p_c_apdu;
       ce_data.raw_frame.aid_handle = ce_cb.mem.t4t.selected_aid_idx;
-      p_c_apdu = NULL;
+      p_c_apdu = nullptr;
 
       (*(ce_cb.mem.t4t.reg_aid[ce_cb.mem.t4t.selected_aid_idx].p_cback))(
           CE_T4T_RAW_FRAME_EVT, &ce_data);
@@ -609,7 +609,7 @@ static void ce_t4t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
     ce_data.raw_frame.status = p_data->data.status;
     ce_data.raw_frame.p_data = p_c_apdu;
     ce_data.raw_frame.aid_handle = CE_T4T_WILDCARD_AID_HANDLE;
-    p_c_apdu = NULL;
+    p_c_apdu = nullptr;
 
     (*(ce_cb.mem.t4t.p_wildcard_aid_cback))(CE_T4T_RAW_FRAME_EVT, &ce_data);
   } else if (ce_cb.mem.t4t.status & CE_T4T_STATUS_T4T_APP_SELECTED) {
@@ -767,7 +767,7 @@ tNFC_STATUS CE_T4tSetLocalNDEFMsg(bool read_only, uint16_t ndef_msg_max,
                       read_only, ndef_msg_max, ndef_msg_len);
 
   if (!p_ndef_msg) {
-    p_t4t->p_ndef_msg = NULL;
+    p_t4t->p_ndef_msg = nullptr;
 
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("T4T is disabled");
     return NFC_STATUS_OK;
@@ -849,7 +849,7 @@ tCE_T4T_AID_HANDLE CE_T4tRegisterAID(uint8_t aid_len, uint8_t* p_aid,
 
     /* Check if a wildcard callback is already registered (only one is allowed)
      */
-    if (p_t4t->p_wildcard_aid_cback != NULL) {
+    if (p_t4t->p_wildcard_aid_cback != nullptr) {
       LOG(ERROR) << StringPrintf(
           "only one wildcard AID can be registered at "
           "time.");
@@ -872,7 +872,7 @@ tCE_T4T_AID_HANDLE CE_T4tRegisterAID(uint8_t aid_len, uint8_t* p_aid,
     return CE_T4T_AID_HANDLE_INVALID;
   }
 
-  if (p_cback == NULL) {
+  if (p_cback == nullptr) {
     LOG(ERROR) << StringPrintf("callback must be provided");
     return CE_T4T_AID_HANDLE_INVALID;
   }
@@ -921,8 +921,8 @@ extern void CE_T4tDeregisterAID(tCE_T4T_AID_HANDLE aid_handle) {
 
   /* Check if deregistering wildcard AID */
   if (aid_handle == CE_T4T_WILDCARD_AID_HANDLE) {
-    if (p_t4t->p_wildcard_aid_cback != NULL) {
-      p_t4t->p_wildcard_aid_cback = NULL;
+    if (p_t4t->p_wildcard_aid_cback != nullptr) {
+      p_t4t->p_wildcard_aid_cback = nullptr;
     } else {
       LOG(ERROR) << StringPrintf("Invalid handle");
     }
@@ -935,6 +935,6 @@ extern void CE_T4tDeregisterAID(tCE_T4T_AID_HANDLE aid_handle) {
     LOG(ERROR) << StringPrintf("Invalid handle");
   } else {
     p_t4t->reg_aid[aid_handle].aid_len = 0;
-    p_t4t->reg_aid[aid_handle].p_cback = NULL;
+    p_t4t->reg_aid[aid_handle].p_cback = nullptr;
   }
 }

@@ -135,7 +135,7 @@ NFC_HDR* ce_t3t_get_rsp_buf(void) {
   NFC_HDR* p_cmd_buf;
 
   p_cmd_buf = (NFC_HDR*)GKI_getpoolbuf(NFC_CE_POOL_ID);
-  if (p_cmd_buf != NULL) {
+  if (p_cmd_buf != nullptr) {
     /* Reserve offset for NCI_DATA_HDR and NFC-F Sod (LEN) field */
     p_cmd_buf->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE + 1;
     p_cmd_buf->len = 0;
@@ -159,13 +159,13 @@ void ce_t3t_send_rsp(tCE_CB* p_ce_cb, uint8_t* p_nfcid2, uint8_t opcode,
   NFC_HDR* p_rsp_msg;
   uint8_t *p_dst, *p_rsp_start;
 
-  /* If p_nfcid2 is NULL, then used activated NFCID2 */
-  if (p_nfcid2 == NULL) {
+  /* If p_nfcid2 is nullptr, then used activated NFCID2 */
+  if (p_nfcid2 == nullptr) {
     p_nfcid2 = p_cb->local_nfcid2;
   }
 
   p_rsp_msg = ce_t3t_get_rsp_buf();
-  if (p_rsp_msg != NULL) {
+  if (p_rsp_msg != nullptr) {
     p_dst = p_rsp_start = (uint8_t*)(p_rsp_msg + 1) + p_rsp_msg->offset;
 
     /* Response Code */
@@ -324,10 +324,10 @@ void ce_t3t_handle_update_cmd(tCE_CB* p_ce_cb, NFC_HDR* p_cmd_msg) {
 
   /* Send appropriate response to reader/writer */
   if (nfc_status == NFC_STATUS_OK) {
-    ce_t3t_send_rsp(p_ce_cb, NULL, T3T_MSG_OPC_UPDATE_RSP,
+    ce_t3t_send_rsp(p_ce_cb, nullptr, T3T_MSG_OPC_UPDATE_RSP,
                     T3T_MSG_RSP_STATUS_OK, T3T_MSG_RSP_STATUS_OK);
   } else {
-    ce_t3t_send_rsp(p_ce_cb, NULL, T3T_MSG_OPC_UPDATE_RSP,
+    ce_t3t_send_rsp(p_ce_cb, nullptr, T3T_MSG_OPC_UPDATE_RSP,
                     T3T_MSG_RSP_STATUS_ERROR, T3T_MSG_RSP_STATUS2_ERROR_MEMORY);
     p_cb->state = CE_T3T_STATE_IDLE;
   }
@@ -335,12 +335,12 @@ void ce_t3t_handle_update_cmd(tCE_CB* p_ce_cb, NFC_HDR* p_cmd_msg) {
   /* Notify the app of what got updated */
   if (update_flags & CE_T3T_UPDATE_FL_NDEF_UPDATE_START) {
     /* NDEF attribute got updated with WriteF=TRUE */
-    p_ce_cb->p_cback(CE_T3T_NDEF_UPDATE_START_EVT, NULL);
+    p_ce_cb->p_cback(CE_T3T_NDEF_UPDATE_START_EVT, nullptr);
   }
 
   if (update_flags & CE_T3T_UPDATE_FL_UPDATE) {
     /* UPDATE message contained at least one non-NDEF block */
-    p_ce_cb->p_cback(CE_T3T_UPDATE_EVT, NULL);
+    p_ce_cb->p_cback(CE_T3T_UPDATE_EVT, nullptr);
   }
 
   if (update_flags & CE_T3T_UPDATE_FL_NDEF_UPDATE_CPLT) {
@@ -377,7 +377,7 @@ void ce_t3t_handle_check_cmd(tCE_CB* p_ce_cb, NFC_HDR* p_cmd_msg) {
   uint16_t block_number, service_code, checksum;
 
   p_rsp_msg = ce_t3t_get_rsp_buf();
-  if (p_rsp_msg != NULL) {
+  if (p_rsp_msg != nullptr) {
     p_dst = p_rsp_start = (uint8_t*)(p_rsp_msg + 1) + p_rsp_msg->offset;
 
     /* Response Code */
@@ -526,7 +526,7 @@ void ce_t3t_handle_non_nfc_forum_cmd(tCE_CB* p_mem_cb, uint8_t cmd_id,
   bool send_response = true;
 
   p_rsp_msg = ce_t3t_get_rsp_buf();
-  if (p_rsp_msg != NULL) {
+  if (p_rsp_msg != nullptr) {
     p_dst = p_rsp_start = (uint8_t*)(p_rsp_msg + 1) + p_rsp_msg->offset;
 
     switch (cmd_id) {
@@ -619,7 +619,7 @@ void ce_t3t_data_cback(tNFC_DATA_CEVT* p_data) {
   NFC_HDR* p_msg = p_data->p_data;
   tCE_DATA ce_data;
   uint8_t cmd_id, bl0, entry_len, i;
-  uint8_t* p_nfcid2 = NULL;
+  uint8_t* p_nfcid2 = nullptr;
   uint8_t* p = (uint8_t*)(p_msg + 1) + p_msg->offset;
   uint8_t cmd_nfcid2[NCI_RF_F_UID_LEN];
   uint16_t block_list_start_offset, remaining;
@@ -803,7 +803,7 @@ void ce_t3t_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
 
     case NFC_DEACTIVATE_CEVT:
       p_cb->state = CE_T3T_STATE_NOT_ACTIVATED;
-      NFC_SetStaticRfCback(NULL);
+      NFC_SetStaticRfCback(nullptr);
       break;
 
     default:
@@ -946,7 +946,7 @@ tNFC_STATUS CE_T3tSendCheckRsp(uint8_t status1, uint8_t status2,
   }
 
   p_rsp_msg = ce_t3t_get_rsp_buf();
-  if (p_rsp_msg != NULL) {
+  if (p_rsp_msg != nullptr) {
     p_dst = p_rsp_start = (uint8_t*)(p_rsp_msg + 1) + p_rsp_msg->offset;
 
     /* Response Code */
@@ -989,7 +989,7 @@ tNFC_STATUS CE_T3tSendUpdateRsp(uint8_t status1, uint8_t status2) {
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "CE_T3tUpdateRsp: status1=0x%02X, status2=0x%02X", status1, status2);
-  ce_t3t_send_rsp(p_ce_cb, NULL, T3T_MSG_OPC_UPDATE_RSP, status1, status2);
+  ce_t3t_send_rsp(p_ce_cb, nullptr, T3T_MSG_OPC_UPDATE_RSP, status1, status2);
 
   return (retval);
 }

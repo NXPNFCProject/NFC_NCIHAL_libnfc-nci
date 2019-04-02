@@ -183,7 +183,7 @@ void nfa_ce_handle_t4t_evt(tCE_EVENT event, tCE_DATA* p_ce_data) {
     case CE_T4T_NDEF_UPDATE_ABORT_EVT:
       conn_evt.ndef_write_cplt.len = 0;
       conn_evt.ndef_write_cplt.status = NFA_STATUS_FAILED;
-      conn_evt.ndef_write_cplt.p_data = NULL;
+      conn_evt.ndef_write_cplt.p_data = nullptr;
       (*p_cb->p_active_conn_cback)(NFA_CE_NDEF_WRITE_CPLT_EVT, &conn_evt);
       break;
 
@@ -623,8 +623,8 @@ void nfa_ce_remove_listen_info_entry(uint8_t listen_info_idx, bool notify_app) {
   /* Handle NDEF stopping */
   if (listen_info_idx == NFA_CE_LISTEN_INFO_IDX_NDEF) {
     /* clear NDEF contents */
-    CE_T3tSetLocalNDEFMsg(true, 0, 0, NULL, NULL);
-    CE_T4tSetLocalNDEFMsg(true, 0, 0, NULL, NULL);
+    CE_T3tSetLocalNDEFMsg(true, 0, 0, nullptr, nullptr);
+    CE_T4tSetLocalNDEFMsg(true, 0, 0, nullptr, nullptr);
 
     if (p_cb->listen_info[listen_info_idx].protocol_mask &
         NFA_PROTOCOL_MASK_T3T) {
@@ -675,7 +675,7 @@ void nfa_ce_free_scratch_buf(void) {
   tNFA_CE_CB* p_cb = &nfa_ce_cb;
   if (p_cb->p_scratch_buf) {
     nfa_mem_co_free(p_cb->p_scratch_buf);
-    p_cb->p_scratch_buf = NULL;
+    p_cb->p_scratch_buf = nullptr;
   }
 }
 
@@ -701,14 +701,14 @@ tNFA_STATUS nfa_ce_realloc_scratch_buffer(void) {
     /* If no scratch buffer allocated yet, or if current scratch buffer size is
      * different from current ndef size, */
     /* then allocate a new scratch buffer. */
-    if ((nfa_ce_cb.p_scratch_buf == NULL) ||
+    if ((nfa_ce_cb.p_scratch_buf == nullptr) ||
         (nfa_ce_cb.scratch_buf_size != nfa_ce_cb.ndef_max_size)) {
       /* Free existing scratch buffer, if one was allocated */
       nfa_ce_free_scratch_buf();
 
       nfa_ce_cb.p_scratch_buf =
           (uint8_t*)nfa_mem_co_alloc(nfa_ce_cb.ndef_max_size);
-      if (nfa_ce_cb.p_scratch_buf != NULL) {
+      if (nfa_ce_cb.p_scratch_buf != nullptr) {
         nfa_ce_cb.scratch_buf_size = nfa_ce_cb.ndef_max_size;
       } else {
         LOG(ERROR) << StringPrintf(
@@ -776,8 +776,8 @@ tNFC_STATUS nfa_ce_set_content(void) {
 
   if (status != NFA_STATUS_OK) {
     /* clear NDEF contents */
-    CE_T3tSetLocalNDEFMsg(true, 0, 0, NULL, NULL);
-    CE_T4tSetLocalNDEFMsg(true, 0, 0, NULL, NULL);
+    CE_T3tSetLocalNDEFMsg(true, 0, 0, nullptr, nullptr);
+    CE_T4tSetLocalNDEFMsg(true, 0, 0, nullptr, nullptr);
 
     LOG(ERROR) << StringPrintf("Unable to set contents (error %02x)", status);
   }
@@ -803,10 +803,10 @@ bool nfa_ce_activate_ntf(tNFA_CE_MSG* p_ce_msg) {
       p_ce_msg->activate_ntf.p_activation_params;
   tNFA_CE_CB* p_cb = &nfa_ce_cb;
   tNFA_CONN_EVT_DATA conn_evt;
-  tCE_CBACK* p_ce_cback = NULL;
+  tCE_CBACK* p_ce_cback = nullptr;
   uint16_t t3t_system_code = 0xFFFF;
   uint8_t listen_info_idx = NFA_CE_LISTEN_INFO_IDX_INVALID;
-  uint8_t* p_nfcid2 = NULL;
+  uint8_t* p_nfcid2 = nullptr;
   uint8_t i;
   bool t4t_activate_pending = false;
 
@@ -1083,7 +1083,7 @@ bool nfa_ce_deactivate_ntf(tNFA_CE_MSG* p_ce_msg) {
     nfa_ce_remove_listen_info_entry(p_cb->idx_cur_active, true);
   }
 
-  p_cb->p_active_conn_cback = NULL;
+  p_cb->p_active_conn_cback = nullptr;
   p_cb->idx_cur_active = NFA_CE_LISTEN_INFO_IDX_INVALID;
 
   /* Restart listening (if any listen_info entries are still active) */
@@ -1181,8 +1181,8 @@ bool nfa_ce_api_cfg_local_tag(tNFA_CE_MSG* p_ce_msg) {
         NFA_HANDLE_INVALID;
 
     /* clear NDEF contents */
-    CE_T3tSetLocalNDEFMsg(true, 0, 0, NULL, NULL);
-    CE_T4tSetLocalNDEFMsg(true, 0, 0, NULL, NULL);
+    CE_T3tSetLocalNDEFMsg(true, 0, 0, nullptr, nullptr);
+    CE_T4tSetLocalNDEFMsg(true, 0, 0, nullptr, nullptr);
   }
 
   /* Store NDEF info to control block */

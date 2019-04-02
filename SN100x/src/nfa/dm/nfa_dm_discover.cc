@@ -1816,7 +1816,7 @@ static void nfa_dm_disc_data_cback(__attribute__((unused)) uint8_t conn_id,
 
   /* if selection failed */
   if (event == NFC_ERROR_CEVT) {
-    nfa_dm_disc_sm_execute(NFA_DM_CORE_INTF_ERROR_NTF, NULL);
+    nfa_dm_disc_sm_execute(NFA_DM_CORE_INTF_ERROR_NTF, nullptr);
   } else if (event == NFC_DATA_CEVT) {
     GKI_freebuf(p_data->data.p_data);
   }
@@ -2390,7 +2390,7 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
 
             /* Notify NFA RW sub-systems because NFA_DM_RF_DEACTIVATE_RSP will
              * not call this function */
-            nfa_rw_proc_disc_evt(NFA_DM_RF_DISC_DEACTIVATED_EVT, NULL, true);
+            nfa_rw_proc_disc_evt(NFA_DM_RF_DISC_DEACTIVATED_EVT, nullptr, true);
           } else {
             /* Successfully went to sleep mode for sleep wakeup */
             /* Now wake up the tag to complete the operation */
@@ -2822,7 +2822,7 @@ void nfa_dm_start_excl_discovery(tNFA_TECHNOLOGY_MASK poll_tech_mask,
   memcpy(&nfa_dm_cb.disc_cb.excl_listen_config, p_listen_cfg,
          sizeof(tNFA_LISTEN_CFG));
 
-  nfa_dm_disc_sm_execute(NFA_DM_RF_DISCOVER_CMD, NULL);
+  nfa_dm_disc_sm_execute(NFA_DM_RF_DISCOVER_CMD, nullptr);
 }
 
 /*******************************************************************************
@@ -2838,7 +2838,7 @@ void nfa_dm_stop_excl_discovery(void) {
   DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   nfa_dm_cb.disc_cb.excl_disc_entry.in_use = false;
-  nfa_dm_cb.disc_cb.excl_disc_entry.p_disc_cback = NULL;
+  nfa_dm_cb.disc_cb.excl_disc_entry.p_disc_cback = nullptr;
 }
 
 /*******************************************************************************
