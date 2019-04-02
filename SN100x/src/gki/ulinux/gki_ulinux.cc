@@ -282,11 +282,6 @@ uint8_t GKI_create_task(TASKPTR task_entry, uint8_t task_id, int8_t* taskname,
 ** Returns          void
 **
 *******************************************************************************/
-#define WAKE_LOCK_ID "brcm_nfca"
-#define PARTIAL_WAKE_LOCK 1
-extern "C" int acquire_wake_lock(int lock, const char* id);
-extern "C" int release_wake_lock(const char* id);
-
 void GKI_shutdown(void) {
   uint8_t task_id;
   volatile int* p_run_cond = &gki_cb.os.no_timer_suspend;
@@ -341,12 +336,6 @@ void GKI_shutdown(void) {
 #ifdef NO_GKI_RUN_RETURN
   shutdown_timer = 1;
 #endif
-  if (gki_cb.os.gki_timer_wake_lock_on) {
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf("GKI_shutdown :  release_wake_lock(brcm_btld)");
-    release_wake_lock(WAKE_LOCK_ID);
-    gki_cb.os.gki_timer_wake_lock_on = 0;
-  }
   oldCOnd = *p_run_cond;
   *p_run_cond = GKI_TIMER_TICK_EXIT_COND;
   if (oldCOnd == GKI_TIMER_TICK_STOP_COND)
@@ -367,9 +356,6 @@ void GKI_shutdown(void) {
 void gki_system_tick_start_stop_cback(bool start) {
   tGKI_OS* p_os = &gki_cb.os;
   volatile int* p_run_cond = &p_os->no_timer_suspend;
-#ifdef GKI_TICK_TIMER_DEBUG
-  static volatile int wake_lock_count;
-#endif
   if (start == false) {
     /* this can lead to a race condition. however as we only read this variable
      * in the timer loop
@@ -378,25 +364,13 @@ void gki_system_tick_start_stop_cback(bool start) {
     /* GKI_disable(); */
     *p_run_cond = GKI_TIMER_TICK_STOP_COND;
 /* GKI_enable(); */
-#ifdef GKI_TICK_TIMER_DEBUG
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf(">>> STOP wake_lock_count:%d", --wake_lock_count);
-#endif
-    release_wake_lock(WAKE_LOCK_ID);
-    gki_cb.os.gki_timer_wake_lock_on = 0;
   } else {
     /* restart GKI_timer_update() loop */
-    acquire_wake_lock(PARTIAL_WAKE_LOCK, WAKE_LOCK_ID);
-    gki_cb.os.gki_timer_wake_lock_on = 1;
     *p_run_cond = GKI_TIMER_TICK_RUN_COND;
     pthread_mutex_lock(&p_os->gki_timer_mutex);
     pthread_cond_signal(&p_os->gki_timer_cond);
     pthread_mutex_unlock(&p_os->gki_timer_mutex);
 
-#ifdef GKI_TICK_TIMER_DEBUG
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf(">>> START wake_lock_count:%d", ++wake_lock_count);
-#endif
   }
 }
 

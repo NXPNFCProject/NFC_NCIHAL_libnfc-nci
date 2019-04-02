@@ -38,7 +38,6 @@ typedef struct {
   int no_timer_suspend; /* 1: no suspend, 0 stop calling GKI_timer_update() */
   pthread_mutex_t gki_timer_mutex;
   pthread_cond_t gki_timer_cond;
-  int gki_timer_wake_lock_on;
 } tGKI_OS;
 
 /* condition to exit or continue GKI_run() timer loop */
