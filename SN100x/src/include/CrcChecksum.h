@@ -18,6 +18,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stdint.h>
 
 /*******************************************************************************
 **
@@ -28,7 +29,7 @@
 ** Returns          2-byte checksum.
 **
 *******************************************************************************/
-unsigned short crcChecksumCompute(const unsigned char* buffer, int bufferLen);
+uint16_t crcChecksumCompute(const unsigned char* buffer, int bufferLen);
 
 /*******************************************************************************
 **

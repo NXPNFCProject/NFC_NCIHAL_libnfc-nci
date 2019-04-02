@@ -30,7 +30,7 @@ using android::base::StringPrintf;
 
 extern bool nfc_debug_enabled;
 
-static const unsigned short crctab[256] = {
+static const uint16_t crctab[256] = {
     0x0000, 0xc0c1, 0xc181, 0x0140, 0xc301, 0x03c0, 0x0280, 0xc241, 0xc601,
     0x06c0, 0x0780, 0xc741, 0x0500, 0xc5c1, 0xc481, 0x0440, 0xcc01, 0x0cc0,
     0x0d80, 0xcd41, 0x0f00, 0xcfc1, 0xce81, 0x0e40, 0x0a00, 0xcac1, 0xcb81,
@@ -71,8 +71,8 @@ static const unsigned short crctab[256] = {
 ** Returns          2-byte checksum.
 **
 *******************************************************************************/
-unsigned short crcChecksumCompute(const unsigned char* buffer, int bufferLen) {
-  unsigned short crc = 0;
+uint16_t crcChecksumCompute(const unsigned char* buffer, int bufferLen) {
+  uint16_t crc = 0;
   const unsigned char* cp = buffer;
   int cnt = bufferLen;
 
@@ -98,7 +98,7 @@ bool crcChecksumVerifyIntegrity(const char* filename) {
   bool isGood = false;
   int fileStream = open(filename, O_RDONLY);
   if (fileStream >= 0) {
-    unsigned short checksum = 0;
+    uint16_t checksum = 0;
     std::string data;
     size_t actualReadCrc = read(fileStream, &checksum, sizeof(checksum));
     while (true) {
