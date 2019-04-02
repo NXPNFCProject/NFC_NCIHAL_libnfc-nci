@@ -34,7 +34,6 @@
 #include "ce_int.h"
 #include "nfc_int.h"
 #include "tags_int.h"
-#include "trace_api.h"
 
 using android::base::StringPrintf;
 

@@ -53,7 +53,6 @@
 #include "nfc_int.h"
 #include "rw_api.h"
 #include "rw_int.h"
-#include "trace_api.h"
 #if (NXP_EXTNS == TRUE)
 #include "nfa_rw_int.h"
 #endif

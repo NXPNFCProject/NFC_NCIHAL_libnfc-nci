@@ -266,14 +266,4 @@ void nfc_hal_hci_handle_build_info(uint8_t chipverlen, uint8_t* p_chipverstr);
 #define nfc_hal_hci_evt_hdlr(p) ;
 #endif
 
-/* Define default NCI protocol trace function (if protocol tracing is enabled)
- */
-#if (NFC_HAL_TRACE_PROTOCOL == TRUE)
-#if !defined(DISP_NCI)
-#define DISP_NCI (DispNci)
-void DispNci(uint8_t* p, uint16_t len, bool is_recv);
-#endif /* DISP_NCI */
-
-#endif /* NFC_HAL_TRACE_PROTOCOL */
-
 #endif /* NFC_HAL_INT_H */

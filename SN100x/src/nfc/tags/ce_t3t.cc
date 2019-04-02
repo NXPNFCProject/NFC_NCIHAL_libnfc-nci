@@ -32,7 +32,6 @@
 #include "bt_types.h"
 #include "ce_api.h"
 #include "ce_int.h"
-#include "trace_api.h"
 
 using android::base::StringPrintf;
 

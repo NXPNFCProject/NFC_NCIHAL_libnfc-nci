@@ -41,7 +41,6 @@
 #include <hwbinder/ProcessState.h>
 
 #include "NfcAdaptation.h"
-#include "android_logmsg.h"
 #include "debug_nfcsnoop.h"
 #if (NXP_EXTNS == TRUE)
 #include <vendor/nxp/nxpnfc/1.0/INxpNfc.h>
