@@ -65,6 +65,7 @@ static tNFC_STATUS nfa_rw_start_ndef_write(void);
 static tNFC_STATUS nfa_rw_start_ndef_detection(void);
 static tNFC_STATUS nfa_rw_config_tag_ro(bool b_hard_lock);
 static bool nfa_rw_op_req_while_busy(tNFA_RW_MSG* p_data);
+static bool nfa_rw_op_req_while_inactive(tNFA_RW_MSG* p_data);
 static void nfa_rw_error_cleanup(uint8_t event);
 static void nfa_rw_presence_check(tNFA_RW_MSG* p_data);
 static void nfa_rw_handle_t2t_evt(tRW_EVENT event, tRW_DATA* p_rw_data);
@@ -2782,7 +2783,7 @@ bool nfa_rw_handle_op_req(tNFA_RW_MSG* p_data) {
   /* Check if activated */
   if (!(nfa_rw_cb.flags & NFA_RW_FL_ACTIVATED)) {
     LOG(ERROR) << StringPrintf("nfa_rw_handle_op_req: not activated");
-    return true;
+    return (nfa_rw_op_req_while_inactive(p_data));
   }
   /* Check if currently busy with another API call */
   else if (nfa_rw_cb.flags & NFA_RW_FL_API_BUSY) {
@@ -2967,6 +2968,89 @@ static bool nfa_rw_op_req_while_busy(tNFA_RW_MSG* p_data) {
 
   /* Return appropriate event for requested API, with status=BUSY */
   conn_evt_data.status = NFA_STATUS_BUSY;
+
+  switch (p_data->op_req.op) {
+    case NFA_RW_OP_DETECT_NDEF:
+      conn_evt_data.ndef_detect.cur_size = 0;
+      conn_evt_data.ndef_detect.max_size = 0;
+      conn_evt_data.ndef_detect.flags = RW_NDEF_FL_UNKNOWN;
+      event = NFA_NDEF_DETECT_EVT;
+      break;
+    case NFA_RW_OP_READ_NDEF:
+    case NFA_RW_OP_T1T_RID:
+    case NFA_RW_OP_T1T_RALL:
+    case NFA_RW_OP_T1T_READ:
+    case NFA_RW_OP_T1T_RSEG:
+    case NFA_RW_OP_T1T_READ8:
+    case NFA_RW_OP_T2T_READ:
+    case NFA_RW_OP_T3T_READ:
+      event = NFA_READ_CPLT_EVT;
+      break;
+    case NFA_RW_OP_WRITE_NDEF:
+    case NFA_RW_OP_T1T_WRITE:
+    case NFA_RW_OP_T1T_WRITE8:
+    case NFA_RW_OP_T2T_WRITE:
+    case NFA_RW_OP_T3T_WRITE:
+      event = NFA_WRITE_CPLT_EVT;
+      break;
+    case NFA_RW_OP_FORMAT_TAG:
+      event = NFA_FORMAT_CPLT_EVT;
+      break;
+    case NFA_RW_OP_DETECT_LOCK_TLV:
+    case NFA_RW_OP_DETECT_MEM_TLV:
+      event = NFA_TLV_DETECT_EVT;
+      break;
+    case NFA_RW_OP_SET_TAG_RO:
+      event = NFA_SET_TAG_RO_EVT;
+      break;
+    case NFA_RW_OP_T2T_SECTOR_SELECT:
+      event = NFA_SELECT_CPLT_EVT;
+      break;
+    case NFA_RW_OP_I93_INVENTORY:
+    case NFA_RW_OP_I93_STAY_QUIET:
+    case NFA_RW_OP_I93_READ_SINGLE_BLOCK:
+    case NFA_RW_OP_I93_WRITE_SINGLE_BLOCK:
+    case NFA_RW_OP_I93_LOCK_BLOCK:
+    case NFA_RW_OP_I93_READ_MULTI_BLOCK:
+    case NFA_RW_OP_I93_WRITE_MULTI_BLOCK:
+    case NFA_RW_OP_I93_SELECT:
+    case NFA_RW_OP_I93_RESET_TO_READY:
+    case NFA_RW_OP_I93_WRITE_AFI:
+    case NFA_RW_OP_I93_LOCK_AFI:
+    case NFA_RW_OP_I93_WRITE_DSFID:
+    case NFA_RW_OP_I93_LOCK_DSFID:
+    case NFA_RW_OP_I93_GET_SYS_INFO:
+    case NFA_RW_OP_I93_GET_MULTI_BLOCK_STATUS:
+      event = NFA_I93_CMD_CPLT_EVT;
+      break;
+    default:
+      return (freebuf);
+  }
+  nfa_dm_act_conn_cback_notify(event, &conn_evt_data);
+
+  return (freebuf);
+}
+
+/*******************************************************************************
+**
+** Function         nfa_rw_op_req_while_inactive
+**
+** Description      Handle operation request while inactive
+**
+** Returns          TRUE if caller should free p_data
+**                  FALSE if caller does not need to free p_data
+**
+*******************************************************************************/
+static bool nfa_rw_op_req_while_inactive(tNFA_RW_MSG* p_data) {
+  bool freebuf = true;
+  tNFA_CONN_EVT_DATA conn_evt_data;
+  uint8_t event;
+
+  LOG(ERROR) << StringPrintf(
+      "nfa_rw_op_req_while_inactive: unable to handle API");
+
+  /* Return appropriate event for requested API, with status=REJECTED */
+  conn_evt_data.status = NFA_STATUS_REJECTED;
 
   switch (p_data->op_req.op) {
     case NFA_RW_OP_DETECT_NDEF:
