@@ -510,8 +510,8 @@ static void nfa_hci_api_get_gate_pipe_list(tNFA_HCI_EVENT_DATA* p_evt_data) {
                pp->pipe_id <= NFA_HCI_LAST_DYNAMIC_PIPE && pp->pipe_id &&
                pp->local_gate >= NFA_HCI_FIRST_PROP_GATE &&
                pp->local_gate <= NFA_HCI_LAST_PROP_GATE) {
-      for (xx = 0, pg = nfa_hci_cb.cfg.dyn_gates; xx < NFA_HCI_MAX_GATE_CB;
-           xx++, pg++) {
+      for (yy = 0, pg = nfa_hci_cb.cfg.dyn_gates; yy < NFA_HCI_MAX_GATE_CB;
+           yy++, pg++) {
         if (pp->local_gate == pg->gate_id) {
           if (!pg->gate_owner)
 #if(NXP_EXTNS == TRUE)

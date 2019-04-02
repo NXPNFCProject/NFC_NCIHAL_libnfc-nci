@@ -448,7 +448,7 @@ void ce_t3t_handle_check_cmd(tCE_CB* p_ce_cb, NFC_HDR* p_cmd_msg) {
           UINT16_TO_BE_STREAM(p_dst, (ndef_len & 0xFFFF));
 
           checksum = 0;
-          for (i = 0; i < T3T_MSG_NDEF_ATTR_INFO_SIZE; i++) {
+          for (int j = 0; j < T3T_MSG_NDEF_ATTR_INFO_SIZE; j++) {
             checksum += p_temp[i];
           }
           UINT16_TO_BE_STREAM(p_dst, checksum);
