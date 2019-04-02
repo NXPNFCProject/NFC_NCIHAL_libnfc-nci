@@ -1042,12 +1042,31 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
     if (buff_size > NCI_NFC_DEP_MAX_DATA) buff_size = NCI_NFC_DEP_MAX_DATA;
 
     p_pa_nfc = &p_intf->intf_param.pa_nfc;
-    p_pa_nfc->atr_res_len = *p++;
+
+    /* Active mode, no info in activation parameters (NCI 2.0) */
+    if ((NFC_GetNCIVersion() == NCI_VERSION_2_0) &&
+        ((mode == NCI_DISCOVERY_TYPE_POLL_ACTIVE) ||
+         (mode == NCI_DISCOVERY_TYPE_LISTEN_ACTIVE))) {
+        p_pa_nfc->atr_res_len =
+                  evt_data.activate.rf_tech_param.param.acm_p.atr_res_len;
+    } else {
+      p_pa_nfc->atr_res_len = *p++;
+    }
 
     if (p_pa_nfc->atr_res_len > 0) {
       if (p_pa_nfc->atr_res_len > NFC_MAX_ATS_LEN)
         p_pa_nfc->atr_res_len = NFC_MAX_ATS_LEN;
-      STREAM_TO_ARRAY(p_pa_nfc->atr_res, p, p_pa_nfc->atr_res_len);
+      if ((NFC_GetNCIVersion() == NCI_VERSION_2_0) &&
+          ((mode == NCI_DISCOVERY_TYPE_POLL_ACTIVE) ||
+           (mode == NCI_DISCOVERY_TYPE_LISTEN_ACTIVE))) {
+         /* NCI 2.0 : ATR_RES is included in RF technology parameters in active mode */
+          memcpy(p_pa_nfc->atr_res,
+                         evt_data.activate.rf_tech_param.param.acm_p.atr_res,
+                         p_pa_nfc->atr_res_len);
+          } else {
+             STREAM_TO_ARRAY(p_pa_nfc->atr_res, p, p_pa_nfc->atr_res_len);
+         }
+
       if ((mode == NCI_DISCOVERY_TYPE_POLL_A) ||
           (mode == NCI_DISCOVERY_TYPE_POLL_F) ||
           ((mode == NCI_DISCOVERY_TYPE_POLL_A_ACTIVE ||
