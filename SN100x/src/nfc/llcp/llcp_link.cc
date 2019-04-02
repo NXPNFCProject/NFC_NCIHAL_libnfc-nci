@@ -1130,7 +1130,7 @@ static void llcp_link_proc_agf_pdu(NFC_HDR* p_agf) {
   agf_length = p_agf->len;
   p = (uint8_t*)(p_agf + 1) + p_agf->offset;
 
-  while (agf_length > 0) {
+  while (agf_length >= LLCP_PDU_HEADER_SIZE) {
     /* get length of PDU */
     p_pdu_length = p;
     BE_STREAM_TO_UINT16(pdu_length, p);
