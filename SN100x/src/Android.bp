@@ -33,6 +33,7 @@ cc_library_shared {
         "-DBUILDCFG=1",
         "-Wall",
         "-Werror",
+        "-Wimplicit-fallthrough",
         "-DNXP_EXTNS=TRUE",
     ],
     local_include_dirs: [
@@ -41,10 +42,10 @@ cc_library_shared {
         "gki/common",
         "nfa/include",
         "nfc/include",
-	   ],
+       ],
     include_dirs: [
         "hardware/nxp/secure_element/extns/impl/",
-	"hardware/nxp/nfc/SN100x/extns/impl/",
+        "hardware/nxp/nfc/SN100x/extns/impl/",
     ],
     srcs: [
         "nfa/ce/*.cc",
