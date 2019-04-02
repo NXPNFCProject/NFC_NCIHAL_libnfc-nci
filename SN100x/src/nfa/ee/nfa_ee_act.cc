@@ -1386,12 +1386,12 @@ void nfa_ee_api_set_proto_cfg(tNFA_EE_MSG* p_data) {
     return;
   }
 
-  p_cb->proto_switch_on = p_data->set_proto.protocols_switch_on;
-  p_cb->proto_switch_off = p_data->set_proto.protocols_switch_off;
-  p_cb->proto_battery_off = p_data->set_proto.protocols_battery_off;
-  p_cb->proto_screen_lock = p_data->set_proto.protocols_screen_lock;
-  p_cb->proto_screen_off = p_data->set_proto.protocols_screen_off;
-  p_cb->proto_screen_off_lock = p_data->set_proto.protocols_screen_off_lock;
+  p_cb->proto_switch_on |= p_data->set_proto.protocols_switch_on;
+  p_cb->proto_switch_off |= p_data->set_proto.protocols_switch_off;
+  p_cb->proto_battery_off |= p_data->set_proto.protocols_battery_off;
+  p_cb->proto_screen_lock |= p_data->set_proto.protocols_screen_lock;
+  p_cb->proto_screen_off |= p_data->set_proto.protocols_screen_off;
+  p_cb->proto_screen_off_lock |= p_data->set_proto.protocols_screen_off_lock;
   nfa_ee_update_route_size(p_cb);
   if (nfa_ee_total_lmrt_size() > NFC_GetLmrtSize()) {
     LOG(ERROR) << StringPrintf("nfa_ee_api_set_proto_cfg Exceed LMRT size");
