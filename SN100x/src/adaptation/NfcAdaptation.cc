@@ -301,6 +301,8 @@ void NfcAdaptation::Initialize() {
   // Android already logs thread_id, proc_id, timestamp, so disable those.
   logging::SetLogItems(false, false, false, false);
 
+  initializeGlobalDebugEnabledFlag();
+
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: enter", func);
 
   nfc_storage_path = NfcConfig::getString(NAME_NFA_STORAGE, "/data/nfc");
@@ -362,7 +364,6 @@ void NfcAdaptation::Initialize() {
     nfa_hci_cfg.p_whitelist = &host_whitelist[0];
   }
 
-  initializeGlobalDebugEnabledFlag();
 #if(NXP_EXTNS == TRUE)
   if (NfcConfig::hasKey(NAME_NXP_WM_MAX_WTX_COUNT)) {
     nfa_hci_cfg.max_wtx_count = NfcConfig::getUnsigned(NAME_NXP_WM_MAX_WTX_COUNT);
