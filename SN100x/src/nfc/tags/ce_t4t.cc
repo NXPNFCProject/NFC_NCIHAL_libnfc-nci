@@ -22,6 +22,7 @@
  *  mode.
  *
  ******************************************************************************/
+#include <log/log.h>
 #include <string.h>
 
 #include <android-base/stringprintf.h>
@@ -389,6 +390,14 @@ static void ce_t4t_process_select_app_cmd(uint8_t* p_cmd, NFC_HDR* p_c_apdu) {
   /* Lc Byte */
   BE_STREAM_TO_UINT8(data_len, p_cmd);
 
+  /*CLS+INS+P1+P2+Lc+Data*/
+  if (data_len > (p_c_apdu->len - T4T_CMD_MAX_HDR_SIZE)) {
+    LOG(ERROR) << StringPrintf("Wrong length in ce_t4t_process_select_app_cmd");
+    android_errorWriteLog(0x534e4554, "115635871");
+    ce_t4t_send_status(T4T_RSP_WRONG_LENGTH);
+    GKI_freebuf(p_c_apdu);
+    return;
+  }
 #if (CE_TEST_INCLUDED == TRUE)
   if (mapping_aid_test_enabled) {
     if ((data_len == T4T_V20_NDEF_TAG_AID_LEN) &&
@@ -540,7 +549,7 @@ static void ce_t4t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
                               tNFC_CONN* p_data) {
   NFC_HDR* p_c_apdu;
   uint8_t* p_cmd;
-  uint8_t cla, instruct, select_type = 0, length;
+  uint8_t cla = 0, instruct = 0, select_type = 0, length = 0;
   uint16_t offset, max_file_size;
   tCE_DATA ce_data;
 
@@ -558,6 +567,14 @@ static void ce_t4t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
 
   p_cmd = (uint8_t*)(p_c_apdu + 1) + p_c_apdu->offset;
 
+  if (p_c_apdu->len == 0) {
+    LOG(ERROR) << StringPrintf("Wrong length in ce_t4t_data_cback");
+    android_errorWriteLog(0x534e4554, "115635871");
+    ce_t4t_send_status(T4T_RSP_WRONG_LENGTH);
+    if (p_c_apdu) GKI_freebuf(p_c_apdu);
+    return;
+  }
+
   /* Class Byte */
   BE_STREAM_TO_UINT8(cla, p_cmd);
 
@@ -570,16 +587,28 @@ static void ce_t4t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
     return;
   }
 
-  /* Instruction Byte */
-  BE_STREAM_TO_UINT8(instruct, p_cmd);
+  /*CLA+INS+P1+P2 = 4 bytes*/
+  if (p_c_apdu->len >= T4T_CMD_MIN_HDR_SIZE) {
+    /* Instruction Byte */
+    BE_STREAM_TO_UINT8(instruct, p_cmd);
 
-  if ((cla == T4T_CMD_CLASS) && (instruct == T4T_CMD_INS_SELECT)) {
-    /* P1 Byte */
-    BE_STREAM_TO_UINT8(select_type, p_cmd);
+    if ((cla == T4T_CMD_CLASS) && (instruct == T4T_CMD_INS_SELECT)) {
+      /* P1 Byte */
+      BE_STREAM_TO_UINT8(select_type, p_cmd);
 
-    if (select_type == T4T_CMD_P1_SELECT_BY_NAME) {
-      ce_t4t_process_select_app_cmd(p_cmd, p_c_apdu);
-      return;
+      if (select_type == T4T_CMD_P1_SELECT_BY_NAME) {
+        /*CLA+INS+P1+P2+Lc = 5 bytes*/
+        if (p_c_apdu->len >= T4T_CMD_MAX_HDR_SIZE) {
+          ce_t4t_process_select_app_cmd(p_cmd, p_c_apdu);
+          return;
+        } else {
+          LOG(ERROR) << StringPrintf("Wrong length in select app cmd");
+          android_errorWriteLog(0x534e4554, "115635871");
+          ce_t4t_send_status(T4T_RSP_NOT_FOUND);
+          if (p_c_apdu) GKI_freebuf(p_c_apdu);
+          return;
+        }
+      }
     }
   }
 
