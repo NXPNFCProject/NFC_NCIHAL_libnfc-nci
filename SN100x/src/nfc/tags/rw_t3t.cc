@@ -1649,7 +1649,12 @@ static void rw_t3t_handle_get_sc_poll_rsp(tRW_T3T_CB* p_cb, uint8_t nci_status,
 
     DLOG_IF(INFO, nfc_debug_enabled)
         << StringPrintf("FeliCa detected (RD, system code %04X)", sc);
-    p_cb->system_codes[p_cb->num_system_codes++] = sc;
+    if (p_cb->num_system_codes < T3T_MAX_SYSTEM_CODES) {
+      p_cb->system_codes[p_cb->num_system_codes++] = sc;
+    } else {
+      LOG(ERROR) << StringPrintf("Exceed T3T_MAX_SYSTEM_CODES!");
+      android_errorWriteLog(0x534e4554, "120499324");
+    }
   }
 
   rw_t3t_handle_get_system_codes_cplt();
