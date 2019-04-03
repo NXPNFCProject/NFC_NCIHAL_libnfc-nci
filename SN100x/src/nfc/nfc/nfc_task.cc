@@ -307,6 +307,10 @@ void nfc_process_quick_timer_evt(void) {
       case NFC_TTYPE_P2P_PRIO_LOGIC_CLEANUP:
         nfa_dm_p2p_prio_logic_cleanup();
         break;
+      case NFC_TTYPE_RW_MFC_RESPONSE:
+        rw_mfc_process_timeout(p_tle);
+        break;
+
 #if (NFC_RW_ONLY == FALSE)
       case NFC_TTYPE_CE_T4T_UPDATE:
         ce_t4t_process_timeout(p_tle);

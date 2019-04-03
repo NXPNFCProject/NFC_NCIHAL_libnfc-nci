@@ -446,6 +446,9 @@ typedef uint8_t tT3T_POLL_RC;
 #define T4T_DES_EV1_NFC_APP_ID 0x010000
 #define T4T_DES_EV0_NFC_APP_ID 0x10EEEE
 
+/*  Mifare Classic Tag Definitions */
+#define MFC_UID_LEN 4
+
 /*
 **
 **  ISO 15693 Tag Definitions

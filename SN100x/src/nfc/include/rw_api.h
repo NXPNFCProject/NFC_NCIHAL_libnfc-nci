@@ -55,6 +55,7 @@
 #define RW_T3T_FIRST_EVT 0x60
 #define RW_T4T_FIRST_EVT 0x80
 #define RW_I93_FIRST_EVT 0xA0
+#define RW_MFC_FIRST_EVT 0xC0
 
 enum {
   /* Note: the order of these events can not be changed */
@@ -141,7 +142,17 @@ enum {
   RW_I93_PRESENCE_CHECK_EVT,   /* Response to RW_I93PresenceCheck    */
   RW_I93_RAW_FRAME_EVT,        /* Response of raw frame sent         */
   RW_I93_INTF_ERROR_EVT,       /* RF Interface error event           */
-  RW_I93_MAX_EVT
+  RW_I93_MAX_EVT,
+  /* Mifare Classic tag events for tRW_CBACK */
+  RW_MFC_NDEF_DETECT_EVT =
+      RW_MFC_FIRST_EVT,      /* Result of NDEF detection procedure       */
+                             /* Mandatory NDEF file is selected          */
+  RW_MFC_NDEF_READ_EVT,      /* Segment of data received from type 4 tag */
+  RW_MFC_NDEF_READ_CPLT_EVT, /* Read operation completed                 */
+  RW_MFC_NDEF_READ_FAIL_EVT, /* Read operation failed                    */
+  RW_MFC_RAW_FRAME_EVT,      /* Response of raw frame sent               */
+  RW_MFC_INTF_ERROR_EVT,     /* RF Interface error event                 */
+  RW_MFC_MAX_EVT
 #if (NXP_EXTNS == TRUE)
   ,
   RW_T3BT_RAW_READ_CPLT_EVT,   /* T3BT Raw Read Command Complete Evt */
@@ -1355,6 +1366,36 @@ extern tNFC_STATUS RW_SendRawFrame(uint8_t* p_raw_data, uint16_t data_len);
 *******************************************************************************/
 extern tNFC_STATUS RW_SetActivatedTagType(tNFC_ACTIVATE_DEVT* p_activate_params,
                                           tRW_CBACK* p_cback);
+
+/*******************************************************************************
+**
+** Function         RW_MfcDetectNDef
+**
+** Description      This function performs NDEF detection procedure
+**
+**                  RW_MFC_NDEF_DETECT_EVT will be returned
+**
+** Returns          NFC_STATUS_OK if success
+**                  NFC_STATUS_FAILED if Mifare classic tag is busy or other
+*error
+**
+*******************************************************************************/
+extern tNFC_STATUS RW_MfcDetectNDef(void);
+
+/*******************************************************************************
+**
+** Function         RW_MfcReadNDef
+**
+** Description      This function can be called to read the NDEF message on the
+*tag.
+**
+** Parameters:      p_buffer:   The buffer into which to read the NDEF message
+**                  buf_len:    The length of the buffer
+**
+** Returns          NCI_STATUS_OK, if read was started. Otherwise, error status.
+**
+*******************************************************************************/
+extern tNFC_STATUS RW_MfcReadNDef(uint8_t* p_buffer, uint16_t buf_len);
 
 #if (NXP_EXTNS == TRUE)
 /*******************************************************************************

@@ -524,6 +524,7 @@ typedef uint8_t tNFC_RF_TECH_N_MODE;
 
 /* Select Response codes */
 #define NFC_SEL_RES_NFC_FORUM_T2T 0x00
+#define NFC_SEL_RES_MF_CLASSIC 0x08
 
 /* Bit Rates */
 #define NFC_BIT_RATE_212 NCI_BIT_RATE_212   /* 212 kbit/s */

@@ -605,6 +605,48 @@ typedef struct {
 } tRW_STATS;
 #endif /* RW_STATS_INCLUDED */
 
+/* Mifare Classic RW Control Block */
+
+typedef struct {
+  uint8_t block;
+  bool auth;
+} tRW_MFC_BLOCK;
+
+#define MFC_NDEF_NOT_DETECTED 0x00
+#define MFC_NDEF_DETECTED 0x01
+#define MFC_NDEF_READ 0x02
+
+typedef uint8_t tRW_MFC_RW_STATE;
+typedef uint8_t tRW_MFC_RW_SUBSTATE;
+typedef struct {
+  tRW_MFC_RW_STATE state;       /* main state */
+  tRW_MFC_RW_SUBSTATE substate; /* Reader/write substate in NDEF write state*/
+  tRW_MFC_RW_SUBSTATE
+      prev_substate;    /* Reader/write substate in NDEF write state*/
+  TIMER_LIST_ENT timer; /* timeout for each API call */
+  uint8_t uid[4];
+  uint8_t selres;
+  uint8_t tlv_detect;       /* TLV type under detection */
+  uint16_t ndef_length;     /* length of NDEF data */
+  uint8_t ndef_start_pos;   /* NDEF start position */
+  uint8_t ndef_first_block; /* Frst block containing the NDEF */
+  uint8_t* p_update_data;   /* pointer of data to update */
+  uint16_t rw_length;       /* remaining bytes to read/write */
+  uint16_t rw_offset;       /* remaining offset to read/write */
+  NFC_HDR* p_data_to_free;  /* GKI buffer to delete after done */
+  tRW_MFC_BLOCK last_block_accessed;
+  tRW_MFC_BLOCK next_block;
+  uint8_t sector_authentified;
+  TIMER_LIST_ENT mfc_timer; /* timeout for each API call */
+  uint16_t work_offset;     /* Working byte offset */
+  uint8_t* p_ndef_buffer;   /* Buffer to store ndef message */
+  uint8_t current_block;
+  NFC_HDR* p_cur_cmd_buf; /* Copy of current command, for retx/send after sector
+                             change */
+
+  uint8_t ndef_status; /* bitmap for NDEF status */
+} tRW_MFC_CB;
+
 /* ISO 15693 RW Control Block */
 typedef uint8_t tRW_I93_RW_STATE;
 typedef uint8_t tRW_I93_RW_SUBSTATE;
@@ -694,6 +736,7 @@ typedef union {
   tRW_T3T_CB t3t;
   tRW_T4T_CB t4t;
   tRW_I93_CB i93;
+  tRW_MFC_CB mfc;
 } tRW_TCB;
 
 /* RW control blocks */
@@ -763,6 +806,9 @@ extern void rw_t4t_process_timeout(TIMER_LIST_ENT* p_tle);
 extern tNFC_STATUS rw_i93_select(uint8_t* p_uid);
 extern void rw_i93_process_timeout(TIMER_LIST_ENT* p_tle);
 extern void rw_t4t_handle_isodep_nak_rsp(uint8_t status, bool is_ntf);
+
+extern tNFC_STATUS rw_mfc_select(uint8_t selres, uint8_t uid[T1T_CMD_UID_LEN]);
+extern void rw_mfc_process_timeout(TIMER_LIST_ENT* p_tle);
 #if (RW_STATS_INCLUDED == TRUE)
 /* Internal fcns for statistics (from rw_main.c) */
 void rw_main_reset_stats(void);
