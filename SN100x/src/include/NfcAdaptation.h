@@ -59,7 +59,7 @@ class ThreadMutex {
   virtual ~ThreadMutex();
   void lock();
   void unlock();
-  operator pthread_mutex_t*() { return &mMutex; }
+  explicit operator pthread_mutex_t*() { return &mMutex; }
 
  private:
   pthread_mutex_t mMutex;
@@ -71,7 +71,8 @@ class ThreadCondVar : public ThreadMutex {
   virtual ~ThreadCondVar();
   void signal();
   void wait();
-  operator pthread_cond_t*() { return &mCondVar; }
+  explicit operator pthread_cond_t*() { return &mCondVar; }
+  // NOLINTNEXTLINE(google-explicit-constructor)
   operator pthread_mutex_t*() {
     return ThreadMutex::operator pthread_mutex_t*();
   }
@@ -82,10 +83,10 @@ class ThreadCondVar : public ThreadMutex {
 
 class AutoThreadMutex {
  public:
-  AutoThreadMutex(ThreadMutex& m);
+  explicit AutoThreadMutex(ThreadMutex& m);
   virtual ~AutoThreadMutex();
-  operator ThreadMutex&() { return mm; }
-  operator pthread_mutex_t*() { return (pthread_mutex_t*)mm; }
+  explicit operator ThreadMutex&() { return mm; }
+  explicit operator pthread_mutex_t*() { return (pthread_mutex_t*)mm; }
 
  private:
   ThreadMutex& mm;
