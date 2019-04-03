@@ -46,7 +46,7 @@
 /**********************************************
  * NCI Interface Types
  **********************************************/
-#define NCI_INTERFACE_VS_MIFARE 0x80
+#define NCI_INTERFACE_VS_MIFARE NCI_PROTOCOL_MIFARE
 #define NCI_INTERFACE_VS_T2T_CE 0x82 /* for Card Emulation side */
 
 #define NFC_SNOOZE_MODE_UART 0x01    /* Snooze mode for UART    */
