@@ -104,6 +104,7 @@ extern tNFA_PROPRIETARY_CFG nfa_proprietary_cfg;
 extern tNFA_HCI_CFG nfa_hci_cfg;
 extern uint8_t nfa_ee_max_ee_cfg;
 extern bool nfa_poll_bail_out_mode;
+bool isDownloadFirmwareCompleted = false;
 
 // Whitelist for hosts allowed to create a pipe
 // See ADM_CREATE_PIPE command in the ETSI test specification
@@ -953,11 +954,12 @@ uint8_t NfcAdaptation::HalGetMaxNfcee() {
 **
 ** Description: Download firmware patch files.
 **
-** Returns:     None.
+** Returns:     True/False
 **
 *******************************************************************************/
-void NfcAdaptation::DownloadFirmware() {
+bool NfcAdaptation::DownloadFirmware() {
   const char* func = "NfcAdaptation::DownloadFirmware";
+  isDownloadFirmwareCompleted = false;
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: enter", func);
   HalInitialize();
   mHalOpenCompletedEvent.lock();
@@ -991,6 +993,7 @@ void NfcAdaptation::DownloadFirmware() {
 #endif
   HalTerminate();
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: exit", func);
+  return isDownloadFirmwareCompleted;
 }
 
 /*******************************************************************************
@@ -1012,6 +1015,7 @@ void NfcAdaptation::HalDownloadFirmwareCallback(nfc_event_t event,
     case HAL_NFC_OPEN_CPLT_EVT: {
       DLOG_IF(INFO, nfc_debug_enabled)
           << StringPrintf("%s: HAL_NFC_OPEN_CPLT_EVT", func);
+      if (event_status == HAL_NFC_STATUS_OK) isDownloadFirmwareCompleted = true;
 #if (NXP_EXTNS == TRUE)
     if(event_status == HAL_NFC_STATUS_OK)
 #endif
