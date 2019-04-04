@@ -1170,3 +1170,17 @@ AutoThreadMutex::AutoThreadMutex(ThreadMutex& m) : mm(m) { mm.lock(); }
 **
 *******************************************************************************/
 AutoThreadMutex::~AutoThreadMutex() { mm.unlock(); }
+
+/***************************************************************************
+**
+** Function         initializeGlobalAppDtaMode.
+**
+** Description      initialize Dta App Mode flag.
+**
+** Returns          None.
+**
+***************************************************************************/
+void initializeGlobalAppDtaMode() {
+  appl_dta_mode_flag = 0x01;
+  ALOGD("%s: DTA Enabled", __func__);
+}
