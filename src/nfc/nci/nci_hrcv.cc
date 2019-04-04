@@ -396,6 +396,7 @@ void nci_proc_ee_management_rsp(NFC_HDR* p_msg) {
             }
             break;
         }
+        FALLTHROUGH;
 #endif
     case NCI_MSG_NFCEE_POWER_LINK_CTRL:
         nfc_response.pl_control.status        = *pp;

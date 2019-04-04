@@ -2060,6 +2060,7 @@ std::string nfa_dm_nfc_revt_2_str(tNFC_RESPONSE_EVT event) {
         if(nfcFL.eseFL._WIRED_MODE_STANDBY) {
             return "NFC_NFCEE_PWR_LNK_CTRL_REVT";
         }
+        FALLTHROUGH;
 #endif
     default:
       return "unknown revt";

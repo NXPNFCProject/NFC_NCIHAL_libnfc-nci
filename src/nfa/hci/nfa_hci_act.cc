@@ -2729,7 +2729,7 @@ void nfa_hci_handle_nfcee_config_evt(uint16_t event) {
         nfa_hci_cb.nfcee_cfg.discovery_stopped =
             nfa_dm_act_stop_rf_discovery(NULL);
       }
-
+      FALLTHROUGH;
     case NFA_HCI_READ_SESSIONID:
       /*Read the session ID of the host discovered */
       nfa_hci_cb.nfcee_cfg.config_nfcee_state = NFA_HCI_READ_SESSIONID;
