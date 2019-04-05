@@ -1692,23 +1692,25 @@ void nfa_ee_api_remove_aid(tNFA_EE_MSG* p_data) {
                        p_data->rm_aid.aid_len)) {
     uint32_t xx;
     tNFA_EE_ECB* p_cb = nfa_ee_cb.ecb;
+    int max_aid_cfg_length = nfa_ee_find_max_aid_cfg_len();
+    int max_aid_entries = max_aid_cfg_length / NFA_MIN_AID_LEN + 1;
     for (xx = 0; xx < nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED; xx++, p_cb++) {
-        memset(&p_cb->aid_cfg[0], 0x00, sizeof(p_cb->aid_cfg));
-        memset(&p_cb->aid_len[0], 0x00, NFA_EE_MAX_AID_ENTRIES);
-        memset(&p_cb->aid_pwr_cfg[0], 0x00, NFA_EE_MAX_AID_ENTRIES);
-        memset(&p_cb->aid_rt_info[0], 0x00, NFA_EE_MAX_AID_ENTRIES);
-        memset(&p_cb->aid_info[0], 0x00, NFA_EE_MAX_AID_ENTRIES);
+        memset(p_cb->aid_cfg, 0, max_aid_cfg_length);
+        memset(p_cb->aid_len, 0, max_aid_entries);
+        memset(p_cb->aid_pwr_cfg, 0, max_aid_entries);
+        memset(p_cb->aid_rt_info, 0, max_aid_entries);
+        memset(p_cb->aid_info, 0, max_aid_entries);
         p_cb->aid_entries = 0;
         nfa_ee_cb.ee_cfged |= nfa_ee_ecb_to_mask(p_cb);
     }
 
     tNFA_EE_ECB* p_ecb = &nfa_ee_cb.ecb[NFA_EE_CB_4_DH];
 
-    memset(&p_ecb->aid_cfg[0], 0x00, sizeof(p_ecb->aid_cfg));
-    memset(&p_ecb->aid_len[0], 0x00, NFA_EE_MAX_AID_ENTRIES);
-    memset(&p_ecb->aid_pwr_cfg[0], 0x00, NFA_EE_MAX_AID_ENTRIES);
-    memset(&p_ecb->aid_rt_info[0], 0x00, NFA_EE_MAX_AID_ENTRIES);
-    memset(&p_ecb->aid_info[0], 0x00, NFA_EE_MAX_AID_ENTRIES);
+    memset(p_ecb->aid_cfg, 0, max_aid_cfg_length);
+    memset(p_ecb->aid_len, 0, max_aid_entries);
+    memset(p_ecb->aid_pwr_cfg, 0, max_aid_entries);
+    memset(p_ecb->aid_rt_info, 0, max_aid_entries);
+    memset(p_ecb->aid_info, 0, max_aid_entries);
 
     p_ecb->aid_entries = 0;
     p_cb->ecb_flags |= NFA_EE_ECB_FLAGS_AID;

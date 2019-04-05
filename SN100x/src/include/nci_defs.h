@@ -681,7 +681,7 @@ typedef struct {
 } tNCI_RF_LF_PARAMS;
 
 #ifndef NCI_MAX_ATS_LEN
-#define NCI_MAX_ATS_LEN 60
+#define NCI_MAX_ATS_LEN 64
 #endif
 #ifndef NCI_MAX_HIS_BYTES_LEN
 #define NCI_MAX_HIS_BYTES_LEN 50

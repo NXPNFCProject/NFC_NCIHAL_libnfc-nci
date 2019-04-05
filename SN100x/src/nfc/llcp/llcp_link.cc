@@ -543,11 +543,15 @@ static bool llcp_link_version_agreement(void) {
       } else {
         llcp_cb.lcb.agreed_minor_version = peer_minor_version;
       }
-    } else if (peer_major_version < LLCP_VERSION_MAJOR) {
+    }
+#if (LLCP_VERSION_MAJOR != LLCP_MIN_MAJOR_VERSION)
+    else if (peer_major_version < LLCP_VERSION_MAJOR) {
       /* so far we can support backward compatibility */
       llcp_cb.lcb.agreed_major_version = peer_major_version;
       llcp_cb.lcb.agreed_minor_version = peer_minor_version;
-    } else {
+    }
+#endif
+    else {
       /* let peer (higher major version) decide it */
       llcp_cb.lcb.agreed_major_version = LLCP_VERSION_MAJOR;
       llcp_cb.lcb.agreed_minor_version = LLCP_VERSION_MINOR;

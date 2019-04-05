@@ -562,7 +562,10 @@ static void ce_t4t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   }
 
   p_c_apdu = (NFC_HDR*)p_data->data.p_data;
-
+  if (!p_c_apdu) {
+    LOG(ERROR) << StringPrintf("Invalid p_c_apdu");
+    return;
+  }
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("conn_id = 0x%02X", conn_id);
 
   p_cmd = (uint8_t*)(p_c_apdu + 1) + p_c_apdu->offset;
@@ -571,7 +574,7 @@ static void ce_t4t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
     LOG(ERROR) << StringPrintf("Wrong length in ce_t4t_data_cback");
     android_errorWriteLog(0x534e4554, "115635871");
     ce_t4t_send_status(T4T_RSP_WRONG_LENGTH);
-    if (p_c_apdu) GKI_freebuf(p_c_apdu);
+    GKI_freebuf(p_c_apdu);
     return;
   }
 

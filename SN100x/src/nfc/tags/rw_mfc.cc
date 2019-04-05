@@ -890,7 +890,7 @@ static void rw_mfc_handle_ndef_read_rsp(uint8_t* p_data) {
  **
  *******************************************************************************/
 static void rw_mfc_process_error() {
-  tRW_READ_DATA evt_data;
+  tRW_READ_DATA evt_data = {NFC_STATUS_OK, NULL};
   tRW_EVENT rw_event = RW_MFC_NDEF_DETECT_EVT;
   NFC_HDR* p_cmd_buf;
   tRW_MFC_CB* p_mfc = &rw_cb.tcb.mfc;
@@ -948,7 +948,6 @@ static void rw_mfc_process_error() {
 
     (*rw_cb.p_cback)(rw_event, (tRW_DATA*)&ndef_data);
   } else {
-    evt_data.p_data = NULL;
     /* If activated and not Halt move to idle state */
     if (p_mfc->state != RW_MFC_STATE_NOT_ACTIVATED) {
       rw_mfc_handle_op_complete();
