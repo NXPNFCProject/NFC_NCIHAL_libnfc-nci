@@ -1169,6 +1169,9 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
 **
 *******************************************************************************/
 void nfc_ncif_proc_deactivate(uint8_t status, uint8_t deact_type, bool is_ntf) {
+  /*If Hal close is running in nfc HAL, return.
+  Else it will cause abnormal nfc_state update*/
+  if (nfc_cb.nfc_state == NFC_STATE_W4_HAL_CLOSE) return;
   tNFC_DISCOVER evt_data;
   tNFC_CONN_CB* p_cb = &nfc_cb.conn_cb[NFC_RF_CONN_ID];
   void* p_data;
