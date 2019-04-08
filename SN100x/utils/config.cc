@@ -198,8 +198,8 @@ bool ConfigFile::hasKey(const std::string& key) {
 }
 
 ConfigValue& ConfigFile::getValue(const std::string& key) {
+  CHECK(values_.find(key) != values_.end());
   auto search = values_.find(key);
-  CHECK(search != values_.end());
   return search->second;
 }
 
