@@ -57,7 +57,7 @@
 #define NXP_ANDROID_VER (9U)        /* NXP android version */
 #define NFC_NXP_MW_VERSION_MAJ (0x00) /* MW Major Version */
 #define NFC_NXP_MW_VERSION_MIN (0x19) /* MW Minor Version */
-#define NFC_NXP_MW_RC_VERSION (0x01) /* MW Minor Version */
+#define NFC_NXP_MW_RC_VERSION (0x02) /* MW Minor Version */
 #define NFC_EE_DISC_OP_REMOVE 1
 #define NXP_SEMS_OUPUT_PATH "/data/nfc/sems.txt"
 #endif
