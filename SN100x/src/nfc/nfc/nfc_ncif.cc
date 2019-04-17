@@ -1465,6 +1465,12 @@ void nfc_ncif_proc_reset_rsp(uint8_t* p, bool is_ntf) {
       nfc_stop_timer(&nfc_cb.nci_wait_rsp_timer);
       p++;
       STREAM_TO_UINT8(nfc_cb.nci_version, p);
+#if (NXP_EXTNS == TRUE)
+      p += 4;
+      STREAM_TO_UINT8(nfc_fw_version.rom_code_version, p);
+      STREAM_TO_UINT8(nfc_fw_version.major_version, p);
+      STREAM_TO_UINT8(nfc_fw_version.minor_version, p);
+#endif
       DLOG_IF(INFO, nfc_debug_enabled)
           << StringPrintf(" CORE_RESET_NTF nci_version%x", nfc_cb.nci_version);
       status = NCI_STATUS_OK;
