@@ -31,7 +31,7 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 *
-*  Copyright 2018 NXP
+*  Copyright 2018-2019 NXP
 *
 ******************************************************************************/
 
@@ -289,6 +289,13 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                        nfa_hci_enable_one_nfcee();
                      } else if(nfa_hci_cb.next_nfcee_idx == nfa_hci_cb.num_nfcee)
                      {
+                       if (nfa_hciu_find_dyn_apdu_pipe_for_host (NFA_HCI_FIRST_PROP_HOST) == NULL
+                               && nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD )
+                       {/* as part of NFCEE_UNRECOVERABLE_ERRROR reset handling, if NFCEE Power and link
+                         * has been set to alwaysOn then reset the link and keep only power alwaysOn */
+                         nfa_hci_startup_complete(NFA_STATUS_OK);
+                       }
+
                        tNFA_HCI_EVT_DATA evt_data;
                        evt_data.init_completed.status = NFA_STATUS_OK;
                        DLOG_IF(INFO, nfc_debug_enabled)
