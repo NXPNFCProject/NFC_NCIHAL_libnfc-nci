@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018 NXP
+ *  Copyright 2018-2019 NXP
  *
  ******************************************************************************/
 
@@ -61,6 +61,7 @@
 #if (NXP_EXTNS == TRUE)
 #include <config.h>
 #include "nfc_config.h"
+#include "nfa_sys.h"
 #endif
 #if (NFC_RW_ONLY == FALSE)
 
@@ -243,7 +244,6 @@ void nfc_enabled(tNFC_STATUS nfc_status, NFC_HDR* p_init_rsp_msg) {
 
   if (nfc_status == NCI_STATUS_OK) {
     nfc_set_state(NFC_STATE_IDLE);
-
     p = (uint8_t*)(p_init_rsp_msg + 1) + p_init_rsp_msg->offset +
         NCI_MSG_HDR_SIZE + 1;
     /* we currently only support NCI of the same version.
@@ -446,7 +446,10 @@ void nfc_main_handle_hal_evt(tNFC_HAL_EVT_MSG* p_msg) {
       break;
 
     case HAL_NFC_POST_INIT_CPLT_EVT:
-      if (nfc_cb.p_nci_init_rsp) {
+      if (NfcAdaptation::GetInstance().NFA_GetBootMode() == NFC_FAST_BOOT_MODE) {
+          nfc_set_state(NFC_STATE_IDLE);
+          nfa_sys_cback_notify_MinEnable_complete(0);
+      }else if (nfc_cb.p_nci_init_rsp) {
         /*
         ** if NFC_Disable() is called before receiving
         ** HAL_NFC_POST_INIT_CPLT_EVT, then wait for HAL_NFC_CLOSE_CPLT_EVT.
@@ -846,10 +849,14 @@ void NFC_Init(tHAL_NFC_ENTRY* p_hal_entry_tbl) {
   {
     nfc_cb.nci_credit_ntf_timeout = NFC_NCI_CREDIT_NTF_TOUT;
   }
+  if (NfcAdaptation::GetInstance().NFA_GetBootMode() != NFC_FAST_BOOT_MODE) {
 #endif
   rw_init();
   ce_init();
   llcp_init();
+#if(NXP_EXTNS == TRUE)
+  }
+#endif
   NFC_SET_MAX_CONN_DEFAULT();
 }
 

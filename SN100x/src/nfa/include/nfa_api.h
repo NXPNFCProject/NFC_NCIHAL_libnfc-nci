@@ -1502,21 +1502,6 @@ extern void NFA_Send_Core_Init(uint8_t** p);
 
 /*******************************************************************************
 **
-** Function         NFA_SetBootMode
-**
-** Description      This function enables the boot mode for NFC.
-**                  boot_mode  0 NORMAL_BOOT 1 FAST_BOOT
-**                  By default , the mode is set to NORMAL_BOOT.
-
-**
-** Returns          none
-**
-*******************************************************************************/
-extern void NFA_SetBootMode(uint8_t boot_mode);
-
-
-/*******************************************************************************
-**
 ** Function:        NFA_GetMwVersion
 **
 ** Description:     This function gets the Middleware Version

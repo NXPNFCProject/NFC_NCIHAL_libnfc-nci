@@ -63,6 +63,7 @@
 #include "nfa_dm_int.h"
 #include "nfa_hci_int.h"
 #include "nfc_config.h"
+#include "NfcAdaptation.h"
 #endif
 
 using android::base::StringPrintf;

@@ -29,7 +29,7 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 *
-*  Copyright 2018 NXP
+*  Copyright 2018-2019 NXP
 *
 ******************************************************************************/
 #include <android-base/stringprintf.h>
@@ -581,6 +581,7 @@ void NfcAdaptation::InitializeHalDeviceContext() {
              (mHalNxpNfc->isRemote() ? "remote" : "local"));
   }
   mHalEntryFuncs.ioctl = HalIoctl;
+  nfcBootMode = NFA_NORMAL_BOOT_MODE;
 #endif
 }
 
@@ -1027,7 +1028,38 @@ void NfcAdaptation::HalDownloadFirmwareCallback(nfc_event_t event,
     }
   }
 }
+/*******************************************************************************
+**
+** Function         NFA_SetBootMode
+**
+** Description      This function enables the boot mode for NFC.
+**                  boot_mode  0 NORMAL_BOOT 1 FAST_BOOT
+**                  By default , the mode is set to NORMAL_BOOT.
 
+**
+** Returns          none
+**
+*******************************************************************************/
+void NfcAdaptation::NFA_SetBootMode(uint8_t boot_mode) {
+  nfcBootMode = boot_mode;
+  DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("Set boot_mode:0x%x", nfcBootMode);
+}
+/*******************************************************************************
+**
+** Function         NFA_GetBootMode
+**
+** Description      This function returns the boot mode for NFC.
+**                  boot_mode  0 NORMAL_BOOT 1 FAST_BOOT
+**                  By default , the mode is set to NORMAL_BOOT.
+
+**
+** Returns          none
+**
+*******************************************************************************/
+uint8_t NfcAdaptation::NFA_GetBootMode() {
+  return nfcBootMode;
+}
 /*******************************************************************************
 **
 ** Function:    NfcAdaptation::HalDownloadFirmwareDataCallback
