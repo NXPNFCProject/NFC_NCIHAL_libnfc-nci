@@ -510,44 +510,23 @@ static tNFA_STATUS nfa_dm_set_rf_listen_mode_config(
 #endif
 
   /*
-  ** for Listen A
-  **
-  ** Set ATQA 0x0C00 for T1T listen
-  ** If the ATQA values are 0x0000, then the FW will use 0x0400
-  ** which works for ISODEP, T2T and NFCDEP.
+  * for Listen A
+  *
+  * Set ATQA 0x0C00 for T1T listen
+  * If the ATQA values are 0x0000, then the FW will use 0x0400
+  * which works for ISODEP, T2T and NFCDEP.
   */
-  if (nfa_dm_cb.disc_cb.listen_RT[NFA_DM_DISC_LRT_NFC_A] ==
-      NFA_DM_DISC_HOST_ID_DH) {
-    UINT8_TO_STREAM(p, NFC_PMID_LA_BIT_FRAME_SDD);
-    UINT8_TO_STREAM(p, NCI_PARAM_LEN_LA_BIT_FRAME_SDD);
-    UINT8_TO_STREAM(p, 0x04);
-    UINT8_TO_STREAM(p, NFC_PMID_LA_PLATFORM_CONFIG);
-    UINT8_TO_STREAM(p, NCI_PARAM_LEN_LA_PLATFORM_CONFIG);
-    UINT8_TO_STREAM(p, platform);
-#if (NXP_EXTNS != TRUE)
-    UINT8_TO_STREAM(p, NFC_PMID_LA_SEL_INFO);
-    UINT8_TO_STREAM(p, NCI_PARAM_LEN_LA_SEL_INFO);
-    UINT8_TO_STREAM(p, sens_info);
-#endif
-  } else /* Let NFCC use UICC configuration by configuring with length = 0 */
-  {
-    UINT8_TO_STREAM(p, NFC_PMID_LA_BIT_FRAME_SDD);
-    UINT8_TO_STREAM(p, 0);
-    UINT8_TO_STREAM(p, NFC_PMID_LA_PLATFORM_CONFIG);
-    UINT8_TO_STREAM(p, 0);
-#if (NXP_EXTNS != TRUE)
-    UINT8_TO_STREAM(p, NFC_PMID_LA_SEL_INFO);
-    UINT8_TO_STREAM(p, 0);
-#endif
-    UINT8_TO_STREAM(p, NFC_PMID_LA_NFCID1);
-    UINT8_TO_STREAM(p, 0);
-    UINT8_TO_STREAM(p, NFC_PMID_LA_HIST_BY);
-    UINT8_TO_STREAM(p, 0);
-  }
+  UINT8_TO_STREAM(p, NFC_PMID_LA_BIT_FRAME_SDD);
+  UINT8_TO_STREAM(p, NCI_PARAM_LEN_LA_BIT_FRAME_SDD);
+  UINT8_TO_STREAM(p, 0x04);
+  UINT8_TO_STREAM(p, NFC_PMID_LA_PLATFORM_CONFIG);
+  UINT8_TO_STREAM(p, NCI_PARAM_LEN_LA_PLATFORM_CONFIG);
+  UINT8_TO_STREAM(p, platform);
+  UINT8_TO_STREAM(p, NFC_PMID_LA_SEL_INFO);
+  UINT8_TO_STREAM(p, NCI_PARAM_LEN_LA_SEL_INFO);
+  UINT8_TO_STREAM(p, sens_info);
 
   /* for Listen B */
-  if (nfa_dm_cb.disc_cb.listen_RT[NFA_DM_DISC_LRT_NFC_B] ==
-      NFA_DM_DISC_HOST_ID_DH) {
     UINT8_TO_STREAM(p, NFC_PMID_LB_SENSB_INFO);
     UINT8_TO_STREAM(p, NCI_PARAM_LEN_LB_SENSB_INFO);
     if (tech_proto_mask & NFA_DM_DISC_MASK_LB_ISO_DEP) {
@@ -555,19 +534,6 @@ static tNFA_STATUS nfa_dm_set_rf_listen_mode_config(
     } else {
       UINT8_TO_STREAM(p, 0x00);
     }
-  } else /* Let NFCC use UICC configuration by configuring with length = 0 */
-  {
-    UINT8_TO_STREAM(p, NFC_PMID_LB_SENSB_INFO);
-    UINT8_TO_STREAM(p, 0);
-    UINT8_TO_STREAM(p, NFC_PMID_LB_NFCID0);
-    UINT8_TO_STREAM(p, 0);
-    UINT8_TO_STREAM(p, NFC_PMID_LB_APPDATA);
-    UINT8_TO_STREAM(p, 0);
-    UINT8_TO_STREAM(p, NFC_PMID_LB_ADC_FO);
-    UINT8_TO_STREAM(p, 0);
-    UINT8_TO_STREAM(p, NFC_PMID_LB_H_INFO);
-    UINT8_TO_STREAM(p, 0);
-  }
 
 #if (NXP_EXTNS == TRUE)
   /** SEL_INFO will be updated irrespective of UICC/eSE is selected or not
