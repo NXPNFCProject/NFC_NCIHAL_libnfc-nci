@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018 NXP
+ *  Copyright 2018-2019 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -2467,7 +2467,35 @@ void nfa_ee_nci_disc_rsp(tNFA_EE_MSG* p_data) {
       "em_state:%d cur_ee:%d num_ee_expecting:%d", nfa_ee_cb.em_state,
       nfa_ee_cb.cur_ee, nfa_ee_cb.num_ee_expecting);
 }
+#if (NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         nfa_ee_get_supported_tech_list
+**
+** Description      provides the supported technology list of given nfcee id
+**
+** Returns          uint8_t
+**
+*******************************************************************************/
+uint8_t nfa_ee_get_supported_tech_list(uint8_t nfcee_id) {
+  uint8_t tech_list = 0;
+  tNFA_EE_ECB* p_cb = NULL;
 
+  p_cb = nfa_ee_find_ecb(nfcee_id);
+  if (p_cb) {
+    if (p_cb->la_protocol) tech_list |= NFA_TECHNOLOGY_MASK_A;
+    if (p_cb->lb_protocol) tech_list |= NFA_TECHNOLOGY_MASK_B;
+    if (p_cb->lf_protocol) tech_list |= NFA_TECHNOLOGY_MASK_F;
+  } else {
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("Cannot find cb for given nfcee_id: 0x%x", nfcee_id);
+  }
+  DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("supported tech list is 0x0%x for given nfcee_id: 0x%x ",
+                   tech_list, nfcee_id);
+  return tech_list;
+}
+#endif
 /*******************************************************************************
 **
 ** Function         nfa_ee_nci_disc_ntf

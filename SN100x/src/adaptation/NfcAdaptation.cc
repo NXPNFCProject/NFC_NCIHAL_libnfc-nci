@@ -855,6 +855,12 @@ void NfcAdaptation::GetNxpConfigs(
   configMap.emplace(
       NAME_NXPLOG_NCIR_LOGLEVEL,
       ConfigValue(inpOutData.out.data.nxpConfigs.nxpLogNcirLogLevel));
+  configMap.emplace(
+      NAME_FORWARD_FUNCTIONALITY_ENABLE,
+      ConfigValue(inpOutData.out.data.nxpConfigs.fwdFunctionalityEnable));
+  configMap.emplace(
+      NAME_HOST_LISTEN_TECH_MASK,
+      ConfigValue(inpOutData.out.data.nxpConfigs.hostListenTechMask));
 }
 #endif
 /*******************************************************************************

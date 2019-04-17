@@ -87,7 +87,10 @@ static void nfa_dm_disc_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
                                    tNFC_CONN* p_data);
 static void nfa_dm_disc_kovio_timeout_cback(TIMER_LIST_ENT* p_tle);
 static void nfa_dm_disc_report_kovio_presence_check(tNFC_STATUS status);
-
+#if (NXP_EXTNS == TRUE)
+static tNFA_DM_DISC_TECH_PROTO_MASK nfa_dm_config_ee_discover_tech_mask(
+       uint8_t tech_list, tNFA_DM_DISC_TECH_PROTO_MASK dm_disc_mask);
+#endif
 static std::string nfa_dm_disc_state_2_str(uint8_t state);
 static std::string nfa_dm_disc_event_2_str(uint8_t event);
 
@@ -1001,6 +1004,10 @@ void nfa_dm_start_rf_discover(void) {
   uint8_t config_params[10], *p;
   uint8_t num_params, xx;
 
+#if (NXP_EXTNS == TRUE)
+  uint8_t tech_list = 0;
+#endif
+
   DLOG_IF(INFO, nfc_debug_enabled) << __func__;
   /* Make sure that RF discovery was enabled, or some app has exclusive control
    */
@@ -1141,7 +1148,12 @@ void nfa_dm_start_rf_discover(void) {
         dm_disc_mask |= nfa_dm_cb.disc_cb.entry[xx].selected_disc_mask;
       }
     }
-
+#if (NXP_EXTNS == TRUE)
+    {
+      tech_list = nfa_ee_get_supported_tech_list(nfa_dm_cb.selected_uicc_id);
+      dm_disc_mask = nfa_dm_config_ee_discover_tech_mask(tech_list, dm_disc_mask);
+    }
+#endif
     /* Let P2P set GEN bytes for LLCP to NFCC */
     if (dm_disc_mask & NFA_DM_DISC_MASK_NFC_DEP) {
       nfa_p2p_set_config(dm_disc_mask);
@@ -1217,7 +1229,45 @@ void nfa_dm_start_rf_discover(void) {
     nfa_dm_cb.disc_cb.activated_handle = NFA_HANDLE_INVALID;
   }
 }
+#if(NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         nfa_dm_config_ee_discover_tech_mask
+**
+** Description      Configured NFCEE Discover technology mask
+**
+** Returns          tNFA_DM_DISC_TECH_PROTO_MASK
+**
+*******************************************************************************/
+static tNFA_DM_DISC_TECH_PROTO_MASK nfa_dm_config_ee_discover_tech_mask(uint8_t
+                         tech_list, tNFA_DM_DISC_TECH_PROTO_MASK dm_disc_mask) {
+      unsigned long fwdEnable = false, hostEnable = false;
+      fwdEnable = NfcConfig::getUnsigned(NAME_FORWARD_FUNCTIONALITY_ENABLE, 0x01);
+      hostEnable = NfcConfig::getUnsigned(NAME_HOST_LISTEN_TECH_MASK, 0x07);
 
+      DLOG_IF(INFO, nfc_debug_enabled)
+       << StringPrintf("fwdEnable:%lu,hostEnable:%lu",fwdEnable,hostEnable);
+
+      DLOG_IF(INFO, nfc_debug_enabled)
+       << StringPrintf("tech_list:0x%x,dm_disc_mask:0x%x",tech_list,dm_disc_mask);
+
+      if ((fwdEnable == false) || (hostEnable == false)) {
+        if ((tech_list == NFA_TECHNOLOGY_MASK_B) ||
+            (tech_list == (NFA_TECHNOLOGY_MASK_B | NFA_TECHNOLOGY_MASK_F))) {
+          dm_disc_mask &=
+              ~(NFA_DM_DISC_MASK_LA_ISO_DEP | NFA_DM_DISC_MASK_LA_NFC_DEP);
+        } else if ((tech_list == NFA_TECHNOLOGY_MASK_A) ||
+               (tech_list == (NFA_TECHNOLOGY_MASK_A | NFA_TECHNOLOGY_MASK_F))){
+          dm_disc_mask &= ~(NFA_DM_DISC_MASK_LB_ISO_DEP);
+        }
+      }
+
+      DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("dm_disc_mask : 0x%x", dm_disc_mask);
+
+      return dm_disc_mask;
+}
+#endif
 /*******************************************************************************
 **
 ** Function         nfa_dm_notify_discovery

@@ -744,5 +744,6 @@ void nfa_ee_api_add_apdu(tNFA_EE_MSG* p_data);
 void nfa_ee_api_remove_apdu(tNFA_EE_MSG* p_data);
 uint16_t nfa_ee_api_get_max_aid_config_length();
 uint16_t nfa_ee_lmrt_size();
+uint8_t nfa_ee_get_supported_tech_list(uint8_t nfcee_id);
 #endif
 #endif /* NFA_P2P_INT_H */
