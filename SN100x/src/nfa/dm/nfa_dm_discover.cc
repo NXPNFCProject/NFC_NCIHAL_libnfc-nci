@@ -1758,9 +1758,13 @@ tNFC_STATUS nfa_dm_disc_start_kovio_presence_check(void) {
       nfa_sys_start_timer(&nfa_dm_cb.disc_cb.kovio_tle, 0,
                           NFA_DM_DISC_TIMEOUT_KOVIO_PRESENCE_CHECK);
 
+#if (NXP_EXTNS == TRUE)
+      /* Deactivate to discovery mode */
+      status = nfa_dm_send_deactivate_cmd(NFC_DEACTIVATE_TYPE_IDLE);
+#else
       /* Deactivate to discovery mode */
       status = nfa_dm_send_deactivate_cmd(NFC_DEACTIVATE_TYPE_DISCOVERY);
-
+#endif
       if (status == NFC_STATUS_OK) {
         /* deactivate to sleep is sent on behalf of sleep wakeup.
          * set the sleep wakeup information in control block */
