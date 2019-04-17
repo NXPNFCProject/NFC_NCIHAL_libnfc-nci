@@ -15,7 +15,25 @@
  *  limitations under the License.
  *
  ******************************************************************************/
-
+/******************************************************************************
+ *
+ *  The original Work has been changed by NXP.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  Copyright 2019 NXP
+ *
+ ******************************************************************************/
 /******************************************************************************
  *
  *  This file contains function of the NFC unit to receive/process NCI
@@ -460,15 +478,23 @@ void nci_proc_ee_management_ntf(NFC_HDR* p_msg) {
 #if (NXP_EXTNS == TRUE)
   if(op_code == NCI_MSG_NFCEE_MODE_SET)
   {
-    if(nfc_response.mode_set.nfcee_id == 0xC0 && nfc_response.mode_set.mode
-      && nfc_response.mode_set.status == 0x03)
+    if(nfc_response.mode_set.nfcee_id == 0xC0 && nfc_response.mode_set.mode)
     {
       LOG(ERROR) << StringPrintf("Mode set STATUS_FAILED:0x%x", op_code);
       event = NFC_NFCEE_STATUS_REVT;
-      nfc_response.nfcee_status.status = NCI_STATUS_OK;
-      nfc_response.nfcee_status.nfcee_id = nfa_ee_cb.nfcee_id;
-      nfc_response.nfcee_status.nfcee_status = NFC_NFCEE_STS_UNRECOVERABLE_ERROR;
-      if (p_cback) (*p_cback)(event, &nfc_response);
+      if(nfc_response.mode_set.status == 0x03) {
+        nfc_response.nfcee_status.status = NCI_STATUS_OK;
+        nfc_response.nfcee_status.nfcee_id = nfa_ee_cb.nfcee_id;
+        if(nfa_ee_cb.recovery_cnt < MAX_NFCEE_REMOVED_RECOVERY_CNT) {
+          nfc_response.nfcee_status.nfcee_status = NFC_NFCEE_STS_UNRECOVERABLE_ERROR;
+          if (p_cback) (*p_cback)(event, &nfc_response);
+          nfa_ee_cb.recovery_cnt++;
+        } else {
+          LOG(ERROR) << StringPrintf("Mode set STATUS_FAILED maximum retry reached:0x%x", nfa_ee_cb.recovery_cnt);
+        }
+      } else {
+          nfa_ee_cb.recovery_cnt = 0x00;
+      }
     }
   }
 #endif
