@@ -78,6 +78,12 @@ extern unsigned char appl_dta_mode_flag;
 extern bool nfc_debug_enabled;
 
 #if (NXP_EXTNS == TRUE)
+#define NCI_MSG_PROP_STAG_GET_RFSTATUS 0x39
+#define IS_PROCESS_ABORT(p, mt, gid, oid)                                          \
+        ((NCI_MT_RSP == mt && NCI_STATUS_SEMANTIC_ERROR == p[NCI_MSG_STATUS_BYTE]) \
+          && !(NCI_GID_CORE == gid && NCI_MSG_CORE_SET_POWER_SUB_STATE == oid)     \
+          && !(NCI_GID_RF_MANAGE == gid && NCI_MSG_RF_ISO_DEP_NAK_PRESENCE == oid) \
+          && !(NCI_GID_PROP == gid && NCI_MSG_PROP_STAG_GET_RFSTATUS == oid))
 // Global Structure varibale for FW Version
 static tNFC_FW_VERSION nfc_fw_version;
 uint8_t nfcc_dh_conn_id = 0xFF;
@@ -408,9 +414,7 @@ bool nfc_ncif_process_event(NFC_HDR* p_msg) {
   NCI_MSG_PRS_HDR0(pp, mt, pbf, gid);
   oid = ((*pp) & NCI_OID_MASK);
 #if (NXP_EXTNS == TRUE)
-  if ((NCI_MT_RSP == mt && NCI_STATUS_SEMANTIC_ERROR == p[NCI_MSG_STATUS_BYTE])
-          && !(NCI_GID_CORE == gid && NCI_MSG_CORE_SET_POWER_SUB_STATE == oid)
-          && !(NCI_GID_RF_MANAGE == gid && NCI_MSG_RF_ISO_DEP_NAK_PRESENCE == oid))
+  if (IS_PROCESS_ABORT(p,mt,gid,oid))
   {/* If we have received NCI_STATUS_SEMANTIC_ERROR, abort the process!!
     * EXCEPTION: CORE_SET_POWER_SUB_STATE_CMD & RF_ISO_DEP_NAK_PRESENCE_CMD */
     LOG(ERROR) <<StringPrintf("Received NCI_STATUS_SEMANTIC_ERROR\nAborting...");
