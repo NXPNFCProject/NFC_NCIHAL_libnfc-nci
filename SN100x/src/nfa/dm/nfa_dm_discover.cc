@@ -30,7 +30,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018 NXP
+ *  Copyright 2018-2019 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -1057,6 +1057,11 @@ void nfa_dm_start_rf_discover(void) {
           listen_mask |= (nfa_dm_cb.disc_cb.entry[xx].requested_disc_mask &
                           NFA_DM_DISC_MASK_LA_NFC_DEP);
           if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+#if (NXP_EXTNS == TRUE)
+            listen_mask |= (nfa_dm_cb.disc_cb.entry[xx].requested_disc_mask &
+                            NFA_DM_DISC_MASK_LA_NFC_DEP);
+#endif
+
             listen_mask |= (nfa_dm_cb.disc_cb.entry[xx].requested_disc_mask &
                             NFA_DM_DISC_MASK_LACM_NFC_DEP);
           } else {
