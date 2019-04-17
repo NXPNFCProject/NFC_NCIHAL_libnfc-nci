@@ -283,7 +283,9 @@ static void nfa_dm_nfc_response_cback(tNFC_RESPONSE_EVT event,
   tNFA_CONN_EVT_DATA conn_evt;
   uint8_t dm_cback_evt;
   uint8_t max_ee = 0;
-
+#if (NXP_EXTNS == TRUE)
+  tNFA_GET_ROUTING* p_nfa_get_routing;
+#endif
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("%s(0x%x)", nfa_dm_nfc_revt_2_str(event).c_str(), event);
 
@@ -377,6 +379,22 @@ static void nfa_dm_nfc_response_cback(tNFC_RESPONSE_EVT event,
       break;
 
     case NFC_GET_ROUTING_REVT: /* Retrieve Routing response */
+#if (NXP_EXTNS == TRUE)
+      if ((p_nfa_get_routing = (tNFA_GET_ROUTING*)GKI_getbuf(
+               (uint16_t)(sizeof(tNFA_GET_ROUTING)))) != NULL) {
+        p_nfa_get_routing->status = p_data->get_routing.status;
+        p_nfa_get_routing->num_tlvs = p_data->get_routing.num_tlvs;
+        p_nfa_get_routing->tlv_size = p_data->get_routing.tlv_size;
+        memcpy(p_nfa_get_routing->param_tlvs, p_data->get_routing.param_tlvs,
+               p_data->get_routing.tlv_size);
+        (*nfa_dm_cb.p_dm_cback)(NFA_DM_GET_ROUTE_CONFIG_REVT,
+                                (tNFA_DM_CBACK_DATA*)p_nfa_get_routing);
+        GKI_freebuf(p_nfa_get_routing);
+      } else {
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+            "nfa_dm_nfc_response_cback unable to allocate buffer");
+      }
+#endif
       break;
 #endif
 
@@ -443,7 +461,6 @@ static void nfa_dm_nfc_response_cback(tNFC_RESPONSE_EVT event,
       conn_evt.status = p_data->status;
       nfa_dm_conn_cback_event_notify(NFA_UPDATE_RF_PARAM_RESULT_EVT, &conn_evt);
       break;
-
     default:
       break;
   }

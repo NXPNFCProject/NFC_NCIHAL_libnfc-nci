@@ -15,7 +15,25 @@
  *  limitations under the License.
  *
  ******************************************************************************/
-
+/******************************************************************************
+ *
+ *  The original Work has been changed by NXP.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  Copyright 2018-2019 NXP
+ *
+ ******************************************************************************/
 /******************************************************************************
  *
  *  This file contains function of the NCI unit to format and send NCI
@@ -107,21 +125,46 @@ uint8_t nci_snd_core_init(uint8_t nci_version) {
 uint8_t nci_snd_core_get_config(uint8_t* param_ids, uint8_t num_ids) {
   NFC_HDR* p;
   uint8_t* pp;
-
+#if (NXP_EXTNS == TRUE)
+  uint8_t bytes;
+  uint8_t propConfigCnt;
+#endif
   p = NCI_GET_CMD_BUF(num_ids);
-  if (p == nullptr) return (NCI_STATUS_FAILED);
-
+  if (p == NULL) return (NCI_STATUS_FAILED);
+#if (NXP_EXTNS == TRUE)
+  uint32_t idx = 0;
+  uint8_t* params = param_ids;
+  propConfigCnt = 0;
+  for (idx = 0; idx < num_ids; idx++) {
+    if (*params == 0xA0) {
+      params++;
+      propConfigCnt++;
+    }
+    params++;
+  }
+  bytes = (num_ids - propConfigCnt) + (propConfigCnt << 1);
+#endif
   p->event = BT_EVT_TO_NFC_NCI;
+#if (NXP_EXTNS == TRUE)
+  p->len = NCI_MSG_HDR_SIZE + bytes + 1;
+#else
   p->len = NCI_MSG_HDR_SIZE + num_ids + 1;
+#endif
   p->offset = NCI_MSG_OFFSET_SIZE;
   p->layer_specific = 0;
   pp = (uint8_t*)(p + 1) + p->offset;
 
   NCI_MSG_BLD_HDR0(pp, NCI_MT_CMD, NCI_GID_CORE);
   NCI_MSG_BLD_HDR1(pp, NCI_MSG_CORE_GET_CONFIG);
+#if (NXP_EXTNS == TRUE)
+  UINT8_TO_STREAM(pp, (uint8_t)(bytes + 1));
+  UINT8_TO_STREAM(pp, num_ids);
+  ARRAY_TO_STREAM(pp, param_ids, bytes);
+#else
   UINT8_TO_STREAM(pp, (uint8_t)(num_ids + 1));
   UINT8_TO_STREAM(pp, num_ids);
   ARRAY_TO_STREAM(pp, param_ids, num_ids);
+#endif
 
   nfc_ncif_send_cmd(p);
   return (NCI_STATUS_OK);

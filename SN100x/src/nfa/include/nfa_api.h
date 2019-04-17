@@ -96,6 +96,8 @@
 #define NFA_STATUS_CONGESTED NFC_STATUS_CONGESTED
 #if (NXP_EXTNS == TRUE)
 #define NFA_STATUS_ALREADY_INITIALIZED NFC_STATUS_ALREADY_INITIALIZED
+/* More NFA_CE_GET_ROUTING_REVT to follow */
+#define NFA_STATUS_CONTINUE NFC_STATUS_CONTINUE
 /* API is called to perform illegal function */
 #define NFA_STATUS_REFUSED NFC_STATUS_REFUSED
 #define NFA_STATUS_HCI_WTX_TIMEOUT  0xE0
@@ -204,6 +206,8 @@ typedef uint8_t tNFA_PROTOCOL_MASK;
 #define NFA_DM_EE_HCI_ENABLE 25
 /*Status when Transit Config is set*/
 #define NFA_DM_SET_TRANSIT_CONFIG_EVT 14
+
+#define NFA_DM_GET_ROUTE_CONFIG_REVT 10
 #endif
 /* T1T HR length            */
 #define NFA_T1T_HR_LEN T1T_HR_LEN
@@ -257,6 +261,13 @@ typedef enum power_substate {
 
 #define NFA_SCREEN_STATE_MASK 0x0F
 #if (NXP_EXTNS == TRUE)
+/* Data for NFA_DM_GET_ROUTING_EVT */
+typedef struct {
+  tNFA_STATUS status;      /* NFA_STATUS_OK if successful              */
+  uint8_t num_tlvs;        /* number of TLVs                           */
+  uint8_t tlv_size;        /* the total len of all TLVs                */
+  uint8_t param_tlvs[256]; /* TLV (Parameter ID-Len-Value byte stream) */
+} tNFA_GET_ROUTING;
 typedef struct { tNFA_STATUS status; } tNFA_SET_TRANSIT_CONFIG;
 #endif
 /* CONN_DISCOVER_PARAM */
@@ -297,6 +308,7 @@ typedef union {
   void* p_vs_evt_data;                /* Vendor-specific evt data */
   tNFA_DM_POWER_STATE power_sub_state; /* power sub state */
 #if (NXP_EXTNS == TRUE)
+  tNFA_GET_ROUTING get_routing;               /* NFA_DM_GET_ROUTING_EVT    */
   tNFA_SET_TRANSIT_CONFIG set_transit_config; /* NFA_DM_SET_TRANSIT_CONFIG */
 #endif
 } tNFA_DM_CBACK_DATA;
