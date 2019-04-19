@@ -861,6 +861,9 @@ void NfcAdaptation::GetNxpConfigs(
   configMap.emplace(
       NAME_HOST_LISTEN_TECH_MASK,
       ConfigValue(inpOutData.out.data.nxpConfigs.hostListenTechMask));
+  configMap.emplace(
+      NAME_NXP_SE_APDU_GATE_SUPPORT,
+      ConfigValue(inpOutData.out.data.nxpConfigs.seApduGateEnabled));
 }
 #endif
 /*******************************************************************************

@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018 NXP
+ *  Copyright 2018-2019 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -2585,7 +2585,11 @@ static bool nfa_hci_set_apdu_pipe_ready_for_host (uint8_t host_id)
                     nfa_hci_cb.app_in_use = NFA_HCI_APP_HANDLE_NONE;
                     if(host_id == NFA_HCI_FIRST_PROP_HOST)
                     {
-                      nfa_hci_getApduAndConnectivity_PipeStatus();
+                      if(nfa_hci_cb.se_apdu_gate_support)
+                        nfa_hci_getApduAndConnectivity_PipeStatus();
+                      else {
+                        nfa_hci_startup_complete (NFA_STATUS_OK);
+                      }
                     }
                     else
                     {
