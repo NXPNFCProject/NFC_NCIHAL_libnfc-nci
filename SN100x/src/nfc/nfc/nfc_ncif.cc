@@ -79,12 +79,12 @@ extern unsigned char appl_dta_mode_flag;
 extern bool nfc_debug_enabled;
 
 #if (NXP_EXTNS == TRUE)
-#define NCI_MSG_PROP_STAG_GET_RFSTATUS 0x39
+#define NCI_MSG_GET_RFSTATUS 0x39
 #define IS_PROCESS_ABORT(p, mt, gid, oid)                                          \
         ((NCI_MT_RSP == mt && NCI_STATUS_SEMANTIC_ERROR == p[NCI_MSG_STATUS_BYTE]) \
           && !(NCI_GID_CORE == gid && NCI_MSG_CORE_SET_POWER_SUB_STATE == oid)     \
           && !(NCI_GID_RF_MANAGE == gid && NCI_MSG_RF_ISO_DEP_NAK_PRESENCE == oid) \
-          && !(NCI_GID_PROP == gid && NCI_MSG_PROP_STAG_GET_RFSTATUS == oid))
+          && !(NCI_GID_PROP == gid && NCI_MSG_GET_RFSTATUS == oid))
 // Global Structure varibale for FW Version
 static tNFC_FW_VERSION nfc_fw_version;
 uint8_t nfcc_dh_conn_id = 0xFF;
