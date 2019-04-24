@@ -81,10 +81,15 @@ enum {
                                 Table   */
   NFA_EE_SET_TECH_CFG_EVT,   /* The status for setting the routing based on RF
                                 tech.  */
-  NFA_EE_SET_PROTO_CFG_EVT,  /* The status for setting the routing based on
-                                protocols */
-  NFA_EE_UPDATED_EVT,        /* The status for NFA_EeUpdateNow */
-  NFA_EE_CONNECT_EVT,        /* Result of NFA_EeConnect */
+  NFA_EE_CLEAR_TECH_CFG_EVT, /* The status for clearing the routing based on RF
+                              tech.  */
+  NFA_EE_SET_PROTO_CFG_EVT,   /* The status for setting the routing based on
+                                 protocols */
+  NFA_EE_CLEAR_PROTO_CFG_EVT, /* The status for clearing the routing based on
+                               protocols */
+
+  NFA_EE_UPDATED_EVT, /* The status for NFA_EeUpdateNow */
+  NFA_EE_CONNECT_EVT, /* Result of NFA_EeConnect */
   NFA_EE_DATA_EVT, /* Received data from NFCEE.                             */
   NFA_EE_DISCONNECT_EVT, /* NFCEE connection closed. */
   NFA_EE_NEW_EE_EVT, /* A new NFCEE is discovered                             */
@@ -266,7 +271,9 @@ typedef union {
   tNFA_STATUS add_sc;
   tNFA_STATUS remove_sc;
   tNFA_STATUS set_tech;
+  tNFA_STATUS clear_tech;
   tNFA_STATUS set_proto;
+  tNFA_STATUS clear_proto;
   uint16_t size;
   tNFA_EE_CONNECT connect;
   tNFA_EE_ACTION action;
@@ -420,6 +427,54 @@ extern tNFA_STATUS NFA_EeSetDefaultTechRouting(
     tNFA_TECHNOLOGY_MASK technologies_screen_lock,
     tNFA_TECHNOLOGY_MASK technologies_screen_off,
     tNFA_TECHNOLOGY_MASK technologies_screen_off_lock);
+/*******************************************************************************
+**
+** Function         NFA_EeClearDefaultProtoRouting
+**
+** Description      This function is called remove the
+**                  default routing based on Protocol in the listen mode routing
+**                  table for the given ee_handle. The status of this
+**                  operation is reported as the NFA_EE_CLEAR_PROTO_CFG_EVT.
+**
+** Note:            If RF discovery is started,
+**                  NFA_StopRfDiscovery()/NFA_RF_DISCOVERY_STOPPED_EVT should
+**                  happen before calling this function
+**
+** Note:            NFA_EeUpdateNow() should be called after last NFA-EE
+**                  function to change the listen mode routing is called.
+**
+** Returns          NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_FAILED otherwise
+**                  NFA_STATUS_INVALID_PARAM If bad parameter
+**
+*******************************************************************************/
+extern tNFA_STATUS NFA_EeClearDefaultProtoRouting(
+    tNFA_HANDLE ee_handle, tNFA_PROTOCOL_MASK clear_protocol);
+
+
+/*******************************************************************************
+**
+** Function         NFA_EeClearDefaultTechRouting
+**
+** Description      This function is called to remove the
+**                  default routing based on RF technology in the listen mode
+**                  routing table for the given ee_handle. The status of this
+**                  operation is reported as the NFA_EE_CLEAR_TECH_CFG_EVT.
+**
+** Note:            If RF discovery is started,
+**                  NFA_StopRfDiscovery()/NFA_RF_DISCOVERY_STOPPED_EVT should
+**                  happen before calling this function
+**
+** Note:            NFA_EeUpdateNow() should be called after last NFA-EE
+**                  function to change the listen mode routing is called.
+**
+** Returns          NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_FAILED otherwise
+**                  NFA_STATUS_INVALID_PARAM If bad parameter
+**
+*******************************************************************************/
+extern tNFA_STATUS NFA_EeClearDefaultTechRouting(
+    tNFA_HANDLE ee_handle, tNFA_TECHNOLOGY_MASK clear_technology);
 
 /*******************************************************************************
 **

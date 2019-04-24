@@ -1443,6 +1443,54 @@ void nfa_ee_api_set_tech_cfg(tNFA_EE_MSG* p_data) {
 
 /*******************************************************************************
 **
+** Function         nfa_ee_api_clear_tech_cfg
+**
+** Description      process clear technology routing configuration from user
+**                  start a 1 second timer. When the timer expires,
+**                  the configuration collected in control block is sent to NFCC
+**
+** Returns          void
+**
+*******************************************************************************/
+void nfa_ee_api_clear_tech_cfg(tNFA_EE_MSG* p_data) {
+  tNFA_EE_ECB* p_cb = p_data->cfg_hdr.p_cb;
+  tNFA_EE_CBACK_DATA evt_data = {0};
+
+  tNFA_TECHNOLOGY_MASK old_tech_switch_on = p_cb->tech_switch_on;
+  tNFA_TECHNOLOGY_MASK old_tech_switch_off = p_cb->tech_switch_off;
+  tNFA_TECHNOLOGY_MASK old_tech_battery_off = p_cb->tech_battery_off;
+  tNFA_TECHNOLOGY_MASK old_tech_screen_lock = p_cb->tech_screen_lock;
+  tNFA_TECHNOLOGY_MASK old_tech_screen_off = p_cb->tech_screen_off;
+  tNFA_TECHNOLOGY_MASK old_tech_screen_off_lock = p_cb->tech_screen_off_lock;
+
+  p_cb->tech_switch_on &= ~p_data->clear_tech.technologies_switch_on;
+  p_cb->tech_switch_off &= ~p_data->clear_tech.technologies_switch_off;
+  p_cb->tech_battery_off &= ~p_data->clear_tech.technologies_battery_off;
+  p_cb->tech_screen_lock &= ~p_data->clear_tech.technologies_screen_lock;
+  p_cb->tech_screen_off &= ~p_data->clear_tech.technologies_screen_off;
+  p_cb->tech_screen_off_lock &=
+      ~p_data->clear_tech.technologies_screen_off_lock;
+
+  if ((p_cb->tech_switch_on == old_tech_switch_on) &&
+      (p_cb->tech_switch_off == old_tech_switch_off) &&
+      (p_cb->tech_battery_off == old_tech_battery_off) &&
+      (p_cb->tech_screen_lock == old_tech_screen_lock) &&
+      (p_cb->tech_screen_off == old_tech_screen_off) &&
+      (p_cb->tech_screen_off_lock == old_tech_screen_off_lock)) {
+    /* nothing to change */
+    evt_data.status = NFA_STATUS_OK;
+    nfa_ee_report_event(p_cb->p_ee_cback, NFA_EE_CLEAR_TECH_CFG_EVT, &evt_data);
+    return;
+  }
+  nfa_ee_update_route_size(p_cb);
+  p_cb->ecb_flags |= NFA_EE_ECB_FLAGS_TECH;
+
+  nfa_ee_start_timer();
+  nfa_ee_report_event(p_cb->p_ee_cback, NFA_EE_CLEAR_TECH_CFG_EVT, &evt_data);
+}
+
+/*******************************************************************************
+**
 ** Function         nfa_ee_api_set_proto_cfg
 **
 ** Description      process set protocol routing configuration from user
@@ -1502,6 +1550,54 @@ void nfa_ee_api_set_proto_cfg(tNFA_EE_MSG* p_data) {
     nfa_ee_start_timer();
   }
   nfa_ee_report_event(p_cb->p_ee_cback, NFA_EE_SET_PROTO_CFG_EVT, &evt_data);
+}
+
+/*******************************************************************************
+**
+** Function         nfa_ee_api_clear_proto_cfg
+**
+** Description      process clear protocol routing configuration from user
+**                  start a 1 second timer. When the timer expires,
+**                  the configuration collected in control block is sent to NFCC
+**
+** Returns          void
+**
+*******************************************************************************/
+void nfa_ee_api_clear_proto_cfg(tNFA_EE_MSG* p_data) {
+  tNFA_EE_ECB* p_cb = p_data->cfg_hdr.p_cb;
+  tNFA_EE_CBACK_DATA evt_data = {0};
+
+  tNFA_TECHNOLOGY_MASK old_proto_switch_on = p_cb->proto_switch_on;
+  tNFA_TECHNOLOGY_MASK old_proto_switch_off = p_cb->proto_switch_off;
+  tNFA_TECHNOLOGY_MASK old_proto_battery_off = p_cb->proto_battery_off;
+  tNFA_TECHNOLOGY_MASK old_proto_screen_lock = p_cb->proto_screen_lock;
+  tNFA_TECHNOLOGY_MASK old_proto_screen_off = p_cb->proto_screen_off;
+  tNFA_TECHNOLOGY_MASK old_proto_screen_off_lock = p_cb->proto_screen_off_lock;
+
+  p_cb->proto_switch_on &= ~p_data->clear_proto.protocols_switch_on;
+  p_cb->proto_switch_off &= ~p_data->clear_proto.protocols_switch_off;
+  p_cb->proto_battery_off &= ~p_data->clear_proto.protocols_battery_off;
+  p_cb->proto_screen_lock &= ~p_data->clear_proto.protocols_screen_lock;
+  p_cb->proto_screen_off &= ~p_data->clear_proto.protocols_screen_off;
+  p_cb->proto_screen_off_lock &= ~p_data->clear_proto.protocols_screen_off_lock;
+
+  if ((p_cb->proto_switch_on == old_proto_switch_on) &&
+      (p_cb->proto_switch_off == old_proto_switch_off) &&
+      (p_cb->proto_battery_off == old_proto_battery_off) &&
+      (p_cb->proto_screen_lock == old_proto_screen_lock) &&
+      (p_cb->proto_screen_off == old_proto_screen_off) &&
+      (p_cb->proto_screen_off_lock == old_proto_screen_off_lock)) {
+    /* nothing to change */
+    evt_data.status = NFA_STATUS_OK;
+    nfa_ee_report_event(p_cb->p_ee_cback, NFA_EE_CLEAR_PROTO_CFG_EVT,
+                        &evt_data);
+    return;
+  }
+  nfa_ee_update_route_size(p_cb);
+  p_cb->ecb_flags |= NFA_EE_ECB_FLAGS_PROTO;
+
+  nfa_ee_start_timer();
+  nfa_ee_report_event(p_cb->p_ee_cback, NFA_EE_CLEAR_PROTO_CFG_EVT, &evt_data);
 }
 
 /*******************************************************************************
