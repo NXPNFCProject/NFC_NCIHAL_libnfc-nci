@@ -864,6 +864,9 @@ void NfcAdaptation::GetNxpConfigs(
   configMap.emplace(
       NAME_NXP_SE_APDU_GATE_SUPPORT,
       ConfigValue(inpOutData.out.data.nxpConfigs.seApduGateEnabled));
+  configMap.emplace(
+      NAME_NXP_POLL_FOR_EFD_TIMEDELAY,
+      ConfigValue(inpOutData.out.data.nxpConfigs.pollEfdDelay));
 }
 #endif
 /*******************************************************************************

@@ -78,6 +78,7 @@ typedef struct {
   uint8_t nxpLogNcixLogLevel;
   uint8_t nxpLogNcirLogLevel;
   uint8_t seApduGateEnabled;
+  uint8_t pollEfdDelay;
 } nxp_nfc_config_t;
 #endif
 /*
