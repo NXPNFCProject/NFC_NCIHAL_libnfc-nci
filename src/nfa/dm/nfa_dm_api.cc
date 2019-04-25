@@ -1511,6 +1511,7 @@ void NFA_SetReaderMode(bool ReaderModeFlag, uint32_t Technologies) {
 void NFA_SetBootMode(uint8_t boot_mode) { hal_Initcntxt.boot_mode = boot_mode; }
 tNFA_MW_VERSION NFA_GetMwVersion() {
   tNFA_MW_VERSION mwVer;
+  mwVer.cust_id = NFC_NXP_MW_CUSTOMER_ID;
   mwVer.validation =
       (NXP_EN_PN547C2 | (NXP_EN_PN65T << 1) | (NXP_EN_PN548C2 << 2) |
        (NXP_EN_PN66T << 3) | (NXP_EN_PN551 << 4) | (NXP_EN_PN67T << 5) |

@@ -46,10 +46,6 @@ cc_library_shared {
         "nfa/include",
         "nfc/include",
     ],
-    include_dirs: [
-        "hardware/nxp/nfc/extns/impl/",
-        "hardware/nxp/secure_element/extns/impl/",
-    ],
     srcs: [
         "nfa/ce/*.cc",
         "nfa/dm/*.cc",
