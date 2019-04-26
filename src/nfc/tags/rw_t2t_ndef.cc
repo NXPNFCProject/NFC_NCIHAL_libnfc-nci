@@ -45,6 +45,7 @@
 
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
+#include <log/log.h>
 
 #include "nfc_target.h"
 
@@ -647,6 +648,10 @@ static void rw_t2t_handle_tlv_detect_rsp(uint8_t* p_data) {
 
                 /* Extract lockbytes info addressed by this Lock TLV */
                 xx = 0;
+                if (count > RW_T2T_MAX_LOCK_BYTES) {
+                  count = RW_T2T_MAX_LOCK_BYTES;
+                  android_errorWriteLog(0x534e4554, "112161557");
+                }
                 while (xx < count) {
                   p_t2t->lockbyte[p_t2t->num_lockbytes].tlv_index =
                       p_t2t->num_lock_tlvs;
