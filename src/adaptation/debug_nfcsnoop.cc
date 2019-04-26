@@ -134,6 +134,10 @@ void debug_nfcsnoop_init(void) {
 }
 
 void debug_nfcsnoop_dump(int fd) {
+  if (buffer == nullptr) {
+    dprintf(fd, "%s Nfcsnoop is not ready\n", __func__);
+    return;
+  }
   ringbuffer_t* ringbuffer = ringbuffer_init(NFCSNOOP_MEM_BUFFER_SIZE);
   if (ringbuffer == nullptr) {
     dprintf(fd, "%s Unable to allocate memory for compression", __func__);
