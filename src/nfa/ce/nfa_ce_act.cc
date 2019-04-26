@@ -1426,12 +1426,20 @@ bool nfa_ce_api_reg_listen(tNFA_CE_MSG* p_ce_msg) {
         (p_cb->listen_info[i].flags & NFA_CE_LISTEN_INFO_IN_USE) &&
         (p_cb->listen_info[i].flags & NFA_CE_LISTEN_INFO_UICC) &&
         (p_cb->listen_info[i].ee_handle == p_ce_msg->reg_listen.ee_handle)) {
-      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("UICC (0x%x) listening already specified",
-                       p_ce_msg->reg_listen.ee_handle);
-      conn_evt.status = NFA_STATUS_FAILED;
-      nfa_dm_conn_cback_event_notify(NFA_CE_UICC_LISTEN_CONFIGURED_EVT,
-                                     &conn_evt);
-      return true;
+      if(p_cb->listen_info[i].tech_mask == p_ce_msg->reg_listen.tech_mask) {
+        LOG(ERROR) << StringPrintf("UICC (0x%x) listening already specified",
+                         p_ce_msg->reg_listen.ee_handle);
+        conn_evt.status = NFA_STATUS_FAILED;
+        nfa_dm_conn_cback_event_notify(NFA_CE_UICC_LISTEN_CONFIGURED_EVT,
+                                       &conn_evt);
+        return true;
+      } else {
+        DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("UICC (0x%x) listening parameter changed to %x",
+                                 p_ce_msg->reg_listen.ee_handle, p_ce_msg->reg_listen.tech_mask);
+        listen_info_idx = i;
+        break;
+      }
     }
 #if (NXP_EXTNS == TRUE)
     else if ((p_ce_msg->reg_listen.listen_type == NFA_CE_REG_TYPE_ESE) &&
