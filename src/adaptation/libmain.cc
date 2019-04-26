@@ -88,7 +88,7 @@ extern void nfa_nv_co_read(uint8_t* pBuffer, uint16_t nbytes, uint8_t block) {
       "%s: buffer len=%u; file=%s", __func__, nbytes, filename.c_str());
   int fileStream = open(filename.c_str(), O_RDONLY);
   if (fileStream >= 0) {
-    unsigned short checksum = 0;
+    uint16_t checksum = 0;
     int status = read(fileStream, &checksum, sizeof(checksum));
     if (!status) {
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: fail to read checksum", __func__);
@@ -136,7 +136,7 @@ extern void nfa_nv_co_write(const uint8_t* pBuffer, uint16_t nbytes,
   int fileStream =
       open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
   if (fileStream >= 0) {
-    unsigned short checksum = crcChecksumCompute(pBuffer, nbytes);
+    uint16_t checksum = crcChecksumCompute(pBuffer, nbytes);
     size_t actualWrittenCrc = write(fileStream, &checksum, sizeof(checksum));
     size_t actualWrittenData = write(fileStream, pBuffer, nbytes);
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: %zu bytes written", __func__, actualWrittenData);
