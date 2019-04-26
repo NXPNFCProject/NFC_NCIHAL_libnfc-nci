@@ -405,7 +405,7 @@ void nci_proc_ee_management_rsp(NFC_HDR* p_msg) {
         event               = NFC_NFCEE_PL_CONTROL_REVT;
         break;
     default:
-      p_cback = NULL;
+      p_cback = nullptr;
       LOG(ERROR) << StringPrintf("unknown opcode:0x%x", op_code);
       break;
   }
@@ -528,7 +528,7 @@ void nci_proc_ee_management_ntf(NFC_HDR* p_msg) {
       nfc_response.nfcee_status.nfcee_status = *pp;
      }
   else {
-    p_cback = NULL;
+    p_cback = nullptr;
     LOG(ERROR) << StringPrintf("unknown opcode:0x%x", op_code);
   }
 
@@ -587,7 +587,7 @@ void nci_proc_prop_raw_vs_rsp(NFC_HDR* p_msg) {
    * callback function */
   if (p_cback) {
     (*p_cback)((tNFC_VS_EVT)(NCI_RSP_BIT | op_code), p_msg->len, p_evt);
-    nfc_cb.p_vsc_cback = NULL;
+    nfc_cb.p_vsc_cback = nullptr;
   }
   nfc_cb.rawVsCbflag = false;
   nfc_ncif_update_window();

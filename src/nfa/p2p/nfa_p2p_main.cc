@@ -80,8 +80,8 @@ static std::string nfa_p2p_evt_code(uint16_t evt_code);
 /* timeout to restore active listen mode if no RF activation on passive mode */
 #define NFA_P2P_RESTORE_ACTIVE_LISTEN_TIMEOUT 5000
 
-static const tNFA_SYS_REG nfa_p2p_sys_reg = {NULL, nfa_p2p_evt_hdlr,
-                                             nfa_p2p_sys_disable, NULL};
+static const tNFA_SYS_REG nfa_p2p_sys_reg = {nullptr, nfa_p2p_evt_hdlr,
+                                             nfa_p2p_sys_disable, nullptr};
 
 #define NFA_P2P_NUM_ACTIONS (NFA_P2P_LAST_EVT & 0x00ff)
 
@@ -279,7 +279,7 @@ static void nfa_p2p_update_active_listen(void) {
 
   /* restart RF discovery to update RF technologies */
   p_msg = (NFC_HDR*)GKI_getbuf(sizeof(NFC_HDR));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     p_msg->event = NFA_P2P_INT_RESTART_RF_DISC_EVT;
     nfa_sys_sendmsg(p_msg);
   }
@@ -308,7 +308,7 @@ void nfa_p2p_llcp_link_cback(uint8_t event, uint8_t reason) {
 
     if (nfa_p2p_cb.is_initiator) {
       /* notify NFA DM to send Activate Event to applicaiton with status  */
-      nfa_dm_notify_activation_status(NFA_STATUS_OK, NULL);
+      nfa_dm_notify_activation_status(NFA_STATUS_OK, nullptr);
     }
 
     llcp_activated.is_initiator = nfa_p2p_cb.is_initiator;
@@ -327,12 +327,12 @@ void nfa_p2p_llcp_link_cback(uint8_t event, uint8_t reason) {
 
     if (nfa_p2p_cb.is_initiator) {
       /* notify NFA DM to send Activate Event to applicaiton with status  */
-      nfa_dm_notify_activation_status(NFA_STATUS_FAILED, NULL);
+      nfa_dm_notify_activation_status(NFA_STATUS_FAILED, nullptr);
     }
 
     nfa_dm_rf_deactivate(NFA_DEACTIVATE_TYPE_DISCOVERY);
   } else if (event == LLCP_LINK_FIRST_PACKET_RECEIVED_EVT) {
-    nfa_dm_act_conn_cback_notify(NFA_LLCP_FIRST_PACKET_RECEIVED_EVT, NULL);
+    nfa_dm_act_conn_cback_notify(NFA_LLCP_FIRST_PACKET_RECEIVED_EVT, nullptr);
   } else /* LLCP_LINK_DEACTIVATED_EVT       */
   {
     nfa_p2p_cb.llcp_state = NFA_P2P_LLCP_STATE_IDLE;

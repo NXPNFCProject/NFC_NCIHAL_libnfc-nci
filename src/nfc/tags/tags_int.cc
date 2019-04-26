@@ -109,7 +109,7 @@ static unsigned int tags_ones32(unsigned int x);
 **
 *******************************************************************************/
 const tT1T_CMD_RSP_INFO* t1t_cmd_to_rsp_info(uint8_t opcode) {
-  const tT1T_CMD_RSP_INFO* p_ret = NULL, *p;
+  const tT1T_CMD_RSP_INFO* p_ret = nullptr, *p;
   int xx;
 
   for (xx = 0, p = &t1t_cmd_rsp_infos[0]; xx < T1T_MAX_NUM_OPCODES; xx++, p++) {
@@ -133,7 +133,7 @@ const tT1T_CMD_RSP_INFO* t1t_cmd_to_rsp_info(uint8_t opcode) {
 **
 *******************************************************************************/
 const tT1T_INIT_TAG* t1t_tag_init_data(uint8_t tag_model) {
-  const tT1T_INIT_TAG* p_ret = NULL, *p;
+  const tT1T_INIT_TAG* p_ret = nullptr, *p;
   int xx;
 
   for (xx = 0, p = &t1t_init_content[0]; xx < T1T_MAX_TAG_MODELS; xx++, p++) {
@@ -158,7 +158,7 @@ const tT1T_INIT_TAG* t1t_tag_init_data(uint8_t tag_model) {
 *******************************************************************************/
 const tT2T_INIT_TAG* t2t_tag_init_data(uint8_t manufacturer_id,
                                        bool b_valid_ver, uint16_t version_no) {
-  const tT2T_INIT_TAG* p_ret = NULL, *p;
+  const tT2T_INIT_TAG* p_ret = nullptr, *p;
   int xx;
 
   for (xx = 0, p = &t2t_init_content[0]; xx < T2T_MAX_TAG_MODELS; xx++, p++) {
@@ -184,7 +184,7 @@ const tT2T_INIT_TAG* t2t_tag_init_data(uint8_t manufacturer_id,
 **
 *******************************************************************************/
 const tT2T_CMD_RSP_INFO* t2t_cmd_to_rsp_info(uint8_t opcode) {
-  const tT2T_CMD_RSP_INFO* p_ret = NULL, *p;
+  const tT2T_CMD_RSP_INFO* p_ret = nullptr, *p;
   int xx;
 
   for (xx = 0, p = &t2t_cmd_rsp_infos[0]; xx < T2T_MAX_NUM_OPCODES; xx++, p++) {

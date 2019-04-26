@@ -77,12 +77,12 @@ tNFA_STATUS NFA_HciRegister(char* p_app_name, tNFA_HCI_CBACK* p_cback,
   tNFA_HCI_API_REGISTER_APP* p_msg;
   uint8_t app_name_len;
 
-  if (p_app_name == NULL) {
+  if (p_app_name == nullptr) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(" %s: NFAInvalid Application name",__func__);
     return (NFA_STATUS_FAILED);
   }
 
-  if (p_cback == NULL) {
+  if (p_cback == nullptr) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: Application should provide callback function to register!",__func__);
     return (NFA_STATUS_FAILED);
   }
@@ -93,9 +93,9 @@ tNFA_STATUS NFA_HciRegister(char* p_app_name, tNFA_HCI_CBACK* p_cback,
 
   /* Register the application with HCI */
   if ((nfa_hci_cb.hci_state != NFA_HCI_STATE_DISABLED) &&
-      (p_app_name != NULL) && (app_name_len <= NFA_MAX_HCI_APP_NAME_LEN) &&
+      (p_app_name != nullptr) && (app_name_len <= NFA_MAX_HCI_APP_NAME_LEN) &&
       ((p_msg = (tNFA_HCI_API_REGISTER_APP*)GKI_getbuf(
-            sizeof(tNFA_HCI_API_REGISTER_APP))) != NULL)) {
+            sizeof(tNFA_HCI_API_REGISTER_APP))) != nullptr)) {
     p_msg->hdr.event = NFA_HCI_API_REGISTER_APP_EVT;
 
     /* Save application name and callback */
@@ -141,7 +141,7 @@ tNFA_STATUS NFA_HciGetGateAndPipeList(tNFA_HANDLE hci_handle) {
   /* Register the application with HCI */
   if ((nfa_hci_cb.hci_state != NFA_HCI_STATE_DISABLED) &&
       ((p_msg = (tNFA_HCI_API_GET_APP_GATE_PIPE*)GKI_getbuf(
-            sizeof(tNFA_HCI_API_GET_APP_GATE_PIPE))) != NULL)) {
+            sizeof(tNFA_HCI_API_GET_APP_GATE_PIPE))) != nullptr)) {
     p_msg->hdr.event = NFA_HCI_API_GET_APP_GATE_PIPE_EVT;
     p_msg->hci_handle = hci_handle;
 
@@ -173,7 +173,7 @@ tNFA_STATUS NFA_HciDeregister(char* p_app_name) {
   int xx;
   uint8_t app_name_len;
 
-  if (p_app_name == NULL) {
+  if (p_app_name == nullptr) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: Invalid Application",__func__);
     return (NFA_STATUS_FAILED);
   }
@@ -200,7 +200,7 @@ tNFA_STATUS NFA_HciDeregister(char* p_app_name) {
   /* Deregister the application with HCI */
   if ((nfa_hci_cb.hci_state != NFA_HCI_STATE_DISABLED) &&
       ((p_msg = (tNFA_HCI_API_DEREGISTER_APP*)GKI_getbuf(
-            sizeof(tNFA_HCI_API_DEREGISTER_APP))) != NULL)) {
+            sizeof(tNFA_HCI_API_DEREGISTER_APP))) != nullptr)) {
     p_msg->hdr.event = NFA_HCI_API_DEREGISTER_APP_EVT;
 
     memset(p_msg->app_name, 0, sizeof(p_msg->app_name));
@@ -252,7 +252,7 @@ tNFA_STATUS NFA_HciAllocGate(tNFA_HANDLE hci_handle, uint8_t gate) {
   /* Request HCI to allocate gate to the application */
   if ((nfa_hci_cb.hci_state != NFA_HCI_STATE_DISABLED) &&
       ((p_msg = (tNFA_HCI_API_ALLOC_GATE*)GKI_getbuf(
-            sizeof(tNFA_HCI_API_ALLOC_GATE))) != NULL)) {
+            sizeof(tNFA_HCI_API_ALLOC_GATE))) != nullptr)) {
     p_msg->hdr.event = NFA_HCI_API_ALLOC_GATE_EVT;
     p_msg->hci_handle = hci_handle;
     p_msg->gate = gate;
@@ -299,7 +299,7 @@ tNFA_STATUS NFA_HciDeallocGate(tNFA_HANDLE hci_handle, uint8_t gate) {
    * application */
   if ((nfa_hci_cb.hci_state != NFA_HCI_STATE_DISABLED) &&
       ((p_msg = (tNFA_HCI_API_DEALLOC_GATE*)GKI_getbuf(
-            sizeof(tNFA_HCI_API_DEALLOC_GATE))) != NULL)) {
+            sizeof(tNFA_HCI_API_DEALLOC_GATE))) != nullptr)) {
     p_msg->hdr.event = NFA_HCI_API_DEALLOC_GATE_EVT;
     p_msg->hci_handle = hci_handle;
     p_msg->gate = gate;
@@ -337,7 +337,7 @@ tNFA_STATUS NFA_HciGetHostList(tNFA_HANDLE hci_handle) {
   /* Request HCI to get list of host in the hci network */
   if ((nfa_hci_cb.hci_state != NFA_HCI_STATE_DISABLED) &&
       ((p_msg = (tNFA_HCI_API_GET_HOST_LIST*)GKI_getbuf(
-            sizeof(tNFA_HCI_API_GET_HOST_LIST))) != NULL)) {
+            sizeof(tNFA_HCI_API_GET_HOST_LIST))) != nullptr)) {
     p_msg->hdr.event = NFA_HCI_API_GET_HOST_LIST_EVT;
     p_msg->hci_handle = hci_handle;
 
@@ -412,7 +412,7 @@ tNFA_STATUS NFA_HciCreatePipe(tNFA_HANDLE hci_handle, uint8_t source_gate_id,
   if ((nfa_hci_cb.hci_state != NFA_HCI_STATE_DISABLED) &&
       (!nfa_hci_cb.b_low_power_mode) &&
       ((p_msg = (tNFA_HCI_API_CREATE_PIPE_EVT*)GKI_getbuf(
-            sizeof(tNFA_HCI_API_CREATE_PIPE_EVT))) != NULL)) {
+            sizeof(tNFA_HCI_API_CREATE_PIPE_EVT))) != nullptr)) {
     p_msg->hdr.event = NFA_HCI_API_CREATE_PIPE_EVT;
     p_msg->hci_handle = hci_handle;
     p_msg->source_gate = source_gate_id;
@@ -459,7 +459,7 @@ tNFA_STATUS NFA_HciOpenPipe(tNFA_HANDLE hci_handle, uint8_t pipe) {
   if ((nfa_hci_cb.hci_state != NFA_HCI_STATE_DISABLED) &&
       (!nfa_hci_cb.b_low_power_mode) &&
       ((p_msg = (tNFA_HCI_API_OPEN_PIPE_EVT*)GKI_getbuf(
-            sizeof(tNFA_HCI_API_OPEN_PIPE_EVT))) != NULL)) {
+            sizeof(tNFA_HCI_API_OPEN_PIPE_EVT))) != nullptr)) {
     p_msg->hdr.event = NFA_HCI_API_OPEN_PIPE_EVT;
     p_msg->hci_handle = hci_handle;
     p_msg->pipe = pipe; /* Pipe ID of the pipe to open */
@@ -507,7 +507,7 @@ tNFA_STATUS NFA_HciGetRegistry(tNFA_HANDLE hci_handle, uint8_t pipe,
   /* Request HCI to get list of gates supported by the specified host */
   if ((nfa_hci_cb.hci_state != NFA_HCI_STATE_DISABLED) &&
       ((p_msg = (tNFA_HCI_API_GET_REGISTRY*)GKI_getbuf(
-            sizeof(tNFA_HCI_API_GET_REGISTRY))) != NULL)) {
+            sizeof(tNFA_HCI_API_GET_REGISTRY))) != nullptr)) {
     p_msg->hdr.event = NFA_HCI_API_GET_REGISTRY_EVT;
     p_msg->hci_handle = hci_handle;
     p_msg->pipe = pipe;
@@ -552,7 +552,7 @@ extern tNFA_STATUS NFA_HciSetRegistry(tNFA_HANDLE hci_handle, uint8_t pipe,
     return (NFA_STATUS_FAILED);
   }
 
-  if ((data_size == 0) || (p_data == NULL) ||
+  if ((data_size == 0) || (p_data == nullptr) ||
       (data_size > NFA_MAX_HCI_CMD_LEN)) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_HciSetRegistry (): Invalid data size:0x%02x",
                    data_size);
@@ -565,7 +565,7 @@ extern tNFA_STATUS NFA_HciSetRegistry(tNFA_HANDLE hci_handle, uint8_t pipe,
   /* Request HCI to get list of gates supported by the specified host */
   if ((nfa_hci_cb.hci_state != NFA_HCI_STATE_DISABLED) &&
       ((p_msg = (tNFA_HCI_API_SET_REGISTRY*)GKI_getbuf(
-            sizeof(tNFA_HCI_API_SET_REGISTRY))) != NULL)) {
+            sizeof(tNFA_HCI_API_SET_REGISTRY))) != nullptr)) {
     p_msg->hdr.event = NFA_HCI_API_SET_REGISTRY_EVT;
     p_msg->hci_handle = hci_handle;
     p_msg->pipe = pipe;
@@ -611,7 +611,7 @@ tNFA_STATUS NFA_HciSendCommand(tNFA_HANDLE hci_handle, uint8_t pipe,
     return (NFA_STATUS_FAILED);
   }
 
-  if ((cmd_size && (p_data == NULL)) || (cmd_size > NFA_MAX_HCI_CMD_LEN)) {
+  if ((cmd_size && (p_data == nullptr)) || (cmd_size > NFA_MAX_HCI_CMD_LEN)) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_HciSendCommand (): Invalid cmd size:0x%02x", cmd_size);
     return (NFA_STATUS_FAILED);
   }
@@ -623,7 +623,7 @@ tNFA_STATUS NFA_HciSendCommand(tNFA_HANDLE hci_handle, uint8_t pipe,
   /* Request HCI to post event data on a particular pipe */
   if ((nfa_hci_cb.hci_state != NFA_HCI_STATE_DISABLED) &&
       ((p_msg = (tNFA_HCI_API_SEND_CMD_EVT*)GKI_getbuf(
-            sizeof(tNFA_HCI_API_SEND_CMD_EVT))) != NULL)) {
+            sizeof(tNFA_HCI_API_SEND_CMD_EVT))) != nullptr)) {
     p_msg->hdr.event = NFA_HCI_API_SEND_CMD_EVT;
     p_msg->hci_handle = hci_handle;
     p_msg->pipe = pipe;
@@ -697,12 +697,12 @@ tNFA_STATUS NFA_HciSendEvent(tNFA_HANDLE hci_handle, uint8_t pipe,
     return (NFA_STATUS_FAILED);
   }
 
-  if (evt_size && (p_data == NULL)) {
+  if (evt_size && (p_data == nullptr)) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_HciSendEvent (): Invalid Event size:0x%02x", evt_size);
     return (NFA_STATUS_FAILED);
   }
 
-  if (rsp_size && (p_rsp_buf == NULL)) {
+  if (rsp_size && (p_rsp_buf == nullptr)) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
         "NFA_HciSendEvent (): No Event buffer, but invalid event buffer size "
         ":%u",
@@ -713,7 +713,7 @@ tNFA_STATUS NFA_HciSendEvent(tNFA_HANDLE hci_handle, uint8_t pipe,
   /* Request HCI to post event data on a particular pipe */
   if ((nfa_hci_cb.hci_state != NFA_HCI_STATE_DISABLED) &&
       ((p_msg = (tNFA_HCI_API_SEND_EVENT_EVT*)GKI_getbuf(
-            sizeof(tNFA_HCI_API_SEND_EVENT_EVT))) != NULL)) {
+            sizeof(tNFA_HCI_API_SEND_EVENT_EVT))) != nullptr)) {
     p_msg->hdr.event = NFA_HCI_API_SEND_EVENT_EVT;
     p_msg->hci_handle = hci_handle;
     p_msg->pipe = pipe;
@@ -766,7 +766,7 @@ tNFA_STATUS NFA_HciClosePipe(tNFA_HANDLE hci_handle, uint8_t pipe) {
   if ((nfa_hci_cb.hci_state != NFA_HCI_STATE_DISABLED) &&
       (!nfa_hci_cb.b_low_power_mode) &&
       ((p_msg = (tNFA_HCI_API_CLOSE_PIPE_EVT*)GKI_getbuf(
-            sizeof(tNFA_HCI_API_CLOSE_PIPE_EVT))) != NULL)) {
+            sizeof(tNFA_HCI_API_CLOSE_PIPE_EVT))) != nullptr)) {
     p_msg->hdr.event = NFA_HCI_API_CLOSE_PIPE_EVT;
     p_msg->hci_handle = hci_handle;
     p_msg->pipe = pipe;
@@ -816,7 +816,7 @@ tNFA_STATUS NFA_HciDeletePipe(tNFA_HANDLE hci_handle, uint8_t pipe) {
   if ((nfa_hci_cb.hci_state != NFA_HCI_STATE_DISABLED) &&
       (!nfa_hci_cb.b_low_power_mode) &&
       ((p_msg = (tNFA_HCI_API_DELETE_PIPE_EVT*)GKI_getbuf(
-            sizeof(tNFA_HCI_API_DELETE_PIPE_EVT))) != NULL)) {
+            sizeof(tNFA_HCI_API_DELETE_PIPE_EVT))) != nullptr)) {
     p_msg->hdr.event = NFA_HCI_API_DELETE_PIPE_EVT;
     p_msg->hci_handle = hci_handle;
     p_msg->pipe = pipe;
@@ -881,7 +881,7 @@ tNFA_STATUS NFA_HciAddStaticPipe(tNFA_HANDLE hci_handle, uint8_t host,
    * handle */
   if ((nfa_hci_cb.hci_state != NFA_HCI_STATE_DISABLED) &&
       ((p_msg = (tNFA_HCI_API_ADD_STATIC_PIPE_EVT*)GKI_getbuf(
-            sizeof(tNFA_HCI_API_ADD_STATIC_PIPE_EVT))) != NULL)) {
+            sizeof(tNFA_HCI_API_ADD_STATIC_PIPE_EVT))) != nullptr)) {
     p_msg->hdr.event = NFA_HCI_API_ADD_STATIC_PIPE_EVT;
     p_msg->hci_handle = hci_handle;
     p_msg->host = host;
@@ -943,7 +943,7 @@ void NFA_HciDebug(uint8_t action, uint8_t size, uint8_t* p_data) {
 
     case NFA_HCI_DEBUG_SIM_HCI_EVENT:
       p_msg = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID);
-      if (p_msg != NULL) {
+      if (p_msg != nullptr) {
         p = (uint8_t*)(p_msg + 1);
 
         p_msg->event = NFA_HCI_CHECK_QUEUE_EVT;
@@ -1044,7 +1044,7 @@ tNFA_STATUS NFA_HciConfigureNfceeETSI12() {
   if ((nfa_hci_cb.hci_state != NFA_HCI_STATE_DISABLED) &&
       (nfa_hci_cb.host_count != 0) &&
       ((p_msg = (tNFA_HCI_API_CONFIGURE_EVT*)GKI_getbuf(
-            sizeof(tNFA_HCI_API_CONFIGURE_EVT))) != NULL)) {
+            sizeof(tNFA_HCI_API_CONFIGURE_EVT))) != nullptr)) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_HciConfigureNfceeETSI12 (): Entry HCI state - %d",
                    nfa_hci_cb.hci_state);
     p_msg->hdr.event = NFA_HCI_API_CONFIGURE_EVT;

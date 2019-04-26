@@ -79,10 +79,10 @@ void gki_timers_init(void) {
   }
 
   for (tt = 0; tt < GKI_MAX_TIMER_QUEUES; tt++) {
-    gki_cb.com.timer_queues[tt] = NULL;
+    gki_cb.com.timer_queues[tt] = nullptr;
   }
 
-  gki_cb.com.p_tick_cb = NULL;
+  gki_cb.com.p_tick_cb = nullptr;
   gki_cb.com.system_tick_running = false;
 
   return;
@@ -594,8 +594,8 @@ void GKI_timer_queue_register_callback(SYSTEM_TICK_CBACK* p_callback) {
 **
 *******************************************************************************/
 void GKI_init_timer_list(TIMER_LIST_Q* p_timer_listq) {
-  p_timer_listq->p_first = NULL;
-  p_timer_listq->p_last = NULL;
+  p_timer_listq->p_first = nullptr;
+  p_timer_listq->p_last = nullptr;
   p_timer_listq->last_ticks = 0;
 
   return;
@@ -615,8 +615,8 @@ void GKI_init_timer_list(TIMER_LIST_Q* p_timer_listq) {
 **
 *******************************************************************************/
 void GKI_init_timer_list_entry(TIMER_LIST_ENT* p_tle) {
-  p_tle->p_next = NULL;
-  p_tle->p_prev = NULL;
+  p_tle->p_next = nullptr;
+  p_tle->p_prev = nullptr;
   p_tle->ticks = GKI_UNUSED_LIST_ENTRY;
   p_tle->in_use = false;
 }
@@ -662,7 +662,7 @@ uint16_t GKI_update_timer_list(TIMER_LIST_Q* p_timer_listq,
   rem_ticks = num_units_since_last_update;
 
   /* Now, adjust remaining timer entries */
-  while ((p_tle != NULL) && (rem_ticks > 0)) {
+  while ((p_tle != nullptr) && (rem_ticks > 0)) {
     temp_ticks = p_tle->ticks;
     p_tle->ticks -= rem_ticks;
 
@@ -722,7 +722,7 @@ uint32_t GKI_get_remaining_ticks(TIMER_LIST_Q* p_timer_listq,
     }
 
     /* if found target entry */
-    if ((p_tle != NULL) && (p_tle == p_target_tle)) {
+    if ((p_tle != nullptr) && (p_tle == p_target_tle)) {
       rem_ticks += p_tle->ticks;
     } else {
       LOG(ERROR) << StringPrintf(
@@ -759,7 +759,7 @@ void GKI_add_to_timer_list(TIMER_LIST_Q* p_timer_listq, TIMER_LIST_ENT* p_tle) {
   uint32_t nr_ticks_total;
   uint8_t tt;
   TIMER_LIST_ENT* p_temp;
-  if (p_tle == NULL || p_timer_listq == NULL) {
+  if (p_tle == nullptr || p_timer_listq == nullptr) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
         "%s: invalid argument %p, %p****************************<<", __func__,
         p_timer_listq, p_tle);
@@ -771,17 +771,17 @@ void GKI_add_to_timer_list(TIMER_LIST_Q* p_timer_listq, TIMER_LIST_ENT* p_tle) {
     /* If this entry is the last in the list */
     if (p_tle->ticks >= p_timer_listq->last_ticks) {
       /* If this entry is the only entry in the list */
-      if (p_timer_listq->p_first == NULL)
+      if (p_timer_listq->p_first == nullptr)
         p_timer_listq->p_first = p_tle;
       else {
         /* Insert the entry onto the end of the list */
-        if (p_timer_listq->p_last != NULL)
+        if (p_timer_listq->p_last != nullptr)
           p_timer_listq->p_last->p_next = p_tle;
 
         p_tle->p_prev = p_timer_listq->p_last;
       }
 
-      p_tle->p_next = NULL;
+      p_tle->p_next = nullptr;
       p_timer_listq->p_last = p_tle;
       nr_ticks_total = p_tle->ticks;
       p_tle->ticks -= p_timer_listq->last_ticks;
@@ -820,7 +820,7 @@ void GKI_add_to_timer_list(TIMER_LIST_Q* p_timer_listq, TIMER_LIST_ENT* p_tle) {
     }
     /* add this timer queue to the array */
     for (tt = 0; tt < GKI_MAX_TIMER_QUEUES; tt++) {
-      if (gki_cb.com.timer_queues[tt] == NULL) break;
+      if (gki_cb.com.timer_queues[tt] == nullptr) break;
     }
     if (tt < GKI_MAX_TIMER_QUEUES) {
       gki_cb.com.timer_queues[tt] = p_timer_listq;
@@ -849,15 +849,15 @@ void GKI_remove_from_timer_list(TIMER_LIST_Q* p_timer_listq,
   uint8_t tt;
 
   /* Verify that the entry is valid */
-  if (p_tle == NULL || p_tle->in_use == false ||
-      p_timer_listq->p_first == NULL) {
+  if (p_tle == nullptr || p_tle->in_use == false ||
+      p_timer_listq->p_first == nullptr) {
     return;
   }
 
   /* Add the ticks remaining in this timer (if any) to the next guy in the list.
   ** Note: Expired timers have a tick value of '0'.
   */
-  if (p_tle->p_next != NULL) {
+  if (p_tle->p_next != nullptr) {
     p_tle->p_next->ticks += p_tle->ticks;
   } else {
     p_timer_listq->last_ticks -= p_tle->ticks;
@@ -868,23 +868,23 @@ void GKI_remove_from_timer_list(TIMER_LIST_Q* p_timer_listq,
   if (p_timer_listq->p_first == p_tle) {
     p_timer_listq->p_first = p_tle->p_next;
 
-    if (p_timer_listq->p_first != NULL) p_timer_listq->p_first->p_prev = NULL;
+    if (p_timer_listq->p_first != nullptr) p_timer_listq->p_first->p_prev = nullptr;
 
-    if (p_timer_listq->p_last == p_tle) p_timer_listq->p_last = NULL;
+    if (p_timer_listq->p_last == p_tle) p_timer_listq->p_last = nullptr;
   } else {
     if (p_timer_listq->p_last == p_tle) {
       p_timer_listq->p_last = p_tle->p_prev;
 
-      if (p_timer_listq->p_last != NULL) p_timer_listq->p_last->p_next = NULL;
+      if (p_timer_listq->p_last != nullptr) p_timer_listq->p_last->p_next = nullptr;
     } else {
-      if (p_tle->p_next != NULL && p_tle->p_next->p_prev == p_tle)
+      if (p_tle->p_next != nullptr && p_tle->p_next->p_prev == p_tle)
         p_tle->p_next->p_prev = p_tle->p_prev;
       else {
         /* Error case - chain messed up ?? */
         return;
       }
 
-      if (p_tle->p_prev != NULL && p_tle->p_prev->p_next == p_tle)
+      if (p_tle->p_prev != nullptr && p_tle->p_prev->p_next == p_tle)
         p_tle->p_prev->p_next = p_tle->p_next;
       else {
         /* Error case - chain messed up ?? */
@@ -893,15 +893,15 @@ void GKI_remove_from_timer_list(TIMER_LIST_Q* p_timer_listq,
     }
   }
 
-  p_tle->p_next = p_tle->p_prev = NULL;
+  p_tle->p_next = p_tle->p_prev = nullptr;
   p_tle->ticks = GKI_UNUSED_LIST_ENTRY;
   p_tle->in_use = false;
 
   /* if timer queue is empty */
-  if (p_timer_listq->p_first == NULL && p_timer_listq->p_last == NULL) {
+  if (p_timer_listq->p_first == nullptr && p_timer_listq->p_last == nullptr) {
     for (tt = 0; tt < GKI_MAX_TIMER_QUEUES; tt++) {
       if (gki_cb.com.timer_queues[tt] == p_timer_listq) {
-        gki_cb.com.timer_queues[tt] = NULL;
+        gki_cb.com.timer_queues[tt] = nullptr;
         break;
       }
     }

@@ -254,7 +254,7 @@ bool nfa_dm_is_active(void) {
 tNFA_STATUS nfa_dm_check_set_config(uint8_t tlv_list_len, uint8_t* p_tlv_list,
                                     bool app_init) {
 #if (NXP_EXTNS == TRUE)
-  uint8_t type, len, *p_value, * p_stored = NULL, max_len = 0;
+  uint8_t type, len, *p_value, * p_stored = nullptr, max_len = 0;
 #else
   uint8_t type, len, *p_value, *p_stored, max_len;
 #endif
@@ -279,7 +279,7 @@ tNFA_STATUS nfa_dm_check_set_config(uint8_t tlv_list_len, uint8_t* p_tlv_list,
     type = *(p_tlv_list + xx);
     len = *(p_tlv_list + xx + 1);
     p_value = p_tlv_list + xx + 2;
-    p_cur_len = NULL;
+    p_cur_len = nullptr;
 
     switch (type) {
       /*
@@ -410,7 +410,7 @@ tNFA_STATUS nfa_dm_check_set_config(uint8_t tlv_list_len, uint8_t* p_tlv_list,
         } else {
           /* we don't stored this config items */
           update = true;
-          p_stored = NULL;
+          p_stored = nullptr;
         }
         break;
     }

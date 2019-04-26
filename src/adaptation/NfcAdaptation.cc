@@ -81,7 +81,7 @@ extern void GKI_shutdown();
 extern void verify_stack_non_volatile_store();
 extern void delete_stack_non_volatile_store(bool forceDelete);
 
-NfcAdaptation* NfcAdaptation::mpInstance = NULL;
+NfcAdaptation* NfcAdaptation::mpInstance = nullptr;
 ThreadMutex NfcAdaptation::sLock;
 android::Mutex sIoctlMutex;
 sp<INxpNfc> NfcAdaptation::mHalNxpNfc;
@@ -89,8 +89,8 @@ sp<INfc> NfcAdaptation::mHal;
 sp<INfcV1_1> NfcAdaptation::mHal_1_1;
 sp<INfcV1_2> NfcAdaptation::mHal_1_2;
 INfcClientCallback* NfcAdaptation::mCallback;
-tHAL_NFC_CBACK* NfcAdaptation::mHalCallback = NULL;
-tHAL_NFC_DATA_CBACK* NfcAdaptation::mHalDataCallback = NULL;
+tHAL_NFC_CBACK* NfcAdaptation::mHalCallback = nullptr;
+tHAL_NFC_DATA_CBACK* NfcAdaptation::mHalDataCallback = nullptr;
 ThreadCondVar NfcAdaptation::mHalOpenCompletedEvent;
 ThreadCondVar NfcAdaptation::mHalCloseCompletedEvent;
 
@@ -183,7 +183,7 @@ class NfcDeathRecipient : public hidl_death_recipient {
       const wp<::android::hidl::base::V1_0::IBase>& /* who */) {
     ALOGE("NfcDeathRecipient::serviceDied - Nfc service died");
     mNfcDeathHal->unlinkToDeath(this);
-    mNfcDeathHal = NULL;
+    mNfcDeathHal = nullptr;
     abort();
   }
 };
@@ -514,11 +514,11 @@ void NfcAdaptation::Initialize() {
   GKI_init();
   GKI_enable();
   GKI_create_task((TASKPTR)NFCA_TASK, BTU_TASK, (int8_t*)"NFCA_TASK", 0, 0,
-                  (pthread_cond_t*)NULL, NULL);
+                  (pthread_cond_t*)nullptr, nullptr);
   {
     AutoThreadMutex guard(mCondVar);
     GKI_create_task((TASKPTR)Thread, MMI_TASK, (int8_t*)"NFCA_THREAD", 0, 0,
-                    (pthread_cond_t*)NULL, NULL);
+                    (pthread_cond_t*)nullptr, nullptr);
     mCondVar.wait();
   }
 
@@ -542,11 +542,11 @@ void NfcAdaptation::MinInitialize() {
   GKI_init();
   GKI_enable();
   GKI_create_task((TASKPTR)NFCA_TASK, BTU_TASK, (int8_t*)"NFCA_TASK", 0, 0,
-                  (pthread_cond_t*)NULL, NULL);
+                  (pthread_cond_t*)nullptr, nullptr);
   {
     AutoThreadMutex guard(mCondVar);
     GKI_create_task((TASKPTR)Thread, MMI_TASK, (int8_t*)"NFCA_THREAD", 0, 0,
-                    (pthread_cond_t*)NULL, NULL);
+                    (pthread_cond_t*)nullptr, nullptr);
     mCondVar.wait();
   }
 
@@ -595,11 +595,11 @@ void NfcAdaptation::Finalize() {
 
   NfcConfig::clear();
 
-  mCallback = NULL;
+  mCallback = nullptr;
   memset(&mHalEntryFuncs, 0, sizeof(mHalEntryFuncs));
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: exit", func);
-  mpInstance = NULL;
+  mpInstance = nullptr;
 }
 
 /*******************************************************************************

@@ -41,7 +41,7 @@ static const size_t BLOCK_SIZE = 16384;
 static const uint8_t MAX_LINE_LENGTH = 128;
 
 static std::mutex buffer_mutex;
-static ringbuffer_t* buffer = NULL;
+static ringbuffer_t* buffer = nullptr;
 static uint64_t last_timestamp_ms = 0;
 
 static void nfcsnoop_cb(const uint8_t* data, const size_t length,
@@ -74,8 +74,8 @@ static void nfcsnoop_cb(const uint8_t* data, const size_t length,
 }
 
 static bool nfcsnoop_compress(ringbuffer_t* rb_dst, ringbuffer_t* rb_src) {
-  CHECK(rb_dst != NULL);
-  CHECK(rb_src != NULL);
+  CHECK(rb_dst != nullptr);
+  CHECK(rb_src != nullptr);
 
   z_stream zs;
   zs.zalloc = Z_NULL;
@@ -116,7 +116,7 @@ static bool nfcsnoop_compress(ringbuffer_t* rb_dst, ringbuffer_t* rb_src) {
 
 void nfcsnoop_capture(const NFC_HDR* packet, bool is_received) {
   struct timeval tv;
-  gettimeofday(&tv, NULL);
+  gettimeofday(&tv, nullptr);
   uint64_t timestamp = static_cast<uint64_t>(tv.tv_sec) * USEC_PER_SEC +
                        static_cast<uint64_t>(tv.tv_usec);
   uint8_t* p = (uint8_t*)(packet + 1) + packet->offset;
@@ -130,12 +130,12 @@ void nfcsnoop_capture(const NFC_HDR* packet, bool is_received) {
 }
 
 void debug_nfcsnoop_init(void) {
-  if (buffer == NULL) buffer = ringbuffer_init(NFCSNOOP_MEM_BUFFER_SIZE);
+  if (buffer == nullptr) buffer = ringbuffer_init(NFCSNOOP_MEM_BUFFER_SIZE);
 }
 
 void debug_nfcsnoop_dump(int fd) {
   ringbuffer_t* ringbuffer = ringbuffer_init(NFCSNOOP_MEM_BUFFER_SIZE);
-  if (ringbuffer == NULL) {
+  if (ringbuffer == nullptr) {
     dprintf(fd, "%s Unable to allocate memory for compression", __func__);
     return;
   }

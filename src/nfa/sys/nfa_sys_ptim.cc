@@ -97,7 +97,7 @@ void nfa_sys_ptim_timer_update(tPTIM_CB* p_cb) {
       (*p_tle->p_cback)(p_tle);
     } else if (p_tle->event) {
       p_msg = (NFC_HDR*)GKI_getbuf(sizeof(NFC_HDR));
-      if (p_msg != NULL) {
+      if (p_msg != nullptr) {
         p_msg->event = p_tle->event;
         p_msg->layer_specific = 0;
         nfa_sys_sendmsg(p_msg);
@@ -106,7 +106,7 @@ void nfa_sys_ptim_timer_update(tPTIM_CB* p_cb) {
   }
 
   /* if timer list is empty stop periodic GKI timer */
-  if (p_cb->timer_queue.p_first == NULL) {
+  if (p_cb->timer_queue.p_first == nullptr) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("ptim timer stop");
     GKI_stop_timer(p_cb->timer_id);
   }
@@ -127,7 +127,7 @@ void nfa_sys_ptim_start_timer(tPTIM_CB* p_cb, TIMER_LIST_ENT* p_tle,
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_sys_ptim_start_timer %p", p_tle);
 
   /* if timer list is currently empty, start periodic GKI timer */
-  if (p_cb->timer_queue.p_first == NULL) {
+  if (p_cb->timer_queue.p_first == nullptr) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("ptim timer start");
     p_cb->last_gki_ticks = GKI_get_tick_count();
     GKI_start_timer(p_cb->timer_id, GKI_MS_TO_TICKS(p_cb->period), true);
@@ -156,7 +156,7 @@ void nfa_sys_ptim_stop_timer(tPTIM_CB* p_cb, TIMER_LIST_ENT* p_tle) {
   GKI_remove_from_timer_list(&p_cb->timer_queue, p_tle);
 
   /* if timer list is empty stop periodic GKI timer */
-  if (p_cb->timer_queue.p_first == NULL) {
+  if (p_cb->timer_queue.p_first == nullptr) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("ptim timer stop");
     GKI_stop_timer(p_cb->timer_id);
   }

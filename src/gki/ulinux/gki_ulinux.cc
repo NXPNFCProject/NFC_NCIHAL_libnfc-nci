@@ -106,7 +106,7 @@ void* gki_task_entry(void* params) {
                              p_pthread_info->task_id);
   gki_cb.os.thread_id[p_pthread_info->task_id] = 0;
 
-  return NULL;
+  return nullptr;
 }
 /* end android */
 
@@ -146,16 +146,16 @@ void GKI_init(void) {
 #endif
   p_os = &gki_cb.os;
   pthread_mutex_init(&p_os->GKI_mutex, &attr);
-  /* pthread_mutex_init(&GKI_sched_mutex, NULL); */
-  /* pthread_mutex_init(&thread_delay_mutex, NULL); */ /* used in GKI_delay */
-  /* pthread_cond_init (&thread_delay_cond, NULL); */
+  /* pthread_mutex_init(&GKI_sched_mutex, nullptr); */
+  /* pthread_mutex_init(&thread_delay_mutex, nullptr); */ /* used in GKI_delay */
+  /* pthread_cond_init (&thread_delay_cond, nullptr); */
 
   /* Initialiase GKI_timer_update suspend variables & mutexes to be in running
    * state.
    * this works too even if GKI_NO_TICK_STOP is defined in btld.txt */
   p_os->no_timer_suspend = GKI_TIMER_TICK_RUN_COND;
-  pthread_mutex_init(&p_os->gki_timer_mutex, NULL);
-  pthread_cond_init(&p_os->gki_timer_cond, NULL);
+  pthread_mutex_init(&p_os->gki_timer_mutex, nullptr);
+  pthread_cond_init(&p_os->gki_timer_cond, nullptr);
 #if (NXP_EXTNS == TRUE)
   pthread_mutexattr_destroy(&attr);
 #endif
@@ -225,9 +225,9 @@ uint8_t GKI_create_task(TASKPTR task_entry, uint8_t task_id, int8_t* taskname,
   gki_cb.com.OSWaitEvt[task_id] = 0;
 
   /* Initialize mutex and condition variable objects for events and timeouts */
-  pthread_mutex_init(&gki_cb.os.thread_evt_mutex[task_id], NULL);
+  pthread_mutex_init(&gki_cb.os.thread_evt_mutex[task_id], nullptr);
   pthread_cond_init(&gki_cb.os.thread_evt_cond[task_id], &attr);
-  pthread_mutex_init(&gki_cb.os.thread_timeout_mutex[task_id], NULL);
+  pthread_mutex_init(&gki_cb.os.thread_timeout_mutex[task_id], nullptr);
   pthread_cond_init(&gki_cb.os.thread_timeout_cond[task_id], &attr);
 
   pthread_attr_init(&attr1);
@@ -338,7 +338,7 @@ void GKI_shutdown(void) {
         usleep(2 * 1000);
 #else
       /* wait for proper Arnold Schwarzenegger task state */
-      result = pthread_join(gki_cb.os.thread_id[task_id - 1], NULL);
+      result = pthread_join(gki_cb.os.thread_id[task_id - 1], nullptr);
       if (result < 0) {
         DLOG_IF(INFO, nfc_debug_enabled)
             << StringPrintf("FAILED: result: %d", result);
@@ -500,11 +500,11 @@ void GKI_run(__attribute__((unused)) void* p_task_id) {
   pthread_attr_setdetachstate(&timer_attr, PTHREAD_CREATE_DETACHED);
 #if (NXP_EXTNS == TRUE)
   int ret = 0;
-  ret = pthread_create(&timer_thread_id, &timer_attr, timer_thread, NULL);sdadsa
+  ret = pthread_create(&timer_thread_id, &timer_attr, timer_thread, nullptr);sdadsa
   pthread_attr_destroy(&timer_attr);
   if (ret != 0)
 #else
-  if (pthread_create(&timer_thread_id, &timer_attr, timer_thread, NULL) != 0)
+  if (pthread_create(&timer_thread_id, &timer_attr, timer_thread, nullptr) != 0)
 #endif
   {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
@@ -627,7 +627,7 @@ uint16_t GKI_wait(uint16_t flag, uint32_t timeout) {
   }
 
   gki_pthread_info_t* p_pthread_info = &gki_pthread_info[rtask];
-  if (p_pthread_info->pCond != NULL && p_pthread_info->pMutex != NULL) {
+  if (p_pthread_info->pCond != nullptr && p_pthread_info->pMutex != nullptr) {
     int ret;
     DLOG_IF(INFO, nfc_debug_enabled)
         << StringPrintf("GKI_wait task=%i, pCond/pMutex = %p/%p", rtask,
@@ -635,8 +635,8 @@ uint16_t GKI_wait(uint16_t flag, uint32_t timeout) {
     ret = pthread_mutex_lock(p_pthread_info->pMutex);
     ret = pthread_cond_signal(p_pthread_info->pCond);
     ret = pthread_mutex_unlock(p_pthread_info->pMutex);
-    p_pthread_info->pMutex = NULL;
-    p_pthread_info->pCond = NULL;
+    p_pthread_info->pMutex = nullptr;
+    p_pthread_info->pCond = nullptr;
   }
   gki_cb.com.OSWaitForEvt[rtask] = flag;
 
@@ -1084,7 +1084,7 @@ void* GKI_os_malloc(uint32_t size) { return (malloc(size)); }
 **
 *******************************************************************************/
 void GKI_os_free(void* p_mem) {
-  if (p_mem != NULL) free(p_mem);
+  if (p_mem != nullptr) free(p_mem);
   return;
 }
 

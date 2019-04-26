@@ -70,7 +70,7 @@ tNFA_STATUS NFA_RwDetectNDef(void) {
   DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_DETECT_NDEF;
 
@@ -115,7 +115,7 @@ tNFA_STATUS NFA_RwReadNDef(void) {
   DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_READ_NDEF;
 
@@ -154,10 +154,10 @@ tNFA_STATUS NFA_RwWriteNDef(uint8_t* p_data, uint32_t len) {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_RwWriteNDef (): ndef p_data=%hhu, len: %i", *p_data, len);
 
   /* Validate parameters */
-  if (p_data == NULL) return (NFA_STATUS_INVALID_PARAM);
+  if (p_data == nullptr) return (NFA_STATUS_INVALID_PARAM);
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_WRITE_NDEF;
     p_msg->params.write_ndef.len = len;
@@ -192,7 +192,7 @@ tNFA_STATUS NFA_RwPresenceCheck(tNFA_RW_PRES_CHK_OPTION option) {
   DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_PRESENCE_CHECK;
     p_msg->params.option = option;
@@ -225,7 +225,7 @@ tNFA_STATUS NFA_RwFormatTag(void) {
   DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_FORMAT_TAG;
 
@@ -279,7 +279,7 @@ tNFA_STATUS NFA_RwSetTagReadOnly(bool b_hard_lock) {
                  b_hard_lock ? "Hard lock" : "Soft lock");
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_SET_TAG_RO;
@@ -337,7 +337,7 @@ tNFA_STATUS NFA_RwLocateTlv(uint8_t tlv_type) {
   DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
 
     if (tlv_type == TAG_LOCK_CTRL_TLV) {
@@ -377,7 +377,7 @@ tNFA_STATUS NFA_RwT1tRid(void) {
   tNFA_RW_OPERATION* p_msg;
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_T1T_RID;
@@ -408,7 +408,7 @@ tNFA_STATUS NFA_RwT1tReadAll(void) {
   tNFA_RW_OPERATION* p_msg;
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_T1T_RALL;
@@ -439,7 +439,7 @@ tNFA_STATUS NFA_RwT1tRead(uint8_t block_number, uint8_t index) {
   tNFA_RW_OPERATION* p_msg;
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_T1T_READ;
@@ -473,7 +473,7 @@ tNFA_STATUS NFA_RwT1tWrite(uint8_t block_number, uint8_t index, uint8_t data,
   tNFA_RW_OPERATION* p_msg;
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->params.t1t_write.b_erase = b_erase;
@@ -508,7 +508,7 @@ tNFA_STATUS NFA_RwT1tReadSeg(uint8_t segment_number) {
   tNFA_RW_OPERATION* p_msg;
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_T1T_RSEG;
@@ -540,7 +540,7 @@ tNFA_STATUS NFA_RwT1tRead8(uint8_t block_number) {
   tNFA_RW_OPERATION* p_msg;
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_T1T_READ8;
@@ -573,7 +573,7 @@ tNFA_STATUS NFA_RwT1tWrite8(uint8_t block_number, uint8_t* p_data,
   tNFA_RW_OPERATION* p_msg;
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->params.t1t_write.b_erase = b_erase;
@@ -610,7 +610,7 @@ tNFA_STATUS NFA_RwT2tRead(uint8_t block_number) {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_RwT2tRead (): Block to read: %d", block_number);
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_T2T_READ;
@@ -643,7 +643,7 @@ tNFA_STATUS NFA_RwT2tWrite(uint8_t block_number, uint8_t* p_data) {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_RwT2tWrite (): Block to write: %d", block_number);
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_T2T_WRITE;
@@ -679,7 +679,7 @@ tNFA_STATUS NFA_RwT2tSectorSelect(uint8_t sector_number) {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_RwT2tRead (): sector to select: %d", sector_number);
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_T2T_SECTOR_SELECT;
@@ -715,12 +715,12 @@ tNFA_STATUS NFA_RwT3tRead(uint8_t num_blocks, tNFA_T3T_BLOCK_DESC* t3t_blocks) {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_RwT3tRead (): num_blocks to read: %i", num_blocks);
 
   /* Validate parameters */
-  if ((num_blocks == 0) || (t3t_blocks == NULL))
+  if ((num_blocks == 0) || (t3t_blocks == nullptr))
     return (NFA_STATUS_INVALID_PARAM);
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(
       sizeof(tNFA_RW_OPERATION) + (num_blocks * sizeof(tNFA_T3T_BLOCK_DESC))));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* point to area after tNFA_RW_OPERATION */
     p_block_desc = (uint8_t*)(p_msg + 1);
 
@@ -766,13 +766,13 @@ tNFA_STATUS NFA_RwT3tWrite(uint8_t num_blocks, tNFA_T3T_BLOCK_DESC* t3t_blocks,
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_RwT3tWrite (): num_blocks to write: %i", num_blocks);
 
   /* Validate parameters */
-  if ((num_blocks == 0) || (t3t_blocks == NULL) | (p_data == NULL))
+  if ((num_blocks == 0) || (t3t_blocks == nullptr) | (p_data == nullptr))
     return (NFA_STATUS_INVALID_PARAM);
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf(
       (uint16_t)(sizeof(tNFA_RW_OPERATION) +
                  (num_blocks * (sizeof(tNFA_T3T_BLOCK_DESC) + 16))));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* point to block descriptor and data areas after tNFA_RW_OPERATION */
     p_block_desc = (uint8_t*)(p_msg + 1);
     p_data_area = p_block_desc + (num_blocks * (sizeof(tNFA_T3T_BLOCK_DESC)));
@@ -828,7 +828,7 @@ tNFA_STATUS NFA_RwI93Inventory(bool afi_present, uint8_t afi, uint8_t* p_uid) {
   }
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_I93_INVENTORY;
@@ -877,7 +877,7 @@ tNFA_STATUS NFA_RwI93StayQuiet(void) {
   }
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_I93_STAY_QUIET;
@@ -918,7 +918,7 @@ tNFA_STATUS NFA_RwI93ReadSingleBlock(uint8_t block_number) {
   }
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_I93_READ_SINGLE_BLOCK;
@@ -966,7 +966,7 @@ tNFA_STATUS NFA_RwI93WriteSingleBlock(uint8_t block_number, uint8_t* p_data) {
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf(
       (uint16_t)(sizeof(tNFA_RW_OPERATION) + nfa_rw_cb.i93_block_size));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_I93_WRITE_SINGLE_BLOCK;
@@ -1010,7 +1010,7 @@ tNFA_STATUS NFA_RwI93LockBlock(uint8_t block_number) {
   }
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_I93_LOCK_BLOCK;
@@ -1054,7 +1054,7 @@ tNFA_STATUS NFA_RwI93ReadMultipleBlocks(uint8_t first_block_number,
   }
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_I93_READ_MULTI_BLOCK;
@@ -1108,7 +1108,7 @@ tNFA_STATUS NFA_RwI93WriteMultipleBlocks(uint8_t first_block_number,
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf(
       (uint16_t)(sizeof(tNFA_RW_OPERATION) + data_length));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_I93_WRITE_MULTI_BLOCK;
@@ -1160,7 +1160,7 @@ tNFA_STATUS NFA_RwI93Select(uint8_t* p_uid) {
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf(
       (uint16_t)(sizeof(tNFA_RW_OPERATION) + I93_UID_BYTE_LEN));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_I93_SELECT;
@@ -1202,7 +1202,7 @@ tNFA_STATUS NFA_RwI93ResetToReady(void) {
   }
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_I93_RESET_TO_READY;
@@ -1241,7 +1241,7 @@ tNFA_STATUS NFA_RwI93WriteAFI(uint8_t afi) {
   }
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_I93_WRITE_AFI;
@@ -1282,7 +1282,7 @@ tNFA_STATUS NFA_RwI93LockAFI(void) {
   }
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_I93_LOCK_AFI;
@@ -1321,7 +1321,7 @@ tNFA_STATUS NFA_RwI93WriteDSFID(uint8_t dsfid) {
   }
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_I93_WRITE_DSFID;
@@ -1362,7 +1362,7 @@ tNFA_STATUS NFA_RwI93LockDSFID(void) {
   }
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_I93_LOCK_DSFID;
@@ -1402,7 +1402,7 @@ tNFA_STATUS NFA_RwI93GetSysInfo(uint8_t* p_uid) {
   }
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_I93_GET_SYS_INFO;
@@ -1452,7 +1452,7 @@ tNFA_STATUS NFA_RwI93GetMultiBlockSecurityStatus(uint8_t first_block_number,
   }
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
-  if (p_msg != NULL) {
+  if (p_msg != nullptr) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_I93_GET_MULTI_BLOCK_STATUS;

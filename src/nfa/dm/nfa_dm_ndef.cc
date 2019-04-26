@@ -38,7 +38,7 @@ extern bool nfc_debug_enabled;
 * URI Well-known-type prefixes
 *******************************************************************************/
 const uint8_t* nfa_dm_ndef_wkt_uri_str_tbl[] = {
-    NULL,                                          /* 0x00 */
+    nullptr,                                          /* 0x00 */
     (const uint8_t*) "http://www.",                /* 0x01 */
     (const uint8_t*) "https://www.",               /* 0x02 */
     (const uint8_t*) "http://",                    /* 0x03 */
@@ -94,7 +94,7 @@ void nfa_dm_ndef_dereg_hdlr_by_handle(tNFA_HANDLE ndef_type_handle) {
 
   if (p_cb->p_ndef_handler[hdlr_idx]) {
     GKI_freebuf(p_cb->p_ndef_handler[hdlr_idx]);
-    p_cb->p_ndef_handler[hdlr_idx] = NULL;
+    p_cb->p_ndef_handler[hdlr_idx] = nullptr;
   }
 }
 
@@ -114,9 +114,9 @@ void nfa_dm_ndef_dereg_all(void) {
 
   for (i = 0; i < NFA_NDEF_MAX_HANDLERS; i++) {
     /* If this is a free slot, then remember it */
-    if (p_cb->p_ndef_handler[i] != NULL) {
+    if (p_cb->p_ndef_handler[i] != nullptr) {
       GKI_freebuf(p_cb->p_ndef_handler[i]);
-      p_cb->p_ndef_handler[i] = NULL;
+      p_cb->p_ndef_handler[i] = nullptr;
     }
   }
 }
@@ -159,7 +159,7 @@ bool nfa_dm_ndef_reg_hdlr(tNFA_DM_MSG* p_data) {
     for (i = (NFA_NDEF_DEFAULT_HANDLER_IDX + 1); i < NFA_NDEF_MAX_HANDLERS;
          i++) {
       /* If this is a free slot, then remember it */
-      if (p_cb->p_ndef_handler[i] == NULL) {
+      if (p_cb->p_ndef_handler[i] == nullptr) {
         hdlr_idx = i;
         break;
       }
@@ -238,7 +238,7 @@ bool nfa_dm_ndef_handle_message(tNFA_DM_MSG* p_data) {
     for (i = (NFA_NDEF_DEFAULT_HANDLER_IDX + 1); i < NFA_NDEF_MAX_HANDLERS;
          i++) {
       /* If this is a free slot, then remember it */
-      if (p_cb->p_ndef_handler[i] == NULL) {
+      if (p_cb->p_ndef_handler[i] == nullptr) {
         hdlr_idx = i;
         break;
       }
@@ -334,7 +334,7 @@ tNFA_DM_API_REG_NDEF_HDLR* nfa_dm_ndef_find_next_handler(
   for (; i < NFA_NDEF_MAX_HANDLERS; i++) {
     /* Check if TNF matches */
     if ((p_cb->p_ndef_handler[i]) && (p_cb->p_ndef_handler[i]->tnf == tnf) &&
-        (p_type_name != NULL)) {
+        (p_type_name != nullptr)) {
       /* TNF matches. */
       /* If handler is for a specific URI type, check if type is WKT URI, */
       /* and that the URI prefix abrieviation for this handler matches */
@@ -406,7 +406,7 @@ tNFA_DM_API_REG_NDEF_HDLR* nfa_dm_ndef_find_next_handler(
   if (i < NFA_NDEF_MAX_HANDLERS)
     return (p_cb->p_ndef_handler[i]);
   else
-    return (NULL);
+    return (nullptr);
 }
 
 /*******************************************************************************
@@ -478,11 +478,11 @@ void nfa_dm_ndef_handle_message(tNFA_STATUS status, uint8_t* p_msg_buf,
   /* Handle zero length - notify default handler */
   if (len == 0) {
     p_handler = p_cb->p_ndef_handler[NFA_NDEF_DEFAULT_HANDLER_IDX];
-    if (p_handler != NULL) {
+    if (p_handler != nullptr) {
        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
           "Notifying default handler of zero-length NDEF message...");
       ndef_data.ndef_type_handle = p_handler->ndef_type_handle;
-      ndef_data.p_data = NULL; /* Start of record */
+      ndef_data.p_data = nullptr; /* Start of record */
       ndef_data.len = 0;
       tNFA_NDEF_EVT_DATA nfa_ndef_evt_data;
       nfa_ndef_evt_data.ndef_data = ndef_data;
@@ -513,7 +513,7 @@ void nfa_dm_ndef_handle_message(tNFA_STATUS status, uint8_t* p_msg_buf,
   p_rec = p_ndef_start = p_msg_buf;
 
   /* Check each record in the NDEF message */
-  while (p_rec != NULL) {
+  while (p_rec != nullptr) {
     /* Get record type */
     p_type = NDEF_RecGetType(p_rec, &tnf, &type_len);
 
@@ -524,12 +524,12 @@ void nfa_dm_ndef_handle_message(tNFA_STATUS status, uint8_t* p_msg_buf,
     p_payload = NDEF_RecGetPayload(p_rec, &payload_len);
 
     /* Find first handler for this type */
-    p_handler = nfa_dm_ndef_find_next_handler(NULL, tnf, p_type, type_len,
+    p_handler = nfa_dm_ndef_find_next_handler(nullptr, tnf, p_type, type_len,
                                               p_payload, payload_len);
-    if (p_handler == NULL) {
+    if (p_handler == nullptr) {
       /* Not a registered NDEF type. Use default handler */
       p_handler = p_cb->p_ndef_handler[NFA_NDEF_DEFAULT_HANDLER_IDX];
-      if (p_handler != NULL) {
+      if (p_handler != nullptr) {
         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("No handler found. Using default handler...");
       }
     }
@@ -552,7 +552,7 @@ void nfa_dm_ndef_handle_message(tNFA_STATUS status, uint8_t* p_msg_buf,
       ndef_data.p_data = p_rec; /* Start of record */
 
       /* Calculate length of NDEF record */
-      if (p_payload != NULL)
+      if (p_payload != nullptr)
         ndef_data.len = payload_len + (uint32_t)(p_payload - p_rec);
       else {
         /* If no payload, calculate length of ndef record header */

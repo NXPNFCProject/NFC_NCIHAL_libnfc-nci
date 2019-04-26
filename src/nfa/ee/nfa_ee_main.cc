@@ -456,7 +456,7 @@ uint8_t nfa_ee_ecb_to_mask(tNFA_EE_ECB* p_cb) {
 *******************************************************************************/
 tNFA_EE_ECB* nfa_ee_find_ecb(uint8_t nfcee_id) {
   uint32_t xx;
-  tNFA_EE_ECB* p_ret = NULL, *p_cb;
+  tNFA_EE_ECB* p_ret = nullptr, *p_cb;
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ee_find_ecb ()");
 
   if (nfcee_id == NFC_DH_ID) {
@@ -485,7 +485,7 @@ tNFA_EE_ECB* nfa_ee_find_ecb(uint8_t nfcee_id) {
 *******************************************************************************/
 tNFA_EE_ECB* nfa_ee_find_ecb_by_conn_id(uint8_t conn_id) {
   uint32_t xx;
-  tNFA_EE_ECB* p_ret = NULL, *p_cb;
+  tNFA_EE_ECB* p_ret = nullptr, *p_cb;
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ee_find_ecb_by_conn_id ()");
 
   p_cb = nfa_ee_cb.ecb;

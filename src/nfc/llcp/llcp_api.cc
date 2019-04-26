@@ -407,7 +407,7 @@ uint8_t LLCP_RegisterServer(uint8_t reg_sap, uint8_t link_type,
   if (reg_sap == LLCP_INVALID_SAP) {
     /* allocate a SAP between 0x10 and 0x1F */
     for (sap = 0; sap < LLCP_MAX_SERVER; sap++) {
-      if (llcp_cb.server_cb[sap].p_app_cback == NULL) {
+      if (llcp_cb.server_cb[sap].p_app_cback == nullptr) {
         p_app_cb = &llcp_cb.server_cb[sap];
         reg_sap = LLCP_LOWER_BOUND_SDP_SAP + sap;
         break;
@@ -465,7 +465,7 @@ uint8_t LLCP_RegisterServer(uint8_t reg_sap, uint8_t link_type,
       return LLCP_INVALID_SAP;
     }
     p_app_cb->p_service_name = (char*)GKI_getbuf((uint16_t)(length + 1));
-    if (p_app_cb->p_service_name == NULL) {
+    if (p_app_cb->p_service_name == nullptr) {
       LOG(ERROR) << StringPrintf("LLCP_RegisterServer (): Out of resource");
       return LLCP_INVALID_SAP;
     }
@@ -473,7 +473,7 @@ uint8_t LLCP_RegisterServer(uint8_t reg_sap, uint8_t link_type,
     strncpy((char*)p_app_cb->p_service_name, p_service_name.c_str(), length + 1);
     p_app_cb->p_service_name[length] = 0;
   } else
-    p_app_cb->p_service_name = NULL;
+    p_app_cb->p_service_name = nullptr;
 
   p_app_cb->p_app_cback = p_app_cback;
   p_app_cb->link_type = link_type;
@@ -525,7 +525,7 @@ uint8_t LLCP_RegisterClient(uint8_t link_type, tLLCP_APP_CBACK* p_app_cback) {
 
   /* allocate a SAP between 0x20 and 0x3F */
   for (sap = 0; sap < LLCP_MAX_CLIENT; sap++) {
-    if (llcp_cb.client_cb[sap].p_app_cback == NULL) {
+    if (llcp_cb.client_cb[sap].p_app_cback == nullptr) {
       p_app_cb = &llcp_cb.client_cb[sap];
       memset(p_app_cb, 0x00, sizeof(tLLCP_APP_CB));
       reg_sap = LLCP_LOWER_BOUND_LOCAL_SAP + sap;
@@ -539,7 +539,7 @@ uint8_t LLCP_RegisterClient(uint8_t link_type, tLLCP_APP_CBACK* p_app_cback) {
   }
 
   p_app_cb->p_app_cback = p_app_cback;
-  p_app_cb->p_service_name = NULL;
+  p_app_cb->p_service_name = nullptr;
   p_app_cb->link_type = link_type;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("LLCP_RegisterClient (): Registered SAP = 0x%02X", reg_sap);
@@ -570,7 +570,7 @@ tLLCP_STATUS LLCP_Deregister(uint8_t local_sap) {
 
   p_app_cb = llcp_util_get_app_cb(local_sap);
 
-  if ((!p_app_cb) || (p_app_cb->p_app_cback == NULL)) {
+  if ((!p_app_cb) || (p_app_cb->p_app_cback == nullptr)) {
     LOG(ERROR) << StringPrintf("LLCP_Deregister (): SAP (0x%x) is not registered",
                       local_sap);
     return LLCP_STATUS_FAIL;
@@ -595,7 +595,7 @@ tLLCP_STATUS LLCP_Deregister(uint8_t local_sap) {
     }
   }
 
-  p_app_cb->p_app_cback = NULL;
+  p_app_cb->p_app_cback = nullptr;
 
   /* discard any pending tx UI PDU from this SAP */
   while (p_app_cb->ui_xmit_q.p_first) {
@@ -636,7 +636,7 @@ bool LLCP_IsLogicalLinkCongested(uint8_t local_sap, uint8_t num_pending_ui_pdu,
   p_app_cb = llcp_util_get_app_cb(local_sap);
 
   if ((llcp_cb.lcb.link_state != LLCP_LINK_STATE_ACTIVATED) ||
-      (p_app_cb == NULL) || (p_app_cb->p_app_cback == NULL) ||
+      (p_app_cb == nullptr) || (p_app_cb->p_app_cback == nullptr) ||
       ((p_app_cb->link_type & LLCP_LINK_TYPE_LOGICAL_DATA_LINK) == 0) ||
       (p_app_cb->is_ui_tx_congested)) {
     return (true);
@@ -675,7 +675,7 @@ tLLCP_STATUS LLCP_SendUI(uint8_t ssap, uint8_t dsap, NFC_HDR* p_buf) {
 
   p_app_cb = llcp_util_get_app_cb(ssap);
 
-  if ((p_app_cb == NULL) || (p_app_cb->p_app_cback == NULL)) {
+  if ((p_app_cb == nullptr) || (p_app_cb->p_app_cback == nullptr)) {
     LOG(ERROR) << StringPrintf("LLCP_SendUI (): SSAP (0x%x) is not registered", ssap);
   } else if ((p_app_cb->link_type & LLCP_LINK_TYPE_LOGICAL_DATA_LINK) == 0) {
     LOG(ERROR) << StringPrintf(
@@ -896,7 +896,7 @@ tLLCP_STATUS LLCP_ConnectReq(uint8_t reg_sap, uint8_t dsap,
   p_app_cb = llcp_util_get_app_cb(reg_sap);
 
   /* if application is registered */
-  if ((p_app_cb == NULL) || (p_app_cb->p_app_cback == NULL)) {
+  if ((p_app_cb == nullptr) || (p_app_cb->p_app_cback == nullptr)) {
     LOG(ERROR) << StringPrintf("LLCP_ConnectReq (): SSAP (0x%x) is not registered",
                       reg_sap);
     return LLCP_STATUS_FAIL;
@@ -1381,7 +1381,7 @@ tLLCP_STATUS LLCP_SetLocalBusyStatus(uint8_t local_sap, uint8_t remote_sap,
 
       if (is_busy == false) {
         if (p_dlcb->i_rx_q.count) {
-          llcp_dlsm_execute(p_dlcb, LLCP_DLC_EVENT_PEER_DATA_IND, NULL);
+          llcp_dlsm_execute(p_dlcb, LLCP_DLC_EVENT_PEER_DATA_IND, nullptr);
         }
       }
     }
@@ -1530,7 +1530,7 @@ tLLCP_STATUS LLCP_DiscoverService(char* p_name, tLLCP_SDP_CBACK* p_cback,
       status = llcp_sdp_send_sdreq(llcp_cb.sdp_cb.transac[i].tid, p_name);
 
       if (status == LLCP_STATUS_FAIL) {
-        llcp_cb.sdp_cb.transac[i].p_cback = NULL;
+        llcp_cb.sdp_cb.transac[i].p_cback = nullptr;
       }
 
       *p_tid = llcp_cb.sdp_cb.transac[i].tid;

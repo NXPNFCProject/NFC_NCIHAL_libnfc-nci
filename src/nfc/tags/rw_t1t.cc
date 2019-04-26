@@ -93,7 +93,7 @@ static void rw_t1t_data_cback(__attribute__((unused)) uint8_t conn_id,
   uint8_t begin_state = p_t1t->state;
 
   p_pkt = (NFC_HDR*)(p_data->data.p_data);
-  if (p_pkt == NULL) return;
+  if (p_pkt == nullptr) return;
   /* Assume the data is just the response byte sequence */
   p = (uint8_t*)(p_pkt + 1) + p_pkt->offset;
 
@@ -212,7 +212,7 @@ static void rw_t1t_data_cback(__attribute__((unused)) uint8_t conn_id,
     if ((p_t1t->state != RW_T1T_STATE_READ) &&
         (p_t1t->state != RW_T1T_STATE_WRITE)) {
       GKI_freebuf(p_pkt);
-      evt_data.data.p_data = NULL;
+      evt_data.data.p_data = nullptr;
     } else {
       evt_data.data.p_data = p_pkt;
     }
@@ -266,22 +266,22 @@ void rw_t1t_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
       /* Free cmd buf for retransmissions */
       if (p_t1t->p_cur_cmd_buf) {
         GKI_freebuf(p_t1t->p_cur_cmd_buf);
-        p_t1t->p_cur_cmd_buf = NULL;
+        p_t1t->p_cur_cmd_buf = nullptr;
       }
 
       p_t1t->state = RW_T1T_STATE_NOT_ACTIVATED;
-      NFC_SetStaticRfCback(NULL);
+      NFC_SetStaticRfCback(nullptr);
       break;
 
     case NFC_DATA_CEVT:
-      if (p_data != NULL) {
+      if (p_data != nullptr) {
         if (p_data->data.status == NFC_STATUS_OK) {
           rw_t1t_data_cback(conn_id, event, p_data);
           break;
-        } else if (p_data->data.p_data != NULL) {
+        } else if (p_data->data.p_data != nullptr) {
           /* Free the response buffer in case of error response */
           GKI_freebuf((NFC_HDR*)(p_data->data.p_data));
-          p_data->data.p_data = NULL;
+          p_data->data.p_data = nullptr;
         }
       }
     /* Data event with error status...fall through to NFC_ERROR_CEVT case */
@@ -300,7 +300,7 @@ void rw_t1t_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
         else
           evt_data.status = NFC_STATUS_FAILED;
 
-        evt_data.p_data = NULL;
+        evt_data.p_data = nullptr;
         tRW_DATA rw_data;
         rw_data.data = evt_data;
         (*rw_cb.p_cback)(RW_T1T_INTF_ERROR_EVT, &rw_data);
@@ -508,9 +508,9 @@ tNFC_STATUS rw_t1t_select(uint8_t hr[T1T_HR_LEN],
   p_t1t->state = RW_T1T_STATE_NOT_ACTIVATED;
 
   /* Alloc cmd buf for retransmissions */
-  if (p_t1t->p_cur_cmd_buf == NULL) {
+  if (p_t1t->p_cur_cmd_buf == nullptr) {
     p_t1t->p_cur_cmd_buf = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID);
-    if (p_t1t->p_cur_cmd_buf == NULL) {
+    if (p_t1t->p_cur_cmd_buf == nullptr) {
       LOG(ERROR) << StringPrintf(
           "rw_t1t_select: unable to allocate buffer for retransmission");
       return status;
@@ -598,7 +598,7 @@ static void rw_t1t_process_error(void) {
 
     /* allocate a new buffer for message */
     p_cmd_buf = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID);
-    if (p_cmd_buf != NULL) {
+    if (p_cmd_buf != nullptr) {
       memcpy(p_cmd_buf, p_t1t->p_cur_cmd_buf, sizeof(NFC_HDR) +
                                                   p_t1t->p_cur_cmd_buf->offset +
                                                   p_t1t->p_cur_cmd_buf->len);
@@ -652,7 +652,7 @@ static void rw_t1t_process_error(void) {
   } else {
     tRW_READ_DATA evt_data;
     evt_data.status = NFC_STATUS_TIMEOUT;
-    evt_data.p_data = NULL;
+    evt_data.p_data = nullptr;
     tRW_DATA rw_data;
     rw_data.data = evt_data;
     (*rw_cb.p_cback)(rw_event, &rw_data);
@@ -957,7 +957,7 @@ tNFC_STATUS RW_T1tReadSeg(uint8_t segment) {
   if (rw_cb.tcb.t1t.hr[0] != T1T_STATIC_HR0) {
     /* send RSEG command */
     RW_T1T_BLD_ADDS((adds), (segment));
-    status = rw_t1t_send_dyn_cmd(T1T_CMD_RSEG, adds, NULL);
+    status = rw_t1t_send_dyn_cmd(T1T_CMD_RSEG, adds, nullptr);
     if (status == NFC_STATUS_OK) {
       p_t1t->state = RW_T1T_STATE_READ;
     }
@@ -986,7 +986,7 @@ tNFC_STATUS RW_T1tRead8(uint8_t block) {
   if (rw_cb.tcb.t1t.hr[0] != T1T_STATIC_HR0 ||
       rw_cb.tcb.t1t.hr[1] >= RW_T1T_HR1_MIN) {
     /* send READ8 command */
-    status = rw_t1t_send_dyn_cmd(T1T_CMD_READ8, block, NULL);
+    status = rw_t1t_send_dyn_cmd(T1T_CMD_READ8, block, nullptr);
     if (status == NFC_STATUS_OK) {
       p_t1t->state = RW_T1T_STATE_READ;
     }

@@ -79,7 +79,7 @@ tNDEF_STATUS NDEF_MsgValidate(uint8_t* p_msg, uint32_t msg_len,
   uint32_t payload_len;
   bool bInChunk = false;
 
-  if ((p_msg == NULL) || (msg_len < 3)) return (NDEF_MSG_TOO_SHORT);
+  if ((p_msg == nullptr) || (msg_len < 3)) return (NDEF_MSG_TOO_SHORT);
 
   /* The first record must have the MB bit set */
   if ((*p_msg & NDEF_MB_MASK) == 0) return (NDEF_MSG_NO_MSG_BEGIN);
@@ -322,7 +322,7 @@ uint8_t* NDEF_MsgGetNextRec(uint8_t* p_cur_rec) {
   rec_hdr = *p_cur_rec++;
 
   /* If this is the last record, return NULL */
-  if (rec_hdr & NDEF_ME_MASK) return (NULL);
+  if (rec_hdr & NDEF_ME_MASK) return (nullptr);
 
   /* Type field length */
   type_len = *p_cur_rec++;
@@ -366,7 +366,7 @@ uint8_t* NDEF_MsgGetRecByIndex(uint8_t* p_msg, int32_t index) {
 
     rec_hdr = *p_rec++;
 
-    if (rec_hdr & NDEF_ME_MASK) return (NULL);
+    if (rec_hdr & NDEF_ME_MASK) return (nullptr);
 
     /* Type field length */
     type_len = *p_rec++;
@@ -388,7 +388,7 @@ uint8_t* NDEF_MsgGetRecByIndex(uint8_t* p_msg, int32_t index) {
   }
 
   /* If here, there is no record of that index */
-  return (NULL);
+  return (nullptr);
 }
 
 /*******************************************************************************
@@ -480,14 +480,14 @@ uint8_t* NDEF_MsgGetFirstRecByType(uint8_t* p_msg, uint8_t tnf, uint8_t* p_type,
       return (pRecStart);
 
     /* If this was the last record, return NULL */
-    if (rec_hdr & NDEF_ME_MASK) return (NULL);
+    if (rec_hdr & NDEF_ME_MASK) return (nullptr);
 
     /* Point to next record */
     p_rec += (payload_len + type_len + id_len);
   }
 
   /* If here, there is no record of that type */
-  return (NULL);
+  return (nullptr);
 }
 
 /*******************************************************************************
@@ -509,7 +509,7 @@ uint8_t* NDEF_MsgGetNextRecByType(uint8_t* p_cur_rec, uint8_t tnf,
 
   /* If this is the last record in the message, return NULL */
   p_rec = NDEF_MsgGetNextRec(p_cur_rec);
-  if (p_rec == NULL) return (NULL);
+  if (p_rec == nullptr) return (nullptr);
 
   for (;;) {
     pRecStart = p_rec;
@@ -545,7 +545,7 @@ uint8_t* NDEF_MsgGetNextRecByType(uint8_t* p_cur_rec, uint8_t tnf,
   }
 
   /* If here, there is no record of that type */
-  return (NULL);
+  return (nullptr);
 }
 
 /*******************************************************************************
@@ -592,14 +592,14 @@ uint8_t* NDEF_MsgGetFirstRecById(uint8_t* p_msg, uint8_t* p_id, uint8_t ilen) {
     if ((id_len == ilen) && (!memcmp(p_rec, p_id, ilen))) return (pRecStart);
 
     /* If this was the last record, return NULL */
-    if (rec_hdr & NDEF_ME_MASK) return (NULL);
+    if (rec_hdr & NDEF_ME_MASK) return (nullptr);
 
     /* Point to next record */
     p_rec += (id_len + payload_len);
   }
 
   /* If here, there is no record of that ID */
-  return (NULL);
+  return (nullptr);
 }
 
 /*******************************************************************************
@@ -621,7 +621,7 @@ uint8_t* NDEF_MsgGetNextRecById(uint8_t* p_cur_rec, uint8_t* p_id,
 
   /* If this is the last record in the message, return NULL */
   p_rec = NDEF_MsgGetNextRec(p_cur_rec);
-  if (p_rec == NULL) return (NULL);
+  if (p_rec == nullptr) return (nullptr);
 
   for (;;) {
     pRecStart = p_rec;
@@ -658,7 +658,7 @@ uint8_t* NDEF_MsgGetNextRecById(uint8_t* p_cur_rec, uint8_t* p_id,
   }
 
   /* If here, there is no record of that ID */
-  return (NULL);
+  return (nullptr);
 }
 
 /*******************************************************************************
@@ -694,7 +694,7 @@ uint8_t* NDEF_RecGetType(uint8_t* p_rec, uint8_t* p_tnf, uint8_t* p_type_len) {
   *p_tnf = rec_hdr& NDEF_TNF_MASK;
 
   if (type_len == 0)
-    return (NULL);
+    return (nullptr);
   else
     return (p_rec);
 }
@@ -732,7 +732,7 @@ uint8_t* NDEF_RecGetId(uint8_t* p_rec, uint8_t* p_id_len) {
 
   /* p_rec now points to the start of the type field. The ID field follows it */
   if (*p_id_len == 0)
-    return (NULL);
+    return (nullptr);
   else
     return (p_rec + type_len);
 }
@@ -775,7 +775,7 @@ uint8_t* NDEF_RecGetPayload(uint8_t* p_rec, uint32_t* p_payload_len) {
   /* p_rec now points to the start of the type field. The ID field follows it,
    * then the payload */
   if (payload_len == 0)
-    return (NULL);
+    return (nullptr);
   else
     return (p_rec + type_len + id_len);
 }
@@ -1257,7 +1257,7 @@ tNDEF_STATUS NDEF_MsgRemoveRec(uint8_t* p_msg, uint32_t* p_cur_size,
   if (*p_rec & NDEF_MB_MASK) {
     /* Find the second record (if any) and set his 'Message Begin' bit */
     pNext = NDEF_MsgGetRecByIndex(p_msg, 1);
-    if (pNext != NULL) {
+    if (pNext != nullptr) {
       *pNext |= NDEF_MB_MASK;
 
       *p_cur_size -= (uint32_t)(pNext - p_msg);
@@ -1274,7 +1274,7 @@ tNDEF_STATUS NDEF_MsgRemoveRec(uint8_t* p_msg, uint32_t* p_cur_size,
     if (index > 0) {
       /* Find the previous record and set his 'Message End' bit */
       pPrev = NDEF_MsgGetRecByIndex(p_msg, index - 1);
-      if (pPrev == NULL) return false;
+      if (pPrev == nullptr) return false;
 
       *pPrev |= NDEF_ME_MASK;
     }
@@ -1285,7 +1285,7 @@ tNDEF_STATUS NDEF_MsgRemoveRec(uint8_t* p_msg, uint32_t* p_cur_size,
 
   /* Not the first or the last... get the address of the next record */
   pNext = NDEF_MsgGetNextRec(p_rec);
-  if (pNext == NULL) return false;
+  if (pNext == nullptr) return false;
 
   /* We are removing p_rec, so shift from pNext to the end */
   shiftup(p_rec, pNext, (uint32_t)(*p_cur_size - (pNext - p_msg)));
@@ -1330,7 +1330,7 @@ tNDEF_STATUS NDEF_MsgCopyAndDechunk(uint8_t* p_src, uint32_t src_len,
   p_rec = p_src;
 
   /* Now, copy record by record */
-  while ((p_rec != NULL) && (status == NDEF_OK)) {
+  while ((p_rec != nullptr) && (status == NDEF_OK)) {
     p_type = NDEF_RecGetType(p_rec, &tnf, &type_len);
     p_id = NDEF_RecGetId(p_rec, &id_len);
     p_pay = NDEF_RecGetPayload(p_rec, &pay_len);
