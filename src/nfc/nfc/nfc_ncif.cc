@@ -44,6 +44,7 @@
  ******************************************************************************/
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
+#include <log/log.h>
 #include <metricslogger/metrics_logger.h>
 
 #include "nfc_target.h"
@@ -2193,8 +2194,13 @@ void nfc_ncif_proc_get_routing(__attribute__((unused)) uint8_t* p,
       for (yy = 0; yy < evt_data.num_tlvs; yy++) {
         tl = *(p + 1);
         tl += NFC_TL_SIZE;
-        STREAM_TO_ARRAY(pn, p, tl);
         evt_data.tlv_size += tl;
+        if (evt_data.tlv_size > NFC_MAX_EE_TLV_SIZE) {
+          android_errorWriteLog(0x534e4554, "117554809");
+          LOG(ERROR) << __func__ << "Invalid data format";
+          return;
+        }
+        STREAM_TO_ARRAY(pn, p, tl);
         pn += tl;
       }
       (*nfc_cb.p_resp_cback)(NFC_GET_ROUTING_REVT, (tNFC_RESPONSE*)&evt_data);
