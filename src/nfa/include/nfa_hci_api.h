@@ -120,18 +120,8 @@ typedef uint8_t tNFA_HCI_EVT;
 #define NFA_MAX_HCI_CMD_LEN 255
 /* Max HCI event length */
 #define NFA_MAX_HCI_RSP_LEN 255
-#if (NXP_EXTNS == TRUE)
-/*
- * increased the the buffer size, since as per HCI specification connectivity
- * event may
- * take up 271 bytes. (MAX AID length:16, MAX PARAMETERS length:255)
- * */
 /* Max HCI event length */
 #define NFA_MAX_HCI_EVENT_LEN 300
-#else
-/* Max HCI event length */
-#define NFA_MAX_HCI_EVENT_LEN 260
-#endif
 /* Max HCI data length */
 #define NFA_MAX_HCI_DATA_LEN 260
 
