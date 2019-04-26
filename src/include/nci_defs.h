@@ -540,6 +540,8 @@ typedef uint8_t tNCI_DISCOVERY_TYPE;
 #define NCI_PARAM_ID_RF_FIELD_INFO 0x80
 #define NCI_PARAM_ID_NFC_DEP_OP 0x82
 
+#define NCI_PARAM_ID_NFCC_CONFIG_CONTROL 0x85
+
 #define NCI_LISTEN_DH_NFCEE_ENABLE_MASK 0x00 /* The DH-NFCEE listen is considered as a enable NFCEE */
 #define NCI_LISTEN_DH_NFCEE_DISABLE_MASK 0x02 /* The DH-NFCEE listen is considered as a disable NFCEE */
 #define NCI_POLLING_DH_DISABLE_MASK 0x00 /* The DH polling is considered as a disable NFCEE */
