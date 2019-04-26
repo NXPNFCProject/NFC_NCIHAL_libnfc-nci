@@ -134,6 +134,7 @@ void nfa_dm_init(void) {
   nfa_dm_cb.poll_disc_handle = NFA_HANDLE_INVALID;
   nfa_dm_cb.disc_cb.disc_duration = NFA_DM_DISC_DURATION_POLL;
   nfa_dm_cb.nfcc_pwr_mode = NFA_DM_PWR_MODE_FULL;
+  nfa_dm_cb.pending_power_state = SCREEN_STATE_INVALID;
 #if (NXP_EXTNS == TRUE)
   nfa_dm_cb.selected_uicc_id = UICC1_HOST;
 #endif

@@ -588,6 +588,9 @@ typedef struct {
                                          sent in case of error scenerio */
 
   uint32_t eDtaMode;        /* For enable the DTA type modes. */
+  uint8_t pending_power_state; /* pending screen state change received in
+                                  LISTEN_ACTIVE state which needs to be applied
+                                  after current transaction is completed*/
 #if (NXP_EXTNS == TRUE)
   uint8_t selected_uicc_id; /* Current selected UICC ID */
 #endif
