@@ -45,6 +45,7 @@
 
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
+#include <log/log.h>
 
 #include "gki.h"
 #include "bt_types.h"
@@ -1109,7 +1110,7 @@ static void llcp_link_proc_ui_pdu(uint8_t local_sap, uint8_t remote_sap,
 static void llcp_link_proc_agf_pdu(NFC_HDR* p_agf) {
   uint16_t agf_length;
   uint8_t* p, *p_info, *p_pdu_length;
-  uint16_t pdu_hdr, pdu_length;
+  uint16_t pdu_hdr, pdu_length, pdu_num;
   uint8_t dsap, ptype, ssap;
 
   p_agf->len -= LLCP_PDU_HEADER_SIZE;
@@ -1120,10 +1121,15 @@ static void llcp_link_proc_agf_pdu(NFC_HDR* p_agf) {
   */
   agf_length = p_agf->len;
   p = (uint8_t*)(p_agf + 1) + p_agf->offset;
+  pdu_num = 0;
 
   while (agf_length > 0) {
     if (agf_length > LLCP_PDU_AGF_LEN_SIZE) {
       BE_STREAM_TO_UINT16(pdu_length, p);
+      if (pdu_length < LLCP_PDU_HEADER_SIZE) {
+        LOG(ERROR) << StringPrintf("Received invalid encapsulated PDU");
+        break;
+      }
       agf_length -= LLCP_PDU_AGF_LEN_SIZE;
     } else {
       break;
@@ -1132,6 +1138,7 @@ static void llcp_link_proc_agf_pdu(NFC_HDR* p_agf) {
     if (pdu_length <= agf_length) {
       p += pdu_length;
       agf_length -= pdu_length;
+      pdu_num++;
     } else {
       break;
     }
@@ -1173,6 +1180,8 @@ static void llcp_link_proc_agf_pdu(NFC_HDR* p_agf) {
       GKI_freebuf(p_agf);
       llcp_link_deactivate(LLCP_LINK_REMOTE_INITIATED);
       return;
+    } else if (ptype == LLCP_PDU_AGF_TYPE) {
+      LOG(ERROR) << StringPrintf("AGF PDU shall not be in AGF");
     } else if (ptype == LLCP_PDU_SYMM_TYPE) {
       LOG(ERROR) << StringPrintf(
           "llcp_link_proc_agf_pdu (): SYMM PDU exchange shall not be in AGF");
