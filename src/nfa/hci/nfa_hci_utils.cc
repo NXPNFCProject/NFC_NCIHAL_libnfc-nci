@@ -263,26 +263,24 @@ tNFA_HCI_DYN_GATE* nfa_hciu_alloc_gate(uint8_t gate_id,
   } else {
     /* If gate_id is 0, we need to assign a free one */
     /* Loop through all possible gate IDs checking if they are already used */
-    for (gate_id = NFA_HCI_FIRST_HOST_SPECIFIC_GENERIC_GATE;
-         gate_id <= NFA_HCI_LAST_PROP_GATE; gate_id++) {
+    uint32_t gate_id_index;
+    for (gate_id_index = NFA_HCI_FIRST_HOST_SPECIFIC_GENERIC_GATE;
+         gate_id_index <= NFA_HCI_LAST_PROP_GATE; gate_id_index++) {
       /* Skip connectivity gate */
-      if (gate_id == NFA_HCI_CONNECTIVITY_GATE) gate_id++;
+      if (gate_id_index == NFA_HCI_CONNECTIVITY_GATE) gate_id_index++;
 
       /* All possible gate IDs are exhausted. */
-      if (gate_id == 0) break;
+      if (gate_id_index == 0) break;
 
       /* Check if the gate is already allocated */
-      if (nfa_hciu_find_gate_by_gid(gate_id) == nullptr) break;
+      if (nfa_hciu_find_gate_by_gid(gate_id_index) == nullptr) break;
     }
-#if (NXP_EXTNS == TRUE)
-#else
-    if (gate_id > NFA_HCI_LAST_PROP_GATE) {
+    if (gate_id_index > NFA_HCI_LAST_PROP_GATE) {
       LOG(ERROR) << StringPrintf(
           "nfa_hci_alloc_gate - no free Gate ID: %u  App Handle: 0x%04x",
-          gate_id, app_handle);
+          gate_id_index, app_handle);
       return (nullptr);
     }
-#endif
   }
 
   /* Now look for a free control block */
