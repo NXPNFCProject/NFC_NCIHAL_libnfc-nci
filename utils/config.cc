@@ -28,7 +28,7 @@ namespace {
 bool parseBytesString(std::string in, std::vector<uint8_t>& out) {
   vector<string> values = Split(in, ":");
   if (values.size() == 0) return false;
-  for (string value : values) {
+  for (const string& value : values) {
     if (value.length() != 2) return false;
     uint8_t tmp = 0;
     string hexified = "0x";
