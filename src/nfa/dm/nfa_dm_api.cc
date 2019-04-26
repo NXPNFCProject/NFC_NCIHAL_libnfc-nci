@@ -44,7 +44,7 @@
 
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
-
+#include <log/log.h>
 #include "nfa_api.h"
 #include "nfa_ce_int.h"
 #include "ndef_utils.h"
@@ -1087,7 +1087,11 @@ tNFA_STATUS NFA_SendRawFrame(uint8_t* p_raw_data, uint16_t data_len,
       return (NFA_STATUS_INVALID_PARAM);
   }
 
-  size = NFC_HDR_SIZE + NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE + data_len;
+  size = NFC_HDR_SIZE + NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE + data_len;  /* Check for integer overflow */
+  if (size < data_len) {
+    android_errorWriteLog(0x534e4554, "120664978");
+    return NFA_STATUS_INVALID_PARAM;
+  }
   p_msg = (NFC_HDR*)GKI_getbuf(size);
 
   if (p_msg != nullptr) {
