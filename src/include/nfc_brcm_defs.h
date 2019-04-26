@@ -46,7 +46,7 @@
 /**********************************************
  * NCI Interface Types
  **********************************************/
-#define NCI_INTERFACE_VS_MIFARE 0x80
+#define NCI_INTERFACE_VS_MIFARE NCI_PROTOCOL_MIFARE
 #define NCI_INTERFACE_VS_T2T_CE 0x82 /* for Card Emulation side */
 
 #define NCI_PARAM_ID_T1T_RDR_ONLY 0xA7
