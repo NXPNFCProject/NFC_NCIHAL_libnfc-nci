@@ -207,7 +207,7 @@ static void nfa_dm_set_init_nci_params(void) {
   nfa_dm_cb.params.wt[0] = 14;
 
   /* Set CE default configuration */
-  if (p_nfa_dm_ce_cfg[0]) {
+  if (p_nfa_dm_ce_cfg[0] && NFC_GetNCIVersion() != NCI_VERSION_2_0) {
     nfa_dm_check_set_config(p_nfa_dm_ce_cfg[0], &p_nfa_dm_ce_cfg[1], false);
   }
 
