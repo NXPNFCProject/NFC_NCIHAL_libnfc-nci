@@ -2986,6 +2986,8 @@ static void rw_i93_data_cback(__attribute__((unused)) uint8_t conn_id,
       NFC_SetStaticRfCback(nullptr);
       p_i93->state = RW_I93_STATE_NOT_ACTIVATED;
     }
+    p_resp = (NFC_HDR*)p_data->data.p_data;
+    GKI_freebuf(p_resp);
     return;
   }
 
