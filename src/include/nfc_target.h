@@ -459,7 +459,7 @@
 /* Response Waiting Time */
 #ifndef LLCP_WAITING_TIME
 /* its scaled value should be less than LTO */
-#define LLCP_WAITING_TIME 7
+#define LLCP_WAITING_TIME 8
 #endif
 
 /* Options Parameters */
