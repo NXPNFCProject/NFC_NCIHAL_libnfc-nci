@@ -95,6 +95,7 @@
 #define NFC_TTYPE_LISTEN_ACTIVATION 111
 #define NFC_TTYPE_P2P_PRIO_LOGIC_DEACT_NTF_TIMEOUT 113
 #endif
+#define NFC_TTYPE_RW_MFC_RESPONSE 114
 /* time out for modeSet notification */
 #define NFC_SETMODE_NTF_TIMEOUT     2
 #if (NXP_EXTNS == TRUE)

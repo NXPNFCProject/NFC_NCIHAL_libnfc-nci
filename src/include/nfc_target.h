@@ -361,6 +361,11 @@
 #define RW_I93_FLAG_DATA_RATE I93_FLAG_DATA_RATE_HIGH
 #endif
 
+/* RW Mifare Classic Tag timeout for each API call, in ms */
+#ifndef RW_MFC_TOUT_RESP
+#define RW_MFC_TOUT_RESP 300
+#endif
+
 /* true, to include Card Emulation related test commands */
 #ifndef CE_TEST_INCLUDED
 #define CE_TEST_INCLUDED false

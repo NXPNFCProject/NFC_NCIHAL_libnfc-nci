@@ -274,6 +274,14 @@ tNFC_STATUS RW_SetActivatedTagType(tNFC_ACTIVATE_DEVT* p_activate_params,
     if (p_activate_params->rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_V) {
       status = rw_i93_select(p_activate_params->rf_tech_param.param.pi93.uid);
     }
+  } else if (NFC_PROTOCOL_MIFARE == p_activate_params->protocol) {
+    /* Mifare Classic*/
+    if (p_activate_params->rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A) {
+      status = rw_mfc_select(
+          p_activate_params->rf_tech_param.param.pa.sel_rsp,
+          p_activate_params->rf_tech_param.param.pa.nfcid1 +
+              p_activate_params->rf_tech_param.param.pa.nfcid1_len - 4);
+    }
   } else {
     LOG(ERROR) << StringPrintf("RW_SetActivatedTagType Invalid protocol");
   }

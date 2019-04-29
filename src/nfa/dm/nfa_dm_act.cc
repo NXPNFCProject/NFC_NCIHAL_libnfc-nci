@@ -1011,6 +1011,7 @@ tNFA_STATUS nfa_dm_start_polling(void) {
       poll_disc_mask |= NFA_DM_DISC_MASK_PA_ISO_DEP;
       poll_disc_mask |= NFA_DM_DISC_MASK_PA_NFC_DEP;
       poll_disc_mask |= NFA_DM_DISC_MASK_P_LEGACY;
+      poll_disc_mask |= NFA_DM_DISC_MASK_PA_MIFARE;
     }
     if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
       if (poll_tech_mask & NFA_TECHNOLOGY_MASK_ACTIVE) {
@@ -1641,7 +1642,8 @@ static void nfa_dm_excl_disc_cback(tNFA_DM_RF_DISC_EVT event,
               (nfa_dm_cb.disc_cb.activated_protocol == NFC_PROTOCOL_T3T) ||
               (nfa_dm_cb.disc_cb.activated_protocol == NFC_PROTOCOL_ISO_DEP) ||
               (nfa_dm_cb.disc_cb.activated_protocol == NFA_PROTOCOL_T5T) ||
-              (nfa_dm_cb.disc_cb.activated_protocol == NFC_PROTOCOL_KOVIO)) {
+              (nfa_dm_cb.disc_cb.activated_protocol == NFC_PROTOCOL_KOVIO) ||
+              (nfa_dm_cb.disc_cb.activated_protocol == NFC_PROTOCOL_MIFARE)) {
             /* Notify NFA tag sub-system */
             nfa_rw_proc_disc_evt(NFA_DM_RF_DISC_ACTIVATED_EVT, p_data, false);
           } else /* if NFC-DEP, ISO-DEP with frame interface or others */
