@@ -231,36 +231,64 @@ void rw_i93_get_product_version(uint8_t* p_uid) {
 ** Returns          FALSE if retrying with protocol extension flag
 **
 *******************************************************************************/
-bool rw_i93_process_ext_sys_info(uint8_t* p_data) {
+bool rw_i93_process_ext_sys_info(uint8_t* p_data, uint16_t length) {
   uint8_t* p = p_data;
   tRW_I93_CB* p_i93 = &rw_cb.tcb.i93;
   uint8_t uid[I93_UID_BYTE_LEN], *p_uid;
 
   DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
+  if (length < (I93_UID_BYTE_LEN + 1)) {
+    android_errorWriteLog(0x534e4554, "122316913");
+    return false;
+  }
+
   STREAM_TO_UINT8(p_i93->info_flags, p);
+  length--;
 
   p_uid = uid;
   STREAM_TO_ARRAY8(p_uid, p);
+  length -= I93_UID_BYTE_LEN;
 
   if (p_i93->info_flags & I93_INFO_FLAG_DSFID) {
+    if (length < 1) {
+      android_errorWriteLog(0x534e4554, "122316913");
+      return false;
+    }
     STREAM_TO_UINT8(p_i93->dsfid, p);
+    length--;
   }
   if (p_i93->info_flags & I93_INFO_FLAG_AFI) {
+    if (length < 1) {
+      android_errorWriteLog(0x534e4554, "122316913");
+      return false;
+    }
     STREAM_TO_UINT8(p_i93->afi, p);
+    length--;
   }
   if (p_i93->info_flags & I93_INFO_FLAG_MEM_SIZE) {
+    if (length < 3) {
+      android_errorWriteLog(0x534e4554, "122316913");
+      return false;
+    }
     STREAM_TO_UINT16(p_i93->num_block, p);
+    length -= I93_INFO_16BIT_NUM_BLOCK_LEN;
 
     /* it is one less than actual number of bytes */
     p_i93->num_block += 1;
 
     STREAM_TO_UINT8(p_i93->block_size, p);
+    length--;
     /* it is one less than actual number of blocks */
     p_i93->block_size = (p_i93->block_size & 0x1F) + 1;
   }
   if (p_i93->info_flags & I93_INFO_FLAG_IC_REF) {
+    if (length < 1) {
+      android_errorWriteLog(0x534e4554, "122316913");
+      return false;
+    }
     STREAM_TO_UINT8(p_i93->ic_reference, p);
+    length--;
 
     /* clear existing UID to set product version */
     p_i93->uid[0] = 0x00;
@@ -567,7 +595,7 @@ void rw_i93_send_to_upper(NFC_HDR* p_resp) {
 
     case I93_CMD_EXT_GET_SYS_INFO:
 
-      if (rw_i93_process_ext_sys_info(p)) {
+      if (rw_i93_process_ext_sys_info(p, length)) {
         rw_data.i93_sys_info.status = NFC_STATUS_OK;
         rw_data.i93_sys_info.info_flags = p_i93->info_flags;
         rw_data.i93_sys_info.dsfid = p_i93->dsfid;
