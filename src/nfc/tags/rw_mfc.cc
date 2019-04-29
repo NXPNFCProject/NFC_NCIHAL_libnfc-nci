@@ -36,6 +36,7 @@
 #define MFC_KeyA 0x60
 #define MFC_KeyB 0x61
 #define MFC_Read 0x30
+#define MFC_Write 0xA0
 
 /* main state */
 /* Mifare Classic is not activated */
@@ -54,11 +55,15 @@
 #define RW_MFC_STATE_SET_READ_ONLY 0x06
 /* detect tlv */
 #define RW_MFC_STATE_DETECT_TLV 0x7
+/* NDef Format */
+#define RW_MFC_STATE_NDEF_FORMAT 0x8
 
 #define RW_MFC_SUBSTATE_NONE 0x00
 #define RW_MFC_SUBSTATE_IDLE 0x01
 #define RW_MFC_SUBSTATE_WAIT_ACK 0x02
 #define RW_MFC_SUBSTATE_READ_BLOCK 0x03
+#define RW_MFC_SUBSTATE_FORMAT_BLOCK 0x04
+#define RW_MFC_SUBSTATE_WRITE_BLOCK 0x05
 
 #define RW_MFC_LONG_TLV_SIZE 4
 #define RW_MFC_SHORT_TLV_SIZE 2
@@ -66,6 +71,20 @@
 #define RW_MFC_4K_Support 0x10
 
 #define RW_MFC_1K_BLOCK_SIZE 16
+
+uint8_t KeyNDEF[6] = {0xD3, 0XF7, 0xD3, 0XF7, 0xD3, 0XF7};
+uint8_t KeyMAD[6] = {0xA0, 0XA1, 0xA2, 0XA3, 0xA4, 0XA5};
+uint8_t KeyDefault[6] = {0xFF, 0XFF, 0xFF, 0XFF, 0xFF, 0XFF};
+uint8_t access_permission_nfc[4] = {0x7F, 0x07, 0x88, 0x40};
+uint8_t access_permission_mad[4] = {0x78, 0x77, 0x88, 0xC1};
+uint8_t MAD_B1[16] = {0x14, 0x01, 0x03, 0xE1, 0x03, 0xE1, 0x03, 0xE1,
+                      0x03, 0xE1, 0x03, 0xE1, 0x03, 0xE1, 0x03, 0xE1};
+uint8_t MAD_B2[16] = {0x03, 0xE1, 0x03, 0xE1, 0x03, 0xE1, 0x03, 0xE1,
+                      0x03, 0xE1, 0x03, 0xE1, 0x03, 0xE1, 0x03, 0xE1};
+uint8_t MAD_B64[16] = {0xE8, 0x01, 0x03, 0xE1, 0x03, 0xE1, 0x03, 0xE1,
+                       0x03, 0xE1, 0x03, 0xE1, 0x03, 0xE1, 0x03, 0xE1};
+uint8_t NFC_B0[16] = {0x03, 0x00, 0xFE, 0x00, 0x00, 0x00, 0x00, 0x00,
+                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
 static bool rw_mfc_send_to_lower(NFC_HDR* p_c_apdu);
 static bool rw_mfc_authenticate(int sector, bool KeyA);
@@ -82,8 +101,413 @@ static void rw_mfc_handle_op_complete(void);
 static void rw_mfc_handle_ndef_read_rsp(uint8_t* p_data);
 static void rw_mfc_process_error();
 
+static tNFC_STATUS rw_mfc_formatBlock(int block);
+static void rw_mfc_handle_format_rsp(uint8_t* p_data);
+static void rw_mfc_handle_format_op();
+static tNFC_STATUS rw_mfc_writeBlock(int block);
+static void rw_mfc_handle_write_rsp(uint8_t* p_data);
+static void rw_mfc_handle_write_op();
+
 using android::base::StringPrintf;
 extern bool nfc_debug_enabled;
+
+/*****************************************************************************
+**
+** Function         RW_MfcFormatNDef
+**
+** Description
+**      Format Tag content
+**
+** Returns
+**      NFC_STATUS_OK, Command sent to format Tag
+**      NFC_STATUS_REJECTED: cannot format the tag
+**      NFC_STATUS_FAILED: other error
+**
+*****************************************************************************/
+tNFC_STATUS RW_MfcFormatNDef(void) {
+  tRW_MFC_CB* p_mfc = &rw_cb.tcb.mfc;
+  tNFC_STATUS status = NFC_STATUS_OK;
+
+  if (p_mfc->state != RW_MFC_STATE_IDLE) {
+    LOG(ERROR) << __func__
+               << " Mifare Classic tag not activated or Busy - State:"
+               << p_mfc->state;
+    return NFC_STATUS_BUSY;
+  }
+
+  p_mfc->state = RW_MFC_STATE_NDEF_FORMAT;
+  p_mfc->substate = RW_MFC_SUBSTATE_NONE;
+  p_mfc->last_block_accessed.block = 1;
+  p_mfc->next_block.block = 1;
+
+  status = rw_mfc_formatBlock(p_mfc->next_block.block);
+  if (status == NFC_STATUS_OK) {
+    p_mfc->state = RW_MFC_STATE_NDEF_FORMAT;
+  } else {
+    p_mfc->substate = RW_MFC_SUBSTATE_NONE;
+  }
+
+  return status;
+}
+
+/*******************************************************************************
+ **
+ ** Function         rw_mfc_formatBlock
+ **
+ ** Description      This function format a given block.
+ **
+ ** Returns          true if success
+ **
+ *******************************************************************************/
+static tNFC_STATUS rw_mfc_formatBlock(int block) {
+  NFC_HDR* mfcbuf;
+  uint8_t* p;
+  tRW_MFC_CB* p_mfc = &rw_cb.tcb.mfc;
+  int sectorlength = block / 4;
+  tNFC_STATUS status = NFC_STATUS_OK;
+
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__ << ": block : " << block;
+
+  if (block > 128) {
+    sectorlength = (p_mfc->next_block.block - 128) / 16 + 32;
+  }
+
+  if (sectorlength != p_mfc->sector_authentified) {
+    if (rw_mfc_authenticate(block, true) == true) {
+      return NFC_STATUS_OK;
+    }
+    return NFC_STATUS_FAILED;
+  }
+
+  mfcbuf = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID);
+
+  if (!mfcbuf) {
+    LOG(ERROR) << __func__ << ": Cannot allocate buffer";
+    return NFC_STATUS_REJECTED;
+  }
+
+  mfcbuf->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
+  p = (uint8_t*)(mfcbuf + 1) + mfcbuf->offset;
+
+  UINT8_TO_BE_STREAM(p, MFC_Write);
+  UINT8_TO_BE_STREAM(p, block);
+
+  if (block == 1) {
+    ARRAY_TO_BE_STREAM(p, MAD_B1, 16);
+  } else if (block == 2 || block == 65 || block == 66) {
+    ARRAY_TO_BE_STREAM(p, MAD_B2, 16);
+  } else if (block == 3 || block == 67) {
+    ARRAY_TO_BE_STREAM(p, KeyMAD, 6);
+    ARRAY_TO_BE_STREAM(p, access_permission_mad, 4);
+    ARRAY_TO_BE_STREAM(p, KeyDefault, 6);
+  } else if (block == 4) {
+    ARRAY_TO_BE_STREAM(p, NFC_B0, 16);
+  } else if (block == 64) {
+    ARRAY_TO_BE_STREAM(p, MAD_B64, 16);
+  } else {
+    ARRAY_TO_BE_STREAM(p, KeyNDEF, 6);
+    ARRAY_TO_BE_STREAM(p, access_permission_nfc, 4);
+    ARRAY_TO_BE_STREAM(p, KeyDefault, 6);
+  }
+  mfcbuf->len = 18;
+
+  if (!rw_mfc_send_to_lower(mfcbuf)) {
+    return NFC_STATUS_REJECTED;
+  }
+  p_mfc->current_block = block;
+  p_mfc->substate = RW_MFC_SUBSTATE_FORMAT_BLOCK;
+
+  return status;
+}
+
+static void rw_mfc_handle_format_rsp(uint8_t* p_data) {
+  tRW_MFC_CB* p_mfc = &rw_cb.tcb.mfc;
+  NFC_HDR* mfc_data;
+  uint8_t* p;
+
+  mfc_data = (NFC_HDR*)p_data;
+  /* Assume the data is just the response byte sequence */
+  p = (uint8_t*)(mfc_data + 1) + mfc_data->offset;
+
+  switch (p_mfc->substate) {
+    case RW_MFC_SUBSTATE_WAIT_ACK:
+      p_mfc->last_block_accessed.block = p_mfc->current_block;
+
+      if (p[0] == 0x0) {
+        p_mfc->next_block.auth = true;
+        p_mfc->last_block_accessed.auth = true;
+
+        if (p_mfc->next_block.block < 128) {
+          p_mfc->sector_authentified = p_mfc->next_block.block / 4;
+        } else {
+          p_mfc->sector_authentified =
+              (p_mfc->next_block.block - 128) / 16 + 32;
+        }
+        rw_mfc_resume_op();
+      } else {
+        p_mfc->next_block.auth = false;
+        p_mfc->last_block_accessed.auth = false;
+        nfc_stop_quick_timer(&p_mfc->timer);
+        rw_mfc_process_error();
+      }
+      break;
+
+    case RW_MFC_SUBSTATE_FORMAT_BLOCK:
+      if (p[0] == 0x0) {
+        rw_mfc_handle_format_op();
+      } else {
+        nfc_stop_quick_timer(&p_mfc->timer);
+        rw_mfc_process_error();
+      }
+      break;
+  }
+}
+
+static void rw_mfc_handle_format_op() {
+  tRW_MFC_CB* p_mfc = &rw_cb.tcb.mfc;
+  tRW_READ_DATA evt_data;
+  int num_of_blocks = 0;
+
+  /* Total blockes of Mifare 1k/4K */
+  if (p_mfc->selres & RW_MFC_4K_Support)
+    num_of_blocks = 256;
+  else
+    num_of_blocks = 64;
+
+  p_mfc->last_block_accessed.block = p_mfc->current_block;
+
+  // Find next block needed to format
+  if (p_mfc->current_block < 4) {
+    p_mfc->next_block.block = p_mfc->current_block + 1;
+  } else if (p_mfc->current_block == 4) {
+    p_mfc->next_block.block = 7;
+  } else if (p_mfc->current_block >= 63 && p_mfc->current_block < 67) {
+    p_mfc->next_block.block = p_mfc->current_block + 1;
+  } else if (p_mfc->current_block < 127) {
+    p_mfc->next_block.block = p_mfc->current_block + 4;
+  } else {
+    p_mfc->next_block.block = p_mfc->current_block + 16;
+  }
+
+  if (p_mfc->next_block.block < num_of_blocks) {
+    /* Format next blocks */
+    if (rw_mfc_formatBlock(p_mfc->next_block.block) != NFC_STATUS_OK) {
+      evt_data.status = NFC_STATUS_FAILED;
+      evt_data.p_data = NULL;
+      (*rw_cb.p_cback)(RW_MFC_NDEF_FORMAT_CPLT_EVT, (tRW_DATA*)&evt_data);
+    }
+  } else {
+    evt_data.status = NFC_STATUS_OK;
+    evt_data.p_data = NULL;
+    rw_mfc_handle_op_complete();
+    (*rw_cb.p_cback)(RW_MFC_NDEF_FORMAT_CPLT_EVT, (tRW_DATA*)&evt_data);
+  }
+}
+
+/*******************************************************************************
+**
+** Function         RW_MfcWriteNDef
+**
+** Description      This function can be called to write an NDEF message to the
+**                  tag.
+**
+** Parameters:      buf_len:    The length of the buffer
+**                  p_buffer:   The NDEF message to write
+**
+** Returns          NCI_STATUS_OK, if write was started. Otherwise, error
+**                  status.
+**
+*******************************************************************************/
+tNFC_STATUS RW_MfcWriteNDef(uint16_t buf_len, uint8_t* p_buffer) {
+  tRW_MFC_CB* p_mfc = &rw_cb.tcb.mfc;
+  tNFC_STATUS status = NFC_STATUS_OK;
+
+  if (p_mfc->state != RW_MFC_STATE_IDLE) {
+    return NFC_STATUS_BUSY;
+  }
+
+  p_mfc->state = RW_MFC_STATE_UPDATE_NDEF;
+  p_mfc->substate = RW_MFC_SUBSTATE_NONE;
+  p_mfc->last_block_accessed.block = 4;
+  p_mfc->next_block.block = 4;
+
+  p_mfc->p_ndef_buffer = p_buffer;
+  p_mfc->ndef_length = buf_len;
+  p_mfc->work_offset = 0;
+
+  status = rw_mfc_writeBlock(p_mfc->next_block.block);
+  if (status == NFC_STATUS_OK) {
+    p_mfc->state = RW_MFC_STATE_UPDATE_NDEF;
+  } else {
+    p_mfc->substate = RW_MFC_SUBSTATE_NONE;
+  }
+
+  return status;
+}
+
+/*******************************************************************************
+ **
+ ** Function         rw_mfc_writeBlock
+ **
+ ** Description      This function write a given block.
+ **
+ ** Returns          true if success
+ **
+ *******************************************************************************/
+static tNFC_STATUS rw_mfc_writeBlock(int block) {
+  NFC_HDR* mfcbuf;
+  uint8_t* p;
+  tRW_MFC_CB* p_mfc = &rw_cb.tcb.mfc;
+  int sectorlength = block / 4;
+  tNFC_STATUS status = NFC_STATUS_OK;
+
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__ << ": block : " << block;
+
+  if (block > 128) {
+    sectorlength = (p_mfc->next_block.block - 128) / 16 + 32;
+  }
+
+  if (sectorlength != p_mfc->sector_authentified) {
+    if (rw_mfc_authenticate(block, true) == true) {
+      return NFC_STATUS_OK;
+    }
+    return NFC_STATUS_FAILED;
+  }
+
+  mfcbuf = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID);
+
+  if (!mfcbuf) {
+    LOG(ERROR) << __func__ << ": Cannot allocate buffer";
+    return NFC_STATUS_REJECTED;
+  }
+
+  mfcbuf->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
+  p = (uint8_t*)(mfcbuf + 1) + mfcbuf->offset;
+
+  UINT8_TO_BE_STREAM(p, MFC_Write);
+  UINT8_TO_BE_STREAM(p, block);
+  int index = 0;
+  while (index < RW_MFC_1K_BLOCK_SIZE) {
+    if (p_mfc->work_offset == 0) {
+      if (p_mfc->ndef_length < 0xFF) {
+        UINT8_TO_BE_STREAM(p, 0x03);
+        UINT8_TO_BE_STREAM(p, p_mfc->ndef_length);
+        index = index + 2;
+      } else {
+        UINT8_TO_BE_STREAM(p, 0x03);
+        UINT8_TO_BE_STREAM(p, 0xFF);
+        UINT8_TO_BE_STREAM(p, (uint8_t)(p_mfc->ndef_length >>8));
+        UINT8_TO_BE_STREAM(p, (uint8_t)(p_mfc->ndef_length & 0xFF));
+        index = index + 4;
+      }
+    }
+
+    if (p_mfc->work_offset == p_mfc->ndef_length) {
+      UINT8_TO_BE_STREAM(p, 0xFE);
+      index = index + 1;
+    }
+
+    if (p_mfc->work_offset > p_mfc->ndef_length) {
+      UINT8_TO_BE_STREAM(p, 0x00);
+    } else {
+      UINT8_TO_BE_STREAM(p, p_mfc->p_ndef_buffer[p_mfc->work_offset]);
+    }
+    p_mfc->work_offset++;
+    index++;
+  }
+  mfcbuf->len = 18;
+
+  if (!rw_mfc_send_to_lower(mfcbuf)) {
+    return NFC_STATUS_REJECTED;
+  }
+  p_mfc->current_block = block;
+  p_mfc->substate = RW_MFC_SUBSTATE_WRITE_BLOCK;
+
+  return status;
+}
+
+static void rw_mfc_handle_write_rsp(uint8_t* p_data) {
+  tRW_MFC_CB* p_mfc = &rw_cb.tcb.mfc;
+  NFC_HDR* mfc_data;
+  uint8_t* p;
+
+  mfc_data = (NFC_HDR*)p_data;
+  /* Assume the data is just the response byte sequence */
+  p = (uint8_t*)(mfc_data + 1) + mfc_data->offset;
+
+  switch (p_mfc->substate) {
+    case RW_MFC_SUBSTATE_WAIT_ACK:
+      p_mfc->last_block_accessed.block = p_mfc->current_block;
+
+      if (p[0] == 0x0) {
+        p_mfc->next_block.auth = true;
+        p_mfc->last_block_accessed.auth = true;
+
+        if (p_mfc->next_block.block < 128) {
+          p_mfc->sector_authentified = p_mfc->next_block.block / 4;
+        } else {
+          p_mfc->sector_authentified =
+              (p_mfc->next_block.block - 128) / 16 + 32;
+        }
+        rw_mfc_resume_op();
+      } else {
+        p_mfc->next_block.auth = false;
+        p_mfc->last_block_accessed.auth = false;
+        nfc_stop_quick_timer(&p_mfc->timer);
+        rw_mfc_process_error();
+      }
+      break;
+
+    case RW_MFC_SUBSTATE_WRITE_BLOCK:
+      if (p[0] == 0x0) {
+        rw_mfc_handle_write_op();
+      } else {
+        nfc_stop_quick_timer(&p_mfc->timer);
+        rw_mfc_process_error();
+      }
+      break;
+  }
+}
+
+static void rw_mfc_handle_write_op() {
+  tRW_MFC_CB* p_mfc = &rw_cb.tcb.mfc;
+  tRW_READ_DATA evt_data;
+
+  if (p_mfc->work_offset >= p_mfc->ndef_length) {
+    evt_data.status = NFC_STATUS_OK;
+    evt_data.p_data = NULL;
+    (*rw_cb.p_cback)(RW_MFC_NDEF_WRITE_CPLT_EVT, (tRW_DATA*)&evt_data);
+  } else {
+    p_mfc->last_block_accessed.block = p_mfc->current_block;
+
+    if (p_mfc->current_block % 4 == 2) {
+      p_mfc->next_block.block = p_mfc->current_block + 2;
+    } else {
+      p_mfc->next_block.block = p_mfc->current_block + 1;
+    }
+
+    /* Do not read block 16 (MAD2) - Mifare Classic4 k */
+    if (p_mfc->next_block.block == 64) {
+      p_mfc->next_block.block += 4;
+    }
+
+    if ((p_mfc->selres & RW_MFC_4K_Support) &&
+        (p_mfc->next_block.block >= 128)) {
+      if (p_mfc->current_block % 16 == 14) {
+        p_mfc->next_block.block = p_mfc->current_block + 2;
+      } else {
+        p_mfc->next_block.block = p_mfc->current_block + 1;
+      }
+    }
+
+    /* Write next blocks */
+    if (rw_mfc_writeBlock(p_mfc->next_block.block) != NFC_STATUS_OK) {
+      evt_data.status = NFC_STATUS_FAILED;
+      evt_data.p_data = NULL;
+      (*rw_cb.p_cback)(RW_MFC_NDEF_WRITE_FAIL_EVT, (tRW_DATA*)&evt_data);
+    }
+  }
+}
 
 /*****************************************************************************
  **
@@ -300,6 +724,14 @@ static void rw_mfc_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
           << __func__ << " RW_MFC_STATE_NOT_ACTIVATED";
       /* p_r_apdu may send upper layer */
       break;
+    case RW_MFC_STATE_NDEF_FORMAT:
+      rw_mfc_handle_format_rsp((uint8_t*)mfc_data);
+      GKI_freebuf(mfc_data);
+      break;
+    case RW_MFC_STATE_UPDATE_NDEF:
+      rw_mfc_handle_write_rsp((uint8_t*)mfc_data);
+      GKI_freebuf(mfc_data);
+      break;
     default:
       LOG(ERROR) << __func__ << ": invalid state=" << p_mfc->state;
       break;
@@ -380,8 +812,6 @@ static bool rw_mfc_authenticate(int block, bool KeyA) {
 
   DLOG_IF(INFO, nfc_debug_enabled) << __func__ << ": block:" << block;
 
-  uint8_t KeyNDEF[6] = {0xD3, 0XF7, 0xD3, 0XF7, 0xD3, 0XF7};
-  uint8_t KeyMAD[6] = {0xA0, 0XA1, 0xA2, 0XA3, 0xA4, 0XA5};
   uint8_t* KeyToUse;
 
   mfcbuf = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID);
@@ -403,10 +833,14 @@ static bool rw_mfc_authenticate(int block, bool KeyA) {
   UINT8_TO_BE_STREAM(p, block);
   ARRAY_TO_BE_STREAM(p, p_mfc->uid, 4);
 
-  if (block >= 0 && block < 4) {
-    KeyToUse = KeyMAD;
-  } else {
-    KeyToUse = KeyNDEF;
+  if (p_mfc->state == RW_MFC_STATE_NDEF_FORMAT)
+    KeyToUse = KeyDefault;
+  else {
+    if (block >= 0 && block < 4) {
+      KeyToUse = KeyMAD;
+    } else {
+      KeyToUse = KeyNDEF;
+    }
   }
   ARRAY_TO_BE_STREAM(p, KeyToUse, 6);
 
@@ -544,6 +978,12 @@ static void rw_mfc_resume_op() {
       break;
     case RW_MFC_STATE_READ_NDEF:
       status = rw_mfc_readBlock(p_mfc->next_block.block);
+      break;
+    case RW_MFC_STATE_NDEF_FORMAT:
+      status = rw_mfc_formatBlock(p_mfc->next_block.block);
+      break;
+    case RW_MFC_STATE_UPDATE_NDEF:
+      status = rw_mfc_writeBlock(p_mfc->next_block.block);
       break;
   }
 }
@@ -707,7 +1147,12 @@ static void rw_mfc_ntf_tlv_detect_complete(tNFC_STATUS status) {
       ndef_data.flags |= RW_NDEF_FL_FORMATED;
     }
 
-    ndef_data.max_size = ndef_data.cur_size;
+    // TODO - calculate max size based on MAD sectr NFC_AID condition
+    // Set max size as format condition
+    if (p_mfc->selres & RW_MFC_4K_Support)
+      ndef_data.max_size = 3356;
+    else
+      ndef_data.max_size = 716;
 
     rw_mfc_handle_op_complete();
     (*rw_cb.p_cback)(RW_MFC_NDEF_DETECT_EVT, (tRW_DATA*)&ndef_data);
@@ -742,7 +1187,7 @@ tNFC_STATUS RW_MfcReadNDef(uint8_t* p_buffer, uint16_t buf_len) {
   tRW_MFC_CB* p_mfc = &rw_cb.tcb.mfc;
   tNFC_STATUS status = NFC_STATUS_OK;
 
-  if (p_mfc->state != RW_T2T_STATE_IDLE) {
+  if (p_mfc->state != RW_MFC_STATE_IDLE) {
     LOG(ERROR) << __func__
                << " Mifare Classic tag not activated or Busy - State="
                << p_mfc->state;
@@ -933,6 +1378,10 @@ static void rw_mfc_process_error() {
     rw_event = RW_MFC_NDEF_DETECT_EVT;
   } else if (p_mfc->state == RW_MFC_STATE_READ_NDEF) {
     rw_event = RW_MFC_NDEF_READ_EVT;
+  } else if (p_mfc->state == RW_MFC_STATE_UPDATE_NDEF) {
+    rw_event = RW_MFC_NDEF_WRITE_FAIL_EVT;
+  } else if (p_mfc->state == RW_MFC_STATE_NDEF_FORMAT) {
+    rw_event = RW_MFC_NDEF_FORMAT_CPLT_EVT;
   }
 
   if (rw_event == RW_MFC_NDEF_DETECT_EVT) {

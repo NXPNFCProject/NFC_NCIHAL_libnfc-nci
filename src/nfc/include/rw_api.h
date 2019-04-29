@@ -160,11 +160,16 @@ enum {
   RW_MFC_NDEF_DETECT_EVT =
       RW_MFC_FIRST_EVT,      /* Result of NDEF detection procedure       */
                              /* Mandatory NDEF file is selected          */
-  RW_MFC_NDEF_READ_EVT,      /* Segment of data received from type 4 tag */
+  RW_MFC_NDEF_READ_EVT,      /* Segment of data received from mifare tag */
   RW_MFC_NDEF_READ_CPLT_EVT, /* Read operation completed                 */
   RW_MFC_NDEF_READ_FAIL_EVT, /* Read operation failed                    */
-  RW_MFC_RAW_FRAME_EVT,      /* Response of raw frame sent               */
-  RW_MFC_INTF_ERROR_EVT,     /* RF Interface error event                 */
+
+  RW_MFC_NDEF_WRITE_CPLT_EVT,  /* Write operation completed               */
+  RW_MFC_NDEF_WRITE_FAIL_EVT,  /* Write operation failed                  */
+  RW_MFC_NDEF_FORMAT_CPLT_EVT, /* Format operation completed              */
+
+  RW_MFC_RAW_FRAME_EVT,  /* Response of raw frame sent               */
+  RW_MFC_INTF_ERROR_EVT, /* RF Interface error event                 */
   RW_MFC_MAX_EVT
 };
 #if (NXP_EXTNS == TRUE)
@@ -1410,5 +1415,36 @@ extern tNFC_STATUS RW_MfcDetectNDef(void);
 **
 *******************************************************************************/
 extern tNFC_STATUS RW_MfcReadNDef(uint8_t* p_buffer, uint16_t buf_len);
+
+/*****************************************************************************
+**
+** Function         RW_MfcFormatNDef
+**
+** Description
+**      Format Tag content
+**
+** Returns
+**      NFC_STATUS_OK, Command sent to format Tag
+**      NFC_STATUS_REJECTED: cannot format the tag
+**      NFC_STATUS_FAILED: other error
+**
+*****************************************************************************/
+extern tNFC_STATUS RW_MfcFormatNDef(void);
+
+/*******************************************************************************
+**
+** Function         RW_MfcWriteNDef
+**
+** Description      This function can be called to write an NDEF message to the
+**                  tag.
+**
+** Parameters:      buf_len:    The length of the buffer
+**                  p_buffer:   The NDEF message to write
+**
+** Returns          NCI_STATUS_OK, if write was started. Otherwise, error
+**                  status.
+**
+*******************************************************************************/
+extern tNFC_STATUS RW_MfcWriteNDef(uint16_t buf_len, uint8_t* p_buffer);
 
 #endif /* RW_API_H */

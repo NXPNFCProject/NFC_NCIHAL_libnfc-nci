@@ -1510,6 +1510,20 @@ static void nfa_rw_handle_mfc_evt(tRW_EVENT event, tRW_DATA* p_rw_data) {
       nfa_dm_act_conn_cback_notify(NFA_RW_INTF_ERROR_EVT, &conn_evt_data);
       break;
 
+    case RW_MFC_NDEF_FORMAT_CPLT_EVT:
+      /* Command complete - perform cleanup, notify the app */
+      nfa_rw_command_complete();
+      nfa_dm_act_conn_cback_notify(NFA_FORMAT_CPLT_EVT, &conn_evt_data);
+      break;
+
+    /* NDEF write completed or failed*/
+    case RW_MFC_NDEF_WRITE_CPLT_EVT:
+    case RW_MFC_NDEF_WRITE_FAIL_EVT:
+      /* Command complete - perform cleanup, notify the app */
+      nfa_rw_command_complete();
+      nfa_dm_act_conn_cback_notify(NFA_WRITE_CPLT_EVT, &conn_evt_data);
+      break;
+
     default:
       DLOG_IF(INFO, nfc_debug_enabled)
           << StringPrintf("; Unhandled RW event 0x%X", event);
@@ -1735,6 +1749,10 @@ static tNFC_STATUS nfa_rw_start_ndef_write(void) {
       /* ISO 15693 */
       status = RW_I93UpdateNDef((uint16_t)nfa_rw_cb.ndef_wr_len,
                                 nfa_rw_cb.p_ndef_wr_buf);
+    } else if (NFC_PROTOCOL_MIFARE == protocol) {
+      /* Mifare Tag */
+      status = RW_MfcWriteNDef((uint16_t)nfa_rw_cb.ndef_wr_len,
+                               nfa_rw_cb.p_ndef_wr_buf);
     }
   }
 
@@ -1990,6 +2008,8 @@ static void nfa_rw_format_tag() {
     status = RW_I93FormatNDef();
   } else if (protocol == NFC_PROTOCOL_ISO_DEP) {
     status = RW_T4tFormatNDef();
+  } else if (protocol == NFC_PROTOCOL_MIFARE) {
+    status = RW_MfcFormatNDef();
   }
 
   /* If unable to format NDEF, notify the app */
