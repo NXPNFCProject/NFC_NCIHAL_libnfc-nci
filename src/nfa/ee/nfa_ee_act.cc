@@ -54,6 +54,9 @@
 #endif
 #include <nfc_config.h>
 
+#include <statslog.h>
+#include "metrics.h"
+
 using android::base::StringPrintf;
 
 extern bool nfc_debug_enabled;
@@ -1749,6 +1752,9 @@ void nfa_ee_api_add_aid(tNFA_EE_MSG* p_data) {
   }
    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("status:%d ee_cfged:0x%02x ", evt_data.status,
                    nfa_ee_cb.ee_cfged);
+  if (evt_data.status == NFA_STATUS_BUFFER_FULL)
+    android::util::stats_write(android::util::NFC_ERROR_OCCURRED,
+                               (int32_t)AID_OVERFLOW, 0, 0);
   /* report the status of this operation */
   nfa_ee_report_event(p_cb->p_ee_cback, NFA_EE_ADD_AID_EVT, &evt_data);
 }

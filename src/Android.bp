@@ -14,6 +14,7 @@ cc_library_shared {
         "libchrome",
         "libbase",
         "libz",
+        "libstatslog",
 
         // Treble configuration
         "libhidlbase",

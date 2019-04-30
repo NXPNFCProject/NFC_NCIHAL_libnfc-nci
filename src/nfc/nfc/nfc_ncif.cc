@@ -67,6 +67,9 @@
 #include <nfc_config.h>
 #endif
 
+#include <statslog.h>
+#include "metrics.h"
+
 using android::base::StringPrintf;
 
 tNFC_CONN_CB* p_cb_stored = nullptr;
@@ -104,6 +107,9 @@ extern bool etsi_reader_in_progress;
 void uicc_eeprom_get_config(uint8_t* config_resp);
 void uicc_eeprom_set_config(uint8_t* config_resp);
 #endif
+
+static struct timeval timer_start;
+static struct timeval timer_end;
 
 /*******************************************************************************
 **
@@ -635,6 +641,16 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
 #endif
   }
 
+  // log duration for the first hce data response
+  if (timer_start.tv_sec != 0 || timer_start.tv_usec != 0) {
+    gettimeofday(&timer_end, nullptr);
+    uint32_t delta_time_ms = (timer_end.tv_sec - timer_start.tv_sec) * 1000 +
+                             (timer_end.tv_usec - timer_start.tv_usec) / 1000;
+    memset(&timer_start, 0, sizeof(timer_start));
+    memset(&timer_end, 0, sizeof(timer_end));
+    android::util::stats_write(android::util::NFC_HCE_TRANSACTION_OCCURRED,
+                               (int32_t)delta_time_ms);
+  }
   return (NCI_STATUS_OK);
 }
 
@@ -1062,8 +1078,13 @@ void nfc_ncif_set_config_status(uint8_t* p, uint8_t len) {
 *******************************************************************************/
 void nfc_ncif_event_status(tNFC_RESPONSE_EVT event, uint8_t status) {
   tNFC_RESPONSE evt_data;
-  if (event == NFC_NFCC_TIMEOUT_REVT && status == NFC_STATUS_HW_TIMEOUT)
+  if (event == NFC_NFCC_TIMEOUT_REVT && status == NFC_STATUS_HW_TIMEOUT) {
     android::metricslogger::LogCounter("nfc_hw_timeout_error", 1);
+    uint32_t cmd_hdr = (nfc_cb.last_hdr[0] << 8) | nfc_cb.last_hdr[1];
+    android::util::stats_write(android::util::NFC_ERROR_OCCURRED,
+                               (int32_t)NCI_TIMEOUT, (int32_t)cmd_hdr,
+                               (int32_t)status);
+  }
 #if (NXP_EXTNS == TRUE)
   if ((nfcFL.eseFL._ESE_DUAL_MODE_PRIO_SCHEME ==
           nfcFL.eseFL._ESE_WIRED_MODE_RESUME) &&
@@ -1122,6 +1143,9 @@ void nfc_ncif_error_status(uint8_t conn_id, uint8_t status) {
     nfc_conn.status = status;
     (*p_cb->p_cback)(conn_id, NFC_ERROR_CEVT, &nfc_conn);
   }
+  android::util::stats_write(android::util::NFC_ERROR_OCCURRED,
+                             (int32_t)ERROR_NTF, (int32_t)0, (int32_t)status);
+
   if (status == NFC_STATUS_TIMEOUT)
     android::metricslogger::LogCounter("nfc_rf_timeout_error", 1);
   else if (status == NFC_STATUS_EE_TIMEOUT)
@@ -1794,6 +1818,7 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
 
       case NCI_DISCOVERY_TYPE_LISTEN_A:
         p_intf->intf_param.la_iso.rats = *p++;
+        gettimeofday(&timer_start, nullptr);
         break;
 
       case NCI_DISCOVERY_TYPE_POLL_B:
@@ -1844,6 +1869,7 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
                  &p_lb_iso->attrib_req[NFC_LB_ATTRIB_REQ_FIXED_BYTES],
                  p_lb_iso->hi_info_len);
         }
+        gettimeofday(&timer_start, nullptr);
         break;
     }
 
@@ -2032,6 +2058,11 @@ void nfc_ncif_proc_deactivate(uint8_t status, uint8_t deact_type, bool is_ntf) {
 
   if (nfc_cb.p_discv_cback) {
     (*nfc_cb.p_discv_cback)(NFC_DEACTIVATE_DEVT, &evt_data);
+  }
+
+  // clear previous stored tick count if not comsumed
+  if (timer_start.tv_sec != 0 || timer_start.tv_usec != 0) {
+    memset(&timer_start, 0, sizeof(timer_start));
   }
 }
 /*******************************************************************************
