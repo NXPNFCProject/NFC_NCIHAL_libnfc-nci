@@ -187,6 +187,7 @@ enum NxpNfcHalStatus {
     /** In case of an error, HCI network needs to be re-initialized */
     HAL_NFC_STATUS_RESTART = 0x30,
     HAL_NFC_HCI_NV_RESET = 0x40,
+    HAL_NFC_CONFIG_ESE_LINK_COMPLETE = 0x50
 };
 
 #endif  // ANDROID_HARDWARE_HAL_NXPNFC_V1_0_H

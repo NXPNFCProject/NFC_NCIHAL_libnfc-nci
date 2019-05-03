@@ -740,6 +740,12 @@ static void nfc_main_hal_cback(uint8_t event, tHAL_NFC_STATUS status) {
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("JCOP Update complete : remove NV memory for HCI_NETWORK_RESET ");
       delete_stack_non_volatile_store(true);
       break;
+      case (uint32_t)HAL_NFC_CONFIG_ESE_LINK_COMPLETE:{
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("HAL_NFC_CONFIG_ESE_LINK_COMPLETE");
+      SyncEventGuard guard(nfc_cb.hciEvt);
+      nfc_cb.hciEvt.notifyOne();
+    }
+      break;
     case (uint32_t)HAL_NFC_STATUS_RESTART:
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("ESE Update complete : Restart NFC service");
       abort();
@@ -2017,6 +2023,38 @@ void NFC_GetFeatureList() {
     CONFIGURE_FEATURELIST(chipType);
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFC_GetFeatureList ()chipType = %d", chipType);
 
+}
+
+/*******************************************************************************
+ **
+ ** Function         NFC_updateHciInitStatus
+ **
+ ** Description      Send HCI Event to nfc HAL
+ **
+ ** Returns          Nothing
+ *******************************************************************************/
+void NFC_updateHciInitStatus(tNFC_HCI_INIT_STATUS updateStatus) {
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+      "%s Enter :  start condition : %d", __func__, updateStatus);
+  nfc_nci_IoctlInOutData_t inpOutData;
+  int32_t ioctlStat;
+  uint8_t hciEvtUpdate[] = {0x00};
+  memset(&inpOutData, 0x00, sizeof(nfc_nci_IoctlInOutData_t));
+  inpOutData.inp.data.nciCmd.cmd_len = sizeof(hciEvtUpdate);
+  hciEvtUpdate[0] = updateStatus;
+  memcpy(inpOutData.inp.data.nciCmd.p_cmd, hciEvtUpdate, sizeof(hciEvtUpdate));
+  inpOutData.inp.data_source = 2;
+  if (updateStatus == NFC_HCI_INIT_START) {
+    SyncEventGuard guard(nfc_cb.hciEvt);
+    ioctlStat =
+        nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_HCI_INIT_STATUS_UPDATE, &inpOutData);
+    nfc_cb.hciEvt.wait(2 * 1000);
+  } else {
+    ioctlStat =
+        nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_HCI_INIT_STATUS_UPDATE, &inpOutData);
+  }
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+      "%s Exit :  updateStatus condition : %d", __func__, updateStatus);
 }
 
 /*******************************************************************************

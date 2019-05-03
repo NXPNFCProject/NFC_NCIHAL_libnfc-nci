@@ -49,6 +49,7 @@
 #include "gki.h"
 #include "nci_defs.h"
 #include "nfc_api.h"
+#include <SyncEvent.h>
 
 /****************************************************************************
  ** Internal NFC constants and definitions
@@ -317,6 +318,7 @@ typedef struct {
   bool bBlkPwrlinkAndModeSetCmd;
   NFC_HDR* temp_data;
   bool isLowRam;
+  SyncEvent hciEvt;
 #endif
   uint8_t nci_version;     /* NCI version used for NCI communication*/
 

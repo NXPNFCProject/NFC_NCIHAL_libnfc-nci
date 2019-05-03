@@ -708,7 +708,9 @@ void nfa_hci_startup_complete(tNFA_STATUS status) {
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hci_startup_complete (): Status: %u", status);
   nfa_sys_stop_timer(&nfa_hci_cb.timer);
-
+    if (nfcFL.chipType == pn557) {
+      NFC_updateHciInitStatus(NFC_HCI_INIT_COMPLETE);
+    }
   if ((nfa_hci_cb.hci_state == NFA_HCI_STATE_RESTORE) ||
       (nfa_hci_cb.hci_state == NFA_HCI_STATE_RESTORE_NETWK_ENABLE)) {
     nfa_ee_proc_hci_info_cback();
@@ -829,7 +831,9 @@ void nfa_hci_startup(void) {
       nfa_hciu_send_open_pipe_cmd(NFA_HCI_ADMIN_PIPE);
       return;
   }
-
+  if ((nfcFL.chipType == pn557) && !nfa_hci_cb.ee_disc_cmplt) {
+    NFC_updateHciInitStatus(NFC_HCI_INIT_START);
+  }
   /* We can only start up if NV Ram is read and EE discovery is complete */
   if (nfa_hci_cb.nv_read_cmplt && nfa_hci_cb.ee_disc_cmplt &&
       (nfa_hci_cb.conn_id == 0)) {
