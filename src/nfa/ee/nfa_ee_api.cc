@@ -941,7 +941,11 @@ tNFA_STATUS NFA_EeRemoveAidRouting(uint8_t aid_len, uint8_t* p_aid) {
   uint16_t size = sizeof(tNFA_EE_API_REMOVE_AID) + aid_len;
 
   DLOG_IF(INFO, nfc_debug_enabled) << __func__;
-  if ((aid_len == 0) || (p_aid == nullptr) || (aid_len > NFA_MAX_AID_LEN)) {
+   if (((NFA_GetNCIVersion() == NCI_VERSION_2_0) && (aid_len != 0) &&
+       (p_aid == nullptr)) ||
+      ((NFA_GetNCIVersion() != NCI_VERSION_2_0) &&
+       ((aid_len == 0) || (p_aid == nullptr) || (aid_len < NFA_MIN_AID_LEN))) ||
+      (aid_len > NFA_MAX_AID_LEN)) {
     LOG(ERROR) << StringPrintf("Bad AID");
     status = NFA_STATUS_INVALID_PARAM;
   } else {
