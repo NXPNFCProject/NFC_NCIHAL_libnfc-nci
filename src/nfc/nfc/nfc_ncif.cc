@@ -50,7 +50,6 @@
 #include "nfc_target.h"
 
 #include <sys/stat.h>
-#include "hal_nxpese.h"
 #include "include/debug_nfcsnoop.h"
 #include "nci_defs.h"
 #include "nci_hmsgs.h"

@@ -49,7 +49,6 @@
 #include "nfa_ce_int.h"
 #include "ndef_utils.h"
 #if (NXP_EXTNS == TRUE)
-#include "hal_nxpese.h"
 #include "nfa_sys_int.h"
 
 uint32_t gFelicaReaderMode;

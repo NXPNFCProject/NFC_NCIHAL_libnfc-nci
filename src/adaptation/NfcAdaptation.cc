@@ -46,7 +46,6 @@
 #include <hwbinder/ProcessState.h>
 #include <vector>
 #include "debug_nfcsnoop.h"
-#include "hal_nxpese.h"
 #include "nfa_api.h"
 #include "nfa_rw_api.h"
 #include "nfc_config.h"

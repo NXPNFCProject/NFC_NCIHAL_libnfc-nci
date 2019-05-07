@@ -53,7 +53,6 @@
 #include "nci_hmsgs.h"
 
 #if (NFC_NFCEE_INCLUDED == true)
-#include "hal_nxpese.h"
 #include "nfa_ee_int.h"
 #include "nfa_hci_int.h"
 #include "nfc_int.h"
