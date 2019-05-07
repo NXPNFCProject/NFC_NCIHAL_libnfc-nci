@@ -552,6 +552,9 @@ typedef struct {
 #endif
 /* NFA HCI control block */
 typedef struct {
+#if(NXP_EXTNS == TRUE)
+  uint32_t m_wtx_count;
+#endif
   tNFA_HCI_STATE hci_state; /* state of the HCI */
   uint8_t num_nfcee;        /* Number of NFCEE ID Discovered */
   tNFA_EE_INFO ee_info[NFA_HCI_MAX_HOST_IN_NETWORK]; /*NFCEE ID Info*/
@@ -564,7 +567,6 @@ typedef struct {
   uint8_t next_nfcee_idx;                          /* Index of NFCEE which is configured*/
   uint8_t active_host[NFA_HCI_MAX_HOST_IN_NETWORK]; /* active host in the
                                                          host network */
-  uint8_t m_wtx_count;
   uint8_t se_apdu_gate_support;
 #else
   uint8_t inactive_host[NFA_HCI_MAX_HOST_IN_NETWORK]; /* Inactive host in the
