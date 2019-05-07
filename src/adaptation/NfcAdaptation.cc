@@ -390,6 +390,8 @@ void NfcAdaptation::GetVendorConfigs(
       configMap.emplace(NAME_OFFHOST_ROUTE_ESE,
                         ConfigValue(configValue.offHostRouteEse));
     }
+    configMap.emplace(NAME_DEFAULT_ISODEP_ROUTE,
+                          ConfigValue(configValue.defaultIsoDepRoute));
     configMap.emplace(NAME_DEFAULT_ROUTE,
                       ConfigValue(configValue.v1_1.defaultRoute));
     configMap.emplace(NAME_DEFAULT_NFCF_ROUTE,
