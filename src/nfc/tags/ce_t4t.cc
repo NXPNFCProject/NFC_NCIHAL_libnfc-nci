@@ -551,7 +551,7 @@ void ce_t4t_process_timeout(TIMER_LIST_ENT* p_tle) {
 static void ce_t4t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
                               tNFC_CONN* p_data) {
   NFC_HDR* p_c_apdu;
-  uint8_t* p_cmd;
+  uint8_t* p_cmd = nullptr;
   uint8_t cla = 0, instruct = 0, select_type = 0, length = 0;
   uint16_t offset, max_file_size;
   tCE_DATA ce_data;
@@ -567,15 +567,16 @@ static void ce_t4t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   p_c_apdu = (NFC_HDR*)p_data->data.p_data;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("ce_t4t_data_cback (): conn_id = 0x%02X", conn_id);
+  if (p_c_apdu) {
+    p_cmd = (uint8_t*)(p_c_apdu + 1) + p_c_apdu->offset;
 
-  p_cmd = (uint8_t*)(p_c_apdu + 1) + p_c_apdu->offset;
-
-  if (p_c_apdu->len == 0) {
-    LOG(ERROR) << StringPrintf("Wrong length in ce_t4t_data_cback");
-    android_errorWriteLog(0x534e4554, "115635871");
-    ce_t4t_send_status(T4T_RSP_WRONG_LENGTH);
-    if (p_c_apdu) GKI_freebuf(p_c_apdu);
-    return;
+    if (p_c_apdu->len == 0) {
+      LOG(ERROR) << StringPrintf("Wrong length in ce_t4t_data_cback");
+      android_errorWriteLog(0x534e4554, "115635871");
+      ce_t4t_send_status(T4T_RSP_WRONG_LENGTH);
+      GKI_freebuf(p_c_apdu);
+      return;
+    }
   }
 
   /* Class Byte */
