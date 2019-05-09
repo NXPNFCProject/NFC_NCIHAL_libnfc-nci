@@ -83,14 +83,14 @@ tNFA_DM_CFG* p_nfa_dm_cfg = (tNFA_DM_CFG*)&nfa_dm_cfg;
 const uint8_t nfa_hci_whitelist[] = {0x02, 0x03, 0x04};
 
 tNFA_HCI_CFG nfa_hci_cfg = {
-    /* Max HCI Network IDLE time to wait for EE DISC REQ Ntf(s) */
-    NFA_HCI_NETWK_INIT_IDLE_TIMEOUT,
-    /* Maximum HCP Response time to any HCP Command */
-    NFA_HCI_RESPONSE_TIMEOUT,
 #if (NXP_EXTNS == TRUE)
     /* infinite wait for HCI reponse as lon as wtx is received */
     0x00,
 #endif
+    /* Max HCI Network IDLE time to wait for EE DISC REQ Ntf(s) */
+    NFA_HCI_NETWK_INIT_IDLE_TIMEOUT,
+    /* Maximum HCP Response time to any HCP Command */
+    NFA_HCI_RESPONSE_TIMEOUT,
     /* Number of host in the whitelist of Terminal host */
     0x03,
     /* Pointer to the Whitelist of Terminal Host */
