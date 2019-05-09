@@ -2602,10 +2602,8 @@ void nfc_ncif_proc_init_rsp(NFC_HDR* p_msg) {
 #if (NXP_EXTNS == TRUE)
   nfc_nci_IoctlInOutData_t inpOutData;
   static uint8_t retry_cnt = 0;
-  uint16_t fw_status, fw_dwnld_status = NCI_STATUS_FAILED,
-                      fw_mw_ver_status = NCI_STATUS_FAILED;
+  uint16_t fw_status, fw_mw_ver_status = NCI_STATUS_FAILED;
   tNFC_FWUpdate_Info_t fw_update_inf;
-  uint8_t config_resp[16];
   memset(&fw_update_inf, 0x00, sizeof(tNFC_FWUpdate_Info_t));
 #endif
   p = (uint8_t*)(p_msg + 1) + p_msg->offset;
@@ -2625,6 +2623,9 @@ void nfc_ncif_proc_init_rsp(NFC_HDR* p_msg) {
   }
   nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_FW_MW_VER_CHECK, &inpOutData);
   fw_mw_ver_status = inpOutData.out.data.fwMwVerStatus;
+  if (fw_mw_ver_status != NCI_STATUS_OK) {
+    LOG(ERROR) << StringPrintf("fw_mw_ver_status failed !!:0x%x ", status);
+  }
 #endif
 
   /* TODO To be removed after 553 bringup */
@@ -2634,13 +2635,6 @@ void nfc_ncif_proc_init_rsp(NFC_HDR* p_msg) {
       && fw_status == NCI_STATUS_OK && NCI_STATUS_OK == fw_mw_ver_status
 #endif
       ) {
-#if (NXP_EXTNS == TRUE)
-      if (fw_dwnld_status == NCI_STATUS_OK) {
-          if(nfcFL.nfccFL._NFC_NXP_STAT_DUAL_UICC_EXT_SWITCH) {
-              uicc_eeprom_set_config(config_resp);
-          }
-    }
-#endif
 #if (NXP_EXTNS == TRUE)
     retry_cnt = 0;
 #endif

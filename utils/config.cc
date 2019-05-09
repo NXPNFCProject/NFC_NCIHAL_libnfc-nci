@@ -41,13 +41,17 @@ bool parseBytesString(std::string in, std::vector<uint8_t>& out) {
 
 }  // namespace
 
-ConfigValue::ConfigValue() {}
+ConfigValue::ConfigValue() {
+  type_ = UNSIGNED;
+  value_unsigned_ = 0;
+}
 
 ConfigValue::ConfigValue(std::string value) {
   // Don't allow empty strings
   CHECK(!(value.empty()));
   type_ = STRING;
   value_string_ = value;
+  value_unsigned_ = 0;
 }
 
 ConfigValue::ConfigValue(unsigned value) {
@@ -59,6 +63,7 @@ ConfigValue::ConfigValue(std::vector<uint8_t> value) {
   CHECK(!(value.empty()));
   type_ = BYTES;
   value_bytes_ = value;
+  value_unsigned_ = 0;
 }
 
 ConfigValue::Type ConfigValue::getType() const { return type_; }

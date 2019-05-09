@@ -480,9 +480,7 @@ void nci_proc_ee_management_ntf(NFC_HDR* p_msg) {
       p_tlv->len = yy = *pp++;
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("tag:0x%x, len:0x%x", p_tlv->tag, p_tlv->len);
       if (p_tlv->len > NFC_MAX_EE_INFO) p_tlv->len = NFC_MAX_EE_INFO;
-      p = pp;
       STREAM_TO_ARRAY(p_tlv->info, pp, p_tlv->len);
-      pp = p += yy;
     }
   }
 #if (NXP_EXTNS == TRUE)

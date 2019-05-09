@@ -269,17 +269,16 @@ tNFA_HCI_DYN_GATE* nfa_hciu_alloc_gate(uint8_t gate_id,
       /* Skip connectivity gate */
       if (gate_id_index == NFA_HCI_CONNECTIVITY_GATE) gate_id_index++;
 
-      /* All possible gate IDs are exhausted. */
-      if (gate_id_index == 0) break;
-
       /* Check if the gate is already allocated */
       if (nfa_hciu_find_gate_by_gid(gate_id_index) == nullptr) break;
-    }
-    if (gate_id_index > NFA_HCI_LAST_PROP_GATE) {
-      LOG(ERROR) << StringPrintf(
+
+      /* All possible gate IDs are exhausted. */
+      if (gate_id_index > NFA_HCI_LAST_PROP_GATE) {
+        LOG(ERROR) << StringPrintf(
           "nfa_hci_alloc_gate - no free Gate ID: %u  App Handle: 0x%04x",
           gate_id_index, app_handle);
-      return (nullptr);
+        return (nullptr);
+      }
     }
   }
 
