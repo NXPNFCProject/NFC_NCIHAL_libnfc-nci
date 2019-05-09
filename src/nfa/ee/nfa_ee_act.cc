@@ -497,12 +497,17 @@ static void nfa_ee_add_proto_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
         proto_tag = NFC_ROUTE_TAG_PROTO | nfa_ee_cb.route_block_control;
 
 #if(NXP_EXTNS == TRUE)
+        /* Enable screen on lock power state for ISO-DEP protocol to
+           enable HCE screen lock */
         if (p_cb->proto_screen_lock & nfa_ee_proto_mask_list[xx])
-           power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_ON_LOCK();
-        if (p_cb->proto_screen_off & nfa_ee_proto_mask_list[xx])
-           power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_UNLOCK();
-        if (p_cb->proto_screen_off_lock & nfa_ee_proto_mask_list[xx])
-           power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_LOCK();
+          power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_ON_LOCK();
+
+        if (p_cb->nfcee_id != NFC_DH_ID) {
+          if (p_cb->proto_screen_off & nfa_ee_proto_mask_list[xx])
+             power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_UNLOCK();
+          if (p_cb->proto_screen_off_lock & nfa_ee_proto_mask_list[xx])
+             power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_LOCK();
+         }
 #else
         if ((power_cfg & NCI_ROUTE_PWR_STATE_ON) &&
             (NFC_GetNCIVersion() == NCI_VERSION_2_0)) {
