@@ -44,7 +44,6 @@
 #include "debug_nfcsnoop.h"
 #if (NXP_EXTNS == TRUE)
 #include <vendor/nxp/nxpnfc/1.0/INxpNfc.h>
-#include "hal_nxpese.h"
 #endif
 #include "nfa_api.h"
 #include "nfa_rw_api.h"

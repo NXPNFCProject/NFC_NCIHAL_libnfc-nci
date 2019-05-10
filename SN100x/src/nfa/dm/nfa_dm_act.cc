@@ -55,7 +55,6 @@
 #if (NFC_NFCEE_INCLUDED == TRUE)
 #include "nfa_ee_int.h"
 #include "nfc_int.h"
-#include "hal_nxpese.h"
 #endif
 
 #if (NFA_SNEP_INCLUDED == TRUE)
