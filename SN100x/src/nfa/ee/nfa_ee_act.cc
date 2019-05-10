@@ -1128,15 +1128,25 @@ void nfa_ee_api_register(tNFA_EE_MSG* p_data) {
     nfa_ee_cb.ecb[xx].aid_len = (uint8_t*)GKI_getbuf(max_aid_entries);
     nfa_ee_cb.ecb[xx].aid_pwr_cfg = (uint8_t*)GKI_getbuf(max_aid_entries);
     nfa_ee_cb.ecb[xx].aid_rt_info = (uint8_t*)GKI_getbuf(max_aid_entries);
+#if (NXP_EXTNS == TRUE)
+    nfa_ee_cb.ecb[xx].aid_rt_loc = (uint8_t*)GKI_getbuf(max_aid_entries);
+#endif
     nfa_ee_cb.ecb[xx].aid_info = (uint8_t*)GKI_getbuf(max_aid_entries);
     nfa_ee_cb.ecb[xx].aid_cfg = (uint8_t*)GKI_getbuf(max_aid_cfg_length);
     if ((nullptr != nfa_ee_cb.ecb[xx].aid_len) &&
         (nullptr != nfa_ee_cb.ecb[xx].aid_pwr_cfg) &&
         (nullptr != nfa_ee_cb.ecb[xx].aid_info) &&
+        (nullptr != nfa_ee_cb.ecb[xx].aid_rt_info) &&
+#if (NXP_EXTNS == TRUE)
+        (nullptr != nfa_ee_cb.ecb[xx].aid_rt_loc) &&
+#endif
         (nullptr != nfa_ee_cb.ecb[xx].aid_cfg)) {
       memset(nfa_ee_cb.ecb[xx].aid_len, 0, max_aid_entries);
       memset(nfa_ee_cb.ecb[xx].aid_pwr_cfg, 0, max_aid_entries);
       memset(nfa_ee_cb.ecb[xx].aid_rt_info, 0, max_aid_entries);
+#if (NXP_EXTNS == TRUE)
+      memset(nfa_ee_cb.ecb[xx].aid_rt_loc, 0, max_aid_entries);
+#endif
       memset(nfa_ee_cb.ecb[xx].aid_info, 0, max_aid_entries);
       memset(nfa_ee_cb.ecb[xx].aid_cfg, 0, max_aid_cfg_length);
     } else {
@@ -1172,6 +1182,9 @@ void nfa_ee_api_deregister(tNFA_EE_MSG* p_data) {
     GKI_freebuf(nfa_ee_cb.ecb[xx].aid_len);
     GKI_freebuf(nfa_ee_cb.ecb[xx].aid_pwr_cfg);
     GKI_freebuf(nfa_ee_cb.ecb[xx].aid_rt_info);
+#if (NXP_EXTNS == TRUE)
+    GKI_freebuf(nfa_ee_cb.ecb[xx].aid_rt_loc);
+#endif
     GKI_freebuf(nfa_ee_cb.ecb[xx].aid_info);
     GKI_freebuf(nfa_ee_cb.ecb[xx].aid_cfg);
   }
@@ -1699,6 +1712,9 @@ void nfa_ee_api_remove_aid(tNFA_EE_MSG* p_data) {
         memset(p_cb->aid_len, 0, max_aid_entries);
         memset(p_cb->aid_pwr_cfg, 0, max_aid_entries);
         memset(p_cb->aid_rt_info, 0, max_aid_entries);
+#if (NXP_EXTNS == TRUE)
+        memset(p_cb->aid_rt_loc, 0, max_aid_entries);
+#endif
         memset(p_cb->aid_info, 0, max_aid_entries);
         p_cb->aid_entries = 0;
         nfa_ee_cb.ee_cfged |= nfa_ee_ecb_to_mask(p_cb);
@@ -1711,7 +1727,9 @@ void nfa_ee_api_remove_aid(tNFA_EE_MSG* p_data) {
     memset(p_ecb->aid_pwr_cfg, 0, max_aid_entries);
     memset(p_ecb->aid_rt_info, 0, max_aid_entries);
     memset(p_ecb->aid_info, 0, max_aid_entries);
-
+#if (NXP_EXTNS == TRUE)
+    memset(p_ecb->aid_rt_loc, 0, max_aid_entries);
+#endif
     p_ecb->aid_entries = 0;
     p_cb->ecb_flags |= NFA_EE_ECB_FLAGS_AID;
     nfa_ee_cb.ee_cfged |= nfa_ee_ecb_to_mask(p_ecb);

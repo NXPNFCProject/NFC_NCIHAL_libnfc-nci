@@ -283,7 +283,7 @@ typedef struct {
   uint8_t ee_status;     /* The NFCEE status */
 #if (NXP_EXTNS == TRUE)
   uint8_t nfcee_status;  /* Current NFCEE status*/
-  uint8_t aid_rt_loc[NFA_EE_MAX_AID_ENTRIES]; /* route/vs info for this AID
+  uint8_t* aid_rt_loc;   /* route/vs info for this AID
                                                   entry */
 #endif
   uint8_t ee_old_status; /* The NFCEE status before going to low power mode */
