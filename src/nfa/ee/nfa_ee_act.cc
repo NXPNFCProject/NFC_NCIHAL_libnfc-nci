@@ -126,7 +126,7 @@ const uint8_t nfa_ee_proto_mask_list[NFA_EE_NUM_PROTO] = {
 const uint8_t nfa_ee_proto_list[NFA_EE_NUM_PROTO] = {
     NFC_PROTOCOL_T1T, NFC_PROTOCOL_T2T,
 #if (NXP_EXTNS == TRUE)
-    NFC_PROTOCOL_MASK_ISO7816,
+    NFC_PROTOCOL_ISO7816,
 #endif
     NFC_PROTOCOL_T3T, NFC_PROTOCOL_ISO_DEP,
     NFC_PROTOCOL_NFC_DEP
