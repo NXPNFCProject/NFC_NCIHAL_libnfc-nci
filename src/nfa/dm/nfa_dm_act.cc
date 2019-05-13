@@ -478,9 +478,7 @@ DLOG_IF(INFO, nfc_debug_enabled)
           dm_cback_evt = NFA_DM_NFCC_TRANSPORT_ERR_EVT;
       } else {
 #endif
-      dm_cback_evt = (event == NFC_NFCC_TIMEOUT_REVT)
-                         ? NFA_DM_NFCC_TIMEOUT_EVT
-                         : NFA_DM_NFCC_TRANSPORT_ERR_EVT;
+      dm_cback_evt = NFA_DM_NFCC_TRANSPORT_ERR_EVT;
 #if (NXP_EXTNS == TRUE)
       }
 #endif

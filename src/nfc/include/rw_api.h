@@ -148,12 +148,10 @@ enum {
   RW_I93_PRESENCE_CHECK_EVT,   /* Response to RW_I93PresenceCheck    */
   RW_I93_RAW_FRAME_EVT,        /* Response of raw frame sent         */
   RW_I93_INTF_ERROR_EVT,       /* RF Interface error event           */
-#if (NXP_EXTNS == TRUE)
   RW_I93_MAX_EVT,
+#if (NXP_EXTNS == TRUE)
   RW_T3BT_RAW_READ_CPLT_EVT,
   RW_T3BT_MAX_EVT,
-#else
-  RW_I93_MAX_EVT,
 #endif
 
   /* Mifare Classic tag events for tRW_CBACK */

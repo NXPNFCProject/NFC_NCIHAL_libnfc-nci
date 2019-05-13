@@ -565,6 +565,10 @@ static void ce_t4t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   }
 
   p_c_apdu = (NFC_HDR*)p_data->data.p_data;
+  if (!p_c_apdu) {
+    LOG(ERROR) << StringPrintf("Invalid p_c_apdu");
+    return;
+  }
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("ce_t4t_data_cback (): conn_id = 0x%02X", conn_id);
   if (p_c_apdu) {
@@ -580,7 +584,9 @@ static void ce_t4t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   }
 
   /* Class Byte */
-  BE_STREAM_TO_UINT8(cla, p_cmd);
+  if (p_cmd) {
+    BE_STREAM_TO_UINT8(cla, p_cmd);
+  }
 
   /* Don't check class if registered AID has been selected */
   if ((cla != T4T_CMD_CLASS) &&
@@ -609,7 +615,7 @@ static void ce_t4t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
           LOG(ERROR) << StringPrintf("Wrong length in select app cmd");
           android_errorWriteLog(0x534e4554, "115635871");
           ce_t4t_send_status(T4T_RSP_NOT_FOUND);
-          if (p_c_apdu) GKI_freebuf(p_c_apdu);
+          GKI_freebuf(p_c_apdu);
           return;
         }
       }

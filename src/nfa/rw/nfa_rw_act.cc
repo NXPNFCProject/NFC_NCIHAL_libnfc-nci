@@ -1561,9 +1561,6 @@ static void nfa_rw_cback(tRW_EVENT event, tRW_DATA* p_rw_data) {
   } else if (event < RW_I93_MAX_EVT) {
     /* Handle ISO 15693 tag events */
     nfa_rw_handle_i93_evt(event, p_rw_data);
-  } else if (event < RW_MFC_MAX_EVT) {
-    /* Handle Mifare Classic tag events */
-    nfa_rw_handle_mfc_evt(event, p_rw_data);
   }
 #if (NXP_EXTNS == TRUE)
   else if (event < RW_T3BT_MAX_EVT) {
@@ -1571,6 +1568,10 @@ static void nfa_rw_cback(tRW_EVENT event, tRW_DATA* p_rw_data) {
     nfa_rw_handle_t3bt_evt(event, p_rw_data);
   }
 #endif
+  else if (event < RW_MFC_MAX_EVT) {
+    /* Handle Mifare Classic tag events */
+    nfa_rw_handle_mfc_evt(event, p_rw_data);
+  }
   else {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_rw_cback: unhandled event=0x%02x", event);
   }
