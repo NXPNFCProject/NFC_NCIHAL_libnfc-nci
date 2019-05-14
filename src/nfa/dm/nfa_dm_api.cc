@@ -367,12 +367,12 @@ tNFA_STATUS NFA_SetTransitConfig(std::string config) {
   }
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s ", __func__);
   p_msg = (tNFA_DM_API_SET_TRANSIT_CONFIG*)GKI_getbuf(
-      sizeof(tNFA_DM_API_SET_TRANSIT_CONFIG) + strsize);
+      sizeof(tNFA_DM_API_SET_TRANSIT_CONFIG) + strsize + 1);
 
   if (p_msg != nullptr) {
     p_msg->hdr.event = NFA_DM_SET_TRANSIT_CONFIG;
     p_msg->transitConfig = (char*)(p_msg + 1);
-    memcpy(p_msg->transitConfig, config.c_str(), strsize);
+    memcpy(p_msg->transitConfig, config.c_str(), strsize + 1);
 
     nfa_sys_sendmsg(p_msg);
     return (NFA_STATUS_OK);
