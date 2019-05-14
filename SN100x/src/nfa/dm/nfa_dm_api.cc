@@ -1465,6 +1465,7 @@ tNFA_MW_VERSION NFA_GetMwVersion() {
       << StringPrintf("0x%x:NFC MW Minor Version:", NFC_NXP_MW_VERSION_MIN);
   mwVer.major_version = NFC_NXP_MW_VERSION_MAJ;
   mwVer.minor_version = NFC_NXP_MW_VERSION_MIN;
+  mwVer.rc_version = NFC_NXP_MW_RC_VERSION;
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("mwVer:Major=0x%x,Minor=0x%x", mwVer.major_version,
                  mwVer.minor_version);
