@@ -112,8 +112,8 @@
 #define NXP_EN_PN66T 0
 #define NXP_EN_PN551 0
 #define NXP_EN_PN67T 0
-#define NXP_EN_PN553 0
-#define NXP_EN_PN80T 0
+#define NXP_EN_PN553 1
+#define NXP_EN_PN80T 1
 #define NXP_EN_PN553_MR1 0
 #define NXP_EN_PN81A     0
 #define NXP_EN_PN553_MR2 0
