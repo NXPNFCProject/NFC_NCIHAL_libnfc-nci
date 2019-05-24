@@ -121,7 +121,7 @@
 #define NXP_EN_PN81T     1
 #define NXP_ANDROID_VER (10U)        /* NXP android version */
 #define NFC_NXP_MW_VERSION_MAJ (0x00) /* MW Major Version */
-#define NFC_NXP_MW_VERSION_MIN (0x02) /* MW Minor Version */
+#define NFC_NXP_MW_VERSION_MIN (0x03) /* MW Minor Version */
 #define NFC_NXP_MW_CUSTOMER_ID (0x00) /* MW Customer Id */
 #endif
 /* 0xE0 ~0xFF are proprietary status codes */
