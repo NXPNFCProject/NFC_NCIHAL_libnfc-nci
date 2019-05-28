@@ -1164,6 +1164,7 @@ TheEnd:
 #endif
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: try close HAL", func);
   HalClose();
+
   HalTerminate();
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: exit", func);
 
