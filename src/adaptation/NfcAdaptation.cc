@@ -92,7 +92,6 @@ INfcClientCallback* NfcAdaptation::mCallback;
 tHAL_NFC_CBACK* NfcAdaptation::mHalCallback = nullptr;
 tHAL_NFC_DATA_CBACK* NfcAdaptation::mHalDataCallback = nullptr;
 ThreadCondVar NfcAdaptation::mHalOpenCompletedEvent;
-ThreadCondVar NfcAdaptation::mHalCloseCompletedEvent;
 
 #if (NXP_EXTNS == TRUE)
 ThreadCondVar NfcAdaptation::mHalCoreResetCompletedEvent;
@@ -1163,14 +1162,6 @@ TheEnd:
 #endif
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: try close HAL", func);
   HalClose();
-#if (NXP_EXTNS == TRUE)
-  mHalCloseCompletedEvent.lock();
-  if (SIGNAL_NONE == isSignaled) {
-    mHalCloseCompletedEvent.wait();
-  }
-  isSignaled = SIGNAL_NONE;
-  mHalCloseCompletedEvent.unlock();
-#endif
   HalTerminate();
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: exit", func);
 
@@ -1212,7 +1203,6 @@ void NfcAdaptation::HalDownloadFirmwareCallback(nfc_event_t event,
 #if (NXP_EXTNS == TRUE)
       isSignaled = SIGNAL_SIGNALED;
 #endif
-      mHalCloseCompletedEvent.signal();
       break;
     }
   }
