@@ -122,6 +122,7 @@ class NfcAdaptation {
   void GetVendorConfigs(std::map<std::string, ConfigValue>& configMap);
 #if (NXP_EXTNS == TRUE)
   void GetNxpConfigs(std::map<std::string, ConfigValue>& configMap);
+  void SetNxpRfConfigPath(char* name);
   void NFA_SetBootMode(uint8_t boot_mode);
   uint8_t NFA_GetBootMode();
 #endif

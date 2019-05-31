@@ -65,6 +65,7 @@ enum {
  ,HAL_NFC_IOCTL_SET_TRANSIT_CONFIG,
   HAL_NFC_IOCTL_GET_ESE_UPDATE_STATE,
   HAL_NFC_IOCTL_GET_NXP_CONFIG,
+  HAL_NFC_IOCTL_SET_RF_CONFIG_PATH,
 #endif
 };
 enum {
@@ -84,6 +85,38 @@ typedef struct
 } nfc_nci_ExtnCmd_t;
 
 #if(NXP_EXTNS == TRUE)
+/*
+ * nxp_nfc_rfStorage_t shall contain rf config file storage path and
+ * length of the path
+ */
+typedef struct {
+  long len;
+  char path[264];
+}nxp_nfc_rfStorage_t;
+/*
+ * nxp_nfc_fwStorage_t shall contain fw config file storage path and
+ * length of the path
+ */
+typedef struct {
+  long len;
+  char path[264];
+}nxp_nfc_fwStorage_t;
+/*
+ * nxp_nfc_coreConf_t shall contain core conf command and
+ * length of the command
+ */
+typedef struct {
+  long len;
+  uint8_t cmd[264];
+}nxp_nfc_coreConf_t;
+/*
+ * nxp_nfc_rfFileVerInfo_t shall contain rf file version info and
+ *length of it
+ */
+typedef struct {
+  long len;
+  uint8_t ver[2];
+}nxp_nfc_rfFileVerInfo_t;
 /*
  * nxp_nfc_config_t shall contain the respective flag value from the
  * libnfc-nxp.conf
@@ -116,6 +149,12 @@ typedef struct {
   uint8_t nxpLogNcirLogLevel;
   uint8_t seApduGateEnabled;
   uint8_t pollEfdDelay;
+  uint8_t mergeSakEnable;
+  uint8_t stagTimeoutCfg;
+  nxp_nfc_rfStorage_t rfStorage;
+  nxp_nfc_fwStorage_t fwStorage;
+  nxp_nfc_coreConf_t coreConf;
+  nxp_nfc_rfFileVerInfo_t rfFileVersInfo;
 } nxp_nfc_config_t;
 #endif
 /*
@@ -126,6 +165,16 @@ typedef struct
     uint16_t rsp_len;
     uint8_t  p_rsp[MAX_IOCTL_TRANSCEIVE_RESP_LEN];
 } nfc_nci_ExtnRsp_t;
+#if(NXP_EXTNS == TRUE)
+/*
+ * NxpConfig_t shall contain Nxp config value and
+ * Configuration length
+ */
+typedef struct {
+  long len;
+  char *val;
+} NxpConfig_t;
+#endif
 /*
  * TransitConfig_t shall contain transit config value and transit
  * Configuration length
@@ -145,6 +194,9 @@ typedef union {
     uint32_t          timeoutMilliSec;
     long              nfcServicePid;
     TransitConfig_t transitConfig;
+#if(NXP_EXTNS == TRUE)
+    NxpConfig_t nxpConfig;
+#endif
 }InputData_t;
 /*
  * nfc_nci_ExtnInputData_t :Apart from InputData_t, there are context data

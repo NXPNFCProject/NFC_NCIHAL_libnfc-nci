@@ -766,6 +766,13 @@ int NfcAdaptation::HalIoctl(long arg, void* p_data) {
         pInpOutData->inp.data.transitConfig.val +
             (pInpOutData->inp.data.transitConfig.len));
     data = tempStdVec;
+  }else if(arg ==  HAL_NFC_IOCTL_SET_RF_CONFIG_PATH){
+    std::vector<uint8_t> tempStdVec(data);
+    tempStdVec.insert(
+            tempStdVec.end(), pInpOutData->inp.data.nxpConfig.val,
+            pInpOutData->inp.data.nxpConfig.val +
+            (pInpOutData->inp.data.nxpConfig.len));
+    data = tempStdVec;
   }
   if(mHalNxpNfc != nullptr)
       mHalNxpNfc->ioctl(arg, data, IoctlCallback);
@@ -773,6 +780,23 @@ int NfcAdaptation::HalIoctl(long arg, void* p_data) {
   return (pInpOutData->out.result);
 }
 
+/*******************************************************************************
+**
+** Function:    SetNxpRfConfigPath
+**
+** Description: sets the path of the NXP RF config file
+**
+** Returns:     none
+**
+*******************************************************************************/
+void NfcAdaptation::SetNxpRfConfigPath(char* name) {
+    nfc_nci_IoctlInOutData_t inpOutData;
+    DLOG_IF(INFO, nfc_debug_enabled)<< StringPrintf("%s: Enter", __func__);
+    inpOutData.inp.data.nxpConfig.val = name;
+    inpOutData.inp.data.nxpConfig.len = strlen(name)+1;
+    HalIoctl(HAL_NFC_IOCTL_SET_RF_CONFIG_PATH, (void*)&inpOutData);
+    DLOG_IF(INFO, nfc_debug_enabled)<< StringPrintf("%s: Exit", __func__);
+}
 /******************************************************************************
  * Function         phNxpNciHal_getNxpConfig
  *
@@ -785,6 +809,7 @@ int NfcAdaptation::HalIoctl(long arg, void* p_data) {
 void NfcAdaptation::GetNxpConfigs(
     std::map<std::string, ConfigValue>& configMap) {
   nfc_nci_IoctlInOutData_t inpOutData;
+  std::string config;
   int ret = HalIoctl(HAL_NFC_IOCTL_GET_NXP_CONFIG, &inpOutData);
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("HAL_NFC_IOCTL_GET_NXP_CONFIG ioctl return value = %d", ret);
@@ -869,6 +894,27 @@ void NfcAdaptation::GetNxpConfigs(
   configMap.emplace(
       NAME_NXP_POLL_FOR_EFD_TIMEDELAY,
       ConfigValue(inpOutData.out.data.nxpConfigs.pollEfdDelay));
+  configMap.emplace(
+      NAME_NXP_NFCC_MERGE_SAK_ENABLE,
+      ConfigValue(inpOutData.out.data.nxpConfigs.mergeSakEnable));
+  configMap.emplace(
+      NAME_NXP_STAG_TIMEOUT_CFG,
+      ConfigValue(inpOutData.out.data.nxpConfigs.stagTimeoutCfg));
+
+  config.assign(inpOutData.out.data.nxpConfigs.rfStorage.path,
+            inpOutData.out.data.nxpConfigs.rfStorage.len);
+  configMap.emplace(NAME_RF_STORAGE,ConfigValue(config));
+
+  config.assign(inpOutData.out.data.nxpConfigs.fwStorage.path,
+          inpOutData.out.data.nxpConfigs.fwStorage.len);
+  configMap.emplace(NAME_FW_STORAGE, ConfigValue(config));
+
+  std::vector coreConf(inpOutData.out.data.nxpConfigs.coreConf.cmd,
+          inpOutData.out.data.nxpConfigs.coreConf.cmd + inpOutData.out.data.nxpConfigs.coreConf.len);
+  configMap.emplace(NAME_NXP_CORE_CONF,ConfigValue(coreConf));
+  std::vector rfFileVersInfo(inpOutData.out.data.nxpConfigs.rfFileVersInfo.ver,
+          inpOutData.out.data.nxpConfigs.rfFileVersInfo.ver + inpOutData.out.data.nxpConfigs.rfFileVersInfo.len);
+  configMap.emplace(NAME_NXP_RF_FILE_VERSION_INFO,ConfigValue(rfFileVersInfo));
 }
 #endif
 /*******************************************************************************
