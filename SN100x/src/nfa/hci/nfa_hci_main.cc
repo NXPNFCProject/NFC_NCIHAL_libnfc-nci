@@ -455,6 +455,7 @@ void nfa_hci_init(void) {
   {
       nfa_hci_cb.dyn_pipe_cmdrsp_info[xx].rsp_timer.p_cback = nfa_hci_timer_cback;
       nfa_hci_cb.dyn_pipe_cmdrsp_info[xx].rsp_timer.param   = (uintptr_t) &nfa_hci_cb.cfg.dyn_pipes[xx].pipe_id;
+      nfa_hci_cb.dyn_pipe_cmdrsp_info[xx].rsp_timeout = NFA_HCI_DWP_RSP_WAIT_TIMEOUT;
   }
   nfa_hci_cb.static_pipe[0] = NFA_HCI_LINK_MANAGEMENT_PIPE;
   nfa_hci_cb.static_pipe[1] = NFA_HCI_ADMIN_PIPE;
@@ -1284,13 +1285,14 @@ static void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
     return;
   }
 #if(NXP_EXTNS == TRUE)
-  if ((nfa_hci_cb.type == NFA_HCI_EVENT_TYPE)
-          &&(p_pipe_cmdrsp_info->w4_rsp_apdu_evt)) {
+  if (nfa_hci_cb.type == NFA_HCI_EVENT_TYPE) {
           /* Response APDU: stop the timers */
       nfa_sys_stop_timer (&(p_pipe_cmdrsp_info->rsp_timer));
+      if(p_pipe_cmdrsp_info->w4_rsp_apdu_evt) {
       /*Clear chaining resp pending once full resp is received*/
-      p_pipe_cmdrsp_info->msg_rx_len = 0;
-      nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
+        p_pipe_cmdrsp_info->msg_rx_len = 0;
+        nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
+      }
     }
 #endif
   /* If we got a response, cancel the response timer. Also, if waiting for */
@@ -1307,8 +1309,7 @@ static void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
       nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
     }
 #if(NXP_EXTNS == TRUE)
-    else if((nfa_hci_cb.type == NFA_HCI_RESPONSE_TYPE && p_pipe_cmdrsp_info->w4_cmd_rsp)
-          || (nfa_hci_cb.type == NFA_HCI_EVENT_TYPE && p_pipe_cmdrsp_info->w4_atr_evt)) {
+    else if((nfa_hci_cb.type == NFA_HCI_RESPONSE_TYPE && p_pipe_cmdrsp_info->w4_cmd_rsp)) {
       /* Response received to command sent on generic gate pipe */
       nfa_sys_stop_timer (&(p_pipe_cmdrsp_info->rsp_timer));
   }
