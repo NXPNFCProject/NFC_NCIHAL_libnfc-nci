@@ -254,9 +254,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
         /*received mode set Ntf */
         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hci_ee_info_cback (): %d  nfa_hci_cb.hci_state", nfa_hci_cb.hci_state);
         if ((nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_NETWK_ENABLE) ||
-            (nfa_hci_cb.hci_state == NFA_HCI_STATE_RESTORE_NETWK_ENABLE)||
-            (nfa_hci_cb.hci_state == NFA_HCI_STATE_EE_RECOVERY)
-            ) {
+            (nfa_hci_cb.hci_state == NFA_HCI_STATE_RESTORE_NETWK_ENABLE)) {
             /* Discovery operation is complete, retrieve discovery result */
           NFA_EeGetInfo(&nfa_hci_cb.num_nfcee, nfa_hci_cb.ee_info);
           nfa_hci_enable_one_nfcee();
@@ -267,31 +265,6 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
             nfa_hci_api_config_nfcee(nfa_hci_cb.current_nfcee);
         }
       break;
-    case NFA_EE_RECOVERY:
-        /*NFCEE recovery in progress*/
-        if(nfa_hci_cb.hci_state == NFA_HCI_STATE_EE_RECOVERY) {
-            DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hci_ee_info_cback (): %d nfa_hci_cb.hci_state already in EE Recovery", nfa_hci_cb.hci_state);
-        }
-        else if (!((nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_NETWK_ENABLE) ||
-            (nfa_hci_cb.hci_state == NFA_HCI_STATE_RESTORE_NETWK_ENABLE))) {
-          if (NFA_DM_RFST_DISCOVERY == nfa_dm_cb.disc_cb.disc_state)
-            nfa_hci_cb.nfcee_cfg.discovery_stopped = nfa_dm_act_stop_rf_discovery(nullptr);
-          tNFA_HCI_EVT_DATA evt_data;
-          evt_data.ee_recovery.status = NFA_HCI_EE_RECOVERY_STARTED;
-          nfa_hciu_send_to_all_apps(NFA_HCI_EE_RECOVERY_EVT, &evt_data);
-          nfa_hci_release_transcieve();
-          if(NFC_NfceeDiscover(true) == NFC_STATUS_FAILED){
-              evt_data.ee_recovery.status = NFA_HCI_EE_RECOVERY_COMPLETED;
-              nfa_hciu_send_to_all_apps(NFA_HCI_EE_RECOVERY_EVT, &evt_data);
-            if(nfa_hci_cb.nfcee_cfg.discovery_stopped == true) {
-              nfa_dm_act_start_rf_discovery(nullptr);
-              nfa_hci_cb.nfcee_cfg.discovery_stopped = false;
-            }
-          } else {
-              nfa_hci_cb.hci_state = NFA_HCI_STATE_EE_RECOVERY;
-          }
-        }
-        break;
   }
 }
 
@@ -795,20 +768,8 @@ void nfa_hci_enable_one_nfcee(void) {
   }
 
   if(xx == nfa_hci_cb.num_nfcee) {
-    if((nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_NETWK_ENABLE) ||
-                  (nfa_hci_cb.hci_state == NFA_HCI_STATE_RESTORE_NETWK_ENABLE)) {
-      nfa_hci_cb.w4_nfcee_enable = false;
-      nfa_hciu_send_get_param_cmd(NFA_HCI_ADMIN_PIPE,NFA_HCI_HOST_LIST_INDEX);
-    } else if(nfa_hci_cb.hci_state == NFA_HCI_STATE_EE_RECOVERY) {
-        nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
-        if (true == nfa_hci_cb.nfcee_cfg.discovery_stopped) {
-          nfa_hci_cb.nfcee_cfg.discovery_stopped = false;
-          nfa_dm_act_start_rf_discovery(nullptr);
-        }
-        tNFA_HCI_EVT_DATA evt_data;
-        evt_data.ee_recovery.status = NFA_HCI_EE_RECOVERY_COMPLETED;
-        nfa_hciu_send_to_all_apps(NFA_HCI_EE_RECOVERY_EVT, &evt_data);
-    }
+    nfa_hci_cb.w4_nfcee_enable = false;
+    nfa_hciu_send_get_param_cmd(NFA_HCI_ADMIN_PIPE,NFA_HCI_HOST_LIST_INDEX);
   }
 }
 /*******************************************************************************

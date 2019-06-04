@@ -294,12 +294,6 @@
 #define NCI_RF_PARAM_ID_B_DATA_EX_PARAM \
   0x03 /* B Data Exchange config param  \
           */
-/****************************************************
- * NCI NFCEE status
- ****************************************************/
-#define NCI_NFCEE_STS_UNRECOVERABLE_ERROR 0x00
-#define NCI_NFCEE_STS_INIT_STARTED        0x01
-#define NCI_NFCEE_STS_INIT_COMPLETED      0x02
 
 #define NCI_NFCEE_INTERFACE_APDU 0x00
 #define NCI_NFCEE_INTERFACE_HCI_ACCESS 0x01

@@ -111,7 +111,6 @@ const tNFA_EE_SM_ACT nfa_ee_actions[] = {
     nfa_ee_lmrt_to_nfcc,      /* NFA_EE_CFG_TO_NFCC_EVT       */
     nfa_ee_api_add_apdu,       /* NFA_EE_API_ADD_AID_EVT       */
     nfa_ee_api_remove_apdu,    /* NFA_EE_API_REMOVE_AID_EVT    */
-    nfa_ee_nci_nfcee_status_ntf        /*NFA_EE_NCI_NFCEE_STATUS_NTF_EVT*/
 };
 
 /*******************************************************************************
@@ -409,9 +408,6 @@ void nfa_ee_proc_evt(tNFC_RESPONSE_EVT event, void* p_data) {
       break;
 #endif
 
-    case NFC_NFCEE_STATUS_REVT:
-      int_event = NFA_EE_NCI_NFCEE_STATUS_NTF_EVT;
-      break;
   }
 
    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_ee_proc_evt: event=0x%02x int_event:0x%x", event,
