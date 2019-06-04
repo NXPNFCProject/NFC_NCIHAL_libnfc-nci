@@ -450,6 +450,8 @@ typedef struct {
   uint8_t info[NFC_MAX_EE_INFO];
 } tNFC_NFCEE_TLV;
 
+/* NFCEE unrecoverable error */
+#define NFC_NFCEE_STATUS_UNRECOVERABLE_ERROR NCI_NFCEE_STS_UNRECOVERABLE_ERROR
 /* NFCEE connected and inactive */
 #define NFC_NFCEE_STATUS_INACTIVE NCI_NFCEE_STS_CONN_INACTIVE
 /* NFCEE connected and active   */

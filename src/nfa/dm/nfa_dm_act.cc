@@ -364,6 +364,7 @@ DLOG_IF(INFO, nfc_debug_enabled)
     case NFC_NFCEE_INFO_REVT:     /* NFCEE Discover Notification */
     case NFC_EE_ACTION_REVT:      /* EE Action notification */
     case NFC_NFCEE_MODE_SET_REVT: /* NFCEE Mode Set response */
+    case NFC_NFCEE_STATUS_REVT:   /* NFCEE Status notification*/
 #if (NXP_EXTNS == TRUE)
     case NFC_NFCEE_PWR_LNK_CTRL_REVT:
     case NFC_NFCEE_MODE_SET_INFO:
@@ -2050,6 +2051,8 @@ std::string nfa_dm_nfc_revt_2_str(tNFC_RESPONSE_EVT event) {
 
     case NFC_NFCC_POWER_OFF_REVT:
       return "NFC_NFCC_POWER_OFF_REVT";
+    case NFC_NFCEE_STATUS_REVT:
+      return "NFC_NFCEE_STATUS_REVT";
 
 #if (NXP_EXTNS == TRUE)
     case NFC_NFCEE_PWR_LNK_CTRL_REVT:

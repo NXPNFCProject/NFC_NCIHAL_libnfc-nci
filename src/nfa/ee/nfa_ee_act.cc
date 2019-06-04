@@ -49,9 +49,7 @@
 #include "nfa_dm_int.h"
 #include "nfa_ee_int.h"
 #include "nci_hmsgs.h"
-#if (NXP_EXTNS == TRUE)
 #include "nfa_hci_int.h"
-#endif
 #include <nfc_config.h>
 
 #include <statslog.h>
@@ -2520,6 +2518,9 @@ void nfa_ee_report_disc_done(bool notify_enable_done) {
       nfa_ee_report_event(nullptr, NFA_EE_DISCOVER_EVT, &evt_data);
     }
 #endif
+    if ((nfa_hci_cb.hci_state == NFA_HCI_STATE_EE_RECOVERY) &&
+        nfa_ee_cb.p_enable_cback)
+      (*nfa_ee_cb.p_enable_cback)(NFA_EE_RECOVERY_REDISCOVERED);
   }
 }
 
@@ -2852,6 +2853,29 @@ void nfa_ee_nci_disc_ntf(tNFA_EE_MSG* p_data) {
 
 /*******************************************************************************
 **
+** Function         nfa_ee_nci_nfcee_status_ntf
+**
+** Description      Process the callback for NFCEE status notification
+**
+** Returns          void
+**
+*******************************************************************************/
+void nfa_ee_nci_nfcee_status_ntf(tNFA_EE_MSG* p_data) {
+  if (p_data != NULL) {
+    tNFC_NFCEE_STATUS_REVT* p_ee_data = p_data->nfcee_status_ntf.p_data;
+    if ((NFA_GetNCIVersion() == NCI_VERSION_2_0) &&
+        (p_ee_data->nfcee_status == NFC_NFCEE_STATUS_UNRECOVERABLE_ERROR)) {
+      tNFA_EE_ECB* p_cb = nfa_ee_find_ecb(p_ee_data->nfcee_id);
+      if (p_cb && nfa_ee_cb.p_enable_cback) {
+        (*nfa_ee_cb.p_enable_cback)(NFA_EE_RECOVERY_INIT);
+        NFC_NfceeDiscover(true);
+      }
+    }
+  }
+}
+
+/*******************************************************************************
+**
 ** Function         nfa_ee_check_restore_complete
 **
 ** Description      Check if restore the NFA-EE related configuration to the
@@ -3039,8 +3063,11 @@ void nfa_ee_nci_mode_set_rsp(tNFA_EE_MSG* p_data) {
 #if (NXP_EXTNS == TRUE)
 /* Do not update routing table on secure element enable/disable. */
 #else
-  /* update routing table and vs on mode change */
-  nfa_ee_start_timer();
+  /* Do not update routing table in EE_RECOVERY state */
+  if (nfa_hci_cb.hci_state != NFA_HCI_STATE_EE_RECOVERY) {
+    /* Start routing table update debounce timer */
+    nfa_ee_start_timer();
+  }
 #endif
   if (p_rsp->status == NFA_STATUS_OK) {
     if (p_rsp->mode == NFA_EE_MD_ACTIVATE) {
