@@ -900,21 +900,26 @@ void NfcAdaptation::GetNxpConfigs(
   configMap.emplace(
       NAME_NXP_STAG_TIMEOUT_CFG,
       ConfigValue(inpOutData.out.data.nxpConfigs.stagTimeoutCfg));
-
-  config.assign(inpOutData.out.data.nxpConfigs.rfStorage.path,
-            inpOutData.out.data.nxpConfigs.rfStorage.len);
-  configMap.emplace(NAME_RF_STORAGE,ConfigValue(config));
-
-  config.assign(inpOutData.out.data.nxpConfigs.fwStorage.path,
-          inpOutData.out.data.nxpConfigs.fwStorage.len);
-  configMap.emplace(NAME_FW_STORAGE, ConfigValue(config));
-
-  std::vector coreConf(inpOutData.out.data.nxpConfigs.coreConf.cmd,
-          inpOutData.out.data.nxpConfigs.coreConf.cmd + inpOutData.out.data.nxpConfigs.coreConf.len);
-  configMap.emplace(NAME_NXP_CORE_CONF,ConfigValue(coreConf));
-  std::vector rfFileVersInfo(inpOutData.out.data.nxpConfigs.rfFileVersInfo.ver,
-          inpOutData.out.data.nxpConfigs.rfFileVersInfo.ver + inpOutData.out.data.nxpConfigs.rfFileVersInfo.len);
-  configMap.emplace(NAME_NXP_RF_FILE_VERSION_INFO,ConfigValue(rfFileVersInfo));
+  if(inpOutData.out.data.nxpConfigs.rfStorage.len){
+    config.assign(inpOutData.out.data.nxpConfigs.rfStorage.path,
+              inpOutData.out.data.nxpConfigs.rfStorage.len);
+    configMap.emplace(NAME_RF_STORAGE,ConfigValue(config));
+  }
+  if(inpOutData.out.data.nxpConfigs.fwStorage.len){
+    config.assign(inpOutData.out.data.nxpConfigs.fwStorage.path,
+            inpOutData.out.data.nxpConfigs.fwStorage.len);
+    configMap.emplace(NAME_FW_STORAGE, ConfigValue(config));
+  }
+  if(inpOutData.out.data.nxpConfigs.coreConf.len){
+    std::vector coreConf(inpOutData.out.data.nxpConfigs.coreConf.cmd,
+            inpOutData.out.data.nxpConfigs.coreConf.cmd + inpOutData.out.data.nxpConfigs.coreConf.len);
+    configMap.emplace(NAME_NXP_CORE_CONF,ConfigValue(coreConf));
+  }
+  if(inpOutData.out.data.nxpConfigs.rfFileVersInfo.len){
+    std::vector rfFileVersInfo(inpOutData.out.data.nxpConfigs.rfFileVersInfo.ver,
+            inpOutData.out.data.nxpConfigs.rfFileVersInfo.ver + inpOutData.out.data.nxpConfigs.rfFileVersInfo.len);
+    configMap.emplace(NAME_NXP_RF_FILE_VERSION_INFO,ConfigValue(rfFileVersInfo));
+  }
 }
 #endif
 /*******************************************************************************
