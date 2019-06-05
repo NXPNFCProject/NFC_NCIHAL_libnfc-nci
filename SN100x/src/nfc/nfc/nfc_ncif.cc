@@ -815,6 +815,14 @@ Available after Technology Detection
     STREAM_TO_ARRAY(p_param->param.pk.uid, p, p_param->param.pk.uid_len);
   } else if (NCI_DISCOVERY_TYPE_POLL_ACTIVE == p_param->mode) {
     acm_p = &p_param->param.acm_p;
+#if (NXP_EXTNS == TRUE)
+    if(len == 0) {
+      /*No RF Technology specific parameters, skipping next 3 bytes
+       * Byte 1         Byte 2 Byte 3  Byte 4
+       * Tech and Mode  BST    BRT     offset*/
+      p = p + 4;
+    }
+#endif
     acm_p->atr_res_len = *p++;
     if (acm_p->atr_res_len > 0) {
       if (acm_p->atr_res_len > NFC_MAX_ATS_LEN)
