@@ -2653,11 +2653,9 @@ void nfc_ncif_proc_init_rsp(NFC_HDR* p_msg) {
       nfc_cb.p_nci_init_rsp = p_msg;
       nfc_cb.p_hal->core_initialized(p_msg->len, p);
       struct stat file_stat;
-      /* In NCI 1.0 if pipe details not present (nfaStorage.bin not present)
-       * resetting nfcee session to get all pipe details.
-       * In case of NCI2.0 it is handled as part of NFCEE_MODE_SET_NTF */
-      if ((NFC_GetNCIVersion() < NCI_VERSION_2_0) &&
-          (stat("/data/nfc/nfaStorage.bin1", &file_stat) != 0)) {
+      /* If pipe details not present (nfaStorage.bin not present)
+       * resetting nfcee session to get all pipe details */
+      if(stat("/data/nfc/nfaStorage.bin1", &file_stat) != 0) {
         status =
             nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_NFCEE_SESSION_RESET, &inpOutData);
         if (status != NCI_STATUS_OK) {
