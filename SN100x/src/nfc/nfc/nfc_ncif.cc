@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018 NXP
+ *  Copyright 2018-2019 NXP
  *
  ******************************************************************************/
 
@@ -62,6 +62,7 @@
 #include "nfa_dm_int.h"
 #include "nfa_hci_int.h"
 #include "nfc_config.h"
+#include "NfcAdaptation.h"
 #endif
 
 using android::base::StringPrintf;
@@ -77,6 +78,12 @@ extern unsigned char appl_dta_mode_flag;
 extern bool nfc_debug_enabled;
 
 #if (NXP_EXTNS == TRUE)
+#define NCI_MSG_GET_RFSTATUS 0x39
+#define IS_PROCESS_ABORT(p, mt, gid, oid)                                          \
+        ((NCI_MT_RSP == mt && NCI_STATUS_SEMANTIC_ERROR == p[NCI_MSG_STATUS_BYTE]) \
+          && !(NCI_GID_CORE == gid && NCI_MSG_CORE_SET_POWER_SUB_STATE == oid)     \
+          && !(NCI_GID_RF_MANAGE == gid && NCI_MSG_RF_ISO_DEP_NAK_PRESENCE == oid) \
+          && !(NCI_GID_PROP == gid && NCI_MSG_GET_RFSTATUS == oid))
 // Global Structure varibale for FW Version
 static tNFC_FW_VERSION nfc_fw_version;
 uint8_t nfcc_dh_conn_id = 0xFF;
@@ -405,14 +412,16 @@ bool nfc_ncif_process_event(NFC_HDR* p_msg) {
   pp = p;
 
   NCI_MSG_PRS_HDR0(pp, mt, pbf, gid);
+  oid = ((*pp) & NCI_OID_MASK);
 #if (NXP_EXTNS == TRUE)
-  if ((NCI_MT_RSP == mt) && (NCI_STATUS_SEMANTIC_ERROR == p[NCI_MSG_STATUS_BYTE]))
-  {/*if we have received NCI_STATUS_SEMANTIC_ERROR, abort the process*/
-      LOG(ERROR) << StringPrintf("nfc_ncif_process_event: Received NCI_STATUS_SEMANTIC_ERROR\nAborting...");
-      abort();
+  if (IS_PROCESS_ABORT(p,mt,gid,oid))
+  {/* If we have received NCI_STATUS_SEMANTIC_ERROR, abort the process!!
+    * EXCEPTION: CORE_SET_POWER_SUB_STATE_CMD & RF_ISO_DEP_NAK_PRESENCE_CMD */
+    LOG(ERROR) <<StringPrintf("Received NCI_STATUS_SEMANTIC_ERROR\nAborting...");
+    abort();
   }
 #endif
-  oid = ((*pp) & NCI_OID_MASK);
+
   if (nfc_cb.rawVsCbflag == true &&
       nfc_ncif_proc_proprietary_rsp(mt, gid, oid) == true) {
     nci_proc_prop_raw_vs_rsp(p_msg);
@@ -1412,6 +1421,12 @@ void nfc_ncif_proc_reset_rsp(uint8_t* p, bool is_ntf) {
       nfc_stop_timer(&nfc_cb.nci_wait_rsp_timer);
       p++;
       STREAM_TO_UINT8(nfc_cb.nci_version, p);
+#if (NXP_EXTNS == TRUE)
+      p += 4;
+      STREAM_TO_UINT8(nfc_fw_version.rom_code_version, p);
+      STREAM_TO_UINT8(nfc_fw_version.major_version, p);
+      STREAM_TO_UINT8(nfc_fw_version.minor_version, p);
+#endif
       DLOG_IF(INFO, nfc_debug_enabled)
           << StringPrintf(" CORE_RESET_NTF nci_version%x", nfc_cb.nci_version);
       status = NCI_STATUS_OK;
@@ -1775,6 +1790,11 @@ bool nfc_ncif_proc_proprietary_rsp(uint8_t mt, uint8_t gid, uint8_t oid) {
         case NCI_GID_EE_MANAGE:
           if (oid != 0x00) stat = TRUE;
           break;
+#if (NXP_EXTNS == TRUE)
+        case NCI_GID_PROP:
+          if(0x04 != oid) stat = TRUE;
+          break;
+#endif
         default:
           stat = TRUE;
           break;

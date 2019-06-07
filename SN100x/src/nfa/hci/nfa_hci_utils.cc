@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018 NXP
+ *  Copyright 2018-2019 NXP
  *
  ******************************************************************************/
 
@@ -427,7 +427,7 @@ tNFA_STATUS nfa_hciu_send_msg(uint8_t pipe_id, uint8_t type,
                   p_nfa_hci_cfg->hcp_response_timeout);
       }
 #endif
-  }
+  } 
 #if(NXP_EXTNS == TRUE)
   else if(type == NFA_HCI_EVENT_TYPE)
   {
@@ -2047,6 +2047,45 @@ tNFA_HCI_DYN_PIPE  *nfa_hciu_find_dyn_apdu_pipe_for_host (uint8_t host_id)
     /* If here, not found */
     return (NULL);
 }
+
+/*******************************************************************************
+**
+** Function         nfa_hciu_find_dyn_conn_pipe_for_host
+**
+** Description      Find dynamic Connectivity pipe if any connected to the
+** specified host
+**
+** Returns          pointer to pipe, or NULL if none found
+**
+*******************************************************************************/
+tNFA_HCI_DYN_PIPE  *nfa_hciu_find_dyn_conn_pipe_for_host (uint8_t host_id)
+{
+    tNFA_HCI_DYN_GATE   *pg;
+    tNFA_HCI_DYN_PIPE   *pp;
+    int                 xx;
+    uint8_t             gate_id;
+
+    DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf ("nfa_hciu_find_dyn_conn_pipe_for_host () Host:0x%x", host_id);
+
+    /* Loop through all pipes looking for the destination host */
+    for (xx = 0, pp = nfa_hci_cb.cfg.dyn_pipes; xx < NFA_HCI_MAX_PIPE_CB; xx++, pp++)
+    {
+        if ((pp->pipe_id != 0) && (pp->dest_host == host_id))
+        {
+            gate_id = pp->local_gate;
+            pg   = nfa_hciu_find_gate_by_gid (gate_id);
+
+            if (  (pg != NULL)
+                &&(gate_id == NFA_HCI_CONNECTIVITY_GATE)  )
+                return (pp);
+        }
+    }
+
+    /* If here, not found */
+    return (NULL);
+}
+
 /*******************************************************************************
 **
 ** Function         nfa_hciu_add_host_resetting
@@ -2116,7 +2155,7 @@ void nfa_hciu_add_host_resetting(uint8_t host_id, uint8_t reset_type) {
 **
 ** Description      This function returns hci host id for given nfceeid
 **
-** Returns          hci host id
+** Returns          hci host id 
 **
 *******************************************************************************/
 uint8_t nfa_hciu_get_hci_host_id(uint8_t nfceeid)

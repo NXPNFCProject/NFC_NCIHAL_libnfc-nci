@@ -30,7 +30,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018 NXP
+ *  Copyright 2018-2019 NXP
  *
  ******************************************************************************/
 #pragma once
@@ -91,6 +91,7 @@
 #define NAME_NXP_DUAL_UICC_ENABLE "NXP_DUAL_UICC_ENABLE"
 #define NAME_NXP_SE_COLD_TEMP_ERROR_DELAY "NXP_SE_COLD_TEMP_ERROR_DELAY"
 #define NAME_NXP_SMB_ERROR_RETRY "NXP_SMB_ERROR_RETRY"
+#define NAME_NXP_SE_APDU_GATE_SUPPORT "NXP_SE_APDU_GATE_SUPPORT"
 #endif
 
 class NfcConfig {

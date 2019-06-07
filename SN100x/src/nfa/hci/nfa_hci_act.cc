@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018 NXP
+ *  Copyright 2018-2019 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -2586,7 +2586,11 @@ static bool nfa_hci_set_apdu_pipe_ready_for_host (uint8_t host_id)
                     nfa_hci_cb.app_in_use = NFA_HCI_APP_HANDLE_NONE;
                     if(host_id == NFA_HCI_FIRST_PROP_HOST)
                     {
-                      nfa_hci_getApduAndConnectivity_PipeStatus();
+                      if(nfa_hci_cb.se_apdu_gate_support)
+                        nfa_hci_getApduAndConnectivity_PipeStatus();
+                      else {
+                        nfa_hci_startup_complete (NFA_STATUS_OK);
+                      }
                     }
                     else
                     {
@@ -2993,7 +2997,7 @@ static void nfa_hci_handle_apdu_app_gate_hcp_msg_data (uint8_t *p_data, uint16_t
             break;
 
         case NFA_HCI_EVT_WTX:
-            if (p_pipe_cmdrsp_info->w4_rsp_apdu_evt ||
+            if (p_pipe_cmdrsp_info->w4_rsp_apdu_evt || 
               p_pipe_cmdrsp_info->w4_atr_evt)
             {
                 if(p_nfa_hci_cfg->max_wtx_count) {

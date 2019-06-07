@@ -715,7 +715,11 @@ static void nfa_rw_handle_t1t_evt(tRW_EVENT event, tRW_DATA* p_rw_data) {
       break;
 
     case RW_T1T_INTF_ERROR_EVT:
+#if (NXP_EXTNS == TRUE)
+      nfa_dm_rf_deactivate(NFA_DEACTIVATE_TYPE_DISCOVERY);
+#else
       nfa_dm_act_conn_cback_notify(NFA_RW_INTF_ERROR_EVT, &conn_evt_data);
+#endif
       break;
   }
 }
@@ -861,7 +865,12 @@ static void nfa_rw_handle_t2t_evt(tRW_EVENT event, tRW_DATA* p_rw_data) {
       break;
 
     case RW_T2T_INTF_ERROR_EVT:
+#if (NXP_EXTNS == TRUE)
+      nfa_dm_rf_deactivate(NFA_DEACTIVATE_TYPE_DISCOVERY);
+#else
       nfa_dm_act_conn_cback_notify(NFA_RW_INTF_ERROR_EVT, &conn_evt_data);
+#endif
+
       break;
   }
 }
@@ -977,7 +986,11 @@ static void nfa_rw_handle_t3t_evt(tRW_EVENT event, tRW_DATA* p_rw_data) {
 
     case RW_T3T_INTF_ERROR_EVT:
       conn_evt_data.status = p_rw_data->status;
+#if (NXP_EXTNS == TRUE)
+      nfa_dm_rf_deactivate(NFA_DEACTIVATE_TYPE_DISCOVERY);
+#else
       nfa_dm_act_conn_cback_notify(NFA_RW_INTF_ERROR_EVT, &conn_evt_data);
+#endif
       break;
 
     case RW_T3T_SET_READ_ONLY_CPLT_EVT:
@@ -1111,8 +1124,11 @@ static void nfa_rw_handle_t4t_evt(tRW_EVENT event, tRW_DATA* p_rw_data) {
 
     case RW_T4T_INTF_ERROR_EVT: /* RF Interface error event         */
       conn_evt_data.status = p_rw_data->status;
+#if (NXP_EXTNS == TRUE)
+      nfa_dm_rf_deactivate(NFA_DEACTIVATE_TYPE_DISCOVERY);
+#else
       nfa_dm_act_conn_cback_notify(NFA_RW_INTF_ERROR_EVT, &conn_evt_data);
-
+#endif
       nfa_rw_command_complete();
       nfa_rw_cb.cur_op = NFA_RW_OP_MAX;
       break;
@@ -1224,7 +1240,9 @@ static void nfa_rw_handle_i93_evt(tRW_EVENT event, tRW_DATA* p_rw_data) {
     case RW_I93_INTF_ERROR_EVT: /* RF Interface error event         */
       /* Command complete - perform cleanup, notify app */
       nfa_rw_command_complete();
-
+#if (NXP_EXTNS == TRUE)
+      nfa_dm_rf_deactivate(NFA_DEACTIVATE_TYPE_DISCOVERY);
+#endif
       if (nfa_rw_cb.flags & NFA_RW_FL_ACTIVATION_NTF_PENDING) {
         nfa_rw_cb.flags &= ~NFA_RW_FL_ACTIVATION_NTF_PENDING;
 
@@ -1234,7 +1252,9 @@ static void nfa_rw_handle_i93_evt(tRW_EVENT event, tRW_DATA* p_rw_data) {
         nfa_dm_notify_activation_status(NFA_STATUS_OK, &i93_params);
       } else {
         conn_evt_data.status = p_rw_data->status;
+#if (NXP_EXTNS != TRUE)
         nfa_dm_act_conn_cback_notify(NFA_RW_INTF_ERROR_EVT, &conn_evt_data);
+#endif
       }
 
       nfa_rw_cb.cur_op = NFA_RW_OP_MAX; /* clear current operation */

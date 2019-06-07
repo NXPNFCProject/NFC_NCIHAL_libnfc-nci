@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018 NXP
+ *  Copyright 2018-2019 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -197,7 +197,7 @@ enum {
 #if(NXP_EXTNS == TRUE)
   NFA_HCI_API_SEND_APDU_EVT,                                    /* Send Command APDU on APDU Pipe */
   NFA_HCI_API_ABORT_APDU_EVT,                                   /* Abort the Command APDU sent on APDU Pipe */
-#endif
+#endif  
   NFA_HCI_API_SEND_EVENT_EVT, /* Send event via pipe */
   NFA_HCI_RSP_NV_READ_EVT,           /* Non volatile read complete event */
   NFA_HCI_RSP_NV_WRITE_EVT,          /* Non volatile write complete event */
@@ -552,6 +552,9 @@ typedef struct {
 #endif
 /* NFA HCI control block */
 typedef struct {
+#if(NXP_EXTNS == TRUE)
+  uint32_t m_wtx_count;
+#endif
   tNFA_HCI_STATE hci_state; /* state of the HCI */
   uint8_t num_nfcee;        /* Number of NFCEE ID Discovered */
   tNFA_EE_INFO ee_info[NFA_HCI_MAX_HOST_IN_NETWORK]; /*NFCEE ID Info*/
@@ -564,7 +567,7 @@ typedef struct {
   uint8_t next_nfcee_idx;                          /* Index of NFCEE which is configured*/
   uint8_t active_host[NFA_HCI_MAX_HOST_IN_NETWORK]; /* active host in the
                                                          host network */
-  uint8_t m_wtx_count;
+  uint8_t se_apdu_gate_support;
 #else
   uint8_t inactive_host[NFA_HCI_MAX_HOST_IN_NETWORK]; /* Inactive host in the
                                                          host network */
@@ -752,6 +755,7 @@ extern void nfa_hciu_update_gate_list_of_host (uint8_t host_id, uint8_t num_gate
 extern void nfa_hciu_reset_apdu_pipe_registry_info_of_host (uint8_t host_id);
 extern tNFA_HCI_DYN_PIPE  *nfa_hciu_find_id_pipe_for_host (uint8_t host_id);
 extern tNFA_HCI_DYN_PIPE  *nfa_hciu_find_dyn_apdu_pipe_for_host (uint8_t host_id);
+extern tNFA_HCI_DYN_PIPE  *nfa_hciu_find_dyn_conn_pipe_for_host (uint8_t host_id);
 extern tNFA_HCI_PIPE_CMDRSP_INFO *nfa_hciu_get_pipe_cmdrsp_info (uint8_t pipe);
 extern uint8_t  nfa_hciu_find_server_apdu_gate_for_host (uint8_t host_id);
 extern tNFA_HCI_APDU_PIPE_REG_INFO *nfa_hciu_find_apdu_pipe_registry_info_for_host (uint8_t host_id);

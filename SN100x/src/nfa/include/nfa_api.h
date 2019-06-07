@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018 NXP
+ *  Copyright 2018-2019 NXP
  *
  ******************************************************************************/
 
@@ -96,6 +96,8 @@
 #define NFA_STATUS_CONGESTED NFC_STATUS_CONGESTED
 #if (NXP_EXTNS == TRUE)
 #define NFA_STATUS_ALREADY_INITIALIZED NFC_STATUS_ALREADY_INITIALIZED
+/* More NFA_CE_GET_ROUTING_REVT to follow */
+#define NFA_STATUS_CONTINUE NFC_STATUS_CONTINUE
 /* API is called to perform illegal function */
 #define NFA_STATUS_REFUSED NFC_STATUS_REFUSED
 #define NFA_STATUS_HCI_WTX_TIMEOUT  0xE0
@@ -204,6 +206,8 @@ typedef uint8_t tNFA_PROTOCOL_MASK;
 #define NFA_DM_EE_HCI_ENABLE 25
 /*Status when Transit Config is set*/
 #define NFA_DM_SET_TRANSIT_CONFIG_EVT 14
+
+#define NFA_DM_GET_ROUTE_CONFIG_REVT 10
 #endif
 /* T1T HR length            */
 #define NFA_T1T_HR_LEN T1T_HR_LEN
@@ -259,6 +263,13 @@ typedef enum power_substate {
 
 #define NFA_SCREEN_STATE_MASK 0x0F
 #if (NXP_EXTNS == TRUE)
+/* Data for NFA_DM_GET_ROUTING_EVT */
+typedef struct {
+  tNFA_STATUS status;      /* NFA_STATUS_OK if successful              */
+  uint8_t num_tlvs;        /* number of TLVs                           */
+  uint8_t tlv_size;        /* the total len of all TLVs                */
+  uint8_t param_tlvs[256]; /* TLV (Parameter ID-Len-Value byte stream) */
+} tNFA_GET_ROUTING;
 typedef struct { tNFA_STATUS status; } tNFA_SET_TRANSIT_CONFIG;
 #endif
 /* CONN_DISCOVER_PARAM */
@@ -299,6 +310,7 @@ typedef union {
   void* p_vs_evt_data;                /* Vendor-specific evt data */
   tNFA_DM_POWER_STATE power_sub_state; /* power sub state */
 #if (NXP_EXTNS == TRUE)
+  tNFA_GET_ROUTING get_routing;               /* NFA_DM_GET_ROUTING_EVT    */
   tNFA_SET_TRANSIT_CONFIG set_transit_config; /* NFA_DM_SET_TRANSIT_CONFIG */
 #endif
 } tNFA_DM_CBACK_DATA;
@@ -632,15 +644,15 @@ typedef struct {
 
 /* compile-time configuration structure for HCI */
 typedef struct {
+#if(NXP_EXTNS == TRUE)
+  /* Maximum  time to wait for HCI response */
+  uint32_t max_wtx_count;
+#endif
   /* Maximum idle(no HCP Pkt) time to wait for EE DISC REQ Ntf(s) */
   uint16_t hci_netwk_enable_timeout;
   /* Maximum time to wait for EE DISC REQ NTF(s) after HOT PLUG EVT(s) */
   uint16_t hcp_response_timeout;
   /* Number of host in the whitelist of Terminal host */
-#if(NXP_EXTNS == TRUE)
-  /* Maximum  time to wait for HCI response */
-  uint8_t max_wtx_count;
-#endif
   uint8_t num_whitelist_host;
   /* Whitelist of Terminal Host */
   uint8_t* p_whitelist;
@@ -1501,21 +1513,6 @@ extern tNFA_STATUS NFA_Send_Core_Reset();
 **
 *******************************************************************************/
 extern void NFA_Send_Core_Init(uint8_t** p);
-
-/*******************************************************************************
-**
-** Function         NFA_SetBootMode
-**
-** Description      This function enables the boot mode for NFC.
-**                  boot_mode  0 NORMAL_BOOT 1 FAST_BOOT
-**                  By default , the mode is set to NORMAL_BOOT.
-
-**
-** Returns          none
-**
-*******************************************************************************/
-extern void NFA_SetBootMode(uint8_t boot_mode);
-
 
 /*******************************************************************************
 **

@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018 NXP
+ *  Copyright 2018-2019 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -163,10 +163,12 @@ enum {
 };
 typedef uint8_t tNFA_EE_CONN_ST;
 
-#define NFA_EE_MAX_AID_CFG_LEN (510)
 #if (NXP_EXTNS == TRUE)
+#define NFA_EE_MAX_AID_CFG_LEN (1030-64)
 #define NFA_EE_TOTAL_APDU_PATTERN_SIZE 250
 #define NFA_EE_APDU_ROUTE_MASK 8 /* APDU route location mask*/
+#else
+#define NFA_EE_MAX_AID_CFG_LEN (510)
 #endif
 #define NFA_EE_SYSTEM_CODE_LEN 02
 #define NFA_EE_SYSTEM_CODE_TLV_SIZE 06
@@ -606,6 +608,9 @@ typedef uint8_t tNFA_EE_FLAGS;
 #define NFA_EE_UNRECOVERABLE_ERROR 0x05
 #define NFA_EE_STATUS_INIT_COMPLETED 0x07
 #define NFA_EE_STATUS_NFCEE_REMOVED 0x06
+
+/*Maximum ESE removed*/
+#define MAX_NFCEE_REMOVED_RECOVERY_CNT 0x05
 #endif
 typedef uint8_t tNFA_EE_DISC_STS;
 
@@ -634,8 +639,10 @@ typedef struct {
   uint8_t ese_prv_pwr_cfg;     /* Power mode of the eSE, set by the
                                   Application                       */
   uint8_t mode;
+  uint8_t recovery_cnt;        /* Recovery counter for ESE*/
 #endif
 } tNFA_EE_CB;
+
 
 /* Order of Routing entries in Routing Table */
 #define NCI_ROUTE_ORDER_AID 0x01        /* AID routing order */
@@ -726,5 +733,6 @@ void nfa_ee_api_remove_apdu(tNFA_EE_MSG* p_data);
 uint16_t nfa_ee_find_max_aid_config_length();
 uint16_t nfa_ee_api_get_max_aid_config_length();
 uint16_t nfa_ee_lmrt_size();
+uint8_t nfa_ee_get_supported_tech_list(uint8_t nfcee_id);
 #endif
 #endif /* NFA_P2P_INT_H */

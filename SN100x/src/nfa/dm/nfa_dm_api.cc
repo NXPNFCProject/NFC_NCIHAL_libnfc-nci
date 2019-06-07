@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018 NXP
+ *  Copyright 2018-2019 NXP
  *
  ******************************************************************************/
 
@@ -51,6 +51,7 @@
 
 #if (NXP_EXTNS == TRUE)
 #include "nfa_sys_int.h"
+#include "NfcAdaptation.h"
 #endif
 
 using android::base::StringPrintf;
@@ -82,6 +83,9 @@ void NFA_Init(tHAL_NFC_ENTRY* p_hal_entry_tbl) {
   DLOG_IF(INFO, nfc_debug_enabled) << __func__;
   nfa_sys_init();
   nfa_dm_init();
+#if (NXP_EXTNS == TRUE)
+  if (NfcAdaptation::GetInstance().NFA_GetBootMode() != NFA_FAST_BOOT_MODE) {
+#endif
   nfa_p2p_init();
   nfa_snep_init(false);
   nfa_rw_init();
@@ -91,6 +95,9 @@ void NFA_Init(tHAL_NFC_ENTRY* p_hal_entry_tbl) {
     nfa_dm_cb.get_max_ee = p_hal_entry_tbl->get_max_ee;
     nfa_hci_init();
   }
+#if (NXP_EXTNS == TRUE)
+  }
+#endif
 
   /* Initialize NFC module */
   NFC_Init(p_hal_entry_tbl);
@@ -1447,6 +1454,7 @@ void NFA_EnableDtamode(tNFA_eDtaModes eDtaMode) {
 tNFA_MW_VERSION NFA_GetMwVersion() {
   tNFA_MW_VERSION mwVer;
   mwVer.validation = (NXP_EN_SN100U << 13);
+  mwVer.validation |= (NXP_EN_SN110U << 14);
   mwVer.android_version = NXP_ANDROID_VER;
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("0x%x:NFC MW Major Version:", NFC_NXP_MW_VERSION_MAJ);

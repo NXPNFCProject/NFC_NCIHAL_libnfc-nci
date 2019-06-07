@@ -31,7 +31,7 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 *
-*  Copyright 2018 NXP
+*  Copyright 2018-2019 NXP
 *
 ******************************************************************************/
 
@@ -53,6 +53,10 @@
 #include "nfa_hci_int.h"
 #include "nfa_nv_co.h"
 #include "trace_api.h"
+#if (NXP_EXTNS == TRUE)
+#include <config.h>
+#include "nfc_config.h"
+#endif
 
 using android::base::StringPrintf;
 
@@ -270,7 +274,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                     if(nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_REINIT)
                     {
                       DLOG_IF(INFO, nfc_debug_enabled)
-                          << StringPrintf("NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED () handling pending NFCEE_UNRECOVERABLE_ERRROR");
+                          << StringPrintf("NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED () handling pending NFCEE_UNRECOVERABLE_ERRROR");                      
                       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("resetting 11");
                       nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_REINIT);
                       nfa_hci_cb.next_nfcee_idx += 1;
@@ -290,6 +294,13 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                        nfa_hci_enable_one_nfcee();
                      } else if(nfa_hci_cb.next_nfcee_idx == nfa_hci_cb.num_nfcee)
                      {
+                       if (nfa_hciu_find_dyn_apdu_pipe_for_host (NFA_HCI_FIRST_PROP_HOST) == NULL
+                               && nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD )
+                       {/* as part of NFCEE_UNRECOVERABLE_ERRROR reset handling, if NFCEE Power and link
+                         * has been set to alwaysOn then reset the link and keep only power alwaysOn */
+                         nfa_hci_startup_complete(NFA_STATUS_OK);
+                       }
+
                        tNFA_HCI_EVT_DATA evt_data;
                        evt_data.init_completed.status = NFA_STATUS_OK;
                        DLOG_IF(INFO, nfc_debug_enabled)
@@ -340,7 +351,8 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                 if (nfa_hciu_find_dyn_apdu_pipe_for_host (nfa_ee_cb.ecb[ee_entry_index].nfcee_id) == NULL)
                 {
                   nfa_hci_cb.curr_nfcee = nfa_ee_cb.ecb[ee_entry_index].nfcee_id;
-                  if(nfa_ee_cb.ecb[ee_entry_index].nfcee_id == NFA_HCI_FIRST_PROP_HOST) {
+                  if(nfa_ee_cb.ecb[ee_entry_index].nfcee_id == NFA_HCI_FIRST_PROP_HOST &&
+                    nfa_hci_cb.se_apdu_gate_support) {
                     NFC_NfceePLConfig(nfa_ee_cb.ecb[ee_entry_index].nfcee_id, 0x03);
                     nfa_hciu_add_host_resetting(nfa_ee_cb.ecb[ee_entry_index].nfcee_id, NFCEE_INIT_COMPLETED);
                     status = NFC_NfceeModeSet(nfa_ee_cb.ecb[ee_entry_index].nfcee_id, NFC_MODE_ACTIVATE);
@@ -353,7 +365,8 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
             else
             {
               if(nfa_hciu_find_dyn_apdu_pipe_for_host (nfa_ee_cb.ecb[ee_entry_index].nfcee_id) == NULL &&
-                nfa_ee_cb.ecb[ee_entry_index].nfcee_id == NFA_HCI_FIRST_PROP_HOST)
+                nfa_ee_cb.ecb[ee_entry_index].nfcee_id == NFA_HCI_FIRST_PROP_HOST &&
+                nfa_hci_cb.se_apdu_gate_support)
               {
                 DLOG_IF(INFO, nfc_debug_enabled)
                   << StringPrintf("NFA_EE_STATUS_NTF received during INIT %x",nfa_ee_cb.ecb[ee_entry_index].nfcee_id);
@@ -786,7 +799,7 @@ void nfa_hci_startup_complete(tNFA_STATUS status) {
     nfa_ee_proc_hci_info_cback();
     nfa_sys_cback_notify_nfcc_power_mode_proc_complete(NFA_ID_HCI);
 
-  } else
+  } else 
 #if(NXP_EXTNS == TRUE)
   if(nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_NETWK_ENABLE ||
         nfa_hci_cb.hci_state == NFA_HCI_STATE_STARTUP)
@@ -907,7 +920,9 @@ bool nfa_hci_enable_one_nfcee(void) {
                           continue;
                         }
                     }
-                    if (nfa_hciu_find_dyn_apdu_pipe_for_host (nfceeid) == NULL)
+                    if ((nfa_hciu_find_dyn_conn_pipe_for_host(nfceeid) == NULL) ||
+                      (nfa_hciu_find_dyn_apdu_pipe_for_host (nfceeid) == NULL &&
+                      (nfa_hci_cb.se_apdu_gate_support)))
                     {
                       if(nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD)
                       {
@@ -1019,6 +1034,10 @@ static void nfa_hci_sys_enable(void) {
                  DH_NV_BLOCK);
   nfa_sys_start_timer(&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT,
                       NFA_HCI_NV_READ_TIMEOUT_VAL);
+#if(NXP_EXTNS == TRUE)
+  nfa_hci_cb.se_apdu_gate_support =
+                        NfcConfig::getUnsigned(NAME_NXP_SE_APDU_GATE_SUPPORT, 0x00);
+#endif
 }
 
 /*******************************************************************************
