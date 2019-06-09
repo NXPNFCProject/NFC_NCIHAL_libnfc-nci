@@ -278,8 +278,6 @@ void NfcAdaptation::GetNxpConfigs(
   configMap.emplace(
       NAME_OS_DOWNLOAD_TIMEOUT_VALUE,
       ConfigValue(inpOutData.out.data.nxpConfigs.osDownloadTimeoutValue));
-  configMap.emplace(NAME_NXP_DEFAULT_SE,
-                    ConfigValue(inpOutData.out.data.nxpConfigs.nxpDefaultSe));
   configMap.emplace(
       NAME_DEFAULT_AID_ROUTE,
       ConfigValue(inpOutData.out.data.nxpConfigs.defaultAidRoute));
