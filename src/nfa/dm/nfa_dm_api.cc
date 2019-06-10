@@ -1624,6 +1624,38 @@ void NFA_EE_HCI_Control(bool flagEnable) {
     }
   }
 }
+
+/*******************************************************************************
+**
+** Function         NFA_setFieldDetectMode
+**
+** Description      Updates field detect mode true/false
+**
+** Returns          void
+**
+*******************************************************************************/
+void NFA_SetFieldDetectMode(bool mode) {
+  nfa_dm_cb.isFieldDetectEnabled = mode;
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("%s fieldDetectMode = 0x%s", __func__,
+                      (nfa_dm_cb.isFieldDetectEnabled) ? "ENABLE" : "DISABLE");
+}
+
+/*******************************************************************************
+**
+** Function         NFA_IsFieldDetectEnabled
+**
+** Description      Returns current status of field detect mode
+**
+** Returns          true/false
+**
+*******************************************************************************/
+bool NFA_IsFieldDetectEnabled() {
+    DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("%s Current fieldDetectMode = 0x%s", __func__,
+                      (nfa_dm_cb.isFieldDetectEnabled) ? "ENABLE" : "DISABLE");
+      return nfa_dm_cb.isFieldDetectEnabled;
+}
 #endif
 
 /*******************************************************************************

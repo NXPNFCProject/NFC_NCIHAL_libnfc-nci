@@ -594,6 +594,7 @@ typedef struct {
                                   after current transaction is completed*/
 #if (NXP_EXTNS == TRUE)
   uint8_t selected_uicc_id; /* Current selected UICC ID */
+  bool isFieldDetectEnabled; /*Field Detect Enable status*/
 #endif
   uint8_t power_state;    /* current screen/power  state */
 } tNFA_DM_CB;
