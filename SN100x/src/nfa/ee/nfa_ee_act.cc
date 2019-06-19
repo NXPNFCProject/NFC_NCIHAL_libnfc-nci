@@ -3124,6 +3124,13 @@ void nfa_ee_nci_action_ntf(tNFA_EE_MSG* p_data) {
   evt_data.trigger = p_cbk->act_data.trigger;
   memcpy(&(evt_data.param), &(p_cbk->act_data.param),
          sizeof(tNFA_EE_ACTION_PARAM));
+#if(NXP_EXTNS == TRUE)
+  if(p_cbk->act_data.nfc_act_data.len_data !=0) {
+      memcpy(&(evt_data.ee_act_data.data), &(p_cbk->act_data.nfc_act_data.data),
+             p_cbk->act_data.nfc_act_data.len_data);
+      evt_data.ee_act_data.len_data = p_cbk->act_data.nfc_act_data.len_data;
+  }
+#endif
   tNFA_EE_CBACK_DATA nfa_ee_cback_data;
   nfa_ee_cback_data.action = evt_data;
   nfa_ee_report_event(nullptr, NFA_EE_ACTION_EVT, &nfa_ee_cback_data);

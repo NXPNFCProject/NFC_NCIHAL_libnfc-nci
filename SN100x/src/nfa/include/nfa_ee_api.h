@@ -187,6 +187,9 @@ typedef struct {
   tNFA_HANDLE ee_handle;   /* Handle of NFCEE                  */
   tNFA_EE_TRIGGER trigger; /* the trigger of this event        */
   tNFA_EE_ACTION_PARAM param;
+#if(NXP_EXTNS == TRUE)
+  tNFC_EE_ACTION_DATA ee_act_data;
+#endif
 } tNFA_EE_ACTION;
 
 typedef struct {
