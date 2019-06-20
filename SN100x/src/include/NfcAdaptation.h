@@ -122,7 +122,6 @@ class NfcAdaptation {
   void GetVendorConfigs(std::map<std::string, ConfigValue>& configMap);
 #if (NXP_EXTNS == TRUE)
   void GetNxpConfigs(std::map<std::string, ConfigValue>& configMap);
-  void SetNxpRfConfigPath(char* name);
   void NFA_SetBootMode(uint8_t boot_mode);
   uint8_t NFA_GetBootMode();
 #endif
@@ -171,6 +170,7 @@ class NfcAdaptation {
   static void HalWrite(uint16_t data_len, uint8_t* p_data);
 #if (NXP_EXTNS == TRUE)
   static int HalIoctl(long arg, void* p_data);
+  static int HalIoctlIntf(long arg, void* p_data);
 #endif
   static bool HalPrediscover();
   static void HalControlGranted();

@@ -582,7 +582,7 @@ void NfcAdaptation::InitializeHalDeviceContext() {
              func, mHalNxpNfc.get(),
              (mHalNxpNfc->isRemote() ? "remote" : "local"));
   }
-  mHalEntryFuncs.ioctl = HalIoctl;
+  mHalEntryFuncs.ioctl = HalIoctlIntf;
   nfcBootMode = NFA_NORMAL_BOOT_MODE;
 #endif
 }
@@ -766,13 +766,6 @@ int NfcAdaptation::HalIoctl(long arg, void* p_data) {
         pInpOutData->inp.data.transitConfig.val +
             (pInpOutData->inp.data.transitConfig.len));
     data = tempStdVec;
-  }else if(arg ==  HAL_NFC_IOCTL_SET_RF_CONFIG_PATH){
-    std::vector<uint8_t> tempStdVec(data);
-    tempStdVec.insert(
-            tempStdVec.end(), pInpOutData->inp.data.nxpConfig.val,
-            pInpOutData->inp.data.nxpConfig.val +
-            (pInpOutData->inp.data.nxpConfig.len));
-    data = tempStdVec;
   }
   if(mHalNxpNfc != nullptr)
       mHalNxpNfc->ioctl(arg, data, IoctlCallback);
@@ -782,21 +775,19 @@ int NfcAdaptation::HalIoctl(long arg, void* p_data) {
 
 /*******************************************************************************
 **
-** Function:    SetNxpRfConfigPath
+** Function:    NfcAdaptation::HalIoctlIntf
 **
-** Description: sets the path of the NXP RF config file
+** Description: Calls ioctl to the Nfc driver.
+**                           updated to p_data.
 **
-** Returns:     none
+** Returns:     -1 or 0.
 **
 *******************************************************************************/
-void NfcAdaptation::SetNxpRfConfigPath(char* name) {
-    nfc_nci_IoctlInOutData_t inpOutData;
-    DLOG_IF(INFO, nfc_debug_enabled)<< StringPrintf("%s: Enter", __func__);
-    inpOutData.inp.data.nxpConfig.val = name;
-    inpOutData.inp.data.nxpConfig.len = strlen(name)+1;
-    HalIoctl(HAL_NFC_IOCTL_SET_RF_CONFIG_PATH, (void*)&inpOutData);
-    DLOG_IF(INFO, nfc_debug_enabled)<< StringPrintf("%s: Exit", __func__);
+
+int NfcAdaptation::HalIoctlIntf(long arg, void* p_data) {
+    return HalIoctl(arg, p_data);
 }
+
 /******************************************************************************
  * Function         phNxpNciHal_getNxpConfig
  *
@@ -810,7 +801,7 @@ void NfcAdaptation::GetNxpConfigs(
     std::map<std::string, ConfigValue>& configMap) {
   nfc_nci_IoctlInOutData_t inpOutData;
   std::string config;
-  int ret = HalIoctl(HAL_NFC_IOCTL_GET_NXP_CONFIG, &inpOutData);
+  int ret = HalIoctlIntf(HAL_NFC_IOCTL_GET_NXP_CONFIG, &inpOutData);
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("HAL_NFC_IOCTL_GET_NXP_CONFIG ioctl return value = %d", ret);
   configMap.emplace(
