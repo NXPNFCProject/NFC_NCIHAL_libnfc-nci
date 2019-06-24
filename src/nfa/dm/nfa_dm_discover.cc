@@ -2204,16 +2204,6 @@ static void nfa_dm_disc_sm_idle(tNFA_DM_RF_DISC_SM_EVENT event,
         }
         /* Otherwise, deactivating when getting unexpected activation */
       }
-#if (NXP_EXTNS == TRUE)
-      else if (p_data->nfc_discover.status == NCI_STATUS_SEMANTIC_ERROR) {
-        /* check any pending flags like NFA_DM_DISC_FLAGS_STOPPING or
-         * NFA_DM_DISC_FLAGS_DISABLING */
-        nfa_dm_disc_new_state(NFA_DM_RFST_IDLE);
-        /* check if need to restart discovery after resync discovery state with
-         * NFCC */
-        nfa_dm_start_rf_discover();
-      }
-#endif
       /* Otherwise, wait for deactivation NTF */
       break;
 
