@@ -16,24 +16,24 @@
  *
  ******************************************************************************/
 /******************************************************************************
-*
-*  The original Work has been changed by NXP.
-*
-*  Licensed under the Apache License, Version 2.0 (the "License");
-*  you may not use this file except in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*  http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing, software
-*  distributed under the License is distributed on an "AS IS" BASIS,
-*  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*  See the License for the specific language governing permissions and
-*  limitations under the License.
-*
-*  Copyright 2018 NXP
-*
-******************************************************************************/
+ *
+ *  The original Work has been changed by NXP.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  Copyright 2018-2019 NXP
+ *
+ ******************************************************************************/
 
 /******************************************************************************
  *
@@ -49,6 +49,9 @@
 #include "nfa_dm_int.h"
 #include "nfa_mem_co.h"
 #include "nfa_rw_int.h"
+#if (NXP_EXTNS == TRUE)
+#include "nci_defs_extns.h"
+#endif
 
 using android::base::StringPrintf;
 
@@ -1724,7 +1727,11 @@ static tNFC_STATUS nfa_rw_start_ndef_write(void) {
 
   if (nfa_rw_cb.flags & NFA_RW_FL_TAG_IS_READONLY) {
     /* error: ndef tag is read-only */
+#if (NXP_EXTNS == TRUE)
+    status = NFA_STATUS_READ_ONLY;
+#else
     status = NFC_STATUS_FAILED;
+#endif
     LOG(ERROR) << StringPrintf("Unable to write NDEF. Tag is read-only");
   } else if (nfa_rw_cb.ndef_max_size < nfa_rw_cb.ndef_wr_len) {
     /* error: ndef tag size is too small */

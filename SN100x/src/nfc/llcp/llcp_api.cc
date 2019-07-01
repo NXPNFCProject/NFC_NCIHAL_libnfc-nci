@@ -15,7 +15,25 @@
  *  limitations under the License.
  *
  ******************************************************************************/
-
+/******************************************************************************
+ *
+ *  The original Work has been changed by NXP.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  Copyright 2019 NXP
+ *
+ ******************************************************************************/
 /******************************************************************************
  *
  *  This file contains the LLCP API code
@@ -28,6 +46,9 @@
 #include "gki.h"
 #include "llcp_api.h"
 #include "llcp_int.h"
+#if (NXP_EXTNS == TRUE)
+#include "nci_defs_extns.h"
+#endif
 
 using android::base::StringPrintf;
 
@@ -849,7 +870,11 @@ tLLCP_STATUS LLCP_ConnectReq(uint8_t reg_sap, uint8_t dsap,
   if ((llcp_cb.lcb.peer_opt != LLCP_LSC_UNKNOWN) &&
       ((llcp_cb.lcb.peer_opt & LLCP_LSC_2) == 0)) {
     LOG(ERROR) << StringPrintf("Peer doesn't support connection-oriented link");
+#if (NXP_EXTNS == TRUE)
+    return LLCP_STATUS_CO_LINK_NOT_SUPPORTED;
+#else
     return LLCP_STATUS_FAIL;
+#endif
   }
 
   if (!p_params) {
@@ -864,7 +889,11 @@ tLLCP_STATUS LLCP_ConnectReq(uint8_t reg_sap, uint8_t dsap,
   /* if application is registered */
   if ((p_app_cb == nullptr) || (p_app_cb->p_app_cback == nullptr)) {
     LOG(ERROR) << StringPrintf("SSAP (0x%x) is not registered", reg_sap);
+#if (NXP_EXTNS == TRUE)
+    return LLCP_STATUS_SSAP_NOT_REG;
+#else
     return LLCP_STATUS_FAIL;
+#endif
   }
 
   if (dsap == LLCP_SAP_LM) {
@@ -877,7 +906,11 @@ tLLCP_STATUS LLCP_ConnectReq(uint8_t reg_sap, uint8_t dsap,
     if (strlen(p_params->sn) > LLCP_MAX_SN_LEN) {
       LOG(ERROR) << StringPrintf("Service Name (%zu bytes) is too long",
                                  strlen(p_params->sn));
+#if (NXP_EXTNS == TRUE)
+      return LLCP_STATUS_SN_TOO_LONG;
+#else
       return LLCP_STATUS_FAIL;
+#endif
     }
   }
 
@@ -885,7 +918,11 @@ tLLCP_STATUS LLCP_ConnectReq(uint8_t reg_sap, uint8_t dsap,
     LOG(ERROR) << StringPrintf(
         "Data link MIU shall not be bigger than local link "
         "MIU");
+#if (NXP_EXTNS == TRUE)
+    return LLCP_STATUS_INVALID_MIU;
+#else
     return LLCP_STATUS_FAIL;
+#endif
   }
 
   /* check if any pending connection request on this reg_sap */
@@ -898,7 +935,11 @@ tLLCP_STATUS LLCP_ConnectReq(uint8_t reg_sap, uint8_t dsap,
     */
     LOG(ERROR) << StringPrintf(
         "There is pending connect request on this reg_sap");
+#if (NXP_EXTNS == TRUE)
+    return LLCP_STATUS_BUSY;
+#else
     return LLCP_STATUS_FAIL;
+#endif
   }
 
   p_dlcb = llcp_util_allocate_data_link(reg_sap, dsap);

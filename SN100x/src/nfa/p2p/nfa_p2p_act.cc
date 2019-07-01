@@ -15,7 +15,25 @@
  *  limitations under the License.
  *
  ******************************************************************************/
-
+/******************************************************************************
+ *
+ *  The original Work has been changed by NXP.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  Copyright 2019 NXP
+ *
+ ******************************************************************************/
 /******************************************************************************
  *
  *  This is the implementation file for the NFA P2P.
@@ -28,7 +46,9 @@
 #include "nfa_dm_int.h"
 #include "nfa_p2p_api.h"
 #include "nfa_p2p_int.h"
-
+#if (NXP_EXTNS == TRUE)
+#include "nci_defs_extns.h"
+#endif
 using android::base::StringPrintf;
 
 extern bool nfc_debug_enabled;
@@ -780,7 +800,11 @@ bool nfa_p2p_dereg(tNFA_P2P_MSG* p_msg) {
 bool nfa_p2p_accept_connection(tNFA_P2P_MSG* p_msg) {
   uint8_t xx;
   tLLCP_CONNECTION_PARAMS params;
-
+#if (NXP_EXTNS == TRUE)
+  tLLCP_STATUS status;
+  tNFA_P2P_EVT_DATA evt_data;
+  uint8_t local_sap;
+#endif
   DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   xx = (uint8_t)(p_msg->api_accept.conn_handle & NFA_HANDLE_MASK);
@@ -789,10 +813,23 @@ bool nfa_p2p_accept_connection(tNFA_P2P_MSG* p_msg) {
   params.miu = p_msg->api_accept.miu;
   params.rw = p_msg->api_accept.rw;
   params.sn[0] = 0;
-
+#if (NXP_EXTNS == TRUE)
+  local_sap = nfa_p2p_cb.conn_cb[xx].local_sap;
+  status = LLCP_ConnectCfm(nfa_p2p_cb.conn_cb[xx].local_sap,
+                           nfa_p2p_cb.conn_cb[xx].remote_sap, &params);
+  if (status != LLCP_STATUS_SUCCESS) {
+    evt_data.disc.handle = (NFA_HANDLE_GROUP_P2P | local_sap);
+    if (status != LLCP_STATUS_FAIL)
+      evt_data.disc.reason = status;
+    else
+      evt_data.disc.reason = NFA_P2P_DISC_REASON_NO_INFORMATION;
+    evt_data.disc.type = LLCP_ERROR_CONNECT_FAIL_EVT;
+    nfa_p2p_cb.sap_cb[local_sap].p_cback(NFA_P2P_DISC_EVT, &evt_data);
+  }
+#else
   LLCP_ConnectCfm(nfa_p2p_cb.conn_cb[xx].local_sap,
                   nfa_p2p_cb.conn_cb[xx].remote_sap, &params);
-
+#endif
   return true;
 }
 
@@ -917,6 +954,10 @@ bool nfa_p2p_create_data_link_connection(tNFA_P2P_MSG* p_msg) {
     evt_data.disc.handle = (NFA_HANDLE_GROUP_P2P | local_sap);
     evt_data.disc.reason = NFA_P2P_DISC_REASON_NO_INFORMATION;
 
+#if (NXP_EXTNS == TRUE)
+    if (status != LLCP_STATUS_FAIL) evt_data.disc.reason = status;
+    evt_data.disc.type = LLCP_ERROR_CONNECT_FAIL_EVT;
+#endif
     nfa_p2p_cb.sap_cb[local_sap].p_cback(NFA_P2P_DISC_EVT, &evt_data);
   }
 
