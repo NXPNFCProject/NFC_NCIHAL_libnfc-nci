@@ -650,18 +650,6 @@ extern tNFA_STATUS NFA_HciDeletePipe(tNFA_HANDLE hci_handle, uint8_t pipe);
 extern tNFA_STATUS NFA_HciAddStaticPipe(tNFA_HANDLE hci_handle, uint8_t host,
                                         uint8_t gate, uint8_t pipe);
 
-#if (NXP_EXTNS == TRUE)
-/*******************************************************************************
-**
-** Function         NFA_MW_Fwdnlwd_Recovery
-**
-** Description      This function is called to make the MW_RCVRY_FW_DNLD_ALLOWED
-*true
-**                  not allowing the FW download while MW recovery.
-**
-*******************************************************************************/
-extern bool NFA_MW_Fwdnlwd_Recovery(bool mw_fwdnld_recovery);
-#endif
 /*******************************************************************************
 **
 ** Function         NFA_HciDebug

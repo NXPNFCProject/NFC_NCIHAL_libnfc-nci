@@ -97,7 +97,6 @@ static uint8_t gScreenState = 0x0;  // SCREEN ON UNLOCKED
 static uint16_t maxRoutingTableSize;
 uint8_t sListenActivated;
 extern tNFA_CE_CB nfa_ce_cb;
-extern bool MW_RCVRY_FW_DNLD_ALLOWED;
 bool core_reset_init_num_buff = false;
 uint8_t nfcc_dh_conn_id = 0xFF;
 extern void nfa_hci_rsp_timeout();

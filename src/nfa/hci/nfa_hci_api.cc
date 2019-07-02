@@ -52,9 +52,6 @@ using android::base::StringPrintf;
 
 extern bool nfc_debug_enabled;
 
-#if (NXP_EXTNS == TRUE)
-bool MW_RCVRY_FW_DNLD_ALLOWED;
-#endif
 /*******************************************************************************
 **
 ** Function         NFA_HciRegister
@@ -960,31 +957,6 @@ void NFA_HciDebug(uint8_t action, uint8_t size, uint8_t* p_data) {
   }
 }
 #if (NXP_EXTNS == TRUE)
-/*******************************************************************************
-**
-** Function         NFA_MW_Fwdnlwd_Recovery
-**
-** Description      This function is called to make the MW_RCVRY_FW_DNLD_ALLOWED
-*true
-**                  not allowing the FW download while MW recovery.
-**
-** Returns          None
-**
-*******************************************************************************/
-bool NFA_MW_Fwdnlwd_Recovery(bool mw_fwdnld_recovery) {
-    if(!nfcFL.nfccFL._NFCC_MW_RCVRY_BLK_FW_DNLD) {
-        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_MW_Fwdnlwd_Recovery "
-                                "NFCC_MW_RCVRY_BLK_FW_DNLD not available. Returning");
-        return false;
-    }
-    if (mw_fwdnld_recovery) {
-        MW_RCVRY_FW_DNLD_ALLOWED = true;
-    } else {
-        MW_RCVRY_FW_DNLD_ALLOWED = false;
-    }
-    return mw_fwdnld_recovery;
-}
-
 /*******************************************************************************
 **
 ** Function         NFA_HciW4eSETransaction_Complete
