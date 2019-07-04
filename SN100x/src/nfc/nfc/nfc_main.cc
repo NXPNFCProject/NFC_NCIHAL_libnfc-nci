@@ -192,6 +192,10 @@ static std::string nfc_hal_event_name(uint8_t event) {
       return "HAL_NFC_ERROR_EVT";
     case (uint32_t)NfcEvent::HCI_NETWORK_RESET:
       return "HCI_NETWORK_RESET";
+#if (NXP_EXTNS == TRUE)
+    case HAL_NFC_FW_UPDATE_STATUS_EVT:
+      return "HAL_NFC_FW_UPDATE_STATUS_EVT";
+#endif
     default:
       return "???? UNKNOWN EVENT";
   }
@@ -689,7 +693,13 @@ static void nfc_main_hal_cback(uint8_t event, tHAL_NFC_STATUS status) {
     case (uint32_t)NfcEvent::HCI_NETWORK_RESET:
       nfc_main_post_hal_evt(event, status);
       break;
-
+#if (NXP_EXTNS == TRUE)
+    case HAL_NFC_FW_UPDATE_STATUS_EVT:
+      if (NfcAdaptation::GetInstance().p_fwupdate_status_cback) {
+        (*NfcAdaptation::GetInstance().p_fwupdate_status_cback)(status);
+      }
+      break;
+#endif
     default:
       DLOG_IF(INFO, nfc_debug_enabled)
           << StringPrintf("nfc_main_hal_cback unhandled event %x", event);

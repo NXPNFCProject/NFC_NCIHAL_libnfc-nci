@@ -42,8 +42,12 @@ enum {
 #endif
 };
 enum {
-    //HAL_NFC_ENABLE_I2C_FRAGMENTATION_EVT = 0x07,
-    HAL_NFC_POST_MIN_INIT_CPLT_EVT       = 0x08
+  // HAL_NFC_ENABLE_I2C_FRAGMENTATION_EVT = 0x07,
+  HAL_NFC_POST_MIN_INIT_CPLT_EVT = 0x08,
+  HAL_NFC_WRITE_COMPLETE = 0x09,
+#if (NXP_EXTNS == TRUE)
+  HAL_NFC_FW_UPDATE_STATUS_EVT,
+#endif
 };
 /*
  * Data structures provided below are used of Hal Ioctl calls
@@ -263,5 +267,14 @@ typedef struct nxpnfc_nci_device{
     */
     int (*check_fw_dwnld_flag)(const struct nxpnfc_nci_device *p_dev, uint8_t* param1);
 }nxpnfc_nci_device_t;
-
+#if (NXP_EXTNS == TRUE)
+/*
+ * NfcFwUpdateStatus: enumerates the FW update status of NFCC.
+ */
+enum NfcFwUpdateStatus {
+  HAL_NFC_FW_UPDATE_START = 0x01,
+  HAL_NFC_FW_UPDATE_SCUCCESS,
+  HAL_NFC_FW_UPDATE_FAILED,
+};
+#endif
 #endif  // ANDROID_HARDWARE_HAL_NXPNFC_V1_0_H

@@ -373,6 +373,8 @@ void NfcAdaptation::Initialize() {
         << StringPrintf("%s: MAX_WTX_COUNT to wait for HCI response %d",
                         func, nfa_hci_cfg.max_wtx_count);
   }
+  /* initialize FW status update callback handle*/
+  p_fwupdate_status_cback = NULL;
 #endif
   verify_stack_non_volatile_store();
   if (NfcConfig::hasKey(NAME_PRESERVE_STORAGE) &&
@@ -1010,13 +1012,26 @@ uint8_t NfcAdaptation::HalGetMaxNfcee() {
 **
 ** Description: Download firmware patch files.
 **
+** Parameters: p_cback- callback from JNI to update the FW download status
+**             isNfcOn- NFC_ON:true, NFC_OFF:false
 ** Returns:     True/False
 **
 *******************************************************************************/
+#if (NXP_EXTNS == TRUE)
+bool NfcAdaptation::DownloadFirmware(tNFC_JNI_FWSTATUS_CBACK* p_cback,
+                                     bool isNfcOn) {
+#else
 bool NfcAdaptation::DownloadFirmware() {
+#endif
   const char* func = "NfcAdaptation::DownloadFirmware";
   isDownloadFirmwareCompleted = false;
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: enter", func);
+#if (NXP_EXTNS == TRUE)
+  p_fwupdate_status_cback = p_cback;
+  if (isNfcOn) {
+    return true;
+  }
+#endif
   HalInitialize();
   mHalOpenCompletedEvent.lock();
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: try open HAL", func);
@@ -1064,6 +1079,14 @@ void NfcAdaptation::HalDownloadFirmwareCallback(nfc_event_t event,
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("%s: event=0x%X", func, event);
   switch (event) {
+#if (NXP_EXTNS == TRUE)
+    case HAL_NFC_FW_UPDATE_STATUS_EVT:
+      /* Notify app of FW Update status*/
+      if (NfcAdaptation::GetInstance().p_fwupdate_status_cback) {
+        (*NfcAdaptation::GetInstance().p_fwupdate_status_cback)(event_status);
+      }
+      break;
+#endif
     case HAL_NFC_OPEN_CPLT_EVT: {
       DLOG_IF(INFO, nfc_debug_enabled)
           << StringPrintf("%s: HAL_NFC_OPEN_CPLT_EVT", func);

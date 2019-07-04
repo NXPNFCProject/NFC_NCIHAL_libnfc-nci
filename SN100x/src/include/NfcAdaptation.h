@@ -68,6 +68,7 @@ struct INxpNfc;
 }
 }
 }
+typedef void(tNFC_JNI_FWSTATUS_CBACK)(uint8_t status);
 #endif
 class NfcDeathRecipient;
 class ThreadMutex {
@@ -118,7 +119,11 @@ class NfcAdaptation {
   void DeviceShutdown();
   static NfcAdaptation& GetInstance();
   tHAL_NFC_ENTRY* GetHalEntryFuncs();
+#if (NXP_EXTNS == TRUE)
+  bool DownloadFirmware(tNFC_JNI_FWSTATUS_CBACK* p_cback, bool isNfcOn);
+#else
   bool DownloadFirmware();
+#endif
   void GetVendorConfigs(std::map<std::string, ConfigValue>& configMap);
 #if (NXP_EXTNS == TRUE)
   void GetNxpConfigs(std::map<std::string, ConfigValue>& configMap);
@@ -128,6 +133,7 @@ class NfcAdaptation {
   void Dump(int fd);
 #if (NXP_EXTNS == TRUE)
   nfc_nci_IoctlInOutData_t* mCurrentIoctlData;
+  tNFC_JNI_FWSTATUS_CBACK* p_fwupdate_status_cback;
 #endif
  private:
   NfcAdaptation();
