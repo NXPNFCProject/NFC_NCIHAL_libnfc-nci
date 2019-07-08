@@ -462,7 +462,7 @@ tNFA_STATUS nfa_dm_check_set_config(uint8_t tlv_list_len, uint8_t* p_tlv_list,
    * application, then send the SET_CONFIG command */
   if (((updated_len || app_init) &&
        (appl_dta_mode_flag == 0x00 ||
-        (nfa_dm_cb.eDtaMode & 0x0F) == NFA_DTA_HCEF_MODE)) ||
+        (nfa_dm_cb.eDtaMode & NFA_DTA_HCEF_MODE) == NFA_DTA_HCEF_MODE)) ||
       (appl_dta_mode_flag && app_init)) {
 #if (NXP_EXTNS == TRUE)
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_dm_check_set_config () updated_len=%d", updated_len);
@@ -473,7 +473,7 @@ tNFA_STATUS nfa_dm_check_set_config(uint8_t tlv_list_len, uint8_t* p_tlv_list,
     nfc_status = NFC_SetConfig(updated_len, p_tlv_list);
 
     if (nfc_status == NFC_STATUS_OK) {
-      if ((nfa_dm_cb.eDtaMode & 0x0F) == NFA_DTA_HCEF_MODE) {
+      if ((nfa_dm_cb.eDtaMode & NFA_DTA_HCEF_MODE) == NFA_DTA_HCEF_MODE) {
         nfa_dm_cb.eDtaMode &= ~NFA_DTA_HCEF_MODE;
         nfa_dm_cb.eDtaMode |= NFA_DTA_DEFAULT_MODE;
       }
