@@ -161,16 +161,9 @@ void nfa_ee_sys_enable(void) {
 
   nfa_ee_cb.route_block_control = 0x00;
 
-  if (NfcConfig::hasKey(NAME_NXP_PROP_BLACKLIST_ROUTING)) {
-    unsigned retlen = NfcConfig::getUnsigned(NAME_NXP_PROP_BLACKLIST_ROUTING);
-    if ((retlen == 0x01) && ((NFC_GetNCIVersion() == NCI_VERSION_1_0) ||
-                             (nfcFL.nfccFL._NFCC_ROUTING_BLOCK_BIT == true))) {
-      enableBlockRoute = true;
-    }
-  } else if (NfcConfig::hasKey(NAME_AID_BLOCK_ROUTE)) {
+  if (NfcConfig::hasKey(NAME_AID_BLOCK_ROUTE)) {
     unsigned retlen = NfcConfig::getUnsigned(NAME_AID_BLOCK_ROUTE);
-    if ((retlen == 0x01) && ((NFC_GetNCIVersion() == NCI_VERSION_2_0)
-        || (nfcFL.nfccFL._NFCC_ROUTING_BLOCK_BIT == true))) {
+    if ((retlen == 0x01) && (nfcFL.nfccFL._NFCC_ROUTING_BLOCK_BIT == true)) {
       enableBlockRoute = true;
     }
   }
