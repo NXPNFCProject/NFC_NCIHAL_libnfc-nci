@@ -634,8 +634,12 @@ static void rw_mfc_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   tRW_MFC_CB* p_mfc = &rw_cb.tcb.mfc;
   tRW_READ_DATA evt_data;
   NFC_HDR* mfc_data = {};
-  uint8_t* p;
   tRW_DATA rw_data;
+
+  if (!p_data) {
+    LOG(ERROR) << __func__ << "Invalid p_data";
+    return;
+  }
 
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("%s conn_id=%i, evt=0x%x", __func__, conn_id, event);
@@ -695,7 +699,6 @@ static void rw_mfc_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   }
 
   /* Assume the data is just the response byte sequence */
-  p = (uint8_t*)(mfc_data + 1) + mfc_data->offset;
 
   switch (p_mfc->state) {
     case RW_MFC_STATE_IDLE:

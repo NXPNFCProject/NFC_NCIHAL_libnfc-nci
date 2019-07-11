@@ -569,24 +569,18 @@ static void ce_t4t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
     LOG(ERROR) << StringPrintf("Invalid p_c_apdu");
     return;
   }
-
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("ce_t4t_data_cback (): conn_id = 0x%02X", conn_id);
-  if (p_c_apdu) {
-    p_cmd = (uint8_t*)(p_c_apdu + 1) + p_c_apdu->offset;
-
-    if (p_c_apdu->len == 0) {
-      LOG(ERROR) << StringPrintf("Wrong length in ce_t4t_data_cback");
-      android_errorWriteLog(0x534e4554, "115635871");
-      ce_t4t_send_status(T4T_RSP_WRONG_LENGTH);
-      GKI_freebuf(p_c_apdu);
-      return;
-    }
+  if (p_c_apdu->len == 0) {
+    LOG(ERROR) << StringPrintf("Wrong length in ce_t4t_data_cback");
+    android_errorWriteLog(0x534e4554, "115635871");
+    ce_t4t_send_status(T4T_RSP_WRONG_LENGTH);
+    GKI_freebuf(p_c_apdu);
+    return;
   }
+  p_cmd = (uint8_t*)(p_c_apdu + 1) + p_c_apdu->offset;
 
   /* Class Byte */
-  if (p_cmd) {
-    BE_STREAM_TO_UINT8(cla, p_cmd);
-  }
+   BE_STREAM_TO_UINT8(cla, p_cmd);
 
   /* Don't check class if registered AID has been selected */
   if ((cla != T4T_CMD_CLASS) &&
