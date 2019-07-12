@@ -1,6 +1,6 @@
-#NFC_NCIHAL_libnfc-nci
+# NFC_NCIHAL_libnfc-nci
 
-####Git Repository
+#### Git Repository
 
 | DESCRIPTION        | CHECKOUT COMMAND          |
 |:-------------:|:-------------:| 
