@@ -346,6 +346,7 @@ extern tNfc_featureList nfcFL;
             nfcFL.nfccFL._UICC_CREATE_CONNECTIVITY_PIPE = true;             \
             nfcFL.nfccFL._NXP_NFC_UICC_ETSI12 = false;                      \
             nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED = 3;                      \
+            nfcFL.nfccFL._NFCC_ROUTING_BLOCK_BIT = true;                    \
             \
             \
             nfcFL.eseFL._ESE_ETSI12_PROP_INIT = true;                       \
