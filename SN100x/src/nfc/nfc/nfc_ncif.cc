@@ -1234,7 +1234,10 @@ void nfc_ncif_proc_ee_action(uint8_t* p, uint16_t plen) {
   tNFC_RESPONSE_CBACK* p_cback = nfc_cb.p_resp_cback;
   uint8_t data_len, ulen, tag, *p_data;
   uint8_t max_len;
-
+  if (!p) {
+    LOG(ERROR) << StringPrintf("%s: Invalid p value\n", __func__);
+    return;
+  }
   if (p_cback) {
     memset(&evt_data.act_data, 0, sizeof(tNFC_ACTION_DATA));
     evt_data.status = NFC_STATUS_OK;
