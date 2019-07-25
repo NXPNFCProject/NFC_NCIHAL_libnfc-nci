@@ -44,10 +44,27 @@ using namespace ::android::base;
 namespace {
 
 bool parseBytesString(std::string in, std::vector<uint8_t>& out) {
+
+#if(NXP_EXTNS == TRUE)
+  vector<string> values;
+  in.erase(remove(in.begin(), in.end(), ' '), in.end());
+  if(in.find(":") !=  string::npos ){
+    values = Split(in, ":");
+  }else if(in.find(",") !=  string::npos){
+    values = Split(in, ",");
+  }else if(in.size() == 2){
+    values.push_back(in);
+  }
+#else
   vector<string> values = Split(in, ":");
+#endif
   if (values.size() == 0) return false;
   for (const string value : values) {
+#if(NXP_EXTNS != TRUE)
     if (value.length() != 2) return false;
+#else
+    if (!(value.length() == 1 || value.length() == 2)) return false;
+#endif
     uint8_t tmp = 0;
     string hexified = "0x";
     hexified.append(value);
