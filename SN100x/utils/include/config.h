@@ -72,15 +72,13 @@ class ConfigFile {
 
   bool isEmpty();
   void clear();
-#if(NXP_EXTNS == TRUE)
-  std::string cur_file_name_ = "";
-#endif
 
  private:
   ConfigValue& getValue(const std::string& key);
 #if(NXP_EXTNS == TRUE)
   bool updateConfig(const std::string& config, ConfigValue& value);
   bool isUpdateAllowed(const std::string& key);
+  std::string cur_file_name_ = "";
 #endif
   std::map<std::string, ConfigValue> values_;
 };

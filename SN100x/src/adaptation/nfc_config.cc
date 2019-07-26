@@ -79,10 +79,7 @@ void NfcConfig::loadConfig() {
   std::map<std::string, ConfigValue> configMap;
   theInstance.GetVendorConfigs(configMap);
 #if(NXP_EXTNS == TRUE)
-  std::string nxp_config;
-  nxp_config = theInstance.HalGetProperty("libnfc-nxp.conf");
-  config_.cur_file_name_ = "nxpTransit";
-  config_.parseFromString(nxp_config);
+  theInstance.GetNxpConfigs(configMap);
 #endif
   for (auto config : configMap) {
     config_.addConfig(config.first, config.second);
