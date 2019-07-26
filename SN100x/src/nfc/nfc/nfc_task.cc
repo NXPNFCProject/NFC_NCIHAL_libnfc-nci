@@ -32,7 +32,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018 NXP
+ *  Copyright 2018-2019 NXP
  *
  ******************************************************************************/
 
@@ -402,7 +402,6 @@ uint32_t nfc_task(__attribute__((unused)) uint32_t arg) {
       /* Reset the NFC controller. */
       nfc_set_state(NFC_STATE_CORE_INIT);
 #if (NXP_EXTNS == TRUE)
-      check_nfcee_session_and_reset();
       nci_snd_core_reset(NCI_RESET_TYPE_KEEP_CFG);
 #else
       nci_snd_core_reset(NCI_RESET_TYPE_RESET_CFG);
