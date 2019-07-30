@@ -891,6 +891,9 @@ void NfcAdaptation::GetNxpConfigs(
       NAME_NXP_NFCC_MERGE_SAK_ENABLE,
       ConfigValue(inpOutData.out.data.nxpConfigs.mergeSakEnable));
   configMap.emplace(
+      NAME_DEFAULT_T4TNFCEE_AID_POWER_STATE,
+      ConfigValue(inpOutData.out.data.nxpConfigs.t4tNfceePwrState));
+  configMap.emplace(
       NAME_NXP_STAG_TIMEOUT_CFG,
       ConfigValue(inpOutData.out.data.nxpConfigs.stagTimeoutCfg));
   if(inpOutData.out.data.nxpConfigs.rfStorage.len){

@@ -128,6 +128,7 @@ typedef struct {
   uint8_t pollEfdDelay;
   uint8_t mergeSakEnable;
   uint8_t stagTimeoutCfg;
+  uint8_t t4tNfceePwrState;
   nxp_nfc_rfStorage_t rfStorage;
   nxp_nfc_fwStorage_t fwStorage;
   nxp_nfc_coreConf_t coreConf;

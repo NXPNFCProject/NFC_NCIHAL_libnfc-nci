@@ -17,6 +17,26 @@
  ******************************************************************************/
 
 /******************************************************************************
+*
+*  The original Work has been changed by NXP.
+*
+*  Licensed under the Apache License, Version 2.0 (the "License");
+*  you may not use this file except in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*  http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing, software
+*  distributed under the License is distributed on an "AS IS" BASIS,
+*  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+*  See the License for the specific language governing permissions and
+*  limitations under the License.
+*
+*  Copyright 2018-2019 NXP
+*
+******************************************************************************/
+
+/******************************************************************************
  *
  *  This file contains the Near Field Communication (NFC) Reader/Writer mode
  *  related internal function / definitions.
@@ -589,6 +609,7 @@ typedef struct {
   uint16_t max_update_size; /* max updating size per a command  */
   uint16_t card_size;
   uint8_t card_type;
+
 } tRW_T4T_CB;
 
 /* RW retransmission statistics */
@@ -777,7 +798,9 @@ extern tNFC_STATUS rw_t1t_send_static_cmd(uint8_t opcode, uint8_t add,
                                           uint8_t dat);
 extern void rw_t1t_process_timeout(TIMER_LIST_ENT* p_tle);
 extern void rw_t1t_handle_op_complete(void);
-
+#if (NXP_EXTNS == TRUE)
+extern tNFC_STATUS RW_T4tNfceeInitCb(void);
+#endif
 #if (RW_NDEF_INCLUDED == TRUE)
 extern tRW_EVENT rw_t2t_info_to_event(const tT2T_CMD_RSP_INFO* p_info);
 extern void rw_t2t_handle_rsp(uint8_t* p_data);

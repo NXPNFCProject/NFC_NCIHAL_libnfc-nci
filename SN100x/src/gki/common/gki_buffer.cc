@@ -310,6 +310,7 @@ void* GKI_getbuf(uint16_t size) {
       p_hdr->status = BUF_STATUS_UNLINKED;
       p_hdr->p_next = nullptr;
       p_hdr->Type = 0;
+
       return ((void*)((uint8_t*)p_hdr + BUFFER_HDR_SIZE));
     }
   }

@@ -250,7 +250,6 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
     pp = (uint8_t*)(p + 1) + p->offset;
     /* build NCI Data packet header */
     NCI_DATA_PBLD_HDR(pp, pbf, hdr0, ulen);
-
     if (p_cb->num_buff != NFC_CONN_NO_FC) p_cb->num_buff--;
     /* send to HAL */
     HAL_WRITE(p);

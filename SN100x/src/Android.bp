@@ -50,6 +50,7 @@ cc_library_shared {
         "nfa/p2p/*.cc",
         "nfa/rw/*.cc",
         "nfa/sys/*.cc",
+        "nfa/t4tnfcee/*.cc",
         "nfc/llcp/*.cc",
         "nfc/nci/*.cc",
         "nfc/ndef/*.cc",

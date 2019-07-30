@@ -66,8 +66,14 @@ extern bool nfc_debug_enabled;
 tNFC_CONN_CB* nfc_alloc_conn_cb(tNFC_CONN_CBACK* p_cback) {
   int xx, max = NCI_MAX_CONN_CBS;
   tNFC_CONN_CB* p_conn_cb = nullptr;
-
+#if (NXP_EXTNS == TRUE)
+/* Since T4T NFCEE connection will be active in parallel with HCI, it should
+be still NCI_MAX_CONN_CBS. additional check using NFC_CHECK_MAX_CONN will
+reduce the connection number. So it is commented*/
+// NFC_CHECK_MAX_CONN();
+#else
   NFC_CHECK_MAX_CONN();
+#endif
   for (xx = 0; xx < max; xx++) {
     if (nfc_cb.conn_cb[xx].conn_id == NFC_ILLEGAL_CONN_ID) {
       nfc_cb.conn_cb[xx].conn_id =

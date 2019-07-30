@@ -62,6 +62,9 @@ enum {
   NFA_ID_HCI,  /* Host controller interface sub-system*/
 #if (NFA_DTA_INCLUDED == TRUE)
   NFA_ID_DTA, /* Device Test Application sub-system  */
+#if (NXP_EXTNS == TRUE)
+  NFA_ID_T4TNFCEE, /* t4T Nfcee sub-system  */
+#endif
 #endif
   NFA_ID_MAX
 };
