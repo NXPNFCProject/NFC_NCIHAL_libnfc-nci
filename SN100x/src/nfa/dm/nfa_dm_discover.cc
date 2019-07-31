@@ -249,42 +249,55 @@ static uint8_t nfa_dm_get_rf_discover_config(
       if (num_params >= max_params) return num_params;
     }
   }
-  /* Check listening A */
-  if (
 #if (NXP_EXTNS == TRUE)
-      (nfa_t4tnfcee_is_enabled()) ||
-#endif
-      (dm_disc_mask &
-       (NFA_DM_DISC_MASK_LA_T1T | NFA_DM_DISC_MASK_LA_T2T |
-        NFA_DM_DISC_MASK_LA_ISO_DEP | NFA_DM_DISC_MASK_LA_NFC_DEP))) {
-    disc_params[num_params].type = NFC_DISCOVERY_TYPE_LISTEN_A;
+  if (nfa_dm_cb.isFieldDetectEnabled) {
+    disc_params[num_params].type = NFC_DISCOVERY_TYPE_FIELD_DETECT;
     disc_params[num_params].frequency = 1;
     num_params++;
 
     if (num_params >= max_params) return num_params;
-  }
-
-  /* Check listening B */
-  if (
+  } else {
+#endif
+    /* Check listening A */
+    if (
 #if (NXP_EXTNS == TRUE)
-      (nfa_t4tnfcee_is_enabled()) ||
+        (nfa_t4tnfcee_is_enabled()) ||
 #endif
-      (dm_disc_mask & NFA_DM_DISC_MASK_LB_ISO_DEP)) {
-    disc_params[num_params].type = NFC_DISCOVERY_TYPE_LISTEN_B;
-    disc_params[num_params].frequency = 1;
-    num_params++;
+        dm_disc_mask &
+            (NFA_DM_DISC_MASK_LA_T1T | NFA_DM_DISC_MASK_LA_T2T |
+             NFA_DM_DISC_MASK_LA_ISO_DEP | NFA_DM_DISC_MASK_LA_NFC_DEP)) {
+      disc_params[num_params].type = NFC_DISCOVERY_TYPE_LISTEN_A;
+      disc_params[num_params].frequency = 1;
+      num_params++;
 
-    if (num_params >= max_params) return num_params;
+      if (num_params >= max_params) return num_params;
+    }
+
+    /* Check listening B */
+    if (
+#if (NXP_EXTNS == TRUE)
+        (nfa_t4tnfcee_is_enabled()) ||
+#endif
+        dm_disc_mask & NFA_DM_DISC_MASK_LB_ISO_DEP) {
+      disc_params[num_params].type = NFC_DISCOVERY_TYPE_LISTEN_B;
+      disc_params[num_params].frequency = 1;
+      num_params++;
+
+      if (num_params >= max_params) return num_params;
+    }
+
+    /* Check listening F */
+    if (dm_disc_mask &
+        (NFA_DM_DISC_MASK_LF_T3T | NFA_DM_DISC_MASK_LF_NFC_DEP)) {
+      disc_params[num_params].type = NFC_DISCOVERY_TYPE_LISTEN_F;
+      disc_params[num_params].frequency = 1;
+      num_params++;
+
+      if (num_params >= max_params) return num_params;
+    }
+#if (NXP_EXTNS == TRUE)
   }
-
-  /* Check listening F */
-  if (dm_disc_mask & (NFA_DM_DISC_MASK_LF_T3T | NFA_DM_DISC_MASK_LF_NFC_DEP)) {
-    disc_params[num_params].type = NFC_DISCOVERY_TYPE_LISTEN_F;
-    disc_params[num_params].frequency = 1;
-    num_params++;
-
-    if (num_params >= max_params) return num_params;
-  }
+#endif
   if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
     /* Check polling Active mode  */
     if (dm_disc_mask & NFA_DM_DISC_MASK_LACM_NFC_DEP) {

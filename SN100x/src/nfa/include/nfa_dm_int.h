@@ -601,6 +601,7 @@ typedef struct {
   tNFA_TECHNOLOGY_MASK        pollTech;
   tNFA_TECHNOLOGY_MASK        listenTech;
   uint8_t selected_uicc_id; /* Current selected UICC ID */
+  bool isFieldDetectEnabled; /*Field Detect Enable status*/
 #endif
 } tNFA_DM_CB;
 
