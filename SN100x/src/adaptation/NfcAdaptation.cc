@@ -296,7 +296,7 @@ void NfcAdaptation::GetVendorConfigs(
 *******************************************************************************/
 void NfcAdaptation::Initialize() {
   const char* func = "NfcAdaptation::Initialize";
-  const char* argv[] = {"libnfc_nci"};
+  const base::CommandLine::CharType* argv[] = {"libnfc_nci"};
   // Init log tag
   base::CommandLine::Init(1, argv);
 
