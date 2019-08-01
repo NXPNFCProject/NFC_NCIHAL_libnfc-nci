@@ -183,6 +183,7 @@ void nfa_t4tnfcee_info_cback(tNFA_EE_EVT event, tNFA_EE_CBACK_DATA* p_data) {
       }
       break;
     default:
+      nfa_ee_report_event(NULL, event, p_data);
       break;
   }
   return;
