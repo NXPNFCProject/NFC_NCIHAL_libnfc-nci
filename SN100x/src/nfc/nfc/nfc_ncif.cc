@@ -85,6 +85,10 @@ extern bool nfc_debug_enabled;
           && !(NCI_GID_CORE == gid && NCI_MSG_CORE_SET_POWER_SUB_STATE == oid)     \
           && !(NCI_GID_RF_MANAGE == gid && NCI_MSG_RF_ISO_DEP_NAK_PRESENCE == oid) \
           && !(NCI_GID_PROP == gid && NCI_MSG_GET_RFSTATUS == oid))
+/* LR: Length Reduction Payload size
+ * MP: Max Data Packet Payload size*/
+#define NCI_MAX_BUFFER_SIZE(LR, MP) \
+  MP = (((LR - NCI_DATA_HDR_SIZE) <= MP) ? (LR - NCI_DATA_HDR_SIZE) : MP)
 // Global Structure varibale for FW Version
 static tNFC_FW_VERSION nfc_fw_version;
 uint8_t nfcc_dh_conn_id = 0xFF;
@@ -1070,9 +1074,16 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
   }
 #if (NFC_RW_ONLY == FALSE)
   else if (evt_data.activate.intf_param.type == NCI_INTERFACE_NFC_DEP) {
-    /* Make max payload of NCI aligned to max payload of NFC-DEP for better
-     * performance */
-    if (buff_size > NCI_NFC_DEP_MAX_DATA) buff_size = NCI_NFC_DEP_MAX_DATA;
+#if (NXP_EXTNS == TRUE)
+    if ((NFC_GetNCIVersion() == NCI_VERSION_2_0)) {
+      tNFC_RF_ACM_P_PARAMS* acm_p =
+          &evt_data.activate.rf_tech_param.param.acm_p;
+      NCI_MAX_BUFFER_SIZE(acm_p->max_payload_size, buff_size);
+    } else
+#endif
+        /* Make max payload of NCI aligned to max payload of NFC-DEP for better
+         * performance */
+        if (buff_size > NCI_NFC_DEP_MAX_DATA) buff_size = NCI_NFC_DEP_MAX_DATA;
 
     p_pa_nfc = &p_intf->intf_param.pa_nfc;
 
@@ -1130,6 +1141,11 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
 
       mpl = ((p_pa_nfc->atr_res[mpl_idx]) >> 4) & 0x03;
       p_pa_nfc->max_payload_size = nfc_mpl_code_to_size[mpl];
+#if (NXP_EXTNS == TRUE)
+      if ((NFC_GetNCIVersion() == NCI_VERSION_2_0)) {
+        NCI_MAX_BUFFER_SIZE(p_pa_nfc->max_payload_size, buff_size);
+      }
+#endif
       if (p_pa_nfc->atr_res_len > gb_idx) {
         p_pa_nfc->gen_bytes_len = p_pa_nfc->atr_res_len - gb_idx;
         if (p_pa_nfc->gen_bytes_len > NFC_MAX_GEN_BYTES_LEN)
