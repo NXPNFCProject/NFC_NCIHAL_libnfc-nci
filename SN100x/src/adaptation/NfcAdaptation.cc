@@ -896,6 +896,8 @@ void NfcAdaptation::GetNxpConfigs(
   configMap.emplace(
       NAME_NXP_STAG_TIMEOUT_CFG,
       ConfigValue(inpOutData.out.data.nxpConfigs.stagTimeoutCfg));
+  configMap.emplace( NAME_NFA_CONFIG_FORMAT,
+      ConfigValue(inpOutData.out.data.nxpConfigs.scrCfgFormat));
   if(inpOutData.out.data.nxpConfigs.rfStorage.len){
     config.assign(inpOutData.out.data.nxpConfigs.rfStorage.path,
               inpOutData.out.data.nxpConfigs.rfStorage.len);
@@ -915,6 +917,11 @@ void NfcAdaptation::GetNxpConfigs(
     std::vector rfFileVersInfo(inpOutData.out.data.nxpConfigs.rfFileVersInfo.ver,
             inpOutData.out.data.nxpConfigs.rfFileVersInfo.ver + inpOutData.out.data.nxpConfigs.rfFileVersInfo.len);
     configMap.emplace(NAME_NXP_RF_FILE_VERSION_INFO,ConfigValue(rfFileVersInfo));
+  }
+  if(inpOutData.out.data.nxpConfigs.scrResetEmvco.len){
+    std::vector scrResetEmvcoCmd(inpOutData.out.data.nxpConfigs.scrResetEmvco.cmd,
+            inpOutData.out.data.nxpConfigs.scrResetEmvco.cmd + inpOutData.out.data.nxpConfigs.scrResetEmvco.len);
+    configMap.emplace(NAME_NXP_PROP_RESET_EMVCO_CMD,ConfigValue(scrResetEmvcoCmd));
   }
 }
 #endif

@@ -87,6 +87,14 @@ typedef struct {
   uint8_t cmd[264];
 }nxp_nfc_coreConf_t;
 /*
+ * nxp_nfc_scrResetEmvcoCmd_t shall contain core set conf command to reset EMVCO
+ * mode and the length of the command
+ */
+typedef struct {
+  long len;
+  uint8_t cmd[10];
+}nxp_nfc_scrResetEmvcoCmd_t;
+/*
  * nxp_nfc_rfFileVerInfo_t shall contain rf file version info and
  *length of it
  */
@@ -129,10 +137,12 @@ typedef struct {
   uint8_t mergeSakEnable;
   uint8_t stagTimeoutCfg;
   uint8_t t4tNfceePwrState;
+  uint8_t scrCfgFormat;
   nxp_nfc_rfStorage_t rfStorage;
   nxp_nfc_fwStorage_t fwStorage;
   nxp_nfc_coreConf_t coreConf;
   nxp_nfc_rfFileVerInfo_t rfFileVersInfo;
+  nxp_nfc_scrResetEmvcoCmd_t scrResetEmvco;
 } nxp_nfc_config_t;
 #endif
 /*

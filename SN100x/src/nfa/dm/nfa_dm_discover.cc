@@ -60,6 +60,7 @@
 #include <config.h>
 #include "nfc_config.h"
 #include "nfa_nfcee_int.h"
+#include "nfa_scr_int.h"
 #endif
 using android::base::StringPrintf;
 
@@ -841,6 +842,9 @@ static void nfa_dm_disc_discovery_cback(tNFC_DISCOVER_EVT event,
   tNFA_DM_RF_DISC_DATA nfa_dm_rf_disc_data;
   nfa_dm_rf_disc_data.nfc_discover = *p_data;
   nfa_dm_disc_sm_execute(dm_disc_event, &nfa_dm_rf_disc_data);
+#if(NXP_EXTNS == TRUE)
+  NFA_SCR_PROCESS_EVT(dm_disc_event, p_data->status);
+#endif
 }
 
 /*******************************************************************************
@@ -965,7 +969,9 @@ static tNFC_STATUS nfa_dm_send_deactivate_cmd(tNFC_DEACT_TYPE deactivate_type) {
         (NFA_DM_DISC_FLAGS_W4_RSP | NFA_DM_DISC_FLAGS_W4_NTF);
 
     status = NFC_Deactivate(deactivate_type);
-
+#if (NXP_EXTNS == TRUE)
+    NFA_SCR_IS_ENABLED(status);
+#endif
     if (!nfa_dm_cb.disc_cb.tle.in_use) {
       nfa_dm_cb.disc_cb.tle.p_cback =
           (TIMER_CBACK*)nfa_dm_disc_deact_ntf_timeout_cback;

@@ -98,6 +98,7 @@ void NFA_Init(tHAL_NFC_ENTRY* p_hal_entry_tbl) {
     nfa_dm_cb.get_max_ee = p_hal_entry_tbl->get_max_ee;
     #if (NXP_EXTNS == TRUE)
     nfa_t4tnfcee_init();
+    nfa_scr_init();
     #endif
     nfa_hci_init();
   }

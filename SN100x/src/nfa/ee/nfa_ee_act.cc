@@ -51,6 +51,7 @@
 #include "nfa_hci_int.h"
 #include "nfa_nfcee_int.h"
 #include "nfc_config.h"
+#include "nfa_scr_int.h"
 #endif
 using android::base::StringPrintf;
 
@@ -3176,7 +3177,9 @@ void nfa_ee_nci_disc_req_ntf(tNFA_EE_MSG* p_data) {
   tNFA_EE_ECB* p_cb = nullptr;
   uint8_t report_ntf = 0;
   uint8_t xx;
-
+#if (NXP_EXTNS == TRUE)
+  NFA_SCR_HANDLE_RDR_REQ_NTF(p_cbk);
+#endif
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "num_info: %d cur_ee:%d", p_cbk->num_info, nfa_ee_cb.cur_ee);
 
@@ -3215,21 +3218,11 @@ void nfa_ee_nci_disc_req_ntf(tNFA_EE_MSG* p_data) {
                  NFC_DISCOVERY_TYPE_LISTEN_B_PRIME) {
         p_cb->lbp_protocol = p_cbk->info[xx].protocol;
       }
-#if (NXP_EXTNS == TRUE)
-      // code to handle and store Reader type(A/B) requested for Reader over
-      // SWP.
-      /*Reader over SWP*/
-      else if (p_cbk->info[xx].tech_n_mode == NFC_DISCOVERY_TYPE_POLL_A) {
-        p_cb->pa_protocol = p_cbk->info[xx].protocol;
-      } else if (p_cbk->info[xx].tech_n_mode == NFC_DISCOVERY_TYPE_POLL_B) {
-        p_cb->pb_protocol = p_cbk->info[xx].protocol;
-      }
       if (p_cb->nfcee_id == T4TNFCEE_TARGET_HANDLE) {
         tNFA_EE_CBACK_DATA nfa_ee_cback_data = {0};
         nfa_ee_report_event(p_cb->p_ee_cback, NFA_EE_DISCOVER_REQ_EVT,
                             &nfa_ee_cback_data);
       }
-#endif
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
           "nfcee_id=0x%x ee_status=0x%x ecb_flags=0x%x la_protocol=0x%x "
           "la_protocol=0x%x la_protocol=0x%x",
@@ -3246,21 +3239,12 @@ void nfa_ee_nci_disc_req_ntf(tNFA_EE_MSG* p_data) {
                  NFC_DISCOVERY_TYPE_LISTEN_B_PRIME) {
         p_cb->lbp_protocol = 0;
       }
-#if (NXP_EXTNS == TRUE)
-      // code to handle and store Reader type(A/B) requested for Reader over
-      // SWP.
-      /*Reader over SWP*/
-      else if (p_cbk->info[xx].tech_n_mode == NFC_DISCOVERY_TYPE_POLL_A) {
-        p_cb->pa_protocol = 0xFF;
-      } else if (p_cbk->info[xx].tech_n_mode == NFC_DISCOVERY_TYPE_POLL_B) {
-        p_cb->pb_protocol = 0xFF;
-      }
-#endif
     }
   }
 
   /* Report NFA_EE_DISCOVER_REQ_EVT for all active NFCEE */
   if (report_ntf) nfa_ee_report_discover_req_evt();
+
 }
 
 /*******************************************************************************
