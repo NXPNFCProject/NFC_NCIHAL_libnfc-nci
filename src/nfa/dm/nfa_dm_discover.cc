@@ -104,7 +104,6 @@ typedef struct nfa_dm_p2p_prio_logic {
 
 static nfa_dm_p2p_prio_logic_t p2p_prio_logic_data;
 
-static void nfa_dm_send_tag_deselect_cmd(tNFA_NFC_PROTOCOL protocol);
 #define TAG_DESELECT_CMD 0xC2
 uint8_t T2T_SLP_REQ[] ={0x50,0x00};
 
@@ -2580,14 +2579,6 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
 
   switch (event) {
     case NFA_DM_RF_DEACTIVATE_CMD:
-      if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
-        if ((nfa_dm_cb.disc_cb.activated_rf_interface == NFC_INTERFACE_FRAME) &&
-            (p_data->deactivate_type == NFC_DEACTIVATE_TYPE_SLEEP)) {
-          /* NCI 2.0- DH is responsible for sending deactivation commands before
-           * RF_DEACTIVATE_CMD */
-          nfa_dm_send_tag_deselect_cmd(nfa_dm_cb.disc_cb.activated_protocol);
-        }
-      }
 
       if (nfa_dm_cb.disc_cb.activated_protocol == NCI_PROTOCOL_MIFARE) {
         nfa_dm_cb.disc_cb.deact_pending = true;
@@ -3558,41 +3549,4 @@ void nfa_dm_p2p_prio_logic_cleanup() {
 void nfa_dm_deact_ntf_timeout() {
   memset(&p2p_prio_logic_data, 0x00, sizeof(nfa_dm_p2p_prio_logic_t));
   nfc_ncif_cmd_timeout();
-}
-
-/*******************************************************************************
-**
-** Function         nfa_dm_send_tag_deselect_cmd
-**
-** Description      Send command to send tag in sleep state
-**
-** Returns          void
-**
-*******************************************************************************/
-static void nfa_dm_send_tag_deselect_cmd(tNFA_NFC_PROTOCOL protocol) {
-  NFC_HDR* p_msg;
-  uint8_t* p;
-
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_dm_send_tag_deselect_cmd");
-  p_msg = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID);
-
-  if (p_msg) {
-    if (protocol == NFC_PROTOCOL_ISO_DEP) {
-      /* send one byte of 0xc2 as as deselect command to Tag */
-      p_msg->len = 1;
-      p_msg->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
-      p = (uint8_t*)(p_msg + 1) + p_msg->offset;
-      *p = NFA_RW_TAG_DESELECT_CMD;
-    } else if (protocol == NFC_PROTOCOL_T2T) {
-      p_msg->len = NFA_RW_TAG_SLP_REQ_LEN;
-      p_msg->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
-      p = (uint8_t*)(p_msg + 1) + p_msg->offset;
-      memcpy((uint8_t*)(p_msg + 1) + p_msg->offset, NFA_RW_TAG_SLP_REQ,
-             p_msg->len);
-    } else {
-      GKI_freebuf(p_msg);
-      return;
-    }
-    NFC_SendData(NFC_RF_CONN_ID, p_msg);
-  }
 }
