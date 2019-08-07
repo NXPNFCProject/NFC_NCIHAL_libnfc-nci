@@ -2038,7 +2038,7 @@ void nfa_ee_api_add_sys_code(tNFA_EE_MSG* p_data) {
       if (new_size > NFC_GetLmrtSize()) {
         LOG(ERROR) << StringPrintf("Exceeded LMRT size:%d", new_size);
         evt_data.status = NFA_STATUS_BUFFER_FULL;
-      } else {
+      } else if (p_add->power_state) {
         /* add SC entry*/
         uint32_t p_cb_sc_len = nfa_ee_find_total_sys_code_len(p_cb, 0);
         p_cb->sys_code_pwr_cfg[p_cb->sys_code_cfg_entries] = p_add->power_state;
