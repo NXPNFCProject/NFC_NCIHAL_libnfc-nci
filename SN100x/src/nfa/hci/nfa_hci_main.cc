@@ -1042,7 +1042,7 @@ static void nfa_hci_sys_enable(void) {
                       NFA_HCI_NV_READ_TIMEOUT_VAL);
 #if(NXP_EXTNS == TRUE)
   nfa_hci_cb.se_apdu_gate_support =
-                        NfcConfig::getUnsigned(NAME_NXP_SE_APDU_GATE_SUPPORT, 0x00);
+      NfcConfig::getUnsigned(NAME_NXP_SE_APDU_GATE_SUPPORT, 0x00);
 #endif
 }
 

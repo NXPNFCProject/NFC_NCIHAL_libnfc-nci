@@ -790,139 +790,78 @@ int NfcAdaptation::HalIoctlIntf(long arg, void* p_data) {
     return HalIoctl(arg, p_data);
 }
 
-/******************************************************************************
- * Function         phNxpNciHal_getNxpConfig
- *
- * Description      This function can be used by libnfc-nci to
- *                 to update vendor configuration parametres
- *
- * Returns          void.
- *
- ******************************************************************************/
-void NfcAdaptation::GetNxpConfigs(
-    std::map<std::string, ConfigValue>& configMap) {
-  nfc_nci_IoctlInOutData_t inpOutData = {};
-  std::string config;
-  int ret = HalIoctlIntf(HAL_NFC_IOCTL_GET_NXP_CONFIG, &inpOutData);
+/*******************************************************************************
+ ** Function         HalGetProperty_cb
+ **
+ ** Description      This is a callback for HalGetProperty. It shall be called
+ **                  from HAL to return the value of requested property.
+ **
+ ** Parameters       ::android::hardware::hidl_string
+ **
+ ** Return           void
+ *********************************************************************/
+static void HalGetProperty_cb(::android::hardware::hidl_string value) {
+  NfcAdaptation::GetInstance().propVal = value;
+  if (NfcAdaptation::GetInstance().propVal.size()) {
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("%s: received value -> %s", __func__,
+                        NfcAdaptation::GetInstance().propVal.c_str());
+  } else {
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("%s: No Key found in HAL", __func__);
+  }
+  return;
+}
+
+/*******************************************************************************
+ **
+ ** Function         HalGetProperty
+ **
+ ** Description      It shall be used to get property value of the given Key
+ **
+ ** Parameters       string key
+ **
+ ** Returns          If Key is found, returns the respective property values
+ **                  else returns the null/empty string
+ *******************************************************************************/
+string NfcAdaptation::HalGetProperty(string key) {
+  string value;
   DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("HAL_NFC_IOCTL_GET_NXP_CONFIG ioctl return value = %d", ret);
-  configMap.emplace(
-      NAME_NXP_SE_COLD_TEMP_ERROR_DELAY,
-      ConfigValue(inpOutData.out.data.nxpConfigs.eSeLowTempErrorDelay));
-  configMap.emplace(
-      NAME_NXP_SWP_RD_TAG_OP_TIMEOUT,
-      ConfigValue(inpOutData.out.data.nxpConfigs.tagOpTimeout));
-  configMap.emplace(
-      NAME_NXP_DUAL_UICC_ENABLE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.dualUiccEnable));
-  configMap.emplace(
-      NAME_DEFAULT_AID_ROUTE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.defaultAidRoute));
-  configMap.emplace(
-      NAME_DEFAULT_MIFARE_CLT_ROUTE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.defaultMifareCltRoute));
-  configMap.emplace(
-      NAME_DEFAULT_FELICA_CLT_ROUTE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.defautlFelicaCltRoute));
-  configMap.emplace(
-      NAME_DEFAULT_AID_PWR_STATE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.defaultAidPwrState));
-  configMap.emplace(
-      NAME_DEFAULT_DESFIRE_PWR_STATE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.defaultDesfirePwrState));
-  configMap.emplace(
-      NAME_DEFAULT_MIFARE_CLT_PWR_STATE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.defaultMifareCltPwrState));
-  configMap.emplace(
-      NAME_HOST_LISTEN_TECH_MASK,
-      ConfigValue(inpOutData.out.data.nxpConfigs.hostListenTechMask));
-  configMap.emplace(
-      NAME_FORWARD_FUNCTIONALITY_ENABLE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.fwdFunctionalityEnable));
-  configMap.emplace(
-      NAME_DEFUALT_GSMA_PWR_STATE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.gsmaPwrState));
-  configMap.emplace(
-      NAME_NXP_DEFAULT_UICC2_SELECT,
-      ConfigValue(inpOutData.out.data.nxpConfigs.defaultUicc2Select));
-  configMap.emplace(
-      NAME_NXP_SMB_TRANSCEIVE_TIMEOUT,
-      ConfigValue(inpOutData.out.data.nxpConfigs.smbTransceiveTimeout));
-  configMap.emplace(
-      NAME_NXP_SMB_ERROR_RETRY,
-      ConfigValue(inpOutData.out.data.nxpConfigs.smbErrorRetry));
-  configMap.emplace(
-      NAME_DEFAULT_FELICA_CLT_PWR_STATE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.felicaCltPowerState));
-  configMap.emplace(
-      NAME_CHECK_DEFAULT_PROTO_SE_ID,
-      ConfigValue(inpOutData.out.data.nxpConfigs.checkDefaultProtoSeId));
-  configMap.emplace(
-      NAME_NXPLOG_NCIHAL_LOGLEVEL,
-      ConfigValue(inpOutData.out.data.nxpConfigs.nxpLogHalLoglevel));
-  configMap.emplace(
-      NAME_NXPLOG_EXTNS_LOGLEVEL,
-      ConfigValue(inpOutData.out.data.nxpConfigs.nxpLogExtnsLogLevel));
-  configMap.emplace(
-      NAME_NXPLOG_TML_LOGLEVEL,
-      ConfigValue(inpOutData.out.data.nxpConfigs.nxpLogTmlLogLevel));
-  configMap.emplace(
-      NAME_NXPLOG_FWDNLD_LOGLEVEL,
-      ConfigValue(inpOutData.out.data.nxpConfigs.nxpLogFwDnldLogLevel));
-  configMap.emplace(
-      NAME_NXPLOG_NCIX_LOGLEVEL,
-      ConfigValue(inpOutData.out.data.nxpConfigs.nxpLogNcixLogLevel));
-  configMap.emplace(
-      NAME_NXPLOG_NCIR_LOGLEVEL,
-      ConfigValue(inpOutData.out.data.nxpConfigs.nxpLogNcirLogLevel));
-  configMap.emplace(
-      NAME_FORWARD_FUNCTIONALITY_ENABLE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.fwdFunctionalityEnable));
-  configMap.emplace(
-      NAME_HOST_LISTEN_TECH_MASK,
-      ConfigValue(inpOutData.out.data.nxpConfigs.hostListenTechMask));
-  configMap.emplace(
-      NAME_NXP_SE_APDU_GATE_SUPPORT,
-      ConfigValue(inpOutData.out.data.nxpConfigs.seApduGateEnabled));
-  configMap.emplace(
-      NAME_NXP_POLL_FOR_EFD_TIMEDELAY,
-      ConfigValue(inpOutData.out.data.nxpConfigs.pollEfdDelay));
-  configMap.emplace(
-      NAME_NXP_NFCC_MERGE_SAK_ENABLE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.mergeSakEnable));
-  configMap.emplace(
-      NAME_DEFAULT_T4TNFCEE_AID_POWER_STATE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.t4tNfceePwrState));
-  configMap.emplace(
-      NAME_NXP_STAG_TIMEOUT_CFG,
-      ConfigValue(inpOutData.out.data.nxpConfigs.stagTimeoutCfg));
-  configMap.emplace( NAME_NFA_CONFIG_FORMAT,
-      ConfigValue(inpOutData.out.data.nxpConfigs.scrCfgFormat));
-  if(inpOutData.out.data.nxpConfigs.rfStorage.len){
-    config.assign(inpOutData.out.data.nxpConfigs.rfStorage.path,
-              inpOutData.out.data.nxpConfigs.rfStorage.len);
-    configMap.emplace(NAME_RF_STORAGE,ConfigValue(config));
+      << StringPrintf("%s: enter key %s", __func__, key.c_str());
+  if (mHalNxpNfc != NULL) {
+    /* Synchronous HIDL call, will be returned only after
+     * HalGetProperty_cb() is called from HAL*/
+    mHalNxpNfc->getSystemProperty(key, HalGetProperty_cb);
+    value = propVal;    /* Copy the string received from HAL */
+    propVal.assign(""); /* Clear the global string variable  */
+  } else {
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("%s: mHalNxpNfc is NULL", __func__);
   }
-  if(inpOutData.out.data.nxpConfigs.fwStorage.len){
-    config.assign(inpOutData.out.data.nxpConfigs.fwStorage.path,
-            inpOutData.out.data.nxpConfigs.fwStorage.len);
-    configMap.emplace(NAME_FW_STORAGE, ConfigValue(config));
+
+  return value;
+}
+/*******************************************************************************
+ **
+ ** Function         HalSetProperty
+ **
+ ** Description      It shall be called from libnfc-nci to set the value of
+ *given
+ **                  key in HAL context.
+ **
+ ** Parameters       string key, string value
+ **
+ ** Returns          true if successfully saved the value of key, else false
+ *******************************************************************************/
+bool NfcAdaptation::HalSetProperty(string key, string value) {
+  bool status = false;
+  if (mHalNxpNfc != NULL) {
+    status = mHalNxpNfc->setSystemProperty(key, value);
+  } else {
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("%s: mHalNxpNfc is NULL", __func__);
   }
-  if(inpOutData.out.data.nxpConfigs.coreConf.len){
-    std::vector coreConf(inpOutData.out.data.nxpConfigs.coreConf.cmd,
-            inpOutData.out.data.nxpConfigs.coreConf.cmd + inpOutData.out.data.nxpConfigs.coreConf.len);
-    configMap.emplace(NAME_NXP_CORE_CONF,ConfigValue(coreConf));
-  }
-  if(inpOutData.out.data.nxpConfigs.rfFileVersInfo.len){
-    std::vector rfFileVersInfo(inpOutData.out.data.nxpConfigs.rfFileVersInfo.ver,
-            inpOutData.out.data.nxpConfigs.rfFileVersInfo.ver + inpOutData.out.data.nxpConfigs.rfFileVersInfo.len);
-    configMap.emplace(NAME_NXP_RF_FILE_VERSION_INFO,ConfigValue(rfFileVersInfo));
-  }
-  if(inpOutData.out.data.nxpConfigs.scrResetEmvco.len){
-    std::vector scrResetEmvcoCmd(inpOutData.out.data.nxpConfigs.scrResetEmvco.cmd,
-            inpOutData.out.data.nxpConfigs.scrResetEmvco.cmd + inpOutData.out.data.nxpConfigs.scrResetEmvco.len);
-    configMap.emplace(NAME_NXP_PROP_RESET_EMVCO_CMD,ConfigValue(scrResetEmvcoCmd));
-  }
+  return status;
 }
 #endif
 /*******************************************************************************

@@ -15,7 +15,7 @@
  */
 /******************************************************************************
  *
- *  Copyright 2018 NXP
+ *  Copyright 2018-2019 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -68,18 +68,20 @@ void NfcConfig::loadConfig() {
   string config_path = findConfigPath();
   CHECK(config_path != "");
   config_.parseFromFile(config_path);
-#if(NXP_EXTNS == TRUE)
-  struct stat file_stat;
-  /* Read Transit configs if available */
-  if (stat(PATH_TRANSIT_CONF, &file_stat) == 0)
-    config_.parseFromFile(PATH_TRANSIT_CONF);
-#endif
   /* Read vendor specific configs */
   NfcAdaptation& theInstance = NfcAdaptation::GetInstance();
   std::map<std::string, ConfigValue> configMap;
   theInstance.GetVendorConfigs(configMap);
 #if(NXP_EXTNS == TRUE)
-  theInstance.GetNxpConfigs(configMap);
+  struct stat file_stat;
+
+  std::string nxp_config;
+  nxp_config = theInstance.HalGetProperty("libnfc-nxp.conf");
+  config_.cur_file_name_ = "nxpConfig";
+  config_.parseFromString(nxp_config);
+  /* Read Transit configs if available */
+  if (stat(PATH_TRANSIT_CONF, &file_stat) == 0)
+    config_.parseFromFile(PATH_TRANSIT_CONF);
 #endif
   for (auto config : configMap) {
     config_.addConfig(config.first, config.second);
