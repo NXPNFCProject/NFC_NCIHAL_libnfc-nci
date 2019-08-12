@@ -357,6 +357,10 @@ typedef uint8_t tNCI_NFCEE_PL_CONFIG;
 /**********************************************
  * NCI Interface Types
  **********************************************/
+#if (NXP_EXTNS == TRUE)
+#define NCI_INTERFACE_UICC_DIRECT 0x82
+#define NCI_INTERFACE_ESE_DIRECT 0x83
+#endif
 #define NCI_INTERFACE_EE_DIRECT_RF 0
 #define NCI_INTERFACE_FRAME 1
 #define NCI_INTERFACE_ISO_DEP 2

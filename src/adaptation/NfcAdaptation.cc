@@ -350,6 +350,16 @@ void NfcAdaptation::GetNxpConfigs(
   configMap.emplace(
       NAME_NXPLOG_NCIR_LOGLEVEL,
       ConfigValue(inpOutData.out.data.nxpConfigs.nxpLogNcirLogLevel));
+  configMap.emplace(NAME_NFA_CONFIG_FORMAT,
+                    ConfigValue(inpOutData.out.data.nxpConfigs.scrCfgFormat));
+  if (inpOutData.out.data.nxpConfigs.scrResetEmvco.len) {
+    std::vector scrResetEmvcoCmd(
+        inpOutData.out.data.nxpConfigs.scrResetEmvco.cmd,
+        inpOutData.out.data.nxpConfigs.scrResetEmvco.cmd +
+            inpOutData.out.data.nxpConfigs.scrResetEmvco.len);
+    configMap.emplace(NAME_NXP_PROP_RESET_EMVCO_CMD,
+                      ConfigValue(scrResetEmvcoCmd));
+  }
 }
 
 void NfcAdaptation::GetVendorConfigs(

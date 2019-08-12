@@ -87,6 +87,15 @@ typedef struct {
 } nfc_nci_ExtnCmd_t;
 
 /*
+ * nxp_nfc_scrResetEmvcoCmd_t shall contain core set conf command to reset EMVCO
+ * mode and the length of the command
+ */
+typedef struct {
+  long len;
+  uint8_t cmd[10];
+} nxp_nfc_scrResetEmvcoCmd_t;
+
+/*
  * nfc_nci_ExtnRsp_t shall contain response for command sent in transceive
  * command
  */
@@ -132,6 +141,8 @@ typedef struct {
   uint8_t nxpLogFwDnldLogLevel;
   uint8_t nxpLogNcixLogLevel;
   uint8_t nxpLogNcirLogLevel;
+  uint8_t scrCfgFormat;
+  nxp_nfc_scrResetEmvcoCmd_t scrResetEmvco;
 } nxp_nfc_config_t;
 /*
  * nfc_nci_ExtnRsp_t shall contain response for command sent in transceive
