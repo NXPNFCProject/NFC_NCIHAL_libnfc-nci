@@ -587,7 +587,9 @@ void nci_proc_prop_raw_vs_rsp(NFC_HDR* p_msg) {
     (*p_cback)((tNFC_VS_EVT)(NCI_RSP_BIT | op_code), p_msg->len, p_evt);
     nfc_cb.p_vsc_cback = nullptr;
   }
+#if (NXP_EXTNS != TRUE)
   nfc_cb.rawVsCbflag = false;
+#endif
   nfc_ncif_update_window();
 }
 

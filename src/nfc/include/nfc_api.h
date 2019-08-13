@@ -306,13 +306,6 @@ enum {
   NFC_CMD_TYPE_TYPE_NONE     = 0xFF
 };
 
-enum NFCCSELFTESTTYPE {
-  TEST_TYPE_RF_ON = 0x00,
-  TEST_TYPE_RF_OFF,
-  TEST_TYPE_TRANSAC_A,
-  TEST_TYPE_TRANSAC_B,
-  TEST_TYPE_NONE = 0xFF
-};
 #endif
 /* the events reported on tNFC_RESPONSE_CBACK */
 enum {

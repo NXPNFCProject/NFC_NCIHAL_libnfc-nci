@@ -882,8 +882,12 @@ bool nfc_ncif_process_event(NFC_HDR* p_msg) {
 #endif
   if (nfc_cb.rawVsCbflag == true &&
       nfc_ncif_proc_proprietary_rsp(mt, gid, oid) == true) {
+#if (NXP_EXTNS == TRUE)
+    if (mt == NCI_MT_RSP) nci_proc_prop_raw_vs_rsp(p_msg);
+#else
     nci_proc_prop_raw_vs_rsp(p_msg);
     nfc_cb.rawVsCbflag = false;
+#endif
     return free;
   }
 
@@ -3143,6 +3147,7 @@ void nfc_ncif_credit_ntf_timeout() {
 *******************************************************************************/
 bool nfc_ncif_proc_proprietary_rsp(uint8_t mt, uint8_t gid, uint8_t oid) {
   bool stat = FALSE;
+  bool isRstRsp = FALSE;
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: mt=%u, gid=%u, oid=%u", __func__, mt, gid, oid);
 
   switch (mt) {
@@ -3151,11 +3156,30 @@ bool nfc_ncif_proc_proprietary_rsp(uint8_t mt, uint8_t gid, uint8_t oid) {
       if (gid != 0x03 && oid != 0x00) stat = TRUE;
       break;
 
+#if (NXP_EXTNS == TRUE)
+    case NCI_MT_RSP:
+      switch (gid) {
+        case NCI_GID_CORE:
+          stat = TRUE;
+          if (oid == 0x00) isRstRsp = TRUE;
+          break;
+        default:
+          stat = TRUE;
+          break;
+      }
+      break;
+#endif
+
     case NCI_MT_NTF:
       switch (gid) {
         case NCI_GID_CORE:
           /* check for CORE_RESET_NTF or CORE_CONN_CREDITS_NTF */
+#if (NXP_EXTNS == TRUE)
+          if (oid != 0x06) stat = TRUE;
+          if (oid == 0x00) nfc_cb.rawVsCbflag = false;
+#else
           if (oid != 0x00 && oid != 0x06) stat = TRUE;
+#endif
           break;
         case NCI_GID_RF_MANAGE:
           /* check for CORE_CONN_CREDITS_NTF or NFA_EE_ACTION_NTF or
@@ -3179,7 +3203,13 @@ bool nfc_ncif_proc_proprietary_rsp(uint8_t mt, uint8_t gid, uint8_t oid) {
       stat = TRUE;
       break;
   }
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: exit status=%u", __func__, stat);
+#if (NXP_EXTNS == TRUE)
+  if (stat && !isRstRsp) {
+    nfc_cb.rawVsCbflag = false;
+  }
+#endif
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+      "%s: exit status=%u rawVsCbflag=%u", __func__, stat, nfc_cb.rawVsCbflag);
   return stat;
 }
 
