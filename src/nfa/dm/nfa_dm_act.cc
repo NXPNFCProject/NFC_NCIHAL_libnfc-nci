@@ -467,11 +467,6 @@ DLOG_IF(INFO, nfc_debug_enabled)
             dm_cback_data.status = p_data->status;
             (*nfa_dm_cb.p_dm_cback)(NFA_DM_NFCC_TIMEOUT_EVT, &dm_cback_data);
         }
-        else if (nfcFL.nfcNxpEse &&
-                nfcFL.eseFL._ESE_ETSI_READER_ENABLE) {
-            conn_evt.status = p_data->status;
-            nfa_dm_conn_cback_event_notify(NFA_RECOVERY_EVT, &conn_evt);
-        }
 #endif
         break;
 

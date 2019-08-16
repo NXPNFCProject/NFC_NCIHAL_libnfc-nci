@@ -412,7 +412,6 @@ typedef struct {
 #define NFA_CE_ESE_LISTEN_CONFIGURED_EVT 40
 /* Activated intf for updating the   tech variables */
 #define NFA_ACTIVATED_UPDATE_EVT 41
-#define NFA_RECOVERY_EVT 42 /*Recovery*/
 /* Passive Listening disabled event */
 #define NFA_PASSIVE_LISTEN_DISABLED_EVT 44
 #endif
