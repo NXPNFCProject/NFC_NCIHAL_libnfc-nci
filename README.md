@@ -15,11 +15,44 @@
 | aosp-master                |  10.00.04 (SN100x) |  NFC_AR_00_2000_10.00.04_OpnSrc  |
 | aosp-master                |  10.00.06 (SN110x) |  NFC_AR_00_6000_10.00.06_OpnSrc  |
 | aosp-master              |  10.00.08 (SN100x) |  NFC_AR_00_6000_10.00.08_OpnSrc |
-| aosp-master              |  10.00.0A (SN110) |  NFC_AR_00_6000_10.00.0A_OpnSrc |#### Supported Version on "br_android_ncihalx_row_q" branch
+| aosp-master              |  10.00.0A (SN110) |  NFC_AR_00_6000_10.00.0A_OpnSrc |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### Supported Version on "br_android_ncihalx_row_q" branch
 | Android Version        | NXP Release          | NXP Tag  |
 | :-------------: |:---------------------:| :-----:|
 | aosp-master                |  10.01.00 (PN80T/PN81T/PN553/PN557) |  NFC_AR_00_18C0_10.01.00_OpnSrc  |
 | aosp-master              |  10.02.00 (PN80T/PN81T/PN553/PN557) |  NFC_AR_00_18C0_10.02.00_OpnSrc |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #### Supported Versions on "br_android_ncihalx_row_p" Branch
 
@@ -32,6 +65,9 @@
 | android-9.0.0_r3              |  9.4.0 (PN553) |  NFC_NCIHALx_AR00C0.9.4.0_OpnSrc |
 | android-9.0.0_r3              |  9.5.0 (PN557) |  NFC_NCIHALx_AR1800.9.5.0_OpnSrc |
 | android-9.0.0_r3              |  9.6.0 (PN80T/PN81T) |  NFC_NCIHALx_AR18C0.9.6.0_OpnSrc |
+
+
+
 
 
 #### Supported Android Versions on "br_android_ncihalx_p" Branch
@@ -50,9 +86,15 @@
 | android-p-preview 2               |  9.00.11 (SN100x) |  NFC_NCIHALx_AR2000.09.00.11_OpnSrc |
 | android-p-preview 2               |  9.00.13 (SN100x) |  NFC_NCIHALx_AR2000.09.00.13_OpnSrc |
 | android-p-preview 2               |  9.00.15 (SN100x) |  NFC_NCIHALx_AR2000.09.00.15_OpnSrc |
-| android-p-preview_2              |  9.00.07 (SN100) |  NFC_NCIHALx_AR6000.09.00.07_OpnSrc || android-p-preview_2              |  9.00.07 (SN100) |  NFC_NCIHALx_AR6000.09.00.07_OpnSrc || android-p-preview 2               |  9.00.16 (SN100x) |  NFC_NCIHALx_AR2000.09.00.16_OpnSrc |
+| android-p-preview_2              |  9.00.07 (SN100) |  NFC_NCIHALx_AR6000.09.00.07_OpnSrc |
+| android-p-preview_2              |  9.00.07 (SN100) |  NFC_NCIHALx_AR6000.09.00.07_OpnSrc |
+| android-p-preview 2               |  9.00.16 (SN100x) |  NFC_NCIHALx_AR2000.09.00.16_OpnSrc |
 | android-p-preview 2               |  9.00.17 (SN100x) |  NFC_NCIHALx_AR2000.09.00.17_OpnSrc |
 | android-p-preview 2               |  9.00.18 (SN100x) |  NFC_NCIHALx_AR2000.09.00.18_OpnSrc |
 | android-p-preview 2               |  9.00.19 (SN100x) |  NFC_NCIHALx_AR2000.09.00.19_OpnSrc |
+
+
+
+
 
 
