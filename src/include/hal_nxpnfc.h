@@ -142,6 +142,7 @@ typedef struct {
   uint8_t nxpLogNcixLogLevel;
   uint8_t nxpLogNcirLogLevel;
   uint8_t scrCfgFormat;
+  uint8_t etsiReaderEnable;
   nxp_nfc_scrResetEmvcoCmd_t scrResetEmvco;
 } nxp_nfc_config_t;
 /*
