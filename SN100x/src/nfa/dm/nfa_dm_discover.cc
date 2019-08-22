@@ -260,13 +260,9 @@ static uint8_t nfa_dm_get_rf_discover_config(
   } else {
 #endif
     /* Check listening A */
-    if (
-#if (NXP_EXTNS == TRUE)
-        (nfa_t4tnfcee_is_enabled()) ||
-#endif
-        dm_disc_mask &
-            (NFA_DM_DISC_MASK_LA_T1T | NFA_DM_DISC_MASK_LA_T2T |
-             NFA_DM_DISC_MASK_LA_ISO_DEP | NFA_DM_DISC_MASK_LA_NFC_DEP)) {
+    if (dm_disc_mask &
+        (NFA_DM_DISC_MASK_LA_T1T | NFA_DM_DISC_MASK_LA_T2T |
+         NFA_DM_DISC_MASK_LA_ISO_DEP | NFA_DM_DISC_MASK_LA_NFC_DEP)) {
       disc_params[num_params].type = NFC_DISCOVERY_TYPE_LISTEN_A;
       disc_params[num_params].frequency = 1;
       num_params++;
@@ -275,11 +271,7 @@ static uint8_t nfa_dm_get_rf_discover_config(
     }
 
     /* Check listening B */
-    if (
-#if (NXP_EXTNS == TRUE)
-        (nfa_t4tnfcee_is_enabled()) ||
-#endif
-        dm_disc_mask & NFA_DM_DISC_MASK_LB_ISO_DEP) {
+    if (dm_disc_mask & NFA_DM_DISC_MASK_LB_ISO_DEP) {
       disc_params[num_params].type = NFC_DISCOVERY_TYPE_LISTEN_B;
       disc_params[num_params].frequency = 1;
       num_params++;
