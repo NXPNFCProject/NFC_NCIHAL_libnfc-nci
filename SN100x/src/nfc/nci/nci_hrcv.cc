@@ -480,7 +480,7 @@ void nci_proc_ee_management_ntf(NFC_HDR* p_msg) {
   {
     if(nfc_response.mode_set.nfcee_id == 0xC0 && nfc_response.mode_set.mode)
     {
-      LOG(ERROR) << StringPrintf("Mode set STATUS_FAILED:0x%x", op_code);
+      LOG(ERROR) << StringPrintf("Mode set status :0x%x ", nfc_response.mode_set.status);
       event = NFC_NFCEE_STATUS_REVT;
       if(nfc_response.mode_set.status == 0x03) {
         nfc_response.nfcee_status.status = NCI_STATUS_OK;

@@ -293,6 +293,8 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                        nfa_hci_enable_one_nfcee();
                      }
                      if(nfa_hci_cb.next_nfcee_idx == nfa_hci_cb.num_nfcee) {
+                       nfa_hciu_send_get_param_cmd(NFA_HCI_ADMIN_PIPE,
+                          NFA_HCI_HOST_LIST_INDEX);
                        nfa_hci_handle_pending_host_reset();
                        if (nfa_hciu_find_dyn_apdu_pipe_for_host (NFA_HCI_FIRST_PROP_HOST) == NULL
                                && nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD )
