@@ -291,8 +291,9 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                        DLOG_IF(INFO, nfc_debug_enabled)
                           << StringPrintf("NFCEE_UNRECOVERABLE_ERRROR reset handling");
                        nfa_hci_enable_one_nfcee();
-                     } else if(nfa_hci_cb.next_nfcee_idx == nfa_hci_cb.num_nfcee)
-                     {
+                     }
+                     if(nfa_hci_cb.next_nfcee_idx == nfa_hci_cb.num_nfcee) {
+                       nfa_hci_handle_pending_host_reset();
                        if (nfa_hciu_find_dyn_apdu_pipe_for_host (NFA_HCI_FIRST_PROP_HOST) == NULL
                                && nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD )
                        {/* as part of NFCEE_UNRECOVERABLE_ERRROR reset handling, if NFCEE Power and link
@@ -383,6 +384,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
               if(!nfa_hciu_is_host_reseting(nfa_ee_cb.ecb[ee_entry_index].nfcee_id)) {
                 nfa_hciu_add_host_resetting(nfa_ee_cb.ecb[ee_entry_index].nfcee_id, NFCEE_UNRECOVERABLE_ERRROR);
                 nfa_hci_release_transceive(nfa_ee_cb.ecb[ee_entry_index].nfcee_id, NFA_STATUS_HCI_UNRECOVERABLE_ERROR);
+                nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
                 nfa_hci_cb.curr_nfcee = nfa_ee_cb.ecb[ee_entry_index].nfcee_id;
                 nfa_hci_cb.next_nfcee_idx = 0x00;
                 if(NFC_NfceeDiscover(true) == NFC_STATUS_FAILED) {
@@ -411,6 +413,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                         nfa_hci_cb.hci_state == NFA_HCI_STATE_STARTUP)) {
                   nfa_hciu_add_host_resetting(nfceeid, NFCEE_REMOVED_NTF);
                   nfa_hci_release_transceive(nfceeid, NFA_STATUS_EE_REMOVED_ERROR);
+                  nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
                   nfa_hci_cb.ee_info[ee_entry_index].hci_enable_state = NFA_HCI_FL_EE_ENABLING;
                   status = NFC_NfceeModeSet(nfceeid, NFC_MODE_ACTIVATE);
                   if(status == NFA_STATUS_OK) {

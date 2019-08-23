@@ -2136,11 +2136,9 @@ void nfa_hciu_add_host_resetting(uint8_t host_id, uint8_t reset_type) {
   }
   if(xx == NFA_HCI_MAX_HOST_IN_NETWORK) {
       for (xx = 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++) {
-          if (nfa_hci_cb.reset_host[xx].host_id != 0x00)
-              xx++;
-          else {
+          if (nfa_hci_cb.reset_host[xx].host_id == 0x00) {
               DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("nfa_hciu_add_host_resetting () adding host %d %d ",
+          << StringPrintf("nfa_hciu_add_host_resetting () adding host %d %d ",
                       host_id,reset_type);
               nfa_hci_cb.reset_host[xx].host_id = host_id;
               nfa_hci_cb.reset_host[xx].reset_cfg |= reset_type;
