@@ -317,7 +317,7 @@ void nfa_t4tnfcee_handle_file_operations(tRW_DATA* p_rwData) {
       if (ccFileInfo.find(nfa_t4tnfcee_cb.cur_fileId) == ccFileInfo.end()) {
         DLOG_IF(INFO, nfc_debug_enabled)
             << StringPrintf("%s FileId Not found in CC", __func__);
-        nfa_t4tnfcee_cb.status = NFC_STATUS_FAILED;
+        nfa_t4tnfcee_cb.status = NFA_T4T_STATUS_INVALID_FILE_ID;
         nfa_t4tnfcee_notify_rx_evt();
         break;
       }

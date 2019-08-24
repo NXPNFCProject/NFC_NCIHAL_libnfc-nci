@@ -56,6 +56,9 @@ bit pos 5 = Screen Off lock
 #define T4T_NFCEE_READ_ALLOWED 0x00
 #define T4T_NFCEE_WRITE_NOT_ALLOWED 0xFF
 
+/*Staus codes*/
+#define NFA_T4T_STATUS_INVALID_FILE_ID   0x05
+
 typedef struct {
   uint16_t capacity;
   uint8_t read_access;
