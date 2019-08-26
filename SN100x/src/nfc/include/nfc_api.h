@@ -54,7 +54,7 @@
 
 #if (NXP_EXTNS == TRUE)
 #define NXP_EN_SN100U    1
-#define NXP_EN_SN110U    1
+#define NXP_EN_SN110U    0
 #define NXP_ANDROID_VER (9U)        /* NXP android version */
 #define NFC_NXP_MW_VERSION_MAJ (0x00) /* MW Major Version */
 #define NFC_NXP_MW_VERSION_MIN (0x08) /* MW Minor Version */
