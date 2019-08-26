@@ -1485,6 +1485,7 @@ void NFA_EnableDtamode(tNFA_eDtaModes eDtaMode) {
 *******************************************************************************/
 tNFA_MW_VERSION NFA_GetMwVersion() {
   tNFA_MW_VERSION mwVer;
+  mwVer.cust_id = NFC_NXP_MW_CUSTOMER_ID;
   mwVer.validation = (NXP_EN_SN100U << 13);
   mwVer.validation |= (NXP_EN_SN110U << 14);
   mwVer.android_version = NXP_ANDROID_VER;

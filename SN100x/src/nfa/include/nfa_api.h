@@ -339,6 +339,7 @@ typedef struct {
   uint8_t android_version; /* Nxp's android version */
   uint8_t major_version;   /* Major Version of MW*/
   uint8_t minor_version;   /* Minor Version of Mw */
+  uint8_t cust_id;         /*Customer id*/
   uint8_t rc_version;      /*RC version*/
 } tNFA_MW_VERSION;
 #endif
