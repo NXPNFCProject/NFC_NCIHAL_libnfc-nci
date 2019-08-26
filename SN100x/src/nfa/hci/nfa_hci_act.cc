@@ -51,6 +51,7 @@
 #if (NXP_EXTNS == TRUE)
 #include "nfa_ee_int.h"
 #include "nfa_nv_co.h"
+#include "nfa_scr_int.h"
 #endif
 using android::base::StringPrintf;
 
@@ -1417,6 +1418,9 @@ void nfa_hci_handle_admin_gate_cmd(uint8_t* p_data) {
         return;
       } else {
 #if(NXP_EXTNS == TRUE)
+          if(source_host == NFA_HCI_FIRST_PROP_HOST) {
+            NFA_SCR_PROCESS_EVT(NFA_SCR_ESE_RECOVERY_START_EVT, NFA_STATUS_OK);
+          }
           nfa_hciu_send_msg(NFA_HCI_ADMIN_PIPE, NFA_HCI_RESPONSE_TYPE, response,
               rsp_len, &data);
           /* If starting up, handle events here */
@@ -2923,6 +2927,7 @@ static void nfa_hci_handle_apdu_app_gate_hcp_msg_data (uint8_t *p_data, uint16_t
                     if (!nfa_hci_enable_one_nfcee ())
                     {
                         nfa_hci_startup_complete (NFA_STATUS_OK);
+                        NFA_SCR_PROCESS_EVT(NFA_SCR_ESE_RECOVERY_COMPLETE_EVT, NFA_STATUS_OK);
                     }
                 }
             }
