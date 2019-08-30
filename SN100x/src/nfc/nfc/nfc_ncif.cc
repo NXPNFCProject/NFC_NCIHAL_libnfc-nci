@@ -1885,7 +1885,7 @@ bool nfc_ncif_proc_proprietary_rsp(uint8_t mt, uint8_t gid, uint8_t oid) {
           if (oid != 0x06 && oid != 0x09 && oid != 0x0A) stat = TRUE;
           break;
         case NCI_GID_EE_MANAGE:
-          if (oid != 0x00) stat = TRUE;
+          if (oid != 0x00 && oid != 0x01 && oid != 0x02) stat = TRUE;
           break;
 #if (NXP_EXTNS == TRUE)
         case NCI_GID_PROP:
