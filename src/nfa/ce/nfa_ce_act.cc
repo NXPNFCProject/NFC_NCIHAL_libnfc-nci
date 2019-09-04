@@ -40,6 +40,7 @@
  *  This file contains the action functions the NFA_CE state machine.
  *
  ******************************************************************************/
+#include <log/log.h>
 #include <string.h>
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
@@ -1233,8 +1234,11 @@ bool nfa_ce_deactivate_ntf(tNFA_CE_MSG* p_ce_msg) {
             conn_evt.ce_deactivated.handle =
                 NFA_HANDLE_GROUP_CE | ((tNFA_HANDLE)i);
             conn_evt.ce_deactivated.type = deact_type;
-            if (p_cb->p_active_conn_cback)
+            if (p_cb->p_active_conn_cback) {
                 (*p_cb->p_active_conn_cback)(NFA_CE_DEACTIVATED_EVT, &conn_evt);
+              } else {
+                android_errorWriteLog(0x534e4554, "120846143");
+            }
           }
         }
       }
