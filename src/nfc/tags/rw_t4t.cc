@@ -42,6 +42,7 @@
  *  mode.
  *
  ******************************************************************************/
+#include <log/log.h>
 #include <string.h>
 
 #include <android-base/stringprintf.h>
@@ -255,6 +256,12 @@ static bool rw_t4t_update_version_details(NFC_HDR* p_r_apdu) {
   tRW_T4T_CB* p_t4t = &rw_cb.tcb.t4t;
   uint8_t* p;
   uint16_t major_version, minor_version;
+
+  if (p_r_apdu->len < T4T_DES_GET_VERSION_LEN) {
+    LOG(ERROR) << StringPrintf("%s incorrect p_r_apdu length", __func__);
+    android_errorWriteLog(0x534e4554, "120865977");
+    return false;
+  }
 
   p = (uint8_t*)(p_r_apdu + 1) + p_r_apdu->offset;
   major_version = *(p + 3);
@@ -1909,12 +1916,21 @@ static void rw_t4t_data_cback(__attribute__((unused)) uint8_t conn_id, tNFC_CONN
  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("RW T4T state: <%s (%d)>",
                   rw_t4t_get_state_name(p_t4t->state).c_str(), p_t4t->state);
 
+  if (p_t4t->state != RW_T4T_STATE_IDLE &&
+      p_t4t->state != RW_T4T_STATE_PRESENCE_CHECK &&
+      p_r_apdu->len < T4T_RSP_STATUS_WORDS_SIZE) {
+    LOG(ERROR) << StringPrintf("%s incorrect p_r_apdu length", __func__);
+    android_errorWriteLog(0x534e4554, "120865977");
+    GKI_freebuf(p_r_apdu);
+    return;
+  }
   switch (p_t4t->state) {
     case RW_T4T_STATE_IDLE:
-/* Unexpected R-APDU, it should be raw frame response */
-/* forward to upper layer without parsing */
-     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("RW T4T Raw Frame: Len [0x%X] Status [%s]", p_r_apdu->len,
-                      NFC_GetStatusName(p_data->data.status).c_str());
+      /* Unexpected R-APDU, it should be raw frame response */
+      /* forward to upper layer without parsing */
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+          "RW T4T Raw Frame: Len [0x%X] Status [%s]", p_r_apdu->len,
+          NFC_GetStatusName(p_data->data.status).c_str());
       if (rw_cb.p_cback) {
         rw_data.raw_frame.status = p_data->data.status;
         rw_data.raw_frame.p_data = p_r_apdu;
