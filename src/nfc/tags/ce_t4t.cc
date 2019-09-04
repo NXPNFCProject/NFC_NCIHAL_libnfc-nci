@@ -661,6 +661,14 @@ static void ce_t4t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
           max_file_size = ce_cb.mem.t4t.max_file_size;
         }
 
+        /*CLA+INS+Offset(P1P2)+Le = 5 bytes*/
+        if (p_c_apdu->len < T4T_CMD_MAX_HDR_SIZE) {
+          LOG(ERROR) << "Wrong length";
+          android_errorWriteLog(0x534e4554, "120845341");
+          GKI_freebuf(p_c_apdu);
+          ce_t4t_send_status(T4T_RSP_WRONG_LENGTH);
+          return;
+        }
         BE_STREAM_TO_UINT16(offset, p_cmd); /* Offset */
         BE_STREAM_TO_UINT8(length, p_cmd);  /* Le     */
 
@@ -701,6 +709,14 @@ static void ce_t4t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
         LOG(ERROR) << StringPrintf("CET4T: No access right");
         ce_t4t_send_status(T4T_RSP_CMD_NOT_ALLOWED);
       } else if (ce_cb.mem.t4t.status & CE_T4T_STATUS_NDEF_SELECTED) {
+        /*CLA+INS+Offset(P1P2)+Lc = 5 bytes*/
+        if (p_c_apdu->len < T4T_CMD_MAX_HDR_SIZE) {
+          LOG(ERROR) << "Wrong length";
+          android_errorWriteLog(0x534e4554, "120845341");
+          GKI_freebuf(p_c_apdu);
+          ce_t4t_send_status(T4T_RSP_WRONG_LENGTH);
+          return;
+        }
         BE_STREAM_TO_UINT16(offset, p_cmd); /* Offset */
         BE_STREAM_TO_UINT8(length, p_cmd);  /* Lc     */
 
