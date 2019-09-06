@@ -2173,16 +2173,15 @@ void rw_t3t_data_cback(__attribute__((unused)) uint8_t conn_id,
     LOG(ERROR) << StringPrintf(
         "T3T: invalid Type3 Tag Message (invalid len: %i)", p_msg->len);
     free_msg = true;
-
     rw_t3t_process_frame_error();
   } else {
     /* Check for RF frame error */
     p = (uint8_t*)(p_msg + 1) + p_msg->offset;
     sod = p[0];
-    if (p[sod] != NCI_STATUS_OK) {
-      LOG(ERROR) << StringPrintf("T3T: rf frame error (crc status=%i)", p[sod]);
-      GKI_freebuf(p_msg);
 
+    if (p_msg->len < sod || p[sod] != NCI_STATUS_OK) {
+      LOG(ERROR) << "T3T: rf frame error";
+      GKI_freebuf(p_msg);
       rw_t3t_process_frame_error();
       return;
     }
