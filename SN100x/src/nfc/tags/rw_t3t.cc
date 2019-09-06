@@ -1500,13 +1500,19 @@ void rw_t3t_act_handle_check_ndef_rsp(tRW_T3T_CB* p_cb, NFC_HDR* p_msg_rsp) {
   uint8_t* p_t3t_rsp = (uint8_t*)(p_msg_rsp + 1) + p_msg_rsp->offset;
   uint8_t rsp_num_bytes_rx;
 
-  /* Validate response from tag */
-  if ((p_t3t_rsp[T3T_MSG_RSP_OFFSET_STATUS1] !=
-       T3T_MSG_RSP_STATUS_OK) /* verify response status code */
-      || (memcmp(p_cb->peer_nfcid2, &p_t3t_rsp[T3T_MSG_RSP_OFFSET_IDM],
-                 NCI_NFCID2_LEN) != 0) /* verify response IDm */
-      || (p_t3t_rsp[T3T_MSG_RSP_OFFSET_NUMBLOCKS] !=
-          ((p_cb->ndef_rx_readlen + 15) >> 4))) /* verify length of response */
+  if (p_msg_rsp->len < T3T_MSG_RSP_OFFSET_CHECK_DATA) {
+    LOG(ERROR) << StringPrintf("%s invalid len", __func__);
+    nfc_status = NFC_STATUS_FAILED;
+    GKI_freebuf(p_msg_rsp);
+    android_errorWriteLog(0x534e4554, "120428637");
+    /* Validate response from tag */
+  } else if ((p_t3t_rsp[T3T_MSG_RSP_OFFSET_STATUS1] !=
+              T3T_MSG_RSP_STATUS_OK) /* verify response status code */
+             || (memcmp(p_cb->peer_nfcid2, &p_t3t_rsp[T3T_MSG_RSP_OFFSET_IDM],
+                        NCI_NFCID2_LEN) != 0) /* verify response IDm */
+             || (p_t3t_rsp[T3T_MSG_RSP_OFFSET_NUMBLOCKS] !=
+                 ((p_cb->ndef_rx_readlen + 15) >>
+                  4))) /* verify length of response */
   {
     LOG(ERROR) << StringPrintf(
         "Response error: bad status, nfcid2, or invalid len: %i %i",
