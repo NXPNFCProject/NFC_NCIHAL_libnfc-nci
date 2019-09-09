@@ -688,7 +688,7 @@ bool nfa_dm_set_power_sub_state(tNFA_DM_MSG* p_data) {
 void nfa_dm_conn_cback_event_notify(uint8_t event, tNFA_CONN_EVT_DATA* p_data) {
 
 #if(NXP_EXTNS == TRUE)
-  NFA_SCR_PROCESS_EVT(event, p_data->status);
+  if (p_data) NFA_SCR_PROCESS_EVT(event, p_data->status);
 #endif
   if (nfa_dm_cb.flags & NFA_DM_FLAGS_EXCL_RF_ACTIVE) {
     /* Use exclusive RF mode callback */

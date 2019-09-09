@@ -13,7 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-
+/******************************************************************************
+ *
+ *  Copyright 2019 NXP
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
+ ******************************************************************************/
 /******************************************************************************
  *
  *  This file contains the implementation for Mifare Classic tag in
@@ -210,8 +227,17 @@ static void rw_mfc_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   tRW_MFC_CB* p_mfc = &rw_cb.tcb.mfc;
   tRW_READ_DATA evt_data;
   NFC_HDR* mfc_data = {};
+#if (NXP_EXTNS != TRUE)
   uint8_t* p;
+#endif
   tRW_DATA rw_data;
+
+#if (NXP_EXTNS == TRUE)
+  if (!p_data) {
+    LOG(ERROR) << __func__ << "Invalid p_data";
+    return;
+  }
+#endif
 
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("%s conn_id=%i, evt=0x%x", __func__, conn_id, event);
@@ -271,8 +297,9 @@ static void rw_mfc_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   }
 
   /* Assume the data is just the response byte sequence */
+#if (NXP_EXTNS != TRUE)
   p = (uint8_t*)(mfc_data + 1) + mfc_data->offset;
-
+#endif
   switch (p_mfc->state) {
     case RW_MFC_STATE_IDLE:
       /* Unexpected R-APDU, it should be raw frame response */

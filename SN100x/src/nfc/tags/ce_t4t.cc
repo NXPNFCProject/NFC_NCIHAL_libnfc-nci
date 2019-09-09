@@ -15,7 +15,24 @@
  *  limitations under the License.
  *
  ******************************************************************************/
-
+/******************************************************************************
+ *
+ *  Copyright 2019 NXP
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
+ ******************************************************************************/
 /******************************************************************************
  *
  *  This file contains the implementation for Type 4 tag in Card Emulation
@@ -567,9 +584,9 @@ static void ce_t4t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
     return;
   }
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("conn_id = 0x%02X", conn_id);
-
+#if (NXP_EXTNS != TRUE)
   p_cmd = (uint8_t*)(p_c_apdu + 1) + p_c_apdu->offset;
-
+#endif
   if (p_c_apdu->len == 0) {
     LOG(ERROR) << StringPrintf("Wrong length in ce_t4t_data_cback");
     android_errorWriteLog(0x534e4554, "115635871");
@@ -577,7 +594,9 @@ static void ce_t4t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
     GKI_freebuf(p_c_apdu);
     return;
   }
-
+#if (NXP_EXTNS == TRUE)
+  p_cmd = (uint8_t*)(p_c_apdu + 1) + p_c_apdu->offset;
+#endif
   /* Class Byte */
   BE_STREAM_TO_UINT8(cla, p_cmd);
 

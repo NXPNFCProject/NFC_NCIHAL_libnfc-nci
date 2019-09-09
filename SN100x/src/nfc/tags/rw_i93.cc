@@ -3156,7 +3156,11 @@ static void rw_i93_data_cback(__attribute__((unused)) uint8_t conn_id,
 *******************************************************************************/
 tNFC_STATUS rw_i93_select(uint8_t* p_uid) {
   tRW_I93_CB* p_i93 = &rw_cb.tcb.i93;
-  uint8_t uid[I93_UID_BYTE_LEN], *p;
+  uint8_t uid[I93_UID_BYTE_LEN]
+#if (NXP_EXTNS == TRUE)
+      = { 0 }
+#endif
+  , *p;
 
   DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 

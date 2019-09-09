@@ -621,9 +621,9 @@ void nfa_scr_send_prop_set_conf_cb(uint8_t event, uint16_t param_len, uint8_t *p
         return;
       }
     }
+    DLOG_IF(ERROR, nfc_debug_enabled) << StringPrintf(
+        "%s: param_len=%u, p_param=%p", __func__, param_len, p_param);
   }
-  DLOG_IF(ERROR, nfc_debug_enabled) << StringPrintf("%s: param_len=%u, p_param=%p",
-          __func__, param_len, p_param);
   return;
 }
 

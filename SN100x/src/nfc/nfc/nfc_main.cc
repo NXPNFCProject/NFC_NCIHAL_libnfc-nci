@@ -1178,9 +1178,9 @@ void NFC_SetStaticT4tNfceeCback(tNFC_CONN_CBACK* p_cback) {
     /* just in case DH has received NCI data before the data callback is set
      * check if there's any data event to report on this connection id */
     nfc_data_event(p_cb);
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+        "%s = %p, p_cb->p_cback = %p", __func__, p_cb, p_cb->p_cback);
   }
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-      "%s = %p, p_cb->p_cback = %p", __func__, p_cb, p_cb->p_cback);
 }
 #endif
 /*******************************************************************************

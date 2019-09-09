@@ -2880,14 +2880,13 @@ static void nfa_ee_report_discover_req_evt(void) {
 void nfa_ee_nci_pwr_link_ctrl_rsp(tNFA_EE_MSG* p_data) {
     DLOG_IF(INFO, nfc_debug_enabled)
         << StringPrintf(" nfa_ee_nci_pwr_link_ctrl_rsp()");
-    tNFA_EE_PWR_LNK_CTRL pwr_lnk_ctrl;
+    tNFA_EE_CBACK_DATA nfa_ee_cback_data;
     tNFC_NFCEE_EE_PWR_LNK_REVT* p_rsp = p_data->pwr_lnk_ctrl_rsp.p_data;
-    pwr_lnk_ctrl.status = p_rsp->status;
+    nfa_ee_cback_data.pwr_lnk_ctrl.status = p_rsp->status;
     DLOG_IF(INFO, nfc_debug_enabled)
         << StringPrintf(" nfa_ee_nci_pwr_link_ctrl_rsp: status = %d ",
-            pwr_lnk_ctrl.status);
-    nfa_ee_report_event(nullptr, NFA_EE_PWR_LINK_CTRL_EVT,
-            (tNFA_EE_CBACK_DATA*)&pwr_lnk_ctrl);
+                        nfa_ee_cback_data.pwr_lnk_ctrl.status);
+    nfa_ee_report_event(NULL, NFA_EE_PWR_LINK_CTRL_EVT, &nfa_ee_cback_data);
 }
 #endif
 /*******************************************************************************

@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018 NXP
+ *  Copyright 2018-2019 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -1329,24 +1329,29 @@ NFC_HDR* llcp_dlc_get_next_pdu(tLLCP_DLCB* p_dlcb) {
       (llcp_dlc_is_rw_open(p_dlcb))) {
     p_msg = (NFC_HDR*)GKI_dequeue(&p_dlcb->i_xmit_q);
     llcp_cb.total_tx_i_pdu--;
+#if (NXP_EXTNS == TRUE)
+    if (p_msg != NULL) {
+#endif
+      if (p_msg->offset >= LLCP_MIN_OFFSET) {
+        /* add LLCP header, DSAP, PTYPE, SSAP, N(S), N(R) and update
+         * sent_ack_seq, V(RA) */
+        llcp_util_build_info_pdu(p_dlcb, p_msg);
 
-    if (p_msg->offset >= LLCP_MIN_OFFSET) {
-      /* add LLCP header, DSAP, PTYPE, SSAP, N(S), N(R) and update sent_ack_seq,
-       * V(RA) */
-      llcp_util_build_info_pdu(p_dlcb, p_msg);
+        p_dlcb->next_tx_seq = (p_dlcb->next_tx_seq + 1) % LLCP_SEQ_MODULO;
 
-      p_dlcb->next_tx_seq = (p_dlcb->next_tx_seq + 1) % LLCP_SEQ_MODULO;
-
-      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-          "LLCP TX - N(S,R):(%d,%d) V(S,SA,R,RA):(%d,%d,%d,%d)", send_seq,
-          p_dlcb->next_rx_seq, p_dlcb->next_tx_seq, p_dlcb->rcvd_ack_seq,
-          p_dlcb->next_rx_seq, p_dlcb->sent_ack_seq);
-    } else {
-      LOG(ERROR) << StringPrintf("offset (%d) must be %d at least",
-                                 p_msg->offset, LLCP_MIN_OFFSET);
-      GKI_freebuf(p_msg);
-      p_msg = nullptr;
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+            "LLCP TX - N(S,R):(%d,%d) V(S,SA,R,RA):(%d,%d,%d,%d)", send_seq,
+            p_dlcb->next_rx_seq, p_dlcb->next_tx_seq, p_dlcb->rcvd_ack_seq,
+            p_dlcb->next_rx_seq, p_dlcb->sent_ack_seq);
+      } else {
+        LOG(ERROR) << StringPrintf("offset (%d) must be %d at least",
+                                   p_msg->offset, LLCP_MIN_OFFSET);
+        GKI_freebuf(p_msg);
+        p_msg = nullptr;
+      }
+#if (NXP_EXTNS == TRUE)
     }
+#endif
   }
 
   /* if tx queue is empty and all PDU is acknowledged */

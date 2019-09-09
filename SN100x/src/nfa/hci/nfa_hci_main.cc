@@ -1917,7 +1917,7 @@ static void nfa_hci_timer_cback (TIMER_LIST_ENT *p_tle)
     uint8_t                     cmd_inst_param;
     TIMER_LIST_ENT            *p_timer;
     tNFA_HCI_DYN_PIPE         *p_pipe;
-    tNFA_HCI_DYN_GATE         *p_gate;
+    tNFA_HCI_DYN_GATE* p_gate = nullptr;
     tNFA_HCI_EVT_DATA         evt_data;
     tNFA_HCI_PIPE_CMDRSP_INFO *p_pipe_cmdrsp_info = nullptr;
 
@@ -1943,9 +1943,9 @@ static void nfa_hci_timer_cback (TIMER_LIST_ENT *p_tle)
 
         p_pipe = nfa_hciu_find_pipe_by_pid (*p_pipe_id);
         p_pipe_cmdrsp_info = nfa_hciu_get_pipe_cmdrsp_info (*p_pipe_id);
-        if (!p_pipe_cmdrsp_info) {
+        if (p_pipe_cmdrsp_info == NULL || p_pipe == NULL) {
           LOG(ERROR) << StringPrintf(
-              "nfa_hci_timer_cback - Pipe Info is NULL returning...");
+              "p_pipe_cmdrsp_info or p_pipe was found NULL");
           return;
         }
         memset (&evt_data, 0, sizeof (evt_data));
