@@ -177,6 +177,11 @@ void nfa_t4tnfcee_handle_t4t_evt(tRW_EVENT event, tRW_DATA* p_rwData) {
           << StringPrintf("%s RW_T4T_RAW_FRAME_EVT", __func__);
       nfa_t4tnfcee_handle_file_operations(p_rwData);
       break;
+    case RW_T4T_INTF_ERROR_EVT:
+      DLOG_IF(INFO, nfc_debug_enabled)
+              << StringPrintf("%s RW_T4T_INTF_ERROR_EVT", __func__);
+      nfa_t4tnfcee_handle_file_operations(p_rwData);
+      break;
     default:
       DLOG_IF(INFO, nfc_debug_enabled)
           << StringPrintf("%s UNKNOWN EVENT", __func__);
