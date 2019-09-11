@@ -834,7 +834,7 @@ static void nfa_dm_disc_discovery_cback(tNFC_DISCOVER_EVT event,
   nfa_dm_rf_disc_data.nfc_discover = *p_data;
   nfa_dm_disc_sm_execute(dm_disc_event, &nfa_dm_rf_disc_data);
 #if(NXP_EXTNS == TRUE)
-  NFA_SCR_PROCESS_EVT(dm_disc_event, p_data->status);
+  if(p_data) NFA_SCR_PROCESS_EVT(dm_disc_event, p_data->status);
 #endif
 }
 

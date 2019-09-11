@@ -425,7 +425,7 @@ static void nfa_dm_nfc_response_cback(tNFC_RESPONSE_EVT event,
 
     case NFC_GEN_ERROR_REVT: /* generic error command or notification */
 #if(NXP_EXTNS == TRUE)
-      NFA_SCR_PROCESS_EVT(NFA_SCR_MULTIPLE_TARGET_DETECTED_EVT, p_data->status);
+      if(p_data) NFA_SCR_PROCESS_EVT(NFA_SCR_MULTIPLE_TARGET_DETECTED_EVT, p_data->status);
 #endif
       break;
 
