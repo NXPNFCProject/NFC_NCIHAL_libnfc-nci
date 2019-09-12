@@ -1225,6 +1225,11 @@ void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
                                                   nfa_hci_cb.inst, buff),
       (uint8_t)chaining_bit, (uint8_t)nfa_hci_cb.assembling, p_pkt->len);
 
+  if((nfa_hci_cb.reset_host[0] != 0x00) && (pipe == NFA_HCI_APDU_PIPE) &&
+     (nfa_hci_cb.inst == NFA_HCI_ABORT)) {
+    nfa_hci_cb.reset_host[0] = 0x00;
+  }
+
 
 #if (NXP_EXTNS == TRUE)
   /*After the reception of WTX, if the next response is chained
