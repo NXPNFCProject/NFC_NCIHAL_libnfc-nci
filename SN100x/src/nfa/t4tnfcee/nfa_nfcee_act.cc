@@ -547,7 +547,7 @@ tNFC_STATUS getWritePreconditionStatus() {
   if (nfa_t4tnfcee_cb.cur_fileId == NDEF_FILE_ID) {
     tNDEF_STATUS ndef_status;
     if ((ndef_status = NDEF_MsgValidate(nfa_t4tnfcee_cb.p_dataBuf,
-                                        nfa_t4tnfcee_cb.dataLen, false)) !=
+                                        nfa_t4tnfcee_cb.dataLen, true)) !=
         NDEF_OK) {
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
           "Invalid NDEF message. NDEF_MsgValidate returned %i", ndef_status);
