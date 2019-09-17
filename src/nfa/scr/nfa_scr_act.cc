@@ -53,19 +53,19 @@ extern bool nfc_debug_enabled;
 void nfa_scr_set_reader_mode(bool mode, tNFA_SCR_CBACK* scr_cback,
                              tNFA_SCR_EVT_CBACK scr_evt_cback) {
   bool status = false;
-  nfa_scr_cb.start_nfcforum_poll = false;
 
   if (mode == true) {
     nfa_scr_cb.scr_cback = scr_cback; /* Register a JNI callback */
     nfa_scr_cb.scr_evt_cback =
         scr_evt_cback; /* Register a SCR event handler cback */
-    status = nfa_scr_cb.scr_evt_cback(NFA_SCR_APP_REQ_EVT, NFA_STATUS_OK);
+    status = nfa_scr_cb.scr_evt_cback(NFA_SCR_APP_START_REQ_EVT, NFA_STATUS_OK);
   } else {
-    nfa_scr_cb.start_nfcforum_poll = true;
-    status = nfa_scr_cb.scr_evt_cback(NFA_SCR_STOP_REQ_EVT, NFA_STATUS_OK);
+    nfa_scr_cb.app_stop_req = true;
+    status = nfa_scr_cb.scr_evt_cback(NFA_SCR_APP_STOP_REQ_EVT, NFA_STATUS_OK);
   }
 
   if (status == false) {
+    nfa_scr_cb.app_stop_req = false;
     nfa_scr_notify_evt((uint8_t)NFA_SCR_SET_READER_MODE_EVT, NFA_STATUS_FAILED);
   }
 }
@@ -154,8 +154,7 @@ bool nfa_scr_proc_rdr_req_ntf(tNFC_EE_DISCOVER_REQ_REVT* p_cbk) {
 
   if (report_ntf != 0x00 && secure_reader_evt != NFA_SCR_INVALID_EVT) {
     /* Report to SCR state machine */
-    nfa_scr_cb.scr_evt_cback(secure_reader_evt, NFA_STATUS_OK);
-    is_scr_requested = true;
+    is_scr_requested = nfa_scr_cb.scr_evt_cback(secure_reader_evt, NFA_STATUS_OK);
   }
   return is_scr_requested;
 }
@@ -166,25 +165,33 @@ bool nfa_scr_is_req_evt(uint8_t event, uint8_t status) {
 
   switch (event) {
     /* event from nfa_dm_nfc_response_cback   */
-    case NFA_DM_SET_CONFIG_EVT: /* 0x02 */
+    case NFA_DM_SET_CONFIG_EVT:               /* 0x02 */
       evt = NFA_SCR_CORE_SET_CONF_RSP_EVT;
       break;
     /* events from nfa_dm_conn_cback_event_notify() */
-    case NFA_RF_DISCOVERY_STARTED_EVT: /* 0x30 */
+    case NFA_RF_DISCOVERY_STARTED_EVT:        /* 0x30 */
       evt = NFA_SCR_RF_DISCOVERY_RSP_EVT;
       break;
-    case NFA_RF_DISCOVERY_STOPPED_EVT: /* 0x31 */
+    case NFA_RF_DISCOVERY_STOPPED_EVT:        /* 0x31 */
       [[fallthrough]];
-    case NFA_DM_RF_DEACTIVATE_RSP: /* 0x07 */
+    case NFA_DM_RF_DEACTIVATE_RSP:            /* 0x07 */
       evt = NFA_SCR_RF_DEACTIVATE_RSP_EVT;
       break;
     /* events from nfa_dm_disc_discovery_cback() */
-    case NFA_DM_RF_DEACTIVATE_NTF: /* 0x08 */
+    case NFA_DM_RF_DEACTIVATE_NTF:            /* 0x08 */
       evt = NFA_SCR_RF_DEACTIVATE_NTF_EVT;
       break;
-    case NFA_DM_RF_INTF_ACTIVATED_NTF: /* 0x05 */
+    case NFA_DM_RF_INTF_ACTIVATED_NTF:        /* 0x05 */
       evt = NFA_SCR_RF_INTF_ACTIVATED_NTF_EVT;
       break;
+    case NFA_SCR_ESE_RECOVERY_START_EVT:       /* 0x0B */
+      [[fallthrough]];
+    case NFA_SCR_ESE_RECOVERY_COMPLETE_EVT:    /* 0x0C */
+      [[fallthrough]];
+    case NFA_SCR_MULTIPLE_TARGET_DETECTED_EVT: /* 0x0D */
+      evt = event;
+      break;
+
   }
   if (evt != NFA_SCR_INVALID_EVT) {
     is_requested = nfa_scr_cb.scr_evt_cback(evt, status);

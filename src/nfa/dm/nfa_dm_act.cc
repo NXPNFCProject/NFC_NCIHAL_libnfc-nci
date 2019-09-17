@@ -433,12 +433,7 @@ DLOG_IF(INFO, nfc_debug_enabled)
 
     case NFC_GEN_ERROR_REVT: /* generic error command or notification */
 #if (NXP_EXTNS == TRUE)
-      if (p_data->status ==
-          NXP_NFC_EMVCO_PCD_COLLISION_DETECTED)  // STATUS_EMVCO_PCD_COLLISION
-      {
-        dm_cback_data.status = p_data->status;
-        (*nfa_dm_cb.p_dm_cback)(NFA_DM_EMVCO_PCD_COLLISION_EVT, &dm_cback_data);
-      }
+      if(p_data) NFA_SCR_PROCESS_EVT(NFA_SCR_MULTIPLE_TARGET_DETECTED_EVT, p_data->status);
 #endif
       break;
 

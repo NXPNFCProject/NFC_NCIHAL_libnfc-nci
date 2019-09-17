@@ -37,7 +37,7 @@
 #define IS_SCR_START_IN_PROGRESS \
   (nfa_scr_cb.state == NFA_SCR_STATE_START_IN_PROGRESS)
 
-#define IS_SCR_STARTED (nfa_scr_cb.state == NFA_SCR_STATE_START_SUCCESS)
+#define IS_SCR_START_SUCCESS (nfa_scr_cb.state == NFA_SCR_STATE_START_SUCCESS)
 
 #define IS_SCR_STOP_IN_PROGRESS                       \
   ((nfa_scr_cb.state == NFA_SCR_STATE_STOP_CONFIG) || \
@@ -65,7 +65,7 @@
 
 #define NFA_SCR_PROCESS_EVT(event, status)     \
   {                                            \
-    if (nfa_scr_cb.scr_evt_cback) {            \
+    if (nullptr != nfa_scr_cb.scr_evt_cback) { \
       if (nfa_scr_is_req_evt(event, status)) { \
         return;                                \
       }                                        \
@@ -90,22 +90,24 @@ enum {
   NFA_SCR_TAG_OP_TIMEOUT_EVT,        /* Tag Operation Time out windows */
   NFA_SCR_RM_CARD_TIMEOUT_EVT,       /* Notify REMOVE_CARD_EVT to app and
                                         start timer again for the same    */
+  NFA_SCR_ERROR_REC_TIMEOUT_EVT,
 };
 
 /* NFA SCR (Reader) events requested from other libnfc-nci modules */
 enum {
   NFA_SCR_START_REQ_EVT = NFC_EE_DISC_OP_ADD, /* SCR Start request */
   NFA_SCR_STOP_REQ_EVT,
-  NFA_SCR_APP_REQ_EVT,
+  NFA_SCR_APP_START_REQ_EVT,
+  NFA_SCR_APP_STOP_REQ_EVT,
   NFA_SCR_CORE_SET_CONF_RSP_EVT,
-  NFA_SCR_CORE_RESET_NTF_EVT,
-  NFA_SCR_CORE_GEN_ERROR_NTF_EVT,
-  NFA_SCR_CORE_INTF_ERROR_NTF_EVT,
   NFA_SCR_RF_DISCOVER_MAP_RSP_EVT,
   NFA_SCR_RF_DISCOVERY_RSP_EVT,
   NFA_SCR_RF_DEACTIVATE_RSP_EVT,
   NFA_SCR_RF_DEACTIVATE_NTF_EVT,
   NFA_SCR_RF_INTF_ACTIVATED_NTF_EVT,
+  NFA_SCR_ESE_RECOVERY_START_EVT,
+  NFA_SCR_ESE_RECOVERY_COMPLETE_EVT,
+  NFA_SCR_MULTIPLE_TARGET_DETECTED_EVT,
 };
 
 /* NFA SCR (Reader) events to be posted to JNI */
@@ -115,41 +117,44 @@ typedef enum {
   NFA_SCR_GET_READER_MODE_EVT,
   NFA_SCR_START_SUCCESS_EVT,
   NFA_SCR_START_FAIL_EVT,
-  NFA_SCR_TARGET_ACTIVATED_EVT,
   NFA_SCR_RESTART_EVT,
+  NFA_SCR_TARGET_ACTIVATED_EVT,
   NFA_SCR_STOP_SUCCESS_EVT,
   NFA_SCR_STOP_FAIL_EVT,
   NFA_SCR_TIMEOUT_EVT,
   NFA_SCR_REMOVE_CARD_EVT,
-  // NFA_SCR_RECOVERY_EVT,
-  // NFA_SCR_RECOVERY_COMPLETE_EVT,
-  // NFA_SCR_RECOVERY_TIMEOUT_EVT,
-  NFA_SCR_FAIL_EVT,
+  NFA_SCR_MULTI_TARGET_DETECTED_EVT,
 } tNFA_SCR_EVT;
+
+/* NFA SCR possible errors which can occur in SCR module */
+typedef enum {
+  NFA_SCR_NO_ERROR = 0x00,
+  NFA_SCR_ERROR_GET_PROP_SET_CONF_CMD,  /* Flag is not present in config file */
+  NFA_SCR_ERROR_SEND_PROP_SET_CONF_CMD, /* Sending prop SET_CONFIG_CMD failed */
+  NFA_SCR_ERROR_START_RF_DISC,          /* Sending RF_DISCOVER_CMD failed     */
+  NFA_SCR_ERROR_NCI_RSP_STATUS_FAILED,  /* Received NFCC_RSP with status failed */
+  NFA_SCR_ERROR_RECOVERY_STARTED,       /* eSE recovery is started            */
+  NFA_SCR_ERROR_RECOVERY_COMPLETED,     /* eSE recovery completed             */
+  NFA_SCR_ERROR_RECOVERY_TIMEOUT,       /* Timeout while waiting for eSE Recovery */
+} tNFA_SCR_ERROR;
 
 /* NFA SCR (Reader)states to be maintained in libnfc-nci */
 typedef enum {
+  NFA_SCR_STATE_STOPPED = 0x00,    /* received NFA_SCR_API_SET_READER_MODE_EVT with false */
   /* State during Start Reader request */
-  NFA_SCR_STATE_START_CONFIG, /* received NFA_SCR_APP_REQ_EVT from application
-                               */
-  NFA_SCR_STATE_START_IN_PROGRESS, /* received NFA_SCR_SECURE_READER_REQ_EVT
-                                      with op = 0 */
-  NFA_SCR_STATE_START_SUCCESS,     /* received NFA_SCR_RF_DISCOVERY_RSP_EVT     */
-  // NFA_SCR_STATE_ACTIVATED,      /* received NFA_SCR_STATE_WAIT_ACTIVETED_NTF
-  // */
+  NFA_SCR_STATE_START_CONFIG,      /* received NFA_SCR_APP_START_REQ_EVT from application */
+  NFA_SCR_STATE_START_IN_PROGRESS, /* received NFA_SCR_SECURE_READER_REQ_EVT with op = 0  */
+  NFA_SCR_STATE_START_SUCCESS,     /* received NFA_SCR_RF_DISCOVERY_RSP_EVT               */
   /* State during Stop Reader request */
-  NFA_SCR_STATE_STOP_CONFIG, /* received NFA_SCR_SECURE_READER_REQ_EVT with op =
-                                1  */
-  NFA_SCR_STATE_STOP_IN_PROGRESS, /* received
-                                     NFA_SCR_SUBSTATE_WAIT_DEACTIVATE_RSP */
-  NFA_SCR_STATE_STOP_SUCCESS,     /* received NFA_SCR_STATE_WAIT_DISC_MAP     */
-  NFA_SCR_STATE_STOPPED, /* received NFA_SCR_API_SET_READER_MODE_EVT with false
-                          */
+  NFA_SCR_STATE_STOP_CONFIG,      /* received NFA_SCR_SECURE_READER_REQ_EVT with op = 1   */
+  NFA_SCR_STATE_STOP_IN_PROGRESS, /* received NFA_SCR_SUBSTATE_WAIT_DEACTIVATE_RSP        */
+  NFA_SCR_STATE_STOP_SUCCESS,     /* received NFA_SCR_STATE_WAIT_DISC_MAP                 */
 } tNFA_SCR_STATE;
 
 /* NFA SCR (Reader)states to be maintained in libnfc-nci */
 typedef enum {
   NFA_SCR_SUBSTATE_INVALID = 0x00,
+  NFA_SCR_SUBSTATE_WAIT_START_RDR_NTF,
   NFA_SCR_SUBSTATE_WAIT_DEACTIVATE_RSP,
   NFA_SCR_SUBSTATE_WAIT_DEACTIVATE_NTF,
   NFA_SCR_SUBSTATE_WAIT_PROP_SET_CONF_RSP,
@@ -158,15 +163,6 @@ typedef enum {
   NFA_SCR_SUBSTATE_WAIT_ACTIVETED_NTF,
 } tNFA_SCR_SUB_STATE;
 
-/* NFA SCR possible errors which can occur in SCR module */
-typedef enum {
-  NFA_SCR_ERROR,
-  NFA_SCR_ERROR_NCI_RSP_STATUS_FAILED,
-  NFA_SCR_ERROR_STATE_MISMATCH,
-  NFA_SCR_CORE_RESET_NTF,
-  NFA_SCR_CORE_GEN_ERROR_NTF,
-  NFA_SCR_CORE_INTF_ERROR_NTF,
-} tNFA_SCR_ERROR;
 
 /*******************************************************************************
 **  Data Structures and callback functions
@@ -188,21 +184,18 @@ typedef struct {
 **  NFA SCR control block structure
 ******************************************************************************/
 typedef struct {
-  bool stop_scr_mode;
-  bool start_nfcforum_poll; /* start_nfcforum_poll shall only be set by below 2
-                  functions
-                  1. nfa_scr_sys_disable() 2. nfa_scr_set_reader_mode()--> mode
-                  == false case */
-  bool wait_for_deact_ntf;
-  uint8_t event;
+  tNFA_SCR_ERROR error;
+  TIMER_LIST_ENT scr_tle;
+  TIMER_LIST_ENT scr_rec_tle;
+  tNFA_SCR_CBACK* scr_cback;
+  tNFA_SCR_EVT_CBACK* scr_evt_cback;
+  uint32_t tag_op_timeout;
+  uint32_t deact_ntf_timeout;
   uint8_t state;
   uint8_t sub_state;
   uint8_t poll_prof_sel_cfg;
-  uint32_t deact_ntf_timeout;
-  uint32_t tag_op_timeout;
-  TIMER_LIST_ENT scr_tle;
-  tNFA_SCR_CBACK* scr_cback;
-  tNFA_SCR_EVT_CBACK* scr_evt_cback;
+  bool app_stop_req;
+  bool wait_for_deact_ntf;
 } tNFA_SCR_CB;
 
 /******************************************************************************

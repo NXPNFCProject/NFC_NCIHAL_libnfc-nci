@@ -1359,7 +1359,6 @@ void nfa_hci_handle_admin_gate_cmd(uint8_t* p_data) {
         return;
       } else {
         uint8_t host_index = 0;
-
         if ((source_host == NFA_HCI_HOST_ID_UICC0) ||
             (source_host >= NFA_HCI_HOST_ID_FIRST_DYNAMICALLY_ALLOCATED)) {
           while (host_index < NFA_HCI_MAX_HOST_IN_NETWORK) {
@@ -1373,6 +1372,7 @@ void nfa_hci_handle_admin_gate_cmd(uint8_t* p_data) {
 #if (NXP_EXTNS == TRUE)
         nfc_cb.bBlockWiredMode = FALSE;
         nfc_cb.bBlkPwrlinkAndModeSetCmd = FALSE;
+
         nfa_hciu_send_msg(NFA_HCI_ADMIN_PIPE, NFA_HCI_RESPONSE_TYPE, response,
                           rsp_len, &data);
         nfa_hciu_set_nfceeid_config_mask(NFA_HCI_CLEAR_CONFIG_EVENT,
