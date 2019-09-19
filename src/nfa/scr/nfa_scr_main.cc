@@ -152,7 +152,9 @@ void nfa_scr_sys_disable(void) {
     nfa_sys_stop_timer(&nfa_scr_cb.scr_rec_tle);
   }
   /* deregister message handler on NFA SYS */
+#if (NXP_EXTNS == TRUE)
   nfa_sys_deregister(NFA_ID_SCR);
+#endif
 }
 
 /*******************************************************************************
