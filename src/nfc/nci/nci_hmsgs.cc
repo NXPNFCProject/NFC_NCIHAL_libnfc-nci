@@ -355,13 +355,13 @@ uint8_t nci_snd_pwr_nd_lnk_ctrl_cmd(uint8_t nfcee_id, uint8_t cfg_value,
     }
   NFC_HDR* p;
   uint8_t* pp;
+  nfc_cb.pwr_link_cmd.param = cfg_value;
   if (nfcFL.eseFL._ESE_DUAL_MODE_PRIO_SCHEME ==
           nfcFL.eseFL._ESE_WIRED_MODE_RESUME) {
           nfc_cb.pwr_link_cmd.reqSrc = reqSrc;
-      if (nfc_cb.bBlkPwrlinkAndModeSetCmd && (cfg_value != 0x00)) {
+      if (nfc_cb.bBlkPwrlinkAndModeSetCmd && (cfg_value != NFCC_DECIDES)) {
           DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("pwr link cmd ignored due to RF session");
           nfc_cb.pwr_link_cmd.bPwrLinkCmdRequested = true;
-          nfc_cb.pwr_link_cmd.param = cfg_value;
           nfc_start_quick_timer(
               &nfc_cb.nci_wait_pwrLinkRsp_timer, NFC_TTYPE_PWR_LINK_RSP,
               ((uint32_t)DWP_BLOCK_TIMEOUT) * QUICK_TIMER_TICKS_PER_SEC / 1000);

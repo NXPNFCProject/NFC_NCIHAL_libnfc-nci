@@ -104,6 +104,7 @@ void disc_deact_ntf_timeout_handler(tNFC_RESPONSE_EVT event);
 extern bool etsi_reader_in_progress;
 void uicc_eeprom_get_config(uint8_t* config_resp);
 void uicc_eeprom_set_config(uint8_t* config_resp);
+bool isRedundantEndOfApdu(uint8_t* data, uint8_t len);
 #endif
 
 static struct timeval timer_start;
@@ -601,6 +602,12 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
     pp = (uint8_t*)(p + 1) + p->offset;
     /* build NCI Data packet header */
     NCI_DATA_PBLD_HDR(pp, pbf, hdr0, ulen);
+#if (NXP_EXTNS == TRUE)
+    if (isRedundantEndOfApdu(pp, ulen)) {
+      GKI_freebuf(p_data);
+      return (NCI_STATUS_OK);
+    }
+#endif
     if (p_cb->num_buff != NFC_CONN_NO_FC) p_cb->num_buff--;
 
 #if (NXP_EXTNS == TRUE)
@@ -3427,6 +3434,27 @@ void uicc_eeprom_set_config(uint8_t* config_rsp) {
   } while ((config_status != NCI_STATUS_OK) && (retry_count <= 3));
   if ((config_status != NCI_STATUS_OK) && (retry_count = 4)) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s :HAL_NFC_IOCTL_NCI_TRANSCEIVE Failed", __func__);
+  }
+}
+
+/*******************************************************************************
+**
+** Function         isRedundantEndOfApdu
+**
+** Description      Checks if END_OF_APDU is redundant
+**
+** Returns         true/false
+**
+*******************************************************************************/
+bool isRedundantEndOfApdu(uint8_t* data, uint8_t len) {
+  /*Ignore END_OF_APDU if powerLink NFCC_DECIDES is not sent*/
+  uint8_t endOfApdu[2] = {0x99, 0x61};
+  if ((nfc_cb.pwr_link_cmd.param != NFCC_DECIDES) &&
+      (len == sizeof(endOfApdu)) &&
+      (memcmp(data, endOfApdu, sizeof(endOfApdu)) == 0x00)) {
+    return true;
+  } else {
+    return false;
   }
 }
 #endif

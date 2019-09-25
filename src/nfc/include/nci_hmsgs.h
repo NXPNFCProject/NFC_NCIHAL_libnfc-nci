@@ -50,7 +50,9 @@
 #include <stdbool.h>
 /*Timeout in ms blocks powerLink/modeSet notifying upperLayer*/
 #define DWP_BLOCK_TIMEOUT 3500
-
+#if (NXP_EXTNS == TRUE)
+#define NFCC_DECIDES 0x00
+#endif
 bool nci_proc_core_rsp(NFC_HDR* p_msg);
 void nci_proc_rf_management_rsp(NFC_HDR* p_msg);
 void nci_proc_ee_management_rsp(NFC_HDR* p_msg);
