@@ -3331,7 +3331,11 @@ void nfa_dm_p2p_timer_event() {
   if (p2p_prio_logic_data.isodep_detected == true) {
     DLOG_IF(INFO, nfc_debug_enabled)
         << StringPrintf("Deactivate and Restart RF discovery");
+#if(NXP_EXTNS ==TRUE)
+    nfa_dm_rf_deactivate(NFC_DEACTIVATE_TYPE_IDLE);
+#else
     nci_snd_deactivate_cmd(NFC_DEACTIVATE_TYPE_IDLE);
+#endif
   }
 }
 
