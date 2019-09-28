@@ -58,7 +58,8 @@ unordered_map<uint16_t, tNFA_T4TNFCEE_FILE_INFO> ccFileInfo;
 void nfa_t4tnfcee_free_rx_buf(void) {
   /*Free only if it is Read operation
   For write, buffer will be passed from JNI which will be freed by JNI*/
-  if ((nfa_t4tnfcee_cb.cur_op == NFA_T4TNFCEE_OP_READ) &&
+  if (((nfa_t4tnfcee_cb.cur_op == NFA_T4TNFCEE_OP_READ) ||
+       (nfa_t4tnfcee_cb.cur_op == NFA_T4TNFCEE_OP_CLEAR)) &&
       nfa_t4tnfcee_cb.p_dataBuf) {
     nfa_mem_co_free(nfa_t4tnfcee_cb.p_dataBuf);
     nfa_t4tnfcee_cb.p_dataBuf = NULL;
@@ -150,6 +151,15 @@ bool nfa_t4tnfcee_handle_op_req(tNFA_T4TNFCEE_MSG* p_data) {
         nfa_t4tnfcee_notify_rx_evt();
       }
     } break;
+    case NFA_T4TNFCEE_OP_CLEAR: {
+      nfa_t4tnfcee_initialize_data(p_data);
+      tNFA_STATUS status = nfa_t4tnfcee_exec_file_operation();
+      if (status != NFA_STATUS_OK) {
+        nfa_t4tnfcee_cb.status = NFA_STATUS_FAILED;
+        nfa_t4tnfcee_notify_rx_evt();
+      }
+      break;
+    }
     case NFA_T4TNFCEE_OP_CLOSE_CONNECTION: {
       nfa_t4tnfcee_proc_disc_evt(NFA_T4TNFCEE_OP_CLOSE_CONNECTION);
     } break;
@@ -347,7 +357,31 @@ void nfa_t4tnfcee_handle_file_operations(tRW_DATA* p_rwData) {
           nfa_t4tnfcee_cb.status = preCondStatus;
           nfa_t4tnfcee_notify_rx_evt();
         }
+      } else if (nfa_t4tnfcee_cb.cur_op == NFA_T4TNFCEE_OP_CLEAR) {
+        RW_T4tNfceeReadDataLen();
+        nfa_t4tnfcee_cb.prop_rw_state = WAIT_CLEAR_NDEF_DATA;
       }
+      break;
+    }
+
+    case WAIT_CLEAR_NDEF_DATA: {
+      if (isError(p_rwData->raw_frame.status)) break;
+      uint16_t lenDataToBeClear = nfa_t4tnfcee_get_len(p_rwData);
+      if (lenDataToBeClear == 0x00) {
+        nfa_t4tnfcee_cb.status = p_rwData->raw_frame.status;;
+        nfa_t4tnfcee_notify_rx_evt();
+        break;
+      }
+      RW_T4tNfceeUpdateNlen(0x0000);
+      nfa_t4tnfcee_cb.p_dataBuf = (uint8_t*)nfa_mem_co_alloc(lenDataToBeClear);
+      if(!nfa_t4tnfcee_cb.p_dataBuf) {
+        nfa_t4tnfcee_cb.status = NFC_STATUS_FAILED;
+        nfa_t4tnfcee_notify_rx_evt();
+        break;
+      }
+      memset(nfa_t4tnfcee_cb.p_dataBuf, 0, lenDataToBeClear);
+      nfa_t4tnfcee_cb.dataLen = lenDataToBeClear;
+      nfa_t4tnfcee_cb.prop_rw_state = WAIT_RESET_NLEN;
       break;
     }
 
@@ -403,8 +437,14 @@ void nfa_t4tnfcee_handle_file_operations(tRW_DATA* p_rwData) {
 
     case WAIT_WRITE_COMPLETE: {
       if (isError(p_rwData->raw_frame.status)) break;
-      RW_T4tNfceeUpdateNlen(nfa_t4tnfcee_cb.dataLen);
-      nfa_t4tnfcee_cb.prop_rw_state = WAIT_UPDATE_NLEN;
+      if (nfa_t4tnfcee_cb.cur_op == NFA_T4TNFCEE_OP_CLEAR) {
+        nfa_t4tnfcee_cb.status = p_rwData->raw_frame.status;
+        /*Length is already zero returning from here.*/
+        nfa_t4tnfcee_notify_rx_evt();
+      } else {
+        RW_T4tNfceeUpdateNlen(nfa_t4tnfcee_cb.dataLen);
+        nfa_t4tnfcee_cb.prop_rw_state = WAIT_UPDATE_NLEN;
+      }
       break;
     }
 
@@ -444,6 +484,8 @@ void nfa_t4tnfcee_notify_rx_evt(void) {
       conn_evt_data.data.len = nfa_t4tnfcee_cb.dataLen;
     }
     nfa_dm_act_conn_cback_notify(NFA_T4TNFCEE_WRITE_CPLT_EVT, &conn_evt_data);
+  } else if (nfa_t4tnfcee_cb.cur_op == NFA_T4TNFCEE_OP_CLEAR) {
+    nfa_dm_act_conn_cback_notify(NFA_T4TNFCEE_CLEAR_CPLT_EVT, &conn_evt_data);
   }
   nfa_t4tnfcee_free_rx_buf();
 }

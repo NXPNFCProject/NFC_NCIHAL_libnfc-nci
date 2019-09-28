@@ -52,6 +52,33 @@ tNFA_STATUS NFA_T4tNfcEeOpenConnection() {
 }
 /*******************************************************************************
 **
+** Function         NFA_T4tNfcEeClear
+**
+** Description      Clear Ndef data to T4T NFC EE.
+**                  For file ID NDEF, perform the NDEF detection procedure
+**                  and set the NDEF tag data to zero.
+** Returns:
+**                  NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_FAILED otherwise
+**
+*******************************************************************************/
+tNFA_STATUS NFA_T4tNfcEeClear(uint8_t* p_fileId) {
+  tNFA_T4TNFCEE_OPERATION* p_msg;
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : Enter ", __func__);
+
+  if ((p_msg = (tNFA_T4TNFCEE_OPERATION*)GKI_getbuf(
+           (uint16_t)(sizeof(tNFA_T4TNFCEE_OPERATION)))) != NULL) {
+    p_msg->hdr.event = NFA_T4TNFCEE_OP_REQUEST_EVT;
+    p_msg->op = NFA_T4TNFCEE_OP_CLEAR;
+    p_msg->p_fileId = p_fileId;
+    nfa_sys_sendmsg(p_msg);
+
+    return (NFA_STATUS_OK);
+  }
+  return (NFA_STATUS_FAILED);
+}
+/*******************************************************************************
+**
 ** Function         NFA_T4tNfcEeWrite
 **
 ** Description      Write data to the T4T NFC EE of given file id.

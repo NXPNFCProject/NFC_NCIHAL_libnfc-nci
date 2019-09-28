@@ -864,7 +864,7 @@ void NFC_Init(tHAL_NFC_ENTRY* p_hal_entry_tbl) {
   {
     nfc_cb.nci_credit_ntf_timeout = NFC_NCI_CREDIT_NTF_TOUT;
   }
-  if (NfcAdaptation::GetInstance().NFA_GetBootMode() != NFC_FAST_BOOT_MODE) {
+  if (NfcAdaptation::GetInstance().NFA_GetBootMode() == NFC_NORMAL_BOOT_MODE) {
 #endif
   rw_init();
   ce_init();

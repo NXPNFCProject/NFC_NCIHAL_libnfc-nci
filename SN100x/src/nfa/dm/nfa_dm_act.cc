@@ -554,7 +554,7 @@ bool nfa_dm_disable(tNFA_DM_MSG* p_data) {
                         NFA_DM_DISABLE_TIMEOUT_VAL);
   }
 #if (NXP_EXTNS == TRUE)
-  nfa_t4tnfcee_deinit();
+    nfa_t4tnfcee_deinit();
 #endif
   /* Disable all subsystems other than DM (DM will be disabled after all  */
   /* the other subsystem have been disabled)                              */

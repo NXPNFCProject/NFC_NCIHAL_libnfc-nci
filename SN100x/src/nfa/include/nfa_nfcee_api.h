@@ -31,6 +31,20 @@ tNFA_STATUS NFA_T4tNfcEeOpenConnection();
 
 /*******************************************************************************
 **
+** Function         NFA_T4tNfcEeClear
+**
+** Description      Clear Ndef data to T4T NFC EE.
+**                  For file ID NDEF, perform the NDEF detection procedure
+**                  and set the NDEF tag data to zero.
+** Returns:
+**                  NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_FAILED otherwise
+**
+*******************************************************************************/
+tNFA_STATUS NFA_T4tNfcEeClear(uint8_t* p_fileId);
+
+/*******************************************************************************
+**
 ** Function         NFA_T4tNfcEeWrite
 **
 ** Description      Write data to the T4T NFC EE of given file id.

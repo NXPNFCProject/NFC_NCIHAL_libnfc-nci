@@ -83,8 +83,6 @@ void nfa_t4tnfcee_deinit(void) {
   /* reset state */
   nfa_t4tnfcee_cb.t4tnfcee_state = NFA_T4TNFCEE_STATE_DISABLED;
 
-  /* register message handler on NFA SYS */
-  nfa_sys_deregister(NFA_ID_T4TNFCEE);
 }
 
 /*******************************************************************************
