@@ -2012,7 +2012,7 @@ uint8_t nfc_hal_nfcc_init(uint8_t** pinit_rsp) {
 **
 ** Function         nfc_ncif_getFWVersion
 **
-** Description      This function is called to fet the FW Version
+** Description      This function is called to fetch the FW Version
 **
 ** Returns          tNFC_FW_VERSION
 **

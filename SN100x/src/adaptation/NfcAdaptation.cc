@@ -87,6 +87,9 @@ ThreadMutex NfcAdaptation::sLock;
 tHAL_NFC_CBACK* NfcAdaptation::mHalCallback = nullptr;
 tHAL_NFC_DATA_CBACK* NfcAdaptation::mHalDataCallback = nullptr;
 ThreadCondVar NfcAdaptation::mHalOpenCompletedEvent;
+#if (NXP_EXTNS == TRUE)
+ThreadCondVar NfcAdaptation::mHalDataCallbackEvent;
+#endif
 sp<INfc> NfcAdaptation::mHal;
 sp<INfcV1_1> NfcAdaptation::mHal_1_1;
 sp<INfcV1_2> NfcAdaptation::mHal_1_2;
@@ -863,6 +866,22 @@ bool NfcAdaptation::HalSetProperty(string key, string value) {
   }
   return status;
 }
+
+/*******************************************************************************
+**
+** Function:    NfcAdaptation::HalWriteIntf
+**
+** Description: Write NCI message to the controller.
+**
+** Returns:     None.
+**
+*******************************************************************************/
+void NfcAdaptation::HalWriteIntf(uint16_t data_len, uint8_t* p_data) {
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: Enter ", __func__);
+  mHalDataCallbackEvent.lock();
+  HalWrite(data_len, p_data);
+  mHalDataCallbackEvent.wait();
+}
 #endif
 /*******************************************************************************
 **
@@ -997,6 +1016,12 @@ bool NfcAdaptation::DownloadFirmware() {
   }
   if(status == NfcStatus::OK){
     mHalOpenCompletedEvent.wait();
+    uint8_t cmd_reset_nci[] = {0x20, 0x00, 0x01, 0x00};
+    uint8_t cmd_reset_nci_size = sizeof(cmd_reset_nci) / sizeof(uint8_t);
+    uint8_t cmd_init_nci[] = {0x20, 0x01, 0x02, 0x00, 0x00};
+    uint8_t cmd_init_nci_size = sizeof(cmd_init_nci) / sizeof(uint8_t);
+    HalWriteIntf(cmd_reset_nci_size , cmd_reset_nci);
+    HalWriteIntf(cmd_init_nci_size , cmd_init_nci);
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: try close HAL", func);
     status =mHal->close();
   }
@@ -1097,11 +1122,39 @@ uint8_t NfcAdaptation::NFA_GetBootMode() {
 ** Returns:     None.
 **
 *******************************************************************************/
+#if (NXP_EXTNS ==TRUE)
+void NfcAdaptation::HalDownloadFirmwareDataCallback(
+        __attribute__((unused)) uint16_t data_len, uint8_t* p_data) {
+  uint8_t mt, pbf, gid, op_code;
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: enter", __func__);
+
+  NCI_MSG_PRS_HDR0(p_data, mt, pbf, gid);
+  NCI_MSG_PRS_HDR1(p_data, op_code);
+  if(gid == NCI_GID_CORE) {
+    switch(op_code) {
+      case NCI_MSG_CORE_RESET:
+        if((mt == NCI_MT_NTF) || (mt == NCI_MT_RSP)) {
+          bool is_ntf = (mt == NCI_MT_NTF) ? true : false;
+          p_data++;
+          nfc_ncif_proc_reset_rsp(p_data, is_ntf);
+          if(is_ntf)
+            mHalDataCallbackEvent.signal();
+        }
+        break;
+      case NCI_MSG_CORE_INIT:
+        if (mt == NCI_MT_RSP)
+          mHalDataCallbackEvent.signal();
+        break;
+    }
+  }
+
+}
+#else
 void NfcAdaptation::HalDownloadFirmwareDataCallback(__attribute__((unused))
                                                     uint16_t data_len,
                                                     __attribute__((unused))
                                                     uint8_t* p_data) {}
-
+#endif
 /*******************************************************************************
 **
 ** Function:    ThreadMutex::ThreadMutex()
