@@ -233,8 +233,11 @@ static void nfa_ee_update_route_size(tNFA_EE_ECB* p_cb) {
       power_cfg |= NCI_ROUTE_PWR_STATE_SWITCH_OFF;
     if (p_cb->tech_battery_off & nfa_ee_tech_mask_list[xx])
       power_cfg |= NCI_ROUTE_PWR_STATE_BATT_OFF;
-    if ((power_cfg & NCI_ROUTE_PWR_STATE_ON) &&
-        (NFC_GetNCIVersion() == NCI_VERSION_2_0)) {
+    if (
+#if (NXP_EXTNS != TRUE)
+       (power_cfg & NCI_ROUTE_PWR_STATE_ON) &&
+#endif
+       (NFC_GetNCIVersion() == NCI_VERSION_2_0)) {
       if (p_cb->tech_screen_lock & nfa_ee_tech_mask_list[xx])
         power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_ON_LOCK();
       if (p_cb->tech_screen_off & nfa_ee_tech_mask_list[xx])
@@ -257,8 +260,11 @@ static void nfa_ee_update_route_size(tNFA_EE_ECB* p_cb) {
       power_cfg |= NCI_ROUTE_PWR_STATE_SWITCH_OFF;
     if (p_cb->proto_battery_off & nfa_ee_proto_mask_list[xx])
       power_cfg |= NCI_ROUTE_PWR_STATE_BATT_OFF;
-    if ((power_cfg & NCI_ROUTE_PWR_STATE_ON) &&
-        (NFC_GetNCIVersion() == NCI_VERSION_2_0)) {
+    if (
+#if (NXP_EXTNS != TRUE)
+       (power_cfg & NCI_ROUTE_PWR_STATE_ON) &&
+#endif
+       (NFC_GetNCIVersion() == NCI_VERSION_2_0)) {
       if (p_cb->proto_screen_lock & nfa_ee_proto_mask_list[xx])
         power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_ON_LOCK();
       if (p_cb->proto_screen_off & nfa_ee_proto_mask_list[xx])
@@ -425,8 +431,11 @@ static void nfa_ee_add_tech_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
       power_cfg |= NCI_ROUTE_PWR_STATE_SWITCH_OFF;
     if (p_cb->tech_battery_off & nfa_ee_tech_mask_list[xx])
       power_cfg |= NCI_ROUTE_PWR_STATE_BATT_OFF;
-    if ((power_cfg & NCI_ROUTE_PWR_STATE_ON) &&
-        (NFC_GetNCIVersion() == NCI_VERSION_2_0)) {
+    if (
+#if (NXP_EXTNS != TRUE)
+       (power_cfg & NCI_ROUTE_PWR_STATE_ON) &&
+#endif
+       (NFC_GetNCIVersion() == NCI_VERSION_2_0)) {
       if (p_cb->tech_screen_lock & nfa_ee_tech_mask_list[xx])
         power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_ON_LOCK();
       if (p_cb->tech_screen_off & nfa_ee_tech_mask_list[xx])
@@ -471,8 +480,11 @@ static void nfa_ee_add_proto_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
 
         /* Enable screen on lock power state for ISO-DEP protocol to
            enable HCE screen lock */
-        if ((power_cfg & NCI_ROUTE_PWR_STATE_ON) &&
-            (NFC_GetNCIVersion() == NCI_VERSION_2_0)) {
+        if (
+#if (NXP_EXTNS != TRUE)
+           (power_cfg & NCI_ROUTE_PWR_STATE_ON) &&
+#endif
+           (NFC_GetNCIVersion() == NCI_VERSION_2_0)) {
           if (p_cb->proto_screen_lock & nfa_ee_proto_mask_list[xx])
             power_cfg |= NCI_ROUTE_PWR_STATE_SCREEN_ON_LOCK();
           if (p_cb->proto_screen_off & nfa_ee_proto_mask_list[xx])
