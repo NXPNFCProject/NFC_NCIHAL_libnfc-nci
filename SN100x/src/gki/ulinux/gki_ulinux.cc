@@ -328,7 +328,11 @@ void GKI_shutdown(void) {
       i = 0;
 
       while ((gki_cb.com.OSWaitEvt[task_id - 1] != 0) && (++i < 10))
+#if (NXP_EXTNS == TRUE)
+        usleep(2 * 1000);
+#else
         usleep(100 * 1000);
+#endif
 #else
       /* wait for proper Arnold Schwarzenegger task state */
       result = pthread_join(gki_cb.os.thread_id[task_id - 1], nullptr);
