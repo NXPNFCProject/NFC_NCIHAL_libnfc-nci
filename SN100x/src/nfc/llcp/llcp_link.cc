@@ -15,7 +15,23 @@
  *  limitations under the License.
  *
  ******************************************************************************/
-
+/******************************************************************************
+ *
+ *  Copyright 2019 NXP
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ ******************************************************************************/
 /******************************************************************************
  *
  *  This file contains the LLCP Link Management
@@ -1312,9 +1328,16 @@ static void llcp_link_proc_rx_data(NFC_HDR* p_msg) {
         } else {
           info_length = p_msg->len - LLCP_PDU_HEADER_SIZE;
         }
-
+#if (NXP_EXTNS == TRUE)
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("frame_error:0x%x,"
+                "info_length:0x%x ptype:0x%x", frame_error, info_length, ptype);
+        /* check if length of information is bigger than link MIU */
+        if ((!frame_error) && (info_length > llcp_cb.lcb.local_link_miu)
+                && (ptype == LLCP_PDU_UI_TYPE)) {
+#else
         /* check if length of information is bigger than link MIU */
         if ((!frame_error) && (info_length > llcp_cb.lcb.local_link_miu)) {
+#endif
           LOG(ERROR) << StringPrintf(
               "Received exceeding MIU (%d): got %d bytes SDU",
               llcp_cb.lcb.local_link_miu, info_length);
