@@ -327,10 +327,11 @@ void GKI_shutdown(void) {
 #if (FALSE == GKI_PTHREAD_JOINABLE)
       i = 0;
 
-      while ((gki_cb.com.OSWaitEvt[task_id - 1] != 0) && (++i < 10))
 #if (NXP_EXTNS == TRUE)
+      while ((gki_cb.com.OSWaitEvt[task_id - 1] != 0) && (++i < 15))
         usleep(2 * 1000);
 #else
+      while ((gki_cb.com.OSWaitEvt[task_id - 1] != 0) && (++i < 10))
         usleep(100 * 1000);
 #endif
 #else
