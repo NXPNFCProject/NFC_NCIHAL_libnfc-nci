@@ -469,7 +469,8 @@ uint32_t nfc_task(__attribute__((unused)) uint32_t arg) {
   }
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfc_task terminated");
-
+#if (NXP_EXTNS != TRUE)
   GKI_exit_task(GKI_get_taskid());
+#endif
   return 0;
 }

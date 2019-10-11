@@ -316,14 +316,19 @@ void GKI_shutdown(void) {
   for (task_id = GKI_MAX_TASKS; task_id > 0; task_id--) {
     if (gki_cb.com.OSRdyTbl[task_id - 1] != TASK_DEAD) {
       gki_cb.com.OSRdyTbl[task_id - 1] = TASK_DEAD;
-
       /* paranoi settings, make sure that we do not execute any mailbox events
        */
       gki_cb.com.OSWaitEvt[task_id - 1] &=
           ~(TASK_MBOX_0_EVT_MASK | TASK_MBOX_1_EVT_MASK | TASK_MBOX_2_EVT_MASK |
             TASK_MBOX_3_EVT_MASK);
       GKI_send_event(task_id - 1, EVENT_MASK(GKI_SHUTDOWN_EVT));
-
+#if (NXP_EXTNS == TRUE)
+      if (((task_id - 1) == BTU_TASK) && gki_cb.com.p_tick_cb &&
+          gki_cb.com.system_tick_running) {
+        gki_cb.com.system_tick_running = false;
+        (gki_cb.com.p_tick_cb)(false); /* stop system tick */
+      }
+#endif
 #if (FALSE == GKI_PTHREAD_JOINABLE)
       i = 0;
 
