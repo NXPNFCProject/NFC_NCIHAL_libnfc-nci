@@ -2043,6 +2043,51 @@ tNFC_STATUS RW_T4tNfceeInitCb(void) {
 
 /*******************************************************************************
 **
+** Function         RW_T4tNfceeUpdateCC
+**
+** Description      Updates the T4T data structures with CC info
+**
+** Returns          None
+**
+*******************************************************************************/
+void RW_T4tNfceeUpdateCC(uint8_t *ccInfo) {
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s Enter", __func__);
+  tRW_T4T_CB* p_t4t = &rw_cb.tcb.t4t;
+  BE_STREAM_TO_UINT16(p_t4t->cc_file.max_le, ccInfo);
+  BE_STREAM_TO_UINT16(p_t4t->cc_file.max_lc, ccInfo);
+
+  /* Get max bytes to read per command */
+  if (p_t4t->cc_file.max_le >= RW_T4T_MAX_DATA_PER_READ) {
+      p_t4t->max_read_size = RW_T4T_MAX_DATA_PER_READ;
+  } else {
+    p_t4t->max_read_size = p_t4t->cc_file.max_le;
+  }
+
+  /* Le: valid range is 0x01 to 0xFF */
+  if (p_t4t->max_read_size >= T4T_MAX_LENGTH_LE) {
+      p_t4t->max_read_size = T4T_MAX_LENGTH_LE;
+  }
+
+  /* Get max bytes to update per command */
+  if (p_t4t->cc_file.max_lc >= RW_T4T_MAX_DATA_PER_WRITE) {
+    p_t4t->max_update_size = RW_T4T_MAX_DATA_PER_WRITE;
+  } else {
+    p_t4t->max_update_size = p_t4t->cc_file.max_lc;
+  }
+  /* Lc: valid range is 0x01 to 0xFF */
+  if (p_t4t->max_update_size >= T4T_MAX_LENGTH_LC) {
+    p_t4t->max_update_size = T4T_MAX_LENGTH_LC;
+  }
+
+
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("%s le %d  lc: %d  max_read_size: %d max_update_size: %d", __func__,
+         p_t4t->cc_file.max_le, p_t4t->cc_file.max_lc, p_t4t->max_read_size, p_t4t->max_update_size);
+
+}
+
+/*******************************************************************************
+**
 ** Function         RW_T4tNfceeSelectApplication
 **
 ** Description      Selects T4T application using T4T AID

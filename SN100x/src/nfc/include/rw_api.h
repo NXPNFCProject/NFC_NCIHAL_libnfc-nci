@@ -1424,6 +1424,17 @@ extern tNFC_STATUS RW_T4tNfceeSelectApplication(void);
 
 /*******************************************************************************
 **
+** Function         RW_T4tNfceeUpdateCC
+**
+** Description      Updates the T4T data structures with CC info
+**
+** Returns          None
+**
+*******************************************************************************/
+void RW_T4tNfceeUpdateCC(uint8_t *ccInfo);
+
+/*******************************************************************************
+**
 ** Function         RW_T4tNfceeSelectFile
 **
 ** Description      Selects T4T Nfcee File

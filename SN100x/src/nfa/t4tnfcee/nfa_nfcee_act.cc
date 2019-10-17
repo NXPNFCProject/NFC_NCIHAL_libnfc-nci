@@ -30,6 +30,7 @@ using android::base::StringPrintf;
 
 extern bool nfc_debug_enabled;
 extern tNFC_STATUS nfa_t4tnfcee_proc_disc_evt(tNFA_T4TNFCEE_OP event);
+
 void nfa_t4tnfcee_handle_t4t_evt(tRW_EVENT event, tRW_DATA* p_data);
 void nfa_t4tnfcee_store_cc_info(NFC_HDR* p_data);
 void nfa_t4tnfcee_notify_rx_evt(void);
@@ -214,7 +215,8 @@ void nfa_t4tnfcee_store_cc_info(NFC_HDR* p_data) {
 
   uint16_t keyFileId;
   string valueFileLength;
-  const uint8_t jumpToFirstTLV = 0x07, skipTL = 0x02, tlvLen = 0x08;
+  const uint8_t skipTL = 0x02, tlvLen = 0x08;
+  uint8_t jumpToFirstTLV = 0x03; /*Le index*/
   uint16_t RemainingDataLen = 0;
   uint8_t* ccInfo;
 
@@ -225,6 +227,10 @@ void nfa_t4tnfcee_store_cc_info(NFC_HDR* p_data) {
         << StringPrintf("%s empty cc info", __func__);
     return;
   }
+  RW_T4tNfceeUpdateCC(ccInfo);
+  jumpToFirstTLV = 0x07;
+  ccInfo = (uint8_t*)(p_data + 1) + p_data->offset + jumpToFirstTLV;
+
   ccFileInfo.clear();
   RemainingDataLen =
       (p_data->len - jumpToFirstTLV - T4TNFCEE_SIZEOF_STATUS_BYTES);
