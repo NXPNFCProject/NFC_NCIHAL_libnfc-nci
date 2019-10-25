@@ -106,6 +106,9 @@ extern tNFA_HCI_CFG nfa_hci_cfg;
 extern uint8_t nfa_ee_max_ee_cfg;
 extern bool nfa_poll_bail_out_mode;
 bool isDownloadFirmwareCompleted = false;
+#if (NXP_EXTNS == TRUE)
+uint8_t fw_dl_status = HAL_NFC_FW_UPDATE_FAILED;
+#endif
 
 // Whitelist for hosts allowed to create a pipe
 // See ADM_CREATE_PIPE command in the ETSI test specification
@@ -996,6 +999,7 @@ bool NfcAdaptation::DownloadFirmware() {
   isDownloadFirmwareCompleted = false;
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: enter", func);
 #if (NXP_EXTNS == TRUE)
+  fw_dl_status = HAL_NFC_FW_UPDATE_FAILED;
   p_fwupdate_status_cback = p_cback;
   if (isNfcOn) {
     return true;
@@ -1025,6 +1029,9 @@ bool NfcAdaptation::DownloadFirmware() {
     HalWriteIntf(cmd_init_nci_size , cmd_init_nci);
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: try close HAL", func);
     status =mHal->close();
+  }
+  if (NfcAdaptation::GetInstance().p_fwupdate_status_cback) {
+    (*NfcAdaptation::GetInstance().p_fwupdate_status_cback)(fw_dl_status);
   }
 #else
   HalOpen(HalDownloadFirmwareCallback, HalDownloadFirmwareDataCallback);
@@ -1058,7 +1065,11 @@ void NfcAdaptation::HalDownloadFirmwareCallback(nfc_event_t event,
     case HAL_NFC_FW_UPDATE_STATUS_EVT:
       /* Notify app of FW Update status*/
       if (NfcAdaptation::GetInstance().p_fwupdate_status_cback) {
-        (*NfcAdaptation::GetInstance().p_fwupdate_status_cback)(event_status);
+        if (event_status == HAL_NFC_FW_UPDATE_START)
+          (*NfcAdaptation::GetInstance().p_fwupdate_status_cback)(event_status);
+        else {
+          fw_dl_status = event_status;
+        }
       }
       break;
 #endif
