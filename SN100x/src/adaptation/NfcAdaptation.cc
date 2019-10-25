@@ -186,6 +186,7 @@ class NfcDeathRecipient : public hidl_death_recipient {
 *******************************************************************************/
 NfcAdaptation::NfcAdaptation() {
   mCurrentIoctlData = nullptr;
+  p_fwupdate_status_cback = nullptr;
   memset(&mHalEntryFuncs, 0, sizeof(mHalEntryFuncs));
 #if (NXP_EXTNS == TRUE)
   nfcBootMode = NFA_NORMAL_BOOT_MODE;

@@ -798,7 +798,10 @@ static tNFA_DM_DISC_TECH_PROTO_MASK nfa_dm_disc_get_disc_mask(
 static void nfa_dm_disc_discovery_cback(tNFC_DISCOVER_EVT event,
                                         tNFC_DISCOVER* p_data) {
   tNFA_DM_RF_DISC_SM_EVENT dm_disc_event = NFA_DM_DISC_SM_MAX_EVENT;
-
+  if (!p_data) {
+    LOG(ERROR) << StringPrintf("NULL returning...");
+    return;
+  }
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("event:0x%X", event);
 
   switch (event) {

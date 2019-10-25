@@ -147,7 +147,9 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                   }
                   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
                          " NFCEE_UNRECOVERABLE_ERRROR  reset handling");
-                  nfa_hci_enable_one_nfcee();
+                  if (nfa_hci_enable_one_nfcee() == false) {
+                    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hci_enable_one_nfcee() failed");
+                  }
                   break;
               }
           }
@@ -291,7 +293,9 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                      if(nfa_hci_cb.next_nfcee_idx < nfa_hci_cb.num_nfcee) {
                        DLOG_IF(INFO, nfc_debug_enabled)
                           << StringPrintf("NFCEE_UNRECOVERABLE_ERRROR reset handling");
-                       nfa_hci_enable_one_nfcee();
+                       if (nfa_hci_enable_one_nfcee() == false) {
+                        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hci_enable_one_nfcee() failed");
+                       }
                      }
                      if(nfa_hci_cb.next_nfcee_idx == nfa_hci_cb.num_nfcee) {
                        nfa_hciu_send_get_param_cmd(NFA_HCI_ADMIN_PIPE,
