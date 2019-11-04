@@ -145,7 +145,7 @@ typedef uint8_t tNFC_STATUS;
 #define NFC_FAST_BOOT_MODE 1
 #define NFC_OSU_BOOT_MODE 2
 #define NFC_MINIMUM_BOOT_MODE 3
-#define UICC1_HOST ((unsigned char)0x02)
+#define UICC1_HOST ((unsigned char)0x80)
 #define UICC2_HOST ((unsigned char)0x81)
 #define DH_HOST ((unsigned char)0x00)
 #define ESE_HOST ((unsigned char)0xC0)
