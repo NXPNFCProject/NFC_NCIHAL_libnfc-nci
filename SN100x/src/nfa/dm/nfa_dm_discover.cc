@@ -2547,6 +2547,9 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
       if ((!old_sleep_wakeup_flag) || (!nfa_dm_cb.disc_cb.deact_pending)) {
         nfa_dm_send_deactivate_cmd(NFA_DEACTIVATE_TYPE_DISCOVERY);
       }
+#if(NXP_EXTNS == TRUE)
+      nfa_dm_act_conn_cback_notify(NFA_RW_INTF_ERROR_EVT, NULL);
+#endif
       break;
 
     default:
