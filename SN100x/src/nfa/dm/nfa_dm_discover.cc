@@ -2249,6 +2249,18 @@ static void nfa_dm_disc_sm_w4_all_discoveries(tNFA_DM_RF_DISC_SM_EVENT event,
          * NCI_DISCOVER_NTF_LAST_ABORT */
         if (p_data->nfc_discover.result.more != NCI_DISCOVER_NTF_MORE) {
           nfa_dm_disc_new_state(NFA_DM_RFST_W4_HOST_SELECT);
+#if (NXP_EXTNS == TRUE)
+          if (nfa_dm_cb.disc_cb.disc_flags & NFA_DM_DISC_FLAGS_STOPPING) {
+              /* Take care of  deact_pending request during presence check*/
+              nfa_dm_cb.disc_cb.deact_pending = false;
+              /* Avoid back to back RF_DEACTIVATE_CMD */
+              nfa_dm_cb.disc_cb.disc_flags |= NFA_DM_DISC_FLAGS_W4_RSP;
+              /* stop discovery */
+              NFC_Deactivate(NFA_DEACTIVATE_TYPE_IDLE);
+              /* Shall not proceed with SELCT_CMD as RF_DEACTIVATE is requested */
+              break;
+          }
+#endif
         }
         nfa_dm_notify_discovery(p_data);
       }
@@ -2547,6 +2559,12 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
                  NFC_DEACTIVATE_TYPE_DISCOVERY) {
         nfa_dm_disc_new_state(NFA_DM_RFST_DISCOVERY);
         if (nfa_dm_cb.disc_cb.disc_flags & NFA_DM_DISC_FLAGS_STOPPING) {
+#if (NXP_EXTNS == TRUE)
+          /* Take care of  deact_pending request during presence check*/
+          nfa_dm_cb.disc_cb.deact_pending = false;
+          /* Avoid back to back RF_DEACTIVATE_CMD */
+          nfa_dm_cb.disc_cb.disc_flags |= NFA_DM_DISC_FLAGS_W4_RSP;
+#endif
           /* stop discovery */
           NFC_Deactivate(NFA_DEACTIVATE_TYPE_IDLE);
         }
@@ -3347,7 +3365,11 @@ void nfa_dm_p2p_timer_event() {
   if (p2p_prio_logic_data.isodep_detected == true) {
     DLOG_IF(INFO, nfc_debug_enabled)
         << StringPrintf("Deactivate and Restart RF discovery");
+#if(NXP_EXTNS ==TRUE)
+    nfa_dm_rf_deactivate(NFC_DEACTIVATE_TYPE_IDLE);
+#else
     nci_snd_deactivate_cmd(NFC_DEACTIVATE_TYPE_IDLE);
+#endif
   }
 }
 
