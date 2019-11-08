@@ -770,6 +770,9 @@ void NfcAdaptation::GetNxpConfigs(
   configMap.emplace(
       NAME_NXP_SE_APDU_GATE_SUPPORT,
       ConfigValue(inpOutData.out.data.nxpConfigs.seApduGateEnabled));
+  configMap.emplace(
+      NAME_OFF_HOST_SIM2_PIPE_ID,
+      ConfigValue(inpOutData.out.data.nxpConfigs.offHostSIM2PipeId));
 }
 #endif
 /*******************************************************************************
