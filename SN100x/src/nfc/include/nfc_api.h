@@ -59,7 +59,7 @@
 #define NFC_NXP_MW_VERSION_MAJ (0x00) /* MW Major Version */
 #define NFC_NXP_MW_VERSION_MIN (0x09) /* MW Minor Version */
 #define NFC_NXP_MW_CUSTOMER_ID (0x00) /* MW Customer Id */
-#define NFC_NXP_MW_RC_VERSION (0x02) /* MW Minor Version */
+#define NFC_NXP_MW_RC_VERSION (0x03) /* MW Minor Version */
 #define NFC_EE_DISC_OP_REMOVE 1
 #endif
 /* NFC application return status codes */
