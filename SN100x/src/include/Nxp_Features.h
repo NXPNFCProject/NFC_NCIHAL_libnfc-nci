@@ -216,7 +216,7 @@ extern tNfc_featureList nfcFL;
         if ((chipType == sn100u)) {                                         \
             CONFIGURE_FEATURELIST_NFCC(sn100u)                              \
             nfcFL.nfccFL._NFCC_SPI_FW_DOWNLOAD_SYNC = true;                 \
-            nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED = 4;                      \
+            nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED = 5;                      \
             \
             \
             nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD = true;                     \
