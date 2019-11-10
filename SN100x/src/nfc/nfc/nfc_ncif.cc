@@ -1603,6 +1603,13 @@ void nfc_ncif_proc_init_rsp(NFC_HDR* p_msg) {
 
       nfc_cb.p_nci_init_rsp = p_msg;
       check_nfcee_session_and_reset();
+#if(NXP_EXTNS == TRUE)
+      if (NfcAdaptation::GetInstance().NFA_GetBootMode() == NFC_FAST_BOOT_MODE) {
+          nfc_set_state(NFC_STATE_IDLE);
+          nfa_sys_cback_notify_MinEnable_complete(0);
+      }
+      else
+#endif
       nfc_cb.p_hal->core_initialized(p_msg->len, p);
     }
   } else {
