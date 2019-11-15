@@ -2068,6 +2068,7 @@ void rw_i93_sm_read_ndef(NFC_HDR* p_resp) {
 
   if (length == 0) {
     android_errorWriteLog(0x534e4554, "122035770");
+    rw_i93_handle_error(NFC_STATUS_FAILED);
     return;
   }
 
