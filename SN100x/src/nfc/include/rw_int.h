@@ -629,7 +629,7 @@ typedef struct {
 /* Mifare Classic RW Control Block */
 
 typedef struct {
-  uint8_t block;
+  uint16_t block;
   bool auth;
 } tRW_MFC_BLOCK;
 
@@ -649,8 +649,8 @@ typedef struct {
   uint8_t selres;
   uint8_t tlv_detect;       /* TLV type under detection */
   uint16_t ndef_length;     /* length of NDEF data */
-  uint8_t ndef_start_pos;   /* NDEF start position */
-  uint8_t ndef_first_block; /* Frst block containing the NDEF */
+  uint16_t ndef_start_pos;   /* NDEF start position */
+  uint16_t ndef_first_block; /* Frst block containing the NDEF */
   uint8_t* p_update_data;   /* pointer of data to update */
   uint16_t rw_length;       /* remaining bytes to read/write */
   uint16_t rw_offset;       /* remaining offset to read/write */
@@ -661,7 +661,7 @@ typedef struct {
   TIMER_LIST_ENT mfc_timer; /* timeout for each API call */
   uint16_t work_offset;     /* Working byte offset */
   uint8_t* p_ndef_buffer;   /* Buffer to store ndef message */
-  uint8_t current_block;
+  uint16_t current_block;
   NFC_HDR* p_cur_cmd_buf; /* Copy of current command, for retx/send after sector
                              change */
 
