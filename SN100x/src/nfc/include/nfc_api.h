@@ -164,7 +164,9 @@ typedef uint8_t tNFC_STATUS;
  * NFC Config Parameter IDs defined by NXP NFC
  **********************************************/
 #define NXP_NFC_SET_CONFIG_PARAM_EXT \
-  ((unsigned char)0xA0) /* NXP NFC set config extension ID*/
+  ((unsigned char)0xA0) /* NXP NFC set config extension ID 0*/
+#define NXP_NFC_SET_CONFIG_PARAM_EXT_ID1 \
+  ((unsigned char)0xA1) /* NXP NFC set config extension ID 1*/
 #define NXP_NFC_PARAM_ID_SWP1                \
   ((unsigned char)0xEC) /* SWP1 parameter ID \
                            UICC*/

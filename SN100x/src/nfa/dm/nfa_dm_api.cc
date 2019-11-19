@@ -331,7 +331,7 @@ tNFA_STATUS NFA_GetConfig(uint8_t num_ids, tNFA_PMID* p_param_ids) {
   propConfigCnt = 0;
 
   for (idx = 0; idx < num_ids; idx++) {
-    if (*params == 0xA0) {
+    if (*params == NXP_NFC_SET_CONFIG_PARAM_EXT || *params == NXP_NFC_SET_CONFIG_PARAM_EXT_ID1) {
       params++;
       propConfigCnt++;
     }

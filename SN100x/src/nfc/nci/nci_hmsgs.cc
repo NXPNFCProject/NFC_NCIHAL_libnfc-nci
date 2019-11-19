@@ -136,7 +136,7 @@ uint8_t nci_snd_core_get_config(uint8_t* param_ids, uint8_t num_ids) {
   uint8_t* params = param_ids;
   propConfigCnt = 0;
   for (idx = 0; idx < num_ids; idx++) {
-    if (*params == 0xA0) {
+    if (*params == NXP_NFC_SET_CONFIG_PARAM_EXT || *params == NXP_NFC_SET_CONFIG_PARAM_EXT_ID1) {
       params++;
       propConfigCnt++;
     }
