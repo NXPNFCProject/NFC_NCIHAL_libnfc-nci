@@ -25,6 +25,7 @@
 #include "nfa_dm_int.h"
 #include "nfa_mem_co.h"
 #include "nfa_nfcee_int.h"
+#include "nci_defs_extns.h"
 
 using android::base::StringPrintf;
 
@@ -590,7 +591,7 @@ bool isDataLenBelowMaxFileCapacity(void) {
  **
  *******************************************************************************/
 tNFC_STATUS getWritePreconditionStatus() {
-  if (!isWritePermitted()) return NFA_STATUS_FAILED;
+  if (!isWritePermitted()) return NFA_STATUS_READ_ONLY;
 
   if (nfa_t4tnfcee_cb.cur_fileId == NDEF_FILE_ID) {
     tNDEF_STATUS ndef_status;
