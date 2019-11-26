@@ -289,7 +289,9 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                     break;
                  } else if (nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_REINIT) {
                      nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_REINIT);
-                     nfa_hci_cb.next_nfcee_idx += 1;
+
+                     nfa_hci_cb.ee_info[nfa_hci_cb.next_nfcee_idx].hci_enable_state = NFA_HCI_FL_EE_ENABLED;
+
                      if(nfa_hci_cb.next_nfcee_idx < nfa_hci_cb.num_nfcee) {
                        DLOG_IF(INFO, nfc_debug_enabled)
                           << StringPrintf("NFCEE_UNRECOVERABLE_ERRROR reset handling");
@@ -301,12 +303,6 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                        nfa_hciu_send_get_param_cmd(NFA_HCI_ADMIN_PIPE,
                           NFA_HCI_HOST_LIST_INDEX);
                        nfa_hci_handle_pending_host_reset();
-                       if (nfa_hciu_find_dyn_apdu_pipe_for_host (NFA_HCI_FIRST_PROP_HOST) == NULL
-                               && nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD )
-                       {/* as part of NFCEE_UNRECOVERABLE_ERRROR reset handling, if NFCEE Power and link
-                         * has been set to alwaysOn then reset the link and keep only power alwaysOn */
-                         nfa_hci_startup_complete(NFA_STATUS_OK);
-                       }
 
                        tNFA_HCI_EVT_DATA evt_data;
                        evt_data.init_completed.status = NFA_STATUS_OK;
@@ -833,7 +829,8 @@ void nfa_hci_startup_complete(tNFA_STATUS status) {
     nfa_hci_cb.hci_state = NFA_HCI_STATE_DISABLED;
 #if(NXP_EXTNS == TRUE)
   if (nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD) {
-        if (nfa_hci_cb.curr_nfcee == NFA_HCI_FIRST_PROP_HOST) {
+        if (nfa_hci_cb.next_nfcee_idx == nfa_hci_cb.num_nfcee) {
+            DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("All NFCEEs OK update power link status");
             switch (nfa_ee_cb.ese_prv_pwr_cfg) {
             case 0xFF:
                 NFC_NfceePLConfig(NFA_HCI_FIRST_PROP_HOST, 0x01);
