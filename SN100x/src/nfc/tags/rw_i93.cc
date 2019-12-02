@@ -60,7 +60,12 @@ using android::base::StringPrintf;
 extern bool nfc_debug_enabled;
 
 /* Response timeout     */
+#if (NXP_EXTNS == TRUE)
+#define RW_I93_TOUT_RESP RW_I93_MAX_RSP_TIMEOUT
+#else
 #define RW_I93_TOUT_RESP 1000
+#endif
+
 /* stay quiet timeout   */
 #define RW_I93_TOUT_STAY_QUIET 200
 /* max reading data if read multi block is supported */
@@ -3068,14 +3073,7 @@ static void rw_i93_data_cback(__attribute__((unused)) uint8_t conn_id,
         p_i93->p_retry_cmd = nullptr;
         p_i93->retry_count = 0;
       }
-
       rw_i93_handle_error((tNFC_STATUS)(*(uint8_t*)p_data));
-#if(NXP_EXTNS == TRUE)
-      if(event == NFC_DATA_CEVT) {
-        p_resp = (NFC_HDR*)p_data->data.p_data;
-        GKI_freebuf(p_resp);
-      }
-#endif
     } else {
       /* free retry buffer */
       if (p_i93->p_retry_cmd) {

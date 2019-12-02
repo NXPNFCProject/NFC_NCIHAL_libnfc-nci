@@ -164,7 +164,9 @@ enum {
   RW_T3BT_MAX_EVT              /* Max Evt Number for T3BT tag*/
 #endif
 };
-
+#if (NXP_EXTNS == TRUE)
+#define RW_I93_MAX_RSP_TIMEOUT 1000
+#endif
 #define RW_RAW_FRAME_EVT 0xFF
 
 typedef uint8_t tRW_EVENT;
