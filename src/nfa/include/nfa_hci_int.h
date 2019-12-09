@@ -85,6 +85,8 @@ extern uint8_t HCI_LOOPBACK_DEBUG;
 #define NFA_HCI_SET_CONFIG_EVENT 0x01
 /* event to clear the nfcee config bit*/
 #define NFA_HCI_CLEAR_CONFIG_EVENT 0x02
+
+#define T4TNFCEE_TARGET_HANDLE 0x10
 #endif
 
 /* HCI SW Version number                       */

@@ -340,6 +340,7 @@ typedef struct {
   tNFA_NFC_PROTOCOL pa_protocol; /* Passive poll A SWP Reader   */
   tNFA_NFC_PROTOCOL pb_protocol; /* Passive poll B SWP Reader   */
   uint8_t ee_req_op;             /* add or remove req ntf*/
+  bool t4tNdefFromNfcc;
 #endif
 } tNFA_EE_ECB;
 

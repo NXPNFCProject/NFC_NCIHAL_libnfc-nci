@@ -145,6 +145,8 @@ typedef struct {
   uint8_t etsiReaderEnable;
   uint8_t techAbfRoute;
   uint8_t techAbfPwrState;
+  uint8_t wTagSupport;
+  uint8_t t4tNfceePwrState;
   nxp_nfc_scrResetEmvcoCmd_t scrResetEmvco;
 } nxp_nfc_config_t;
 /*

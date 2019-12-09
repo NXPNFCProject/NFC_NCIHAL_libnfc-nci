@@ -356,8 +356,12 @@ void NfcAdaptation::GetNxpConfigs(
                     ConfigValue(inpOutData.out.data.nxpConfigs.etsiReaderEnable));
   configMap.emplace(NAME_DEFAULT_TECH_ABF_ROUTE,
                     ConfigValue(inpOutData.out.data.nxpConfigs.techAbfRoute));
-    configMap.emplace(NAME_DEFAULT_TECH_ABF_PWR_STATE,
+  configMap.emplace(NAME_DEFAULT_TECH_ABF_PWR_STATE,
                     ConfigValue(inpOutData.out.data.nxpConfigs.techAbfPwrState));
+  configMap.emplace(NAME_WTAG_SUPPORT,
+                    ConfigValue(inpOutData.out.data.nxpConfigs.wTagSupport));
+  configMap.emplace(NAME_DEFAULT_T4TNFCEE_AID_POWER_STATE,
+                    ConfigValue(inpOutData.out.data.nxpConfigs.t4tNfceePwrState));
   if (inpOutData.out.data.nxpConfigs.scrResetEmvco.len) {
     std::vector scrResetEmvcoCmd(
         inpOutData.out.data.nxpConfigs.scrResetEmvco.cmd,
