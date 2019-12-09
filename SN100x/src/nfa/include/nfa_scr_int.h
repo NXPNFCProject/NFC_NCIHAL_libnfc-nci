@@ -95,6 +95,7 @@ enum {
   NFA_SCR_APP_START_REQ_EVT,
   NFA_SCR_APP_STOP_REQ_EVT,
   NFA_SCR_CORE_SET_CONF_RSP_EVT,
+  NFA_SCR_CORE_GET_CONF_RSP_EVT,
   NFA_SCR_RF_DISCOVER_MAP_RSP_EVT,
   NFA_SCR_RF_DISCOVERY_RSP_EVT,
   NFA_SCR_RF_DEACTIVATE_RSP_EVT,
@@ -126,6 +127,7 @@ typedef enum {
   NFA_SCR_NO_ERROR = 0x00,
   NFA_SCR_ERROR_GET_PROP_SET_CONF_CMD,  /* Flag is not present in config file */
   NFA_SCR_ERROR_SEND_PROP_SET_CONF_CMD, /* Sending prop SET_CONFIG_CMD failed */
+  NFA_SCR_ERROR_SEND_PROP_GET_CONF_CMD, /* Sending prop GET_CONFIG_CMD failed */
   NFA_SCR_ERROR_START_RF_DISC,          /* Sending RF_DISCOVER_CMD failed     */
   NFA_SCR_ERROR_NCI_RSP_STATUS_FAILED,  /* Received NFCC_RSP with status failed */
   NFA_SCR_ERROR_RECOVERY_STARTED,       /* eSE recovery is started            */
@@ -153,6 +155,7 @@ typedef enum {
   NFA_SCR_SUBSTATE_WAIT_DEACTIVATE_RSP,
   NFA_SCR_SUBSTATE_WAIT_DEACTIVATE_NTF,
   NFA_SCR_SUBSTATE_WAIT_PROP_SET_CONF_RSP,
+  NFA_SCR_SUBSTATE_WAIT_PROP_GET_CONF_RSP,
   NFA_SCR_SUBSTATE_WAIT_DISC_MAP_RSP,
   NFA_SCR_SUBSTATE_WAIT_POLL_RSP,
   NFA_SCR_SUBSTATE_WAIT_ACTIVETED_NTF,
@@ -184,6 +187,7 @@ typedef struct {
   TIMER_LIST_ENT scr_rec_tle;
   tNFA_SCR_CBACK* scr_cback;
   tNFA_SCR_EVT_CBACK* scr_evt_cback;
+  tNFA_GET_CONFIG p_nfa_get_confg;
   uint32_t tag_op_timeout;
   uint32_t deact_ntf_timeout;
   uint8_t state;

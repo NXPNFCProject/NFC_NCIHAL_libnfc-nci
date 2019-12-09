@@ -45,6 +45,8 @@ extern bool nfc_debug_enabled;
 #define NFC_SWP_RD_NUM_INTERFACE_MAP 1
 #define NFA_SCR_CARD_REMOVE_TIMEOUT 1000   // 1 Second
 #define NFA_SCR_RECOVERY_TIMEOUT 5 * 1000  // 5 Second
+#define LPCD_BYTE_POS 12
+#define LPCD_BIT_POS   7
 #define IS_STATUS_ERROR(status) {                                      \
   if (NFA_STATUS_OK != status) {                                       \
     return nfa_scr_error_handler(NFA_SCR_ERROR_NCI_RSP_STATUS_FAILED); \
@@ -78,6 +80,8 @@ static bool nfa_scr_trigger_stop_seq(void);
 static bool nfa_scr_finalize(void);
 static void nfa_scr_send_prop_set_conf(bool set);
 static vector<uint8_t> nfa_scr_get_prop_set_conf_cmd(bool set);
+static bool nfa_scr_handle_get_conf_rsp(uint8_t status);
+static void nfa_scr_send_prop_get_conf(void);
 static bool nfa_scr_handle_deact_rsp_ntf(uint8_t status);
 static bool nfa_scr_send_discovermap_cmd(uint8_t status);
 static bool nfa_scr_start_polling(uint8_t status);
@@ -196,6 +200,9 @@ bool nfa_scr_cback(uint8_t event, uint8_t status) {
       [[fallthrough]];
     case NFA_SCR_RF_DEACTIVATE_NTF_EVT:
       stat = nfa_scr_handle_deact_rsp_ntf(status);
+      break;
+    case NFA_SCR_CORE_GET_CONF_RSP_EVT:
+      stat = nfa_scr_handle_get_conf_rsp(status);
       break;
     case NFA_SCR_CORE_SET_CONF_RSP_EVT:
       stat = nfa_scr_send_discovermap_cmd(status);
@@ -419,6 +426,8 @@ bool nfa_scr_error_handler(tNFA_SCR_ERROR error) {
   switch (error) {
     case NFA_SCR_ERROR_GET_PROP_SET_CONF_CMD:
       [[fallthrough]];
+    case NFA_SCR_ERROR_SEND_PROP_GET_CONF_CMD:
+      [[fallthrough]];
     case NFA_SCR_ERROR_SEND_PROP_SET_CONF_CMD:
       if(IS_SCR_START_IN_PROGRESS) {
         event = NFA_SCR_START_FAIL_EVT;
@@ -508,9 +517,8 @@ static bool nfa_scr_handle_start_req() {
   if(IS_SCR_APP_REQESTED && nfa_scr_cb.sub_state == NFA_SCR_SUBSTATE_WAIT_START_RDR_NTF) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("EMV-CO polling profile");
     nfa_scr_cb.state = NFA_SCR_STATE_START_IN_PROGRESS;
-    nfa_scr_send_prop_set_conf(true);/*EMV-CO Poll*/
+    nfa_scr_send_prop_get_conf();
   }
-
   return true;
 }
 
@@ -639,17 +647,37 @@ void nfa_scr_send_prop_set_conf_cb(uint8_t event, uint16_t param_len, uint8_t *p
  *******************************************************************************/
 static vector<uint8_t> nfa_scr_get_prop_set_conf_cmd(bool set) {
   vector<uint8_t> cmd_buf;
+  bool resize_cmd = false;
   if (NfcConfig::hasKey(NAME_NXP_PROP_RESET_EMVCO_CMD)) {
     cmd_buf = NfcConfig::getBytes(NAME_NXP_PROP_RESET_EMVCO_CMD);
   }
   if(cmd_buf.size() != 0x08) {
     DLOG_IF(ERROR, nfc_debug_enabled)
             << StringPrintf("%s: Prop set conf is not provided", __func__);
+    cmd_buf.resize(0);
     nfa_scr_error_handler(NFA_SCR_ERROR_GET_PROP_SET_CONF_CMD);
-  } else if(set) {
-    cmd_buf[7] = nfa_scr_cb.poll_prof_sel_cfg; /*EMV-CO Poll for certification*/
+  } else {
+    if(set) {
+      cmd_buf[7] = nfa_scr_cb.poll_prof_sel_cfg; /*EMV-CO Poll for certification*/
+      if(nfa_scr_cb.p_nfa_get_confg.param_tlvs[LPCD_BYTE_POS] & (1 << LPCD_BIT_POS)) {
+        /* Disable the LPCD */
+        nfa_scr_cb.p_nfa_get_confg.param_tlvs[LPCD_BYTE_POS] &= ~(1 << LPCD_BIT_POS);
+        resize_cmd = true;
+      }
+    } else {
+      if(!(nfa_scr_cb.p_nfa_get_confg.param_tlvs[LPCD_BYTE_POS] & (1 << LPCD_BIT_POS))) {
+        /* Eable the LPCD */
+        nfa_scr_cb.p_nfa_get_confg.param_tlvs[LPCD_BYTE_POS] |= (1 << LPCD_BIT_POS);
+        resize_cmd = true;
+      }
+    }
+    if(resize_cmd) {//resize the vector here
+      cmd_buf.at(2) += (nfa_scr_cb.p_nfa_get_confg.tlv_size - 2); //Modified len
+      cmd_buf.at(3) = 2; //Modify number of TLVs
+      cmd_buf.insert(cmd_buf.end(), nfa_scr_cb.p_nfa_get_confg.param_tlvs,
+              nfa_scr_cb.p_nfa_get_confg.param_tlvs + (nfa_scr_cb.p_nfa_get_confg.tlv_size - 2));
+    }
   }
-
   return cmd_buf;
 }
 
@@ -669,7 +697,7 @@ static void nfa_scr_send_prop_set_conf(bool set) {
           << StringPrintf("%s: enter status = %s", __func__, (set?"Set":"Reset"));
 
   cmd_buf = nfa_scr_get_prop_set_conf_cmd(set);
-  if(cmd_buf.size() != 0x08) {
+  if(!cmd_buf.size()) {
     return;
   }
 
@@ -684,15 +712,103 @@ static void nfa_scr_send_prop_set_conf(bool set) {
     nfa_scr_error_handler(NFA_SCR_ERROR_SEND_PROP_SET_CONF_CMD);
   }
 }
+
+/*******************************************************************************
+ **
+ ** Function:        nfa_scr_handle_get_conf_rsp
+ **
+ ** Description:     This API, based on the state, will send a prop set config
+ **                  to enable and/or disable the NFC Forum mode & LPCD
+ **
+ ** Returns:         True if response is expected and SET_CONF sends successfully
+ **                  otherwise false
+ **
+ *******************************************************************************/
+static bool nfa_scr_handle_get_conf_rsp(uint8_t status) {
+  bool is_expected =  false;
+  bool start_emvco_polling = false;
+  DLOG_IF(INFO, nfc_debug_enabled)
+          << StringPrintf("%s: enter status = %u", __func__, status);
+
+  if(nfa_scr_cb.sub_state == NFA_SCR_SUBSTATE_WAIT_PROP_GET_CONF_RSP) {
+    switch(nfa_scr_cb.state) {
+      case NFA_SCR_STATE_START_IN_PROGRESS:
+        start_emvco_polling = true;
+        [[fallthrough]];
+      case NFA_SCR_STATE_STOP_IN_PROGRESS:
+        is_expected = true;
+        break;
+    }
+  }
+
+  if (is_expected) {
+    IS_STATUS_ERROR(status);
+    nfa_scr_send_prop_set_conf(start_emvco_polling);
+  }
+  return is_expected;
+}
+
+/*******************************************************************************
+ **
+ ** Function:        nfa_scr_send_prop_get_conf_cb
+ **
+ ** Description:     callback for Proprietary set Config command
+ **
+ ** Returns:         void
+ **
+ *******************************************************************************/
+void nfa_scr_send_prop_get_conf_cb(uint8_t event, uint16_t param_len, uint8_t *p_param) {
+  (void)event;
+
+  if(p_param) {
+    if(nfa_scr_cb.scr_evt_cback != nullptr) {
+      nfa_scr_cb.p_nfa_get_confg.tlv_size = p_param[2];
+      nfa_scr_cb.p_nfa_get_confg.param_tlvs = &p_param[5];
+      nfa_scr_cb.scr_evt_cback(NFA_SCR_CORE_GET_CONF_RSP_EVT,p_param[3]);
+      nfa_scr_cb.p_nfa_get_confg.tlv_size = 0;
+      nfa_scr_cb.p_nfa_get_confg.param_tlvs = nullptr;
+    }
+    DLOG_IF(ERROR, nfc_debug_enabled) << StringPrintf(
+        "%s: param_len=%u, p_param=%p", __func__, param_len, p_param);
+  }
+  return;
+}
+
+/*******************************************************************************
+ **
+ ** Function:        nfa_scr_send_prop_get_conf
+ **
+ ** Description:     Send NFC GET CONF COMMAND
+ **
+ ** Returns:         None
+ **
+ *******************************************************************************/
+static void nfa_scr_send_prop_get_conf(void) {
+  tNFA_STATUS stat = NFA_STATUS_FAILED;
+  vector<uint8_t> cmd_buf {0x20, 0x03, 0x03, 0x01, 0xA0, 0x68};
+  DLOG_IF(INFO, nfc_debug_enabled)
+          << StringPrintf("%s: enter", __func__);
+
+  stat = NFA_SendRawVsCommand(cmd_buf.size(),(uint8_t*)&cmd_buf[0], nfa_scr_send_prop_get_conf_cb);
+
+  if (stat == NFA_STATUS_OK) {
+    LOG(INFO) << StringPrintf("%s: Success NFA_SendRawVsCommand", __func__);
+    nfa_scr_cb.sub_state = NFA_SCR_SUBSTATE_WAIT_PROP_GET_CONF_RSP;
+  } else {
+    DLOG_IF(ERROR, nfc_debug_enabled) << StringPrintf("%s: Failed NFA_SendRawVsCommand", __func__);
+    nfa_scr_error_handler(NFA_SCR_ERROR_SEND_PROP_GET_CONF_CMD);
+  }
+}
+
 /*******************************************************************************
  **
  ** Function:        nfa_scr_handle_deact_rsp_ntf
  **
- ** Description:     This API, based on the state, either will send a prop set
+ ** Description:     This API, based on the state, either will send a prop get
  **                  config or will start a timer to receive RF_DEACTIVATE_NTF &
  **                  Notify app of REMOVE_CARD_NTF periodically.
  **
- ** Returns:         True if response is expected and SET_CONF sends successfully
+ ** Returns:         True if response is expected and GET_CONF sends successfully
  **                  otherwise false
  **
  *******************************************************************************/
@@ -724,8 +840,7 @@ static bool nfa_scr_handle_deact_rsp_ntf(uint8_t status) {
             nfa_sys_stop_timer(&nfa_scr_cb.scr_tle);
           }
           nfa_scr_cb.state = NFA_SCR_STATE_STOP_IN_PROGRESS;
-          nfa_scr_send_prop_set_conf(false);/* Nfc-Forum Poll */
-          DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFC forum polling profile");
+          nfa_scr_send_prop_get_conf();
           break;
        }
     }
