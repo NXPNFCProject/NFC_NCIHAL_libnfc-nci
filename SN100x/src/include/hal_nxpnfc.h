@@ -282,7 +282,8 @@ typedef struct nxpnfc_nci_device{
  * NfcFwUpdateStatus: enumerates the FW update status of NFCC.
  */
 enum NfcFwUpdateStatus {
-  HAL_NFC_FW_UPDATE_START = 0x01,
+  HAL_NFC_FW_UPDATE_INVALID = 0x00,
+  HAL_NFC_FW_UPDATE_START,
   HAL_NFC_FW_UPDATE_SCUCCESS,
   HAL_NFC_FW_UPDATE_FAILED,
 };
