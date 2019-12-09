@@ -173,8 +173,6 @@ bool nfa_scr_is_req_evt(uint8_t event, uint8_t status) {
   case NFA_RF_DISCOVERY_STARTED_EVT:         /* 0x30 */
     evt = NFA_SCR_RF_DISCOVERY_RSP_EVT;
     break;
-  case NFA_RF_DISCOVERY_STOPPED_EVT:         /* 0x31 */
-    [[fallthrough]];
   case NFA_DM_RF_DEACTIVATE_RSP:             /* 0x07 */
     evt = NFA_SCR_RF_DEACTIVATE_RSP_EVT;
     break;

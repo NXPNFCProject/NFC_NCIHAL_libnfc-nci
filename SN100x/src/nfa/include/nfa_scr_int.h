@@ -86,6 +86,7 @@ enum {
   NFA_SCR_RM_CARD_TIMEOUT_EVT,       /* Notify REMOVE_CARD_EVT to app and
                                         start timer again for the same    */
   NFA_SCR_ERROR_REC_TIMEOUT_EVT,
+  NFA_SCR_RDR_REQ_GUARD_TIMEOUT_EVT,
 };
 
 /* NFA SCR (Reader) events requested from other libnfc-nci modules */
@@ -104,6 +105,7 @@ enum {
   NFA_SCR_ESE_RECOVERY_START_EVT,
   NFA_SCR_ESE_RECOVERY_COMPLETE_EVT,
   NFA_SCR_MULTIPLE_TARGET_DETECTED_EVT,
+  NFA_SCR_UNKOWN_EVT,
 };
 
 /* NFA SCR (Reader) events to be posted to JNI */
@@ -185,16 +187,22 @@ typedef struct {
   tNFA_SCR_ERROR error;
   TIMER_LIST_ENT scr_tle;
   TIMER_LIST_ENT scr_rec_tle;
+  TIMER_LIST_ENT scr_guard_tle; /* shall be started only if NXP_RDR_REQ_GUARD_TIME is non-ZERO */
   tNFA_SCR_CBACK* scr_cback;
   tNFA_SCR_EVT_CBACK* scr_evt_cback;
   tNFA_GET_CONFIG p_nfa_get_confg;
   uint32_t tag_op_timeout;
+  int32_t rdr_req_guard_time;
   uint32_t deact_ntf_timeout;
   uint8_t state;
   uint8_t sub_state;
   uint8_t poll_prof_sel_cfg;
+  uint8_t last_scr_req;
   bool app_stop_req;
   bool wait_for_deact_ntf;
+  uint8_t is_timer_started:1;   /* shall be used/set only if NXP_RDR_REQ_GUARD_TIME is non-ZERO */
+  uint8_t restart_emvco_poll:1; /* shall be used/set only if NXP_RDR_REQ_GUARD_TIME is non-ZERO */
+  /**************************************/
 } tNFA_SCR_CB;
 
 /******************************************************************************

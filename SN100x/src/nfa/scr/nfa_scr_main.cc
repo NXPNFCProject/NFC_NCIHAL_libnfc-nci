@@ -32,6 +32,7 @@
 #include "nfc_config.h"
 #include "nfa_rw_api.h"
 #include "nfa_ee_int.h"
+#include "nfa_dm_int.h"
 #include "nfa_scr_int.h"
 
 using android::base::StringPrintf;
@@ -62,6 +63,9 @@ extern bool nfc_debug_enabled;
 #define IS_SCR_ERROR              (nfa_scr_cb.error != NFA_SCR_NO_ERROR)
 #define IS_NO_SCR_ERROR              (nfa_scr_cb.error == NFA_SCR_NO_ERROR)
 #define IS_EVT_APP_STOP_REQUEST   (event == NFA_SCR_APP_STOP_REQ_EVT)
+#define IS_RDR_REQUEST(event) ((event) == NFA_SCR_START_REQ_EVT || (event) == NFA_SCR_STOP_REQ_EVT)
+#define IS_EMVCO_RESTART_REQ ((nfa_scr_cb.sub_state == NFA_SCR_SUBSTATE_WAIT_DEACTIVATE_RSP)\
+        || (nfa_scr_cb.sub_state == NFA_SCR_SUBSTATE_WAIT_DEACTIVATE_NTF))
 /******************************************************************************
  **  Global Variables
  *****************************************************************************/
@@ -89,7 +93,9 @@ static bool nfa_scr_rdr_processed(uint8_t status);
 static bool nfa_scr_handle_act_ntf(uint8_t status);
 static void nfa_scr_tag_op_timeout_handler(void);
 static void nfa_scr_rm_card_timeout_handler(void);
+static void nfa_scr_rdr_req_guard_timeout_handler(void);
 static bool nfa_scr_is_evt_allowed(uint8_t event);
+static bool is_emvco_polling_restart_req(void);
 
 
 
@@ -99,7 +105,7 @@ static const tNFA_SYS_REG nfa_scr_sys_reg = {nullptr, nfa_scr_evt_hdlr,
 /******************************************************************************
  **  NFA SCR callback to be called from other modules
  *****************************************************************************/
-bool nfa_scr_cback(uint8_t event, uint8_t* p_data);
+bool nfa_scr_cback(uint8_t event, uint8_t status);
 
 /*******************************************************************************
 **
@@ -118,20 +124,11 @@ void nfa_scr_init(void) {
   nfa_scr_cb.state = NFA_SCR_STATE_STOPPED;
   nfa_scr_cb.error = NFA_SCR_NO_ERROR;
   nfa_scr_cb.sub_state = NFA_SCR_SUBSTATE_INVALID;
-  if (NfcConfig::hasKey(NAME_NFA_DM_DISC_NTF_TIMEOUT)) {
-    nfa_scr_cb.deact_ntf_timeout = NfcConfig::getUnsigned(NAME_NFA_DM_DISC_NTF_TIMEOUT);
-  } else {
-    nfa_scr_cb.deact_ntf_timeout = 0; /* Infinite Time */
-  }
-  if (NfcConfig::hasKey(NAME_NXP_SWP_RD_TAG_OP_TIMEOUT)) {
-    nfa_scr_cb.tag_op_timeout = NfcConfig::getUnsigned(NAME_NXP_SWP_RD_TAG_OP_TIMEOUT);
-  } else {
-    nfa_scr_cb.tag_op_timeout = 20; /* 20 seconds */
-  }
-  nfa_scr_cb.poll_prof_sel_cfg = NfcConfig::getUnsigned(NAME_NFA_CONFIG_FORMAT);
-  if(nfa_scr_cb.poll_prof_sel_cfg == 0x00) {
-    nfa_scr_cb.poll_prof_sel_cfg = 1;
-  }
+  nfa_scr_cb.last_scr_req = NFA_SCR_UNKOWN_EVT;
+  nfa_scr_cb.deact_ntf_timeout = NfcConfig::getUnsigned(NAME_NFA_DM_DISC_NTF_TIMEOUT, 0);
+  nfa_scr_cb.tag_op_timeout = NfcConfig::getUnsigned(NAME_NXP_SWP_RD_TAG_OP_TIMEOUT, 20);
+  nfa_scr_cb.poll_prof_sel_cfg = NfcConfig::getUnsigned(NAME_NFA_CONFIG_FORMAT, 1);
+  nfa_scr_cb.rdr_req_guard_time = NfcConfig::getUnsigned(NAME_NXP_RDR_REQ_GUARD_TIME, 0);
   /* register message handler on NFA SYS */
   nfa_sys_register(NFA_ID_SCR, &nfa_scr_sys_reg);
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: exit",__func__);
@@ -157,7 +154,44 @@ void nfa_scr_sys_disable(void) {
   /* deregister message handler on NFA SYS */
   nfa_sys_deregister(NFA_ID_SCR);
 }
-
+/*******************************************************************************
+**
+** Function       nfa_scr_is_proc_rdr_req
+**
+** Description    This function will be effective only if NAME_NXP_RDR_REQ_GUARD_TIME is non-zero
+**                If 610A has been received & timer has not be started then
+**                  - save the action and start the timer.
+**                else
+**                  - stop the timer and process the current event
+**
+** Return         True if event is processed/expected else false
+**
+*******************************************************************************/
+bool nfa_scr_is_proc_rdr_req(uint8_t event) {
+  bool is_proc_rdr_req = true;
+  if (IS_RDR_REQUEST(event) && !nfa_scr_cb.restart_emvco_poll) {
+    if(nfa_scr_cb.is_timer_started) {
+      /* Stop guard timer & continue with normal seq */
+      nfa_sys_stop_timer(&nfa_scr_cb.scr_guard_tle);
+      nfa_scr_cb.is_timer_started = 0;
+      nfa_scr_cb.last_scr_req = NFA_SCR_UNKOWN_EVT;
+    } else {
+      /* save the event & start the timer */
+      nfa_scr_cb.last_scr_req = event;
+      nfa_scr_cb.is_timer_started = 1;
+      /* Start timer to post NFA_SCR_RDR_REQ_GUARD_TIMEOUT_EVT on expire in order to
+       * process the last reader requested event */
+      nfa_sys_start_timer(&nfa_scr_cb.scr_guard_tle, NFA_SCR_RDR_REQ_GUARD_TIMEOUT_EVT,
+              nfa_scr_cb.rdr_req_guard_time);
+      is_proc_rdr_req = false;
+    }
+  } else if (nfa_scr_cb.restart_emvco_poll && event == NFA_SCR_START_REQ_EVT) {
+    nfa_scr_cb.restart_emvco_poll = 0;
+  }
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: exit status:%s", __func__,
+          is_proc_rdr_req ? "true": "false");
+  return is_proc_rdr_req;
+}
 /*******************************************************************************
 **
 ** Function       nfa_scr_cback
@@ -178,6 +212,9 @@ bool nfa_scr_cback(uint8_t event, uint8_t status) {
 
   if(!nfa_scr_is_evt_allowed(event)) {
     return stat;
+  }
+  if(nfa_scr_cb.rdr_req_guard_time && !nfa_scr_is_proc_rdr_req(event)) {
+    return true; /* Guard timer has been started */
   }
 
   switch (event) {
@@ -263,9 +300,14 @@ bool nfa_scr_evt_hdlr(NFC_HDR* p_msg) {
       nfa_scr_rm_card_timeout_handler();
       break;
     }
-    case NFA_SCR_ERROR_REC_TIMEOUT_EVT:
+    case NFA_SCR_ERROR_REC_TIMEOUT_EVT: {
       (void)nfa_scr_error_handler(NFA_SCR_ERROR_RECOVERY_TIMEOUT);
       break;
+    }
+    case NFA_SCR_RDR_REQ_GUARD_TIMEOUT_EVT: {
+      nfa_scr_rdr_req_guard_timeout_handler();
+      break;
+    }
   }
   return true;
 }
@@ -287,6 +329,8 @@ std::string nfa_scr_get_event_name(uint16_t event) {
       return "REMOVE_CARD_EVT";
     case NFA_SCR_ERROR_REC_TIMEOUT_EVT:
       return "ERROR_REC_TIMEOUT_EVT";
+    case NFA_SCR_RDR_REQ_GUARD_TIMEOUT_EVT:
+      return "RDR_REQ_GUARD_TIMEOUT_EVT";
     default:
       return "UNKNOWN";
   }
@@ -317,7 +361,7 @@ void nfa_scr_tag_op_timeout_handler () {
 **
 ** Parameter        void
 **
-** Returns          true
+** Returns          void
 **
 *******************************************************************************/
 void nfa_scr_rm_card_timeout_handler() {
@@ -335,6 +379,22 @@ void nfa_scr_rm_card_timeout_handler() {
     nfa_sys_start_timer(&nfa_scr_cb.scr_tle, NFA_SCR_RM_CARD_TIMEOUT_EVT,
             NFA_SCR_CARD_REMOVE_TIMEOUT);
   }
+}
+/*******************************************************************************
+**
+** Function         nfa_scr_rdr_req_guard_timeout_handler
+**
+** Description      This method shall be called once the Reader Req guard timer
+**                  is expired.
+**
+** Returns          void
+**
+*******************************************************************************/
+void nfa_scr_rdr_req_guard_timeout_handler(void) {
+  if (nfa_scr_cb.scr_evt_cback != nullptr) {
+    nfa_scr_cb.scr_evt_cback(nfa_scr_cb.last_scr_req , NFA_STATUS_OK);
+  }
+  nfa_scr_cb.last_scr_req = NFA_SCR_UNKOWN_EVT;
 }
 
 /*******************************************************************************
@@ -481,7 +541,22 @@ bool nfa_scr_error_handler(tNFA_SCR_ERROR error) {
 
   return status;
 }
+/*******************************************************************************
+ **
+ ** Function:        is_emvco_polling_restart_req
+ **
+ ** Description:     This method shall be used to check if emvco poll restart is requested
 
+ ** Returns:         'TRUE' if emvco poll restart is needed else 'FALSE'
+ **
+ ******************************************************************************/
+bool is_emvco_polling_restart_req(void) {
+  if (nfa_scr_cb.restart_emvco_poll) {
+    nfa_scr_cb.scr_evt_cback(NFA_SCR_START_REQ_EVT,NFA_STATUS_OK);
+    return true;
+  }
+  return false;
+}
 /*******************************************************************************
  **
  ** Function:        nfa_scr_trigger_stop_seq
@@ -494,12 +569,23 @@ bool nfa_scr_error_handler(tNFA_SCR_ERROR error) {
 static bool nfa_scr_trigger_stop_seq() {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: Enter", __func__);
   nfa_sys_stop_timer(&nfa_scr_cb.scr_tle); /* Stop tag_op_timeout timer */
-  if(NFA_STATUS_OK == NFA_StopRfDiscovery()) {
+  bool is_expected = true;
+  if (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_IDLE) {
+    /* Simulate the cmd-rsp by changing the SCR's states as libnfc is already in idle state
+     * If emvco polling restart is requested then start the polling
+     *  else Simulate the behavior to continue with normal flow */
+    nfa_scr_cb.state = NFA_SCR_STATE_STOP_CONFIG;
+    nfa_scr_cb.sub_state = NFA_SCR_SUBSTATE_WAIT_DEACTIVATE_NTF;
+    if (nfa_scr_cb.rdr_req_guard_time && !is_emvco_polling_restart_req()) {
+      nfa_scr_cb.scr_evt_cback(NFA_SCR_RF_DEACTIVATE_NTF_EVT,NFA_STATUS_OK);
+    }
+  } else if(NFA_STATUS_OK == NFA_StopRfDiscovery()) {
     nfa_scr_cb.state = NFA_SCR_STATE_STOP_CONFIG;
     nfa_scr_cb.sub_state = NFA_SCR_SUBSTATE_WAIT_DEACTIVATE_RSP;
-    return true;
+  } else {
+    is_expected = false;
   }
-  return false;
+  return is_expected;
 }
 /*******************************************************************************
  **
@@ -513,13 +599,43 @@ static bool nfa_scr_trigger_stop_seq() {
  ******************************************************************************/
 static bool nfa_scr_handle_start_req() {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: enter", __func__);
-
+  bool is_expected = true;
   if(IS_SCR_APP_REQESTED && nfa_scr_cb.sub_state == NFA_SCR_SUBSTATE_WAIT_START_RDR_NTF) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("EMV-CO polling profile");
     nfa_scr_cb.state = NFA_SCR_STATE_START_IN_PROGRESS;
     nfa_scr_send_prop_get_conf();
+  } else if (IS_SCR_START_SUCCESS && nfa_scr_cb.rdr_req_guard_time) {
+    /* If NXP_RDR_REQ_GUARD_TIME is not provided this code snippet shall not be applied
+     * i.e. nfa_scr_cb.restart_emvco_poll shall not be set to 1 */
+    switch(nfa_scr_cb.sub_state) {
+      case NFA_SCR_SUBSTATE_WAIT_ACTIVETED_NTF:
+        if(nfa_scr_cb.wait_for_deact_ntf) { /* Activated ntf has been received */
+          nfa_scr_cb.restart_emvco_poll = 1;
+          nfa_scr_cb.scr_evt_cback(NFA_SCR_STOP_REQ_EVT,NFA_STATUS_OK);
+          break;
+        }
+        [[fallthrough]];
+      case NFA_SCR_SUBSTATE_WAIT_POLL_RSP:
+        DLOG_IF(INFO, nfc_debug_enabled)
+                << StringPrintf("%s: EMVCO polling is already started", __func__);
+        break;
+    }
+  } else if (nfa_scr_cb.state == NFA_SCR_STATE_STOP_CONFIG && nfa_scr_cb.rdr_req_guard_time) {
+    switch(nfa_scr_cb.sub_state) {
+      case NFA_SCR_SUBSTATE_WAIT_DEACTIVATE_RSP:
+        [[fallthrough]];
+      case NFA_SCR_SUBSTATE_WAIT_DEACTIVATE_NTF:
+        if(nfa_scr_cb.wait_for_deact_ntf) { /* Activated ntf has been received */
+          nfa_scr_cb.restart_emvco_poll = 1;
+        } else {
+          is_expected = nfa_scr_start_polling(NFA_STATUS_OK);
+        }
+        break;
+    }
+  } else {
+    is_expected = false;
   }
-  return true;
+  return is_expected;
 }
 
 /*******************************************************************************
@@ -600,7 +716,14 @@ static bool nfa_scr_handle_stop_req() {
     status = nfa_scr_finalize();
     break;
   case NFA_SCR_STATE_STOP_CONFIG:
-  [[fallthrough]];
+    if(nfa_scr_cb.wait_for_deact_ntf == false) {
+      nfa_scr_cb.state = NFA_SCR_STATE_STOP_IN_PROGRESS;
+      nfa_scr_send_prop_get_conf();
+    } else { /* Proceed with reader stop once RF_DEACTIVATE_NTF is received */
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: "
+              "Reader will be stopped once card is removed from field", __func__);
+    }
+    break;
   case NFA_SCR_STATE_STOP_IN_PROGRESS:
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: Stop is already in progress", __func__);
     break;
@@ -839,8 +962,16 @@ static bool nfa_scr_handle_deact_rsp_ntf(uint8_t status) {
             /* Stop the NFA_SCR_REMOVE_CARD_EVT posting timer */
             nfa_sys_stop_timer(&nfa_scr_cb.scr_tle);
           }
-          nfa_scr_cb.state = NFA_SCR_STATE_STOP_IN_PROGRESS;
-          nfa_scr_send_prop_get_conf();
+          /* App stop request shall have highest prio than 610A for start rdr mode */
+          if(nfa_scr_cb.app_stop_req) {
+            nfa_scr_cb.state = NFA_SCR_STATE_STOP_IN_PROGRESS;
+            nfa_scr_send_prop_get_conf();
+            break;
+          }
+          if(!is_emvco_polling_restart_req()) {
+            /* Notify app of NFA_SCR_STOP_SUCCESS_EVT */
+            nfa_scr_notify_evt(NFA_SCR_STOP_SUCCESS_EVT);
+          }
           break;
        }
     }
@@ -944,20 +1075,16 @@ static bool nfa_scr_start_polling(uint8_t status) {
   bool is_expected = true;;
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: enter status=%u, "
           "state=%u substate=%u", __func__, status, nfa_scr_cb.state, nfa_scr_cb.sub_state);
-  if(nfa_scr_cb.sub_state == NFA_SCR_SUBSTATE_WAIT_DISC_MAP_RSP) {
+  if(nfa_scr_cb.sub_state == NFA_SCR_SUBSTATE_WAIT_DISC_MAP_RSP || IS_EMVCO_RESTART_REQ) {
     switch (nfa_scr_cb.state) {
     case NFA_SCR_STATE_STOP_IN_PROGRESS:
       IS_STATUS_ERROR(status);
       nfa_scr_cb.state = NFA_SCR_STATE_STOP_SUCCESS;
-      /* Notify app of NFA_SCR_STOP_SUCCESS_EVT */
-      nfa_scr_notify_evt(NFA_SCR_STOP_SUCCESS_EVT);
-      if(!nfa_scr_cb.app_stop_req) {
-        break;         /* Don't send RF_DISCOVERY_CMD */
-      }
-      [[fallthrough]]; /* NFA_SCR_APP_STOP_REQ_EVT:  */
-    case NFA_SCR_STATE_STOP_SUCCESS:
       nfa_scr_finalize();
       break;
+    case NFA_SCR_STATE_STOP_CONFIG: /* IS_EMVCO_RESTART_REQ */
+      nfa_scr_cb.state = NFA_SCR_STATE_START_IN_PROGRESS;
+      [[fallthrough]];
     case NFA_SCR_STATE_START_IN_PROGRESS:
       if(NFA_STATUS_OK == NFA_StartRfDiscovery()) {
         nfa_scr_cb.sub_state = NFA_SCR_SUBSTATE_WAIT_POLL_RSP;
