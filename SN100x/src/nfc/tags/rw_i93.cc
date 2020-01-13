@@ -74,6 +74,8 @@ extern bool nfc_debug_enabled;
 #define RW_I93_FORMAT_DATA_LEN 8
 /* max getting lock status if get multi block sec is supported */
 #define RW_I93_GET_MULTI_BLOCK_SEC_SIZE 253
+/*Capability Container CC Size */
+#define RW_I93_CC_SIZE 4
 
 /* main state */
 enum {
@@ -1766,8 +1768,14 @@ void rw_i93_sm_detect_ndef(NFC_HDR* p_resp) {
 
     case RW_I93_SUBSTATE_WAIT_CC:
 
-      /* assume block size is more than 4 */
-      STREAM_TO_ARRAY(cc, p, 4);
+      if (length < RW_I93_CC_SIZE) {
+        android_errorWriteLog(0x534e4554, "139188579");
+        rw_i93_handle_error(NFC_STATUS_FAILED);
+        return;
+      }
+
+      /* assume block size is more than RW_I93_CC_SIZE 4 */
+      STREAM_TO_ARRAY(cc, p, RW_I93_CC_SIZE);
 
       status = NFC_STATUS_FAILED;
 
@@ -2820,6 +2828,12 @@ void rw_i93_sm_set_read_only(NFC_HDR* p_resp) {
 
   switch (p_i93->sub_state) {
     case RW_I93_SUBSTATE_WAIT_CC:
+
+      if (length < RW_I93_CC_SIZE) {
+        android_errorWriteLog(0x534e4554, "139188579");
+        rw_i93_handle_error(NFC_STATUS_FAILED);
+        return;
+      }
 
       /* mark CC as read-only */
       *(p + 1) |= I93_ICODE_CC_READ_ONLY;
