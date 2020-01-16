@@ -136,9 +136,6 @@ static void nfa_ee_report_discover_req_evt(void);
 static void nfa_ee_build_discover_req_evt(tNFA_EE_DISCOVER_REQ* p_evt_data);
 void nfa_ee_check_set_routing(uint16_t new_size, int* p_max_len, uint8_t* p,
                               int* p_cur_offset);
-#if (NXP_EXTNS == TRUE)
-static void nfa_ee_add_t4tnfcee_aid(uint8_t* p, int* cur_offset);
-#endif
 /*******************************************************************************
 **
 ** Function         nfa_ee_trace_aid
@@ -3620,9 +3617,6 @@ void nfa_ee_lmrt_to_nfcc(__attribute__((unused)) tNFA_EE_MSG* p_data) {
   cur_offset = 0;
   /* use the first byte of the buffer (p) to keep the num_tlv */
   *p = 0;
-#if (NXP_EXTNS == TRUE)
-  if (nfa_t4tnfcee_is_enabled()) nfa_ee_add_t4tnfcee_aid(p, &cur_offset);
-#endif
   for (int rt = NCI_ROUTE_ORDER_AID; rt <= NCI_ROUTE_ORDER_TECHNOLOGY; rt++) {
     /* add the routing entries for NFCEEs */
     p_cb = &nfa_ee_cb.ecb[0];
@@ -3709,47 +3703,5 @@ uint16_t nfa_ee_lmrt_size() {
   int len;
   len = nfa_all_ee_find_total_aid_len();
   return len < NFA_EE_MAX_AID_CFG_LEN ? len : NFA_EE_MAX_AID_CFG_LEN;
-}
-
-/*******************************************************************************
-**
-** Function         nfa_ee_add_t4tnfcee_aid
-**
-** Description      Adds t4t Nfcee AID at the beginning top of routing table
-**
-** Returns          none
-**
-*******************************************************************************/
-static void nfa_ee_add_t4tnfcee_aid(uint8_t* p, int* cur_offset) {
-  const uint8_t t4tNfcee[] = {0xD2, 0x76, 0x00, 0x00, 0x85, 0x01, 0x01};
-  int t4tNfceeRoute = T4TNFCEE_TARGET_HANDLE;
-  unsigned long t4tNfceePower = 0x00;
-  uint8_t* pp;
-  t4tNfceePower =
-      NfcConfig::getUnsigned(NAME_DEFAULT_T4TNFCEE_AID_POWER_STATE, 0x00);
-  if (!t4tNfceePower) {
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf("t4tNfceePower not found; taking default value");
-    t4tNfceePower = (NCI_ROUTE_PWR_STATE_ON | NCI_ROUTE_PWR_STATE_SWITCH_OFF);
-    t4tNfceePower |= NCI_ROUTE_PWR_STATE_SCREEN_ON_LOCK();
-    t4tNfceePower |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_UNLOCK();
-    t4tNfceePower |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_LOCK();
-  } else {
-    t4tNfceePower = T4TNFCEE_AID_POWER_STATE;
-  }
-
-  /*Number of Entries. Current Entry 1.
-   *Later same values will be incremented with required number of entries
-   */
-  *p = 0x01;
-  pp = p + 1;
-  *pp++ = NFC_ROUTE_TAG_AID;
-  *pp++ = sizeof(t4tNfcee) + 2;  // sizeof(t4tNfcee) + size(t4tNfceeRoute):1byte
-                                 // + size(t4tNfceePower):1byte
-  *pp++ = t4tNfceeRoute;
-  *pp++ = (uint8_t)t4tNfceePower;
-  memcpy(pp, t4tNfcee, sizeof(t4tNfcee));
-
-  *cur_offset = (uint8_t)(pp - (p + 1)) + sizeof(t4tNfcee);
 }
 #endif
