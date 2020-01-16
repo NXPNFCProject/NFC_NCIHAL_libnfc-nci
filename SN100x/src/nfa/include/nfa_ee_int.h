@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2019 NXP
+ *  Copyright 2018-2020 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -601,6 +601,7 @@ typedef uint8_t tNFA_EE_WAIT;
 typedef uint8_t tNFA_EE_FLAGS;
 
 #if(NXP_EXTNS == TRUE)
+#define NFA_EE_FLAG_RECOVERY 0x10
 #define NFA_EE_HCI_CONN_CLOSE  0x8
 #endif
 

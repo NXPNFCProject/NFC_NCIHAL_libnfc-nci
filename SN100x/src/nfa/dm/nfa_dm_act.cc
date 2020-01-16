@@ -1355,7 +1355,10 @@ bool nfa_dm_act_start_rf_discovery(__attribute__((unused))
 
   DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
-  if (nfa_dm_cb.disc_cb.disc_flags & NFA_DM_DISC_FLAGS_ENABLED) {
+  if (nfa_dm_cb.disc_cb.disc_flags & NFA_DM_DISC_FLAGS_ENABLED ||
+      ((nfa_ee_cb.ee_flags & NFA_EE_FLAG_RECOVERY) == NFA_EE_FLAG_RECOVERY)) {
+    LOG(ERROR) << StringPrintf("Discovery start not required");
+
     evt_data.status = NFA_STATUS_OK;
     nfa_dm_conn_cback_event_notify(NFA_RF_DISCOVERY_STARTED_EVT, &evt_data);
   } else if (nfa_dm_cb.disc_cb.disc_state != NFA_DM_RFST_IDLE) {

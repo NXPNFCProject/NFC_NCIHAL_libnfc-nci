@@ -3161,7 +3161,8 @@ bool nfa_dm_p2p_prio_logic(uint8_t event, uint8_t* p, uint8_t event_type) {
     return true;
   }
 #if (NXP_EXTNS == TRUE)
-  if (true == is_emvco_active) {
+  if (true == is_emvco_active ||
+      ((nfa_ee_cb.ee_flags & NFA_EE_FLAG_RECOVERY) == NFA_EE_FLAG_RECOVERY)) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
         "returning from nfa_dm_p2p_prio_logic  reconnect_in_progress");
     return true;
