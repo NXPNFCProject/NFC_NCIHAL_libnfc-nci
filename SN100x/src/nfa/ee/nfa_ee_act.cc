@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2019 NXP
+ *  Copyright 2018-2020 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -2741,8 +2741,12 @@ void nfa_ee_nci_nfcee_status_ntf(tNFA_EE_MSG* p_data) {
       p_cb->nfcee_status = p_ee->nfcee_status;
       if(p_ee->nfcee_status == NFC_NFCEE_STS_UNRECOVERABLE_ERROR ||
         ((p_ee->nfcee_status & 0xF0 ) == NFC_NFCEE_STS_PROP_UNRECOVERABLE_ERROR)) {
-          if (nfa_ee_cb.p_enable_cback)
-                      (*nfa_ee_cb.p_enable_cback) (NFA_EE_UNRECOVERABLE_ERROR);
+        if (nfa_dm_cb.disc_cb.disc_state != NFA_DM_RFST_IDLE) {
+          nfa_ee_cb.ee_flags |= NFA_EE_FLAG_RECOVERY;
+          nfa_dm_act_stop_rf_discovery(NULL);
+        }
+        if (nfa_ee_cb.p_enable_cback)
+          (*nfa_ee_cb.p_enable_cback)(NFA_EE_UNRECOVERABLE_ERROR);
       } else if(p_ee->nfcee_status == NFC_NFCEE_STS_INIT_COMPLETED) {
           if (nfa_ee_cb.p_enable_cback)
                       (*nfa_ee_cb.p_enable_cback) (NFA_EE_STATUS_INIT_COMPLETED);
