@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2019 NXP
+ *  Copyright 2018-2020 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -2690,9 +2690,12 @@ bool nfa_hci_check_set_apdu_pipe_ready_for_next_host ()
         LOG(ERROR) << StringPrintf("after updating uicc id%x", nfcee);
         if (nfcee == p_host->host_id) {
             nfa_hciu_clear_host_resetting(p_host->host_id, NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED);
-            if(p_host->host_id == NFA_HCI_FIRST_PROP_HOST)
+            if (p_host->host_id == NFA_HCI_FIRST_PROP_HOST) {
               nfa_hci_api_add_prop_host_info();
-            done = nfa_hci_set_apdu_pipe_ready_for_host (p_host->host_id);
+              done = nfa_hci_set_apdu_pipe_ready_for_host(p_host->host_id);
+            } else {
+              done = false;
+            }
             break;
         }
     }
