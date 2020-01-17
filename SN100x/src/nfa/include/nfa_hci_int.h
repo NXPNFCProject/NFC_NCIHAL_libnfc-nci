@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2019 NXP
+ *  Copyright 2018-2020 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -149,7 +149,11 @@ extern uint8_t HCI_LOOPBACK_DEBUG;
 /* NFCEE ETSI 12 configuration complete*/
 #define NFA_HCI_NFCEE_CONFIG_COMPLETE 0xF9
 
-#define NFA_HCI_EVT_SW_PROC_LATENCY          1000     /* Time taken for the event sent from ese / uicc HOST to reach Terminal host and begin processing */
+#define NFA_HCI_EVT_SW_PROC_LATENCY                                            \
+  1000 /* Time taken for the event sent from ese / uicc HOST to reach Terminal \
+          host and begin processing */
+
+#define NF_HCI_PRINT_BUFF_SIZE 100
 #endif
 
 typedef uint8_t tNFA_HCI_STATE;
