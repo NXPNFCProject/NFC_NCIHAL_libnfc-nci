@@ -158,7 +158,18 @@ static void nfa_ee_trace_aid(std::string p_str, uint8_t id, uint8_t aid_len,
     len = NFA_MAX_AID_LEN;
   }
   for (xx = 0; xx < len; xx++) {
+#if (NXP_EXTNS == TRUE)
+    int err = 0;
+    err = snprintf(&buff[yy], (sizeof(buff) - yy), "%02x ", *p);
+    if (err > 0) {
+      yy += err;
+    } else {
+      LOG(ERROR) << StringPrintf("snprintf returned error !");
+      return;
+    }
+#else
     yy += sprintf(&buff[yy], "%02x ", *p);
+#endif
     p++;
   }
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
@@ -197,14 +208,28 @@ static void nfa_ee_trace_apdu(std::string p_str, tNFA_EE_API_ADD_APDU* p_apdu) {
 
   p =  p_apdu->p_apdu;
   for (xx = 0; xx < apdu_len; xx++) {
-    yy += sprintf(&apdu[yy], "%02x ", *p);
+    int err = 0;
+    err = snprintf(&apdu[yy], (sizeof(apdu) - yy), "%02x ", *p);
+    if (err > 0) {
+      yy += err;
+    } else {
+      LOG(ERROR) << StringPrintf("snprintf returned error !");
+      return;
+    }
     p++;
   }
 
   p =  p_apdu->p_mask;
   yy = 0;
   for (xx = 0; xx < mask_len; xx++) {
-    yy += sprintf(&mask[yy], "%02x ", *p);
+    int err = 0;
+    err = snprintf(&mask[yy], (sizeof(mask) - yy), "%02x ", *p);
+    if (err > 0) {
+      yy += err;
+    } else {
+      LOG(ERROR) << StringPrintf("snprintf returned error !");
+      return;
+    }
     p++;
   }
    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s id:0x%x apdu_len=%d apdu:%s mask_len=%d mask:%s",

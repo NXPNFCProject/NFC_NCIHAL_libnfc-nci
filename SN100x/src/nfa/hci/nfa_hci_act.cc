@@ -315,8 +315,13 @@ static void nfa_hci_api_register(tNFA_HCI_EVENT_DATA* p_evt_data) {
       if (nfa_hci_cb.cfg.reg_app_names[xx][0] == 0) {
         memset(&nfa_hci_cb.cfg.reg_app_names[xx][0], 0,
                sizeof(nfa_hci_cb.cfg.reg_app_names[xx]));
+#if (NXP_EXTNS == TRUE)
+        strlcpy(&nfa_hci_cb.cfg.reg_app_names[xx][0], p_app_name,
+                NFA_MAX_HCI_APP_NAME_LEN);
+#else
         strncpy(&nfa_hci_cb.cfg.reg_app_names[xx][0], p_app_name,
                 NFA_MAX_HCI_APP_NAME_LEN);
+#endif
         nfa_hci_cb.nv_write_needed = true;
         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
             "nfa_hci_api_register (%s)  Allocated: %u", p_app_name, xx);

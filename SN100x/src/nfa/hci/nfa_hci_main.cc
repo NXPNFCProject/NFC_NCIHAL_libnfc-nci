@@ -1109,7 +1109,11 @@ static void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   uint8_t chaining_bit;
   uint8_t pipe;
   uint16_t pkt_len;
+#if (NXP_EXTNS == TRUE)
+  char buff[NF_HCI_PRINT_BUFF_SIZE];
+#else
   char buff[100];
+#endif
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "%s State: %u  Cmd: %u", __func__, nfa_hci_cb.hci_state, event);
 #if(NXP_EXTNS == TRUE)

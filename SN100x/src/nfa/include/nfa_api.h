@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2019 NXP
+ *  Copyright 2018-2020 NXP
  *
  ******************************************************************************/
 
@@ -51,7 +51,9 @@
 #include "nfc_target.h"
 #include "rw_api.h"
 #include "tags_defs.h"
-
+#if (NXP_EXTNS == TRUE)
+#include <stdio.h>
+#endif
 /*****************************************************************************
 **  Constants and data types
 *****************************************************************************/
