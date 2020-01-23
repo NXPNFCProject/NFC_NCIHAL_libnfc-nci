@@ -29,7 +29,7 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 *
-*  Copyright 2018-2019 NXP
+*  Copyright 2018-2020 NXP
 *
 ******************************************************************************/
 #include <android-base/stringprintf.h>
@@ -90,6 +90,7 @@ ThreadCondVar NfcAdaptation::mHalOpenCompletedEvent;
 #if (NXP_EXTNS == TRUE)
 ThreadCondVar NfcAdaptation::mHalDataCallbackEvent;
 #endif
+
 sp<INfc> NfcAdaptation::mHal;
 sp<INfcV1_1> NfcAdaptation::mHal_1_1;
 sp<INfcV1_2> NfcAdaptation::mHal_1_2;
@@ -1027,6 +1028,8 @@ bool NfcAdaptation::DownloadFirmware() {
     uint8_t cmd_init_nci_size = sizeof(cmd_init_nci) / sizeof(uint8_t);
     HalWriteIntf(cmd_reset_nci_size , cmd_reset_nci);
     HalWriteIntf(cmd_init_nci_size , cmd_init_nci);
+    uint8_t p_core_init_rsp_params = 0;
+    HalCoreInitialized(sizeof(uint8_t), &p_core_init_rsp_params);
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: try close HAL", func);
     status =mHal->close();
   }
