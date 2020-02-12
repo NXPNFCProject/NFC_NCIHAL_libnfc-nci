@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright 2019 NXP
+ *  Copyright 2019-2020 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  ******************************************************************************/
 /******************************************************************************
  *
- *  This is the private interface file for NFA Smart Card Reader
+ *  This is the private interface file for NFA Secure Reader
  *
  ******************************************************************************/
 #ifndef NFA_SCR_INT_H
@@ -32,6 +32,9 @@
 /*******************************************************************************
 **  Constant
 *******************************************************************************/
+#define NFC_NUM_INTERFACE_MAP 3
+#define NFC_SWP_RD_NUM_INTERFACE_MAP 1
+
 #define IS_SCR_APP_REQESTED (nfa_scr_cb.state == NFA_SCR_STATE_START_CONFIG)
 
 #define IS_SCR_START_IN_PROGRESS (nfa_scr_cb.state == NFA_SCR_STATE_START_IN_PROGRESS)
@@ -44,7 +47,14 @@
 
 #define IS_SCR_STOP_SUCCESS (nfa_scr_cb.state == NFA_SCR_STATE_STOP_SUCCESS)
 
-#define IS_SCR_IDLE (nfa_scr_cb.state == NFA_SCR_STATE_STOPPED)
+#define IS_SCR_ON (nfa_scr_cb.state != NFA_SCR_STATE_STOPPED)
+
+#define IS_STATUS_ERROR(status)                                          \
+  {                                                                      \
+    if (NFA_STATUS_OK != status) {                                       \
+      return nfa_scr_error_handler(NFA_SCR_ERROR_NCI_RSP_STATUS_FAILED); \
+    }                                                                    \
+  }
 
 #if (NFC_NFCEE_INCLUDED == TRUE)
 #define NFA_SCR_IS_ENABLED(status) {               \
@@ -77,11 +87,18 @@
 /******************************************************************************
 **  Data types: union of all event data types
 ******************************************************************************/
+/* Reader types */
+enum {
+  NFA_SCR_INVALID,
+  NFA_SCR_MPOS, /* MPOS */
+  NFA_SCR_MFC   /* Mifare Classic */
+};
+
 /* NFA SCR Internal events */
 enum {
   /* Events for the exposed APIs invocation, to be used by nfa_scr_api.cc file */
   NFA_SCR_API_SET_READER_MODE_EVT =
-      NFA_SYS_EVT_START(NFA_ID_SCR), /* Set Reader Mode of the Smart Card */
+      NFA_SYS_EVT_START(NFA_ID_SCR), /* Set Mode of the Secure Reader */
   NFA_SCR_TAG_OP_TIMEOUT_EVT,        /* Tag Operation Time out windows */
   NFA_SCR_RM_CARD_TIMEOUT_EVT,       /* Notify REMOVE_CARD_EVT to app and
                                         start timer again for the same    */
@@ -131,10 +148,12 @@ typedef enum {
   NFA_SCR_ERROR_SEND_PROP_SET_CONF_CMD, /* Sending prop SET_CONFIG_CMD failed */
   NFA_SCR_ERROR_SEND_PROP_GET_CONF_CMD, /* Sending prop GET_CONFIG_CMD failed */
   NFA_SCR_ERROR_START_RF_DISC,          /* Sending RF_DISCOVER_CMD failed     */
-  NFA_SCR_ERROR_NCI_RSP_STATUS_FAILED,  /* Received NFCC_RSP with status failed */
+  NFA_SCR_ERROR_NCI_RSP_STATUS_FAILED,  /* Received NFCC_RSP with status failed
+                                         */
   NFA_SCR_ERROR_RECOVERY_STARTED,       /* eSE recovery is started            */
   NFA_SCR_ERROR_RECOVERY_COMPLETED,     /* eSE recovery completed             */
-  NFA_SCR_ERROR_RECOVERY_TIMEOUT,       /* Timeout while waiting for eSE Recovery */
+  NFA_SCR_ERROR_RECOVERY_TIMEOUT, /* Timeout while waiting for eSE Recovery */
+  NFA_SCR_ERROR_APP_STOP_REQ /* Stop API is called when applet is in rdr mode */
 } tNFA_SCR_ERROR;
 
 /* NFA SCR (Reader)states to be maintained in libnfc-nci */
@@ -176,6 +195,7 @@ typedef struct {
 /* Data type for the Set Reader Mode API */
 typedef struct {
   NFC_HDR hdr;
+  uint8_t type;
   bool mode;
   tNFA_SCR_CBACK* scr_cback;
 } tNFA_SCR_API_SET_READER_MODE;
@@ -198,6 +218,7 @@ typedef struct {
   uint8_t sub_state;
   uint8_t poll_prof_sel_cfg;
   uint8_t last_scr_req;
+  bool rdr_stop_req;
   bool app_stop_req;
   bool wait_for_deact_ntf;
   uint8_t is_timer_started:1;   /* shall be used/set only if NXP_RDR_REQ_GUARD_TIME is non-ZERO */
@@ -215,17 +236,25 @@ extern tNFA_SCR_CB nfa_scr_cb;
 **  External functions
 ******************************************************************************/
 /* Action & utility functions in nfa_scr_act.cc */
-extern void nfa_scr_set_reader_mode(bool mode, tNFA_SCR_CBACK* scr_cback,
-                                    tNFA_SCR_EVT_CBACK* scr_evt_cback);
+extern void nfa_scr_set_reader_mode(bool mode, tNFA_SCR_CBACK* scr_cback);
 extern void nfa_scr_notify_evt(uint8_t event, uint8_t status = NFA_STATUS_OK);
 
 /* Action & utility functions in nfa_scr_main.cc */
+extern bool nfa_scr_is_proc_rdr_req(uint8_t event);
+extern bool nfa_scr_is_evt_allowed(uint8_t event);
+extern bool nfa_scr_proc_app_start_req();
+extern bool nfa_scr_start_polling(uint8_t status);
+extern bool nfa_scr_rdr_processed(uint8_t status);
+extern bool nfa_scr_trigger_stop_seq(void);
+extern bool nfa_scr_handle_act_ntf(uint8_t status);
 extern bool nfa_scr_evt_hdlr(NFC_HDR* p_msg);
+extern bool nfa_scr_finalize(void);
 extern void nfa_scr_sys_disable(void);
 extern bool nfa_scr_proc_rdr_req_ntf(tNFC_EE_DISCOVER_REQ_REVT* p_cbk);
 extern bool nfa_scr_is_req_evt(uint8_t event, uint8_t status);
 extern bool nfa_scr_error_handler(tNFA_SCR_ERROR error);
 extern void nfa_scr_proc_ntf(bool operation);
 extern std::string nfa_scr_get_event_name(uint16_t event);
+void set_smr_cback(tNFA_SCR_EVT_CBACK* nfa_smr_cback);
 
 #endif /* NFA_SCR_INT_H */

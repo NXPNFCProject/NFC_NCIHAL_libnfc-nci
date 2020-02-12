@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright 2018-2019 NXP
+ *  Copyright 2018-2020 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -165,6 +165,8 @@ typedef struct {
 }tNfc_featureList;
 
 extern tNfc_featureList nfcFL;
+
+#define FEATURE_SECURE_READER
 
 #define CONFIGURE_FEATURELIST(chipType) {                                   \
         nfcFL.chipType = chipType;                                          \

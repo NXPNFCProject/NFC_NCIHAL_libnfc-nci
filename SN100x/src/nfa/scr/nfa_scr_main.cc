@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright 2019 NXP
+ *  Copyright 2019-2020 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 
 /******************************************************************************
  *
- *This is the main implementation file for the NFA Smart Card Reader(ETSI/POS).
+ *This is the main implementation file for the NFA Secure Reader(ETSI/POS/MFC).
  *
  *****************************************************************************/
 #include <android-base/stringprintf.h>
@@ -42,26 +42,21 @@ extern bool nfc_debug_enabled;
 /******************************************************************************
  **  Constants
  *****************************************************************************/
-#define NFC_NUM_INTERFACE_MAP 3
-#define NFC_SWP_RD_NUM_INTERFACE_MAP 1
 #define NFA_SCR_CARD_REMOVE_TIMEOUT 1000   // 1 Second
 #define NFA_SCR_RECOVERY_TIMEOUT 5 * 1000  // 5 Second
 #define LPCD_BYTE_POS 12
-#define LPCD_BIT_POS   7
-#define IS_STATUS_ERROR(status) {                                      \
-  if (NFA_STATUS_OK != status) {                                       \
-    return nfa_scr_error_handler(NFA_SCR_ERROR_NCI_RSP_STATUS_FAILED); \
-  }                                                                    \
-}                                                                      \
+#define LPCD_BIT_POS 7
 
-#define IS_DISC_MAP_RSP_EXPECTED ((nfa_scr_cb.state == NFA_SCR_STATE_START_IN_PROGRESS \
-        || nfa_scr_cb.state == NFA_SCR_STATE_STOP_IN_PROGRESS)                        \
-        && nfa_scr_cb.sub_state == NFA_SCR_SUBSTATE_WAIT_DISC_MAP_RSP)
+#define IS_DISC_MAP_RSP_EXPECTED                           \
+  ((nfa_scr_cb.state == NFA_SCR_STATE_START_IN_PROGRESS || \
+    nfa_scr_cb.state == NFA_SCR_STATE_STOP_IN_PROGRESS) && \
+   nfa_scr_cb.sub_state == NFA_SCR_SUBSTATE_WAIT_DISC_MAP_RSP)
 
 #define IS_RECOVERY_STARTED       (nfa_scr_cb.error == NFA_SCR_ERROR_RECOVERY_STARTED)
 #define IS_EVT_RECOVERY_COMPLETED (event == NFA_SCR_ESE_RECOVERY_COMPLETE_EVT)
 #define IS_SCR_ERROR              (nfa_scr_cb.error != NFA_SCR_NO_ERROR)
-#define IS_NO_SCR_ERROR              (nfa_scr_cb.error == NFA_SCR_NO_ERROR)
+#define IS_NO_SCR_ERROR           (nfa_scr_cb.error == NFA_SCR_NO_ERROR)
+#define IS_APP_STOP_ERROR         (nfa_scr_cb.error == NFA_SCR_ERROR_APP_STOP_REQ)
 #define IS_EVT_APP_STOP_REQUEST   (event == NFA_SCR_APP_STOP_REQ_EVT)
 #define IS_RDR_REQUEST(event) ((event) == NFA_SCR_START_REQ_EVT || (event) == NFA_SCR_STOP_REQ_EVT)
 #define IS_EMVCO_RESTART_REQ ((nfa_scr_cb.sub_state == NFA_SCR_SUBSTATE_WAIT_DEACTIVATE_RSP)\
@@ -76,28 +71,20 @@ static uint32_t ntf_timeout_cnt = 0x00;
  **  Internal Functions
  *****************************************************************************/
 void nfa_scr_discovermap_cb(tNFC_DISCOVER_EVT event, tNFC_DISCOVER *p_data);
+
 /*** Static Functions ***/
-static bool nfa_scr_proc_app_start_req(void);
 static bool nfa_scr_handle_start_req(void);
 static bool nfa_scr_handle_stop_req(void);
-static bool nfa_scr_trigger_stop_seq(void);
-static bool nfa_scr_finalize(void);
 static void nfa_scr_send_prop_set_conf(bool set);
 static vector<uint8_t> nfa_scr_get_prop_set_conf_cmd(bool set);
 static bool nfa_scr_handle_get_conf_rsp(uint8_t status);
 static void nfa_scr_send_prop_get_conf(void);
 static bool nfa_scr_handle_deact_rsp_ntf(uint8_t status);
 static bool nfa_scr_send_discovermap_cmd(uint8_t status);
-static bool nfa_scr_start_polling(uint8_t status);
-static bool nfa_scr_rdr_processed(uint8_t status);
-static bool nfa_scr_handle_act_ntf(uint8_t status);
 static void nfa_scr_tag_op_timeout_handler(void);
 static void nfa_scr_rm_card_timeout_handler(void);
 static void nfa_scr_rdr_req_guard_timeout_handler(void);
-static bool nfa_scr_is_evt_allowed(uint8_t event);
 static bool is_emvco_polling_restart_req(void);
-
-
 
 static const tNFA_SYS_REG nfa_scr_sys_reg = {nullptr, nfa_scr_evt_hdlr,
                                              nfa_scr_sys_disable, nullptr};
@@ -106,12 +93,13 @@ static const tNFA_SYS_REG nfa_scr_sys_reg = {nullptr, nfa_scr_evt_hdlr,
  **  NFA SCR callback to be called from other modules
  *****************************************************************************/
 bool nfa_scr_cback(uint8_t event, uint8_t status);
+extern bool nfa_mfc_cback(uint8_t event, uint8_t status);
 
 /*******************************************************************************
 **
 ** Function         nfa_scr_init
 **
-** Description      Initialize NFA Smart Card Module
+** Description      Initialize NFA Secure Reader Module
 **
 ** Returns          None
 **
@@ -191,6 +179,11 @@ bool nfa_scr_is_proc_rdr_req(uint8_t event) {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: exit status:%s", __func__,
           is_proc_rdr_req ? "true": "false");
   return is_proc_rdr_req;
+}
+
+void set_smr_cback(tNFA_SCR_EVT_CBACK* nfa_smr_cback) {
+  nfa_scr_cb.scr_evt_cback =
+      nfa_smr_cback; /* Register a SCR event handler cback */
 }
 /*******************************************************************************
 **
@@ -287,9 +280,17 @@ bool nfa_scr_evt_hdlr(NFC_HDR* p_msg) {
 
   switch (p_msg->event) {
     case NFA_SCR_API_SET_READER_MODE_EVT: {
-      tNFA_SCR_API_SET_READER_MODE* p_rd_evt_data = (tNFA_SCR_API_SET_READER_MODE*)p_msg;
-      nfa_scr_set_reader_mode(p_rd_evt_data->mode, (tNFA_SCR_CBACK*)p_rd_evt_data->scr_cback,
-              nfa_scr_cback);
+      tNFA_SCR_API_SET_READER_MODE* p_evt_data =
+          (tNFA_SCR_API_SET_READER_MODE*)p_msg;
+
+      if (p_evt_data->type == NFA_SCR_MPOS) {
+        set_smr_cback(nfa_scr_cback);
+      } else if (p_evt_data->type == NFA_SCR_MFC) {
+        set_smr_cback(nfa_mfc_cback);
+      } else {
+      }
+      nfa_scr_set_reader_mode(p_evt_data->mode,
+                              (tNFA_SCR_CBACK*)p_evt_data->scr_cback);
       break;
     }
     case NFA_SCR_TAG_OP_TIMEOUT_EVT: {
@@ -423,6 +424,8 @@ static std::string nfa_scr_get_error_name(tNFA_SCR_ERROR error) {
       return "RECOVERY_COMPLETED";
     case NFA_SCR_ERROR_RECOVERY_TIMEOUT:
       return "RECOVERY_TIMEOUT";
+    case NFA_SCR_ERROR_APP_STOP_REQ:
+      return "APP_STOP_REQ";
     default:
       return "UNKNOWN";
   }
@@ -442,11 +445,11 @@ static std::string nfa_scr_get_error_name(tNFA_SCR_ERROR error) {
 ** Returns         True if event is allowed.
 **
 *******************************************************************************/
-static bool nfa_scr_is_evt_allowed(uint8_t event) {
+bool nfa_scr_is_evt_allowed(uint8_t event) {
   bool is_allowed = false;
-  if(IS_NO_SCR_ERROR ||
-          (IS_RECOVERY_STARTED && IS_EVT_RECOVERY_COMPLETED) ||
-          (!IS_RECOVERY_STARTED && IS_EVT_APP_STOP_REQUEST)) {
+  if (IS_NO_SCR_ERROR || (IS_RECOVERY_STARTED && IS_EVT_RECOVERY_COMPLETED) ||
+      (!IS_RECOVERY_STARTED && IS_EVT_APP_STOP_REQUEST) ||
+      (IS_APP_STOP_ERROR && event == NFA_SCR_STOP_REQ_EVT)) {
     is_allowed = true;
     /* Clear the error flag */
     if(IS_SCR_ERROR) {
@@ -500,6 +503,11 @@ bool nfa_scr_error_handler(tNFA_SCR_ERROR error) {
       event = NFA_SCR_START_FAIL_EVT;
       nfa_scr_cb.state = NFA_SCR_STATE_START_SUCCESS; /* Allow to trigger SCR_STOP_SEQ */
       break;
+    case NFA_SCR_ERROR_APP_STOP_REQ:
+      /* Change the sub state in which Reader stop ntf to remove can be received
+       */
+      nfa_scr_cb.sub_state = NFA_SCR_SUBSTATE_WAIT_ACTIVETED_NTF;
+      [[fallthrough]];
     case NFA_SCR_ERROR_NCI_RSP_STATUS_FAILED:
       if(IS_SCR_START_IN_PROGRESS) {
         event = NFA_SCR_START_FAIL_EVT;
@@ -566,7 +574,7 @@ bool is_emvco_polling_restart_req(void) {
  ** Returns:         True if sequence is triggered successfully
  **
  ******************************************************************************/
-static bool nfa_scr_trigger_stop_seq() {
+bool nfa_scr_trigger_stop_seq() {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: Enter", __func__);
   nfa_sys_stop_timer(&nfa_scr_cb.scr_tle); /* Stop tag_op_timeout timer */
   bool is_expected = true;
@@ -648,7 +656,7 @@ static bool nfa_scr_handle_start_req() {
  ** Returns:         Always returns true
  **
  ******************************************************************************/
-static bool nfa_scr_proc_app_start_req() {
+bool nfa_scr_proc_app_start_req() {
   nfa_scr_cb.state = NFA_SCR_STATE_START_CONFIG;
   nfa_scr_cb.sub_state = NFA_SCR_SUBSTATE_WAIT_START_RDR_NTF;
   /* Notify the NFA_ScrSetReaderMode(true) success to JNI */
@@ -665,10 +673,11 @@ static bool nfa_scr_proc_app_start_req() {
  ** Returns:         Always returns true
  **
  ******************************************************************************/
-static bool nfa_scr_finalize(void) {
+bool nfa_scr_finalize(void) {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: enter", __func__);
   nfa_scr_cb.state = NFA_SCR_STATE_STOPPED;
   nfa_scr_cb.sub_state = NFA_SCR_SUBSTATE_INVALID;
+  nfa_scr_cb.rdr_stop_req = false;
   nfa_scr_cb.app_stop_req = false;
   nfa_scr_cb.error = NFA_SCR_NO_ERROR;
   memset(&ntf_timeout_cnt,0x00,sizeof(uint32_t));
@@ -676,7 +685,7 @@ static bool nfa_scr_finalize(void) {
   nfa_scr_notify_evt((uint8_t)NFA_SCR_SET_READER_MODE_EVT, NFA_STATUS_OK);
   /* clear JNI and SCR callbacks pointers */
   nfa_scr_cb.scr_cback = nullptr;
-  nfa_scr_cb.scr_evt_cback = nullptr;
+  set_smr_cback(nullptr);
   return true;
 }
 /*******************************************************************************
@@ -1071,7 +1080,7 @@ static bool nfa_scr_send_discovermap_cmd(uint8_t status) {
  ** Returns:         true
  **
  *******************************************************************************/
-static bool nfa_scr_start_polling(uint8_t status) {
+bool nfa_scr_start_polling(uint8_t status) {
   bool is_expected = true;;
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: enter status=%u, "
           "state=%u substate=%u", __func__, status, nfa_scr_cb.state, nfa_scr_cb.sub_state);
@@ -1103,7 +1112,7 @@ static bool nfa_scr_start_polling(uint8_t status) {
   return is_expected;
 }
 
-static bool nfa_scr_handle_act_ntf(uint8_t status) {
+bool nfa_scr_handle_act_ntf(uint8_t status) {
   (void)status;
   bool is_expected = false;
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: enter", __func__);
@@ -1117,7 +1126,7 @@ static bool nfa_scr_handle_act_ntf(uint8_t status) {
   return is_expected;
 }
 
-static bool nfa_scr_rdr_processed(uint8_t status) {
+bool nfa_scr_rdr_processed(uint8_t status) {
   bool is_expected = false;
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: enter status=%u", __func__, status);
   if(IS_SCR_START_IN_PROGRESS && nfa_scr_cb.sub_state == NFA_SCR_SUBSTATE_WAIT_POLL_RSP) {

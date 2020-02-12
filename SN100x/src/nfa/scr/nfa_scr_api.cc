@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright 2019 NXP
+ *  Copyright 2019-2020 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  *****************************************************************************/
 
 /******************************************************************************
- *  NFA interface for Smart Card Reader (ETSI/POS/SCR)
+ *  NFA interface for Secure Reader (ETSI/POS/SCR/MFC)
  ******************************************************************************/
 
 #include "nfa_scr_api.h"
@@ -37,20 +37,20 @@ extern bool nfc_debug_enabled;
 **
 ** Function         NFA_ScrSetReaderMode
 **
-** Description      This API shall be called by application to set current
-**                  state of the Smart Card(ETSI/POS) Reader along with
-*callback.
+** Description      This API shall be called by application to set state
+**                  of the Secure Reader along with callback.
 **                  Note: if mode is false then p_cback must be nullptr
 **
-**Parameters        Reader mode, JNI callback to receive reader events
+** Parameters       mode: Requested Reder operation,
+**                  p_cback: JNI callback to receive reader events
+**                  type: Type of th reader requested
 **
 ** Returns:
 **                  NFA_STATUS_OK if successfully initiated,
-**                  NFA_STATUS_BUSY if RF transaction is going on
 **                  NFA_STATUS_FAILED otherwise
 **
 ******************************************************************************/
-tNFA_STATUS NFA_ScrSetReaderMode(bool mode, tNFA_SCR_CBACK* scr_cback) {
+tNFA_STATUS NFA_ScrSetReaderMode(bool mode, tNFA_SCR_CBACK* scr_cback, uint8_t type) {
   tNFA_SCR_API_SET_READER_MODE* p_msg;
 
   DLOG_IF(INFO, nfc_debug_enabled)
@@ -60,6 +60,7 @@ tNFA_STATUS NFA_ScrSetReaderMode(bool mode, tNFA_SCR_CBACK* scr_cback) {
       sizeof(tNFA_SCR_API_SET_READER_MODE));
   if (p_msg != nullptr) {
     p_msg->hdr.event = NFA_SCR_API_SET_READER_MODE_EVT;
+    p_msg->type = type;
     p_msg->mode = mode;
     p_msg->scr_cback = scr_cback;
 
@@ -73,20 +74,18 @@ tNFA_STATUS NFA_ScrSetReaderMode(bool mode, tNFA_SCR_CBACK* scr_cback) {
 **
 ** Function         NFA_ScrGetReaderMode
 **
-** Description      This API shall be called by application to get current
-**                  mode of the Smart Card(ETSI/POS) Reader.
+** Description      This API shall be called to check whether the Secure
+**                  Reader is started or not.
 **
-** Returns:         True if SCR started else false
+** Returns:         TRUE if Secure Reader is started else FALSE
 **
 ******************************************************************************/
 bool NFA_ScrGetReaderMode() {
-  bool isEnabled;
+  bool isEnabled = true;
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: Enter", __func__);
   if ((nfa_scr_cb.state == NFA_SCR_STATE_STOPPED) ||
           (nfa_scr_cb.state == NFA_SCR_STATE_START_CONFIG)) {
    isEnabled = false;
-  } else {
-   isEnabled = true;
   }
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("isEnabled =%x", isEnabled);
   return isEnabled;

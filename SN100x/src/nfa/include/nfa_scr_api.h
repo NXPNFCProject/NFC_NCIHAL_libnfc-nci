@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright 2019 NXP
+ *  Copyright 2019-2020 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
 
 /******************************************************************************
  *
- *  This is the public interface file for NFA Smart Card Reader's application
- *  layer for (ETSI/POS/SCR/mPOS).
+ *  This is the public interface file for NFA Secure Reader's application
+ *  layer for (ETSI/POS/SCR/mPOS/MFC).
  *
  ******************************************************************************/
 
@@ -37,29 +37,30 @@
 **
 ** Function         NFA_ScrSetReaderMode
 **
-** Description      This API shall be called by application to set current
-**                  state of the Smart Card(ETSI/POS) Reader along with
-*callback.
+** Description      This API shall be called by application to set state
+**                  of the Secure Reader along with callback.
 **                  Note: if mode is false then p_cback must be nullptr
 **
-**Parameters        Reader mode, JNI callback to receive reader events
+** Parameters       mode: Requested Reder operation,
+**                  p_cback: JNI callback to receive reader events
+**                  type: Type of the reader requested, by default MPOS
 **
 ** Returns:
 **                  NFA_STATUS_OK if successfully initiated,
-**                  NFA_STATUS_BUSY if RF transaction is going on
 **                  NFA_STATUS_FAILED otherwise
 **
 ******************************************************************************/
-extern tNFA_STATUS NFA_ScrSetReaderMode(bool mode, tNFA_SCR_CBACK* p_cback);
+tNFA_STATUS NFA_ScrSetReaderMode(bool mode, tNFA_SCR_CBACK* p_cback,
+        uint8_t type = NFA_SCR_MPOS);
 
 /******************************************************************************
 **
 ** Function         NFA_ScrGetReaderMode
 **
-** Description      This API shall be called by application to get current
-**                  mode of the Smart Card(ETSI/POS) Reader.
+** Description      This API shall be called to check whether the Secure
+**                  reader is started or not.
 **
-** Returns:         True if SCR started else false
+** Returns:         TRUE if Secure Reader is started else FALSE
 **
 ******************************************************************************/
 extern bool NFA_ScrGetReaderMode();
