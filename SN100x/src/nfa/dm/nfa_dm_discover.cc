@@ -30,7 +30,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2019 NXP
+ *  Copyright 2018-2020 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -1447,8 +1447,10 @@ static tNFA_STATUS nfa_dm_disc_notify_activation(tNFC_DISCOVER* p_data) {
    * 1. Pass this info to JNI as START_READER_EVT.
    * return (NFA_STATUS_OK)
    */
-  if (p_data->activate.intf_param.type == nfcFL.nfcMwFL._NCI_INTERFACE_UICC_DIRECT ||
-      p_data->activate.intf_param.type == nfcFL.nfcMwFL._NCI_INTERFACE_ESE_DIRECT) {
+  if (IS_SCR_ON &&
+      (p_data->activate.intf_param.type == NCI_INTERFACE_FIRST_VS ||
+       p_data->activate.intf_param.type == nfcFL.nfcMwFL._NCI_INTERFACE_UICC_DIRECT ||
+       p_data->activate.intf_param.type == nfcFL.nfcMwFL._NCI_INTERFACE_ESE_DIRECT)) {
     for (xx = 0; xx < NFA_DM_DISC_NUM_ENTRIES; xx++) {
       if ((nfa_dm_cb.disc_cb.entry[xx].in_use)) {
         nfa_dm_cb.disc_cb.activated_rf_interface =

@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2019 NXP
+ *  Copyright 2019-2020 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -65,7 +65,7 @@ enum {
 #endif
 #if (NXP_EXTNS == TRUE)
   NFA_ID_T4TNFCEE, /* t4T Nfcee sub-system  */
-  NFA_ID_SCR, /* Smart Card Reader sub-system        */
+  NFA_ID_SCR, /* Secure Reader sub-system        */
 #endif
   NFA_ID_MAX
 };

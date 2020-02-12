@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright 2019 NXP
+ *  Copyright 2019-2020 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ extern bool nfc_debug_enabled;
 **
 ** Function         nfa_scr_set_reader_mode
 **
-** Description      This API sets the mode of Smart Card Reader module and a
+** Description      This API sets the mode of Secure Reader module and a
 **                  callback to notify events to JNI.
 **                  Note: if mode is false then p_cback must be nullptr
 **
@@ -50,14 +50,11 @@ extern bool nfc_debug_enabled;
 ** Returns:         void
 **
 ******************************************************************************/
-void nfa_scr_set_reader_mode(bool mode, tNFA_SCR_CBACK* scr_cback,
-        tNFA_SCR_EVT_CBACK scr_evt_cback) {
-
+void nfa_scr_set_reader_mode(bool mode, tNFA_SCR_CBACK* scr_cback) {
   bool status = false;
 
   if (mode == true) {
     nfa_scr_cb.scr_cback = scr_cback;         /* Register a JNI callback */
-    nfa_scr_cb.scr_evt_cback = scr_evt_cback; /* Register a SCR event handler cback */
     status = nfa_scr_cb.scr_evt_cback(NFA_SCR_APP_START_REQ_EVT, NFA_STATUS_OK);
   } else {
     nfa_scr_cb.app_stop_req = true;
