@@ -273,6 +273,8 @@ typedef struct {
   uint8_t rf_update_reqd;
 } tNFC_FWUpdate_Info_t;
 #endif
+
+#define HAL_NFC_FW_UPDATE_STATUS_EVT 0xA
 /*****************************************************************************
 **  EXTERNAL FUNCTION DECLARATIONS
 *****************************************************************************/

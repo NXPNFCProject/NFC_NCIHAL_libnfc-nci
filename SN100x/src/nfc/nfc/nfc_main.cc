@@ -674,13 +674,13 @@ static void nfc_main_hal_cback(uint8_t event, tHAL_NFC_STATUS status) {
 #endif
       }
 #if (NXP_EXTNS == TRUE)
-      else if(status == HAL_NFC_STATUS_RESTART)
+      else if(status == (uint8_t)NfcHalStatus::HAL_NFC_STATUS_RESTART)
       {
         DLOG_IF(INFO, nfc_debug_enabled)
           << StringPrintf("ESE Update complete : Restart NFC service");
         abort();
       }
-      else if(status == HAL_NFC_HCI_NV_RESET)
+      else if(status == (uint8_t)NfcHalStatus::HAL_NFC_HCI_NV_RESET)
       {
         DLOG_IF(INFO, nfc_debug_enabled)
           << StringPrintf("Jcop Update complete : Reset HCI NV info");

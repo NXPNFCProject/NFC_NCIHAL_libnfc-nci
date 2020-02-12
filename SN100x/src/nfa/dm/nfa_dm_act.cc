@@ -1214,16 +1214,11 @@ bool nfa_dm_act_change_discovery_tech (tNFA_DM_MSG *p_data)
 *******************************************************************************/
 bool nfa_dm_set_transit_config(tNFA_DM_MSG* p_data) {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s", __func__);
-  nfc_nci_IoctlInOutData_t inpOutData;
+
   tNFA_DM_CBACK_DATA dm_cback_data;
   dm_cback_data.set_transit_config.status = NFA_STATUS_OK;
 
-  inpOutData.inp.data.transitConfig.val =
-      p_data->transit_config.transitConfig;
-  /* size including the null char */
-  inpOutData.inp.data.transitConfig.len =
-      strlen(p_data->transit_config.transitConfig) + 1;
-  nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_SET_TRANSIT_CONFIG, (void*)&inpOutData);
+  nfc_cb.p_hal->set_transit_config(p_data->transit_config.transitConfig);
   (*nfa_dm_cb.p_dm_cback)(NFA_DM_SET_TRANSIT_CONFIG_EVT, &dm_cback_data);
 
   return true;
