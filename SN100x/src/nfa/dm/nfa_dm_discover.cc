@@ -2450,6 +2450,9 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
       }
       if (p_data->nfc_discover.deactivate.reason !=
           NFC_DEACTIVATE_REASON_DH_REQ_FAILED) {
+        /* count for number of times deactivate cmd sent */
+        nfa_dm_cb.deactivate_cmd_retry_count = 0;
+
         sleep_wakeup_event = true;
         nfa_dm_disc_notify_deactivation(NFA_DM_RF_DEACTIVATE_NTF,
                                         &(p_data->nfc_discover));
@@ -2459,8 +2462,7 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
            NFC_DEACTIVATE_TYPE_SLEEP_AF)) {
         if (p_data->nfc_discover.deactivate.reason !=
             NFC_DEACTIVATE_REASON_DH_REQ_FAILED) {
-          /* count for number of times deactivate cmd sent */
-          nfa_dm_cb.deactivate_cmd_retry_count = 0;
+
           nfa_dm_disc_new_state(NFA_DM_RFST_W4_HOST_SELECT);
 #if (NXP_EXTNS == TRUE)
           if (nfa_dm_cb.disc_cb.disc_flags & NFA_DM_DISC_FLAGS_STOPPING) {
@@ -2516,7 +2518,6 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
                 (!nfa_dm_cb.disc_cb.deact_pending)) {
               nfa_dm_send_deactivate_cmd(NFA_DEACTIVATE_TYPE_DISCOVERY);
             }
-            nfa_dm_cb.deactivate_cmd_retry_count = 0;
           } else {
             nfa_dm_cb.deactivate_cmd_retry_count++;
             nfa_dm_send_deactivate_cmd(p_data->nfc_discover.deactivate.type);
@@ -2529,6 +2530,24 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
       } else if (p_data->nfc_discover.deactivate.type ==
                  NFC_DEACTIVATE_TYPE_DISCOVERY) {
         nfa_dm_disc_new_state(NFA_DM_RFST_DISCOVERY);
+        /* if deactivation type is discovery and comes after 3 tentatives of
+         * unsuccessful deactivation to sleep then reset the counter and  notify
+         * upper layer.
+         *
+         */
+        if (nfa_dm_cb.deactivate_cmd_retry_count == 3) {
+          nfa_dm_cb.deactivate_cmd_retry_count = 0;
+          DLOG_IF(INFO, nfc_debug_enabled)
+              << __func__
+              << StringPrintf(
+                     " NFA_DM_RF_DEACTIVATE_NTF to discovery after 3 attempt "
+                     "of deactivate (sleep)");
+          if (p_data->nfc_discover.deactivate.reason ==
+              NFC_DEACTIVATE_REASON_DH_REQ_FAILED) {
+            nfa_dm_disc_notify_deactivation(NFA_DM_RF_DEACTIVATE_NTF,
+                                            &(p_data->nfc_discover));
+          }
+        }
         if (nfa_dm_cb.disc_cb.disc_flags & NFA_DM_DISC_FLAGS_STOPPING) {
 #if (NXP_EXTNS == TRUE)
           /* Take care of  deact_pending request during presence check*/
