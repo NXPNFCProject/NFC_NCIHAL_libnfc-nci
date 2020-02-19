@@ -26,6 +26,7 @@
 
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
+#include <log/log.h>
 
 #include "nfc_target.h"
 
@@ -531,6 +532,12 @@ void ce_t3t_handle_non_nfc_forum_cmd(tCE_CB* p_mem_cb, uint8_t cmd_id,
 
     switch (cmd_id) {
       case T3T_MSG_OPC_POLL_CMD:
+        if (p_cmd_msg->len < 5) {
+          LOG(ERROR) << "Received invalid T3t message";
+          android_errorWriteLog(0x534e4554, "121150966");
+          send_response = false;
+          break;
+        }
         /* Get system code and RC */
         /* Skip over sod and cmd_id */
         p += 2;
