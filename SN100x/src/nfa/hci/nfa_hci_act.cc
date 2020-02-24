@@ -319,7 +319,7 @@ static void nfa_hci_api_register(tNFA_HCI_EVENT_DATA* p_evt_data) {
         strlcpy(&nfa_hci_cb.cfg.reg_app_names[xx][0], p_app_name,
                 NFA_MAX_HCI_APP_NAME_LEN);
 #else
-        strncpy(&nfa_hci_cb.cfg.reg_app_names[xx][0], p_app_name,
+        strlcpy(&nfa_hci_cb.cfg.reg_app_names[xx][0], p_app_name,
                 NFA_MAX_HCI_APP_NAME_LEN);
 #endif
         nfa_hci_cb.nv_write_needed = true;
