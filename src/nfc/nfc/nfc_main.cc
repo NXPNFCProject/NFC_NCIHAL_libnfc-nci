@@ -598,7 +598,7 @@ void nfc_main_handle_hal_evt(tNFC_HAL_EVT_MSG* p_msg) {
       break;
     case (uint32_t)NfcEvent::HCI_NETWORK_RESET:
       delete_stack_non_volatile_store(true);
-      property_set("persist.nfc.hci_network_reset_req", "false");
+      property_set("persist.vendor.nfc.hci_network_reset_req", "false");
       break;
 #if (NXP_EXTNS == TRUE)
     case HAL_NFC_POST_MIN_INIT_CPLT_EVT:
