@@ -173,7 +173,7 @@ static void nfa_ee_trace_aid(std::string p_str, uint8_t id, uint8_t aid_len,
       return;
     }
 #else
-    yy += snprintf(&buff[yy], "%02x ", *p);
+    yy += snprintf(&buff[yy], (sizeof(buff) - yy), "%02x ", *p);
 #endif
     p++;
   }
