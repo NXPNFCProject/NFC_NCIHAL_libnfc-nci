@@ -78,6 +78,7 @@ static bool nfa_scr_handle_stop_req(void);
 static void nfa_scr_send_prop_set_conf(bool set);
 static vector<uint8_t> nfa_scr_get_prop_set_conf_cmd(bool set);
 static bool nfa_scr_handle_get_conf_rsp(uint8_t status);
+static void nfa_scr_send_prop_get_set_conf(bool rdr_start_req);
 static void nfa_scr_send_prop_get_conf(void);
 static bool nfa_scr_handle_deact_rsp_ntf(uint8_t status);
 static bool nfa_scr_send_discovermap_cmd(uint8_t status);
@@ -117,6 +118,7 @@ void nfa_scr_init(void) {
   nfa_scr_cb.tag_op_timeout = NfcConfig::getUnsigned(NAME_NXP_SWP_RD_TAG_OP_TIMEOUT, 20);
   nfa_scr_cb.poll_prof_sel_cfg = NfcConfig::getUnsigned(NAME_NFA_CONFIG_FORMAT, 1);
   nfa_scr_cb.rdr_req_guard_time = NfcConfig::getUnsigned(NAME_NXP_RDR_REQ_GUARD_TIME, 0);
+  nfa_scr_cb.configure_lpcd = NfcConfig::getUnsigned(NAME_NXP_RDR_DISABLE_ENABLE_LPCD, 1);
   /* register message handler on NFA SYS */
   nfa_sys_register(NFA_ID_SCR, &nfa_scr_sys_reg);
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: exit",__func__);
@@ -611,7 +613,7 @@ static bool nfa_scr_handle_start_req() {
   if(IS_SCR_APP_REQESTED && nfa_scr_cb.sub_state == NFA_SCR_SUBSTATE_WAIT_START_RDR_NTF) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("EMV-CO polling profile");
     nfa_scr_cb.state = NFA_SCR_STATE_START_IN_PROGRESS;
-    nfa_scr_send_prop_get_conf();
+    nfa_scr_send_prop_get_set_conf(true);
   } else if (IS_SCR_START_SUCCESS && nfa_scr_cb.rdr_req_guard_time) {
     /* If NXP_RDR_REQ_GUARD_TIME is not provided this code snippet shall not be applied
      * i.e. nfa_scr_cb.restart_emvco_poll shall not be set to 1 */
@@ -727,7 +729,7 @@ static bool nfa_scr_handle_stop_req() {
   case NFA_SCR_STATE_STOP_CONFIG:
     if(nfa_scr_cb.wait_for_deact_ntf == false) {
       nfa_scr_cb.state = NFA_SCR_STATE_STOP_IN_PROGRESS;
-      nfa_scr_send_prop_get_conf();
+      nfa_scr_send_prop_get_set_conf(false);
     } else { /* Proceed with reader stop once RF_DEACTIVATE_NTF is received */
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: "
               "Reader will be stopped once card is removed from field", __func__);
@@ -788,7 +790,7 @@ static vector<uint8_t> nfa_scr_get_prop_set_conf_cmd(bool set) {
             << StringPrintf("%s: Prop set conf is not provided", __func__);
     cmd_buf.resize(0);
     nfa_scr_error_handler(NFA_SCR_ERROR_GET_PROP_SET_CONF_CMD);
-  } else {
+  } else if (nfa_scr_cb.configure_lpcd) {
     if(set) {
       cmd_buf[7] = nfa_scr_cb.poll_prof_sel_cfg; /*EMV-CO Poll for certification*/
       if(nfa_scr_cb.p_nfa_get_confg.param_tlvs[LPCD_BYTE_POS] & (1 << LPCD_BIT_POS)) {
@@ -809,6 +811,8 @@ static vector<uint8_t> nfa_scr_get_prop_set_conf_cmd(bool set) {
       cmd_buf.insert(cmd_buf.end(), nfa_scr_cb.p_nfa_get_confg.param_tlvs,
               nfa_scr_cb.p_nfa_get_confg.param_tlvs + (nfa_scr_cb.p_nfa_get_confg.tlv_size - 2));
     }
+  } else if(set) {
+    cmd_buf[7] = nfa_scr_cb.poll_prof_sel_cfg; /*EMV-CO Poll for certification*/
   }
   return cmd_buf;
 }
@@ -908,6 +912,22 @@ void nfa_scr_send_prop_get_conf_cb(uint8_t event, uint16_t param_len, uint8_t *p
 
 /*******************************************************************************
  **
+ ** Function:        nfa_scr_send_prop_get_set_conf
+ **
+ ** Description:     Send NFC GET/SET CONF COMMAND
+ **
+ ** Returns:         None
+ **
+ *******************************************************************************/
+static void nfa_scr_send_prop_get_set_conf(bool rdr_start_req) {
+  if(nfa_scr_cb.configure_lpcd) {
+    nfa_scr_send_prop_get_conf();
+  } else {
+    nfa_scr_send_prop_set_conf(rdr_start_req);
+  }
+}
+/*******************************************************************************
+ **
  ** Function:        nfa_scr_send_prop_get_conf
  **
  ** Description:     Send NFC GET CONF COMMAND
@@ -974,7 +994,7 @@ static bool nfa_scr_handle_deact_rsp_ntf(uint8_t status) {
           /* App stop request shall have highest prio than 610A for start rdr mode */
           if(nfa_scr_cb.app_stop_req) {
             nfa_scr_cb.state = NFA_SCR_STATE_STOP_IN_PROGRESS;
-            nfa_scr_send_prop_get_conf();
+            nfa_scr_send_prop_get_set_conf(false);
             break;
           }
           if(!is_emvco_polling_restart_req()) {
