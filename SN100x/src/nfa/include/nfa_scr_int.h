@@ -223,6 +223,7 @@ typedef struct {
   bool wait_for_deact_ntf;
   uint8_t is_timer_started:1;   /* shall be used/set only if NXP_RDR_REQ_GUARD_TIME is non-ZERO */
   uint8_t restart_emvco_poll:1; /* shall be used/set only if NXP_RDR_REQ_GUARD_TIME is non-ZERO */
+  uint8_t configure_lpcd;
   /**************************************/
 } tNFA_SCR_CB;
 
