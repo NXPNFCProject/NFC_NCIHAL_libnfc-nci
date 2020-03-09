@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2019 NXP
+ *  Copyright 2018-2020 NXP
  *
  ******************************************************************************/
 
@@ -1137,7 +1137,10 @@ static void nfa_rw_handle_t4t_evt(tRW_EVENT event, tRW_DATA* p_rw_data) {
     case RW_T4T_INTF_ERROR_EVT: /* RF Interface error event         */
       conn_evt_data.status = p_rw_data->status;
 #if (NXP_EXTNS == TRUE)
-      nfa_dm_rf_deactivate(NFA_DEACTIVATE_TYPE_DISCOVERY);
+     if(conn_evt_data.status == NFC_STATUS_RF_PROTOCOL_ERR)
+       nfa_dm_act_conn_cback_notify(NFA_RW_INTF_ERROR_EVT, &conn_evt_data);
+     else
+       nfa_dm_rf_deactivate(NFA_DEACTIVATE_TYPE_DISCOVERY);
 #else
       nfa_dm_act_conn_cback_notify(NFA_RW_INTF_ERROR_EVT, &conn_evt_data);
 #endif
