@@ -2612,8 +2612,9 @@ static bool nfa_hci_set_apdu_pipe_ready_for_host (uint8_t host_id)
         else
         {
             /* ID Management Pipe in open state */
-            if ((p_apdu_pipe = nfa_hciu_find_dyn_apdu_pipe_for_host (host_id)) == nullptr ||
-                    (p_conn_pipe = nfa_hciu_find_dyn_conn_pipe_for_host (host_id)) == nullptr)
+            if (((p_apdu_pipe = nfa_hciu_find_dyn_apdu_pipe_for_host (host_id)) == nullptr &&
+                    nfa_hci_cb.se_apdu_gate_support) || ((p_conn_pipe =
+                            nfa_hciu_find_dyn_conn_pipe_for_host (host_id)) == nullptr))
             {
                 /* No APDU Pipe, Check if APDU gate or General Purpose APDU gate exist */
                 gate_id = nfa_hciu_find_server_apdu_gate_for_host (host_id);
@@ -2641,12 +2642,15 @@ static bool nfa_hci_set_apdu_pipe_ready_for_host (uint8_t host_id)
             else
             {
                 /* APDU Pipe exist */
-                if (p_apdu_pipe->pipe_state == NFA_HCI_PIPE_CLOSED)
+                if ((p_apdu_pipe != nullptr) && (p_apdu_pipe->pipe_state
+                        == NFA_HCI_PIPE_CLOSED))
                 {
                     nfa_hciu_send_open_pipe_cmd (p_apdu_pipe->pipe_id);
                 }
                 else
                 {
+                    DLOG_IF(INFO, nfc_debug_enabled)
+                            << StringPrintf("%s : APDU gate info not available", __func__);
                     return false;
                 }
             }
@@ -2716,7 +2720,7 @@ bool nfa_hci_check_set_apdu_pipe_ready_for_next_host ()
     for(xx = 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++) {
         p_host = &nfa_hci_cb.cfg.host[xx];
         uint8_t nfcee = nfa_hciu_get_hci_host_id(nfa_hci_cb.curr_nfcee);
-        LOG(ERROR) << StringPrintf("after updating uicc id%x", nfcee);
+        LOG(ERROR) << StringPrintf("after updating NFCEE id %x", nfcee);
         if (nfcee == p_host->host_id) {
             nfa_hciu_clear_host_resetting(p_host->host_id, NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED);
             if (p_host->host_id == NFA_HCI_FIRST_PROP_HOST) {
