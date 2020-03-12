@@ -48,11 +48,6 @@
 
 #endif
 
-enum NfcHalStatus : uint8_t {
-    HAL_NFC_STATUS_RESTART = 0x30,
-    HAL_NFC_HCI_NV_RESET = 0x40,
-};
-
 enum NfcHalFwUpdateStatus : uint8_t {
     HAL_NFC_FW_UPDATE_INVALID = 0x00,
     HAL_NFC_FW_UPDATE_START,

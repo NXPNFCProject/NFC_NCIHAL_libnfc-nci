@@ -673,20 +673,6 @@ static void nfc_main_hal_cback(uint8_t event, tHAL_NFC_STATUS status) {
           << StringPrintf("NFA_EE_MAX_EE_SUPPORTED to use %d", nfa_ee_max_ee_cfg);
 #endif
       }
-#if (NXP_EXTNS == TRUE)
-      else if(status == (uint8_t)NfcHalStatus::HAL_NFC_STATUS_RESTART)
-      {
-        DLOG_IF(INFO, nfc_debug_enabled)
-          << StringPrintf("ESE Update complete : Restart NFC service");
-        abort();
-      }
-      else if(status == (uint8_t)NfcHalStatus::HAL_NFC_HCI_NV_RESET)
-      {
-        DLOG_IF(INFO, nfc_debug_enabled)
-          << StringPrintf("Jcop Update complete : Reset HCI NV info");
-        delete_stack_non_volatile_store(true);
-      }
-#endif
       break;
 
     case HAL_NFC_CLOSE_CPLT_EVT:
