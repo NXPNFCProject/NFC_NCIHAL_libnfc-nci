@@ -577,6 +577,7 @@ typedef uint8_t tT3T_POLL_RC;
 #define I93_ICODE_CC_IPREAD_MASK 0x02
 /* More than 2040 bytes are supported in CC[3] */
 #define I93_STM_CC_OVERFLOW_MASK 0x04
+#define I93_ONS_CC_OVERFLOW_MASK 0x04
 
 /* ICODE TLV type */
 #define I93_ICODE_TLV_TYPE_NULL 0x00 /* NULL TLV         */
@@ -591,6 +592,7 @@ typedef uint8_t tT3T_POLL_RC;
 #define I93_UID_IC_MFG_CODE_STM 0x02
 #define I93_UID_IC_MFG_CODE_NXP 0x04
 #define I93_UID_IC_MFG_CODE_TI 0x07
+#define I93_UID_IC_MFG_CODE_ONS 0x67
 
 /* NXP, UID Coding of ICODE type (UID Bit 48-41) */
 /* ICODE SLI, SLIX     */
@@ -656,7 +658,26 @@ typedef uint8_t tT3T_POLL_RC;
  */
 #define I93_IC_REF_STM_ST25DVHIK 0x26
 
+/* ONS, product version (IC manufacturer code) */
+/* IC Reference for N36RW02:  00011010(b), blockSize: 4, numberBlocks: 0x40 */
+#define I93_IC_REF_ONS_N36RW02  0x1A
+/* IC Reference for N24RF04:  00101010(b), blockSize: 4, numberBlocks: 0x80 */
+#define I93_IC_REF_ONS_N24RF04  0x2A
+/* IC Reference for N24RF04E: 00101110(b), blockSize: 4, numberBlocks: 0x80 */
+#define I93_IC_REF_ONS_N24RF04E 0x2E
+/* IC Reference for N24RF16:  01001010(b), blockSize: 4, numberBlocks: 0x200 */
+#define I93_IC_REF_ONS_N24RF16  0x4A
+/* IC Reference for N24RF16E: 01001110(b), blockSize: 4, numberBlocks: 0x200 */
+#define I93_IC_REF_ONS_N24RF16E 0x4E
+/* IC Reference for N24RF64:  01101010(b), blockSize: 4, numberBlocks: 0x800 */
+#define I93_IC_REF_ONS_N24RF64  0x6A
+/* IC Reference for N24RF64E: 01101110(b), blockSize: 4, numberBlocks: 0x800 */
+#define I93_IC_REF_ONS_N24RF64E 0x6E
+
 #define I93_STM_BLOCKS_PER_SECTOR 32
 #define I93_STM_MAX_BLOCKS_PER_READ 32
+
+#define I93_ONS_BLOCKS_PER_SECTOR 32
+#define I93_ONS_MAX_BLOCKS_PER_READ 32
 
 #endif /* TAGS_DEFS_H */
