@@ -2255,7 +2255,10 @@ void rw_i93_sm_update_ndef(NFC_HDR* p_resp) {
 
       block_number = (p_i93->ndef_tlv_start_offset + 1) / p_i93->block_size;
 
-      if (rw_i93_send_cmd_write_single_block(block_number, p) ==
+      if (length < p_i93->block_size) {
+        android_errorWriteLog(0x534e4554, "143109193");
+        rw_i93_handle_error(NFC_STATUS_FAILED);
+      } else if (rw_i93_send_cmd_write_single_block(block_number, p) ==
           NFC_STATUS_OK) {
         /* update next writing offset */
         p_i93->rw_offset = (block_number + 1) * p_i93->block_size;
@@ -2410,7 +2413,10 @@ void rw_i93_sm_update_ndef(NFC_HDR* p_resp) {
 
           block_number = (p_i93->rw_offset / p_i93->block_size);
 
-          if (rw_i93_send_cmd_write_single_block(block_number, p) ==
+          if (length < p_i93->block_size) {
+            android_errorWriteLog(0x534e4554, "143155861");
+            rw_i93_handle_error(NFC_STATUS_FAILED);
+          } else if (rw_i93_send_cmd_write_single_block(block_number, p) ==
               NFC_STATUS_OK) {
             /* set offset to the beginning of next block */
             p_i93->rw_offset +=
@@ -2846,7 +2852,10 @@ void rw_i93_sm_set_read_only(NFC_HDR* p_resp) {
       /* mark CC as read-only */
       *(p + 1) |= I93_ICODE_CC_READ_ONLY;
 
-      if (rw_i93_send_cmd_write_single_block(0, p) == NFC_STATUS_OK) {
+      if (length < p_i93->block_size) {
+        android_errorWriteLog(0x534e4554, "143106535");
+        rw_i93_handle_error(NFC_STATUS_FAILED);
+      } else if (rw_i93_send_cmd_write_single_block(0, p) == NFC_STATUS_OK) {
         p_i93->sub_state = RW_I93_SUBSTATE_WAIT_UPDATE_CC;
       } else {
         rw_i93_handle_error(NFC_STATUS_FAILED);
