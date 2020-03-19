@@ -749,7 +749,8 @@ extern std::string nfa_hciu_instr_2_str(uint8_t type);
 extern std::string nfa_hciu_get_event_name(uint16_t event);
 extern std::string nfa_hciu_get_state_name(uint8_t state);
 extern char* nfa_hciu_get_type_inst_names(uint8_t pipe, uint8_t type,
-                                          uint8_t inst, char* p_buff);
+                                          uint8_t inst, char* p_buff,
+                                          const uint8_t max_buff_size);
 extern std::string nfa_hciu_evt_2_str(uint8_t pipe_id, uint8_t evt);
 #if(NXP_EXTNS == TRUE)
 extern tNFA_STATUS nfa_hciu_send_raw_cmd(uint8_t param_len, uint8_t* p_data,

@@ -17,6 +17,7 @@
  ******************************************************************************/
 #ifndef __BUILDCFG_H
 #define __BUILDCFG_H
+#include <cutils/memory.h>
 #include <memory.h>
 #include <stdio.h>
 #include <string.h>
