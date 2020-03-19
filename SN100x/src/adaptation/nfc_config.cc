@@ -15,7 +15,7 @@
  */
 /******************************************************************************
  *
- *  Copyright 2018-2019 NXP
+ *  Copyright 2018-2020 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -74,14 +74,18 @@ void NfcConfig::loadConfig() {
   theInstance.GetVendorConfigs(configMap);
 #if(NXP_EXTNS == TRUE)
   struct stat file_stat;
-
-  std::string nxp_config;
-  nxp_config = theInstance.HalGetProperty("libnfc-nxp.conf");
-  config_.cur_file_name_ = "nxpConfig";
-  config_.parseFromString(nxp_config);
   /* Read Transit configs if available */
   if (stat(PATH_TRANSIT_CONF, &file_stat) == 0)
     config_.parseFromFile(PATH_TRANSIT_CONF);
+
+ if (!theInstance.GetNxpNfcHalVersion().compare("1.1")) {
+    std::string nxp_config;
+    nxp_config = theInstance.HalGetProperty("libnfc-nxp.conf");
+    config_.cur_file_name_ = "nxpConfig";
+    config_.parseFromString(nxp_config);
+  }  else {
+    theInstance.GetNxpConfigs(configMap);
+  }
 #endif
   for (auto config : configMap) {
     config_.addConfig(config.first, config.second);

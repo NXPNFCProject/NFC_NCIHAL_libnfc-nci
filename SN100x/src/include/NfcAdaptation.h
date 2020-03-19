@@ -29,7 +29,7 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 *
-*  Copyright 2019 NXP
+*  Copyright 2019-2020 NXP
 *
 ******************************************************************************/
 #pragma once
@@ -63,6 +63,15 @@ namespace vendor {
 namespace nxp {
 namespace nxpnfc {
 namespace V1_0 {
+struct INxpNfc;
+}
+}
+}
+}
+namespace vendor {
+namespace nxp {
+namespace nxpnfc {
+namespace V1_1 {
 struct INxpNfc;
 }
 }
@@ -126,6 +135,8 @@ class NfcAdaptation {
 #endif
   void GetVendorConfigs(std::map<std::string, ConfigValue>& configMap);
 #if (NXP_EXTNS == TRUE)
+  void GetNxpConfigs(std::map<std::string, ConfigValue>& configMap);
+  string GetNxpNfcHalVersion();
   void NFA_SetBootMode(uint8_t boot_mode);
   uint8_t NFA_GetBootMode();
   string HalGetProperty(string key);
@@ -145,6 +156,7 @@ class NfcAdaptation {
 #if (NXP_EXTNS == TRUE)
   static ThreadMutex sIoctlLock;
   uint8_t nfcBootMode;
+  string mNxpNfcHalVersion;
 #endif
   ThreadCondVar mCondVar;
   tHAL_NFC_ENTRY mHalEntryFuncs;  // function pointers for HAL entry points
@@ -153,6 +165,7 @@ class NfcAdaptation {
   static android::sp<android::hardware::nfc::V1_2::INfc> mHal_1_2;
 #if (NXP_EXTNS == TRUE)
   static android::sp<vendor::nxp::nxpnfc::V1_0::INxpNfc> mHalNxpNfc;
+  static android::sp<vendor::nxp::nxpnfc::V1_1::INxpNfc> mHalNxpNfc_1_1;
 #endif
   static android::hardware::nfc::V1_1::INfcClientCallback* mCallback;
   static tHAL_NFC_CBACK* mHalCallback;

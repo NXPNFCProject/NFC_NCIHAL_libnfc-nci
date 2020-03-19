@@ -38,6 +38,7 @@ enum {
 #if (NXP_EXTNS == TRUE)
  ,HAL_NFC_IOCTL_SET_TRANSIT_CONFIG,
   HAL_NFC_IOCTL_GET_ESE_UPDATE_STATE,
+  HAL_NFC_IOCTL_GET_NXP_CONFIG,
 #endif
 };
 enum {
@@ -142,6 +143,14 @@ typedef struct {
   nxp_nfc_coreConf_t coreConf;
   nxp_nfc_rfFileVerInfo_t rfFileVersInfo;
   nxp_nfc_scrResetEmvcoCmd_t scrResetEmvco;
+  uint8_t t4tnfcee;
+  uint8_t enableLogs;
+  uint8_t disconnectTagInScrOff;
+  uint8_t rdrGuardtime;
+  uint8_t hostSim2PipeID;
+  uint8_t rdrEnableLpcd;
+  uint8_t autonomousEnable;
+  uint8_t defaultProtoSeId;
 } nxp_nfc_config_t;
 #endif
 /*
