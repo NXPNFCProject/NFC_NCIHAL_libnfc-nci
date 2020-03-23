@@ -1899,7 +1899,14 @@ static void nfa_dm_disc_data_cback(__attribute__((unused)) uint8_t conn_id,
 
   /* if selection failed */
   if (event == NFC_ERROR_CEVT) {
+#if(NXP_EXTNS == TRUE)
+    tNFA_DM_RF_DISC_DATA rf_disc_data;
+    rf_disc_data.nfc_discover.status =
+            (p_data?p_data->data.status:NFA_STATUS_TIMEOUT);
+    nfa_dm_disc_sm_execute(NFA_DM_CORE_INTF_ERROR_NTF, &rf_disc_data);
+#else
     nfa_dm_disc_sm_execute(NFA_DM_CORE_INTF_ERROR_NTF, nullptr);
+#endif
   } else if (event == NFC_DATA_CEVT) {
     GKI_freebuf(p_data->data.p_data);
   }
@@ -2395,7 +2402,9 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
       (nfa_dm_cb.disc_cb.disc_flags & NFA_DM_DISC_FLAGS_CHECKING);
   bool sleep_wakeup_event = false;
   bool sleep_wakeup_event_processed = false;
-
+#if(NXP_EXTNS == TRUE)
+  tNFA_CONN_EVT_DATA conn_evt_data;
+#endif
   switch (event) {
     case NFA_DM_RF_DEACTIVATE_CMD:
 
@@ -2550,7 +2559,8 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
         nfa_dm_send_deactivate_cmd(NFA_DEACTIVATE_TYPE_DISCOVERY);
       }
 #if(NXP_EXTNS == TRUE)
-      nfa_dm_act_conn_cback_notify(NFA_RW_INTF_ERROR_EVT, NULL);
+      conn_evt_data.status = p_data->nfc_discover.status;
+      nfa_dm_act_conn_cback_notify(NFA_RW_INTF_ERROR_EVT, &conn_evt_data);
 #endif
       break;
 
