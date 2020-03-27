@@ -74,9 +74,6 @@ void NfcConfig::loadConfig() {
   theInstance.GetVendorConfigs(configMap);
 #if(NXP_EXTNS == TRUE)
   struct stat file_stat;
-  /* Read Transit configs if available */
-  if (stat(PATH_TRANSIT_CONF, &file_stat) == 0)
-    config_.parseFromFile(PATH_TRANSIT_CONF);
 
  if (!theInstance.GetNxpNfcHalVersion().compare("1.1")) {
     std::string nxp_config;
@@ -86,6 +83,9 @@ void NfcConfig::loadConfig() {
   }  else {
     theInstance.GetNxpConfigs(configMap);
   }
+  /* Read Transit configs if available */
+  if (stat(PATH_TRANSIT_CONF, &file_stat) == 0)
+    config_.parseFromFile(PATH_TRANSIT_CONF);
 #endif
   for (auto config : configMap) {
     config_.addConfig(config.first, config.second);
