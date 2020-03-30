@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2019 NXP
+ *  Copyright 2018-2020 NXP
  *
  ******************************************************************************/
 
@@ -1506,10 +1506,20 @@ void nfc_ncif_proc_reset_rsp(uint8_t* p, bool is_ntf) {
   uint8_t wait_for_ntf = FALSE;
   if (is_ntf) {
     LOG(ERROR) << StringPrintf("reset notification!!:0x%x ", status);
+#if(NXP_EXTNS == TRUE)
+    if(status == NCI2_0_RESET_TRIGGER_TYPE_POWERED_ON) {
+      DLOG_IF(INFO, nfc_debug_enabled)
+          << StringPrintf("Skipping power on reset notification!!:");
+      return;
+    }
+#endif
     /* clean up, if the state is OPEN
      * FW does not report reset ntf right now */
-    if (status == NCI2_0_RESET_TRIGGER_TYPE_CORE_RESET_CMD_RECEIVED ||
-        status == NCI2_0_RESET_TRIGGER_TYPE_POWERED_ON) {
+    if (status == NCI2_0_RESET_TRIGGER_TYPE_CORE_RESET_CMD_RECEIVED
+#if(NXP_EXTNS != TRUE)
+            || status == NCI2_0_RESET_TRIGGER_TYPE_POWERED_ON
+#endif
+        ) {
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
           "CORE_RESET_NTF Received status nfc_state : 0x%x : 0x%x", status,
           nfc_cb.nfc_state);
