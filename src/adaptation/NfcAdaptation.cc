@@ -1082,10 +1082,7 @@ bool NfcAdaptation::DownloadFirmware() {
   {
       cmd_init_nci_size = sizeof(cmd_init_nci2_0) / sizeof(uint8_t);
   }
-  nfc_nci_IoctlInOutData_t inpOutData;
-  tNFC_FWUpdate_Info_t fw_update_inf;
   uint8_t p_core_init_rsp_params;
-  uint16_t fw_dwnld_status = NFC_STATUS_FAILED;
   evt_status = NFC_STATUS_FAILED;
 #endif
   HalInitialize();
@@ -1129,15 +1126,6 @@ bool NfcAdaptation::DownloadFirmware() {
   if (evt_status == NFC_STATUS_FAILED) {
     goto TheEnd;
   }
-  mHalEntryFuncs.ioctl(HAL_NFC_IOCTL_CHECK_FLASH_REQ, &inpOutData);
-  fw_update_inf = *(tNFC_FWUpdate_Info_t*)&inpOutData.out.data.fwUpdateInf;
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("fw_update required  -> %d", fw_update_inf.fw_update_reqd);
-  if (fw_update_inf.fw_update_reqd == true) {
-    mHalEntryFuncs.ioctl(HAL_NFC_IOCTL_FW_DWNLD, &inpOutData);
-    fw_dwnld_status = inpOutData.out.data.fwDwnldStatus;
-    if (fw_dwnld_status != NFC_STATUS_OK) {
-      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: FW Download failed", func);
-    } else {
       isSignaled = SIGNAL_NONE;
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: send CORE_RESET", func);
       HalWrite(cmd_reset_nci_size, cmd_reset_nci);
@@ -1173,8 +1161,6 @@ bool NfcAdaptation::DownloadFirmware() {
       }
       isSignaled = SIGNAL_NONE;
       mHalInitCompletedEvent.unlock();
-    }
-  }
 
 TheEnd:
   isSignaled = SIGNAL_NONE;
