@@ -1549,15 +1549,6 @@ extern uint8_t nfc_hal_nfcc_reset(void);
 extern uint8_t nfc_hal_nfcc_init(uint8_t** pinit_rsp);
 /*******************************************************************************
 **
-** Function         NFC_EnableDisableHalLog
-**
-** Description      This function is used to enable/disable
-**                  HAL log level.
-**
-*******************************************************************************/
-void NFC_EnableDisableHalLog(uint8_t type);
-/*******************************************************************************
-**
 ** Function         nfc_ncif_getMaxRoutingTableSize
 **
 ** Description      This function is called to get the Max supported routing
@@ -1623,42 +1614,6 @@ int32_t NFC_RelWiredAccess(void* pdata);
 int32_t NFC_GetP61Status(void* pdata);
 /*******************************************************************************
 **
-** Function         NFC_DisableWired
-**
-** Description      This function request to pn54x driver to
-**                  disable ese vdd gpio
-**
-** Returns          0 if api call success, else -1
-**
-*******************************************************************************/
-int32_t NFC_DisableWired(void* pdata);
-
-/*******************************************************************************
-**
-** Function         NFC_ReleaseEsePwr
-**
-** Description      This function request to pn553 driver to
-**                  turn ese vdd gpio low
-**
-** Returns          0 if api call success, else -1
-**
-*******************************************************************************/
-int32_t NFC_ReleaseEsePwr(void* pdata);
-
-/*******************************************************************************
-**
-** Function         NFC_AcquireEsePwr
-**
-** Description      This function request to pn553 driver to
-**                  turn ese vdd gpio high
-**
-** Returns          0 if api call success, else -1
-**
-*******************************************************************************/
-int32_t NFC_AcquireEsePwr(void* pdata);
-
-/*******************************************************************************
-**
 ** Function         NFC_eSEChipReset
 **
 ** Description      This function request to reset ESE using ISO_RST feature.
@@ -1667,17 +1622,6 @@ int32_t NFC_AcquireEsePwr(void* pdata);
 **
 *******************************************************************************/
 int32_t NFC_eSEChipReset(void* pdata);
-/*******************************************************************************
-**
-** Function         NFC_EnableWired
-**
-** Description      This function request to pn54x driver to
-**                  enable ese vdd gpio
-**
-** Returns          0 if api call success, else -1
-**
-*******************************************************************************/
-int32_t NFC_EnableWired(void* pdata);
 /*******************************************************************************
 **
 ** Function         NFC_SetNfcServicePid
@@ -1711,31 +1655,6 @@ int32_t NFC_ResetNfcServicePid();
 **
 *******************************************************************************/
 bool NFC_IsLowRamDevice();
-
-/*******************************************************************************
-**
-** Function         NFC_GetEseAccess
-**
-** Description      This function request to pn54x driver to get access
-**                  of P61. it returns 0 on success. This api waits maximum
-**                  defined timeout
-**
-** Returns          0 if api call success, else -1
-**
-*******************************************************************************/
-int32_t NFC_GetEseAccess(void* pdata);
-
-/*******************************************************************************
-**
-** Function         NFC_RelEseAccess
-**
-** Description      This function release access of P61.
-**                  it returns 0 on success.
-**
-** Returns          0 if api call success, else -1
-**
-*******************************************************************************/
-int32_t NFC_RelEseAccess(void* pdata);
 
 /*******************************************************************************
 **

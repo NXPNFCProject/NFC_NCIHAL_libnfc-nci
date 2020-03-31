@@ -2644,11 +2644,7 @@ void nfc_ncif_proc_init_rsp(NFC_HDR* p_msg) {
   if((nfcFL.chipType != pn547C2) && nfcFL.nfcMwFL._NFC_NXP_AID_MAX_SIZE_DYN) {
       nfc_ncif_set_MaxRoutingTableSize(p);
   }
-  nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_FW_MW_VER_CHECK, &inpOutData);
-  fw_mw_ver_status = inpOutData.out.data.fwMwVerStatus;
-  if (fw_mw_ver_status != NCI_STATUS_OK) {
-    LOG(ERROR) << StringPrintf("fw_mw_ver_status failed !!:0x%x ", status);
-  }
+
 #endif
 
   /* TODO To be removed after 553 bringup */
