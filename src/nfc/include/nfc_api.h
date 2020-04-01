@@ -1612,16 +1612,7 @@ int32_t NFC_RelWiredAccess(void* pdata);
 **
 *******************************************************************************/
 int32_t NFC_GetP61Status(void* pdata);
-/*******************************************************************************
-**
-** Function         NFC_eSEChipReset
-**
-** Description      This function request to reset ESE using ISO_RST feature.
-**
-** Returns          0 if api call success, else -1
-**
-*******************************************************************************/
-int32_t NFC_eSEChipReset(void* pdata);
+
 /*******************************************************************************
 **
 ** Function         NFC_SetNfcServicePid

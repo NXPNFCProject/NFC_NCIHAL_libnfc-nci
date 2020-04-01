@@ -1671,24 +1671,6 @@ int32_t NFC_SetP61Status(void* pdata, jcop_dwnld_state_t isJcopState) {
 
 /*******************************************************************************
 **
-** Function         NFC_eSEChipReset
-**
-** Description      This function request to pn54x driver to
-**                  chip reset the ESE using ISO_RST pin configuration.
-**
-** Returns          0 if api call success, else -1
-**
-*******************************************************************************/
-int32_t NFC_eSEChipReset(void* pdata) {
-  nfc_nci_IoctlInOutData_t inpOutData;
-  int32_t status;
-  status = nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_ESE_CHIP_RST, &inpOutData);
-  *(tNFC_STATUS*)pdata = inpOutData.out.data.status;
-  return status;
-}
-
-/*******************************************************************************
-**
 ** Function         NFC_RelSvddWait
 **
 ** Description      This function release wait for svdd change
