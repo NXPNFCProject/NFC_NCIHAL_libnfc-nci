@@ -1465,20 +1465,6 @@ extern tNFC_STATUS NFC_SendVsCommand(uint8_t oid, NFC_HDR* p_data,
 extern tNFC_STATUS NFC_SendRawVsCommand(NFC_HDR* p_data,
                                          tNFC_VS_CBACK* p_cback);
 
-#if (NXP_EXTNS == TRUE)
-/*******************************************************************************
-**
-** Function         NFC_SetP61Status
-**
-** Description      This function set the JCOP download
-**                  state to pn544 driver.
-**
-** Returns          0 if api call success, else -1
-**
-*******************************************************************************/
-extern int32_t NFC_SetP61Status(void* pdata, jcop_dwnld_state_t isJcopState);
-#endif
-
 /*******************************************************************************
 **
 ** Function         NFC_TestLoopback

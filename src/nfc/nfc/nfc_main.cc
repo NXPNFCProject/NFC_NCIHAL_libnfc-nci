@@ -43,7 +43,7 @@
  *
  ******************************************************************************/
 #include <string.h>
-
+#include "NfcAdaptation.h"
 #include <android-base/stringprintf.h>
 #include <android/hardware/nfc/1.1/types.h>
 #include <vendor/nxp/nxpnfc/1.0/types.h>
@@ -62,12 +62,14 @@
 #include "ce_int.h"
 #include "nfa_sys.h"
 #include <config.h>
+#include <fcntl.h>
 #if (NFC_RW_ONLY == FALSE)
 
 #include "llcp_int.h"
 
 #if (NXP_EXTNS == TRUE)
 #include "nfa_dm_int.h"
+extern std::string nfc_storage_path;
 extern void nfa_dm_init_cfgs(phNxpNci_getCfg_info_t* mGetCfg_info_main);
 #endif
 
@@ -1641,32 +1643,6 @@ tNFC_STATUS NFC_Nfcee_PwrLinkCtrl(uint8_t nfcee_id, uint8_t cfg_value,
   return nci_snd_pwr_nd_lnk_ctrl_cmd(nfcee_id, cfg_value, reqSrc);
 }
 
-/*******************************************************************************
-**
-** Function         NFC_SetP61Status
-**
-** Description      This function set the JCOP download
-**                  state to pn544 driver.
-**
-** Returns          0 if api call success, else -1
-**
-*******************************************************************************/
-int32_t NFC_SetP61Status(void* pdata, jcop_dwnld_state_t isJcopState) {
-    if(!nfcFL.eseFL._ESE_JCOP_DWNLD_PROTECTION) {
-        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFC_SetP61Status :"
-                "ESE_JCOP_DWNLD_PROTECTION is not available.. Returning");
-        return -1;
-    }
-  nfc_nci_IoctlInOutData_t inpOutData;
-  if (isJcopState == JCP_DWNLD_START)
-    isJcopState =(jcop_dwnld_state_t)
-        nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_SET_JCP_DWNLD_ENABLE, &inpOutData);
-  else if (isJcopState == JCP_DWP_DWNLD_COMPLETE)
-    isJcopState =(jcop_dwnld_state_t)
-        (nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_SET_JCP_DWNLD_DISABLE, &inpOutData));
-  *(tNFC_STATUS*)pdata = inpOutData.out.data.status;
-  return isJcopState;
-}
 #endif
 
 /*******************************************************************************
@@ -1857,6 +1833,31 @@ void NFC_GetFeatureList() {
     CONFIGURE_FEATURELIST(chipType);
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFC_GetFeatureList ()chipType = %d", chipType);
 
+}
+
+/*******************************************************************************
+**
+** Function         check_nfcee_session_and_reset
+**
+** Description      check bin file not present call reset session
+**
+** Returns          void
+**
+*******************************************************************************/
+void  check_nfcee_session_and_reset()
+{
+  std::string filename(nfc_storage_path);
+  std::string sConfigFile = "/nfaStorage.bin1";
+  filename.append(sConfigFile);
+  int fileStream = open(filename.c_str(), O_RDONLY);
+  if(fileStream < 0) {
+    DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("%s: file not found %s", __func__, filename.c_str());
+    NfcAdaptation& theInstance = NfcAdaptation::GetInstance();
+    theInstance.FactoryReset();
+  } else {
+    close(fileStream);
+  }
 }
 
 /*******************************************************************************

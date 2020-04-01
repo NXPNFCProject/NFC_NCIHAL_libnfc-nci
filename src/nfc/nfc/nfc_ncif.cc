@@ -2462,17 +2462,7 @@ void nfc_ncif_proc_init_rsp(NFC_HDR* p_msg) {
 
       nfc_cb.p_nci_init_rsp = p_msg;
       nfc_cb.p_hal->core_initialized(p_msg->len, p);
-      struct stat file_stat;
-      /* If pipe details not present (nfaStorage.bin not present)
-       * resetting nfcee session to get all pipe details */
-      if(stat("/data/nfc/nfaStorage.bin1", &file_stat) != 0) {
-        status =
-            nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_NFCEE_SESSION_RESET, &inpOutData);
-        if (status != NCI_STATUS_OK) {
-          LOG(ERROR) << StringPrintf(
-              "HAL_NFC_IOCTL_NFCEE_SESSION_RESET Failed");
-        }
-      }
+      check_nfcee_session_and_reset();
     }
   }
 #if (NXP_EXTNS == TRUE)

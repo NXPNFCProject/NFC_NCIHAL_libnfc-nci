@@ -445,5 +445,6 @@ void nfc_stop_quick_timer(TIMER_LIST_ENT* p_tle);
 void nfc_process_quick_timer_evt(void);
 void set_i2c_fragmentation_enabled(int value);
 int get_i2c_fragmentation_enabled();
+void check_nfcee_session_and_reset();
 
 #endif /* NFC_INT_H_ */
