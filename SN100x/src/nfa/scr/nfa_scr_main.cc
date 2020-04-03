@@ -790,7 +790,7 @@ static vector<uint8_t> nfa_scr_get_prop_set_conf_cmd(bool set) {
             << StringPrintf("%s: Prop set conf is not provided", __func__);
     cmd_buf.resize(0);
     nfa_scr_error_handler(NFA_SCR_ERROR_GET_PROP_SET_CONF_CMD);
-  } else if (nfa_scr_cb.configure_lpcd) {
+  } else if (nfa_scr_cb.configure_lpcd == 2) {
     if(set) {
       cmd_buf[7] = nfa_scr_cb.poll_prof_sel_cfg; /*EMV-CO Poll for certification*/
       if(nfa_scr_cb.p_nfa_get_confg.param_tlvs[LPCD_BYTE_POS] & (1 << LPCD_BIT_POS)) {
@@ -920,7 +920,7 @@ void nfa_scr_send_prop_get_conf_cb(uint8_t event, uint16_t param_len, uint8_t *p
  **
  *******************************************************************************/
 static void nfa_scr_send_prop_get_set_conf(bool rdr_start_req) {
-  if(nfa_scr_cb.configure_lpcd) {
+  if(nfa_scr_cb.configure_lpcd == 2) {
     nfa_scr_send_prop_get_conf();
   } else {
     nfa_scr_send_prop_set_conf(rdr_start_req);
