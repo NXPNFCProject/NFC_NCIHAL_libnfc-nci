@@ -744,15 +744,18 @@ static void nfa_ee_add_sys_code_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
     }
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
         "nfa_ee_route_add_one_ecb_by_route_order --num_tlv:- %d", num_tlv);
-  } else
-#if(NXP_EXTNS == TRUE)
-  if(p_cb->ecb_flags & NFA_EE_ECB_FLAGS_SYSCODE) {
-    /*Update the routing information as part of de-register system code*/
-    p_cb->ecb_flags |= NFA_EE_ECB_FLAGS_ROUTING;
   } else {
+#if(NXP_EXTNS == TRUE)
+    if(p_cb->ecb_flags & NFA_EE_ECB_FLAGS_SYSCODE) {
+      /*Update the routing information as part of de-register system code*/
+      p_cb->ecb_flags |= NFA_EE_ECB_FLAGS_ROUTING;
+    } else {
 #endif
     DLOG_IF(INFO, nfc_debug_enabled)
         << StringPrintf("%s - No SC entries available", __func__);
+#if(NXP_EXTNS == TRUE)
+    }
+#endif
   }
 }
 
