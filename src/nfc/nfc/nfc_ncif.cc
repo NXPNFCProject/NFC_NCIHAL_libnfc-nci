@@ -2414,7 +2414,6 @@ void nfc_ncif_proc_init_rsp(NFC_HDR* p_msg) {
   uint8_t *p, status;
   tNFC_CONN_CB* p_cb = &nfc_cb.conn_cb[NFC_RF_CONN_ID];
 #if (NXP_EXTNS == TRUE)
-  nfc_nci_IoctlInOutData_t inpOutData;
   static uint8_t retry_cnt = 0;
   uint16_t fw_status, fw_mw_ver_status = NCI_STATUS_FAILED;
   tNFC_FWUpdate_Info_t fw_update_inf;
