@@ -46,7 +46,9 @@
 #include <android/hardware/nfc/1.0/INfcClientCallback.h>
 #include <android/hardware/nfc/1.0/types.h>
 #include <vendor/nxp/nxpnfc/1.0/INxpNfc.h>
+#include <vendor/nxp/nxpnfclegacy/1.0/INxpNfcLegacy.h>
 
+using vendor::nxp::nxpnfclegacy::V1_0::INxpNfcLegacy;
 using vendor::nxp::nxpnfc::V1_0::INxpNfc;
 using ::android::sp;
 
@@ -107,15 +109,22 @@ class AutoThreadMutex {
   ThreadMutex& mm;
 };
 
+enum NxpNfcAdaptationEseState  : uint64_t {
+    NFC_ESE_IDLE_MODE = 0,
+    NFC_ESE_WIRED_MODE
+};
+
 class NfcDeathRecipient ;
 
 class NfcAdaptation {
  public:
+
   virtual ~NfcAdaptation();
   void Initialize();
   void Finalize();
   void FactoryReset();
   void DeviceShutdown();
+  static uint32_t setEseState(NxpNfcAdaptationEseState ESEstate);
   static NfcAdaptation& GetInstance();
   tHAL_NFC_ENTRY* GetHalEntryFuncs();
   bool DownloadFirmware();
@@ -144,6 +153,7 @@ class NfcAdaptation {
   static android::sp<android::hardware::nfc::V1_1::INfc> mHal_1_1;
   static android::sp<android::hardware::nfc::V1_2::INfc> mHal_1_2;
   static android::sp<vendor::nxp::nxpnfc::V1_0::INxpNfc> mHalNxpNfc;
+  static android::sp<vendor::nxp::nxpnfclegacy::V1_0::INxpNfcLegacy> mHalNxpNfcLegacy;
   static android::hardware::nfc::V1_1::INfcClientCallback* mCallback;
   sp<NfcDeathRecipient> mNfcHalDeathRecipient;
 #if (NXP_EXTNS == TRUE)
@@ -177,4 +187,5 @@ class NfcAdaptation {
                                           nfc_status_t event_status);
   static void HalDownloadFirmwareDataCallback(uint16_t data_len,
                                               uint8_t* p_data);
+
 };

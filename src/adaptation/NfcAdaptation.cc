@@ -52,6 +52,7 @@
 #include "nfc_int.h"
 #include "nfc_target.h"
 
+
 using android::OK;
 using android::sp;
 using android::status_t;
@@ -83,6 +84,7 @@ extern void delete_stack_non_volatile_store(bool forceDelete);
 NfcAdaptation* NfcAdaptation::mpInstance = nullptr;
 ThreadMutex NfcAdaptation::sLock;
 android::Mutex sIoctlMutex;
+sp<INxpNfcLegacy> NfcAdaptation::mHalNxpNfcLegacy;
 sp<INxpNfc> NfcAdaptation::mHalNxpNfc;
 sp<INfc> NfcAdaptation::mHal;
 sp<INfcV1_1> NfcAdaptation::mHal_1_1;
@@ -749,6 +751,15 @@ void NfcAdaptation::InitializeHalDeviceContext() {
           (mHalNxpNfc->isRemote() ? "remote" : "local"));
   }
 
+  LOG(INFO) << StringPrintf("%s: INxpNfcLegacy::getService()", func);
+  mHalNxpNfcLegacy = INxpNfcLegacy::tryGetService();
+  if(mHalNxpNfcLegacy == nullptr) {
+    LOG(INFO) << StringPrintf ( "Failed to retrieve the NXPNFC Legacy HAL!");
+  } else {
+    LOG(INFO) << StringPrintf("%s: INxpNfcLegacy::getService() returned %p (%s)", func, mHalNxpNfcLegacy.get(),
+          (mHalNxpNfcLegacy->isRemote() ? "remote" : "local"));
+  }
+
 }
 
 /*******************************************************************************
@@ -1385,4 +1396,32 @@ AutoThreadMutex::~AutoThreadMutex() { mm.unlock(); }
 void initializeGlobalAppDtaMode() {
   appl_dta_mode_flag = 0x01;
   ALOGD("%s: DTA Enabled", __func__);
+}
+
+/***************************************************************************
+**
+** Function         NfcAdaptation::setEseState
+**
+** Description      This function is called for to update ese P61 state.
+**
+** Returns          None.
+**
+***************************************************************************/
+uint32_t NfcAdaptation::setEseState(NxpNfcAdaptationEseState ESEstate) {
+  const char* func = "NfcAdaptation::setEseState";
+  uint32_t status = NFA_STATUS_FAILED;
+  uint8_t ret = 0;
+
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : Enter", func);
+
+  if (mHalNxpNfcLegacy != nullptr) {
+    ret = mHalNxpNfcLegacy->setEseState((::vendor::nxp::nxpnfclegacy::V1_0::NxpNfcHalEseState)ESEstate);
+    if(ret){
+      ALOGE("NfcAdaptation::setEseState mHalNxpNfcLegacy completed");
+      status = NFA_STATUS_OK;
+    } else {
+      ALOGE("NfcAdaptation::setEseState mHalNxpNfcLegacy failed");
+    }
+  }
+  return status;
 }
