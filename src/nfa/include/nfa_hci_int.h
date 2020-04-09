@@ -487,6 +487,7 @@ typedef struct {
   uint8_t active_host[NFA_HCI_MAX_HOST_IN_NETWORK];
   uint8_t reset_host[NFA_HCI_MAX_HOST_IN_NETWORK]; /* List of host reseting */
   bool b_low_power_mode;  /* Host controller in low power mode */
+  bool b_hci_new_sessionId; /* Command sent to set a new session Id */
   bool b_hci_netwk_reset; /* Command sent to reset HCI Network */
   bool w4_hci_netwk_init; /* Wait for other host in network to initialize */
   TIMER_LIST_ENT timer;   /* Timer to avoid indefinitely waiting for response */

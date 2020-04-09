@@ -1606,7 +1606,7 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
             /* Something wrong, NVRAM data could be corrupt or first start with
              * default session id */
             nfa_hciu_send_clear_all_pipe_cmd();
-            nfa_hci_cb.b_hci_netwk_reset = true;
+            nfa_hci_cb.b_hci_new_sessionId = true;
 #endif
           }
         }
@@ -1616,7 +1616,14 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
 
 #if (NXP_EXTNS != TRUE)
         if (nfa_hci_cb.b_hci_netwk_reset) {
+          /* Something wrong, NVRAM data could be corrupt or first start with
+           * default session id */
+          nfa_hciu_send_clear_all_pipe_cmd();
           nfa_hci_cb.b_hci_netwk_reset = false;
+          nfa_hci_cb.b_hci_new_sessionId = true;
+        } else if (nfa_hci_cb.b_hci_new_sessionId) {
+          nfa_hci_cb.b_hci_new_sessionId = false;
+
           /* Session ID is reset, Set New session id */
           memcpy(
               &nfa_hci_cb.cfg.admin_gate.session_id[NFA_HCI_SESSION_ID_LEN / 2],
