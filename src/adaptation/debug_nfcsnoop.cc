@@ -54,7 +54,7 @@ static void nfcsnoop_cb(const uint8_t* data, const size_t length,
 
   while (ringbuffer_available(buffer) < (length + sizeof(nfcsnooz_header_t))) {
     ringbuffer_pop(buffer, (uint8_t*)&header, sizeof(nfcsnooz_header_t));
-    ringbuffer_delete(buffer, header.length - 1);
+    ringbuffer_delete(buffer, header.length);
   }
 
   // Insert data
