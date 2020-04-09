@@ -1346,6 +1346,7 @@ static void rw_mfc_process_error() {
   tRW_DETECT_NDEF_DATA ndef_data;
 
   DLOG_IF(INFO, nfc_debug_enabled) << __func__ << " State=" << p_mfc->state;
+  evt_data.status = NFC_STATUS_FAILED;
 
   /* Retry sending command if retry-count < max */
   if (rw_cb.cur_retry < RW_MAX_RETRIES) {
