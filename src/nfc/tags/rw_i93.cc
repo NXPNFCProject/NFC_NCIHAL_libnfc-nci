@@ -203,6 +203,34 @@ void rw_i93_get_product_version(uint8_t* p_uid) {
           break;
       }
     }
+  } else if ((p_uid[1] == I93_UID_IC_MFG_CODE_ONS) &&
+             (p_i93->info_flags & I93_INFO_FLAG_IC_REF)) {
+      switch (p_i93->ic_reference) {
+        case I93_IC_REF_ONS_N36RW02:
+          p_i93->product_version = RW_I93_ONS_N36RW02;
+          break;
+        case I93_IC_REF_ONS_N24RF04:
+          p_i93->product_version = RW_I93_ONS_N24RF04;
+          break;
+        case I93_IC_REF_ONS_N24RF04E:
+          p_i93->product_version = RW_I93_ONS_N24RF04E;
+          break;
+        case RW_I93_ONS_N24RF16:
+          p_i93->product_version = RW_I93_ONS_N24RF16;
+          break;
+        case RW_I93_ONS_N24RF16E:
+          p_i93->product_version = RW_I93_ONS_N24RF16E;
+          break;
+        case RW_I93_ONS_N24RF64:
+          p_i93->product_version = RW_I93_ONS_N24RF64;
+          break;
+        case RW_I93_ONS_N24RF64E:
+          p_i93->product_version = RW_I93_ONS_N24RF64E;
+          break;
+        default:
+          p_i93->product_version = RW_I93_UNKNOWN_PRODUCT;
+        break;
+      }
   } else {
     p_i93->product_version = RW_I93_UNKNOWN_PRODUCT;
   }
@@ -299,8 +327,8 @@ bool rw_i93_process_ext_sys_info(uint8_t* p_data, uint16_t length) {
     rw_i93_get_product_version(p_uid);
 
     if (p_i93->uid[0] == I93_UID_FIRST_BYTE) {
-      if (p_i93->uid[1] == I93_UID_IC_MFG_CODE_STM) {
-        /* STM supports more than 2040 bytes */
+      if ((p_i93->uid[1] == I93_UID_IC_MFG_CODE_STM) || (p_i93->uid[1] == I93_UID_IC_MFG_CODE_ONS)){
+        /* STM & ONS supports more than 2040 bytes */
         p_i93->intl_flags |= RW_I93_FLAG_EXT_COMMANDS;
       }
     }
@@ -433,6 +461,36 @@ bool rw_i93_process_sys_info(uint8_t* p_data, uint16_t length) {
             }
           }
         }
+      } else if (p_i93->uid[1] == I93_UID_IC_MFG_CODE_ONS) {
+        /*
+        **  N36RW02:  00011010(b), blockSize: 4, numberBlocks: 0x40
+        **  N24RF04:  00101110(b), blockSize: 4, numberBlocks: 0x80
+        **  N24RF04E: 00101010(b), blockSize: 4, numberBlocks: 0x80
+        **  N24RF16:  01001010(b), blockSize: 4, numberBlocks: 0x200
+        **  N24RF16E: 01001110(b), blockSize: 4, numberBlocks: 0x200
+        **  N24RF64:  01101010(b), blockSize: 4, numberBlocks: 0x800
+        **  N24RF64E: 01101110(b), blockSize: 4, numberBlocks: 0x800
+        */
+          p_i93->block_size = 4;
+          switch (p_i93->product_version){
+            case RW_I93_ONS_N36RW02:
+                 p_i93->num_block = 0x40;
+                 break;
+            case RW_I93_ONS_N24RF04:
+            case RW_I93_ONS_N24RF04E:
+                 p_i93->num_block = 0x80;
+                 break;
+            case RW_I93_ONS_N24RF16:
+            case RW_I93_ONS_N24RF16E:
+                 p_i93->num_block = 0x200;
+                 break;
+            case RW_I93_ONS_N24RF64:
+            case RW_I93_ONS_N24RF64E:
+                 p_i93->num_block = 0x800;
+                 break;
+            default:
+                 return false;
+          }
       }
     }
   }
@@ -455,7 +513,7 @@ bool rw_i93_check_sys_info_prot_ext(uint8_t error_code) {
 
  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("rw_i93_check_sys_info_prot_ext ()");
 
-  if ((p_i93->uid[1] == I93_UID_IC_MFG_CODE_STM) &&
+  if (((p_i93->uid[1] == I93_UID_IC_MFG_CODE_STM) || (p_i93->uid[1] == I93_UID_IC_MFG_CODE_ONS)) &&
       (p_i93->sent_cmd == I93_CMD_GET_SYS_INFO) &&
       (error_code == I93_ERROR_CODE_OPTION_NOT_SUPPORTED) &&
       (rw_i93_send_cmd_get_sys_info(nullptr, I93_FLAG_PROT_EXT_YES) ==
@@ -501,7 +559,7 @@ void rw_i93_send_to_upper(NFC_HDR* p_resp) {
   if (flags & I93_FLAG_ERROR_DETECTED) {
     if ((length) && (rw_i93_check_sys_info_prot_ext(*p))) {
       /* getting system info with protocol extension flag */
-      /* This STM tag supports more than 2040 bytes */
+      /* This STM & ONS tag supports more than 2040 bytes */
       p_i93->intl_flags |= RW_I93_FLAG_16BIT_NUM_BLOCK;
       p_i93->state = RW_I93_STATE_BUSY;
     } else if (length) {
@@ -1634,6 +1692,30 @@ tNFC_STATUS rw_i93_get_next_blocks(uint16_t offset) {
       }
     }
 
+    if (p_i93->uid[1] == I93_UID_IC_MFG_CODE_ONS) {
+      /* N24RF04, N24RF04E, N24RF16, N24RF16E, N24RF64, N24RF64E requires
+      ** - The max number of blocks is 32 and they are all located in the
+      **   same sector.
+      ** - The sector is 32 blocks of 4 bytes.
+      */
+      if ((p_i93->product_version == RW_I93_ONS_N36RW02) ||
+          (p_i93->product_version == RW_I93_ONS_N24RF04) ||
+          (p_i93->product_version == RW_I93_ONS_N24RF04E)||
+          (p_i93->product_version == RW_I93_ONS_N24RF16) ||
+          (p_i93->product_version == RW_I93_ONS_N24RF16E)||
+          (p_i93->product_version == RW_I93_ONS_N24RF64) ||
+          (p_i93->product_version == RW_I93_ONS_N24RF64E)) {
+        if (num_block > I93_ONS_MAX_BLOCKS_PER_READ)
+          num_block = I93_ONS_MAX_BLOCKS_PER_READ;
+
+        if ((first_block / I93_ONS_BLOCKS_PER_SECTOR) !=
+            ((first_block + num_block - 1) / I93_ONS_BLOCKS_PER_SECTOR)) {
+          num_block = I93_ONS_BLOCKS_PER_SECTOR -
+                      (first_block % I93_ONS_BLOCKS_PER_SECTOR);
+        }
+      }
+    }
+
     return rw_i93_send_cmd_read_multi_blocks(first_block, num_block);
   } else {
     return rw_i93_send_cmd_read_single_block(first_block, false);
@@ -1711,7 +1793,7 @@ void rw_i93_sm_detect_ndef(NFC_HDR* p_resp) {
   if (flags & I93_FLAG_ERROR_DETECTED) {
     if ((length) && (rw_i93_check_sys_info_prot_ext(*p))) {
       /* getting system info with protocol extension flag */
-      /* This STM tag supports more than 2040 bytes */
+      /* This STM & ONS tag supports more than 2040 bytes */
       p_i93->intl_flags |= RW_I93_FLAG_16BIT_NUM_BLOCK;
     } else {
      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Got error flags (0x%02x)", flags);
@@ -1793,11 +1875,11 @@ void rw_i93_sm_detect_ndef(NFC_HDR* p_resp) {
       **         without any security)
       **       : Bit 1-0:Write access condition (00b: write access granted
       **         without any security)
-      ** CC[2] : Memory size in 8 bytes (Ex. 0x04 is 32 bytes) [STM, set to
-      **         0xFF if more than 2040bytes]
-      ** CC[3] : Bit 0:Read multiple blocks is supported [NXP, STM]
+      ** CC[2] : Memory size in 8 bytes (Ex. 0x04 is 32 bytes) [STM, ONS set
+      **         to 0xFF if more than 2040bytes]
+      ** CC[3] : Bit 0:Read multiple blocks is supported [NXP, STM, ONS]
       **       : Bit 1:Inventory page read is supported [NXP]
-      **       : Bit 2:More than 2040 bytes are supported [STM]
+      **       : Bit 2:More than 2040 bytes are supported [STM, ONS]
       */
 
      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
@@ -2509,7 +2591,7 @@ void rw_i93_sm_format(NFC_HDR* p_resp) {
       /* ignore error */
     } else if ((length) && (rw_i93_check_sys_info_prot_ext(*p))) {
       /* getting system info with protocol extension flag */
-      /* This STM tag supports more than 2040 bytes */
+      /* This STM & ONS tag supports more than 2040 bytes */
       p_i93->intl_flags |= RW_I93_FLAG_16BIT_NUM_BLOCK;
       return;
     } else {
@@ -2753,7 +2835,7 @@ void rw_i93_sm_format(NFC_HDR* p_resp) {
                   RW_I93_TAG_IT_HF_I_PRO_CHIP_INLAY)) {
         *(p++) = 0;
       } else {
-        /* STM except LRIS2K, Broadcom supports read multi block command */
+        /* STM except LRIS2K, ONS, Broadcom supports read multi block command */
 
         /* if memory size is more than 2040 bytes (which is not LRIS2K) */
         if (((p_i93->num_block * p_i93->block_size) / 8) > 0xFF)
@@ -4232,6 +4314,20 @@ static std::string rw_i93_get_tag_name(uint8_t product_version) {
       return "ST25DV04";
     case RW_I93_STM_ST25DVHIK:
       return "ST25DV";
+    case RW_I93_ONS_N36RW02:
+      return ("N36RW02");
+    case RW_I93_ONS_N24RF04:
+      return ("N24RF04");
+    case RW_I93_ONS_N24RF04E:
+      return ("N24RF04E");
+    case RW_I93_ONS_N24RF16:
+      return ("N24RF16");
+    case RW_I93_ONS_N24RF16E:
+      return ("N24RF16E");
+    case RW_I93_ONS_N24RF64:
+      return ("N24RF64");
+    case RW_I93_ONS_N24RF64E:
+      return ("N24RF64E");
     case RW_I93_UNKNOWN_PRODUCT:
     default:
       return ("UNKNOWN");

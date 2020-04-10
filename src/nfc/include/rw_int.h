@@ -720,6 +720,13 @@ enum {
   RW_I93_STM_M24LR64E_R,             /* STM M24LR64E-R                   */
   RW_I93_STM_ST25DV04K,              /* STM ST25DV04K                    */
   RW_I93_STM_ST25DVHIK,              /* STM ST25DV 16K OR 64K            */
+  RW_I93_ONS_N36RW02,                /* ONS N36RW02                      */
+  RW_I93_ONS_N24RF04,                /* ONS N24RF04                      */
+  RW_I93_ONS_N24RF04E,               /* ONS N24RF04E                     */
+  RW_I93_ONS_N24RF16,                /* ONS N24RF16                      */
+  RW_I93_ONS_N24RF16E,               /* ONS N24RF16E                     */
+  RW_I93_ONS_N24RF64,                /* ONS N24RF64                      */
+  RW_I93_ONS_N24RF64E,               /* ONS N24RF64E                     */
   RW_I93_UNKNOWN_PRODUCT             /* Unknwon product version          */
 };
 
