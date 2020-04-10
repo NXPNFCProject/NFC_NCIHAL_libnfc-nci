@@ -19,6 +19,7 @@
 #include <android-base/file.h>
 #include <android-base/logging.h>
 #include <android-base/parseint.h>
+#include <android-base/properties.h>
 #include <android-base/strings.h>
 
 #include <config.h>
@@ -29,11 +30,11 @@ using namespace ::android::base;
 #define PATH_TRANSIT_CONF "/data/nfc/libnfc-nxpTransit.conf"
 namespace {
 
-std::string getPathInfoIfFileExists(const string& configName) {
+std::string searchConfigPath(std::string file_name) {
   const vector<string> search_path = {"/odm/etc/", "/vendor/etc/",
                                       "/product/etc/", "/etc/"};
   for (string path : search_path) {
-    path.append(configName);
+    path.append(file_name);
     struct stat file_stat;
     if (stat(path.c_str(), &file_stat) != 0) continue;
     if (S_ISREG(file_stat.st_mode)) return path;
@@ -41,28 +42,28 @@ std::string getPathInfoIfFileExists(const string& configName) {
   return "";
 }
 
+
+// Configuration File Search sequence
+// 1. If prop_config_file_name is defined.(where prop_config_file_name is the
+//   value of the property persist.nfc_cfg.config_file_name)
+//   Search a file matches prop_config_file_name.
+// 2. If SKU is defined (where SKU is the value of the property
+//   ro.boot.product.hardware.sku)
+//   Search a file matches libnfc-nci-SKU.conf
+// 3. If none of 1,2 is defined, search a default file name "libnfc-nci.conf".
 std::string findConfigPath() {
-  char valueStr[PROPERTY_VALUE_MAX] = {0};
-  const string defaultConfigFileName = "libnfc-nci.conf";
-  string config_file_name = "libnfc-nci";
-  // update config file based on system property
-  int len = property_get("persist.nfc.config_file_name", valueStr, "");
-  if (len > 0) {
-    config_file_name = config_file_name + "_" + valueStr + ".conf";
-  } else {
-    config_file_name = defaultConfigFileName;
-  }
-  LOG(INFO) << __func__
-            << " nci config file name = " << config_file_name.c_str();
+  string f_path = searchConfigPath(
+      android::base::GetProperty("persist.nfc_cfg.config_file_name", ""));
+  if (!f_path.empty()) return f_path;
 
-  string filePath = getPathInfoIfFileExists(config_file_name);
-  if (filePath.length() == 0) {
-    LOG(INFO) << __func__ << " Unable to find nci Config file - "
-              << config_file_name.c_str() << " . Using Default Config file.";
-    filePath = getPathInfoIfFileExists(defaultConfigFileName);
-  }
+  // Search for libnfc-nci-SKU.conf
+  f_path = searchConfigPath(
+      "libnfc-nci-" +
+      android::base::GetProperty("ro.boot.product.hardware.sku", "") + ".conf");
+  if (!f_path.empty()) return f_path;
 
-  return filePath;
+  // load default file if the desired file not found.
+  return searchConfigPath("libnfc-nci.conf");
 }
 
 }  // namespace
