@@ -44,6 +44,7 @@
 
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
+#include <log/log.h>
 
 #include "nfa_dm_int.h"
 #include "nfa_hci_api.h"
@@ -324,10 +325,16 @@ tNFA_STATUS nfa_hciu_send_msg(uint8_t pipe_id, uint8_t type,
   bool first_pkt = true;
   uint16_t data_len;
   tNFA_STATUS status = NFA_STATUS_OK;
-  uint16_t max_seg_hcp_pkt_size = nfa_hci_cb.buff_size;
+  uint16_t max_seg_hcp_pkt_size = 0;
 #if (NXP_EXTNS == TRUE)
   nfa_hci_cb.IsChainedPacket = false;
 #endif
+  if (nfa_hci_cb.buff_size > (NCI_DATA_HDR_SIZE + 2)) {
+    max_seg_hcp_pkt_size = nfa_hci_cb.buff_size - NCI_DATA_HDR_SIZE;
+  } else {
+    android_errorWriteLog(0x534e4554, "124521372");
+    return NFA_STATUS_NO_BUFFERS;
+  }
   char buff[100];
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "nfa_hciu_send_msg pipe_id:%d   %s  len:%d", pipe_id,
@@ -398,8 +405,12 @@ tNFA_STATUS nfa_hciu_send_msg(uint8_t pipe_id, uint8_t type,
         memcpy(p_data, p_msg, data_len);
 
         p_buf->len += data_len;
-        msg_len -= data_len;
-        if (msg_len > 0) p_msg += data_len;
+        if (msg_len >= data_len) {
+          msg_len -= data_len;
+          p_msg += data_len;
+        } else {
+          msg_len = 0;
+        }
       }
 
       if (HCI_LOOPBACK_DEBUG)
