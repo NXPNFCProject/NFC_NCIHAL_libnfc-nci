@@ -30,6 +30,8 @@ struct ringbuffer_t {
 };
 
 ringbuffer_t* ringbuffer_init(const size_t size) {
+  if (size == 0) return nullptr;
+
   ringbuffer_t* p = static_cast<ringbuffer_t*>(calloc(1, sizeof(ringbuffer_t)));
 
   if (p == nullptr) return p;
