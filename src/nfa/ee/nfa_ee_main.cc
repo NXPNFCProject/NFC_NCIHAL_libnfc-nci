@@ -363,7 +363,7 @@ void nfa_ee_proc_hci_info_cback(void) {
 *******************************************************************************/
 void nfa_ee_proc_evt(tNFC_RESPONSE_EVT event, void* p_data) {
   tNFA_EE_INT_EVT int_event = 0;
-  tNFA_EE_NCI_WAIT_RSP cbk;
+  tNFA_EE_NCI_WAIT_RSP cbk  = tNFA_EE_NCI_WAIT_RSP();
   cbk.opcode = 0;
   switch (event) {
     case NFC_NFCEE_DISCOVER_REVT: /* 4  NFCEE Discover response */

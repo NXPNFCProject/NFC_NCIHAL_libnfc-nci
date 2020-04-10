@@ -638,6 +638,7 @@ typedef uint8_t tNFC_DEACT_TYPE;
  *  Deactivation Reasons
  **********************************************/
 #define NFC_DEACTIVATE_REASON_DH_REQ_FAILED NCI_DEACTIVATE_REASON_DH_REQ_FAILED
+#define NFC_DEACTIVATE_REASON_DH_REQ NCI_DEACTIVATE_REASON_DH_REQ
 typedef uint8_t tNFC_DEACT_REASON;
 
 /* the data type associated with NFC_RF_FIELD_REVT */

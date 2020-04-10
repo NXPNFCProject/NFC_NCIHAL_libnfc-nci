@@ -1338,7 +1338,7 @@ static void rw_mfc_handle_ndef_read_rsp(uint8_t* p_data) {
  **
  *******************************************************************************/
 static void rw_mfc_process_error() {
-  tRW_READ_DATA evt_data;
+  tRW_READ_DATA evt_data = tRW_READ_DATA();
   memset (&evt_data, 0, sizeof(tRW_READ_DATA));
   tRW_EVENT rw_event = RW_MFC_NDEF_DETECT_EVT;
   NFC_HDR* p_cmd_buf;

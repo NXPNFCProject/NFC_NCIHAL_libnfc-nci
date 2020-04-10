@@ -1267,7 +1267,7 @@ void rw_t3t_act_handle_ndef_detect_rsp(tRW_T3T_CB* p_cb, NFC_HDR* p_msg_rsp) {
   uint32_t temp;
   uint8_t i;
   uint16_t checksum_calc, checksum_rx;
-  tRW_DETECT_NDEF_DATA evt_data;
+  tRW_DETECT_NDEF_DATA evt_data = tRW_DETECT_NDEF_DATA();
   uint8_t* p_t3t_rsp = (uint8_t*)(p_msg_rsp + 1) + p_msg_rsp->offset;
   memset(&evt_data, 0x00, sizeof(tRW_DETECT_NDEF_DATA));
   evt_data.status = NFC_STATUS_FAILED;
@@ -1464,7 +1464,7 @@ void rw_t3t_act_handle_check_rsp(tRW_T3T_CB* p_cb, NFC_HDR* p_msg_rsp) {
 *****************************************************************************/
 void rw_t3t_act_handle_update_rsp(tRW_T3T_CB* p_cb, NFC_HDR* p_msg_rsp) {
   uint8_t* p_t3t_rsp = (uint8_t*)(p_msg_rsp + 1) + p_msg_rsp->offset;
-  tRW_READ_DATA evt_data;
+  tRW_READ_DATA evt_data = tRW_READ_DATA();
 
   memset(&evt_data, 0x00, sizeof(tRW_READ_DATA));
   /* Validate response from tag */
