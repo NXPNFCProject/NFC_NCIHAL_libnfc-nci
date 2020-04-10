@@ -968,7 +968,8 @@ void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   uint8_t chaining_bit;
   uint8_t pipe;
   uint16_t pkt_len;
-  char buff[100];
+  const uint8_t MAX_BUFF_SIZE = 100;
+  char buff[MAX_BUFF_SIZE];
   static bool is_first_chain_pkt = true;
 #if (NXP_EXTNS == TRUE)
   if(nfcFL.eseFL._ESE_DUAL_MODE_PRIO_SCHEME ==
@@ -1221,8 +1222,10 @@ void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "nfa_hci_conn_cback Recvd data pipe:%d  %s  chain:%d  assmbl:%d  len:%d",
-      (uint8_t)pipe, nfa_hciu_get_type_inst_names(pipe, nfa_hci_cb.type,
-                                                  nfa_hci_cb.inst, buff),
+      (uint8_t)pipe,
+      nfa_hciu_get_type_inst_names(pipe, nfa_hci_cb.type,
+                                                  nfa_hci_cb.inst, buff,
+                                                  MAX_BUFF_SIZE),
       (uint8_t)chaining_bit, (uint8_t)nfa_hci_cb.assembling, p_pkt->len);
 
   if((nfa_hci_cb.reset_host[0] != 0x00) && (pipe == NFA_HCI_APDU_PIPE) &&

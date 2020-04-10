@@ -97,7 +97,7 @@ tNFA_STATUS NFA_HciRegister(char* p_app_name, tNFA_HCI_CBACK* p_cback,
 
     /* Save application name and callback */
     memset(p_msg->app_name, 0, sizeof(p_msg->app_name));
-    strncpy(p_msg->app_name, p_app_name, NFA_MAX_HCI_APP_NAME_LEN);
+    strlcpy(p_msg->app_name, p_app_name, NFA_MAX_HCI_APP_NAME_LEN);
     p_msg->p_cback = p_cback;
     p_msg->b_send_conn_evts = b_send_conn_evts;
 
@@ -201,7 +201,7 @@ tNFA_STATUS NFA_HciDeregister(char* p_app_name) {
     p_msg->hdr.event = NFA_HCI_API_DEREGISTER_APP_EVT;
 
     memset(p_msg->app_name, 0, sizeof(p_msg->app_name));
-    strncpy(p_msg->app_name, p_app_name, NFA_MAX_HCI_APP_NAME_LEN);
+    strlcpy(p_msg->app_name, p_app_name, NFA_MAX_HCI_APP_NAME_LEN);
 
     nfa_sys_sendmsg(p_msg);
     return (NFA_STATUS_OK);

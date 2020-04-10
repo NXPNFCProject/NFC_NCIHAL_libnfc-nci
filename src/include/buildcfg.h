@@ -37,6 +37,7 @@
 #ifndef __BUILDCFG_H
 #define __BUILDCFG_H
 #include <string.h>
+#include <cutils/memory.h>
 #include <memory.h>
 #include <stdio.h>
 #include "data_types.h"

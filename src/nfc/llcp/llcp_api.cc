@@ -470,7 +470,7 @@ uint8_t LLCP_RegisterServer(uint8_t reg_sap, uint8_t link_type,
       return LLCP_INVALID_SAP;
     }
 
-    strncpy((char*)p_app_cb->p_service_name, p_service_name.c_str(), length + 1);
+    strlcpy((char*)p_app_cb->p_service_name, p_service_name.c_str(), length + 1);
     p_app_cb->p_service_name[length] = 0;
   } else
     p_app_cb->p_service_name = nullptr;

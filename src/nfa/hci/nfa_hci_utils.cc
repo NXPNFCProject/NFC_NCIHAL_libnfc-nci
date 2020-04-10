@@ -335,10 +335,11 @@ tNFA_STATUS nfa_hciu_send_msg(uint8_t pipe_id, uint8_t type,
     android_errorWriteLog(0x534e4554, "124521372");
     return NFA_STATUS_NO_BUFFERS;
   }
-  char buff[100];
+  const uint8_t MAX_BUFF_SIZE = 100;
+  char buff[MAX_BUFF_SIZE];
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "nfa_hciu_send_msg pipe_id:%d   %s  len:%d", pipe_id,
-      nfa_hciu_get_type_inst_names(pipe_id, type, instruction, buff), msg_len);
+      nfa_hciu_get_type_inst_names(pipe_id, type, instruction, buff, MAX_BUFF_SIZE), msg_len);
 
   if (instruction == NFA_HCI_ANY_GET_PARAMETER)
     nfa_hci_cb.param_in_use = *p_msg;
@@ -1558,26 +1559,26 @@ std::string nfa_hciu_get_state_name(uint8_t state) {
 **
 *******************************************************************************/
 char* nfa_hciu_get_type_inst_names(uint8_t pipe, uint8_t type, uint8_t inst,
-                                   char* p_buff) {
+                                   char* p_buff, const uint8_t max_buff_size) {
   int xx;
 
-  xx = sprintf(p_buff, "Type: %s [0x%02x] ", nfa_hciu_type_2_str(type).c_str(), type);
+  xx = snprintf(p_buff, max_buff_size, "Type: %s [0x%02x] ", nfa_hciu_type_2_str(type).c_str(), type);
 
   switch (type) {
     case NFA_HCI_COMMAND_TYPE:
-      sprintf(&p_buff[xx], "Inst: %s [0x%02x] ", nfa_hciu_instr_2_str(inst).c_str(),
+      snprintf(&p_buff[xx], max_buff_size - xx, "Inst: %s [0x%02x] ", nfa_hciu_instr_2_str(inst).c_str(),
               inst);
       break;
     case NFA_HCI_EVENT_TYPE:
-      sprintf(&p_buff[xx], "Evt: %s [0x%02x] ", nfa_hciu_evt_2_str(pipe, inst).c_str(),
+      snprintf(&p_buff[xx], max_buff_size - xx, "Evt: %s [0x%02x] ", nfa_hciu_evt_2_str(pipe, inst).c_str(),
               inst);
       break;
     case NFA_HCI_RESPONSE_TYPE:
-      sprintf(&p_buff[xx], "Resp: %s [0x%02x] ",
+      snprintf(&p_buff[xx], max_buff_size - xx, "Resp: %s [0x%02x] ",
               nfa_hciu_get_response_name(inst).c_str(), inst);
       break;
     default:
-      sprintf(&p_buff[xx], "Inst: %u ", inst);
+      snprintf(&p_buff[xx], max_buff_size - xx, "Inst: %u ", inst);
       break;
   }
   return (p_buff);

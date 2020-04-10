@@ -179,7 +179,8 @@ static void nfa_ee_trace_aid(std::string p_str, uint8_t id, uint8_t aid_len,
                              uint8_t* p) {
   int len = aid_len;
   int xx, yy = 0;
-  char buff[100];
+  const uint8_t MAX_BUFF_SIZE = 100;
+  char buff[MAX_BUFF_SIZE];
 
   buff[0] = 0;
   if (aid_len > NFA_MAX_AID_LEN) {
@@ -187,7 +188,7 @@ static void nfa_ee_trace_aid(std::string p_str, uint8_t id, uint8_t aid_len,
     len = NFA_MAX_AID_LEN;
   }
   for (xx = 0; xx < len; xx++) {
-    yy += sprintf(&buff[yy], "%02x ", *p);
+    yy += snprintf(&buff[yy], MAX_BUFF_SIZE - yy, "%02x ", *p);
     p++;
   }
    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s id:0x%x len=%d aid:%s", p_str.c_str(), id, aid_len, buff);
