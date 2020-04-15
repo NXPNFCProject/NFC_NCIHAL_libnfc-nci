@@ -2711,6 +2711,12 @@ static void nfa_dm_disc_sm_listen_sleep(tNFA_DM_RF_DISC_SM_EVENT event,
         nfa_dm_start_rf_discover();
       } else if (p_data->nfc_discover.deactivate.type ==
                  NFA_DEACTIVATE_TYPE_DISCOVERY) {
+#if(NXP_EXTNS == TRUE)
+        if(nfa_dm_cb.pending_power_state != SCREEN_STATE_INVALID) {
+          NFC_SetPowerSubState(nfa_dm_cb.pending_power_state);
+          nfa_dm_cb.pending_power_state = SCREEN_STATE_INVALID;
+        }
+#endif
         nfa_dm_disc_new_state(NFA_DM_RFST_DISCOVERY);
       } else {
         LOG(ERROR) << StringPrintf("Unexpected deactivation type");
