@@ -1441,3 +1441,33 @@ uint8_t NfcAdaptation::getchipType() {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : Enter", func);
   return mHalNxpNfcLegacy->getchipType();
 }
+
+
+
+/***************************************************************************
+**
+** Function         NfcAdaptation::setNfcServicePid
+**
+** Description      This function request to pn54x driver to
+**                  update NFC service process ID for signalling.
+**
+** Returns          0 if api call success, else -1
+***************************************************************************/
+uint16_t NfcAdaptation::setNfcServicePid(uint64_t NfcNxpServicePid) {
+  const char* func = "NfcAdaptation::setNfcServicePid";
+  uint16_t status = NFA_STATUS_FAILED;
+
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : Enter", func);
+
+  if (mHalNxpNfcLegacy != nullptr) {
+    status = mHalNxpNfcLegacy->setNfcServicePid(NfcNxpServicePid);
+
+    if(status != NFA_STATUS_FAILED){
+      ALOGE("NfcAdaptation::setNfcServicePid mHalNxpNfcLegacy completed");
+    } else {
+      ALOGE("NfcAdaptation::setNfcServicePid mHalNxpNfcLegacy failed");
+    }
+  }
+
+  return status;
+}

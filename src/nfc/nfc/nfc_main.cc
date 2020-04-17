@@ -1698,14 +1698,15 @@ int32_t NFC_RelForceDwpOnOffWait (void *pdata)
 *******************************************************************************/
 int32_t NFC_SetNfcServicePid() {
     tNFC_STATUS setPidStatus = NFC_STATUS_OK;
-    nfc_nci_IoctlInOutData_t inpOutData;
+    uint64_t nfcServicePid;
     if(NFC_IsLowRamDevice()) {
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFC_SetNfcServicePid: Not valid for low RAM device");
       return setPidStatus;
     }
-    inpOutData.inp.data.nfcServicePid = getpid();
-    setPidStatus = nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_SET_NFC_SERVICE_PID,
-                                       (void*)&inpOutData);
+
+    nfcServicePid = getpid();
+    setPidStatus = uint8_t(NfcAdaptation::setNfcServicePid(nfcServicePid));
+
     if (setPidStatus == NFC_STATUS_OK) {
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfc service set pid done");
     } else {
@@ -1726,14 +1727,14 @@ int32_t NFC_SetNfcServicePid() {
 int32_t NFC_ResetNfcServicePid()
 {
     tNFC_STATUS setPidStatus = NFC_STATUS_OK;
-    nfc_nci_IoctlInOutData_t inpOutData;
-    inpOutData.inp.data.nfcServicePid = 0;
+    uint64_t nfcServicePid = 0;
+
     if(NFC_IsLowRamDevice()) {
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFC_ResetNfcServicePid: Not valid for low RAM device");
       return setPidStatus;
     }
-    setPidStatus = nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_SET_NFC_SERVICE_PID,
-                                       (void*)&inpOutData);
+    setPidStatus = uint8_t(NfcAdaptation::setNfcServicePid(nfcServicePid));
+
     if (setPidStatus == NFC_STATUS_OK) {
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfc service set pid done");
     } else {
