@@ -1425,3 +1425,19 @@ uint32_t NfcAdaptation::setEseState(NxpNfcAdaptationEseState ESEstate) {
   }
   return status;
 }
+
+
+/*******************************************************************************
+ **
+ ** Function         phNxpNciHal_getchipType
+ **
+ ** Description      Gets the chipType from hal which is already configured
+ **                  during init time.
+ **
+ ** Returns          chipType
+ *******************************************************************************/
+uint8_t NfcAdaptation::getchipType() {
+  const char* func = "NfcAdaptation::getchipType";
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : Enter", func);
+  return mHalNxpNfcLegacy->getchipType();
+}

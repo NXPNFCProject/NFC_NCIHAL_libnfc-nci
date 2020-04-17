@@ -1817,16 +1817,13 @@ void NFC_SetStaticHciCback (tNFC_CONN_CBACK    *p_cback)
  *******************************************************************************/
 void NFC_GetFeatureList() {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFC_GetFeatureList() Enter");
-    tNFC_STATUS status = NFC_STATUS_FAILED;
-    nfc_nci_IoctlInOutData_t inpOutData;
-    status = nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_GET_FEATURE_LIST,
-            (void*)&inpOutData);
-    if(status == NFC_STATUS_OK) {
-        chipType = (tNFC_chipType)inpOutData.out.data.chipType;
+
+    chipType = (tNFC_chipType)NfcAdaptation::getchipType();
+    if(chipType != 0x00) {
         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFC_GetFeatureList ()chipType = %d", chipType);
 
-    }else{
-        chipType = pn553;
+     }else{
+         chipType = pn553;
     }
     CONFIGURE_FEATURELIST(chipType);
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFC_GetFeatureList ()chipType = %d", chipType);
