@@ -1471,3 +1471,32 @@ uint16_t NfcAdaptation::setNfcServicePid(uint64_t NfcNxpServicePid) {
 
   return status;
 }
+
+/***************************************************************************
+**
+** Function         NfcAdaptation::getEseState
+**
+** Description      This function is called for to get ese state.
+**
+** Returns          Status.
+**
+***************************************************************************/
+uint32_t NfcAdaptation::getEseState() {
+  const char* func = "NfcAdaptation::getEseState";
+  uint32_t status = NFA_STATUS_FAILED;
+
+
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : Enter", func);
+
+  if (mHalNxpNfcLegacy != nullptr) {
+    status = mHalNxpNfcLegacy->getEseState();
+    if(status != NFA_STATUS_FAILED){
+      ALOGE("NfcAdaptation::getEseState mHalNxpNfcLegacy completed");
+      status = NFA_STATUS_OK;
+    } else {
+      ALOGE("NfcAdaptation::getEseState mHalNxpNfcLegacy failed");
+    }
+  }
+
+  return status;
+}

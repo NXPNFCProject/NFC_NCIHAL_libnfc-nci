@@ -1606,10 +1606,9 @@ int32_t NFC_RelWiredAccess(void* pdata) {
 **
 *******************************************************************************/
 int32_t NFC_GetP61Status(void* pdata) {
-  nfc_nci_IoctlInOutData_t inpOutData;
   int32_t status;
-  status = nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_P61_PWR_MODE, &inpOutData);
-  *(uint32_t*)pdata = inpOutData.out.data.p61CurrentState;
+  status = NfcAdaptation::getEseState();
+  *(uint32_t*)pdata = status;
   return status;
 }
 

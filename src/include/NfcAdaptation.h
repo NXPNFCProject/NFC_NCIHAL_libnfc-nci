@@ -127,6 +127,7 @@ class NfcAdaptation {
   static uint32_t setEseState(NxpNfcAdaptationEseState ESEstate);
   static uint8_t getchipType();
   static uint16_t setNfcServicePid(uint64_t NfcNxpServicePid);
+  static uint32_t getEseState();
   static NfcAdaptation& GetInstance();
   tHAL_NFC_ENTRY* GetHalEntryFuncs();
   bool DownloadFirmware();
