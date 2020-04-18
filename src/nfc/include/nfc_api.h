@@ -1004,10 +1004,6 @@ typedef union {
   tNFC_DATA_CEVT data;
 } tNFC_CONN;
 
-typedef enum {
-  NFC_HCI_INIT_COMPLETE = 0x00,/* Status of HCI initialization     */
-  NFC_HCI_INIT_START = 0x01
-} tNFC_HCI_INIT_STATUS;
 /*************************************
 **  Data Callback Functions
 **************************************/

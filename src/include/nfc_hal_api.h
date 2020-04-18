@@ -47,6 +47,11 @@
 #include "nfc_hal_target.h"
 #include "hal_nxpnfc.h"
 
+typedef enum {
+  NFC_HCI_INIT_COMPLETE = 0x00,/* Status of HCI initialization     */
+  NFC_HCI_INIT_START = 0x01
+} tNFC_HCI_INIT_STATUS;
+
 typedef uint8_t tHAL_NFC_STATUS;
 typedef void(tHAL_NFC_STATUS_CBACK)(tHAL_NFC_STATUS status);
 typedef void(tHAL_NFC_CBACK)(uint8_t event, tHAL_NFC_STATUS status);
@@ -72,6 +77,9 @@ typedef uint8_t(tHAL_API_GET_MAX_NFCEE)(void);
 typedef int(tHAL_API_IOCTL)(long arg, void* p_data);
 typedef int(tHAL_API_GET_FW_DWNLD_FLAG)(uint8_t* fwDnldRequest);
 #endif
+typedef uint16_t(tHAL_API_spiDwpSync)(uint32_t level);
+typedef uint16_t(tHAL_API_RelForceDwpOnOffWait)(uint32_t level);
+typedef int32_t(tHAL_API_HciInitUpdateState) (tNFC_HCI_INIT_STATUS HciStatus);
 
 typedef struct {
   tHAL_API_INITIALIZE* initialize;
@@ -88,6 +96,9 @@ typedef struct {
   tHAL_API_IOCTL* ioctl;
   tHAL_API_GET_FW_DWNLD_FLAG* check_fw_dwnld_flag;
 #endif
+  tHAL_API_spiDwpSync* spiDwpSync;
+  tHAL_API_RelForceDwpOnOffWait* RelForceDwpOnOffWait;
+  tHAL_API_HciInitUpdateState* HciInitUpdateState;
 } tHAL_NFC_ENTRY;
 
 #if (NXP_EXTNS == TRUE)

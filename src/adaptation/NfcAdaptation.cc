@@ -725,6 +725,10 @@ void NfcAdaptation::InitializeHalDeviceContext() {
   mHalEntryFuncs.control_granted = HalControlGranted;
   mHalEntryFuncs.power_cycle = HalPowerCycle;
   mHalEntryFuncs.get_max_ee = HalGetMaxNfcee;
+  mHalEntryFuncs.spiDwpSync = HalSpiDwpSync;
+  mHalEntryFuncs.RelForceDwpOnOffWait = HalRelForceDwpOnOffWait;
+  mHalEntryFuncs.HciInitUpdateState = HalHciInitUpdateState;
+
   LOG(INFO) << StringPrintf("%s: Try INfcV1_1::getService()", func);
   mHal = mHal_1_1 = mHal_1_2 = INfcV1_2::tryGetService();
   if (mHal_1_2 == nullptr) {
@@ -1415,7 +1419,7 @@ uint32_t NfcAdaptation::setEseState(NxpNfcAdaptationEseState ESEstate) {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : Enter", func);
 
   if (mHalNxpNfcLegacy != nullptr) {
-    ret = mHalNxpNfcLegacy->setEseState((::vendor::nxp::nxpnfclegacy::V1_0::NxpNfcHalEseState)ESEstate);
+    ret = mHalNxpNfcLegacy->setEseState((NxpNfcHalEseState)ESEstate);
     if(ret){
       ALOGE("NfcAdaptation::setEseState mHalNxpNfcLegacy completed");
       status = NFA_STATUS_OK;
@@ -1499,4 +1503,76 @@ uint32_t NfcAdaptation::getEseState() {
   }
 
   return status;
+}
+
+/***************************************************************************
+**
+** Function         NfcAdaptation::HalSpiDwpSync
+**
+** Description      This function is called for to update ese P61 state.
+**
+** Returns          None.
+**
+***************************************************************************/
+uint16_t NfcAdaptation::HalSpiDwpSync(uint32_t level) {
+  const char* func = "NfcAdaptation::HalSpiDwpSync";
+  uint16_t ret = 0;
+
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : Enter", func);
+
+  if (mHalNxpNfcLegacy != nullptr) {
+    ret = mHalNxpNfcLegacy->spiDwpSync(level);
+  }
+
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : Exit", func);
+
+  return ret;
+}
+
+/***************************************************************************
+**
+** Function         NfcAdaptation::HalRelForceDwpOnOffWait
+**
+** Description      This function is called for to update ese P61 state.
+**
+** Returns          None.
+**
+***************************************************************************/
+uint16_t NfcAdaptation::HalRelForceDwpOnOffWait(uint32_t level) {
+  const char* func = "NfcAdaptation::HalRelForceDwpOnOffWait";
+  uint16_t ret = 0;
+
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : Enter", func);
+
+  if (mHalNxpNfcLegacy != nullptr) {
+    ret = mHalNxpNfcLegacy->RelForceDwpOnOffWait(level);
+  }
+
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : Exit", func);
+
+  return ret;
+}
+
+/***************************************************************************
+**
+** Function         NfcAdaptation::HalHciInitUpdateState
+**
+** Description      This function is called for to update ese P61 state.
+**
+** Returns          None.
+**
+***************************************************************************/
+int32_t NfcAdaptation::HalHciInitUpdateState(tNFC_HCI_INIT_STATUS HciStatus) {
+  const char* func = "NfcAdaptation::HalHciInitUpdateState";
+  uint16_t ret = 0;
+
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : Enter", func);
+
+  if (mHalNxpNfcLegacy != nullptr) {
+    ret = mHalNxpNfcLegacy->hciInitUpdateState((NfcHciInitStatus)HciStatus);
+  }
+
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : Exit", func);
+
+  return ret;
 }

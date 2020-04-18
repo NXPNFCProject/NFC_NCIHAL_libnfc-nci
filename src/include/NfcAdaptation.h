@@ -51,6 +51,8 @@
 using vendor::nxp::nxpnfclegacy::V1_0::INxpNfcLegacy;
 using vendor::nxp::nxpnfc::V1_0::INxpNfc;
 using ::android::sp;
+using ::vendor::nxp::nxpnfclegacy::V1_0::NxpNfcHalEseState;
+using ::vendor::nxp::nxpnfclegacy::V1_0::NfcHciInitStatus;
 
 namespace android {
 namespace hardware {
@@ -128,6 +130,9 @@ class NfcAdaptation {
   static uint8_t getchipType();
   static uint16_t setNfcServicePid(uint64_t NfcNxpServicePid);
   static uint32_t getEseState();
+  static uint16_t HalSpiDwpSync(uint32_t level);
+  static uint16_t HalRelForceDwpOnOffWait(uint32_t level);
+  static int32_t HalHciInitUpdateState(tNFC_HCI_INIT_STATUS HciStatus);
   static NfcAdaptation& GetInstance();
   tHAL_NFC_ENTRY* GetHalEntryFuncs();
   bool DownloadFirmware();

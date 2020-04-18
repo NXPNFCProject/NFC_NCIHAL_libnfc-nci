@@ -1658,11 +1658,15 @@ int32_t NFC_RelSvddWait(void* pdata) {
                 "ESE_SVDD_SYNC is not available.. Returning");
         return NFC_STATUS_EPERM;
     }
-  nfc_nci_IoctlInOutData_t inpOutData;
-  inpOutData.inp.level = *(uint32_t*)pdata;
-  int32_t status;
-  status = nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_REL_SVDD_WAIT, &inpOutData);
-  *(tNFC_STATUS*)pdata = inpOutData.out.data.status;
+  uint32_t level = *(uint32_t*)pdata;
+  int32_t status = -1;
+
+  status = nfc_cb.p_hal->spiDwpSync(level);
+
+  *(tNFC_STATUS*)pdata = status;
+  if (NFC_STATUS_OK == status) {
+     status = 0;
+  }
   return status;
 }
 /*******************************************************************************
@@ -1677,9 +1681,15 @@ int32_t NFC_RelSvddWait(void* pdata) {
 *******************************************************************************/
 int32_t NFC_RelForceDwpOnOffWait (void *pdata)
 {
-  nfc_nci_IoctlInOutData_t inpOutData;
-  inpOutData.inp.level = *(uint32_t*)pdata;
-  return (nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_REL_DWP_WAIT, &inpOutData));
+
+  uint32_t level = *(uint32_t*)pdata;
+  int32_t status = -1;
+
+  status = nfc_cb.p_hal->RelForceDwpOnOffWait(level);
+  if (NFC_STATUS_OK == status) {
+     status = 0;
+  }
+  return status;
 }
 #endif
 
@@ -1866,22 +1876,16 @@ void  check_nfcee_session_and_reset()
 void NFC_updateHciInitStatus(tNFC_HCI_INIT_STATUS updateStatus) {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "%s Enter :  start condition : %d", __func__, updateStatus);
-  nfc_nci_IoctlInOutData_t inpOutData;
+
   int32_t ioctlStat;
-  uint8_t hciEvtUpdate[] = {0x00};
-  memset(&inpOutData, 0x00, sizeof(nfc_nci_IoctlInOutData_t));
-  inpOutData.inp.data.nciCmd.cmd_len = sizeof(hciEvtUpdate);
-  hciEvtUpdate[0] = updateStatus;
-  memcpy(inpOutData.inp.data.nciCmd.p_cmd, hciEvtUpdate, sizeof(hciEvtUpdate));
-  inpOutData.inp.data_source = 2;
   if (updateStatus == NFC_HCI_INIT_START) {
     SyncEventGuard guard(nfc_cb.hciEvt);
     ioctlStat =
-        nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_HCI_INIT_STATUS_UPDATE, &inpOutData);
+        nfc_cb.p_hal->HciInitUpdateState(updateStatus);
     nfc_cb.hciEvt.wait(2 * 1000);
   } else {
     ioctlStat =
-        nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_HCI_INIT_STATUS_UPDATE, &inpOutData);
+         nfc_cb.p_hal->HciInitUpdateState(updateStatus);
   }
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "%s Exit :  updateStatus condition : %d", __func__, updateStatus);
