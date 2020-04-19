@@ -126,10 +126,10 @@ class NfcAdaptation {
   void Finalize();
   void FactoryReset();
   void DeviceShutdown();
-  static uint32_t setEseState(NxpNfcAdaptationEseState ESEstate);
-  static uint8_t getchipType();
-  static uint16_t setNfcServicePid(uint64_t NfcNxpServicePid);
-  static uint32_t getEseState();
+  static uint32_t HalsetEseState(tNxpEseState ESEstate);
+  static uint8_t HalgetchipType();
+  static uint16_t HalsetNfcServicePid(uint64_t NfcNxpServicePid);
+  static uint32_t HalgetEseState();
   static uint16_t HalSpiDwpSync(uint32_t level);
   static uint16_t HalRelForceDwpOnOffWait(uint32_t level);
   static int32_t HalHciInitUpdateState(tNFC_HCI_INIT_STATUS HciStatus);

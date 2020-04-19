@@ -728,6 +728,11 @@ void NfcAdaptation::InitializeHalDeviceContext() {
   mHalEntryFuncs.spiDwpSync = HalSpiDwpSync;
   mHalEntryFuncs.RelForceDwpOnOffWait = HalRelForceDwpOnOffWait;
   mHalEntryFuncs.HciInitUpdateState = HalHciInitUpdateState;
+  mHalEntryFuncs.setEseState = HalsetEseState;
+  mHalEntryFuncs.getchipType = HalgetchipType;
+  mHalEntryFuncs.setNfcServicePid = HalsetNfcServicePid;
+  mHalEntryFuncs.getEseState = HalgetEseState;
+
 
   LOG(INFO) << StringPrintf("%s: Try INfcV1_1::getService()", func);
   mHal = mHal_1_1 = mHal_1_2 = INfcV1_2::tryGetService();
@@ -1411,8 +1416,8 @@ void initializeGlobalAppDtaMode() {
 ** Returns          None.
 **
 ***************************************************************************/
-uint32_t NfcAdaptation::setEseState(NxpNfcAdaptationEseState ESEstate) {
-  const char* func = "NfcAdaptation::setEseState";
+uint32_t NfcAdaptation::HalsetEseState(tNxpEseState ESEstate) {
+  const char* func = "NfcAdaptation::HalsetEseState";
   uint32_t status = NFA_STATUS_FAILED;
   uint8_t ret = 0;
 
@@ -1440,8 +1445,8 @@ uint32_t NfcAdaptation::setEseState(NxpNfcAdaptationEseState ESEstate) {
  **
  ** Returns          chipType
  *******************************************************************************/
-uint8_t NfcAdaptation::getchipType() {
-  const char* func = "NfcAdaptation::getchipType";
+uint8_t NfcAdaptation::HalgetchipType() {
+  const char* func = "NfcAdaptation::HalgetchipType";
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : Enter", func);
   return mHalNxpNfcLegacy->getchipType();
 }
@@ -1457,8 +1462,8 @@ uint8_t NfcAdaptation::getchipType() {
 **
 ** Returns          0 if api call success, else -1
 ***************************************************************************/
-uint16_t NfcAdaptation::setNfcServicePid(uint64_t NfcNxpServicePid) {
-  const char* func = "NfcAdaptation::setNfcServicePid";
+uint16_t NfcAdaptation::HalsetNfcServicePid(uint64_t NfcNxpServicePid) {
+  const char* func = "NfcAdaptation::HalsetNfcServicePid";
   uint16_t status = NFA_STATUS_FAILED;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : Enter", func);
@@ -1485,8 +1490,8 @@ uint16_t NfcAdaptation::setNfcServicePid(uint64_t NfcNxpServicePid) {
 ** Returns          Status.
 **
 ***************************************************************************/
-uint32_t NfcAdaptation::getEseState() {
-  const char* func = "NfcAdaptation::getEseState";
+uint32_t NfcAdaptation::HalgetEseState() {
+  const char* func = "NfcAdaptation::HalgetEseState";
   uint32_t status = NFA_STATUS_FAILED;
 
 

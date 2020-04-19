@@ -1575,7 +1575,7 @@ int32_t NFC_ReqWiredAccess(void* pdata) {
         return -1;
     }
   int32_t status;
-  status = NfcAdaptation::setEseState(NFC_ESE_WIRED_MODE);
+  status = nfc_cb.p_hal->setEseState(tNFC_ESE_WIRED_MODE);
   *(tNFC_STATUS*)pdata = status;
   return status;
 }
@@ -1591,7 +1591,7 @@ int32_t NFC_ReqWiredAccess(void* pdata) {
 *******************************************************************************/
 int32_t NFC_RelWiredAccess(void* pdata) {
   uint32_t status;
-  status = NfcAdaptation::setEseState(NFC_ESE_IDLE_MODE);
+  status = nfc_cb.p_hal->setEseState(tNFC_ESE_IDLE_MODE);
   *(tNFC_STATUS*)pdata = status;
   return status;
 }
@@ -1607,7 +1607,7 @@ int32_t NFC_RelWiredAccess(void* pdata) {
 *******************************************************************************/
 int32_t NFC_GetP61Status(void* pdata) {
   int32_t status;
-  status = NfcAdaptation::getEseState();
+  status = nfc_cb.p_hal->getEseState();
   *(uint32_t*)pdata = status;
   return status;
 }
@@ -1714,7 +1714,7 @@ int32_t NFC_SetNfcServicePid() {
     }
 
     nfcServicePid = getpid();
-    setPidStatus = uint8_t(NfcAdaptation::setNfcServicePid(nfcServicePid));
+    setPidStatus =  (uint8_t)nfc_cb.p_hal->setNfcServicePid(nfcServicePid);
 
     if (setPidStatus == NFC_STATUS_OK) {
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfc service set pid done");
@@ -1742,7 +1742,7 @@ int32_t NFC_ResetNfcServicePid()
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFC_ResetNfcServicePid: Not valid for low RAM device");
       return setPidStatus;
     }
-    setPidStatus = uint8_t(NfcAdaptation::setNfcServicePid(nfcServicePid));
+    setPidStatus =  (uint8_t)nfc_cb.p_hal->setNfcServicePid(nfcServicePid);
 
     if (setPidStatus == NFC_STATUS_OK) {
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfc service set pid done");
@@ -1828,7 +1828,7 @@ void NFC_SetStaticHciCback (tNFC_CONN_CBACK    *p_cback)
 void NFC_GetFeatureList() {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFC_GetFeatureList() Enter");
 
-    chipType = (tNFC_chipType)NfcAdaptation::getchipType();
+    chipType = (tNFC_chipType)nfc_cb.p_hal->getchipType();
     if(chipType != 0x00) {
         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFC_GetFeatureList ()chipType = %d", chipType);
 
