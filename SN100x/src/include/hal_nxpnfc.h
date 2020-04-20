@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright 2018-2019 NXP
+ *  Copyright 2018-2020 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -151,6 +151,7 @@ typedef struct {
   uint8_t rdrEnableLpcd;
   uint8_t autonomousEnable;
   uint8_t defaultProtoSeId;
+  uint8_t supportNonStdCard;
 } nxp_nfc_config_t;
 #endif
 /*

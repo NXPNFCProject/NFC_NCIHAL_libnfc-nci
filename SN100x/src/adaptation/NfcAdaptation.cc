@@ -973,6 +973,9 @@ void NfcAdaptation::GetNxpConfigs(
   configMap.emplace(
       NAME_CHECK_DEFAULT_PROTO_SE_ID,
       ConfigValue(inpOutData.out.data.nxpConfigs.defaultProtoSeId));
+  configMap.emplace(
+      NAME_NXP_SUPPORT_NON_STD_CARD,
+      ConfigValue(inpOutData.out.data.nxpConfigs.supportNonStdCard));
 }
 
 /*******************************************************************************
