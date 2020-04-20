@@ -732,7 +732,7 @@ void NfcAdaptation::InitializeHalDeviceContext() {
   mHalEntryFuncs.getchipType = HalgetchipType;
   mHalEntryFuncs.setNfcServicePid = HalsetNfcServicePid;
   mHalEntryFuncs.getEseState = HalgetEseState;
-
+  mHalEntryFuncs.GetCachedNfccConfig = HalGetCachedNfccConfig;
 
   LOG(INFO) << StringPrintf("%s: Try INfcV1_1::getService()", func);
   mHal = mHal_1_1 = mHal_1_2 = INfcV1_2::tryGetService();
@@ -1580,4 +1580,53 @@ int32_t NfcAdaptation::HalHciInitUpdateState(tNFC_HCI_INIT_STATUS HciStatus) {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : Exit", func);
 
   return ret;
+}
+
+/*******************************************************************************
+ ** Function         HalGetProperty_cb
+ **
+ ** Description      This is a callback for HalGetProperty. It shall be called
+ **                  from HAL to return the value of requested property.
+ **
+ ** Parameters       ::android::hardware::hidl_string
+ **
+ ** Return           void
+ *********************************************************************/
+static void HalGetCachedNfccConfig_cb(NxpNciCfgInfo CfgInfo) {
+    memcpy(&(NfcAdaptation::GetInstance().AdapCfgInfo),&CfgInfo,sizeof(NxpNciCfgInfo));
+
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("isGetcfg = %d",NfcAdaptation::GetInstance().AdapCfgInfo.isGetcfg);
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("total_duration = %d",NfcAdaptation::GetInstance().AdapCfgInfo.total_duration[0]);
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("total_duration_len = %d",NfcAdaptation::GetInstance().AdapCfgInfo.total_duration_len);
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("atr_req_gen_bytes = %d",NfcAdaptation::GetInstance().AdapCfgInfo.atr_req_gen_bytes[0]);
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("atr_req_gen_bytes_len = %d",NfcAdaptation::GetInstance().AdapCfgInfo.atr_req_gen_bytes_len);
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("atr_res_gen_bytes = %d",NfcAdaptation::GetInstance().AdapCfgInfo.atr_res_gen_bytes[0]);
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("atr_res_gen_bytes_len = %d",NfcAdaptation::GetInstance().AdapCfgInfo.atr_res_gen_bytes_len);
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("pmid_wt = %d",NfcAdaptation::GetInstance().AdapCfgInfo.pmid_wt[0]);
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("pmid_wt_len = %d",NfcAdaptation::GetInstance().AdapCfgInfo.pmid_wt_len);
+
+  return;
+}
+
+/***************************************************************************
+**
+** Function         NfcAdaptation::GetCachedNfccConfig
+**
+** Description      This function is called for to update ese P61 state.
+**
+** Returns          void.
+**
+***************************************************************************/
+void NfcAdaptation::HalGetCachedNfccConfig(tNxpNci_getCfg_info_t *nxpNciAtrInfo) {
+  const char* func = "NfcAdaptation::HalGetCachedNfccConfig";
+
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : Enter", func);
+
+  if (mHalNxpNfcLegacy != nullptr) {
+     mHalNxpNfcLegacy->getCachedNfccConfig(HalGetCachedNfccConfig_cb);
+  }
+
+  memcpy(nxpNciAtrInfo , &(NfcAdaptation::GetInstance().AdapCfgInfo) , sizeof(tNxpNci_getCfg_info_t));
+
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : Exit", func);
 }

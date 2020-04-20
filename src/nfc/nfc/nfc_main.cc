@@ -506,11 +506,10 @@ void nfc_main_handle_hal_evt(tNFC_HAL_EVT_MSG* p_msg) {
              * If found same setconfigs will not be sent
              * */
             {
-              nfc_nci_IoctlInOutData_t inpOutData;
-              nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_GET_CONFIG_INFO,
-                                  (void*)&inpOutData);
+              tNxpNci_getCfg_info_t nxpNciAtrInfo;
+              nfc_cb.p_hal->GetCachedNfccConfig(&nxpNciAtrInfo);
               nfa_dm_init_cfgs(
-                  (phNxpNci_getCfg_info_t*)&inpOutData.out.data.nxpNciAtrInfo);
+                  (phNxpNci_getCfg_info_t*)&nxpNciAtrInfo);
             }
 #endif
           } else /* if post initailization failed */

@@ -47,12 +47,14 @@
 #include <android/hardware/nfc/1.0/types.h>
 #include <vendor/nxp/nxpnfc/1.0/INxpNfc.h>
 #include <vendor/nxp/nxpnfclegacy/1.0/INxpNfcLegacy.h>
+#include <vendor/nxp/nxpnfclegacy/1.0/types.h>
 
 using vendor::nxp::nxpnfclegacy::V1_0::INxpNfcLegacy;
 using vendor::nxp::nxpnfc::V1_0::INxpNfc;
 using ::android::sp;
 using ::vendor::nxp::nxpnfclegacy::V1_0::NxpNfcHalEseState;
 using ::vendor::nxp::nxpnfclegacy::V1_0::NfcHciInitStatus;
+using ::vendor::nxp::nxpnfclegacy::V1_0::NxpNciCfgInfo;
 
 namespace android {
 namespace hardware {
@@ -116,6 +118,7 @@ enum NxpNfcAdaptationEseState  : uint64_t {
     NFC_ESE_WIRED_MODE
 };
 
+
 class NfcDeathRecipient ;
 
 class NfcAdaptation {
@@ -133,6 +136,7 @@ class NfcAdaptation {
   static uint16_t HalSpiDwpSync(uint32_t level);
   static uint16_t HalRelForceDwpOnOffWait(uint32_t level);
   static int32_t HalHciInitUpdateState(tNFC_HCI_INIT_STATUS HciStatus);
+  static void HalGetCachedNfccConfig(tNxpNci_getCfg_info_t *nxpNciAtrInfo);
   static NfcAdaptation& GetInstance();
   tHAL_NFC_ENTRY* GetHalEntryFuncs();
   bool DownloadFirmware();
@@ -144,12 +148,14 @@ class NfcAdaptation {
   int HalGetFwDwnldFlag(uint8_t* fwDnldRequest);
   nfc_nci_IoctlInOutData_t* mCurrentIoctlData;
 #endif
+NxpNciCfgInfo AdapCfgInfo;
 
  private:
   NfcAdaptation();
   void signal();
   static NfcAdaptation* mpInstance;
   static ThreadMutex sLock;
+
   ThreadCondVar mCondVar;
   tHAL_NFC_ENTRY mHalEntryFuncs;  // function pointers for HAL entry points
   static tHAL_NFC_CBACK* mHalCallback;

@@ -47,6 +47,18 @@
 #include "nfc_hal_target.h"
 #include "hal_nxpnfc.h"
 
+typedef struct {
+  bool isGetcfg;
+  uint8_t total_duration[4];
+  uint8_t total_duration_len;
+  uint8_t atr_req_gen_bytes[48];
+  uint8_t atr_req_gen_bytes_len;
+  uint8_t atr_res_gen_bytes[48];
+  uint8_t atr_res_gen_bytes_len;
+  uint8_t pmid_wt[3];
+  uint8_t pmid_wt_len;
+} tNxpNci_getCfg_info_t;
+
 typedef enum {
   NFC_HCI_INIT_COMPLETE = 0x00,/* Status of HCI initialization     */
   NFC_HCI_INIT_START = 0x01
@@ -56,6 +68,17 @@ enum tNxpEseState  : uint64_t {
     tNFC_ESE_IDLE_MODE = 0,
     tNFC_ESE_WIRED_MODE
 };
+
+typedef struct phNxpNci_Extn_Cmd{
+  uint16_t cmd_len;
+  uint8_t p_cmd[256];
+}phNxpNci_Extn_Cmd_t;
+
+typedef struct phNxpNci_Extn_Resp{
+  uint32_t status;
+  uint16_t rsp_len;
+  uint8_t p_rsp[256];
+}phNxpNci_Extn_Resp_t;
 
 typedef uint8_t tHAL_NFC_STATUS;
 typedef void(tHAL_NFC_STATUS_CBACK)(tHAL_NFC_STATUS status);
@@ -89,6 +112,7 @@ typedef uint32_t(tHAL_API_setEseState)(tNxpEseState tESEstate);
 typedef uint8_t(tHAL_API_getchipType)(void);
 typedef uint16_t(tHAL_API_setNfcServicePid)(uint64_t NfcNxpServicePid);
 typedef uint32_t(tHAL_API_getEseState)(void);
+typedef void (tHAL_API_GetCachedNfccConfig)(tNxpNci_getCfg_info_t *nxpNciAtrInfo);
 
 typedef struct {
   tHAL_API_INITIALIZE* initialize;
@@ -112,6 +136,7 @@ typedef struct {
   tHAL_API_getchipType* getchipType;
   tHAL_API_setNfcServicePid* setNfcServicePid;
   tHAL_API_getEseState* getEseState;
+  tHAL_API_GetCachedNfccConfig* GetCachedNfccConfig;
 } tHAL_NFC_ENTRY;
 
 #if (NXP_EXTNS == TRUE)
