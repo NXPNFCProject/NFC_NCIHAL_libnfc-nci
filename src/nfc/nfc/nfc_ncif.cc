@@ -119,7 +119,9 @@ static struct timeval timer_end;
 **
 *******************************************************************************/
 uint8_t nfc_hal_nfcc_get_reset_info(void) {
-  nfc_nci_IoctlInOutData_t inpOutData;
+
+  phNxpNci_Extn_Cmd_t inData;
+  phNxpNci_Extn_Resp_t outData;
   /*NCI_RESET_CMD*/
   uint8_t nfc_hal_nfcc_get_reset_info[6][6] = {
       {
@@ -138,23 +140,24 @@ uint8_t nfc_hal_nfcc_get_reset_info(void) {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s Enter", __func__);
 
   for (i = 0; i < 6; i++) {
-    memset(&inpOutData, 0x00, sizeof(nfc_nci_IoctlInOutData_t));
-    inpOutData.inp.data.nciCmd.cmd_len = nfc_hal_nfcc_get_reset_info[i][2] + 3;
-    memcpy(inpOutData.inp.data.nciCmd.p_cmd,
+    memset(&inData, 0x00, sizeof(phNxpNci_Extn_Cmd_t));
+    memset(&outData, 0x00, sizeof(phNxpNci_Extn_Resp_t));
+    inData.cmd_len = nfc_hal_nfcc_get_reset_info[i][2] + 3;
+    memcpy(inData.p_cmd,
            (uint8_t*)&nfc_hal_nfcc_get_reset_info[i],
            nfc_hal_nfcc_get_reset_info[i][2] + 3);
     do {
       core_status =
-          nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_NCI_TRANSCEIVE, &inpOutData);
+            nfc_cb.p_hal->nciTransceive(&inData,&outData);
       retry_count++;
     } while (NCI_STATUS_OK != core_status &&
              retry_count < (NFC_NFCC_INIT_MAX_RETRY + 1));
     if (core_status == NCI_STATUS_OK) {
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
           "%s No.%d response for nfc_hal_nfcc_get_reset_info", __func__, i);
-      for (j = 0; j < inpOutData.out.data.nciRsp.rsp_len; j++) {
+      for (j = 0; j < outData.rsp_len; j++) {
         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-            " %s 0x%02x", __func__, inpOutData.out.data.nciRsp.p_rsp[j]);
+            " %s 0x%02x", __func__, outData.p_rsp[j]);
       }
     }
   }
@@ -2323,27 +2326,31 @@ void nfc_ncif_proc_reset_rsp(uint8_t* p, bool is_ntf) {
 
 #if (NXP_EXTNS == TRUE)
 uint8_t nfc_hal_nfcc_reset(void) {
-  nfc_nci_IoctlInOutData_t inpOutData;
+  phNxpNci_Extn_Cmd_t inData;
+  phNxpNci_Extn_Resp_t outData;
   /*NCI_RESET_CMD*/
   uint8_t cmd_reset_nci[] = {0x20, 0x00, 0x01, 0x00};
   uint8_t core_status = NCI_STATUS_FAILED;
   uint8_t retry_count = 0;
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Inside nfc_hal_nfcc_reset");
 
-  memset(&inpOutData, 0x00, sizeof(nfc_nci_IoctlInOutData_t));
-  inpOutData.inp.data.nciCmd.cmd_len = sizeof(cmd_reset_nci);
-  memcpy(inpOutData.inp.data.nciCmd.p_cmd, cmd_reset_nci,
+  memset(&inData, 0x00, sizeof(phNxpNci_Extn_Cmd_t));
+  memset(&outData, 0x00, sizeof(phNxpNci_Extn_Resp_t));
+  inData.cmd_len = sizeof(cmd_reset_nci);
+  memcpy(inData.p_cmd, cmd_reset_nci,
          sizeof(cmd_reset_nci));
   do {
     core_status =
-        nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_NCI_TRANSCEIVE, &inpOutData);
+        nfc_cb.p_hal->nciTransceive(&inData,&outData);
+
     retry_count++;
   } while (NCI_STATUS_OK != core_status &&
            retry_count < (NFC_NFCC_INIT_MAX_RETRY + 1));
   return core_status;
 }
 uint8_t nfc_hal_nfcc_init(uint8_t** pinit_rsp) {
-  nfc_nci_IoctlInOutData_t inpOutData;
+  phNxpNci_Extn_Cmd_t inData;
+  phNxpNci_Extn_Resp_t outData;
   /*NCI_INIT_CMD*/
   uint8_t cmd_init_nci[] = {0x20, 0x01, 0x00};
   uint8_t cmd_init_nci2_0[] = {0x20,0x01,0x02,0x00,0x00};
@@ -2352,28 +2359,29 @@ uint8_t nfc_hal_nfcc_init(uint8_t** pinit_rsp) {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Inside nfc_hal_nfcc_init");
   if (pinit_rsp == nullptr) return init_status;
 
-  memset(&inpOutData, 0x00, sizeof(nfc_nci_IoctlInOutData_t));
+  memset(&inData, 0x00, sizeof(phNxpNci_Extn_Cmd_t));
+  memset(&outData, 0x00, sizeof(phNxpNci_Extn_Resp_t));
   if(nfc_cb.nci_version == NCI_VERSION_1_0)
   {
-     inpOutData.inp.data.nciCmd.cmd_len = sizeof(cmd_init_nci);
-     memcpy(inpOutData.inp.data.nciCmd.p_cmd, cmd_init_nci, sizeof(cmd_init_nci));
+     inData.cmd_len = sizeof(cmd_init_nci);
+     memcpy(inData.p_cmd, cmd_init_nci, sizeof(cmd_init_nci));
   }
   else
   {
-     inpOutData.inp.data.nciCmd.cmd_len = sizeof(cmd_init_nci2_0);
-     memcpy(inpOutData.inp.data.nciCmd.p_cmd, cmd_init_nci2_0, sizeof(cmd_init_nci2_0));
+     inData.cmd_len = sizeof(cmd_init_nci2_0);
+     memcpy(inData.p_cmd, cmd_init_nci2_0, sizeof(cmd_init_nci2_0));
   }
   do {
     init_status =
-        nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_NCI_TRANSCEIVE, &inpOutData);
+        nfc_cb.p_hal->nciTransceive(&inData,&outData);
     retry_count++;
   } while (NCI_STATUS_OK != init_status &&
            retry_count < (NFC_NFCC_INIT_MAX_RETRY + 1));
-  if (init_status == NCI_STATUS_OK && inpOutData.out.data.nciRsp.rsp_len > 0) {
-    *pinit_rsp = (uint8_t*)GKI_getbuf(inpOutData.out.data.nciRsp.rsp_len);
+  if (init_status == NCI_STATUS_OK && outData.rsp_len > 0) {
+    *pinit_rsp = (uint8_t*)GKI_getbuf(outData.rsp_len);
     if (nullptr != *pinit_rsp)
-      memcpy(*pinit_rsp, inpOutData.out.data.nciRsp.p_rsp,
-             inpOutData.out.data.nciRsp.rsp_len);
+      memcpy(*pinit_rsp, outData.p_rsp,
+             outData.rsp_len);
     else {
       init_status = NCI_STATUS_FAILED;
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfc_hal_nfcc_init: Memory alocation failed");
@@ -3026,7 +3034,9 @@ tNFC_STATUS nfc_ncif_reset_nfcc() {
               " feature is not available!!");
       return (NFA_STATUS_FAILED);
   }
-  nfc_nci_IoctlInOutData_t inpOutData;
+
+  phNxpNci_Extn_Cmd_t inData;
+  phNxpNci_Extn_Resp_t outData;
   uint8_t status = NCI_STATUS_FAILED;
   int retry_count = 0;
 
@@ -3044,50 +3054,54 @@ tNFC_STATUS nfc_ncif_reset_nfcc() {
   nfc_cb.p_hal->power_cycle();
 
   /*Transceive NCI_INIT_CMD*/
-  memset(&inpOutData, 0x00, sizeof(nfc_nci_IoctlInOutData_t));
-  inpOutData.inp.data.nciCmd.cmd_len = sizeof(cmd_reset_nci);
-  memcpy(inpOutData.inp.data.nciCmd.p_cmd, cmd_reset_nci,
+  memset(&inData, 0x00, sizeof(phNxpNci_Extn_Cmd_t));
+  memset(&outData, 0x00, sizeof(phNxpNci_Extn_Resp_t));
+  inData.cmd_len = sizeof(cmd_reset_nci);
+  memcpy(inData.p_cmd, cmd_reset_nci,
          sizeof(cmd_reset_nci));
 
   do {
-    status = nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_NCI_TRANSCEIVE, &inpOutData);
+    status = nfc_cb.p_hal->nciTransceive(&inData,&outData);
     retry_count++;
   } while ((status != NCI_STATUS_OK) && (retry_count <= 3));
   if (status != NCI_STATUS_OK) goto TheEndReset;
 
   /*Transceive NCI_RESET_CMD*/
   retry_count = 0;
-  memset(&inpOutData, 0x00, sizeof(nfc_nci_IoctlInOutData_t));
-  inpOutData.inp.data.nciCmd.cmd_len = sizeof(cmd_init_nci);
-  memcpy(inpOutData.inp.data.nciCmd.p_cmd, cmd_init_nci, sizeof(cmd_init_nci));
+  memset(&inData, 0x00, sizeof(phNxpNci_Extn_Cmd_t));
+  memset(&outData, 0x00, sizeof(phNxpNci_Extn_Resp_t));
+  inData.cmd_len = sizeof(cmd_init_nci);
+  memcpy(inData.p_cmd, cmd_init_nci, sizeof(cmd_init_nci));
   do {
-    status = nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_NCI_TRANSCEIVE, &inpOutData);
+    status = nfc_cb.p_hal->nciTransceive(&inData,&outData);
     retry_count++;
   } while ((status != NCI_STATUS_OK) && (retry_count <= 3));
   if (status != NCI_STATUS_OK) goto TheEndReset;
 
   /*Transceive NXP_ACT_PROP_EXTN*/
   retry_count = 0;
-  memset(&inpOutData, 0x00, sizeof(nfc_nci_IoctlInOutData_t));
-  inpOutData.inp.data.nciCmd.cmd_len = sizeof(cmd_act_prop_extn);
-  memcpy(inpOutData.inp.data.nciCmd.p_cmd, cmd_act_prop_extn,
+  memset(&inData, 0x00, sizeof(phNxpNci_Extn_Cmd_t));
+  memset(&outData, 0x00, sizeof(phNxpNci_Extn_Resp_t));
+  inData.cmd_len = sizeof(cmd_act_prop_extn);
+  memcpy(inData.p_cmd, cmd_act_prop_extn,
          sizeof(cmd_act_prop_extn));
 
   do {
-    status = nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_NCI_TRANSCEIVE, &inpOutData);
+    status = nfc_cb.p_hal->nciTransceive(&inData,&outData);
     retry_count++;
   } while ((status != NCI_STATUS_OK) && (retry_count <= 3));
   if (status != NCI_STATUS_OK) goto TheEndReset;
 
   /*Transceive NXP_CORE_STANDBY*/
   retry_count = 0;
-  memset(&inpOutData, 0x00, sizeof(nfc_nci_IoctlInOutData_t));
-  inpOutData.inp.data.nciCmd.cmd_len = sizeof(cmd_core_standby);
-  memcpy(inpOutData.inp.data.nciCmd.p_cmd, cmd_core_standby,
+  memset(&inData, 0x00, sizeof(phNxpNci_Extn_Cmd_t));
+  memset(&outData, 0x00, sizeof(phNxpNci_Extn_Resp_t));
+  inData.cmd_len = sizeof(cmd_core_standby);
+  memcpy(inData.p_cmd, cmd_core_standby,
          sizeof(cmd_core_standby));
 
   do {
-    status = nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_NCI_TRANSCEIVE, &inpOutData);
+    status = nfc_cb.p_hal->nciTransceive(&inData,&outData);
     retry_count++;
   } while ((status != NCI_STATUS_OK) && (retry_count <= 3));
 TheEndReset:
@@ -3111,7 +3125,9 @@ void uicc_eeprom_get_config(uint8_t* config_resp) {
       return;
   }
   uint8_t cmd_get_dualUicc_config[] = {0x20, 0x03, 0x03, 0x01, 0xA0, 0xEC};
-  nfc_nci_IoctlInOutData_t inpOutData;
+
+  phNxpNci_Extn_Cmd_t inData;
+  phNxpNci_Extn_Resp_t outData;
   int uicc_mode = 0;
   uint8_t config_status = NCI_STATUS_FAILED;
   uint8_t retry_count = 0;
@@ -3124,20 +3140,21 @@ void uicc_eeprom_get_config(uint8_t* config_resp) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
         "NXP_DUAL_UICC_ENABLE not found; taking default value : 0x%02x", uicc_mode);
   }
-  memset(&inpOutData, 0x00, sizeof(nfc_nci_IoctlInOutData_t));
-  inpOutData.inp.data.nciCmd.cmd_len = sizeof(cmd_get_dualUicc_config);
-  memcpy(inpOutData.inp.data.nciCmd.p_cmd, cmd_get_dualUicc_config,
+  memset(&inData, 0x00, sizeof(phNxpNci_Extn_Cmd_t));
+  memset(&outData, 0x00, sizeof(phNxpNci_Extn_Resp_t));;
+  inData.cmd_len = sizeof(cmd_get_dualUicc_config);
+  memcpy(inData.p_cmd, cmd_get_dualUicc_config,
          sizeof(cmd_get_dualUicc_config));
   do {
     config_status =
-        nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_NCI_TRANSCEIVE, &inpOutData);
+        nfc_cb.p_hal->nciTransceive(&inData,&outData);
     retry_count++;
   } while ((config_status != NCI_STATUS_OK) && (retry_count <= 3));
   if (config_status == NCI_STATUS_OK &&
-      inpOutData.out.data.nciRsp.rsp_len > 0) {
-    memcpy(config_resp, inpOutData.out.data.nciRsp.p_rsp, inpOutData.out.data.nciRsp.rsp_len);
+      outData.rsp_len > 0) {
+    memcpy(config_resp, outData.p_rsp, outData.rsp_len);
   } else {
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s :HAL_NFC_IOCTL_NCI_TRANSCEIVE Failed", __func__);
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s :nciTransceive Failed", __func__);
   }
 }
 
@@ -3159,7 +3176,9 @@ void uicc_eeprom_set_config(uint8_t* config_rsp) {
   }
   uint8_t cmd_set_dualUicc_config[] = {0x20, 0x02, 0x05, 0x01,
                                        0xA0, 0xEC, 0x01, 0x11};
-  nfc_nci_IoctlInOutData_t inpOutData;
+
+  phNxpNci_Extn_Cmd_t inData;
+  phNxpNci_Extn_Resp_t outData;
   int uicc_mode = 0;
   uint8_t config_status = NCI_STATUS_FAILED;
   uint8_t retry_count = 0;
@@ -3173,7 +3192,8 @@ void uicc_eeprom_set_config(uint8_t* config_rsp) {
         "NXP_DUAL_UICC_ENABLE not found; taking default value : 0x%02x", uicc_mode);
   }
 
-  memset(&inpOutData, 0x00, sizeof(nfc_nci_IoctlInOutData_t));
+  memset(&inData, 0x00, sizeof(phNxpNci_Extn_Cmd_t));
+  memset(&outData, 0x00, sizeof(phNxpNci_Extn_Resp_t));
 
   if (uicc_mode == 0x00) {
     cmd_set_dualUicc_config[7] = 0x01;
@@ -3181,16 +3201,16 @@ void uicc_eeprom_set_config(uint8_t* config_rsp) {
     cmd_set_dualUicc_config[7] = config_rsp[8];
   }
 
-  inpOutData.inp.data.nciCmd.cmd_len = sizeof(cmd_set_dualUicc_config);
-  memcpy(inpOutData.inp.data.nciCmd.p_cmd, cmd_set_dualUicc_config,
+  inData.cmd_len = sizeof(cmd_set_dualUicc_config);
+  memcpy(inData.p_cmd, cmd_set_dualUicc_config,
          sizeof(cmd_set_dualUicc_config));
   do {
     config_status =
-        nfc_cb.p_hal->ioctl(HAL_NFC_IOCTL_NCI_TRANSCEIVE, &inpOutData);
+        nfc_cb.p_hal->nciTransceive(&inData,&outData);
     retry_count++;
   } while ((config_status != NCI_STATUS_OK) && (retry_count <= 3));
   if ((config_status != NCI_STATUS_OK) && (retry_count = 4)) {
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s :HAL_NFC_IOCTL_NCI_TRANSCEIVE Failed", __func__);
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s :nciTransceive Failed", __func__);
   }
 }
 

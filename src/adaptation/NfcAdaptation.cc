@@ -734,6 +734,7 @@ void NfcAdaptation::InitializeHalDeviceContext() {
   mHalEntryFuncs.setNfcServicePid = HalsetNfcServicePid;
   mHalEntryFuncs.getEseState = HalgetEseState;
   mHalEntryFuncs.GetCachedNfccConfig = HalGetCachedNfccConfig;
+  mHalEntryFuncs.nciTransceive = HalNciTransceive;
 
   LOG(INFO) << StringPrintf("%s: Try INfcV1_1::getService()", func);
   mHal = mHal_1_1 = mHal_1_2 = INfcV1_2::tryGetService();
@@ -1667,4 +1668,48 @@ void NfcAdaptation::HalGetNxpConfig(NxpAdaptationConfig& NfcConfigData) {
     mHalNxpNfcLegacy->getNxpConfig(HalGetNxpConfig_cb);
     memcpy(&NfcConfigData , &(NfcAdaptation::GetInstance().mNxpNfcHalConfig) , sizeof(NxpAdaptationConfig));
   }
+}
+
+/*******************************************************************************
+ ** Function         HalNciTransceive_cb
+ **
+ ** Description      This is a callback for HalGetProperty. It shall be called
+ **                  from HAL to return the value of requested property.
+ **
+ ** Parameters       ::android::hardware::hidl_string
+ **
+ ** Return           void
+ *********************************************************************/
+static void HalNciTransceive_cb(NxpNciExtnResp out) {
+    memcpy(&(NfcAdaptation::GetInstance().mNciResp),&out,sizeof(NxpNciExtnResp));
+  return;
+}
+
+/***************************************************************************
+**
+** Function         NfcAdaptation::HalNciTransceive
+**
+** Description      This function does tarnsceive of nci command
+**
+** Returns          NfcStatus.
+**
+***************************************************************************/
+uint32_t NfcAdaptation::HalNciTransceive(phNxpNci_Extn_Cmd_t* NciCmd,phNxpNci_Extn_Resp_t* NciResp) {
+  const char* func = "NfcAdaptation::nciTransceive";
+  NxpNciExtnCmd inNciCmd;
+  uint32_t status = 0;
+
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : Enter", func);
+
+  memcpy(&inNciCmd,NciCmd,sizeof(NxpNciExtnCmd));
+
+  if (mHalNxpNfcLegacy != nullptr) {
+     mHalNxpNfcLegacy->nciTransceive(inNciCmd,HalNciTransceive_cb);
+     status = (NfcAdaptation::GetInstance().mNciResp).status;
+     memcpy(NciResp , &(NfcAdaptation::GetInstance().mNciResp) , sizeof(phNxpNci_Extn_Resp_t));
+  }
+
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : Exit", func);
+  return status;
+
 }

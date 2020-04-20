@@ -56,6 +56,8 @@ using ::vendor::nxp::nxpnfclegacy::V1_0::NxpNfcHalEseState;
 using ::vendor::nxp::nxpnfclegacy::V1_0::NfcHciInitStatus;
 using ::vendor::nxp::nxpnfclegacy::V1_0::NxpNciCfgInfo;
 using vendor::nxp::nxpnfclegacy::V1_0::NxpNfcHalConfig;
+using ::vendor::nxp::nxpnfclegacy::V1_0::NxpNciExtnCmd;
+using ::vendor::nxp::nxpnfclegacy::V1_0::NxpNciExtnResp;
 
 namespace android {
 namespace hardware {
@@ -193,6 +195,7 @@ class NfcAdaptation {
   static int32_t HalHciInitUpdateState(tNFC_HCI_INIT_STATUS HciStatus);
   static void HalGetCachedNfccConfig(tNxpNci_getCfg_info_t *nxpNciAtrInfo);
   static void HalGetNxpConfig(NxpAdaptationConfig& NfcConfigData);
+  static uint32_t HalNciTransceive(phNxpNci_Extn_Cmd_t* in,phNxpNci_Extn_Resp_t* out);
   NxpNfcHalConfig mNxpNfcHalConfig;
   static NfcAdaptation& GetInstance();
   tHAL_NFC_ENTRY* GetHalEntryFuncs();
@@ -205,8 +208,8 @@ class NfcAdaptation {
   int HalGetFwDwnldFlag(uint8_t* fwDnldRequest);
   nfc_nci_IoctlInOutData_t* mCurrentIoctlData;
 #endif
-NxpNciCfgInfo AdapCfgInfo;
-
+  NxpNciCfgInfo AdapCfgInfo;
+  NxpNciExtnResp mNciResp;
  private:
   NfcAdaptation();
   void signal();
