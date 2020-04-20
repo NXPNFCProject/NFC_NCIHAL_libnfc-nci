@@ -39,6 +39,8 @@
 #include <android/hardware/nfc/1.0/types.h>
 #include <android/hardware/nfc/1.1/INfc.h>
 #include <android/hardware/nfc/1.2/INfc.h>
+#include <vendor/nxp/nxpnfclegacy/1.0/INxpNfcLegacy.h>
+#include <vendor/nxp/nxpnfclegacy/1.0/types.h>
 #include <base/command_line.h>
 #include <base/logging.h>
 #include <cutils/properties.h>
@@ -74,6 +76,7 @@ using android::hardware::configureRpcThreadpool;
 using ::android::hardware::hidl_death_recipient;
 using ::android::wp;
 using ::android::hidl::base::V1_0::IBase;
+using vendor::nxp::nxpnfclegacy::V1_0::NxpNfcHalConfig;
 
 extern bool nfc_debug_enabled;
 
@@ -235,140 +238,138 @@ NfcAdaptation& NfcAdaptation::GetInstance() {
 
 void NfcAdaptation::GetNxpConfigs(
     std::map<std::string, ConfigValue>& configMap) {
-  nfc_nci_IoctlInOutData_t inpOutData;
-  int ret = HalIoctl(HAL_NFC_GET_NXP_CONFIG, &inpOutData);
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("HAL_NFC_GET_NXP_CONFIG ioctl return value = %d", ret);
+  NxpAdaptationConfig mNxpAdaptationConfig;
+  HalGetNxpConfig(mNxpAdaptationConfig);
   configMap.emplace(
       NAME_NXP_ESE_LISTEN_TECH_MASK,
-      ConfigValue(inpOutData.out.data.nxpConfigs.ese_listen_tech_mask));
+      ConfigValue(mNxpAdaptationConfig.ese_listen_tech_mask));
   configMap.emplace(
       NAME_NXP_DEFAULT_NFCEE_DISC_TIMEOUT,
-      ConfigValue(inpOutData.out.data.nxpConfigs.default_nfcee_disc_timeout));
+      ConfigValue(mNxpAdaptationConfig.default_nfcee_disc_timeout));
   configMap.emplace(
       NAME_NXP_DEFAULT_NFCEE_TIMEOUT,
-      ConfigValue(inpOutData.out.data.nxpConfigs.default_nfcee_timeout));
+      ConfigValue(mNxpAdaptationConfig.default_nfcee_timeout));
   configMap.emplace(
       NAME_NXP_ESE_WIRED_PRT_MASK,
-      ConfigValue(inpOutData.out.data.nxpConfigs.ese_wired_prt_mask));
+      ConfigValue(mNxpAdaptationConfig.ese_wired_prt_mask));
   configMap.emplace(
       NAME_NXP_UICC_WIRED_PRT_MASK,
-      ConfigValue(inpOutData.out.data.nxpConfigs.uicc_wired_prt_mask));
+      ConfigValue(mNxpAdaptationConfig.uicc_wired_prt_mask));
   configMap.emplace(
       NAME_NXP_WIRED_MODE_RF_FIELD_ENABLE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.wired_mode_rf_field_enable));
+      ConfigValue(mNxpAdaptationConfig.wired_mode_rf_field_enable));
   configMap.emplace(
       NAME_AID_BLOCK_ROUTE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.aid_block_route));
+      ConfigValue(mNxpAdaptationConfig.aid_block_route));
 
   configMap.emplace(
       NAME_NXP_ESE_POWER_DH_CONTROL,
-      ConfigValue(inpOutData.out.data.nxpConfigs.esePowerDhControl));
+      ConfigValue(mNxpAdaptationConfig.esePowerDhControl));
   configMap.emplace(NAME_NXP_SWP_RD_TAG_OP_TIMEOUT,
-                    ConfigValue(inpOutData.out.data.nxpConfigs.tagOpTimeout));
+                    ConfigValue(mNxpAdaptationConfig.tagOpTimeout));
   configMap.emplace(
       NAME_NXP_LOADER_SERICE_VERSION,
-      ConfigValue(inpOutData.out.data.nxpConfigs.loaderServiceVersion));
+      ConfigValue(mNxpAdaptationConfig.loaderServiceVersion));
   configMap.emplace(
       NAME_NXP_DEFAULT_NFCEE_DISC_TIMEOUT,
-      ConfigValue(inpOutData.out.data.nxpConfigs.defaultNfceeDiscTimeout));
+      ConfigValue(mNxpAdaptationConfig.defaultNfceeDiscTimeout));
   configMap.emplace(NAME_NXP_DUAL_UICC_ENABLE,
-                    ConfigValue(inpOutData.out.data.nxpConfigs.dualUiccEnable));
+                    ConfigValue(mNxpAdaptationConfig.dualUiccEnable));
   configMap.emplace(
       NAME_NXP_CE_ROUTE_STRICT_DISABLE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.ceRouteStrictDisable));
+      ConfigValue(mNxpAdaptationConfig.ceRouteStrictDisable));
   configMap.emplace(
       NAME_OS_DOWNLOAD_TIMEOUT_VALUE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.osDownloadTimeoutValue));
+      ConfigValue(mNxpAdaptationConfig.osDownloadTimeoutValue));
   configMap.emplace(
       NAME_DEFAULT_AID_ROUTE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.defaultAidRoute));
+      ConfigValue(mNxpAdaptationConfig.defaultAidRoute));
   configMap.emplace(
       NAME_DEFAULT_AID_PWR_STATE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.defaultAidPwrState));
+      ConfigValue(mNxpAdaptationConfig.defaultAidPwrState));
   configMap.emplace(
       NAME_DEFAULT_ISODEP_PWR_STATE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.defaultRoutePwrState));
+      ConfigValue(mNxpAdaptationConfig.defaultRoutePwrState));
   configMap.emplace(
       NAME_DEFAULT_OFFHOST_PWR_STATE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.defaultOffHostPwrState));
+      ConfigValue(mNxpAdaptationConfig.defaultOffHostPwrState));
   configMap.emplace(
       NAME_NXP_JCOPDL_AT_BOOT_ENABLE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.jcopDlAtBootEnable));
+      ConfigValue(mNxpAdaptationConfig.jcopDlAtBootEnable));
   configMap.emplace(
       NAME_NXP_DEFAULT_NFCEE_TIMEOUT,
-      ConfigValue(inpOutData.out.data.nxpConfigs.defaultNfceeTimeout));
+      ConfigValue(mNxpAdaptationConfig.defaultNfceeTimeout));
   configMap.emplace(NAME_NXP_NFC_CHIP,
-                    ConfigValue(inpOutData.out.data.nxpConfigs.nxpNfcChip));
+                    ConfigValue(mNxpAdaptationConfig.nxpNfcChip));
   configMap.emplace(
       NAME_NXP_CORE_SCRN_OFF_AUTONOMOUS_ENABLE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.coreScrnOffAutonomousEnable));
+      ConfigValue(mNxpAdaptationConfig.coreScrnOffAutonomousEnable));
   configMap.emplace(
       NAME_NXP_P61_JCOP_DEFAULT_INTERFACE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.p61JcopDefaultInterface));
+      ConfigValue(mNxpAdaptationConfig.p61JcopDefaultInterface));
   configMap.emplace(NAME_NXP_AGC_DEBUG_ENABLE,
-                    ConfigValue(inpOutData.out.data.nxpConfigs.agcDebugEnable));
+                    ConfigValue(mNxpAdaptationConfig.agcDebugEnable));
   configMap.emplace(
       NAME_DEFAULT_NFCF_PWR_STATE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.felicaCltPowerState));
+      ConfigValue(mNxpAdaptationConfig.felicaCltPowerState));
   configMap.emplace(
       NAME_NXP_HCEF_CMD_RSP_TIMEOUT_VALUE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.cmdRspTimeoutValue));
+      ConfigValue(mNxpAdaptationConfig.cmdRspTimeoutValue));
   configMap.emplace(
       NAME_CHECK_DEFAULT_PROTO_SE_ID,
-      ConfigValue(inpOutData.out.data.nxpConfigs.checkDefaultProtoSeId));
+      ConfigValue(mNxpAdaptationConfig.checkDefaultProtoSeId));
   configMap.emplace(
       NAME_NXP_NFCC_PASSIVE_LISTEN_TIMEOUT,
-      ConfigValue(inpOutData.out.data.nxpConfigs.nfccPassiveListenTimeout));
+      ConfigValue(mNxpAdaptationConfig.nfccPassiveListenTimeout));
   configMap.emplace(
       NAME_NXP_NFCC_STANDBY_TIMEOUT,
-      ConfigValue(inpOutData.out.data.nxpConfigs.nfccStandbyTimeout));
+      ConfigValue(mNxpAdaptationConfig.nfccStandbyTimeout));
   configMap.emplace(NAME_NXP_WM_MAX_WTX_COUNT,
-                    ConfigValue(inpOutData.out.data.nxpConfigs.wmMaxWtxCount));
+                    ConfigValue(mNxpAdaptationConfig.wmMaxWtxCount));
   configMap.emplace(
       NAME_NXP_NFCC_RF_FIELD_EVENT_TIMEOUT,
-      ConfigValue(inpOutData.out.data.nxpConfigs.nfccRfFieldEventTimeout));
+      ConfigValue(mNxpAdaptationConfig.nfccRfFieldEventTimeout));
   configMap.emplace(
       NAME_NXP_ALLOW_WIRED_IN_MIFARE_DESFIRE_CLT,
-      ConfigValue(inpOutData.out.data.nxpConfigs.allowWiredInMifareDesfireClt));
+      ConfigValue(mNxpAdaptationConfig.allowWiredInMifareDesfireClt));
   configMap.emplace(
       NAME_NXP_DWP_INTF_RESET_ENABLE,
-      ConfigValue(inpOutData.out.data.nxpConfigs.dwpIntfResetEnable));
+      ConfigValue(mNxpAdaptationConfig.dwpIntfResetEnable));
   configMap.emplace(
       NAME_NXPLOG_HAL_LOGLEVEL,
-      ConfigValue(inpOutData.out.data.nxpConfigs.nxpLogHalLoglevel));
+      ConfigValue(mNxpAdaptationConfig.nxpLogHalLoglevel));
   configMap.emplace(
       NAME_NXPLOG_EXTNS_LOGLEVEL,
-      ConfigValue(inpOutData.out.data.nxpConfigs.nxpLogExtnsLogLevel));
+      ConfigValue(mNxpAdaptationConfig.nxpLogExtnsLogLevel));
   configMap.emplace(
       NAME_NXPLOG_TML_LOGLEVEL,
-      ConfigValue(inpOutData.out.data.nxpConfigs.nxpLogTmlLogLevel));
+      ConfigValue(mNxpAdaptationConfig.nxpLogTmlLogLevel));
   configMap.emplace(
       NAME_NXPLOG_FWDNLD_LOGLEVEL,
-      ConfigValue(inpOutData.out.data.nxpConfigs.nxpLogFwDnldLogLevel));
+      ConfigValue(mNxpAdaptationConfig.nxpLogFwDnldLogLevel));
   configMap.emplace(
       NAME_NXPLOG_NCIX_LOGLEVEL,
-      ConfigValue(inpOutData.out.data.nxpConfigs.nxpLogNcixLogLevel));
+      ConfigValue(mNxpAdaptationConfig.nxpLogNcixLogLevel));
   configMap.emplace(
       NAME_NXPLOG_NCIR_LOGLEVEL,
-      ConfigValue(inpOutData.out.data.nxpConfigs.nxpLogNcirLogLevel));
+      ConfigValue(mNxpAdaptationConfig.nxpLogNcirLogLevel));
   configMap.emplace(NAME_NFA_CONFIG_FORMAT,
-                    ConfigValue(inpOutData.out.data.nxpConfigs.scrCfgFormat));
+                    ConfigValue(mNxpAdaptationConfig.scrCfgFormat));
   configMap.emplace(NAME_ETSI_READER_ENABLE,
-                    ConfigValue(inpOutData.out.data.nxpConfigs.etsiReaderEnable));
+                    ConfigValue(mNxpAdaptationConfig.etsiReaderEnable));
   configMap.emplace(NAME_DEFAULT_TECH_ABF_ROUTE,
-                    ConfigValue(inpOutData.out.data.nxpConfigs.techAbfRoute));
+                    ConfigValue(mNxpAdaptationConfig.techAbfRoute));
   configMap.emplace(NAME_DEFAULT_TECH_ABF_PWR_STATE,
-                    ConfigValue(inpOutData.out.data.nxpConfigs.techAbfPwrState));
+                    ConfigValue(mNxpAdaptationConfig.techAbfPwrState));
   configMap.emplace(NAME_WTAG_SUPPORT,
-                    ConfigValue(inpOutData.out.data.nxpConfigs.wTagSupport));
+                    ConfigValue(mNxpAdaptationConfig.wTagSupport));
   configMap.emplace(NAME_DEFAULT_T4TNFCEE_AID_POWER_STATE,
-                    ConfigValue(inpOutData.out.data.nxpConfigs.t4tNfceePwrState));
-  if (inpOutData.out.data.nxpConfigs.scrResetEmvco.len) {
+                    ConfigValue(mNxpAdaptationConfig.t4tNfceePwrState));
+  if (mNxpAdaptationConfig.scrResetEmvco.len) {
     std::vector scrResetEmvcoCmd(
-        inpOutData.out.data.nxpConfigs.scrResetEmvco.cmd,
-        inpOutData.out.data.nxpConfigs.scrResetEmvco.cmd +
-            inpOutData.out.data.nxpConfigs.scrResetEmvco.len);
+        mNxpAdaptationConfig.scrResetEmvco.cmd,
+        mNxpAdaptationConfig.scrResetEmvco.cmd +
+            mNxpAdaptationConfig.scrResetEmvco.len);
     configMap.emplace(NAME_NXP_PROP_RESET_EMVCO_CMD,
                       ConfigValue(scrResetEmvcoCmd));
   }
@@ -1629,4 +1630,41 @@ void NfcAdaptation::HalGetCachedNfccConfig(tNxpNci_getCfg_info_t *nxpNciAtrInfo)
   memcpy(nxpNciAtrInfo , &(NfcAdaptation::GetInstance().AdapCfgInfo) , sizeof(tNxpNci_getCfg_info_t));
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : Exit", func);
+}
+
+
+/*******************************************************************************
+ ** Function         HalGetNxpConfig_cb
+ **
+ ** Description      This is a callback for HalGetNxpConfig. It shall be called
+ **                  from HAL to return the value of Nxp Config.
+ **
+ ** Parameters       ::vendor::nxp::nxpnfclegacy::V1_0::NxpNfcHalConfig
+ **
+ ** Return           void
+ *********************************************************************/
+static void HalGetNxpConfig_cb(const NxpNfcHalConfig& ConfigData) {
+
+  memcpy(&(NfcAdaptation::GetInstance().mNxpNfcHalConfig), &ConfigData, sizeof(NxpNfcHalConfig));
+  return;
+}
+
+/***************************************************************************
+**
+** Function         NfcAdaptation::HalGetNxpConfig
+**
+** Description      This function is called for to get Nxp Config.
+**
+** Returns          void.
+**
+***************************************************************************/
+void NfcAdaptation::HalGetNxpConfig(NxpAdaptationConfig& NfcConfigData) {
+  const char* func = "NfcAdaptation::getNxpConfig";
+
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s : Enter", func);
+
+  if (mHalNxpNfcLegacy != nullptr) {
+    mHalNxpNfcLegacy->getNxpConfig(HalGetNxpConfig_cb);
+    memcpy(&NfcConfigData , &(NfcAdaptation::GetInstance().mNxpNfcHalConfig) , sizeof(NxpAdaptationConfig));
+  }
 }

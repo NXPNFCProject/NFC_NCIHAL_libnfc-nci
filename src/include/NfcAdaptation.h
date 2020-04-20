@@ -55,6 +55,7 @@ using ::android::sp;
 using ::vendor::nxp::nxpnfclegacy::V1_0::NxpNfcHalEseState;
 using ::vendor::nxp::nxpnfclegacy::V1_0::NfcHciInitStatus;
 using ::vendor::nxp::nxpnfclegacy::V1_0::NxpNciCfgInfo;
+using vendor::nxp::nxpnfclegacy::V1_0::NxpNfcHalConfig;
 
 namespace android {
 namespace hardware {
@@ -118,6 +119,60 @@ enum NxpNfcAdaptationEseState  : uint64_t {
     NFC_ESE_WIRED_MODE
 };
 
+struct NxpAdaptationScrResetEmvcoCmd{
+  uint64_t len;
+  uint8_t cmd[10];
+};
+
+struct NxpAdaptationConfig {
+  uint8_t ese_listen_tech_mask;
+  uint8_t default_nfcee_disc_timeout;
+  uint8_t default_nfcee_timeout;
+  uint8_t ese_wired_prt_mask;
+  uint8_t uicc_wired_prt_mask;
+  uint8_t wired_mode_rf_field_enable;
+  uint8_t aid_block_route;
+  uint8_t esePowerDhControl;
+  uint8_t tagOpTimeout;
+  uint8_t loaderServiceVersion;
+  uint8_t defaultNfceeDiscTimeout;
+  uint8_t dualUiccEnable;
+  uint8_t ceRouteStrictDisable;
+  uint32_t osDownloadTimeoutValue;
+  uint8_t defaultAidRoute;
+  uint8_t defaultAidPwrState;
+  uint8_t defaultRoutePwrState;
+  uint8_t defaultOffHostPwrState;
+  uint8_t jcopDlAtBootEnable;
+  uint8_t defaultNfceeTimeout;
+  uint8_t nxpNfcChip;
+  uint8_t coreScrnOffAutonomousEnable;
+  uint8_t p61LsDefaultInterface;
+  uint8_t p61JcopDefaultInterface;
+  uint8_t agcDebugEnable;
+  uint8_t felicaCltPowerState;
+  uint32_t cmdRspTimeoutValue;
+  uint8_t checkDefaultProtoSeId;
+  uint8_t nfccPassiveListenTimeout;
+  uint32_t nfccStandbyTimeout;
+  uint32_t wmMaxWtxCount;
+  uint32_t nfccRfFieldEventTimeout;
+  uint8_t allowWiredInMifareDesfireClt;
+  uint8_t dwpIntfResetEnable;
+  uint8_t nxpLogHalLoglevel;
+  uint8_t nxpLogExtnsLogLevel;
+  uint8_t nxpLogTmlLogLevel;
+  uint8_t nxpLogFwDnldLogLevel;
+  uint8_t nxpLogNcixLogLevel;
+  uint8_t nxpLogNcirLogLevel;
+  uint8_t scrCfgFormat;
+  uint8_t etsiReaderEnable;
+  uint8_t techAbfRoute;
+  uint8_t techAbfPwrState;
+  uint8_t wTagSupport;
+  uint8_t t4tNfceePwrState;
+  NxpAdaptationScrResetEmvcoCmd scrResetEmvco;
+};
 
 class NfcDeathRecipient ;
 
@@ -137,6 +192,8 @@ class NfcAdaptation {
   static uint16_t HalRelForceDwpOnOffWait(uint32_t level);
   static int32_t HalHciInitUpdateState(tNFC_HCI_INIT_STATUS HciStatus);
   static void HalGetCachedNfccConfig(tNxpNci_getCfg_info_t *nxpNciAtrInfo);
+  static void HalGetNxpConfig(NxpAdaptationConfig& NfcConfigData);
+  NxpNfcHalConfig mNxpNfcHalConfig;
   static NfcAdaptation& GetInstance();
   tHAL_NFC_ENTRY* GetHalEntryFuncs();
   bool DownloadFirmware();
