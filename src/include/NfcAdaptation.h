@@ -45,12 +45,12 @@
 #include <android/hardware/nfc/1.0/INfc.h>
 #include <android/hardware/nfc/1.0/INfcClientCallback.h>
 #include <android/hardware/nfc/1.0/types.h>
-#include <vendor/nxp/nxpnfc/1.0/INxpNfc.h>
+#include <vendor/nxp/nxpnfc/2.0/INxpNfc.h>
 #include <vendor/nxp/nxpnfclegacy/1.0/INxpNfcLegacy.h>
 #include <vendor/nxp/nxpnfclegacy/1.0/types.h>
 
 using vendor::nxp::nxpnfclegacy::V1_0::INxpNfcLegacy;
-using vendor::nxp::nxpnfc::V1_0::INxpNfc;
+using vendor::nxp::nxpnfc::V2_0::INxpNfc;
 using ::android::sp;
 using ::vendor::nxp::nxpnfclegacy::V1_0::NxpNfcHalEseState;
 using ::vendor::nxp::nxpnfclegacy::V1_0::NfcHciInitStatus;
@@ -226,7 +226,7 @@ class NfcAdaptation {
   static android::sp<android::hardware::nfc::V1_0::INfc> mHal;
   static android::sp<android::hardware::nfc::V1_1::INfc> mHal_1_1;
   static android::sp<android::hardware::nfc::V1_2::INfc> mHal_1_2;
-  static android::sp<vendor::nxp::nxpnfc::V1_0::INxpNfc> mHalNxpNfc;
+  static android::sp<vendor::nxp::nxpnfc::V2_0::INxpNfc> mHalNxpNfc;
   static android::sp<vendor::nxp::nxpnfclegacy::V1_0::INxpNfcLegacy> mHalNxpNfcLegacy;
   static android::hardware::nfc::V1_1::INfcClientCallback* mCallback;
   sp<NfcDeathRecipient> mNfcHalDeathRecipient;
@@ -250,9 +250,6 @@ class NfcAdaptation {
   static void HalCoreInitialized(uint16_t data_len,
                                  uint8_t* p_core_init_rsp_params);
   static void HalWrite(uint16_t data_len, uint8_t* p_data);
-#if (NXP_EXTNS == TRUE)
-  static int HalIoctl(long arg, void* p_data);
-#endif
   static bool HalPrediscover();
   static void HalControlGranted();
   static void HalPowerCycle();
@@ -261,5 +258,5 @@ class NfcAdaptation {
                                           nfc_status_t event_status);
   static void HalDownloadFirmwareDataCallback(uint16_t data_len,
                                               uint8_t* p_data);
-
+  static bool HalSetTransitConfig(char * strval);
 };

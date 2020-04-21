@@ -114,6 +114,7 @@ typedef uint16_t(tHAL_API_setNfcServicePid)(uint64_t NfcNxpServicePid);
 typedef uint32_t(tHAL_API_getEseState)(void);
 typedef void (tHAL_API_GetCachedNfccConfig)(tNxpNci_getCfg_info_t *nxpNciAtrInfo);
 typedef uint32_t (tHAL_API_nciTransceive)(phNxpNci_Extn_Cmd_t* in,phNxpNci_Extn_Resp_t* out);
+typedef bool(tHAL_API_SET_NXP_TRANSIT_CONFIG)(char* strval);
 
 typedef struct {
   tHAL_API_INITIALIZE* initialize;
@@ -139,6 +140,7 @@ typedef struct {
   tHAL_API_getEseState* getEseState;
   tHAL_API_GetCachedNfccConfig* GetCachedNfccConfig;
   tHAL_API_nciTransceive* nciTransceive;
+  tHAL_API_SET_NXP_TRANSIT_CONFIG* set_transit_config;
 } tHAL_NFC_ENTRY;
 
 #if (NXP_EXTNS == TRUE)

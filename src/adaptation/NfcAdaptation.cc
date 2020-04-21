@@ -19,7 +19,7 @@
  *
  *  The original Work has been changed by NXP Semiconductors.
  *
- *  Copyright (C) 2015-2018 NXP Semiconductors
+ *  Copyright (C) 2015-2020 NXP Semiconductors
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ using NfcVendorConfigV1_1 = android::hardware::nfc::V1_1::NfcConfig;
 using NfcVendorConfigV1_2 = android::hardware::nfc::V1_2::NfcConfig;
 using android::hardware::nfc::V1_1::INfcClientCallback;
 using android::hardware::hidl_vec;
-using vendor::nxp::nxpnfc::V1_0::INxpNfc;
+using vendor::nxp::nxpnfc::V2_0::INxpNfc;
 using android::hardware::configureRpcThreadpool;
 using ::android::hardware::hidl_death_recipient;
 using ::android::wp;
@@ -719,9 +719,6 @@ void NfcAdaptation::InitializeHalDeviceContext() {
   mHalEntryFuncs.close = HalClose;
   mHalEntryFuncs.core_initialized = HalCoreInitialized;
   mHalEntryFuncs.write = HalWrite;
-#if (NXP_EXTNS == TRUE)
-  mHalEntryFuncs.ioctl = HalIoctl;
-#endif
   mHalEntryFuncs.prediscover = HalPrediscover;
   mHalEntryFuncs.control_granted = HalControlGranted;
   mHalEntryFuncs.power_cycle = HalPowerCycle;
@@ -770,6 +767,9 @@ void NfcAdaptation::InitializeHalDeviceContext() {
     LOG(INFO) << StringPrintf("%s: INxpNfcLegacy::getService() returned %p (%s)", func, mHalNxpNfcLegacy.get(),
           (mHalNxpNfcLegacy->isRemote() ? "remote" : "local"));
   }
+#if (NXP_EXTNS == TRUE)
+  mHalEntryFuncs.set_transit_config = HalSetTransitConfig;
+#endif
 
 }
 
@@ -889,6 +889,29 @@ void NfcAdaptation::HalWrite(uint16_t data_len, uint8_t* p_data) {
   mHal->write(data);
 }
 
+/*******************************************************************************
+ **
+ ** Function         HalSetTransitConfig
+ **
+ ** Description      It shall be called from libnfc-nci to set the value of
+ *given
+ **                  key in HAL context.
+ **
+ ** Parameters       string key, string value
+ **
+ ** Returns          true if successfully saved the value of key, else false
+ *******************************************************************************/
+bool NfcAdaptation::HalSetTransitConfig(char * strval) {
+  bool status = false;
+  if (mHalNxpNfc != NULL) {
+    status = mHalNxpNfc->setNxpTransitConfig(strval);
+  } else {
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("%s: mHalNxpNfc is NULL", __func__);
+  }
+  return status;
+}
+
 #if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
@@ -910,47 +933,6 @@ void IoctlCallback(::android::hardware::nfc::V1_0::NfcData outputData) {
    * This data will be sent back to libnfc*/
   memcpy(&pAdaptation->mCurrentIoctlData->out, &outputData[0],
          sizeof(nfc_nci_ExtnOutputData_t));
-}
-/*******************************************************************************
-**
-** Function:    NfcAdaptation::HalIoctl
-**
-** Description: Calls ioctl to the Nfc driver.
-**              If called with a arg value of 0x01 than wired access requested,
-**              status of the requst would be updated to p_data.
-**              If called with a arg value of 0x00 than wired access will be
-**              released, status of the requst would be updated to p_data.
-**              If called with a arg value of 0x02 than current p61 state would
-*be
-**              updated to p_data.
-**
-** Returns:     -1 or 0.
-**
-*******************************************************************************/
-int NfcAdaptation::HalIoctl(long arg, void* p_data) {
-  const char* func = "NfcAdaptation::HalIoctl";
-  ::android::hardware::nfc::V1_0::NfcData data;
-  sIoctlMutex.lock();
-  nfc_nci_IoctlInOutData_t* pInpOutData = (nfc_nci_IoctlInOutData_t*)p_data;
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s arg=%ld", func, arg);
-  pInpOutData->inp.context = &NfcAdaptation::GetInstance();
-  NfcAdaptation::GetInstance().mCurrentIoctlData = pInpOutData;
-  data.setToExternal((uint8_t*)pInpOutData, sizeof(nfc_nci_IoctlInOutData_t));
-  if (arg == HAL_NFC_IOCTL_SET_TRANSIT_CONFIG) {
-    /*Insert Transit config at the end of IOCTL data as transit buffer also
-    needs to be part of NfcData(hidl_vec)*/
-    std::vector<uint8_t> tempStdVec(data);
-    tempStdVec.insert(
-        tempStdVec.end(), pInpOutData->inp.data.transitConfig.val,
-        pInpOutData->inp.data.transitConfig.val +
-            (pInpOutData->inp.data.transitConfig.len));
-    data = tempStdVec;
-  }
-  if(mHalNxpNfc != nullptr)
-      mHalNxpNfc->ioctl(arg, data, IoctlCallback);
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s Ioctl Completed for Type=%llu", func, (unsigned long long)pInpOutData->out.ioctlType);
-  sIoctlMutex.unlock();
-  return (pInpOutData->out.result);
 }
 
 /*******************************************************************************

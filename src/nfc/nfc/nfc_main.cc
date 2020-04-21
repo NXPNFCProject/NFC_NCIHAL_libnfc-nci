@@ -46,7 +46,7 @@
 #include "NfcAdaptation.h"
 #include <android-base/stringprintf.h>
 #include <android/hardware/nfc/1.1/types.h>
-#include <vendor/nxp/nxpnfc/1.0/types.h>
+#include <vendor/nxp/nxpnfc/2.0/types.h>
 #include <base/logging.h>
 #include <cutils/properties.h>
 
