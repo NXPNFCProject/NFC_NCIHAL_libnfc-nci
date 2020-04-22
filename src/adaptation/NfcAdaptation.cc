@@ -1409,7 +1409,7 @@ uint32_t NfcAdaptation::HalsetEseState(tNxpEseState ESEstate) {
 
   if (mHalNxpNfcLegacy != nullptr) {
     ret = mHalNxpNfcLegacy->setEseState((NxpNfcHalEseState)ESEstate);
-    if(ret){
+    if(!ret){
       ALOGE("NfcAdaptation::setEseState mHalNxpNfcLegacy completed");
       status = NFA_STATUS_OK;
     } else {
