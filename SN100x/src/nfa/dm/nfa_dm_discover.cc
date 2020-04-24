@@ -101,7 +101,15 @@ typedef struct nfa_dm_p2p_prio_logic {
   bool timer_expired;        /* flag to check whether timer is expired */
   TIMER_LIST_ENT timer_list; /*timer structure pointer */
   uint8_t first_tech_mode;
+#if (NXP_EXTNS == TRUE)
+  uint8_t flags;
+#endif
 } nfa_dm_p2p_prio_logic_t;
+
+#if (NXP_EXTNS == TRUE)
+#define P2P_W4_NF_RES 0x01
+#define P2P_W4_RES 0x02
+#endif
 
 static nfa_dm_p2p_prio_logic_t p2p_prio_logic_data;
 
@@ -3186,7 +3194,12 @@ bool nfa_dm_p2p_prio_logic(uint8_t event, uint8_t* p, uint8_t event_type) {
   }
 
   if ((nfa_dm_cb.flags & NFA_DM_FLAGS_P2P_PAUSED) &&
-      (nfa_dm_cb.flags & NFA_DM_FLAGS_LISTEN_DISABLED)) {
+      (nfa_dm_cb.flags & NFA_DM_FLAGS_LISTEN_DISABLED)
+#if (NXP_EXTNS == TRUE)
+      && (!(p2p_prio_logic_data.flags & P2P_W4_NF_RES))
+      && (!(p2p_prio_logic_data.flags & P2P_W4_RES))
+#endif
+      ) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
         "returning from nfa_dm_p2p_prio_logic  Disable p2p_prio_logic");
     return true;
@@ -3267,6 +3280,9 @@ bool nfa_dm_p2p_prio_logic(uint8_t event, uint8_t* p, uint8_t event_type) {
       p2p_prio_logic_data.first_tech_mode = tech_mode;
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
           "ISO-DEP Detected First Time  Resume the Polling Loop");
+#if (NXP_EXTNS == TRUE)
+      p2p_prio_logic_data.flags |= P2P_W4_NF_RES;
+#endif
       nci_snd_deactivate_cmd(NFA_DEACTIVATE_TYPE_DISCOVERY);
       return false;
     }
@@ -3281,6 +3297,9 @@ bool nfa_dm_p2p_prio_logic(uint8_t event, uint8_t* p, uint8_t event_type) {
           "ISO-DEP Detected Second Time Other Techmode  Resume the Polling "
           "Loop");
       nfc_stop_quick_timer(&p2p_prio_logic_data.timer_list);
+#if (NXP_EXTNS == TRUE)
+      p2p_prio_logic_data.flags |= P2P_W4_NF_RES;
+#endif
       nci_snd_deactivate_cmd(NFA_DEACTIVATE_TYPE_DISCOVERY);
       return false;
     }
@@ -3322,6 +3341,10 @@ bool nfa_dm_p2p_prio_logic(uint8_t event, uint8_t* p, uint8_t event_type) {
              event_type == NFA_DM_P2P_PRIO_RSP) {
       DLOG_IF(INFO, nfc_debug_enabled)
           << StringPrintf("NFA_DM_RF_DEACTIVATE_RSP");
+#if (NXP_EXTNS == TRUE)
+      //Reset the p2p_data_logic flag
+      p2p_prio_logic_data.flags &= ~P2P_W4_RES;
+#endif
       return false;
     }
 
@@ -3331,7 +3354,10 @@ bool nfa_dm_p2p_prio_logic(uint8_t event, uint8_t* p, uint8_t event_type) {
              event_type == NFA_DM_P2P_PRIO_NTF) {
       DLOG_IF(INFO, nfc_debug_enabled)
           << StringPrintf("NFA_DM_RF_DEACTIVATE_NTF");
-
+#if (NXP_EXTNS == TRUE)
+      //Reset the p2p_data_logic flag
+      p2p_prio_logic_data.flags &= ~P2P_W4_NF_RES;
+#endif
       nfc_start_quick_timer(&p2p_prio_logic_data.timer_list,
                             NFC_TTYPE_P2P_PRIO_RESPONSE,
                             ((uint32_t)160 * QUICK_TIMER_TICKS_PER_SEC) / 1000);
@@ -3370,6 +3396,7 @@ void nfa_dm_p2p_timer_event() {
     DLOG_IF(INFO, nfc_debug_enabled)
         << StringPrintf("Deactivate and Restart RF discovery");
 #if(NXP_EXTNS ==TRUE)
+    p2p_prio_logic_data.flags |= P2P_W4_RES;
     nfa_dm_rf_deactivate(NFC_DEACTIVATE_TYPE_IDLE);
 #else
     nci_snd_deactivate_cmd(NFC_DEACTIVATE_TYPE_IDLE);
