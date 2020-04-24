@@ -202,7 +202,6 @@ class NfcDeathRecipient : public hidl_death_recipient {
 *******************************************************************************/
 NfcAdaptation::NfcAdaptation() {
   mNfcHalDeathRecipient = new NfcDeathRecipient(mHal);
-  mCurrentIoctlData = NULL;
   memset(&mHalEntryFuncs, 0, sizeof(mHalEntryFuncs));
 }
 
@@ -913,28 +912,6 @@ bool NfcAdaptation::HalSetTransitConfig(char * strval) {
 }
 
 #if (NXP_EXTNS == TRUE)
-/*******************************************************************************
-**
-** Function:    IoctlCallback
-**
-** Description: Callback from HAL stub for IOCTL api invoked.
-**              Output data for IOCTL is sent as argument
-**
-** Returns:     None.
-**
-*******************************************************************************/
-void IoctlCallback(::android::hardware::nfc::V1_0::NfcData outputData) {
-  const char* func = "IoctlCallback";
-  nfc_nci_ExtnOutputData_t* pOutData =
-      (nfc_nci_ExtnOutputData_t*)&outputData[0];
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s Ioctl Type=%llu", func, (unsigned long long)pOutData->ioctlType);
-  NfcAdaptation* pAdaptation = (NfcAdaptation*)pOutData->context;
-  /*Output Data from stub->Proxy is copied back to output data
-   * This data will be sent back to libnfc*/
-  memcpy(&pAdaptation->mCurrentIoctlData->out, &outputData[0],
-         sizeof(nfc_nci_ExtnOutputData_t));
-}
-
 /*******************************************************************************
 **
 ** Function:    NfcAdaptation::HalGetFwDwnldFlag

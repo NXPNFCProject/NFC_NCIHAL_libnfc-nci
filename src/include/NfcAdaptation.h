@@ -121,6 +121,19 @@ enum NxpNfcAdaptationEseState  : uint64_t {
     NFC_ESE_WIRED_MODE
 };
 
+enum {
+    HAL_NFC_ENABLE_I2C_FRAGMENTATION_EVT = 0x08,
+    HAL_NFC_POST_MIN_INIT_CPLT_EVT       = 0x09,
+    HAL_NFC_WRITE_COMPLETE = 0x0A
+};
+
+enum NxpNfcHalStatus {
+    /** In case of an error, HCI network needs to be re-initialized */
+    HAL_NFC_STATUS_RESTART = 0x30,
+    HAL_NFC_HCI_NV_RESET = 0x40,
+    HAL_NFC_CONFIG_ESE_LINK_COMPLETE = 0x50
+};
+
 struct NxpAdaptationScrResetEmvcoCmd{
   uint64_t len;
   uint8_t cmd[10];
@@ -206,7 +219,6 @@ class NfcAdaptation {
 #if (NXP_EXTNS == TRUE)
   void MinInitialize();
   int HalGetFwDwnldFlag(uint8_t* fwDnldRequest);
-  nfc_nci_IoctlInOutData_t* mCurrentIoctlData;
 #endif
   NxpNciCfgInfo AdapCfgInfo;
   NxpNciExtnResp mNciResp;

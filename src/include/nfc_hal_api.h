@@ -45,7 +45,6 @@
 #include <hardware/nfc.h>
 #include "data_types.h"
 #include "nfc_hal_target.h"
-#include "hal_nxpnfc.h"
 
 typedef struct {
   bool isGetcfg;
