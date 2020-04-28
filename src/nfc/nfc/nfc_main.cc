@@ -1680,8 +1680,7 @@ int32_t NFC_RelSvddWait(void* pdata) {
 *******************************************************************************/
 int32_t NFC_RelForceDwpOnOffWait (void *pdata)
 {
-
-  uint32_t level = *(uint32_t*)pdata;
+  uint8_t level = *(uint8_t*)pdata;
   int32_t status = -1;
 
   status = nfc_cb.p_hal->RelForceDwpOnOffWait(level);
