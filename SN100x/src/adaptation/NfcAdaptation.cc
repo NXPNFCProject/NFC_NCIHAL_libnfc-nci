@@ -851,7 +851,7 @@ bool NfcAdaptation::resetEse(uint64_t level) {
   }
 
   ALOGD_IF(nfc_debug_enabled, "%s : Exit", func);
-
+ 
   return ret;
 }
 
