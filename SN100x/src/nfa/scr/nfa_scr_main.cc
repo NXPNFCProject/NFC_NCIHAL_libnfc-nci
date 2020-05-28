@@ -143,6 +143,7 @@ void nfa_scr_sys_disable(void) {
   }
   /* deregister message handler on NFA SYS */
   nfa_sys_deregister(NFA_ID_SCR);
+  nfa_scr_finalize(false);
 }
 /*******************************************************************************
 **
@@ -412,10 +413,8 @@ void nfa_scr_rdr_req_guard_timeout_handler(void) {
 static std::string nfa_scr_get_error_name(tNFA_SCR_ERROR error) {
 
   switch (error) {
-    case NFA_SCR_ERROR_GET_PROP_SET_CONF_CMD:
-      return "GET_PROP_SET_CONF_CMD";
-    case NFA_SCR_ERROR_SEND_PROP_SET_CONF_CMD:
-      return "SEND_PROP_SET_CONF_CMD";
+    case NFA_SCR_ERROR_SEND_CONF_CMD:
+      return "SEND_CONF_CMD_FAILED";
     case NFA_SCR_ERROR_START_RF_DISC:
       return "START_RF_DISC";
     case NFA_SCR_ERROR_NCI_RSP_STATUS_FAILED:
@@ -489,11 +488,7 @@ bool nfa_scr_error_handler(tNFA_SCR_ERROR error) {
   bool status = true;
 
   switch (error) {
-    case NFA_SCR_ERROR_GET_PROP_SET_CONF_CMD:
-      [[fallthrough]];
-    case NFA_SCR_ERROR_SEND_PROP_GET_CONF_CMD:
-      [[fallthrough]];
-    case NFA_SCR_ERROR_SEND_PROP_SET_CONF_CMD:
+    case NFA_SCR_ERROR_SEND_CONF_CMD:
       if(IS_SCR_START_IN_PROGRESS) {
         event = NFA_SCR_START_FAIL_EVT;
         nfa_scr_cb.state = NFA_SCR_STATE_START_CONFIG; /* Allow to start NFC Forum polling */
@@ -675,7 +670,7 @@ bool nfa_scr_proc_app_start_req() {
  ** Returns:         Always returns true
  **
  ******************************************************************************/
-bool nfa_scr_finalize(void) {
+bool nfa_scr_finalize(bool notify) {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: enter", __func__);
   nfa_scr_cb.state = NFA_SCR_STATE_STOPPED;
   nfa_scr_cb.sub_state = NFA_SCR_SUBSTATE_INVALID;
@@ -683,8 +678,10 @@ bool nfa_scr_finalize(void) {
   nfa_scr_cb.app_stop_req = false;
   nfa_scr_cb.error = NFA_SCR_NO_ERROR;
   memset(&ntf_timeout_cnt,0x00,sizeof(uint32_t));
-  /* Notify the NFA_ScrSetReaderMode(false) success to JNI */
-  nfa_scr_notify_evt((uint8_t)NFA_SCR_SET_READER_MODE_EVT, NFA_STATUS_OK);
+  if(notify) {
+      /* Notify the NFA_ScrSetReaderMode(false) success to JNI */
+      nfa_scr_notify_evt((uint8_t)NFA_SCR_SET_READER_MODE_EVT, NFA_STATUS_OK);
+  }
   /* clear JNI and SCR callbacks pointers */
   nfa_scr_cb.scr_cback = nullptr;
   set_smr_cback(nullptr);
@@ -789,7 +786,7 @@ static vector<uint8_t> nfa_scr_get_prop_set_conf_cmd(bool set) {
     DLOG_IF(ERROR, nfc_debug_enabled)
             << StringPrintf("%s: Prop set conf is not provided", __func__);
     cmd_buf.resize(0);
-    nfa_scr_error_handler(NFA_SCR_ERROR_GET_PROP_SET_CONF_CMD);
+    nfa_scr_error_handler(NFA_SCR_ERROR_SEND_CONF_CMD);
   } else if (nfa_scr_cb.configure_lpcd == 2) {
     if(set) {
       cmd_buf[7] = nfa_scr_cb.poll_prof_sel_cfg; /*EMV-CO Poll for certification*/
@@ -845,7 +842,7 @@ static void nfa_scr_send_prop_set_conf(bool set) {
     nfa_scr_cb.sub_state = NFA_SCR_SUBSTATE_WAIT_PROP_SET_CONF_RSP;
   } else {
     DLOG_IF(ERROR, nfc_debug_enabled) << StringPrintf("%s: Failed NFA_SendRawVsCommand", __func__);
-    nfa_scr_error_handler(NFA_SCR_ERROR_SEND_PROP_SET_CONF_CMD);
+    nfa_scr_error_handler(NFA_SCR_ERROR_SEND_CONF_CMD);
   }
 }
 
@@ -948,7 +945,7 @@ static void nfa_scr_send_prop_get_conf(void) {
     nfa_scr_cb.sub_state = NFA_SCR_SUBSTATE_WAIT_PROP_GET_CONF_RSP;
   } else {
     DLOG_IF(ERROR, nfc_debug_enabled) << StringPrintf("%s: Failed NFA_SendRawVsCommand", __func__);
-    nfa_scr_error_handler(NFA_SCR_ERROR_SEND_PROP_GET_CONF_CMD);
+    nfa_scr_error_handler(NFA_SCR_ERROR_SEND_CONF_CMD);
   }
 }
 
