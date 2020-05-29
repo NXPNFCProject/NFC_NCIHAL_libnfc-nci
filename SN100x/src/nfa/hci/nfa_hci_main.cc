@@ -96,6 +96,8 @@ static void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
 static void nfa_hci_timer_cback (TIMER_LIST_ENT *p_tle);
 static void nfa_hci_set_receive_buf(tNFA_HCI_PIPE_CMDRSP_INFO  *p_pipe_cmdrsp_info);
 static bool nfa_hci_assemble_msg(uint8_t* p_data, uint16_t data_len);
+static void nfa_hci_app_notify_evt_transaction(uint8_t pipe, uint8_t* p_data,
+        uint16_t data_len);
 #else
 static void nfa_hci_set_receive_buf(uint8_t pipe);
 static void nfa_hci_assemble_msg(uint8_t* p_data, uint16_t data_len);
@@ -1093,6 +1095,36 @@ static void nfa_hci_sys_disable(void) {
   nfa_sys_deregister(NFA_ID_HCI);
 }
 
+#if (NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         nfa_hci_app_notify_evt_transaction
+**
+** Description      This function shall be called to notify HCI_EVT_TRANSACTION
+**                  received on PIPE which hasn't created during initialization.
+**
+** Returns          None
+**
+*******************************************************************************/
+static void nfa_hci_app_notify_evt_transaction(uint8_t pipe, uint8_t* p,
+        uint16_t pkt_len) {
+  tNFA_HCI_EVT_DATA evt_data;
+  uint8_t type = ((*p) >> 0x06) & 0x03;
+  uint8_t inst = (*p++ & 0x3F);
+  if (pkt_len != 0) pkt_len--;
+  if (type == NFA_HCI_EVENT_TYPE) {
+    if (inst == NFA_HCI_EVT_TRANSACTION) {
+      evt_data.rcvd_evt.pipe = pipe;
+      evt_data.rcvd_evt.evt_code = inst;
+      evt_data.rcvd_evt.evt_len = pkt_len;
+      evt_data.rcvd_evt.p_evt_buf = p;
+      /* notify NFA_HCI_EVENT_RCVD_EVT to the application */
+      nfa_hciu_send_to_apps_handling_connectivity_evts(NFA_HCI_EVENT_RCVD_EVT,
+              &evt_data);
+    }
+  }
+}
+#endif
 /*******************************************************************************
 **
 ** Function         nfa_hci_conn_cback
@@ -1182,6 +1214,9 @@ static void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   if (!p_pipe_cmdrsp_info)
   {
       /* Cannot find the pipe in the control block */
+      if(pipe != NfcConfig::getUnsigned(NAME_OFF_HOST_ESE_PIPE_ID, 0x16)) {
+          nfa_hci_app_notify_evt_transaction(pipe, p,pkt_len);
+      }
       GKI_freebuf (p_pkt);
       return;
   }
