@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright 2019 NXP
+ *  Copyright 2019-2020 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -173,6 +173,27 @@ bool nfa_t4tnfcee_handle_op_req(tNFA_T4TNFCEE_MSG* p_data) {
 
 /*******************************************************************************
  **
+ ** Function     nfa_t4tnfcee_check_sw
+ **
+ ** Description  Updates the status if R-APDU has been received with failure status
+ **
+ ** Returns      Nothing
+ **
+ *******************************************************************************/
+static void nfa_t4tnfcee_check_sw(tRW_DATA* p_rwData) {
+  uint8_t *p; uint16_t status_words;
+  NFC_HDR* p_r_apdu=  p_rwData->raw_frame.p_data;
+  p = (uint8_t*)(p_r_apdu + 1) + p_r_apdu->offset;
+  p += (p_r_apdu->len - T4T_RSP_STATUS_WORDS_SIZE);
+  BE_STREAM_TO_UINT16(status_words, p);
+  if (status_words != T4T_RSP_CMD_CMPLTED) {
+    p_rwData->raw_frame.status = NFC_STATUS_FAILED;
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("status 0x%X",status_words);
+  }
+}
+
+/*******************************************************************************
+ **
  ** Function         nfa_t4tnfcee_handle_t4t_evt
  **
  ** Description      Handler for Type-4 NFCEE reader/writer events
@@ -185,6 +206,7 @@ void nfa_t4tnfcee_handle_t4t_evt(tRW_EVENT event, tRW_DATA* p_rwData) {
       "%s: Enter event=0x%02x 0x%02x", __func__, event, p_rwData->status);
   switch (event) {
     case RW_T4T_RAW_FRAME_EVT:
+      nfa_t4tnfcee_check_sw(p_rwData);
       DLOG_IF(INFO, nfc_debug_enabled)
           << StringPrintf("%s RW_T4T_RAW_FRAME_EVT", __func__);
       nfa_t4tnfcee_handle_file_operations(p_rwData);
