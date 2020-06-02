@@ -3663,6 +3663,11 @@ void nfa_ee_lmrt_to_nfcc(__attribute__((unused)) tNFA_EE_MSG* p_data) {
   cur_offset = 0;
   /* use the first byte of the buffer (p) to keep the num_tlv */
   *p = 0;
+#if(NXP_EXTNS == TRUE)
+  /*DH NFC-DEP entry's size_proto_mask need to be updated before
+   * adding the entry in RT*/
+  nfa_ee_update_route_size(&nfa_ee_cb.ecb[NFA_EE_CB_4_DH]);
+#endif
   for (int rt = NCI_ROUTE_ORDER_AID; rt <= NCI_ROUTE_ORDER_TECHNOLOGY; rt++) {
     /* add the routing entries for NFCEEs */
     p_cb = &nfa_ee_cb.ecb[0];
