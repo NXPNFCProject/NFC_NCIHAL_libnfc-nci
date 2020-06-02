@@ -315,6 +315,19 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                        nfa_hciu_send_to_all_apps(NFA_HCI_INIT_COMPLETED, &evt_data);
                      }
                      break;
+                 } else if (nfa_hci_cb.reset_host[xx].reset_cfg &
+                                NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED &&
+                            !nfa_hci_cb.se_apdu_gate_support) {
+                   /*In case SMB/Wired mode disabled and if we receive clear all
+                    * pipe shall clear host reset status on receiving mode set
+                    * ntf*/
+                   nfa_hciu_clear_host_resetting(
+                       nfa_hci_cb.curr_nfcee,
+                       NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED);
+                   /*check if any NFCEE init pending if not shall perform
+                    * startup complete to put power link status to default */
+                   if (!nfa_hci_enable_one_nfcee())
+                     nfa_hci_startup_complete(NFA_STATUS_OK);
                  } else if (nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_INIT_COMPLETED) {
                      if(nfa_hciu_find_dyn_apdu_pipe_for_host (nfa_hci_cb.reset_host[xx].host_id) == nullptr)
                      {
