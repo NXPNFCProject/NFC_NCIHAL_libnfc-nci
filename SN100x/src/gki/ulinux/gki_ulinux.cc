@@ -321,10 +321,9 @@ void GKI_shutdown(void) {
             TASK_MBOX_3_EVT_MASK);
       GKI_send_event(task_id - 1, EVENT_MASK(GKI_SHUTDOWN_EVT));
 #if (NXP_EXTNS == TRUE)
-      if (((task_id - 1) == BTU_TASK) && gki_cb.com.p_tick_cb &&
-          gki_cb.com.system_tick_running) {
+      if (((task_id - 1) == BTU_TASK)) {
         gki_cb.com.system_tick_running = false;
-        (gki_cb.com.p_tick_cb)(false); /* stop system tick */
+        *p_run_cond = GKI_TIMER_TICK_STOP_COND; /* stop system tick */
       }
 #endif
 #if (FALSE == GKI_PTHREAD_JOINABLE)
