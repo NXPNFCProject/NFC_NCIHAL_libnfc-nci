@@ -329,13 +329,8 @@ void GKI_shutdown(void) {
 #if (FALSE == GKI_PTHREAD_JOINABLE)
       i = 0;
 
-#if (NXP_EXTNS == TRUE)
-      while ((gki_cb.com.OSWaitEvt[task_id - 1] != 0) && (++i < 15))
-        usleep(2 * 1000);
-#else
       while ((gki_cb.com.OSWaitEvt[task_id - 1] != 0) && (++i < 10))
         usleep(100 * 1000);
-#endif
 #else
       /* wait for proper Arnold Schwarzenegger task state */
       result = pthread_join(gki_cb.os.thread_id[task_id - 1], nullptr);
@@ -503,6 +498,14 @@ void GKI_run(__attribute__((unused)) void* p_task_id) {
        */
       GKI_timer_update(1);
     } while (GKI_TIMER_TICK_RUN_COND == *p_run_cond);
+
+#if(NXP_EXTNS == TRUE)
+   /* when stop condition is set & state is set to
+     * dead shall clear wait event to avoid shut down delay*/
+    if(gki_cb.com.OSRdyTbl[BTU_TASK] == TASK_DEAD) {
+      gki_cb.com.OSWaitEvt[BTU_TASK] = 0;
+    }
+#endif
 
 /* currently on reason to exit above loop is no_timer_suspend ==
  * GKI_TIMER_TICK_STOP_COND
