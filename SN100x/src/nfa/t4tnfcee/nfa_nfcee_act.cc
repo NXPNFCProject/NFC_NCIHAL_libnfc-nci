@@ -170,7 +170,6 @@ bool nfa_t4tnfcee_handle_op_req(tNFA_T4TNFCEE_MSG* p_data) {
   }
   return true;
 }
-
 /*******************************************************************************
  **
  ** Function     nfa_t4tnfcee_check_sw
@@ -186,12 +185,12 @@ static void nfa_t4tnfcee_check_sw(tRW_DATA* p_rwData) {
   p = (uint8_t*)(p_r_apdu + 1) + p_r_apdu->offset;
   p += (p_r_apdu->len - T4T_RSP_STATUS_WORDS_SIZE);
   BE_STREAM_TO_UINT16(status_words, p);
-  if (status_words != T4T_RSP_CMD_CMPLTED) {
+  if ((status_words != T4T_RSP_CMD_CMPLTED) &&
+      (!T4T_RSP_WARNING_PARAMS_CHECK(status_words >> 8))) {
     p_rwData->raw_frame.status = NFC_STATUS_FAILED;
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("status 0x%X",status_words);
   }
 }
-
 /*******************************************************************************
  **
  ** Function         nfa_t4tnfcee_handle_t4t_evt

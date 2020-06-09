@@ -15,7 +15,23 @@
  *  limitations under the License.
  *
  ******************************************************************************/
-
+/******************************************************************************
+ *
+ *  Copyright 2020 NXP
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ ******************************************************************************/
 /******************************************************************************
  *
  *  This file contains the Near Field Communication (NFC) Tags related
@@ -400,7 +416,10 @@ typedef uint8_t tT3T_POLL_RC;
 #define T4T_RSP_WRONG_LENGTH 0x6700
 #define T4T_RSP_INSTR_NOT_SUPPORTED 0x6D00
 #define T4T_RSP_CMD_NOT_ALLOWED 0x6986
-
+#if (NXP_EXTNS == TRUE)
+#define T4T_RSP_WARNING_PARAMS_CHECK(X) \
+  ((X == 0x63 || X == 0x62 || X == 0x61) ? true : false)
+#endif
 /* V1.0 Type 4 Tag Applicaiton ID length */
 #define T4T_V10_NDEF_TAG_AID_LEN 0x07
 /* V2.0 Type 4 Tag Applicaiton ID length */
