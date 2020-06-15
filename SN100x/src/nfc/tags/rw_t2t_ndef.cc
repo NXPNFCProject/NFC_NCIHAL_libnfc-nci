@@ -22,6 +22,23 @@
  *  Reader/Writer mode.
  *
  ******************************************************************************/
+ /******************************************************************************
+ *
+ *  Copyright 2020 NXP
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ ******************************************************************************/
 #include <log/log.h>
 #include <string.h>
 
@@ -1266,16 +1283,22 @@ tNFC_STATUS rw_t2t_write_ndef_next_block(uint16_t block, uint16_t msg_len,
     while (p_t2t->work_offset == initial_offset && block < total_blocks) {
       /* Update length field */
       while (index < T2T_BLOCK_SIZE &&
-             p_t2t->work_offset < p_t2t->new_ndef_msg_len) {
+             p_t2t->work_offset < p_t2t->new_ndef_msg_len
+#if (NXP_EXTNS == TRUE)
+             && p_t2t->work_offset < new_lengthfield_len
+#endif
+        ) {
         if (rw_t2t_is_lock_res_byte(
                 (uint16_t)((block * T2T_BLOCK_SIZE) + index)) == false) {
           write_block[index] = length_field[p_t2t->work_offset];
           p_t2t->work_offset++;
         }
         index++;
+#if (NXP_EXTNS != TRUE)
         if (p_t2t->work_offset == new_lengthfield_len) {
           break;
         }
+#endif
       }
       /* Update ndef message field */
       while (index < T2T_BLOCK_SIZE &&
