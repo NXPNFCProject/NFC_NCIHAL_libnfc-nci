@@ -17,7 +17,7 @@
  ******************************************************************************/
 /******************************************************************************
  *
- *  Copyright 2019 NXP
+ *  Copyright 2019-2020 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -1571,7 +1571,11 @@ static NFC_HDR* llcp_link_build_next_pdu(NFC_HDR* p_pdu) {
         llcp_cb.lcb.effective_miu) {
       /* Get a next PDU from link manager or data links */
       p_next_pdu = llcp_link_get_next_pdu(false, &next_pdu_length);
-
+#if (NXP_EXTNS == TRUE)
+      if(next_pdu_length == 0 && p_next_pdu == nullptr) {
+        break;
+      }
+#endif
       p = (uint8_t*)(p_agf + 1) + p_agf->offset + p_agf->len;
 
       UINT16_TO_BE_STREAM(p, p_next_pdu->len);
