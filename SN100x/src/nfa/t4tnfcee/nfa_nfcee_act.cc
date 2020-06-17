@@ -565,8 +565,13 @@ bool is_write_precondition_valid(tNFA_T4TNFCEE_MSG* p_data) {
  **
  *******************************************************************************/
 bool isReadPermitted(void) {
-  return (ccFileInfo.find(nfa_t4tnfcee_cb.cur_fileId)->second.read_access ==
-          T4T_NFCEE_READ_ALLOWED);
+  unordered_map<uint16_t, tNFA_T4TNFCEE_FILE_INFO>::iterator it;
+  it = ccFileInfo.find(nfa_t4tnfcee_cb.cur_fileId);
+  if(it != ccFileInfo.end()) {
+    return (it->second.read_access == T4T_NFCEE_READ_ALLOWED);
+  } else {
+    return false;
+  }
 }
 
 /*******************************************************************************
@@ -579,12 +584,16 @@ bool isReadPermitted(void) {
  **
  *******************************************************************************/
 bool isWritePermitted(void) {
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-      "%s : 0x%2x", __func__,
-      ccFileInfo.find(nfa_t4tnfcee_cb.cur_fileId)->second.write_access);
-  return ((ccFileInfo.find(nfa_t4tnfcee_cb.cur_fileId)->second.write_access !=
-           T4T_NFCEE_WRITE_NOT_ALLOWED) &&
+  unordered_map<uint16_t, tNFA_T4TNFCEE_FILE_INFO>::iterator it;
+  it = ccFileInfo.find(nfa_t4tnfcee_cb.cur_fileId);
+  if(it != ccFileInfo.end()) {
+    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+      "%s : 0x%2x", __func__, it->second.write_access);
+    return (it->second.write_access != T4T_NFCEE_WRITE_NOT_ALLOWED &&
           isDataLenBelowMaxFileCapacity());
+  } else {
+    return false;
+  }
 }
 
 /*******************************************************************************
@@ -598,9 +607,13 @@ bool isWritePermitted(void) {
  **
  *******************************************************************************/
 bool isDataLenBelowMaxFileCapacity(void) {
-  return (nfa_t4tnfcee_cb.dataLen <=
-          (ccFileInfo.find(nfa_t4tnfcee_cb.cur_fileId)->second.capacity -
-           T4TNFCEE_SIZEOF_LEN_BYTES));
+  unordered_map<uint16_t, tNFA_T4TNFCEE_FILE_INFO>::iterator it;
+  it = ccFileInfo.find(nfa_t4tnfcee_cb.cur_fileId);
+  if(it != ccFileInfo.end()) {
+    return (nfa_t4tnfcee_cb.dataLen <= (it->second.capacity - T4TNFCEE_SIZEOF_LEN_BYTES));
+  } else {
+    return false;
+  }
 }
 
 /*******************************************************************************
