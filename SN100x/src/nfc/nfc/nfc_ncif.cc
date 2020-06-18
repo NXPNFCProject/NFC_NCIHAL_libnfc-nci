@@ -1271,12 +1271,15 @@ void nfc_ncif_proc_ee_action(uint8_t* p, uint16_t plen) {
     evt_data.nfcee_id = *p++;
     evt_data.act_data.trigger = *p++;
 #if(NXP_EXTNS == TRUE)
-    if ((plen != 0) && (p != NULL)){
-       STREAM_TO_ARRAY(&evt_data.act_data.nfc_act_data.data, p, plen-2);
-       evt_data.act_data.nfc_act_data.len_data = plen-2;
-    }
-#endif
+    uint8_t *pp = p;
     data_len = *p++;
+    if (data_len) {
+       STREAM_TO_ARRAY(&evt_data.act_data.nfc_act_data.data, pp, data_len);
+       evt_data.act_data.nfc_act_data.len_data = data_len;
+    }
+#else
+    data_len = *p++;
+#endif
     if (plen >= 3) plen -= 3;
     if (data_len > plen) data_len = (uint8_t)plen;
 
@@ -1287,9 +1290,15 @@ void nfc_ncif_proc_ee_action(uint8_t* p, uint16_t plen) {
         STREAM_TO_ARRAY(evt_data.act_data.param.aid.aid, p, data_len);
         break;
       case NCI_EE_TRIG_RF_PROTOCOL:
+#if(NXP_EXTNS == TRUE)
+        if (data_len)
+#endif
         evt_data.act_data.param.protocol = *p++;
         break;
       case NCI_EE_TRIG_RF_TECHNOLOGY:
+#if(NXP_EXTNS == TRUE)
+        if (data_len)
+#endif
         evt_data.act_data.param.technology = *p++;
         break;
       case NCI_EE_TRIG_APP_INIT:
