@@ -144,9 +144,7 @@ typedef enum {
 /* NFA SCR possible errors which can occur in SCR module */
 typedef enum {
   NFA_SCR_NO_ERROR = 0x00,
-  NFA_SCR_ERROR_GET_PROP_SET_CONF_CMD,  /* Flag is not present in config file */
-  NFA_SCR_ERROR_SEND_PROP_SET_CONF_CMD, /* Sending prop SET_CONFIG_CMD failed */
-  NFA_SCR_ERROR_SEND_PROP_GET_CONF_CMD, /* Sending prop GET_CONFIG_CMD failed */
+  NFA_SCR_ERROR_SEND_CONF_CMD,          /* Failed to Send SET/GET Config NCI command  */
   NFA_SCR_ERROR_START_RF_DISC,          /* Sending RF_DISCOVER_CMD failed     */
   NFA_SCR_ERROR_NCI_RSP_STATUS_FAILED,  /* Received NFCC_RSP with status failed
                                          */
@@ -249,7 +247,7 @@ extern bool nfa_scr_rdr_processed(uint8_t status);
 extern bool nfa_scr_trigger_stop_seq(void);
 extern bool nfa_scr_handle_act_ntf(uint8_t status);
 extern bool nfa_scr_evt_hdlr(NFC_HDR* p_msg);
-extern bool nfa_scr_finalize(void);
+extern bool nfa_scr_finalize(bool notify = true);
 extern void nfa_scr_sys_disable(void);
 extern bool nfa_scr_proc_rdr_req_ntf(tNFC_EE_DISCOVER_REQ_REVT* p_cbk);
 extern bool nfa_scr_is_req_evt(uint8_t event, uint8_t status);

@@ -161,7 +161,7 @@ static bool nfa_mfc_handle_start_req(void) {
     } else {
       DLOG_IF(ERROR, nfc_debug_enabled)
           << StringPrintf("%s: Failed NFA_GetConfig", __func__);
-      nfa_scr_error_handler(NFA_SCR_ERROR_SEND_PROP_GET_CONF_CMD);
+      nfa_scr_error_handler(NFA_SCR_ERROR_SEND_CONF_CMD);
     }
   }
   return true;
@@ -187,7 +187,7 @@ static void nfa_mfc_send_prop_set_conf() {
   } else {
     DLOG_IF(ERROR, nfc_debug_enabled)
         << StringPrintf("%s: Failed Set NFC Forum Profile", __func__);
-    nfa_scr_error_handler(NFA_SCR_ERROR_SEND_PROP_SET_CONF_CMD);
+    nfa_scr_error_handler(NFA_SCR_ERROR_SEND_CONF_CMD);
   }
 }
 
