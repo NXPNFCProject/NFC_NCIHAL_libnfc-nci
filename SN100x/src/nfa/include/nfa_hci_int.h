@@ -57,6 +57,9 @@ extern uint8_t HCI_LOOPBACK_DEBUG;
 
 #define NFA_HCI_HOST_ID_UICC0 0x02 /* Host ID for UICC 0 */
 #if (NXP_EXTNS == TRUE)
+/* HCI Host Type length */
+#define NFA_HCI_HOST_TYPE_LEN 2
+
 #define NFA_HCI_HOST_ID_DYNAMIC_HOST0 0x80 /*Host ID for prop dyn host 0*/
 #define NFA_HCI_HOST_ID_PROP_HOST0 0xC0 /*Host ID for prop eSE 0*/
 

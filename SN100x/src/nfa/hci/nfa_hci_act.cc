@@ -1478,6 +1478,10 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
   uint8_t host_count = 0;
   uint8_t host_id = 0;
 #endif
+#if (NXP_EXTNS == TRUE)
+  // Terminal Host Type as ETSI12  Byte1 -Host Id Byte2 - 00
+  uint8_t terminalHostTsype[NFA_HCI_HOST_TYPE_LEN] = {0x01, 0x00};
+#endif
   uint32_t os_tick;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
@@ -1521,6 +1525,17 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
               NFA_HCI_ADMIN_PIPE, NFA_HCI_WHITELIST_INDEX,
               p_nfa_hci_cfg->num_whitelist_host, p_nfa_hci_cfg->p_whitelist);
         } else if (nfa_hci_cb.param_in_use == NFA_HCI_WHITELIST_INDEX) {
+#if (NXP_EXTNS == TRUE)
+          DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+              "nfa_hci_handle_admin_gate_rsp - Set the HOST_TYPE as per ETSI "
+              "12 !!!");
+          /* Set the HOST_TYPE as per ETSI 12 */
+          nfa_hciu_send_set_param_cmd(
+              NFA_HCI_ADMIN_PIPE, NFA_HCI_HOST_TYPE_INDEX,
+              NFA_HCI_HOST_TYPE_LEN, terminalHostTsype);
+          return;
+        } else if (nfa_hci_cb.param_in_use == NFA_HCI_HOST_TYPE_INDEX) {
+#endif
           if ((nfa_hci_cb.hci_state == NFA_HCI_STATE_STARTUP) ||
               (nfa_hci_cb.hci_state == NFA_HCI_STATE_RESTORE))
             nfa_hci_dh_startup_complete();
