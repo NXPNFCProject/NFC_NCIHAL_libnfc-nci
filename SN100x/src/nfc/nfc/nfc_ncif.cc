@@ -2033,15 +2033,27 @@ void nfc_ncif_proc_generic_error_ntf(tNFC_STATUS status)
 {
   DLOG_IF(INFO, nfc_debug_enabled)
           << StringPrintf("nfc_ncif_proc_generic_error_ntf: enter, status=%d",status);
-  if( NCI_NFCEE_STS_COLD_TEMP_THRESOLD_REACHED== status){
-      /*if Low Temp Error, wait for the predefined time*/
+  switch (status) {
+    case NCI_NFCEE_STS_COLD_TEMP_THRESOLD_REACHED: {
       nfc_cb.nci_ese_cold_temp_timeout =
                             NfcConfig::getUnsigned(NAME_NXP_SE_COLD_TEMP_ERROR_DELAY, 0x05);
       DLOG_IF(INFO, nfc_debug_enabled)
               << StringPrintf("Waiting for nci_ese_cold_temp_timeout = %d",nfc_cb.nci_ese_cold_temp_timeout);
-      nfc_start_timer(&nfc_cb.nci_wait_se_temp_error_delay ,
-                  (uint16_t)(NFC_TTYPE_SE_TEMP_ERROR_DELAY),
-                  nfc_cb.nci_ese_cold_temp_timeout);
+      nfc_start_timer(&nfc_cb.nci_wait_se_temp_error_delay , (uint16_t)(NFC_TTYPE_SE_TEMP_ERROR_DELAY),
+                    nfc_cb.nci_ese_cold_temp_timeout);
+      break;
+    }
+    case NCI_STATUS_SYNTAX_ERROR:
+    case NCI_STATUS_PMU_TXLDO_OVERCURRENT:
+    {
+      LOG(ERROR) <<StringPrintf("\nAborting...");
+      abort();
+      break;
+    }
+    default:
+      DLOG_IF(INFO, nfc_debug_enabled)
+              << StringPrintf("%s: Unhandled CORE_GENERIC_ERROR_NTF status = %d", __func__, status);
+      break;
   }
 }
 /*******************************************************************************
