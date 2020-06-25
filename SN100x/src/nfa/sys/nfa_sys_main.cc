@@ -15,6 +15,25 @@
  *  limitations under the License.
  *
  ******************************************************************************/
+/******************************************************************************
+*
+*  The original Work has been changed by NXP.
+*
+*  Licensed under the Apache License, Version 2.0 (the "License");
+*  you may not use this file except in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*  http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing, software
+*  distributed under the License is distributed on an "AS IS" BASIS,
+*  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+*  See the License for the specific language governing permissions and
+*  limitations under the License.
+*
+*  Copyright 2020 NXP
+*
+******************************************************************************/
 
 /******************************************************************************
  *
@@ -177,7 +196,13 @@ void nfa_sys_check_disabled(void) {
 void nfa_sys_deregister(uint8_t id) {
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("nfa_sys: deregistering subsystem %i", id);
-
+#if (NXP_EXTNS == TRUE)
+  if (id >= sizeof(nfa_sys_cb.is_reg)) {
+      LOG(ERROR) << StringPrintf("%s Failed!! Index %d exceeds the limit %zu",
+          __func__, id, sizeof(nfa_sys_cb.is_reg));
+      return;
+  }
+#endif
   nfa_sys_cb.is_reg[id] = false;
 
   /* If not deregistering DM, then check if any other subsystems above DM are
