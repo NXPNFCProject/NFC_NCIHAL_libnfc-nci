@@ -2045,6 +2045,7 @@ void nfc_ncif_proc_generic_error_ntf(tNFC_STATUS status)
     }
     case NCI_STATUS_SYNTAX_ERROR:
     case NCI_STATUS_PMU_TXLDO_OVERCURRENT:
+    case NCI_STATUS_GPADC_ERROR:
     {
       LOG(ERROR) <<StringPrintf("\nAborting...");
       abort();
