@@ -1500,6 +1500,11 @@ void nfc_ncif_report_conn_close_evt(uint8_t conn_id, tNFC_STATUS status) {
     nfc_free_conn_cb(p_cb);
     evt_data.status = status;
     if (p_cback) (*p_cback)(conn_id, NFC_CONN_CLOSE_CEVT, &evt_data);
+#if (NXP_EXTNS == TRUE)
+    if ((conn_id != NFC_RF_CONN_ID) && (nfc_cb.nci_wait_data_ntf_timer.in_use)) {
+      nfc_stop_timer(&nfc_cb.nci_wait_data_ntf_timer);
+    }
+#endif
   }
 }
 
