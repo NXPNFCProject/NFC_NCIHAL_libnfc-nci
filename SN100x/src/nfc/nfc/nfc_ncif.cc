@@ -1964,7 +1964,11 @@ void nfc_mode_set_ntf_timeout() {
   LOG(ERROR) << StringPrintf("%s", __func__);
   tNFC_RESPONSE nfc_response;
   nfc_response.mode_set.status = NCI_STATUS_FAILED;
+#if(NXP_EXTNS == TRUE)
+  nfc_response.mode_set.nfcee_id = nfa_ee_cb.nfcee_id;
+#else
   nfc_response.mode_set.nfcee_id = *nfc_cb.last_cmd;
+#endif
   nfc_response.mode_set.mode = NCI_NFCEE_MD_DEACTIVATE;
 
   tNFC_RESPONSE_CBACK* p_cback = nfc_cb.p_resp_cback;
