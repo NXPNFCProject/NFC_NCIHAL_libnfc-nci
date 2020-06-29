@@ -795,7 +795,7 @@ void nfa_hci_dh_startup_complete(void) {
       nfa_hci_cb.ee_disable_disc = true;
     /* Received HOT PLUG EVT, we will also wait for EE DISC REQ Ntf(s) */
     nfa_sys_start_timer(&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT,
-                        p_nfa_hci_cfg->hci_netwk_enable_timeout);
+                        NFA_EE_DISCV_TIMEOUT_VAL);
   } else {
     /* Received EE DISC REQ Ntf(s) */
 #if(NXP_EXTNS == TRUE)

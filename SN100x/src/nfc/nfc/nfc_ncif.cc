@@ -1970,6 +1970,12 @@ void nfc_mode_set_ntf_timeout() {
   nfc_response.mode_set.nfcee_id = *nfc_cb.last_cmd;
 #endif
   nfc_response.mode_set.mode = NCI_NFCEE_MD_DEACTIVATE;
+#if (NXP_EXTNS == TRUE)
+  /* restart waiting for EE DISC REQ Ntf(s) */
+  nfa_sys_stop_timer(&nfa_hci_cb.timer);
+  nfa_sys_start_timer(&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT,
+                      NFA_EE_DISCV_TIMEOUT_VAL);
+#endif
 
   tNFC_RESPONSE_CBACK* p_cback = nfc_cb.p_resp_cback;
   tNFC_RESPONSE_EVT event = NFC_NFCEE_MODE_SET_REVT;
