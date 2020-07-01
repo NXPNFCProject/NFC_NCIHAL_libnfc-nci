@@ -72,6 +72,8 @@
 #if (NXP_EXTNS == TRUE)
 #define NFC_SET_MAX_CONN_DEFAULT() \
   { nfc_cb.max_conn = 2; }
+/* Refused status sent by HAL to restart NFC service */
+#define HAL_NFC_STATUS_RESTART HAL_NFC_STATUS_REFUSED
 #else
 #define NFC_SET_MAX_CONN_DEFAULT() \
   { nfc_cb.max_conn = 1; }
@@ -666,9 +668,10 @@ static void nfc_main_hal_cback(uint8_t event, tHAL_NFC_STATUS status) {
         }
       }
 #if (NXP_EXTNS == TRUE)
-      else if (status == HAL_NFC_STATUS_REFUSED) {
+      /* Updates completed, restart NFC service */
+      else if (status == HAL_NFC_STATUS_RESTART) {
         DLOG_IF(INFO, nfc_debug_enabled)
-            << StringPrintf("Retry NFC service");
+            << StringPrintf("Restart NFC service");
         abort();
       }
 #endif
