@@ -264,6 +264,7 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
     HAL_WRITE(p);
   nfcsnoop_capture(p, false);
 #if (NXP_EXTNS == TRUE)
+    if (nfc_cb.credit_cback) (*nfc_cb.credit_cback)(p_cb->tx_q.count == 0);
     /* start NFC data ntf timeout timer */
     if (p_cb->conn_id != NFC_RF_CONN_ID) {
       // Start waiting for credit ntf

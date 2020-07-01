@@ -186,6 +186,10 @@ typedef struct {
 /* NCI command buffer contains a VSC (in NFC_HDR.layer_specific) */
 #define NFC_WAIT_RSP_VSC 0x01
 
+#if (NXP_EXTNS == TRUE)
+typedef void(tNFA_CREDIT_CBACK)(bool islastCredit);
+#endif
+
 /* NFC control blocks */
 typedef struct {
   uint16_t flags; /* NFC control block flags - NFC_FL_* */
@@ -256,6 +260,7 @@ typedef struct {
 
   TIMER_LIST_ENT nci_mode_set_ntf_timer; /*Mode set notification timer*/
 #if (NXP_EXTNS == TRUE)
+  tNFA_CREDIT_CBACK* credit_cback;
   TIMER_LIST_ENT
   nci_wait_data_ntf_timer; /* Timer for waiting for core credit ntf*/
   uint16_t nci_credit_ntf_timeout;
