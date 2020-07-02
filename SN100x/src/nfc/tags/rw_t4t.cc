@@ -1702,8 +1702,12 @@ static void rw_t4t_sm_update_ndef(NFC_HDR* p_r_apdu) {
   p = (uint8_t*)(p_r_apdu + 1) + p_r_apdu->offset;
   p += (p_r_apdu->len - T4T_RSP_STATUS_WORDS_SIZE);
   BE_STREAM_TO_UINT16(status_words, p);
-
+#if (NXP_EXTNS == TRUE)
+  if ((status_words != T4T_RSP_CMD_CMPLTED) &&
+    (!T4T_RSP_WARNING_PARAMS_CHECK(status_words >> 8))) {
+#else
   if (status_words != T4T_RSP_CMD_CMPLTED) {
+#endif
     rw_t4t_handle_error(NFC_STATUS_CMD_NOT_CMPLTD, *(p - 2), *(p - 1));
     return;
   }
