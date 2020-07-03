@@ -471,6 +471,14 @@ static void nfa_dm_nfc_response_cback(tNFC_RESPONSE_EVT event,
       conn_evt.status = p_data->status;
       nfa_dm_conn_cback_event_notify(NFA_UPDATE_RF_PARAM_RESULT_EVT, &conn_evt);
       break;
+#if (NXP_EXTNS == TRUE)
+    case NFC_WLC_FEATURE_SUPPORTED_REVT:
+    case NFC_RF_INTF_EXT_START_REVT:
+    case NFC_RF_INTF_EXT_STOP_REVT:
+      if (nfa_dm_cb.p_wlc_cback)
+        (*nfa_dm_cb.p_wlc_cback)(event, p_data->status);
+      break;
+#endif
     default:
       break;
   }
@@ -2007,7 +2015,13 @@ std::string nfa_dm_nfc_revt_2_str(tNFC_RESPONSE_EVT event) {
       return "NFC_NFCC_POWER_OFF_REVT";
 #if (NXP_EXTNS == TRUE)
     case NFC_NFCEE_PL_CONTROL_REVT:
-        return "NFA_EE_PWR_LINK_CTRL_EVT";
+      return "NFA_EE_PWR_LINK_CTRL_EVT";
+    case NFC_WLC_FEATURE_SUPPORTED_REVT:
+      return "NFC_WLC_FEATURE_SUPPORTED_REVT";
+    case NFC_RF_INTF_EXT_START_REVT:
+      return "NFC_RF_INTF_EXT_START_EVT";
+    case NFC_RF_INTF_EXT_STOP_REVT:
+      return "NFC_RF_INTF_EXT_STOP_EVT";
 #endif
     default:
       return "unknown revt";

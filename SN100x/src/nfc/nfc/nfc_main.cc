@@ -325,6 +325,12 @@ void nfc_enabled(tNFC_STATUS nfc_status, NFC_HDR* p_init_rsp_msg) {
         interface_type = *p++;
         num_interface_extensions = *p++;
         for (zz = 0; zz < num_interface_extensions; zz++) {
+#if (NXP_EXTNS == TRUE)
+          if ((interface_type == NCI_INTERFACE_FRAME) &&
+              (*p == NCI_INTERFACE_EXTN_RF_WLC))
+            nfc_ncif_event_status(NFC_WLC_FEATURE_SUPPORTED_REVT,
+                                  NFC_STATUS_OK);
+#endif
           if (((*p) < NCI_INTERFACE_EXTENSION_MAX) &&
               (interface_type <= NCI_INTERFACE_MAX)) {
             nfc_cb.nci_intf_extensions |= (1 << (*p));
@@ -899,7 +905,49 @@ uint16_t NFC_GetLmrtSize(void) {
 tNFC_STATUS NFC_SetConfig(uint8_t tlv_size, uint8_t* p_param_tlvs) {
   return nci_snd_core_set_config(p_param_tlvs, tlv_size);
 }
+#if (NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         NFC_RfIntfExtStart
+**
+** Description      This function is called to send the Rf Interface Extension
+**                  start command
+**
+** Parameters       params :
+                    intf_ext_type - Type of Rf Interface Extension to start.
+**                  p_start_param - The parameter Value list
+**                  start_param_size - Size of start parameter
+**
+** Returns          tNFC_STATUS
+**
+*******************************************************************************/
+tNFC_STATUS NFC_RfIntfExtStart(uint8_t intf_ext_type, uint8_t* p_start_param,
+                                  uint8_t start_param_size) {
+  return nci_snd_rf_intf_ext_start(intf_ext_type, p_start_param,
+                                   start_param_size);
+}
 
+/*******************************************************************************
+**
+** Function         NFC_RfIntfExtStop
+**
+** Description      This function is called to send the Rf Interface Extension
+**                  stop command
+**
+** Parameters       params :
+**                  intf_ext_type - Type of Rf Interface Extension to start.
+**                  p_start_param - The parameter Value list
+**                  stop_param_size - Size of stop parameter
+**
+** Returns          tNFC_STATUS
+**
+*******************************************************************************/
+tNFC_STATUS NFC_RfIntfExtStop(uint8_t intf_ext_type, uint8_t* p_stop_param,
+                                  uint8_t stop_param_size) {
+  return nci_snd_rf_intf_ext_stop(intf_ext_type, p_stop_param,
+                                  stop_param_size);
+}
+#endif
 /*******************************************************************************
 **
 ** Function         NFC_GetConfig

@@ -258,6 +258,15 @@ static uint8_t nfa_dm_get_rf_discover_config(
     }
   }
 #if (NXP_EXTNS == TRUE)
+  if (nfc_cb.isWlcPollEnabled) {
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("Adding WLC in discovery loop");
+    disc_params[num_params].type = NFC_DISCOVERY_TYPE_POLL_WLC;
+    disc_params[num_params].frequency = 1;
+    num_params++;
+
+    if (num_params >= max_params) return num_params;
+  }
   if (nfa_dm_cb.isFieldDetectEnabled) {
     disc_params[num_params].type = NFC_DISCOVERY_TYPE_FIELD_DETECT;
     disc_params[num_params].frequency = 1;
@@ -708,7 +717,11 @@ static tNFA_DM_DISC_TECH_PROTO_MASK nfa_dm_disc_get_disc_mask(
       ((tech_n_mode & 0x80) ? NFA_DM_DISC_MASK_L_LEGACY
                             : NFA_DM_DISC_MASK_P_LEGACY);
 
-  if (NFC_DISCOVERY_TYPE_POLL_A == tech_n_mode) {
+  if ((NFC_DISCOVERY_TYPE_POLL_A == tech_n_mode)
+#if (NXP_EXTNS == TRUE)
+      || (NFC_DISCOVERY_TYPE_POLL_WLC == tech_n_mode)
+#endif
+  ) {
     switch (protocol) {
       case NFC_PROTOCOL_T1T:
         disc_mask = NFA_DM_DISC_MASK_PA_T1T;
@@ -723,14 +736,22 @@ static tNFA_DM_DISC_TECH_PROTO_MASK nfa_dm_disc_get_disc_mask(
         disc_mask = NFA_DM_DISC_MASK_PA_NFC_DEP;
         break;
     }
-  } else if (NFC_DISCOVERY_TYPE_POLL_B == tech_n_mode) {
+  } else if ((NFC_DISCOVERY_TYPE_POLL_B == tech_n_mode)
+#if (NXP_EXTNS == TRUE)
+             || (NFC_DISCOVERY_TYPE_POLL_WLC == tech_n_mode)
+#endif
+  ) {
     if (protocol == NFC_PROTOCOL_ISO_DEP)
       disc_mask = NFA_DM_DISC_MASK_PB_ISO_DEP;
 #if (NXP_EXTNS == TRUE)
     else if (protocol == NFC_PROTOCOL_T3BT)
       disc_mask = NFA_DM_DISC_MASK_PB_T3BT;
 #endif
-  } else if (NFC_DISCOVERY_TYPE_POLL_F == tech_n_mode) {
+  } else if ((NFC_DISCOVERY_TYPE_POLL_F == tech_n_mode)
+#if (NXP_EXTNS == TRUE)
+             || (NFC_DISCOVERY_TYPE_POLL_WLC == tech_n_mode)
+#endif
+  ) {
     if (protocol == NFC_PROTOCOL_T3T)
       disc_mask = NFA_DM_DISC_MASK_PF_T3T;
     else if (protocol == NFC_PROTOCOL_NFC_DEP)

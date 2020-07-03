@@ -217,7 +217,73 @@ uint8_t nci_snd_core_set_config(uint8_t* p_param_tlvs, uint8_t tlv_size) {
 
   return (NCI_STATUS_OK);
 }
+#if (NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         nci_snd_rf_intf_ext_start
+**
+** Description      compose and send RF_INTF_EXT_START command to command queue
+**
+** Returns          status
+**
+*******************************************************************************/
+uint8_t nci_snd_rf_intf_ext_start(uint8_t intf_ext_type, uint8_t* p_start_param,
+                                  uint8_t start_param_size) {
+  NFC_HDR* p;
+  uint8_t* pp;
 
+  p = NCI_GET_CMD_BUF(start_param_size + 2);
+  if (p == nullptr) return (NCI_STATUS_FAILED);
+
+  p->event = BT_EVT_TO_NFC_NCI;
+  p->len = NCI_MSG_HDR_SIZE + start_param_size + 2;
+  p->offset = NCI_MSG_OFFSET_SIZE;
+  pp = (uint8_t*)(p + 1) + p->offset;
+
+  NCI_MSG_BLD_HDR0(pp, NCI_MT_CMD, NCI_GID_RF_MANAGE);
+  NCI_MSG_BLD_HDR1(pp, NCI_MSG_RF_INTF_EXT_START);
+  UINT8_TO_STREAM(pp, (uint8_t)(start_param_size + 2));
+  UINT8_TO_STREAM(pp, intf_ext_type);
+  UINT8_TO_STREAM(pp, start_param_size);
+  ARRAY_TO_STREAM(pp, p_start_param, start_param_size);
+  nfc_ncif_send_cmd(p);
+
+  return (NCI_STATUS_OK);
+}
+
+/*******************************************************************************
+**
+** Function         nci_snd_rf_intf_ext_stop
+**
+** Description      compose and send RF_INTF_EXT_START command to command queue
+**
+** Returns          status
+**
+*******************************************************************************/
+uint8_t nci_snd_rf_intf_ext_stop(uint8_t intf_ext_type, uint8_t* p_stop_param,
+                                 uint8_t stop_param_size) {
+  NFC_HDR* p;
+  uint8_t* pp;
+
+  p = NCI_GET_CMD_BUF(stop_param_size + 2);
+  if (p == nullptr) return (NCI_STATUS_FAILED);
+
+  p->event = BT_EVT_TO_NFC_NCI;
+  p->len = NCI_MSG_HDR_SIZE + stop_param_size + 2;
+  p->offset = NCI_MSG_OFFSET_SIZE;
+  pp = (uint8_t*)(p + 1) + p->offset;
+
+  NCI_MSG_BLD_HDR0(pp, NCI_MT_CMD, NCI_GID_RF_MANAGE);
+  NCI_MSG_BLD_HDR1(pp, NCI_MSG_RF_INTF_EXT_STOP);
+  UINT8_TO_STREAM(pp, (uint8_t)(stop_param_size + 2));
+  UINT8_TO_STREAM(pp, intf_ext_type);
+  UINT8_TO_STREAM(pp, stop_param_size);
+  ARRAY_TO_STREAM(pp, p_stop_param, stop_param_size);
+  nfc_ncif_send_cmd(p);
+
+  return (NCI_STATUS_OK);
+}
+#endif
 /*******************************************************************************
 **
 ** Function         nci_snd_core_conn_create

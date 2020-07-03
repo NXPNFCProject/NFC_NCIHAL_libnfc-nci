@@ -65,8 +65,9 @@ enum {
 #endif
 #if (NXP_EXTNS == TRUE)
   NFA_ID_T4TNFCEE, /* t4T Nfcee sub-system  */
-  NFA_ID_SCR, /* Secure Reader sub-system        */
-  NFA_ID_TMW, /* Tunneling MW sub-system */
+  NFA_ID_SCR,      /* Secure Reader sub-system        */
+  NFA_ID_TMW,      /* Tunneling MW sub-system  */
+  NFA_ID_WLC,      /* WLC MW sub-system  */
 #endif
   NFA_ID_MAX
 };

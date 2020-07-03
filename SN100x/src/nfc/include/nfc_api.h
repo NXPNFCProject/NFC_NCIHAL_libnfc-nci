@@ -285,7 +285,11 @@ enum {
   NFC_NFCEE_STATUS_REVT             /* NFCEE Status Notification     */
                                     /* First vendor-specific rsp event  */
 #if (NXP_EXTNS == TRUE)
-  ,NFC_NFCEE_MODE_SET_INFO          /*  NFCEE Mode Set Notification event*/
+  ,
+  NFC_WLC_FEATURE_SUPPORTED_REVT, /* WLC Feature supported by NFCC */
+  NFC_RF_INTF_EXT_START_REVT,     /* RF Intf Ext start response    */
+  NFC_RF_INTF_EXT_STOP_REVT,      /* RF Intf Ext stop response     */
+  NFC_NFCEE_MODE_SET_INFO         /* NFCEE Mode Set Notification event*/
 #endif
 };
 typedef uint16_t tNFC_RESPONSE_EVT;
@@ -512,6 +516,9 @@ typedef uint8_t tNFC_PROTOCOL;
 #define NFC_DISCOVERY_TYPE_POLL_A NCI_DISCOVERY_TYPE_POLL_A
 #define NFC_DISCOVERY_TYPE_POLL_B NCI_DISCOVERY_TYPE_POLL_B
 #define NFC_DISCOVERY_TYPE_POLL_F NCI_DISCOVERY_TYPE_POLL_F
+#if (NXP_EXTNS == TRUE)
+#define NFC_DISCOVERY_TYPE_POLL_WLC NCI_DISCOVERY_TYPE_POLL_WLC
+#endif
 #define NFC_DISCOVERY_TYPE_POLL_A_ACTIVE NCI_DISCOVERY_TYPE_POLL_A_ACTIVE
 #define NFC_DISCOVERY_TYPE_POLL_F_ACTIVE NCI_DISCOVERY_TYPE_POLL_F_ACTIVE
 #define NFC_DISCOVERY_TYPE_POLL_ACTIVE NCI_DISCOVERY_TYPE_POLL_ACTIVE
@@ -1513,5 +1520,42 @@ extern std::string NFC_GetStatusName(tNFC_STATUS status);
 **
 *******************************************************************************/
 extern void NFC_SetFeatureList(tNFC_FW_VERSION nfc_fw_version);
+
+/*******************************************************************************
+**
+** Function         NFC_RfIntfExtStart
+**
+** Description      This function is called to send the Rf Interface Extension
+**                  start command
+**
+** Parameters       params :
+                    intf_ext_type - Type of Rf Interface Extension to start.
+**                  p_start_param - The parameter Value list
+**                  start_param_size - Size of start parameter
+**
+** Returns          tNFC_STATUS
+**
+*******************************************************************************/
+extern tNFC_STATUS NFC_RfIntfExtStart(uint8_t intf_ext_type,
+                                      uint8_t* p_start_param,
+                                      uint8_t start_param_size);
+
+/*******************************************************************************
+**
+** Function         NFC_RfIntfExtStop
+**
+** Description      This function is called to send the Rf Interface Extension
+**                  stop command
+**
+** Parameters       params :
+**                  intf_ext_type - Type of Rf Interface Extension to start.
+**                  p_stop_param - The parameter Value list
+**                  stop_param_size - Size of stop parameter
+**
+** Returns          tNFC_STATUS
+**
+*******************************************************************************/
+tNFC_STATUS NFC_RfIntfExtStop(uint8_t intf_ext_type, uint8_t* p_stop_param,
+                                  uint8_t stop_param_size);
 
 #endif /* NFC_API_H */

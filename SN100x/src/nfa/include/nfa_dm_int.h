@@ -542,7 +542,9 @@ typedef struct {
 **  It returns TRUE if NDEF is handled by connection handover module.
 */
 typedef bool(tNFA_NDEF_CHO_CBACK)(uint32_t ndef_len, uint8_t* p_ndef_data);
-
+#if (NXP_EXTNS == TRUE)
+typedef void(tNFA_WLC_CBACK)(uint16_t event, uint8_t status);
+#endif
 /* DM control block */
 typedef struct {
   uint32_t flags; /* NFA_DM flags (see definitions for NFA_DM_FLAGS_*)    */
@@ -602,6 +604,7 @@ typedef struct {
   tNFA_TECHNOLOGY_MASK        listenTech;
   uint8_t selected_uicc_id; /* Current selected UICC ID */
   bool isFieldDetectEnabled; /*Field Detect Enable status*/
+  tNFA_WLC_CBACK* p_wlc_cback; /*Wlc callback*/
 #endif
 } tNFA_DM_CB;
 
@@ -659,6 +662,7 @@ void nfa_ee_init(void);
 void nfa_hci_init(void);
 #if (NXP_EXTNS == TRUE)
 void nfa_scr_init(void);
+void nfa_dm_update_wlc_cback(tNFA_WLC_CBACK* p_cback);
 #endif
 #else
 #define nfa_ee_init()

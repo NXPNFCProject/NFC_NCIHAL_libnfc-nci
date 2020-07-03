@@ -58,7 +58,12 @@ uint8_t nci_snd_t3t_polling(uint16_t system_code, uint8_t rc, uint8_t tsn);
 uint8_t nci_snd_parameter_update_cmd(uint8_t* p_param_tlvs, uint8_t tlv_size);
 uint8_t nci_snd_iso_dep_nak_presence_check_cmd();
 uint8_t nci_snd_core_set_power_sub_state(uint8_t screen_state);
-
+#if (NXP_EXTNS == TRUE)
+uint8_t nci_snd_rf_intf_ext_start(uint8_t intf_ext_type, uint8_t* p_start_param,
+                                  uint8_t start_param_size);
+uint8_t nci_snd_rf_intf_ext_stop(uint8_t intf_ext_type, uint8_t* p_stop_param,
+                                 uint8_t stop_param_size);
+#endif
 #if (NFC_NFCEE_INCLUDED == TRUE && NFC_RW_ONLY == FALSE)
 uint8_t nci_snd_nfcee_discover(uint8_t discover_action);
 uint8_t nci_snd_nfcee_mode_set(uint8_t nfcee_id, uint8_t nfcee_mode);

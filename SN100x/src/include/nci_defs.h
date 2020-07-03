@@ -236,6 +236,10 @@
 #define NCI_MSG_RF_EE_ACTION 9
 #define NCI_MSG_RF_EE_DISCOVERY_REQ 10
 #define NCI_MSG_RF_PARAMETER_UPDATE 11
+#if (NXP_EXTNS == TRUE)
+#define NCI_MSG_RF_INTF_EXT_START 12
+#define NCI_MSG_RF_INTF_EXT_STOP 13
+#endif
 #define NCI_MSG_RF_ISO_DEP_NAK_PRESENCE 16
 
 /**********************************************
@@ -386,6 +390,12 @@ typedef uint8_t tNCI_NFCEE_PL_CONFIG;
 #define NCI_INTERFACE_FIRST_VS 0x80
 typedef uint8_t tNCI_INTF_TYPE;
 
+#if (NXP_EXTNS == TRUE)
+/**********************************************
+ * NCI Interface Extension Types
+ **********************************************/
+#define NCI_INTERFACE_EXTN_RF_WLC 0x81
+#endif
 /**********************************************
  * NCI RF Management / DISCOVERY Group Params
  **********************************************/
@@ -421,6 +431,9 @@ typedef uint8_t tNCI_INTF_TYPE;
 #define NCI_DISCOVERY_TYPE_POLL_B 0x01
 #define NCI_DISCOVERY_TYPE_POLL_F 0x02
 #define NCI_DISCOVERY_TYPE_POLL_V 0x06
+#if (NXP_EXTNS == TRUE)
+#define NCI_DISCOVERY_TYPE_POLL_WLC 0x73
+#endif
 #define NCI_DISCOVERY_TYPE_POLL_A_ACTIVE 0x03
 /* NCI2.0 standardizes P2P poll active*/
 #define NCI_DISCOVERY_TYPE_POLL_ACTIVE 0x03

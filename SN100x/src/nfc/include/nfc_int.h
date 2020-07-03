@@ -260,6 +260,7 @@ typedef struct {
 
   TIMER_LIST_ENT nci_mode_set_ntf_timer; /*Mode set notification timer*/
 #if (NXP_EXTNS == TRUE)
+  bool isWlcPollEnabled;
   tNFA_CREDIT_CBACK* credit_cback;
   TIMER_LIST_ENT
   nci_wait_data_ntf_timer; /* Timer for waiting for core credit ntf*/

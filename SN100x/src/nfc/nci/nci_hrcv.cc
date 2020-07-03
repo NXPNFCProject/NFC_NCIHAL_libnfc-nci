@@ -241,7 +241,15 @@ void nci_proc_rf_management_rsp(NFC_HDR* p_msg) {
     case NCI_MSG_RF_PARAMETER_UPDATE:
       nfc_ncif_event_status(NFC_RF_COMM_PARAMS_UPDATE_REVT, *pp);
       break;
+#if (NXP_EXTNS == TRUE)
+    case NCI_MSG_RF_INTF_EXT_START:
+      nfc_ncif_event_status(NFC_RF_INTF_EXT_START_REVT, *pp);
+      break;
 
+    case NCI_MSG_RF_INTF_EXT_STOP:
+      nfc_ncif_event_status(NFC_RF_INTF_EXT_STOP_REVT, *pp);
+      break;
+#endif
     case NCI_MSG_RF_ISO_DEP_NAK_PRESENCE:
       nfc_ncif_proc_isodep_nak_presence_check_status(*pp, false);
       break;
