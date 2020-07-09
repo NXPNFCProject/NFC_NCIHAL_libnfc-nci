@@ -1503,6 +1503,7 @@ tNFA_MW_VERSION NFA_GetMwVersion() {
   mwVer.cust_id = NFC_NXP_MW_CUSTOMER_ID;
   mwVer.validation = (NXP_EN_SN100U << 13);
   mwVer.validation |= (NXP_EN_SN110U << 14);
+  mwVer.validation |= (NXP_EN_SN220U << 15);
   mwVer.android_version = NXP_ANDROID_VER;
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("0x%x:NFC MW Major Version:", NFC_NXP_MW_VERSION_MAJ);
