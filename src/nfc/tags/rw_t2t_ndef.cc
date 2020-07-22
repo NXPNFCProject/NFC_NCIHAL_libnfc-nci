@@ -652,10 +652,19 @@ static void rw_t2t_handle_tlv_detect_rsp(uint8_t* p_data) {
                     p_t2t->tlv_value[0] & 0x0F;
                 p_t2t->lock_tlv[p_t2t->num_lock_tlvs].bytes_locked_per_bit =
                     (uint8_t)tags_pow(2, ((p_t2t->tlv_value[2] & 0xF0) >> 4));
-                p_t2t->lock_tlv[p_t2t->num_lock_tlvs].num_bits =
-                    p_t2t->tlv_value[1];
-                count = p_t2t->tlv_value[1] / 8 +
-                        ((p_t2t->tlv_value[1] % 8 != 0) ? 1 : 0);
+                /* Note: 0 value in DLA_NbrLockBits means 256 */
+                count = p_t2t->tlv_value[1];
+                /* Set it to max value that can be stored in lockbytes */
+                if (count == 0) {
+#if RW_T2T_MAX_LOCK_BYTES > 0x1F
+                  count = UCHAR_MAX;
+#else
+                  count = RW_T2T_MAX_LOCK_BYTES * TAG_BITS_PER_BYTE;
+#endif
+                }
+                p_t2t->lock_tlv[p_t2t->num_lock_tlvs].num_bits = count;
+                count = count / TAG_BITS_PER_BYTE +
+                        ((count % TAG_BITS_PER_BYTE != 0) ? 1 : 0);
 
                 /* Extract lockbytes info addressed by this Lock TLV */
                 xx = 0;
@@ -907,6 +916,14 @@ void rw_t2t_extract_default_locks_info(void) {
         bytes_locked_per_lock_bit;
     num_dynamic_lock_bytes = num_dynamic_lock_bits / 8;
     num_dynamic_lock_bytes += (num_dynamic_lock_bits % 8 == 0) ? 0 : 1;
+    if (num_dynamic_lock_bytes > RW_T2T_MAX_LOCK_BYTES) {
+      LOG(ERROR) << StringPrintf(
+          "rw_t2t_extract_default_locks_info - buffer size: %u less than "
+          "DynLock area sise: %u",
+          RW_T2T_MAX_LOCK_BYTES, num_dynamic_lock_bytes);
+      num_dynamic_lock_bytes = RW_T2T_MAX_LOCK_BYTES;
+      android_errorWriteLog(0x534e4554, "147310721");
+    }
 
     p_t2t->lock_tlv[p_t2t->num_lock_tlvs].offset =
         (p_t2t->tag_hdr[T2T_CC2_TMS_BYTE] * T2T_TMS_TAG_FACTOR) +
@@ -2312,7 +2329,8 @@ static void rw_t2t_update_lock_attributes(void) {
 #endif
           {
             /* If the bit is set then it is locked */
-            p_t2t->lock_attr[block_count] |= 0x01 << bits_covered;
+            if (block_count < RW_T2T_SEGMENT_SIZE)
+              p_t2t->lock_attr[block_count] |= 0x01 << bits_covered;
           }
           bytes_covered++;
           bits_covered++;
