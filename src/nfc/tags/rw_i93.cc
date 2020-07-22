@@ -2745,7 +2745,7 @@ void rw_i93_sm_format(NFC_HDR* p_resp) {
           (p_i93->product_version == RW_I93_TAG_IT_HF_I_PRO_CHIP_INLAY) ||
           ((p_i93->uid[1] == I93_UID_IC_MFG_CODE_NXP) &&
            (p_i93->ic_reference & I93_ICODE_IC_REF_MBREAD_MASK))) {
-        if ((*p) & I93_BLOCK_LOCKED) {
+        if (length == 0 || ((*p) & I93_BLOCK_LOCKED)) {
           rw_i93_handle_error(NFC_STATUS_FAILED);
           break;
         }
