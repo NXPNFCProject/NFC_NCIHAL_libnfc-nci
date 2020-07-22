@@ -198,6 +198,10 @@ tNDEF_STATUS NDEF_MsgValidate(uint8_t* p_msg, uint32_t msg_len,
     }
 
     /* Check for OOB */
+    if (payload_len + type_len + id_len < payload_len ||
+        payload_len + type_len + id_len > msg_len) {
+      return (NDEF_MSG_LENGTH_MISMATCH);
+    }
     p_new = p_rec + (payload_len + type_len + id_len);
     if (p_rec > p_new || p_end < p_new) {
         android_errorWriteLog(0x534e4554, "126200054");
