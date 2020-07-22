@@ -2242,7 +2242,8 @@ tNFC_STATUS RW_T4tPresenceCheck(uint8_t option) {
     status = false;
     if (option == RW_T4T_CHK_EMPTY_I_BLOCK) {
       /* use empty I block for presence check */
-      p_data = (NFC_HDR*)GKI_getbuf(NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE);
+      p_data = (NFC_HDR*)GKI_getbuf(sizeof(NFC_HDR) + NCI_MSG_OFFSET_SIZE +
+                                    NCI_DATA_HDR_SIZE);
       if (p_data != nullptr) {
         p_data->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
         p_data->len = 0;
