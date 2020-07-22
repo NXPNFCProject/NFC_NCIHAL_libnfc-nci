@@ -404,10 +404,7 @@ static tNFC_STATUS rw_mfc_writeBlock(int block) {
 
     if (p_mfc->work_offset == p_mfc->ndef_length) {
       UINT8_TO_BE_STREAM(p, 0xFE);
-      index = index + 1;
-    }
-
-    if (p_mfc->work_offset > p_mfc->ndef_length) {
+    } else if (p_mfc->work_offset > p_mfc->ndef_length) {
       UINT8_TO_BE_STREAM(p, 0x00);
     } else {
       UINT8_TO_BE_STREAM(p, p_mfc->p_ndef_buffer[p_mfc->work_offset]);
