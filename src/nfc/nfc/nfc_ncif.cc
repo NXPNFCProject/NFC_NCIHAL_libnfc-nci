@@ -2633,6 +2633,10 @@ void nfc_ncif_proc_t3t_polling_ntf(uint8_t* p, uint16_t plen) {
   uint8_t status;
   uint8_t num_responses;
 
+  if (plen < NFC_TL_SIZE) {
+    return;
+  }
+
   /* Pass result to RW_T3T for processing */
   STREAM_TO_UINT8(status, p);
   STREAM_TO_UINT8(num_responses, p);
