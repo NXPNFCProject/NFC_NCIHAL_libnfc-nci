@@ -1061,6 +1061,14 @@ void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   p = (uint8_t*)(p_pkt + 1) + p_pkt->offset;
   pkt_len = p_pkt->len;
 
+  if (pkt_len < 1) {
+    LOG(ERROR) << StringPrintf("Insufficient packet length! Dropping :%u bytes",
+                               pkt_len);
+    /* release GKI buffer */
+    GKI_freebuf(p_pkt);
+    return;
+  }
+
   chaining_bit = ((*p) >> 0x07) & 0x01;
   pipe = (*p++) & 0x7F;
   if (pkt_len != 0) pkt_len--;
@@ -1085,6 +1093,13 @@ void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   if (nfa_hci_cb.assembling == false)
 #endif
   {
+    if (pkt_len < 1) {
+      LOG(ERROR) << StringPrintf(
+          "Insufficient packet length! Dropping :%u bytes", pkt_len);
+      /* release GKI buffer */
+      GKI_freebuf(p_pkt);
+      return;
+    }
     /* First Segment of a packet */
     nfa_hci_cb.type = ((*p) >> 0x06) & 0x03;
     nfa_hci_cb.inst = (*p++ & 0x3F);
