@@ -215,16 +215,16 @@ void rw_i93_get_product_version(uint8_t* p_uid) {
         case I93_IC_REF_ONS_N24RF04E:
           p_i93->product_version = RW_I93_ONS_N24RF04E;
           break;
-        case RW_I93_ONS_N24RF16:
+        case I93_IC_REF_ONS_N24RF16:
           p_i93->product_version = RW_I93_ONS_N24RF16;
           break;
-        case RW_I93_ONS_N24RF16E:
+        case I93_IC_REF_ONS_N24RF16E:
           p_i93->product_version = RW_I93_ONS_N24RF16E;
           break;
-        case RW_I93_ONS_N24RF64:
+        case I93_IC_REF_ONS_N24RF64:
           p_i93->product_version = RW_I93_ONS_N24RF64;
           break;
-        case RW_I93_ONS_N24RF64E:
+        case I93_IC_REF_ONS_N24RF64E:
           p_i93->product_version = RW_I93_ONS_N24RF64E;
           break;
         default:
@@ -483,10 +483,12 @@ bool rw_i93_process_sys_info(uint8_t* p_data, uint16_t length) {
             case RW_I93_ONS_N24RF16:
             case RW_I93_ONS_N24RF16E:
                  p_i93->num_block = 0x200;
+                 p_i93->intl_flags |= RW_I93_FLAG_16BIT_NUM_BLOCK;
                  break;
             case RW_I93_ONS_N24RF64:
             case RW_I93_ONS_N24RF64E:
                  p_i93->num_block = 0x800;
+                 p_i93->intl_flags |= RW_I93_FLAG_16BIT_NUM_BLOCK;
                  break;
             default:
                  return false;
