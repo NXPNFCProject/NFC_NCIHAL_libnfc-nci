@@ -2366,7 +2366,7 @@ uint8_t nfc_hal_nfcc_reset(void) {
            retry_count < (NFC_NFCC_INIT_MAX_RETRY + 1));
   return core_status;
 }
-uint8_t nfc_hal_nfcc_init(uint8_t** pinit_rsp) {
+uint8_t nfc_hal_nfcc_init() {
   phNxpNci_Extn_Cmd_t inData;
   phNxpNci_Extn_Resp_t outData;
   /*NCI_INIT_CMD*/
@@ -2375,7 +2375,6 @@ uint8_t nfc_hal_nfcc_init(uint8_t** pinit_rsp) {
   uint8_t init_status = NCI_STATUS_FAILED;
   uint8_t retry_count = 0;
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Inside nfc_hal_nfcc_init");
-  if (pinit_rsp == nullptr) return init_status;
 
   memset(&inData, 0x00, sizeof(phNxpNci_Extn_Cmd_t));
   memset(&outData, 0x00, sizeof(phNxpNci_Extn_Resp_t));
@@ -2395,16 +2394,6 @@ uint8_t nfc_hal_nfcc_init(uint8_t** pinit_rsp) {
     retry_count++;
   } while (NCI_STATUS_OK != init_status &&
            retry_count < (NFC_NFCC_INIT_MAX_RETRY + 1));
-  if (init_status == NCI_STATUS_OK && outData.rsp_len > 0) {
-    *pinit_rsp = (uint8_t*)GKI_getbuf(outData.rsp_len);
-    if (nullptr != *pinit_rsp)
-      memcpy(*pinit_rsp, outData.p_rsp,
-             outData.rsp_len);
-    else {
-      init_status = NCI_STATUS_FAILED;
-      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfc_hal_nfcc_init: Memory alocation failed");
-    }
-  }
   return init_status;
 }
 #endif

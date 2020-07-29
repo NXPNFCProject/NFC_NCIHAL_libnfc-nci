@@ -1529,7 +1529,7 @@ extern tNFC_FW_VERSION nfc_ncif_getFWVersion();
 *******************************************************************************/
 extern void nfc_ncif_storeScreenState(uint8_t state);
 extern uint8_t nfc_hal_nfcc_reset(void);
-extern uint8_t nfc_hal_nfcc_init(uint8_t** pinit_rsp);
+extern uint8_t nfc_hal_nfcc_init();
 /*******************************************************************************
 **
 ** Function         nfc_ncif_getMaxRoutingTableSize

@@ -1699,6 +1699,6 @@ tNFA_STATUS NFA_Send_Core_Reset() {
 ** Returns          void
 **
 *******************************************************************************/
-void NFA_Send_Core_Init(uint8_t** p) {
-    nfc_hal_nfcc_init(p);
+void NFA_Send_Core_Init() {
+    nfc_hal_nfcc_init();
 }

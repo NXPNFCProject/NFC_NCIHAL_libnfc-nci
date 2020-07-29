@@ -1475,7 +1475,7 @@ extern tNFA_STATUS NFA_Send_Core_Reset();
 ** Returns          void
 **
 *******************************************************************************/
-extern void NFA_Send_Core_Init(uint8_t** p);
+extern void NFA_Send_Core_Init();
 #endif
 
 /*******************************************************************************
