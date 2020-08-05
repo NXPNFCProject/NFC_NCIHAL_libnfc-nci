@@ -1655,7 +1655,7 @@ void NfcAdaptation::HalGetNxpConfig(NxpAdaptationConfig& NfcConfigData) {
  **
  ** Return           void
  *********************************************************************/
-static void HalNciTransceive_cb(NxpNciExtnResp out) {
+static void HalNciTransceive_cb(const NxpNciExtnResp& out) {
     memcpy(&(NfcAdaptation::GetInstance().mNciResp),&out,sizeof(NxpNciExtnResp));
   return;
 }
