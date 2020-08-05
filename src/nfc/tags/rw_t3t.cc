@@ -2334,10 +2334,6 @@ void rw_t3t_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
         /* Free the response buffer in case of error response */
         GKI_freebuf((NFC_HDR*)(p_data->data.p_data));
         p_data->data.p_data = nullptr;
-      } else if (p_data->data.p_data != nullptr) {
-        /* Free the response buffer in case of error response */
-        GKI_freebuf((NFC_HDR*)(p_data->data.p_data));
-        p_data->data.p_data = nullptr;
       }
     /* Data event with error status...fall through to NFC_ERROR_CEVT case */
       FALLTHROUGH_INTENDED;
