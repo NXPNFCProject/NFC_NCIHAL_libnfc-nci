@@ -680,13 +680,16 @@ static void rw_mfc_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
           evt_data.status = (tNFC_STATUS)(*(uint8_t*)p_data);
         } else if (p_data) {
           evt_data.status = p_data->status;
-        } else {
+        }
+#if(NXP_EXTNS != TRUE)
+        else {
           evt_data.status = NFC_STATUS_FAILED;
         }
-
+#endif
         evt_data.p_data = NULL;
         (*rw_cb.p_cback)(RW_MFC_INTF_ERROR_EVT, (tRW_DATA*)&evt_data);
         break;
+
       }
       nfc_stop_quick_timer(&p_mfc->timer);
       break;
