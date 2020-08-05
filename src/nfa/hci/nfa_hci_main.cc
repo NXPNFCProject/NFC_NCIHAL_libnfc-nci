@@ -1110,16 +1110,17 @@ void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
                 (pipe == NFA_HCI_CONN_UICC2_PIPE))) {
         nfa_hci_cb.type_evt = nfa_hci_cb.type;
         nfa_hci_cb.inst_evt = nfa_hci_cb.inst;
+        nfa_hci_cb.evt_len = 0;
     } else if (pipe == NFA_HCI_APDU_PIPE) {
         nfa_hci_cb.type_msg = nfa_hci_cb.type;
         nfa_hci_cb.inst_msg = nfa_hci_cb.inst;
+        nfa_hci_cb.msg_len = 0;
     }
 #endif
     if (pkt_len != 0) pkt_len--;
     nfa_hci_cb.assembly_failed = false;
+#if (NXP_EXTNS != TRUE)
     nfa_hci_cb.msg_len = 0;
-#if (NXP_EXTNS == TRUE)
-    nfa_hci_cb.evt_len = 0;
 #endif
     if (chaining_bit == NFA_HCI_MESSAGE_FRAGMENTATION) {
       nfa_hci_cb.assembling = true;
