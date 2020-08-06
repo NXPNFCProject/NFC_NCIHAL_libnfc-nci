@@ -1462,7 +1462,6 @@ uint32_t NfcAdaptation::HalgetEseState() {
     status = mHalNxpNfcLegacy->getEseState();
     if(status != NFA_STATUS_FAILED){
       ALOGE("NfcAdaptation::getEseState mHalNxpNfcLegacy completed");
-      status = NFA_STATUS_OK;
     } else {
       ALOGE("NfcAdaptation::getEseState mHalNxpNfcLegacy failed");
     }
