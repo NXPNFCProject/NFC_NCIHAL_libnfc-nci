@@ -1036,6 +1036,14 @@ void rw_t3t_message_set_block_list(tRW_T3T_CB* p_cb, uint8_t** p,
 
       /* Add service code to T3T message */
       UINT16_TO_STREAM((*p), cur_service_code);
+
+      /* Validate num_services */
+      if (num_services >= T3T_MSG_SERVICE_LIST_MAX) {
+        LOG(ERROR) << StringPrintf(
+            "RW T3T: num_services (%i) reaches maximum (%i)", num_services,
+            T3T_MSG_SERVICE_LIST_MAX);
+        break;
+      }
     }
   }
 
