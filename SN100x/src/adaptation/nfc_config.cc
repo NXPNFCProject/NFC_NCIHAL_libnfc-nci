@@ -49,9 +49,10 @@ using namespace ::android::base;
 #endif
 namespace {
 std::string searchConfigPath(std::string file_name) {
-  const vector<string> search_path = {"/odm/etc/", "/vendor/etc/",
-                                      "/product/etc/", "/etc/"};
-  for (string path : search_path) {
+  const std::vector<std::string> search_path = {
+      "/product/etc/", "/odm/etc/", "/vendor/etc/", "/system_ext/etc/", "/etc/",
+  };
+  for (std::string path : search_path) {
     path.append(file_name);
     struct stat file_stat;
     if (stat(path.c_str(), &file_stat) != 0) continue;
