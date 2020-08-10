@@ -746,7 +746,11 @@ bool nfa_p2p_dereg(tNFA_P2P_MSG* p_msg) {
     }
     /* if need to update WKS in LLCP Gen bytes */
     else if (local_sap <= LLCP_UPPER_BOUND_WK_SAP) {
-      nfa_p2p_enable_listening(NFA_ID_P2P, true);
+#if (NXP_EXTNS == TRUE)
+      nfa_p2p_enable_listening(NFA_ID_P2P, false);
+#else
+       nfa_p2p_enable_listening(NFA_ID_P2P, true);
+#endif
     }
   }
 
