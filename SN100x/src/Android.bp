@@ -60,6 +60,11 @@ cc_library_shared {
         "gki/common/*.cc",
         "gki/ulinux/*.cc",
     ],
+    required: [
+        // Provide a default libnfc-nci.conf in /system/etc for devices that
+        // does not ship one in /product
+        "libnfc-nci.conf-default",
+    ],
     product_variables: {
         debuggable: {
             cflags: [
