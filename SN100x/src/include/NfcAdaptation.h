@@ -70,7 +70,6 @@ struct INxpNfc;
 }
 typedef void(tNFC_JNI_FWSTATUS_CBACK)(uint8_t status);
 #endif
-class NfcDeathRecipient;
 class ThreadMutex {
  public:
   ThreadMutex();
@@ -163,7 +162,6 @@ class NfcAdaptation {
   static ThreadCondVar mHalDataCallbackEvent;
 #endif
   static ThreadCondVar mHalCloseCompletedEvent;
-  static android::sp<NfcDeathRecipient> mDeathRecipient;
 
   static uint32_t NFCA_TASK(uint32_t arg);
   static uint32_t Thread(uint32_t arg);
