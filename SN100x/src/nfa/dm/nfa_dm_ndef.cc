@@ -270,8 +270,9 @@ tNFA_DM_API_REG_NDEF_HDLR* nfa_dm_ndef_find_next_handler(
             /* If absolute URI, then compare URI for match (skip over uri_id in
              * ndef payload) */
             if ((p_cb->p_ndef_handler[i]->uri_id != NFA_NDEF_URI_ID_ABSOLUTE) ||
-                (memcmp(&p_payload[1], p_cb->p_ndef_handler[i]->name,
-                        p_cb->p_ndef_handler[i]->name_len) == 0)) {
+                ((payload_len > p_cb->p_ndef_handler[i]->name_len) &&
+                 (memcmp(&p_payload[1], p_cb->p_ndef_handler[i]->name,
+                         p_cb->p_ndef_handler[i]->name_len) == 0))) {
               /* Handler found. */
               break;
             }
@@ -284,6 +285,9 @@ tNFA_DM_API_REG_NDEF_HDLR* nfa_dm_ndef_find_next_handler(
             /* Handler is absolute URI but NDEF is using prefix abrieviation.
              * Compare URI prefix */
             if ((p_payload[0] < NFA_DM_NDEF_WKT_URI_STR_TBL_SIZE) &&
+                strlen(
+                    (const char*)nfa_dm_ndef_wkt_uri_str_tbl[p_payload[0]]) >=
+                    p_cb->p_ndef_handler[i]->name_len &&
                 (memcmp(p_cb->p_ndef_handler[i]->name,
                         (char*)nfa_dm_ndef_wkt_uri_str_tbl[p_payload[0]],
                         p_cb->p_ndef_handler[i]->name_len) == 0)) {
@@ -300,6 +304,8 @@ tNFA_DM_API_REG_NDEF_HDLR* nfa_dm_ndef_find_next_handler(
              * URI. Compare URI prefix */
             if ((p_cb->p_ndef_handler[i]->uri_id <
                  NFA_DM_NDEF_WKT_URI_STR_TBL_SIZE) &&
+                payload_len > strlen((const char*)nfa_dm_ndef_wkt_uri_str_tbl
+                                         [p_cb->p_ndef_handler[i]->uri_id]) &&
                 (memcmp(&p_payload[1],
                         nfa_dm_ndef_wkt_uri_str_tbl[p_cb->p_ndef_handler[i]
                                                         ->uri_id],
