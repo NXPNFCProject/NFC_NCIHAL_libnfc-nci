@@ -269,8 +269,6 @@
 /* Number of static lock bytes in tag   */
 #define T2T_NUM_STATIC_LOCK_BYTES 2
 
-#define T2T_CC2_TMS_MUL 0x06
-#define T2T_CC2_TMS_MULC 0x12
 /*
  **
  **  Type 3 Tag Definitions

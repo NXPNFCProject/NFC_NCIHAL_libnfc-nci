@@ -116,14 +116,6 @@ void rw_t2t_handle_rsp(uint8_t* p_data) {
   if (p_t2t->substate == RW_T2T_SUBSTATE_WAIT_READ_CC) {
     p_t2t->b_read_hdr = true;
     memcpy(p_t2t->tag_hdr, p_data, T2T_READ_DATA_LEN);
-#if (NXP_EXTNS == TRUE)
-    /* On Ultralight - C tag, if CC is corrupt, correct it */
-    if ((p_t2t->tag_hdr[0] == TAG_MIFARE_MID) &&
-        (p_t2t->tag_hdr[T2T_CC2_TMS_BYTE] >= T2T_INVALID_CC_TMS_VAL0) &&
-        (p_t2t->tag_hdr[T2T_CC2_TMS_BYTE] <= T2T_INVALID_CC_TMS_VAL1)) {
-      p_t2t->tag_hdr[T2T_CC2_TMS_BYTE] = T2T_CC2_TMS_MULC;
-    }
-#endif
   }
 
   switch (p_t2t->state) {
@@ -829,14 +821,7 @@ tNFC_STATUS rw_t2t_read_locks(void) {
   uint16_t offset;
   uint16_t block;
 
-  if ((p_t2t->tag_hdr[T2T_CC3_RWA_BYTE] != T2T_CC3_RWA_RW)
-#if (NXP_EXTNS == TRUE)
-      || ((p_t2t->tag_hdr[0] == TAG_MIFARE_MID) &&
-          (p_t2t->tag_hdr[T2T_CC2_TMS_BYTE] == T2T_CC2_TMS_MULC)) ||
-      ((p_t2t->tag_hdr[0] == TAG_MIFARE_MID) &&
-       (p_t2t->tag_hdr[T2T_CC2_TMS_BYTE] == T2T_CC2_TMS_MUL))
-#endif
-      ||
+  if ((p_t2t->tag_hdr[T2T_CC3_RWA_BYTE] != T2T_CC3_RWA_RW)||
       (p_t2t->skip_dyn_locks)) {
     /* Skip reading dynamic lock bytes if CC is set as Read only or layer above
      * instructs to skip */

@@ -264,14 +264,6 @@ typedef struct {
 #define T2T_BRCM_STATIC_MEM 0x2E01
 #define T2T_BRCM_DYNAMIC_MEM 0x2E02
 
-#if (NXP_EXTNS == TRUE)
-/* CC2 value on MiFare ULC tag */
-#define T2T_MIFARE_ULC_TMS 0x12
-/* Possible corrupt cc2 value range on MiFare ULC tags */
-#define T2T_INVALID_CC_TMS_VAL0 0x10
-#define T2T_INVALID_CC_TMS_VAL1 0x1F
-#endif
-
 #define T2T_NDEF_NOT_DETECTED 0x00
 #define T2T_NDEF_DETECTED 0x01
 #define T2T_NDEF_READ 0x02
