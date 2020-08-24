@@ -699,19 +699,15 @@ static void rw_mfc_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
       if ((p_mfc->state == RW_MFC_STATE_NOT_ACTIVATED) ||
           (p_mfc->state == RW_MFC_STATE_IDLE)) {
         if (event == NFC_ERROR_CEVT) {
-#if(NXP_EXTNS == TRUE)
-          if(p_data != NULL)
-            evt_data.status = (tNFC_STATUS)(*(uint8_t*)p_data);
-          else
-            evt_data.status = NFC_STATUS_FAILED;
-#else
           evt_data.status = (tNFC_STATUS)(*(uint8_t*)p_data);
-#endif
         } else if (p_data) {
           evt_data.status = p_data->status;
-        } else {
+        }
+#if(NXP_EXTNS != TRUE)
+        else {
           evt_data.status = NFC_STATUS_FAILED;
         }
+#endif
 
         evt_data.p_data = NULL;
         (*rw_cb.p_cback)(RW_MFC_INTF_ERROR_EVT, (tRW_DATA*)&evt_data);
