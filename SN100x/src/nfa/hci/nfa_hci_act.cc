@@ -315,13 +315,8 @@ static void nfa_hci_api_register(tNFA_HCI_EVENT_DATA* p_evt_data) {
       if (nfa_hci_cb.cfg.reg_app_names[xx][0] == 0) {
         memset(&nfa_hci_cb.cfg.reg_app_names[xx][0], 0,
                sizeof(nfa_hci_cb.cfg.reg_app_names[xx]));
-#if (NXP_EXTNS == TRUE)
         strlcpy(&nfa_hci_cb.cfg.reg_app_names[xx][0], p_app_name,
                 NFA_MAX_HCI_APP_NAME_LEN);
-#else
-        strlcpy(&nfa_hci_cb.cfg.reg_app_names[xx][0], p_app_name,
-                NFA_MAX_HCI_APP_NAME_LEN);
-#endif
         nfa_hci_cb.nv_write_needed = true;
         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
             "nfa_hci_api_register (%s)  Allocated: %u", p_app_name, xx);
@@ -1574,7 +1569,7 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
            * Check for match. */
           if (data_len >= NFA_HCI_SESSION_ID_LEN &&
               !memcmp((uint8_t*)nfa_hci_cb.cfg.admin_gate.session_id, p_data,
-                NFA_HCI_SESSION_ID_LEN)) {
+                      NFA_HCI_SESSION_ID_LEN)) {
             /* Session has not changed, Set WHITELIST */
             nfa_hciu_send_set_param_cmd(
                 NFA_HCI_ADMIN_PIPE, NFA_HCI_WHITELIST_INDEX,
@@ -1597,7 +1592,6 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
 
       case NFA_HCI_ANY_OPEN_PIPE:
         nfa_hci_cb.cfg.admin_gate.pipe01_state = NFA_HCI_PIPE_OPENED;
-
         if (nfa_hci_cb.b_hci_netwk_reset) {
 #if(NXP_EXTNS != TRUE)
           /* Something wrong, NVRAM data could be corrupt or first start with
@@ -1682,7 +1676,7 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
         if (nfa_hci_cb.param_in_use == NFA_HCI_SESSION_IDENTITY_INDEX) {
           if (data_len >= NFA_HCI_SESSION_ID_LEN &&
               !memcmp((uint8_t*)default_session, p_data,
-                NFA_HCI_SESSION_ID_LEN)) {
+                      NFA_HCI_SESSION_ID_LEN)) {
             memcpy(&nfa_hci_cb.cfg.admin_gate
                         .session_id[(NFA_HCI_SESSION_ID_LEN / 2)],
                    nfa_hci_cb.cfg.admin_gate.session_id,
@@ -2371,13 +2365,9 @@ static void nfa_hci_handle_generic_gate_evt(uint8_t* p_data, uint16_t data_len,
 
 #else
   if (nfa_hci_cb.assembly_failed)
-  {
-      evt_data.rcvd_evt.status = NFA_STATUS_OK;
-  }
+    evt_data.rcvd_evt.status = NFA_STATUS_BUFFER_FULL;
   else
-  {
-      evt_data.rcvd_evt.status = NFA_STATUS_BUFFER_FULL;
-  }
+    evt_data.rcvd_evt.status = NFA_STATUS_OK;
 #endif
 
   evt_data.rcvd_evt.p_evt_buf = p_data;

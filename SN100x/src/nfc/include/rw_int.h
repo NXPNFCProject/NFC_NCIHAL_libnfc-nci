@@ -609,7 +609,6 @@ typedef struct {
   uint16_t max_update_size; /* max updating size per a command  */
   uint16_t card_size;
   uint8_t card_type;
-
 } tRW_T4T_CB;
 
 /* RW retransmission statistics */

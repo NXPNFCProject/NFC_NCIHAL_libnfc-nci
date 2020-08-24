@@ -25,6 +25,7 @@
 #include "ndef_utils.h"
 #include <log/log.h>
 #include <string.h>
+
 /*******************************************************************************
 **
 **              Static Local Functions
@@ -195,7 +196,8 @@ tNDEF_STATUS NDEF_MsgValidate(uint8_t* p_msg, uint32_t msg_len,
           return (NDEF_MSG_INVALID_TYPE);
       }
     }
-     /* Check for OOB */
+
+    /* Check for OOB */
     if (payload_len + type_len + id_len < payload_len ||
         payload_len + type_len + id_len > msg_len) {
       return (NDEF_MSG_LENGTH_MISMATCH);
@@ -205,6 +207,7 @@ tNDEF_STATUS NDEF_MsgValidate(uint8_t* p_msg, uint32_t msg_len,
         android_errorWriteLog(0x534e4554, "126200054");
         return (NDEF_MSG_LENGTH_MISMATCH);
     }
+
     /* Point to next record */
     p_rec += (payload_len + type_len + id_len);
 

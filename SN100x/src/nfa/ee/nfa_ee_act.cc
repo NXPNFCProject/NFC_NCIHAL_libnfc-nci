@@ -47,9 +47,8 @@
 #include "nfa_api.h"
 #include "nfa_dm_int.h"
 #include "nfa_ee_int.h"
-
-#if (NXP_EXTNS == TRUE)
 #include "nfa_hci_int.h"
+#if (NXP_EXTNS == TRUE)
 #include "nfa_nfcee_int.h"
 #include "nfc_config.h"
 #include "nfa_scr_int.h"
@@ -174,7 +173,7 @@ static void nfa_ee_trace_aid(std::string p_str, uint8_t id, uint8_t aid_len,
       return;
     }
 #else
-    yy += snprintf(&buff[yy], (MAX_BUFF_SIZE - yy), "%02x ", *p);
+    yy += snprintf(&buff[yy], MAX_BUFF_SIZE - yy, "%02x ", *p);
 #endif
     p++;
   }
@@ -539,7 +538,6 @@ static void nfa_ee_add_proto_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
       } else {
         proto_tag = NFC_ROUTE_TAG_PROTO;
       }
-
       if (p_cb->nfcee_id == NFC_DH_ID &&
           nfa_ee_proto_mask_list[xx] == NFA_PROTOCOL_MASK_NFC_DEP) {
         /* add NFC-DEP routing to HOST */
@@ -815,7 +813,11 @@ int nfa_ee_find_max_aid_cfg_len(void) {
     return max_lmrt_size - NFA_EE_MAX_PROTO_TECH_EXT_ROUTE_LEN;
 #endif
   } else {
+#if (NXP_EXTNS == TRUE)
     return NFA_EE_MAX_AID_CFG_LEN - 4;
+#else
+    return NFA_EE_MAX_AID_CFG_LEN;
+#endif
   }
 }
 
@@ -965,7 +967,7 @@ tNFA_EE_ECB* nfa_ee_find_aid_offset(uint8_t aid_len, uint8_t* p_aid,
 
   p_ecb = &nfa_ee_cb.ecb[NFA_EE_CB_4_DH];
   aid_len_offset = 1; /* skip the tag */
-  for (yy = 0; yy < nfa_ee_cb.cur_ee; yy++) {
+  for (yy = 0; yy <= nfa_ee_cb.cur_ee; yy++) {
     if (p_ecb->aid_entries) {
       offset = 0;
       for (xx = 0; xx < p_ecb->aid_entries; xx++) {
@@ -1201,8 +1203,8 @@ void nfa_ee_api_register(tNFA_EE_MSG* p_data) {
     if ((nullptr != nfa_ee_cb.ecb[xx].aid_len) &&
         (nullptr != nfa_ee_cb.ecb[xx].aid_pwr_cfg) &&
         (nullptr != nfa_ee_cb.ecb[xx].aid_info) &&
-        (nullptr != nfa_ee_cb.ecb[xx].aid_rt_info) &&
 #if (NXP_EXTNS == TRUE)
+        (nullptr != nfa_ee_cb.ecb[xx].aid_rt_info) &&
         (nullptr != nfa_ee_cb.ecb[xx].aid_rt_loc) &&
 #endif
         (nullptr != nfa_ee_cb.ecb[xx].aid_cfg)) {
@@ -1625,7 +1627,6 @@ void nfa_ee_api_add_aid(tNFA_EE_MSG* p_data) {
       evt_data.status = NFA_STATUS_SEMANTIC_ERROR;
     }
   } else {
-
     /* Find the total length so far */
 #if (NXP_EXTNS == TRUE)
     len = nfa_all_ee_find_total_aid_len();
@@ -2091,7 +2092,12 @@ void nfa_ee_api_add_sys_code(tNFA_EE_MSG* p_data) {
       if (new_size > NFC_GetLmrtSize()) {
         LOG(ERROR) << StringPrintf("Exceeded LMRT size:%d", new_size);
         evt_data.status = NFA_STATUS_BUFFER_FULL;
-      } else if (p_add->power_state) {
+      }
+#if (NXP_EXTNS == TRUE)
+      else if (p_add->power_state) {
+#else
+      else {
+#endif
         /* add SC entry*/
         uint32_t p_cb_sc_len = nfa_ee_find_total_sys_code_len(p_cb, 0);
         p_cb->sys_code_pwr_cfg[p_cb->sys_code_cfg_entries] = p_add->power_state;
@@ -2673,6 +2679,7 @@ void nfa_ee_nci_disc_ntf(tNFA_EE_MSG* p_data) {
   }
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("nfa_ee_nci_disc_ntf cur_ee:%d", nfa_ee_cb.cur_ee);
+
   if (p_cb) {
     p_cb->nfcee_id = p_ee->nfcee_id;
     p_cb->ee_status = p_ee->ee_status;
@@ -3272,11 +3279,13 @@ void nfa_ee_nci_disc_req_ntf(tNFA_EE_MSG* p_data) {
                  NFC_DISCOVERY_TYPE_LISTEN_B_PRIME) {
         p_cb->lbp_protocol = p_cbk->info[xx].protocol;
       }
+#if (NXP_EXTNS == TRUE)
       if (p_cb->nfcee_id == T4TNFCEE_TARGET_HANDLE) {
         tNFA_EE_CBACK_DATA nfa_ee_cback_data = {0};
         nfa_ee_report_event(p_cb->p_ee_cback, NFA_EE_DISCOVER_REQ_EVT,
                             &nfa_ee_cback_data);
       }
+#endif
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
           "nfcee_id=0x%x ee_status=0x%x ecb_flags=0x%x la_protocol=0x%x "
           "la_protocol=0x%x la_protocol=0x%x",
@@ -3298,7 +3307,6 @@ void nfa_ee_nci_disc_req_ntf(tNFA_EE_MSG* p_data) {
 
   /* Report NFA_EE_DISCOVER_REQ_EVT for all active NFCEE */
   if (report_ntf) nfa_ee_report_discover_req_evt();
-
 }
 
 /*******************************************************************************
@@ -3665,8 +3673,9 @@ void nfa_ee_lmrt_to_nfcc(__attribute__((unused)) tNFA_EE_MSG* p_data) {
   if (last_active == NFA_EE_INVALID) {
     check = false;
   }
-
+#if (NXP_EXTNS == TRUE)
   max_len = NFC_GetLmrtSize();
+#endif
   max_tlv =
       (uint8_t)((max_len > NFA_EE_ROUT_MAX_TLV_SIZE) ? NFA_EE_ROUT_MAX_TLV_SIZE
                                                      : max_len);

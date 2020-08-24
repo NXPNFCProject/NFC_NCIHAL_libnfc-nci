@@ -450,7 +450,7 @@ void ce_t3t_handle_check_cmd(tCE_CB* p_ce_cb, NFC_HDR* p_cmd_msg) {
 
           checksum = 0;
           for (int j = 0; j < T3T_MSG_NDEF_ATTR_INFO_SIZE; j++) {
-            checksum += p_temp[i];
+            checksum += p_temp[j];
           }
           UINT16_TO_BE_STREAM(p_dst, checksum);
         } else {

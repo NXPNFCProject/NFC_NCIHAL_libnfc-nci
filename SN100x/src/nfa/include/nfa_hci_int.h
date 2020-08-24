@@ -643,6 +643,7 @@ typedef struct {
     tNFA_LINK_MGMT_GATE_INFO link_mgmt_gate;
     tNFA_ID_MGMT_GATE_INFO id_mgmt_gate;
   } cfg;
+
 } tNFA_HCI_CB;
 
 /*****************************************************************************

@@ -78,6 +78,7 @@ enum {
                                 tech.  */
   NFA_EE_CLEAR_TECH_CFG_EVT, /* The status for clearing the routing based on RF
                               tech.  */
+
   NFA_EE_SET_PROTO_CFG_EVT,   /* The status for setting the routing based on
                                  protocols */
   NFA_EE_CLEAR_PROTO_CFG_EVT, /* The status for clearing the routing based on
@@ -596,6 +597,18 @@ extern tNFA_STATUS NFA_EeAddApduPatternRouting(uint8_t apdu_data_len,uint8_t* ap
 *******************************************************************************/
 extern tNFA_STATUS NFA_EeRemoveApduPatternRouting(uint8_t apdu_len, uint8_t* p_apdu);
 #endif
+
+/*******************************************************************************
+**
+** Function         NFA_GetAidTableSize
+**
+** Description      This function is called to get the AID routing table size.
+**
+** Returns          Maximum AID routing table size.
+**
+*******************************************************************************/
+extern uint16_t NFA_GetAidTableSize();
+
 /*******************************************************************************
 **
 ** Function         NFA_EeGetLmrtRemainingSize
@@ -705,16 +718,6 @@ extern tNFA_STATUS NFA_AllEeGetInfo(uint8_t* p_num_nfcee, tNFA_EE_INFO* p_info);
 **
 *******************************************************************************/
 extern tNFA_STATUS NFA_SendPowerLinkCommand(uint8_t nfcee_id, uint8_t cfg_value);
-/*******************************************************************************
-**
-** Function         NFA_GetAidTableSize
-**
-** Description      This function is called to get the AID routing table size.
-**
-** Returns          Maximum AID routing table size.
-**
-*******************************************************************************/
-extern uint16_t NFA_GetAidTableSize();
 
 /*******************************************************************************
 **

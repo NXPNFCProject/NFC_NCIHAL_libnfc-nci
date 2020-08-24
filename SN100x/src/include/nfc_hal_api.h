@@ -45,15 +45,13 @@
 #include "data_types.h"
 #include "nfc_hal_target.h"
 #if (NXP_EXTNS == TRUE)
-
-#endif
-
 enum NfcHalFwUpdateStatus : uint8_t {
     HAL_NFC_FW_UPDATE_INVALID = 0x00,
     HAL_NFC_FW_UPDATE_START,
     HAL_NFC_FW_UPDATE_SCUCCESS,
     HAL_NFC_FW_UPDATE_FAILED,
 };
+#endif
 
 typedef uint8_t tHAL_NFC_STATUS;
 typedef void(tHAL_NFC_STATUS_CBACK)(tHAL_NFC_STATUS status);
@@ -79,8 +77,8 @@ typedef uint8_t(tHAL_API_GET_MAX_NFCEE)(void);
 #if (NXP_EXTNS == TRUE)
 typedef int(tHAL_API_IOCTL)(long arg, void* p_data);
 typedef int(tHAL_API_GET_FW_DWNLD_FLAG)(uint8_t* fwDnldRequest);
-#endif
 typedef bool(tHAL_API_SET_NXP_TRANSIT_CONFIG)(char* strval);
+#endif
 
 typedef struct {
   tHAL_API_INITIALIZE* initialize;
@@ -96,8 +94,8 @@ typedef struct {
 #if (NXP_EXTNS == TRUE)
   tHAL_API_IOCTL* ioctl;
   tHAL_API_GET_FW_DWNLD_FLAG* check_fw_dwnld_flag;
-#endif
   tHAL_API_SET_NXP_TRANSIT_CONFIG* set_transit_config;
+#endif
 
 } tHAL_NFC_ENTRY;
 

@@ -274,24 +274,23 @@ static uint8_t nfa_dm_get_rf_discover_config(
       disc_params[num_params].frequency = 1;
       num_params++;
 
-      if (num_params >= max_params) return num_params;
-    }
+    if (num_params >= max_params) return num_params;
+  }
 
-    /* Check listening B */
-    if (dm_disc_mask & NFA_DM_DISC_MASK_LB_ISO_DEP) {
-      disc_params[num_params].type = NFC_DISCOVERY_TYPE_LISTEN_B;
-      disc_params[num_params].frequency = 1;
-      num_params++;
+  /* Check listening B */
+  if (dm_disc_mask & NFA_DM_DISC_MASK_LB_ISO_DEP) {
+    disc_params[num_params].type = NFC_DISCOVERY_TYPE_LISTEN_B;
+    disc_params[num_params].frequency = 1;
+    num_params++;
 
-      if (num_params >= max_params) return num_params;
-    }
+    if (num_params >= max_params) return num_params;
+  }
 
-    /* Check listening F */
-    if (dm_disc_mask &
-        (NFA_DM_DISC_MASK_LF_T3T | NFA_DM_DISC_MASK_LF_NFC_DEP)) {
-      disc_params[num_params].type = NFC_DISCOVERY_TYPE_LISTEN_F;
-      disc_params[num_params].frequency = 1;
-      num_params++;
+  /* Check listening F */
+  if (dm_disc_mask & (NFA_DM_DISC_MASK_LF_T3T | NFA_DM_DISC_MASK_LF_NFC_DEP)) {
+    disc_params[num_params].type = NFC_DISCOVERY_TYPE_LISTEN_F;
+    disc_params[num_params].frequency = 1;
+    num_params++;
 
       if (num_params >= max_params) return num_params;
     }
@@ -1091,8 +1090,8 @@ void nfa_dm_start_rf_discover(void) {
           listen_mask |= (nfa_dm_cb.disc_cb.entry[xx].requested_disc_mask &
                           NFA_DM_DISC_MASK_LA_ISO_DEP);
           /* host can listen NFC-DEP based on protocol routing */
-          listen_mask |= (nfa_dm_cb.disc_cb.entry[xx].requested_disc_mask &
-                          NFA_DM_DISC_MASK_LA_NFC_DEP);
+           listen_mask |= (nfa_dm_cb.disc_cb.entry[xx].requested_disc_mask &
+                            NFA_DM_DISC_MASK_LA_NFC_DEP);
           if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
 #if (NXP_EXTNS == TRUE)
             listen_mask |= (nfa_dm_cb.disc_cb.entry[xx].requested_disc_mask &

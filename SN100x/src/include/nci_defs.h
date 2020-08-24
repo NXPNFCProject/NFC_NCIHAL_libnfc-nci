@@ -191,7 +191,6 @@
 #define NCI_STATUS_EE_PROTOCOL_ERR 0xC2
 #define NCI_STATUS_EE_TIMEOUT 0xC3
 
-
 /* RF Technologies */
 #define NCI_RF_TECHNOLOGY_A 0x00
 #define NCI_RF_TECHNOLOGY_B 0x01
@@ -315,6 +314,7 @@
 /****************************************************
  * NCI NFCEE INterface specific status Codes
  ****************************************************/
+#define NCI_NFCEE_STS_UNRECOVERABLE_ERROR 0x00
 #define NCI_NFCEE_STS_INTF_ACTIVATION_FAILED 0xC0
 #define NCI_NFCEE_STS_TRANSMISSION_ERROR 0xC1
 #define NCI_NFCEE_STS_PROTOCOL_ERROR 0xC2

@@ -1425,6 +1425,7 @@ static void rw_mfc_process_error() {
 
     (*rw_cb.p_cback)(rw_event, (tRW_DATA*)&ndef_data);
   } else {
+    evt_data.p_data = NULL;
     /* If activated and not Halt move to idle state */
     if (p_mfc->state != RW_MFC_STATE_NOT_ACTIVATED) {
       rw_mfc_handle_op_complete();

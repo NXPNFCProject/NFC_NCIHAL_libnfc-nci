@@ -143,7 +143,7 @@ void GKI_init(void) {
 
   gki_buffer_init();
   gki_timers_init();
-  gki_cb.com.OSTicks = (uint32_t)times(0);
+  gki_cb.com.OSTicks = (uint32_t)times(nullptr);
 
   pthread_mutexattr_init(&attr);
 
@@ -152,9 +152,9 @@ void GKI_init(void) {
 #endif
   p_os = &gki_cb.os;
   pthread_mutex_init(&p_os->GKI_mutex, &attr);
-  /* pthread_mutex_init(&GKI_sched_mutex, nullptr); */
-  /* pthread_mutex_init(&thread_delay_mutex, nullptr); */ /* used in GKI_delay */
-  /* pthread_cond_init (&thread_delay_cond, nullptr); */
+  /* pthread_mutex_init(&GKI_sched_mutex, NULL); */
+  /* pthread_mutex_init(&thread_delay_mutex, NULL); */ /* used in GKI_delay */
+  /* pthread_cond_init (&thread_delay_cond, NULL); */
 
   /* Initialiase GKI_timer_update suspend variables & mutexes to be in running
    * state.
@@ -314,6 +314,7 @@ void GKI_shutdown(void) {
   for (task_id = GKI_MAX_TASKS; task_id > 0; task_id--) {
     if (gki_cb.com.OSRdyTbl[task_id - 1] != TASK_DEAD) {
       gki_cb.com.OSRdyTbl[task_id - 1] = TASK_DEAD;
+
       /* paranoi settings, make sure that we do not execute any mailbox events
        */
       gki_cb.com.OSWaitEvt[task_id - 1] &=
@@ -391,7 +392,6 @@ void gki_system_tick_start_stop_cback(bool start) {
     pthread_mutex_lock(&p_os->gki_timer_mutex);
     pthread_cond_signal(&p_os->gki_timer_cond);
     pthread_mutex_unlock(&p_os->gki_timer_mutex);
-
   }
 }
 
@@ -469,7 +469,7 @@ void GKI_run(__attribute__((unused)) void* p_task_id) {
 
   pthread_attr_init(&timer_attr);
   pthread_attr_setdetachstate(&timer_attr, PTHREAD_CREATE_DETACHED);
-  if (pthread_create(&timer_thread_id, &timer_attr, timer_thread, nullptr) != 0) {
+  if (pthread_create(&timer_thread_id, &timer_attr, timer_thread, NULL) != 0) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
         "GKI_run: pthread_create failed to create timer_thread!");
     return GKI_FAILURE;
@@ -964,7 +964,7 @@ int8_t* GKI_get_time_stamp(int8_t* tbuf) {
   uint32_t h_time;
   int8_t* p_out = tbuf;
 
-  gki_cb.com.OSTicks = times(0);
+  gki_cb.com.OSTicks = times(nullptr);
   ms_time = GKI_TICKS_TO_MS(gki_cb.com.OSTicks);
   s_time = ms_time / 100; /* 100 Ticks per second */
   m_time = s_time / 60;

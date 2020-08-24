@@ -134,8 +134,9 @@ class NfcAdaptation {
   string HalGetProperty(string key);
   bool HalSetProperty(string key, string value);
   string propVal;
-#endif
   static bool resetEse(uint64_t level);
+#endif
+
   void Dump(int fd);
 #if (NXP_EXTNS == TRUE)
 
@@ -184,8 +185,8 @@ class NfcAdaptation {
                                  uint8_t* p_core_init_rsp_params);
   static void HalWrite(uint16_t data_len, uint8_t* p_data);
 #if (NXP_EXTNS == TRUE)
-
   static void HalWriteIntf(uint16_t data_len, uint8_t* p_data);
+  static bool HalSetTransitConfig(char * strval);
 #endif
   static bool HalPrediscover();
   static void HalControlGranted();
@@ -195,6 +196,4 @@ class NfcAdaptation {
                                           nfc_status_t event_status);
   static void HalDownloadFirmwareDataCallback(uint16_t data_len,
                                               uint8_t* p_data);
-  static bool HalSetTransitConfig(char * strval);
-
 };

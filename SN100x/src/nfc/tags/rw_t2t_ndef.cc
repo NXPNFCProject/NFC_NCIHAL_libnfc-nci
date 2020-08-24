@@ -621,14 +621,15 @@ static void rw_t2t_handle_tlv_detect_rsp(uint8_t* p_data) {
                     p_t2t->tlv_value[0] & 0x0F;
                 p_t2t->lock_tlv[p_t2t->num_lock_tlvs].bytes_locked_per_bit =
                     (uint8_t)tags_pow(2, ((p_t2t->tlv_value[2] & 0xF0) >> 4));
+                /* Note: 0 value in DLA_NbrLockBits means 256 */
                 count = p_t2t->tlv_value[1];
                 /* Set it to max value that can be stored in lockbytes */
                 if (count == 0) {
-                #if RW_T2T_MAX_LOCK_BYTES > 0x1F
+#if RW_T2T_MAX_LOCK_BYTES > 0x1F
                   count = UCHAR_MAX;
-                #else
+#else
                   count = RW_T2T_MAX_LOCK_BYTES * TAG_BITS_PER_BYTE;
-                #endif
+#endif
                 }
                 p_t2t->lock_tlv[p_t2t->num_lock_tlvs].num_bits = count;
                 count = count / TAG_BITS_PER_BYTE +
@@ -878,7 +879,6 @@ void rw_t2t_extract_default_locks_info(void) {
       num_dynamic_lock_bytes = RW_T2T_MAX_LOCK_BYTES;
       android_errorWriteLog(0x534e4554, "147310721");
     }
-
 
     p_t2t->lock_tlv[p_t2t->num_lock_tlvs].offset =
         (p_t2t->tag_hdr[T2T_CC2_TMS_BYTE] * T2T_TMS_TAG_FACTOR) +
@@ -1771,6 +1771,7 @@ static void rw_t2t_handle_config_tag_readonly(uint8_t* p_data) {
         break;
       }
       FALLTHROUGH_INTENDED;
+
     /* Coverity: [FALSE-POSITIVE error] intended fall through */
     /* Missing break statement between cases in switch statement */
     case RW_T2T_SUBSTATE_WAIT_SET_DYN_LOCK_BITS:

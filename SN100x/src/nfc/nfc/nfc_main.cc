@@ -255,6 +255,7 @@ void nfc_enabled(tNFC_STATUS nfc_status, NFC_HDR* p_init_rsp_msg) {
 
   if (nfc_status == NCI_STATUS_OK) {
     nfc_set_state(NFC_STATE_IDLE);
+
     p = (uint8_t*)(p_init_rsp_msg + 1) + p_init_rsp_msg->offset +
         NCI_MSG_HDR_SIZE + 1;
     /* we currently only support NCI of the same version.

@@ -1432,6 +1432,7 @@ static void rw_t4t_sm_detect_ndef(NFC_HDR* p_r_apdu) {
         p_t4t->sub_state = RW_T4T_SUBSTATE_WAIT_SELECT_CC;
       }
       break;
+
     case RW_T4T_SUBSTATE_WAIT_SELECT_CC:
 
       /* CC file has been selected then read mandatory part of CC file */
@@ -1441,6 +1442,7 @@ static void rw_t4t_sm_detect_ndef(NFC_HDR* p_r_apdu) {
         p_t4t->sub_state = RW_T4T_SUBSTATE_WAIT_CC_FILE;
       }
       break;
+
     case RW_T4T_SUBSTATE_WAIT_CC_FILE:
 
       /* CC file has been read then validate and select mandatory NDEF file */
@@ -1451,6 +1453,7 @@ static void rw_t4t_sm_detect_ndef(NFC_HDR* p_r_apdu) {
         BE_STREAM_TO_UINT8(p_t4t->cc_file.version, p);
         BE_STREAM_TO_UINT16(p_t4t->cc_file.max_le, p);
         BE_STREAM_TO_UINT16(p_t4t->cc_file.max_lc, p);
+
         BE_STREAM_TO_UINT8(type, p);
         BE_STREAM_TO_UINT8(length, p);
 

@@ -265,28 +265,28 @@ tNFA_HCI_DYN_GATE* nfa_hciu_alloc_gate(uint8_t gate_id,
   if (gate_id != 0) {
     pg = nfa_hciu_find_gate_by_gid(gate_id);
     if (pg != nullptr) return (pg);
-   } else {
-     /* If gate_id is 0, we need to assign a free one */
-     /* Loop through all possible gate IDs checking if they are already used */
+  } else {
+    /* If gate_id is 0, we need to assign a free one */
+    /* Loop through all possible gate IDs checking if they are already used */
     uint32_t gate_id_index;
     for (gate_id_index = NFA_HCI_FIRST_HOST_SPECIFIC_GENERIC_GATE;
          gate_id_index <= NFA_HCI_LAST_PROP_GATE; gate_id_index++) {
-       /* Skip connectivity gate */
+      /* Skip connectivity gate */
       if (gate_id_index == NFA_HCI_CONNECTIVITY_GATE) continue;
 
-       /* Check if the gate is already allocated */
+      /* Check if the gate is already allocated */
       if (nfa_hciu_find_gate_by_gid(gate_id_index) == nullptr) {
         gate_id = gate_id_index & 0xFF;
         break;
       }
-     }
+    }
     if (gate_id_index > NFA_HCI_LAST_PROP_GATE) {
-       LOG(ERROR) << StringPrintf(
-           "nfa_hci_alloc_gate - no free Gate ID: %u  App Handle: 0x%04x",
+      LOG(ERROR) << StringPrintf(
+          "nfa_hci_alloc_gate - no free Gate ID: %u  App Handle: 0x%04x",
           gate_id_index, app_handle);
-       return (nullptr);
-     }
-   }
+      return (nullptr);
+    }
+  }
 
   /* Now look for a free control block */
   for (xx = 0, pg = nfa_hci_cb.cfg.dyn_gates; xx < NFA_HCI_MAX_GATE_CB;
@@ -344,9 +344,11 @@ tNFA_STATUS nfa_hciu_send_msg(uint8_t pipe_id, uint8_t type,
   const uint8_t MAX_BUFF_SIZE = 100;
   char buff[MAX_BUFF_SIZE];
 
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-      "nfa_hciu_send_msg pipe_id:%d   %s  len:%d", pipe_id,
-      nfa_hciu_get_type_inst_names(pipe_id, type, instruction, buff,MAX_BUFF_SIZE), msg_len);
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("nfa_hciu_send_msg pipe_id:%d   %s  len:%d", pipe_id,
+                      nfa_hciu_get_type_inst_names(pipe_id, type, instruction,
+                                                   buff, MAX_BUFF_SIZE),
+                      msg_len);
 
   if (instruction == NFA_HCI_ANY_GET_PARAMETER)
     nfa_hci_cb.param_in_use = *p_msg;
@@ -1510,20 +1512,22 @@ char* nfa_hciu_get_type_inst_names(uint8_t pipe, uint8_t type, uint8_t inst,
     case NFA_HCI_COMMAND_TYPE:
       snprintf(&p_buff[xx], max_buff_size - xx, "Inst: %s [0x%02x] ",
                nfa_hciu_instr_2_str(inst).c_str(), inst);
+
       break;
     case NFA_HCI_EVENT_TYPE:
       snprintf(&p_buff[xx], max_buff_size - xx, "Evt: %s [0x%02x] ",
                nfa_hciu_evt_2_str(pipe, inst).c_str(), inst);
+
       break;
     case NFA_HCI_RESPONSE_TYPE:
       snprintf(&p_buff[xx], max_buff_size - xx, "Resp: %s [0x%02x] ",
                nfa_hciu_get_response_name(inst).c_str(), inst);
+
       break;
     default:
       snprintf(&p_buff[xx], max_buff_size - xx, "Inst: %u ", inst);
       break;
   }
-
   return p_buff;
 }
 
