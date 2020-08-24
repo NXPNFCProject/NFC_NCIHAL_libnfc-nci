@@ -242,6 +242,11 @@ static void rw_mfc_handle_format_rsp(uint8_t* p_data) {
   NFC_HDR* mfc_data;
   uint8_t* p;
 
+  if (!p_data) {
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("%s: Empty buffer. Returning!!",__func__);
+        return;
+  }
   mfc_data = (NFC_HDR*)p_data;
   /* Assume the data is just the response byte sequence */
   p = (uint8_t*)(mfc_data + 1) + mfc_data->offset;
@@ -445,6 +450,11 @@ static void rw_mfc_handle_write_rsp(uint8_t* p_data) {
   NFC_HDR* mfc_data;
   uint8_t* p;
 
+  if (!p_data) {
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("%s: Empty buffer. Returning!!",__func__);
+        return;
+  }
   mfc_data = (NFC_HDR*)p_data;
   /* Assume the data is just the response byte sequence */
   p = (uint8_t*)(mfc_data + 1) + mfc_data->offset;
@@ -951,6 +961,11 @@ static void rw_mfc_handle_tlv_detect_rsp(uint8_t* p_data) {
   NFC_HDR* mfc_data;
   uint8_t* p;
 
+  if (!p_data) {
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("%s: Empty buffer. Returning!!",__func__);
+        return;
+  }
   mfc_data = (NFC_HDR*)p_data;
   /* Assume the data is just the response byte sequence */
   p = (uint8_t*)(mfc_data + 1) + mfc_data->offset;
@@ -1286,6 +1301,11 @@ static void rw_mfc_handle_ndef_read_rsp(uint8_t* p_data) {
   NFC_HDR* mfc_data;
   uint8_t* p;
 
+  if (!p_data) {
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("%s: Empty buffer. Returning!!",__func__);
+        return;
+  }
   mfc_data = (NFC_HDR*)p_data;
   /* Assume the data is just the response byte sequence */
   p = (uint8_t*)(mfc_data + 1) + mfc_data->offset;
