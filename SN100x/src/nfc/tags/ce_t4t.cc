@@ -583,6 +583,7 @@ static void ce_t4t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
     LOG(ERROR) << StringPrintf("Invalid p_c_apdu");
     return;
   }
+
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("conn_id = 0x%02X", conn_id);
 #if (NXP_EXTNS != TRUE)
   p_cmd = (uint8_t*)(p_c_apdu + 1) + p_c_apdu->offset;

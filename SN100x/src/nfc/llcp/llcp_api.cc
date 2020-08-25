@@ -384,7 +384,7 @@ uint8_t LLCP_RegisterServer(uint8_t reg_sap, uint8_t link_type,
   uint8_t sap;
   uint16_t length;
   tLLCP_APP_CB* p_app_cb = {
-      0,
+      nullptr,
   };
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(

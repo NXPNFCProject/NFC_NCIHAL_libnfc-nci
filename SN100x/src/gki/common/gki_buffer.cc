@@ -94,7 +94,7 @@ static bool gki_alloc_free_queue(uint8_t id) {
 
   Q = &p_cb->freeq[p_cb->pool_list[id]];
 
-  if (Q->p_first == 0) {
+  if (Q->p_first == nullptr) {
     void* p_mem = GKI_os_malloc((Q->size + BUFFER_PADDING_SIZE) * Q->total);
     if (p_mem) {
       // re-initialize the queue with allocated memory
@@ -134,8 +134,8 @@ void gki_buffer_init(void) {
     p_cb->pool_end[tt] = nullptr;
     p_cb->pool_size[tt] = 0;
 
-    p_cb->freeq[tt].p_first = 0;
-    p_cb->freeq[tt].p_last = 0;
+    p_cb->freeq[tt].p_first = nullptr;
+    p_cb->freeq[tt].p_last = nullptr;
     p_cb->freeq[tt].size = 0;
     p_cb->freeq[tt].total = 0;
     p_cb->freeq[tt].cur_cnt = 0;
@@ -283,13 +283,13 @@ void* GKI_getbuf(uint16_t size) {
 
     Q = &p_cb->freeq[p_cb->pool_list[i]];
     if (Q->cur_cnt < Q->total) {
-      if (Q->p_first == 0 && gki_alloc_free_queue(i) != true) {
+      if (Q->p_first == nullptr && gki_alloc_free_queue(i) != true) {
         LOG(ERROR) << StringPrintf("out of buffer");
         GKI_enable();
         return nullptr;
       }
 
-      if (Q->p_first == 0) {
+      if (Q->p_first == nullptr) {
         /* gki_alloc_free_queue() failed to alloc memory */
         LOG(ERROR) << StringPrintf("fail alloc free queue");
         GKI_enable();
@@ -310,7 +310,6 @@ void* GKI_getbuf(uint16_t size) {
       p_hdr->status = BUF_STATUS_UNLINKED;
       p_hdr->p_next = nullptr;
       p_hdr->Type = 0;
-
       return ((void*)((uint8_t*)p_hdr + BUFFER_HDR_SIZE));
     }
   }
@@ -350,9 +349,9 @@ void* GKI_getpoolbuf(uint8_t pool_id) {
 
   Q = &p_cb->freeq[pool_id];
   if (Q->cur_cnt < Q->total) {
-    if (Q->p_first == 0 && gki_alloc_free_queue(pool_id) != true) return nullptr;
+    if (Q->p_first == nullptr && gki_alloc_free_queue(pool_id) != true) return nullptr;
 
-    if (Q->p_first == 0) {
+    if (Q->p_first == nullptr) {
       /* gki_alloc_free_queue() failed to alloc memory */
       LOG(ERROR) << StringPrintf("fail alloc free queue");
       return nullptr;

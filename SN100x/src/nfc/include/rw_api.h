@@ -143,6 +143,7 @@ enum {
   RW_I93_RAW_FRAME_EVT,        /* Response of raw frame sent         */
   RW_I93_INTF_ERROR_EVT,       /* RF Interface error event           */
   RW_I93_MAX_EVT,
+
   /* Mifare Classic tag events for tRW_CBACK */
   RW_MFC_NDEF_DETECT_EVT =
       RW_MFC_FIRST_EVT,      /* Result of NDEF detection procedure       */
@@ -1375,7 +1376,6 @@ extern tNFC_STATUS RW_SendRawFrame(uint8_t* p_raw_data, uint16_t data_len);
 *******************************************************************************/
 extern tNFC_STATUS RW_SetActivatedTagType(tNFC_ACTIVATE_DEVT* p_activate_params,
                                           tRW_CBACK* p_cback);
-
 /*******************************************************************************
 **
 ** Function         RW_MfcDetectNDef

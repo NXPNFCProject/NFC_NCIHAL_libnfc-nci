@@ -1157,7 +1157,7 @@ static void llcp_link_proc_agf_pdu(NFC_HDR* p_agf) {
   agf_length = p_agf->len;
   p = (uint8_t*)(p_agf + 1) + p_agf->offset;
 
-  while (agf_length >= LLCP_PDU_HEADER_SIZE) {
+  while (agf_length >= (LLCP_PDU_HEADER_SIZE + LLCP_PDU_AGF_LEN_SIZE)) {
     /* get length of PDU */
     p_pdu_length = p;
     BE_STREAM_TO_UINT16(pdu_length, p);
@@ -1605,9 +1605,7 @@ static NFC_HDR* llcp_link_build_next_pdu(NFC_HDR* p_pdu) {
 **
 *******************************************************************************/
 static void llcp_link_send_to_lower(NFC_HDR* p_pdu) {
-
   llcp_cb.lcb.symm_state = LLCP_LINK_SYMM_REMOTE_XMIT_NEXT;
-
   NFC_SendData(NFC_RF_CONN_ID, p_pdu);
 }
 

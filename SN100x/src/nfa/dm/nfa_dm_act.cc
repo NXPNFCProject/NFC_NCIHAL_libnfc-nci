@@ -176,7 +176,8 @@ static void nfa_dm_set_init_nci_params(void) {
 
     /* LF_T3T_PMM value is added to LF_T3T_IDENTIFIERS_X in NCI2.0. */
     for (xx = 0; xx < NFA_CE_LISTEN_INFO_MAX; xx++) {
-      for (uint8_t yy = 10; yy < NCI_PARAM_LEN_LF_T3T_ID(NFC_GetNCIVersion()); yy++)
+      for (uint8_t yy = 10; yy < NCI_PARAM_LEN_LF_T3T_ID(NFC_GetNCIVersion());
+           yy++)
         nfa_dm_cb.params.lf_t3t_id[xx][yy] = 0xFF;
     }
   } else {
@@ -367,9 +368,9 @@ static void nfa_dm_nfc_response_cback(tNFC_RESPONSE_EVT event,
     case NFC_NFCEE_INFO_REVT:     /* NFCEE Discover Notification */
     case NFC_EE_ACTION_REVT:      /* EE Action notification */
     case NFC_NFCEE_MODE_SET_REVT: /* NFCEE Mode Set response */
+    case NFC_NFCEE_STATUS_REVT:   /* NFCEE Status notification*/
 #if (NXP_EXTNS == TRUE)
     case NFC_NFCEE_PL_CONTROL_REVT:
-    case NFC_NFCEE_STATUS_REVT:
 #endif
     case NFC_SET_ROUTING_REVT:    /* Configure Routing response */
       nfa_ee_proc_evt(event, p_data);
@@ -471,6 +472,7 @@ static void nfa_dm_nfc_response_cback(tNFC_RESPONSE_EVT event,
       conn_evt.status = p_data->status;
       nfa_dm_conn_cback_event_notify(NFA_UPDATE_RF_PARAM_RESULT_EVT, &conn_evt);
       break;
+
 #if (NXP_EXTNS == TRUE)
     case NFC_WLC_FEATURE_SUPPORTED_REVT:
     case NFC_RF_INTF_EXT_START_REVT:
@@ -479,6 +481,7 @@ static void nfa_dm_nfc_response_cback(tNFC_RESPONSE_EVT event,
         (*nfa_dm_cb.p_wlc_cback)(event, p_data->status);
       break;
 #endif
+
     default:
       break;
   }

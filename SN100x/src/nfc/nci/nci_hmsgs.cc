@@ -130,7 +130,7 @@ uint8_t nci_snd_core_get_config(uint8_t* param_ids, uint8_t num_ids) {
   uint8_t propConfigCnt;
 #endif
   p = NCI_GET_CMD_BUF(num_ids);
-  if (p == NULL) return (NCI_STATUS_FAILED);
+  if (p == nullptr) return (NCI_STATUS_FAILED);
 #if (NXP_EXTNS == TRUE)
   uint32_t idx = 0;
   uint8_t* params = param_ids;

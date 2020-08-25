@@ -682,6 +682,7 @@ tNFA_STATUS NFA_EeAddAidRouting(tNFA_HANDLE ee_handle, uint8_t aid_len,
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("handle:<0x%x>", ee_handle);
   p_cb = nfa_ee_find_ecb(nfcee_id);
+
   /* validate parameters - make sure the AID is in valid length range */
   if ((p_cb == nullptr) ||
       ((NFA_GetNCIVersion() == NCI_VERSION_2_0) && (aid_len != 0) &&
@@ -689,10 +690,14 @@ tNFA_STATUS NFA_EeAddAidRouting(tNFA_HANDLE ee_handle, uint8_t aid_len,
       ((NFA_GetNCIVersion() != NCI_VERSION_2_0) &&
        ((aid_len == 0) || (p_aid == nullptr) || (aid_len < NFA_MIN_AID_LEN))) ||
       (aid_len > NFA_MAX_AID_LEN)) {
+    LOG(ERROR) << StringPrintf("Bad ee_handle or AID (len=%d)", aid_len);
     status = NFA_STATUS_INVALID_PARAM;
   } else {
     p_msg = (tNFA_EE_API_ADD_AID*)GKI_getbuf(size);
     if (p_msg != nullptr) {
+      if (p_aid != nullptr)
+        DLOG_IF(INFO, nfc_debug_enabled)
+            << StringPrintf("aid:<%02x%02x>", p_aid[0], p_aid[1]);
       p_msg->hdr.event = NFA_EE_API_ADD_AID_EVT;
       p_msg->nfcee_id = nfcee_id;
       p_msg->p_cb = p_cb;
@@ -967,6 +972,18 @@ tNFA_STATUS NFA_EeRemoveSystemCodeRouting(uint16_t systemcode) {
 
 /*******************************************************************************
 **
+** Function         NFA_GetAidTableSize
+**
+** Description      This function is called to get the Maximum AID routing table
+*size.
+**
+** Returns          AID routing table maximum size
+**
+*******************************************************************************/
+uint16_t NFA_GetAidTableSize() { return nfa_ee_find_max_aid_cfg_len(); }
+
+/*******************************************************************************
+**
 ** Function         NFA_EeGetLmrtRemainingSize
 **
 ** Description      This function is called to get remaining size of the
@@ -1166,18 +1183,6 @@ tNFA_STATUS NFA_EeDisconnect(tNFA_HANDLE ee_handle) {
   return status;
 }
 #if (NXP_EXTNS == TRUE)
-/*******************************************************************************
-**
-** Function         NFA_GetAidTableSize
-**
-** Description      This function is called to get the Maximum AID routing table
-**                  size.
-**
-** Returns          AID routing table maximum size
-**
-*******************************************************************************/
-uint16_t NFA_GetAidTableSize() { return nfa_ee_find_max_aid_cfg_len(); }
-
 /*******************************************************************************
 **
 ** Function         NFA_GetRemainingAidTableSize

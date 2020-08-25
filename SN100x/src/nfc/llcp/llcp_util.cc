@@ -22,11 +22,11 @@
  *
  ******************************************************************************/
 
-#include <log/log.h>
 #include <string.h>
 
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
+#include <log/log.h>
 
 #include "bt_types.h"
 #include "gki.h"
@@ -55,7 +55,7 @@ bool llcp_util_parse_link_params(uint16_t length, uint8_t* p_bytes) {
     BE_STREAM_TO_UINT8(param_len, p);
     if (length < param_len + 2) {
       android_errorWriteLog(0x534e4554, "114238578");
-      LOG(ERROR) << StringPrintf("Bad LTV's");
+      LOG(ERROR) << StringPrintf("Bad TLV's");
       return false;
     }
     length -= param_len + 2;
@@ -64,7 +64,7 @@ bool llcp_util_parse_link_params(uint16_t length, uint8_t* p_bytes) {
       case LLCP_VERSION_TYPE:
         if (param_len != LLCP_VERSION_LEN) {
           android_errorWriteLog(0x534e4554, "114238578");
-          LOG(ERROR) << StringPrintf("Bad LTV's");
+          LOG(ERROR) << StringPrintf("Bad TLV's");
           return false;
         }
         BE_STREAM_TO_UINT8(llcp_cb.lcb.peer_version, p);
@@ -75,7 +75,7 @@ bool llcp_util_parse_link_params(uint16_t length, uint8_t* p_bytes) {
       case LLCP_MIUX_TYPE:
         if (param_len != LLCP_MIUX_LEN) {
           android_errorWriteLog(0x534e4554, "114238578");
-          LOG(ERROR) << StringPrintf("Bad LTV's");
+          LOG(ERROR) << StringPrintf("Bad TLV's");
           return false;
         }
         BE_STREAM_TO_UINT16(llcp_cb.lcb.peer_miu, p);
@@ -88,7 +88,7 @@ bool llcp_util_parse_link_params(uint16_t length, uint8_t* p_bytes) {
       case LLCP_WKS_TYPE:
         if (param_len != LLCP_WKS_LEN) {
           android_errorWriteLog(0x534e4554, "114238578");
-          LOG(ERROR) << StringPrintf("Bad LTV's");
+          LOG(ERROR) << StringPrintf("Bad TLV's");
           return false;
         }
         BE_STREAM_TO_UINT16(llcp_cb.lcb.peer_wks, p);
@@ -99,7 +99,7 @@ bool llcp_util_parse_link_params(uint16_t length, uint8_t* p_bytes) {
       case LLCP_LTO_TYPE:
         if (param_len != LLCP_LTO_LEN) {
           android_errorWriteLog(0x534e4554, "114238578");
-          LOG(ERROR) << StringPrintf("Bad LTV's");
+          LOG(ERROR) << StringPrintf("Bad TLV's");
           return false;
         }
         BE_STREAM_TO_UINT8(llcp_cb.lcb.peer_lto, p);
@@ -111,7 +111,7 @@ bool llcp_util_parse_link_params(uint16_t length, uint8_t* p_bytes) {
       case LLCP_OPT_TYPE:
         if (param_len != LLCP_OPT_LEN) {
           android_errorWriteLog(0x534e4554, "114238578");
-          LOG(ERROR) << StringPrintf("Bad LTV's");
+          LOG(ERROR) << StringPrintf("Bad TLV's");
           return false;
         }
         BE_STREAM_TO_UINT8(llcp_cb.lcb.peer_opt, p);
@@ -500,7 +500,7 @@ tLLCP_STATUS llcp_util_parse_connect(uint8_t* p_bytes, uint16_t length,
     /* check remaining lengh */
     if (length < param_len + 2) {
       android_errorWriteLog(0x534e4554, "111660010");
-      LOG(ERROR) << StringPrintf("Bad LTV's");
+      LOG(ERROR) << StringPrintf("Bad TLV's");
       return LLCP_STATUS_FAIL;
     }
     length -= param_len + 2;
@@ -509,7 +509,7 @@ tLLCP_STATUS llcp_util_parse_connect(uint8_t* p_bytes, uint16_t length,
       case LLCP_MIUX_TYPE:
         if (param_len != LLCP_MIUX_LEN) {
           android_errorWriteLog(0x534e4554, "111660010");
-          LOG(ERROR) << StringPrintf("Bad LTV's");
+          LOG(ERROR) << StringPrintf("Bad TLV's");
           return LLCP_STATUS_FAIL;
         }
         BE_STREAM_TO_UINT16(p_params->miu, p);
@@ -523,7 +523,7 @@ tLLCP_STATUS llcp_util_parse_connect(uint8_t* p_bytes, uint16_t length,
       case LLCP_RW_TYPE:
         if (param_len != LLCP_RW_LEN) {
           android_errorWriteLog(0x534e4554, "111660010");
-          LOG(ERROR) << StringPrintf("Bad LTV's");
+          LOG(ERROR) << StringPrintf("Bad TLV's");
           return LLCP_STATUS_FAIL;
         }
         BE_STREAM_TO_UINT8(p_params->rw, p);
@@ -637,7 +637,7 @@ tLLCP_STATUS llcp_util_parse_cc(uint8_t* p_bytes, uint16_t length,
     BE_STREAM_TO_UINT8(param_len, p);
     if (length < param_len + 2) {
       android_errorWriteLog(0x534e4554, "114237888");
-      LOG(ERROR) << StringPrintf("Bad LTV's");
+      LOG(ERROR) << StringPrintf("Bad TLV's");
       return LLCP_STATUS_FAIL;
     }
     length -= param_len + 2;
@@ -646,7 +646,7 @@ tLLCP_STATUS llcp_util_parse_cc(uint8_t* p_bytes, uint16_t length,
       case LLCP_MIUX_TYPE:
         if (param_len != LLCP_MIUX_LEN) {
           android_errorWriteLog(0x534e4554, "114237888");
-          LOG(ERROR) << StringPrintf("Bad LTV's");
+          LOG(ERROR) << StringPrintf("Bad TLV's");
           return LLCP_STATUS_FAIL;
         }
         BE_STREAM_TO_UINT16((*p_miu), p);
@@ -660,7 +660,7 @@ tLLCP_STATUS llcp_util_parse_cc(uint8_t* p_bytes, uint16_t length,
       case LLCP_RW_TYPE:
         if (param_len != LLCP_RW_LEN) {
           android_errorWriteLog(0x534e4554, "114237888");
-          LOG(ERROR) << StringPrintf("Bad LTV's");
+          LOG(ERROR) << StringPrintf("Bad TLV's");
           return LLCP_STATUS_FAIL;
         }
         BE_STREAM_TO_UINT8((*p_rw), p);

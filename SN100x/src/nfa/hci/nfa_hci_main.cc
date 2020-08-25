@@ -818,6 +818,8 @@ void nfa_hci_dh_startup_complete(void) {
 void nfa_hci_startup_complete(tNFA_STATUS status) {
   tNFA_HCI_EVT_DATA evt_data;
 
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Status: %u", status);
+
   nfa_sys_stop_timer(&nfa_hci_cb.timer);
 
   if ((nfa_hci_cb.hci_state == NFA_HCI_STATE_RESTORE) ||
@@ -1156,7 +1158,6 @@ static void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   uint16_t pkt_len;
   const uint8_t MAX_BUFF_SIZE = 100;
   char buff[MAX_BUFF_SIZE];
-
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "%s State: %u  Cmd: %u", __func__, nfa_hci_cb.hci_state, event);
 #if(NXP_EXTNS == TRUE)
@@ -1844,6 +1845,7 @@ static bool nfa_hci_evt_hdlr(NFC_HDR* p_msg) {
     nfa_nv_co_write((uint8_t*)&nfa_hci_cb.cfg, sizeof(nfa_hci_cb.cfg),
                     DH_NV_BLOCK);
   }
+
   return false;
 }
 

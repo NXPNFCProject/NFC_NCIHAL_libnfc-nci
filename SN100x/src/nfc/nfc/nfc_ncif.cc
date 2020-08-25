@@ -123,6 +123,7 @@ void nfc_ncif_update_window(void) {
 
   nfc_cb.p_vsc_cback = nullptr;
   nfc_cb.nci_cmd_window++;
+
   /* Check if there were any commands waiting to be sent */
   nfc_ncif_check_cmd_queue(nullptr);
 }
@@ -259,7 +260,9 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
     pp = (uint8_t*)(p + 1) + p->offset;
     /* build NCI Data packet header */
     NCI_DATA_PBLD_HDR(pp, pbf, hdr0, ulen);
+
     if (p_cb->num_buff != NFC_CONN_NO_FC) p_cb->num_buff--;
+
     /* send to HAL */
     HAL_WRITE(p);
   nfcsnoop_capture(p, false);
@@ -607,7 +610,6 @@ void nfc_ncif_set_config_status(uint8_t* p, uint8_t len) {
         evt_data.set_config.num_param_id = 0;
       }
     }
-
     (*nfc_cb.p_resp_cback)(NFC_SET_CONFIG_REVT, &evt_data);
   }
 }
@@ -1138,6 +1140,7 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
     if (p_pa_nfc->atr_res_len > 0) {
       if (p_pa_nfc->atr_res_len > NFC_MAX_ATS_LEN)
         p_pa_nfc->atr_res_len = NFC_MAX_ATS_LEN;
+
       if ((NFC_GetNCIVersion() == NCI_VERSION_2_0) &&
           ((mode == NCI_DISCOVERY_TYPE_POLL_ACTIVE) ||
            (mode == NCI_DISCOVERY_TYPE_LISTEN_ACTIVE))) {
@@ -1239,9 +1242,11 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
 **
 *******************************************************************************/
 void nfc_ncif_proc_deactivate(uint8_t status, uint8_t deact_type, bool is_ntf) {
+#if (NXP_EXTNS == TRUE)
   /*If Hal close is running in nfc HAL, return.
   Else it will cause abnormal nfc_state update*/
   if (nfc_cb.nfc_state == NFC_STATE_W4_HAL_CLOSE) return;
+#endif
   tNFC_DISCOVER evt_data;
   tNFC_CONN_CB* p_cb = &nfc_cb.conn_cb[NFC_RF_CONN_ID];
   void* p_data;
@@ -1654,8 +1659,8 @@ void nfc_ncif_proc_init_rsp(NFC_HDR* p_msg) {
       nfc_set_state(NFC_STATE_W4_POST_INIT_CPLT);
 
       nfc_cb.p_nci_init_rsp = p_msg;
-      check_nfcee_session_and_reset();
 #if(NXP_EXTNS == TRUE)
+      check_nfcee_session_and_reset();
       if (NfcAdaptation::GetInstance().NFA_GetBootMode() == NFC_FAST_BOOT_MODE) {
           nfc_set_state(NFC_STATE_IDLE);
           nfa_sys_cback_notify_MinEnable_complete(0);
@@ -1920,7 +1925,9 @@ void nfc_ncif_proc_data(NFC_HDR* p_msg) {
 *******************************************************************************/
 bool nfc_ncif_proc_proprietary_rsp(uint8_t mt, uint8_t gid, uint8_t oid) {
   bool stat = FALSE;
+#if (NXP_EXTNS == TRUE)
   bool isRstRsp = FALSE;
+#endif
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("%s: mt=%u, gid=%u, oid=%u", __func__, mt, gid, oid);
 
