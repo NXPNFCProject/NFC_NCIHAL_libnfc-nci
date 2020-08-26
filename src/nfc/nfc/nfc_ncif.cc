@@ -1138,6 +1138,9 @@ void nfc_ncif_resume_dwp_wired_mode() {
   } else {
     nfc_cb.bBlockWiredMode = false;
     nfc_cb.bCeActivatedeSE = false;
+    /*Reset modeSet flags to unblock the next send request*/
+    nfc_cb.bSetmodeOnReq = false;
+    nfc_cb.flags &= ~NFC_FL_WAIT_MODE_SET_NTF;
     nfc_ncif_allow_dwp_transmission();
   }
 }
