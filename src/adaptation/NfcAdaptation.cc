@@ -47,6 +47,7 @@
 #include <hidl/LegacySupport.h>
 #include <hwbinder/ProcessState.h>
 #include <vector>
+#include <cstdlib>
 #include "debug_nfcsnoop.h"
 #include "nfa_api.h"
 #include "nfa_rw_api.h"
@@ -1674,3 +1675,26 @@ uint32_t NfcAdaptation::HalNciTransceive(phNxpNci_Extn_Cmd_t* NciCmd,phNxpNci_Ex
   return status;
 
 }
+#if (NXP_EXTNS == TRUE)
+/***************************************************************************
+**
+** Function         getVendorNumConfig
+**
+** Description      Reads integer vendor confg value
+**
+** Returns          int value.
+**
+***************************************************************************/
+int NfcAdaptation::getVendorNumConfig(const char* configName) {
+  std::string key = configName, value;
+  if (mHalNxpNfc != NULL) /*using lambda expression for hidl callback function*/
+    mHalNxpNfc->getVendorParam(configName,
+                               [&value](std::string res) { value = res; });
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+      "%s : configName:%s -- value:%s", __func__, configName, value.c_str());
+  if (value.empty())
+    return 0;
+  else
+    return std::atoi(value.c_str());
+}
+#endif

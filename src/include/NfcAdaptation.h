@@ -271,4 +271,7 @@ class NfcAdaptation {
   static void HalDownloadFirmwareDataCallback(uint16_t data_len,
                                               uint8_t* p_data);
   static bool HalSetTransitConfig(char * strval);
+#if (NXP_EXTNS == TRUE)
+  static int getVendorNumConfig(const char* configName);
+#endif
 };
