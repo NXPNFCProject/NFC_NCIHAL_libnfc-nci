@@ -368,6 +368,10 @@ void NfcAdaptation::GetNxpConfigs(
                     ConfigValue(mNxpAdaptationConfig.wTagSupport));
   configMap.emplace(NAME_DEFAULT_T4TNFCEE_AID_POWER_STATE,
                     ConfigValue(mNxpAdaptationConfig.t4tNfceePwrState));
+#if (NXP_EXTNS == TRUE)
+  configMap.emplace(NAME_FORCE_ONLY_UICC_LISTEN_TECH,
+                    getVendorNumConfig(NAME_FORCE_ONLY_UICC_LISTEN_TECH));
+#endif
   if (mNxpAdaptationConfig.scrResetEmvco.len) {
     std::vector scrResetEmvcoCmd(
         mNxpAdaptationConfig.scrResetEmvco.cmd,
