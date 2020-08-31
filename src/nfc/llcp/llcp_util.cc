@@ -74,7 +74,7 @@ bool llcp_util_parse_link_params(uint16_t length, uint8_t* p_bytes) {
     BE_STREAM_TO_UINT8(param_len, p);
     if (length < param_len + 2) {
       android_errorWriteLog(0x534e4554, "114238578");
-      LOG(ERROR) << StringPrintf("Bad LTV's");
+      LOG(ERROR) << StringPrintf("Bad TLV's");
       return false;
     }
     length -= param_len + 2;

@@ -1231,7 +1231,7 @@ void nfa_dm_start_rf_discover(void) {
                           NFA_DM_DISC_MASK_LA_ISO_DEP);
           /* host can listen NFC-DEP based on protocol routing */
           listen_mask |= (nfa_dm_cb.disc_cb.entry[xx].requested_disc_mask &
-                            NFA_DM_DISC_MASK_LA_NFC_DEP);
+                          NFA_DM_DISC_MASK_LA_NFC_DEP);
           if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
             listen_mask |= (nfa_dm_cb.disc_cb.entry[xx].requested_disc_mask &
                             NFA_DM_DISC_MASK_LACM_NFC_DEP);

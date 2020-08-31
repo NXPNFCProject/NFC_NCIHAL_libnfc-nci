@@ -146,9 +146,9 @@ void GKI_init(void) {
 #endif
   p_os = &gki_cb.os;
   pthread_mutex_init(&p_os->GKI_mutex, &attr);
-  /* pthread_mutex_init(&GKI_sched_mutex, nullptr); */
-  /* pthread_mutex_init(&thread_delay_mutex, nullptr); */ /* used in GKI_delay */
-  /* pthread_cond_init (&thread_delay_cond, nullptr); */
+  /* pthread_mutex_init(&GKI_sched_mutex, NULL); */
+  /* pthread_mutex_init(&thread_delay_mutex, NULL); */ /* used in GKI_delay */
+  /* pthread_cond_init (&thread_delay_cond, NULL); */
 
   /* Initialiase GKI_timer_update suspend variables & mutexes to be in running
    * state.
@@ -476,11 +476,11 @@ void GKI_run(__attribute__((unused)) void* p_task_id) {
   pthread_attr_setdetachstate(&timer_attr, PTHREAD_CREATE_DETACHED);
 #if (NXP_EXTNS == TRUE)
   int ret = 0;
-  ret = pthread_create(&timer_thread_id, &timer_attr, timer_thread, nullptr);sdadsa
+  ret = pthread_create(&timer_thread_id, &timer_attr, timer_thread, NULL);
   pthread_attr_destroy(&timer_attr);
   if (ret != 0)
 #else
-  if (pthread_create(&timer_thread_id, &timer_attr, timer_thread, nullptr) != 0)
+  if (pthread_create(&timer_thread_id, &timer_attr, timer_thread, NULL) != 0)
 #endif
   {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(

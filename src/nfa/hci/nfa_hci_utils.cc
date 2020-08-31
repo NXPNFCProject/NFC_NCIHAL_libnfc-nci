@@ -338,9 +338,11 @@ tNFA_STATUS nfa_hciu_send_msg(uint8_t pipe_id, uint8_t type,
   }
   const uint8_t MAX_BUFF_SIZE = 100;
   char buff[MAX_BUFF_SIZE];
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-      "nfa_hciu_send_msg pipe_id:%d   %s  len:%d", pipe_id,
-      nfa_hciu_get_type_inst_names(pipe_id, type, instruction, buff, MAX_BUFF_SIZE), msg_len);
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("nfa_hciu_send_msg pipe_id:%d   %s  len:%d", pipe_id,
+                      nfa_hciu_get_type_inst_names(pipe_id, type, instruction,
+                                                   buff, MAX_BUFF_SIZE),
+                      msg_len);
 
   if (instruction == NFA_HCI_ANY_GET_PARAMETER)
     nfa_hci_cb.param_in_use = *p_msg;

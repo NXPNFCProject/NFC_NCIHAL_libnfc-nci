@@ -181,7 +181,8 @@ static void nfa_dm_set_init_nci_params(void) {
 
     /* LF_T3T_PMM value is added to LF_T3T_IDENTIFIERS_X in NCI2.0. */
     for (xx = 0; xx < NFA_CE_LISTEN_INFO_MAX; xx++) {
-      for (uint8_t yy = 10; yy < NCI_PARAM_LEN_LF_T3T_ID(NFC_GetNCIVersion()); yy++)
+      for (uint8_t yy = 10; yy < NCI_PARAM_LEN_LF_T3T_ID(NFC_GetNCIVersion());
+           yy++)
         nfa_dm_cb.params.lf_t3t_id[xx][yy] = 0xFF;
     }
   } else {

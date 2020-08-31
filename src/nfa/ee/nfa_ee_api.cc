@@ -699,25 +699,28 @@ tNFA_STATUS NFA_EeAddAidRouting(tNFA_HANDLE ee_handle, uint8_t aid_len,
   if ((p_cb == nullptr) || (aid_len == 0) || (p_aid == nullptr) ||
       (aid_len < NFA_MIN_AID_LEN) || (aid_len > NFA_MAX_AID_LEN)) {
 #endif
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Bad ee_handle or AID (len=%d)", aid_len);
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("Bad ee_handle or AID (len=%d)", aid_len);
     status = NFA_STATUS_INVALID_PARAM;
   } else {
     p_msg = (tNFA_EE_API_ADD_AID*)GKI_getbuf(size);
     if (p_msg != nullptr) {
 #if (NXP_EXTNS == TRUE)
         if(p_aid != nullptr) {
-             DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("aid:<%02x%02x>", p_aid[0], p_aid[1]);
+          DLOG_IF(INFO, nfc_debug_enabled)
+              << StringPrintf("aid:<%02x%02x>", p_aid[0], p_aid[1]);
         }
 #else
-       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("aid:<%02x%02x>", p_aid[0], p_aid[1]);
+      DLOG_IF(INFO, nfc_debug_enabled)
+          << StringPrintf("aid:<%02x%02x>", p_aid[0], p_aid[1]);
 #endif
-      p_msg->hdr.event = NFA_EE_API_ADD_AID_EVT;
-      p_msg->nfcee_id = nfcee_id;
-      p_msg->p_cb = p_cb;
-      p_msg->aid_len = aid_len;
-      p_msg->power_state = power_state;
-      p_msg->p_aid = (uint8_t*)(p_msg + 1);
-      p_msg->aidInfo = aidInfo;
+        p_msg->hdr.event = NFA_EE_API_ADD_AID_EVT;
+        p_msg->nfcee_id = nfcee_id;
+        p_msg->p_cb = p_cb;
+        p_msg->aid_len = aid_len;
+        p_msg->power_state = power_state;
+        p_msg->p_aid = (uint8_t*)(p_msg + 1);
+        p_msg->aidInfo = aidInfo;
 #if (NXP_EXTNS == TRUE)
       if(p_aid != nullptr)
 #endif

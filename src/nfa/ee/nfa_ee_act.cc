@@ -50,9 +50,9 @@
 #include "nfa_dm_int.h"
 #include "nfa_ee_int.h"
 #include "nci_hmsgs.h"
+#if (NXP_EXTNS == TRUE)
 #include "nfa_hci_int.h"
 #include <nfc_config.h>
-#if (NXP_EXTNS == TRUE)
 #include "nfa_scr_int.h"
 #endif
 #include <statslog.h>
@@ -1253,8 +1253,10 @@ void nfa_ee_api_register(tNFA_EE_MSG* p_data) {
           nfa_ee_cb.ecb[xx].aid_cfg = (uint8_t*) GKI_getbuf(max_aid_config_length);
           if ((nullptr != nfa_ee_cb.ecb[xx].aid_len) &&
                   (nullptr != nfa_ee_cb.ecb[xx].aid_pwr_cfg) &&
+#if (NXP_EXTNS == TRUE)
                   (nullptr != nfa_ee_cb.ecb[xx].aid_rt_info) &&
                   (nullptr != nfa_ee_cb.ecb[xx].aid_rt_loc) &&
+#endif
                   (nullptr != nfa_ee_cb.ecb[xx].aid_info) &&
                   (nullptr != nfa_ee_cb.ecb[xx].aid_cfg)) {
               memset(nfa_ee_cb.ecb[xx].aid_len, 0, max_aid_entries);
@@ -2209,7 +2211,12 @@ void nfa_ee_api_add_sys_code(tNFA_EE_MSG* p_data) {
       if (new_size > NFC_GetLmrtSize()) {
         LOG(ERROR) << StringPrintf("Exceeded LMRT size:%d", new_size);
         evt_data.status = NFA_STATUS_BUFFER_FULL;
-      } else if (p_add->power_state) {
+      }
+#if (NXP_EXTNS == TRUE)
+      else if (p_add->power_state) {
+#else
+      else {
+#endif
         /* add SC entry*/
         uint32_t p_cb_sc_len = nfa_ee_find_total_sys_code_len(p_cb, 0);
         p_cb->sys_code_pwr_cfg[p_cb->sys_code_cfg_entries] = p_add->power_state;
@@ -3856,9 +3863,8 @@ void nfa_ee_lmrt_to_nfcc(__attribute__((unused)) tNFA_EE_MSG* p_data) {
   if(nfcFL.chipType != pn547C2) {
       find_and_resolve_tech_conflict();
   }
-#endif
-
   max_len = NFC_GetLmrtSize();
+#endif
   max_tlv =
       (uint8_t)((max_len > NFA_EE_ROUT_MAX_TLV_SIZE) ? NFA_EE_ROUT_MAX_TLV_SIZE
                                                      : max_len);

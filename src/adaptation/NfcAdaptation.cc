@@ -44,7 +44,9 @@
 #include <base/command_line.h>
 #include <base/logging.h>
 #include <cutils/properties.h>
+#if (NXP_EXTNS == TRUE)
 #include <hidl/LegacySupport.h>
+#endif
 #include <hwbinder/ProcessState.h>
 #include <vector>
 #include <cstdlib>
@@ -72,12 +74,14 @@ using NfcVendorConfigV1_1 = android::hardware::nfc::V1_1::NfcConfig;
 using NfcVendorConfigV1_2 = android::hardware::nfc::V1_2::NfcConfig;
 using android::hardware::nfc::V1_1::INfcClientCallback;
 using android::hardware::hidl_vec;
-using vendor::nxp::nxpnfc::V2_0::INxpNfc;
+#if (NXP_EXTNS == TRUE)
 using android::hardware::configureRpcThreadpool;
+using vendor::nxp::nxpnfc::V2_0::INxpNfc;
+using vendor::nxp::nxpnfclegacy::V1_0::NxpNfcHalConfig;
+#endif
 using ::android::hardware::hidl_death_recipient;
 using ::android::wp;
 using ::android::hidl::base::V1_0::IBase;
-using vendor::nxp::nxpnfclegacy::V1_0::NxpNfcHalConfig;
 
 extern bool nfc_debug_enabled;
 
@@ -88,8 +92,10 @@ extern void delete_stack_non_volatile_store(bool forceDelete);
 NfcAdaptation* NfcAdaptation::mpInstance = nullptr;
 ThreadMutex NfcAdaptation::sLock;
 android::Mutex sIoctlMutex;
+#if (NXP_EXTNS == TRUE)
 sp<INxpNfcLegacy> NfcAdaptation::mHalNxpNfcLegacy;
 sp<INxpNfc> NfcAdaptation::mHalNxpNfc;
+#endif
 sp<INfc> NfcAdaptation::mHal;
 sp<INfcV1_1> NfcAdaptation::mHal_1_1;
 sp<INfcV1_2> NfcAdaptation::mHal_1_2;
@@ -542,17 +548,19 @@ void NfcAdaptation::Initialize() {
 
   GKI_init();
   GKI_enable();
-  GKI_create_task((TASKPTR)NFCA_TASK, BTU_TASK, (int8_t*)"NFCA_TASK", 0, 0,
+  GKI_create_task((TASKPTR)NFCA_TASK, BTU_TASK, (int8_t*)"NFCA_TASK", nullptr, 0,
                   (pthread_cond_t*)nullptr, nullptr);
   {
     AutoThreadMutex guard(mCondVar);
-    GKI_create_task((TASKPTR)Thread, MMI_TASK, (int8_t*)"NFCA_THREAD", 0, 0,
+    GKI_create_task((TASKPTR)Thread, MMI_TASK, (int8_t*)"NFCA_THREAD", nullptr, 0,
                     (pthread_cond_t*)nullptr, nullptr);
     mCondVar.wait();
   }
 
   debug_nfcsnoop_init();
+  #if (NXP_EXTNS == TRUE)
   configureRpcThreadpool(2, false);
+  #endif
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: exit", func);
 }
 #if (NXP_EXTNS == TRUE)
@@ -664,7 +672,7 @@ void NfcAdaptation::signal() { mCondVar.signal(); }
 uint32_t NfcAdaptation::NFCA_TASK(__attribute__((unused)) uint32_t arg) {
   const char* func = "NfcAdaptation::NFCA_TASK";
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: enter", func);
-  GKI_run(0);
+  GKI_run(nullptr);
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: exit", func);
   return 0;
 }
@@ -685,8 +693,8 @@ uint32_t NfcAdaptation::Thread(__attribute__((unused)) uint32_t arg) {
   {
     ThreadCondVar CondVar;
     AutoThreadMutex guard(CondVar);
-    GKI_create_task((TASKPTR)nfc_task, NFC_TASK, (int8_t*)"NFC_TASK", 0, 0,
-                    (pthread_cond_t*)CondVar, (pthread_mutex_t*)CondVar);
+    GKI_create_task((TASKPTR)nfc_task, NFC_TASK, (int8_t*)"NFC_TASK", nullptr,
+                    0, (pthread_cond_t*)CondVar, (pthread_mutex_t*)CondVar);
     CondVar.wait();
   }
 
@@ -757,6 +765,7 @@ void NfcAdaptation::InitializeHalDeviceContext() {
           (mHal->isRemote() ? "remote" : "local"));
   }
   mHal->linkToDeath(mNfcHalDeathRecipient,0);
+#if (NXP_EXTNS == TRUE)
   LOG(INFO) << StringPrintf("%s: INxpNfc::getService()", func);
   mHalNxpNfc = INxpNfc::tryGetService();
   if(mHalNxpNfc == nullptr) {
@@ -774,7 +783,6 @@ void NfcAdaptation::InitializeHalDeviceContext() {
     LOG(INFO) << StringPrintf("%s: INxpNfcLegacy::getService() returned %p (%s)", func, mHalNxpNfcLegacy.get(),
           (mHalNxpNfcLegacy->isRemote() ? "remote" : "local"));
   }
-#if (NXP_EXTNS == TRUE)
   mHalEntryFuncs.set_transit_config = HalSetTransitConfig;
 #endif
 
@@ -1362,6 +1370,7 @@ AutoThreadMutex::AutoThreadMutex(ThreadMutex& m) : mm(m) { mm.lock(); }
 *******************************************************************************/
 AutoThreadMutex::~AutoThreadMutex() { mm.unlock(); }
 
+#if (NXP_EXTNS == TRUE)
 /***************************************************************************
 **
 ** Function         initializeGlobalAppDtaMode.
@@ -1375,7 +1384,7 @@ void initializeGlobalAppDtaMode() {
   appl_dta_mode_flag = 0x01;
   ALOGD("%s: DTA Enabled", __func__);
 }
-
+#endif
 /***************************************************************************
 **
 ** Function         NfcAdaptation::setEseState

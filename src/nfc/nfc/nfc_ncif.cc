@@ -2947,7 +2947,9 @@ void nfc_ncif_credit_ntf_timeout() {
 *******************************************************************************/
 bool nfc_ncif_proc_proprietary_rsp(uint8_t mt, uint8_t gid, uint8_t oid) {
   bool stat = FALSE;
+#if (NXP_EXTNS == TRUE)
   bool isRstRsp = FALSE;
+#endif
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: mt=%u, gid=%u, oid=%u", __func__, mt, gid, oid);
 
   switch (mt) {

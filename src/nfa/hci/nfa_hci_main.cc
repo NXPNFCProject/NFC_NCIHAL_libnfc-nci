@@ -687,10 +687,11 @@ void nfa_hci_dh_startup_complete(void) {
 void nfa_hci_startup_complete(tNFA_STATUS status) {
   tNFA_HCI_EVT_DATA evt_data;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hci_startup_complete (): Status: %u", status);
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("nfa_hci_startup_complete (): Status: %u", status);
   nfa_sys_stop_timer(&nfa_hci_cb.timer);
-    if (nfcFL.chipType == pn557) {
-      NFC_updateHciInitStatus(NFC_HCI_INIT_COMPLETE);
+  if (nfcFL.chipType == pn557) {
+    NFC_updateHciInitStatus(NFC_HCI_INIT_COMPLETE);
     }
   if ((nfa_hci_cb.hci_state == NFA_HCI_STATE_RESTORE) ||
       (nfa_hci_cb.hci_state == NFA_HCI_STATE_RESTORE_NETWK_ENABLE)) {

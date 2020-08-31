@@ -103,6 +103,7 @@ typedef uint8_t(tHAL_API_GET_MAX_NFCEE)(void);
 #if (NXP_EXTNS == TRUE)
 typedef int(tHAL_API_IOCTL)(long arg, void* p_data);
 typedef int(tHAL_API_GET_FW_DWNLD_FLAG)(uint8_t* fwDnldRequest);
+typedef bool(tHAL_API_SET_NXP_TRANSIT_CONFIG)(char* strval);
 #endif
 typedef uint16_t(tHAL_API_spiDwpSync)(uint32_t level);
 typedef uint16_t(tHAL_API_RelForceDwpOnOffWait)(uint32_t level);
@@ -113,7 +114,6 @@ typedef uint16_t(tHAL_API_setNfcServicePid)(uint64_t NfcNxpServicePid);
 typedef uint32_t(tHAL_API_getEseState)(void);
 typedef void (tHAL_API_GetCachedNfccConfig)(tNxpNci_getCfg_info_t *nxpNciAtrInfo);
 typedef uint32_t (tHAL_API_nciTransceive)(phNxpNci_Extn_Cmd_t* in,phNxpNci_Extn_Resp_t* out);
-typedef bool(tHAL_API_SET_NXP_TRANSIT_CONFIG)(char* strval);
 
 typedef struct {
   tHAL_API_INITIALIZE* initialize;
@@ -129,6 +129,7 @@ typedef struct {
 #if (NXP_EXTNS == TRUE)
   tHAL_API_IOCTL* ioctl;
   tHAL_API_GET_FW_DWNLD_FLAG* check_fw_dwnld_flag;
+  tHAL_API_SET_NXP_TRANSIT_CONFIG* set_transit_config;
 #endif
   tHAL_API_spiDwpSync* spiDwpSync;
   tHAL_API_RelForceDwpOnOffWait* RelForceDwpOnOffWait;
@@ -139,7 +140,6 @@ typedef struct {
   tHAL_API_getEseState* getEseState;
   tHAL_API_GetCachedNfccConfig* GetCachedNfccConfig;
   tHAL_API_nciTransceive* nciTransceive;
-  tHAL_API_SET_NXP_TRANSIT_CONFIG* set_transit_config;
 } tHAL_NFC_ENTRY;
 
 #if (NXP_EXTNS == TRUE)
