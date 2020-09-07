@@ -59,12 +59,13 @@
 #include "rw_int.h"
 
 #if (NXP_EXTNS == TRUE)
-#include "nfa_ce_int.h"
-#include "nfa_ee_int.h"
-#include "nfa_dm_int.h"
-#include "nfa_hci_int.h"
-#include "nfc_config.h"
 #include "NfcAdaptation.h"
+#include "nfa_ce_int.h"
+#include "nfa_dm_int.h"
+#include "nfa_ee_int.h"
+#include "nfa_hci_int.h"
+#include "nfa_mdt_int.h"
+#include "nfc_config.h"
 #endif
 
 #include <statslog.h>
@@ -2366,6 +2367,11 @@ void nfc_ncif_proc_generic_error_ntf(tNFC_STATUS status)
                   (uint16_t)(NFC_TTYPE_SE_TEMP_ERROR_DELAY),
                   nfc_cb.nci_ese_cold_temp_timeout);
   }
+#if (NXP_EXTNS == TRUE)
+  else if (status == NCI_STATUS_MDT_TIMEOUT) {
+    nfa_mdt_timeout_ntf();
+  }
+#endif
 }
 /*******************************************************************************
 **
