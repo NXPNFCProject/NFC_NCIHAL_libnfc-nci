@@ -1113,7 +1113,7 @@ static void llcp_link_proc_ui_pdu(uint8_t local_sap, uint8_t remote_sap,
 *******************************************************************************/
 static void llcp_link_proc_agf_pdu(NFC_HDR* p_agf) {
   uint16_t agf_length;
-  uint8_t* p, *p_info, *p_pdu_length;
+  uint8_t *p, *p_info, *p_pdu_length;
   uint16_t pdu_hdr, pdu_length, pdu_num;
   uint8_t dsap, ptype, ssap;
 
@@ -1148,8 +1148,9 @@ static void llcp_link_proc_agf_pdu(NFC_HDR* p_agf) {
     }
   }
 
-  if (agf_length != 0) {
-    LOG(ERROR) << StringPrintf("llcp_link_proc_agf_pdu (): Received invalid AGF PDU");
+  if (agf_length != 0 || pdu_num < 2) {
+    android_errorWriteLog(0x534e4554, "116791157");
+    LOG(ERROR) << StringPrintf("Received invalid AGF PDU");
     GKI_freebuf(p_agf);
     return;
   }
