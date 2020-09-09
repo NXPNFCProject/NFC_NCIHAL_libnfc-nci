@@ -257,6 +257,8 @@ void nfc_ncif_cmd_timeout(void) {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfc_ncif_cmd_timeout(): enter");
 
 
+  storeNativeCrashLogs();
+
   /* report an error */
   nfc_ncif_event_status(NFC_GEN_ERROR_REVT, NFC_STATUS_HW_TIMEOUT);
   nfc_ncif_event_status(NFC_NFCC_TIMEOUT_REVT, NFC_STATUS_HW_TIMEOUT);
@@ -266,7 +268,6 @@ void nfc_ncif_cmd_timeout(void) {
     nfc_enabled(NFC_STATUS_FAILED, nullptr);
   }
   /* XXX maco since this failure is unrecoverable, abort the process */
-  storeNativeCrashLogs();
   abort();
 }
 
