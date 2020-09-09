@@ -579,7 +579,7 @@ tNFC_STATUS rw_t3t_send_to_lower(NFC_HDR* p_msg) {
 #endif /* RW_STATS_INCLUDED */
 
   /* Set NFC-F SoD field (payload len + 1) */
-  p_msg->offset -= 1; /* Point to SoD field */
+  if (p_msg->offset) p_msg->offset -= 1; /* Point to SoD field */
   p = (uint8_t*)(p_msg + 1) + p_msg->offset;
   UINT8_TO_STREAM(p, (p_msg->len + 1));
   p_msg->len += 1; /* Increment len to include SoD */
