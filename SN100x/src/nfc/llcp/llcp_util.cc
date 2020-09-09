@@ -535,6 +535,7 @@ tLLCP_STATUS llcp_util_parse_connect(uint8_t* p_bytes, uint16_t length,
 
       case LLCP_SN_TYPE:
         if (param_len == 0) {
+          p_params->sn[0] = 0;  // make "sn" null terminated zero-length string
           /* indicate that SN type is included without SN */
           p_params->sn[1] = LLCP_SN_TYPE;
         } else if (param_len <= LLCP_MAX_SN_LEN) {
