@@ -127,12 +127,10 @@ void GKI_init(void) {
 #if (NXP_EXTNS == TRUE)
   /* Added to avoid re-initialization of memory pool (memory leak) */
   if (!gki_buf_init_done) {
-    memset(&gki_cb, 0, sizeof(gki_cb));
     gki_buffer_init();
     gki_buf_init_done = true;
   }
 #else
-  memset(&gki_cb, 0, sizeof(gki_cb));
   gki_buffer_init();
 #endif
 
