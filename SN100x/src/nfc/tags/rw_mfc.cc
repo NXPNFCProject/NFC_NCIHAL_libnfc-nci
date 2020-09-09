@@ -1130,23 +1130,26 @@ static bool rw_nfc_decodeTlv(uint8_t* data) {
 
   DLOG_IF(INFO, nfc_debug_enabled) << __func__ << ": i=" << i;
 
-  if (i < 0 || p[i] != 0x3) {
+  if ((i + 1) >= mfc_data->len || i < 0 || p[i] != 0x3) {
     LOG(ERROR) << __func__ << ": Can't decode message length";
-    return false;
   } else {
-    if (p[i + 1] == 0xFF) {
-      p_mfc->ndef_length = (((uint16_t)p[i + 2]) << 8) | ((uint16_t)(p[i + 3]));
-      p_mfc->ndef_start_pos = i + RW_MFC_LONG_TLV_SIZE;
-      DLOG_IF(INFO, nfc_debug_enabled)
-          << __func__ << " long NDEF SIZE=" << p_mfc->ndef_length;
-    } else {
+    if (p[i + 1] != 0xFF) {
       p_mfc->ndef_length = p[i + 1];
       p_mfc->ndef_start_pos = i + RW_MFC_SHORT_TLV_SIZE;
       DLOG_IF(INFO, nfc_debug_enabled)
           << __func__ << " short NDEF SIZE=" << p_mfc->ndef_length;
+      return true;
+    } else if ((i + 3) < mfc_data->len) {
+      p_mfc->ndef_length = (((uint16_t)p[i + 2]) << 8) | ((uint16_t)(p[i + 3]));
+      p_mfc->ndef_start_pos = i + RW_MFC_LONG_TLV_SIZE;
+      DLOG_IF(INFO, nfc_debug_enabled)
+          << __func__ << " long NDEF SIZE=" << p_mfc->ndef_length;
+      return true;
+    } else {
+      LOG(ERROR) << __func__ << ": Can't decode ndef length";
     }
   }
-  return true;
+  return false;
 }
 
 /*******************************************************************************
