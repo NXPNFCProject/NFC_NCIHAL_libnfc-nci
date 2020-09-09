@@ -311,7 +311,10 @@ void rw_t3t_process_error(tNFC_STATUS status) {
       /* If doing presence check, use status=NFC_STATUS_FAILED, otherwise
        * NFC_STATUS_TIMEOUT */
       evt_data.status = status;
-      evt = rw_t3t_api_res_evt[p_cb->cur_cmd];
+      if (rw_cb.cur_retry < RW_MAX_RETRIES)
+        evt = rw_t3t_api_res_evt[p_cb->cur_cmd];
+      else
+        evt = RW_T3T_INTF_ERROR_EVT;
 
       /* Set additional flags for RW_T3T_NDEF_DETECT_EVT */
       if (evt == RW_T3T_NDEF_DETECT_EVT) {
