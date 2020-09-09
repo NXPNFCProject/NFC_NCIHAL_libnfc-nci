@@ -44,7 +44,9 @@
  ******************************************************************************/
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
+#include <fcntl.h>
 #include <log/log.h>
+#include <sys/stat.h>
 
 #include "nfc_target.h"
 
@@ -79,6 +81,7 @@ static const uint8_t nfc_mpl_code_to_size[] = {64, 128, 192, 254};
 
 extern unsigned char appl_dta_mode_flag;
 extern bool nfc_debug_enabled;
+extern std::string nfc_storage_path;
 
 #if (NXP_EXTNS == TRUE)
 #define NCI_MSG_GET_RFSTATUS 0x39
@@ -99,6 +102,40 @@ extern void nfa_hci_rsp_timeout();
 
 static struct timeval timer_start;
 static struct timeval timer_end;
+
+static const off_t NATIVE_CRASH_FILE_SIZE = (1024 * 1024);
+
+void storeNativeCrashLogs(void) {
+  std::string filename = "/native_crash_logs";
+  std::string filepath = nfc_storage_path + filename;
+  int fileStream;
+  off_t fileSize;
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("%s: file=%s", __func__, filepath.c_str());
+  // check file size
+  struct stat st;
+  if (stat(filepath.c_str(), &st) == 0) {
+    fileSize = st.st_size;
+  } else {
+    fileSize = 0;
+  }
+
+  if (fileSize >= NATIVE_CRASH_FILE_SIZE) {
+    fileStream =
+        open(filepath.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+  } else {
+    fileStream =
+        open(filepath.c_str(), O_RDWR | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
+  }
+
+  if (fileStream >= 0) {
+    debug_nfcsnoop_dump(fileStream);
+    close(fileStream);
+  } else {
+    LOG(ERROR) << StringPrintf("%s: fail to create, error = %d", __func__,
+                               errno);
+  }
+}
 
 /*******************************************************************************
 **
@@ -139,6 +176,8 @@ void nfc_ncif_update_window(void) {
 *******************************************************************************/
 void nfc_ncif_cmd_timeout(void) {
   LOG(ERROR) << StringPrintf("nfc_ncif_cmd_timeout");
+
+  storeNativeCrashLogs();
 
   /* report an error */
   nfc_ncif_event_status(NFC_GEN_ERROR_REVT, NFC_STATUS_HW_TIMEOUT);
