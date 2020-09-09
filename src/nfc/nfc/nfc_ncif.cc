@@ -2336,6 +2336,10 @@ void nfc_ncif_proc_conn_create_rsp(uint8_t* p,
     p_cb->buff_size = *p++;
     p_cb->num_buff = p_cb->init_credits = *p++;
     conn_id = *p++;
+    if (conn_id > NFC_MAX_CONN_ID) {
+      status = NCI_STATUS_FAILED;
+      conn_id = NFC_ILLEGAL_CONN_ID;
+    }
     evt_data.conn_create.status = status;
     evt_data.conn_create.dest_type = dest_type;
     evt_data.conn_create.id = p_cb->id;
