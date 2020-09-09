@@ -2990,6 +2990,7 @@ void nfc_ncif_proc_data(NFC_HDR* p_msg) {
   if (p_cb && (p_msg->len >= NCI_DATA_HDR_SIZE)) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfc_ncif_proc_data len:%d", len);
 
+    len = p_msg->len - NCI_MSG_HDR_SIZE;
     p_msg->layer_specific = 0;
     if (pbf) {
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
@@ -3031,7 +3032,6 @@ void nfc_ncif_proc_data(NFC_HDR* p_msg) {
       }
 
       ps = (uint8_t*)(p_msg + 1) + p_msg->offset + NCI_MSG_HDR_SIZE;
-      len = p_msg->len - NCI_MSG_HDR_SIZE;
 
       if (!(p_last->layer_specific & NFC_RAS_TOO_BIG)) {
         pd = (uint8_t*)(p_last + 1) + p_last->offset + p_last->len;
