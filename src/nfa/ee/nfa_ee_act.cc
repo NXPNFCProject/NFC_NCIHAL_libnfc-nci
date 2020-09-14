@@ -425,7 +425,7 @@ static uint16_t nfa_ee_total_lmrt_size(void) {
   lmrt_size += p_cb->size_aid;
   lmrt_size += p_cb->size_apdu;
   lmrt_size += p_cb->size_sys_code;
-  p_cb = &nfa_ee_cb.ecb[nfa_ee_cb.cur_ee - 1];
+  if (nfa_ee_cb.cur_ee > 0) p_cb = &nfa_ee_cb.ecb[nfa_ee_cb.cur_ee - 1];
   for (xx = 0; xx < nfa_ee_cb.cur_ee; xx++, p_cb--) {
     if (p_cb->ee_status == NFC_NFCEE_STATUS_ACTIVE) {
       lmrt_size += p_cb->size_mask_proto;
