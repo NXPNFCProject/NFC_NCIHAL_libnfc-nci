@@ -70,8 +70,18 @@ cc_library_shared {
     product_variables: {
         debuggable: {
             cflags: [
-                "-DDCHECK_ALWAYS_ON"
+                "-DDCHECK_ALWAYS_ON",
             ],
         },
     },
+    sanitize: {
+        misc_undefined: ["bounds"],
+        integer_overflow: true,
+        diag: {
+            integer_overflow: true,
+            misc_undefined: ["bounds"],
+            no_recover: ["bounds", "integer"],
+        },
+    },
+
 }
