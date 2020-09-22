@@ -210,7 +210,8 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
       break;
 #if (NXP_EXTNS == TRUE)
     case NFA_EE_MODE_SET_NTF:
-      if (nfa_hci_cb.hci_state == NFA_HCI_STATE_NFCEE_ENABLE) {
+      if (nfa_hci_cb.hci_state == NFA_HCI_STATE_NFCEE_ENABLE &&
+                !nfa_hci_cb.bClearAllPipeHandling) {
         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("ETSI12 pipe creation configured");
         nfa_hci_api_config_nfcee(nfa_hci_cb.current_nfcee);
       }
