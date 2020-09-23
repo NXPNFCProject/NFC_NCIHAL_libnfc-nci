@@ -477,8 +477,8 @@ static void nfa_dm_nfc_response_cback(tNFC_RESPONSE_EVT event,
     case NFC_WLC_FEATURE_SUPPORTED_REVT:
     case NFC_RF_INTF_EXT_START_REVT:
     case NFC_RF_INTF_EXT_STOP_REVT:
-      if (nfa_dm_cb.p_wlc_cback)
-        (*nfa_dm_cb.p_wlc_cback)(event, p_data->status);
+      if (nfa_dm_cb.wlc_data && nfa_dm_cb.wlc_data->p_wlc_cback)
+        (*nfa_dm_cb.wlc_data->p_wlc_cback)(event, p_data->status);
       break;
 #endif
 

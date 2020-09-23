@@ -483,15 +483,15 @@ tNFA_STATUS nfa_dm_check_set_config(uint8_t tlv_list_len, uint8_t* p_tlv_list,
 #if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
-** Function         nfa_dm_update_wlc_cback
+** Function         nfa_dm_update_wlc_data
 **
-** Description      Registers/DeRegisters WLC callback with DM
+** Description      Registers/Deregisters WLC specific data with DM
 **
-** Returns          tNFA_STATUS
+** Returns          none
 **
 *******************************************************************************/
-void nfa_dm_update_wlc_cback(tNFA_WLC_CBACK* p_cback) {
-  nfa_dm_cb.p_wlc_cback = p_cback;
+void nfa_dm_update_wlc_data(tNFA_DM_WLC_DATA* p_wlc_data) {
+  nfa_dm_cb.wlc_data = p_wlc_data;
 }
 #endif
 

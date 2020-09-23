@@ -61,7 +61,8 @@ tNFA_STATUS NFA_WlcInitSubsystem(tNFA_WLC_EVENT_CBACK* p_cback) {
 *******************************************************************************/
 void NFA_WlcDeInitSubsystem() {
   wlc_cb.p_wlc_evt_cback = nullptr;
-  nfa_dm_update_wlc_cback(nullptr);
+  nfa_dm_update_wlc_data(nullptr);
+  memset(&wlc_cb.wlcData, 0, sizeof(wlc_cb.wlcData));
   nfa_sys_deregister(NFA_ID_WLC);
 }
 

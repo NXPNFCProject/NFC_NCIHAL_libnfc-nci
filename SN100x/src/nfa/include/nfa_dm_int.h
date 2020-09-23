@@ -544,6 +544,14 @@ typedef struct {
 typedef bool(tNFA_NDEF_CHO_CBACK)(uint32_t ndef_len, uint8_t* p_ndef_data);
 #if (NXP_EXTNS == TRUE)
 typedef void(tNFA_WLC_CBACK)(uint16_t event, uint8_t status);
+typedef bool(tNFA_WLC_ACTIVATION)(tNFA_DM_DISC_TECH_PROTO_MASK& disc_mask,
+                                  tNFC_RF_TECH_N_MODE tech_n_mode,
+                                  tNFC_PROTOCOL protocol);
+typedef struct WLC_DATA {
+  tNFA_WLC_CBACK* p_wlc_cback;             /*Wlc callback*/
+  tNFA_WLC_ACTIVATION* p_is_wlc_activated; /*check wlc activation*/
+  WLC_DATA() : p_wlc_cback(nullptr), p_is_wlc_activated(nullptr) {}
+} tNFA_DM_WLC_DATA;
 #endif
 /* DM control block */
 typedef struct {
@@ -600,11 +608,11 @@ typedef struct {
                                   LISTEN_ACTIVE state which needs to be applied
                                   after current transaction is completed*/
 #if (NXP_EXTNS == TRUE)
+  tNFA_DM_WLC_DATA* wlc_data; /*Wlc specific data structure*/
   tNFA_TECHNOLOGY_MASK        pollTech;
   tNFA_TECHNOLOGY_MASK        listenTech;
   uint8_t selected_uicc_id; /* Current selected UICC ID */
   bool isFieldDetectEnabled; /*Field Detect Enable status*/
-  tNFA_WLC_CBACK* p_wlc_cback; /*Wlc callback*/
 #endif
 } tNFA_DM_CB;
 
@@ -662,7 +670,7 @@ void nfa_ee_init(void);
 void nfa_hci_init(void);
 #if (NXP_EXTNS == TRUE)
 void nfa_scr_init(void);
-void nfa_dm_update_wlc_cback(tNFA_WLC_CBACK* p_cback);
+void nfa_dm_update_wlc_data(tNFA_DM_WLC_DATA* p_wlc_data);
 #endif
 #else
 #define nfa_ee_init()

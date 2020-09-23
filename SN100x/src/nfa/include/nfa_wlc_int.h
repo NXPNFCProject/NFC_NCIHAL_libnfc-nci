@@ -19,19 +19,23 @@
 #pragma once
 #include <nfa_api.h>
 #include <nfa_sys.h>
-#include "nfc_int.h"
+#include "nfa_dm_int.h"
 #include "nfc_api.h"
+#include "nfc_int.h"
 /* NFCC supports WLC Feature */
 #define WLC_FEATURE_SUPPORTED_EVT 1
 /* Status of RF interface extension start */
 #define WLC_RF_INTF_EXT_START_EVT 2
 /* Status of RF interface extension stop */
 #define WLC_RF_INTF_EXT_STOP_EVT 3
+/*Notify WLC Listener detected*/
+#define WLC_TAG_DETECTED_EVT 4
 
 typedef void(tNFA_WLC_EVENT_CBACK)(uint8_t event, tNFA_CONN_EVT_DATA* p_data);
 extern const tNFA_SYS_REG nfa_wlc_sys_reg;
 
 typedef struct {
+  tNFA_DM_WLC_DATA wlcData;
   tNFA_WLC_EVENT_CBACK* p_wlc_evt_cback;
     bool isRfIntfExtStarted;   /*RF interface Extension start status*/
 } wlc_t;
