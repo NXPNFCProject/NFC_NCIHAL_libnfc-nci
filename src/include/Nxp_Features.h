@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2019 NXP Semiconductors
+ * Copyright 2012-2020 NXP
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,15 @@
 
 #define STRMAX_1 40
 #define STRMAX_2 100
+
+#ifndef FW_DLL_ROOT_DIR
+#ifdef __LP64__
+#define FW_DLL_ROOT_DIR "/system/vendor/lib64/"
+#else
 #define FW_DLL_ROOT_DIR "/system/vendor/lib/"
+#endif
+#endif
+
 #define FW_DLL_EXTENSION ".so"
 
 #define FW_MOBILE_MAJOR_NUMBER_PN553 0x01
@@ -359,6 +367,8 @@ extern tNfc_featureList nfcFL;
             nfcFL.nfcMwFL._NCI_INTERFACE_UICC_DIRECT = 0x82;                \
             nfcFL.nfcMwFL._NCI_INTERFACE_ESE_DIRECT = 0x83;                 \
             \
+            nfcFL.nfcMwFL._PHDNLDNFC_USERDATA_EEPROM_OFFSET = 0x02BCU;      \
+            nfcFL.nfcMwFL._PHDNLDNFC_USERDATA_EEPROM_LEN = 0x0BC0U;         \
             \
         }                                                                   \
         else if (chipType == pn553)                                         \
@@ -398,6 +408,8 @@ extern tNfc_featureList nfcFL;
                     "libpn553tc_fw_pku")                                    \
             \
             \
+            nfcFL.nfcMwFL._PHDNLDNFC_USERDATA_EEPROM_OFFSET = 0x02BCU;      \
+            nfcFL.nfcMwFL._PHDNLDNFC_USERDATA_EEPROM_LEN = 0x0BC0U;         \
             nfcFL.nfcMwFL._FW_MOBILE_MAJOR_NUMBER =                         \
             FW_MOBILE_MAJOR_NUMBER_PN553;                                   \
             \
