@@ -41,7 +41,7 @@ void nfa_mdt_discovermap_cb(tNFC_DISCOVER_EVT event, tNFC_DISCOVER* p_data);
  **  Constants
  *****************************************************************************/
 #define NFC_NUM_INTERFACE_MAP 3
-#define NFC_SWP_RD_NUM_INTERFACE_MAP 1
+#define NFC_SWP_RD_NUM_INTERFACE_MAP 2
 
 /*******************************************************************************
 **
@@ -59,7 +59,8 @@ void* nfa_mdt_start(void*) {
 
   const tNCI_DISCOVER_MAPS
       nfc_interface_mapping_mfc[NFC_SWP_RD_NUM_INTERFACE_MAP] = {
-          {NCI_PROTOCOL_T2T, NCI_INTERFACE_MODE_POLL, NCI_INTERFACE_FRAME}};
+          {NCI_PROTOCOL_T2T, NCI_INTERFACE_MODE_POLL, NCI_INTERFACE_FRAME},
+          {NCI_PROTOCOL_ISO_DEP, NCI_INTERFACE_MODE_POLL, NCI_INTERFACE_FRAME}};
   p_intf_mapping = (tNCI_DISCOVER_MAPS*)nfc_interface_mapping_mfc;
 
   if (p_intf_mapping != nullptr &&
@@ -362,4 +363,17 @@ void nfa_mdt_init() {
 **
 *******************************************************************************/
 void nfa_mdt_deInit() {}
+
+/*******************************************************************************
+**
+** Function         nfa_mdt_get_state
+**
+** Description      The API calls to get the mdt current state.
+**
+** Returns          void
+**
+*******************************************************************************/
+int nfa_mdt_get_state(){
+  return mdt_t.mdt_state;
+}
 #endif
