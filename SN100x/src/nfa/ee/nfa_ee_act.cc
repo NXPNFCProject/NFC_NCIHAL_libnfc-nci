@@ -2470,7 +2470,8 @@ static void nfa_ee_remove_pending(void) {
                       nfa_ee_cb.cur_ee, num_removed, first_removed);
   if (num_removed && (first_removed != (nfa_ee_cb.cur_ee - num_removed))) {
     /* if the removes ECB entried are not at the end, move the entries up */
-    p_cb_end = &nfa_ee_cb.ecb[nfa_ee_cb.cur_ee - 1];
+    p_cb_end = nullptr;
+    if (nfa_ee_cb.cur_ee > 0) p_cb_end = &nfa_ee_cb.ecb[nfa_ee_cb.cur_ee - 1];
     p_cb = &nfa_ee_cb.ecb[first_removed];
     for (p_cb_n = p_cb + 1; p_cb_n <= p_cb_end;) {
       while ((p_cb_n->nfcee_id == NFA_EE_INVALID) && (p_cb_n <= p_cb_end)) {
@@ -3362,7 +3363,7 @@ void nfa_ee_get_tech_route(uint8_t power_state, uint8_t* p_handles) {
 
   for (xx = 0; xx < NFA_EE_MAX_TECH_ROUTE; xx++) {
     p_handles[xx] = NFC_DH_ID;
-    p_cb = &nfa_ee_cb.ecb[nfa_ee_cb.cur_ee - 1];
+    if (nfa_ee_cb.cur_ee > 0) p_cb = &nfa_ee_cb.ecb[nfa_ee_cb.cur_ee - 1];
     for (yy = 0; yy < nfa_ee_cb.cur_ee; yy++, p_cb--) {
       if (p_cb->ee_status == NFC_NFCEE_STATUS_ACTIVE) {
         switch (power_state) {
@@ -3660,7 +3661,8 @@ void nfa_ee_lmrt_to_nfcc(__attribute__((unused)) tNFA_EE_MSG* p_data) {
   }
 
   /* find the last active NFCEE. */
-  p_cb = &nfa_ee_cb.ecb[nfa_ee_cb.cur_ee - 1];
+  if (nfa_ee_cb.cur_ee > 0) p_cb = &nfa_ee_cb.ecb[nfa_ee_cb.cur_ee - 1];
+
   for (xx = 0; xx < nfa_ee_cb.cur_ee; xx++, p_cb--) {
     if (p_cb->ee_status == NFC_NFCEE_STATUS_ACTIVE) {
       if (last_active == NFA_EE_INVALID) {
