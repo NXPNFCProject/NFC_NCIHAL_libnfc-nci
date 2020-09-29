@@ -1765,9 +1765,11 @@ void nfc_ncif_report_conn_close_evt(uint8_t conn_id, tNFC_STATUS status) {
 *******************************************************************************/
 void nfc_ncif_proc_reset_rsp(uint8_t* p, bool is_ntf) {
   uint8_t* p_len = p - 1;
-  uint8_t status = *p++;
+  uint8_t status = NCI_STATUS_FAILED;
   uint8_t wait_for_ntf = FALSE;
-  if (is_ntf) {
+
+  status = *p_len > 0 ? *p++ : NCI_STATUS_FAILED;
+  if (*p_len > 2 && is_ntf) {
     LOG(ERROR) << StringPrintf("reset notification!!:0x%x ", status);
 #if(NXP_EXTNS == TRUE)
     if(status == NCI2_0_RESET_TRIGGER_TYPE_POWERED_ON) {
