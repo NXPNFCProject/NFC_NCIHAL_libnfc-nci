@@ -733,7 +733,7 @@ void nfc_ncif_proc_credits(uint8_t* p, uint16_t plen) {
   if (plen != 0) {
     num = *p++;
     plen--;
-    if (num > plen) {
+    if (num * 2 > plen) {
       android_errorWriteLog(0x534e4554, "118148142");
       return;
     }
