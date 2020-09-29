@@ -762,7 +762,8 @@ uint8_t* nfc_ncif_decode_rf_params(tNFC_RF_TECH_PARAMS* p_param, uint8_t* p) {
   tNFC_RF_ACM_P_PARAMS* acm_p;
   uint8_t mpl_idx = 0;
   uint8_t gb_idx = 0, mpl;
-  len = *p++;
+  uint8_t plen;
+  plen = len = *p++;
   p_start = p;
   memset(&p_param->param, 0, sizeof(tNFC_RF_TECH_PARAMU));
 
@@ -783,13 +784,30 @@ the T1T RID command.
 HRx 0 or 2 Octets   If present, the first byte SHALL contain HR0 and the second
 byte SHALL contain HR1 as defined in [DIGITAL].
     */
+    if (plen < 3) {
+      goto invalid_packet;
+    }
+    plen -= 3;
     STREAM_TO_ARRAY(p_pa->sens_res, p, 2);
     p_pa->nfcid1_len = *p++;
     if (p_pa->nfcid1_len > NCI_NFCID1_MAX_LEN)
       p_pa->nfcid1_len = NCI_NFCID1_MAX_LEN;
+
+    if (plen < p_pa->nfcid1_len + 1) {
+      goto invalid_packet;
+    }
+    plen -= (p_pa->nfcid1_len + 1);
     STREAM_TO_ARRAY(p_pa->nfcid1, p, p_pa->nfcid1_len);
     u8 = *p++;
-    if (u8) p_pa->sel_rsp = *p++;
+
+    if (u8) {
+      if (plen < 1) {
+        goto invalid_packet;
+      }
+      plen--;
+      p_pa->sel_rsp = *p++;
+    }
+
     if (len ==
         (7 + p_pa->nfcid1_len + u8)) /* 2(sens_res) + 1(len) +
                                         p_pa->nfcid1_len + 1(len) + u8 + hr
@@ -809,9 +827,19 @@ SENSB_RES Response Byte 2 - Byte 12 or 13   11 or 12 bytes  Defined in [DIGPROT]
 Available after Technology Detection
     */
     p_pb = &p_param->param.pb;
+
+    if (plen < 1) {
+      goto invalid_packet;
+    }
+    plen--;
     p_pb->sensb_res_len = *p++;
     if (p_pb->sensb_res_len > NCI_MAX_SENSB_RES_LEN)
       p_pb->sensb_res_len = NCI_MAX_SENSB_RES_LEN;
+
+    if (plen < p_pb->sensb_res_len) {
+      goto invalid_packet;
+    }
+    plen -= p_pb->sensb_res_len;
     STREAM_TO_ARRAY(p_pb->sensb_res, p, p_pb->sensb_res_len);
     memcpy(p_pb->nfcid0, p_pb->sensb_res, NFC_NFCID0_MAX_LEN);
   } else if (NCI_DISCOVERY_TYPE_POLL_F == p_param->mode ||
@@ -825,11 +853,25 @@ SENSF_RES Response Byte 2 - Byte 17 or 19  n bytes Defined in [DIGPROT]
 Available after Technology Detection
     */
     p_pf = &p_param->param.pf;
+
+    if (plen < 2) {
+      goto invalid_packet;
+    }
+    plen -= 2;
     p_pf->bit_rate = *p++;
     p_pf->sensf_res_len = *p++;
     if (p_pf->sensf_res_len > NCI_MAX_SENSF_RES_LEN)
       p_pf->sensf_res_len = NCI_MAX_SENSF_RES_LEN;
+
+    if (plen < p_pf->sensf_res_len) {
+      goto invalid_packet;
+    }
+    plen -= p_pf->sensf_res_len;
     STREAM_TO_ARRAY(p_pf->sensf_res, p, p_pf->sensf_res_len);
+
+    if (p_pf->sensf_res_len < NCI_MRTI_UPDATE_INDEX + 1) {
+      goto invalid_packet;
+    }
     memcpy(p_pf->nfcid2, p_pf->sensf_res, NCI_NFCID2_LEN);
     p_pf->mrti_check = p_pf->sensf_res[NCI_MRTI_CHECK_INDEX];
     p_pf->mrti_update = p_pf->sensf_res[NCI_MRTI_UPDATE_INDEX];
@@ -837,14 +879,33 @@ Available after Technology Detection
              (NCI_DISCOVERY_TYPE_LISTEN_F_ACTIVE == p_param->mode &&
               NFC_GetNCIVersion() != NCI_VERSION_2_0)) {
     p_lf = &p_param->param.lf;
+
+    if (plen < 1) {
+      goto invalid_packet;
+    }
+    plen--;
     u8 = *p++;
     if (u8) {
+      if (plen < NCI_NFCID2_LEN) {
+        goto invalid_packet;
+      }
+      plen -= NCI_NFCID2_LEN;
       STREAM_TO_ARRAY(p_lf->nfcid2, p, NCI_NFCID2_LEN);
     }
   } else if (NCI_DISCOVERY_TYPE_POLL_V == p_param->mode) {
     p_i93 = &p_param->param.pi93;
+
+    if (plen < 2) {
+      goto invalid_packet;
+    }
+    plen -= 2;
     p_i93->flag = *p++;
     p_i93->dsfid = *p++;
+
+    if (plen < NFC_ISO15693_UID_LEN) {
+      goto invalid_packet;
+    }
+    plen -= NFC_ISO15693_UID_LEN;
     STREAM_TO_ARRAY(p_i93->uid, p, NFC_ISO15693_UID_LEN);
   } else if (NCI_DISCOVERY_TYPE_POLL_KOVIO == p_param->mode) {
     p_param->param.pk.uid_len = len;
@@ -856,6 +917,12 @@ Available after Technology Detection
     STREAM_TO_ARRAY(p_param->param.pk.uid, p, p_param->param.pk.uid_len);
   } else if (NCI_DISCOVERY_TYPE_POLL_ACTIVE == p_param->mode) {
     acm_p = &p_param->param.acm_p;
+
+    if (plen < 1) {
+      goto invalid_packet;
+    }
+    plen--;
+
 #if (NXP_EXTNS == TRUE)
     if(len == 0) {
       /*No RF Technology specific parameters, skipping next 3 bytes
@@ -868,12 +935,21 @@ Available after Technology Detection
     if (acm_p->atr_res_len > 0) {
       if (acm_p->atr_res_len > NFC_MAX_ATS_LEN)
         acm_p->atr_res_len = NFC_MAX_ATS_LEN;
+
+      if (plen < acm_p->atr_res_len) {
+        goto invalid_packet;
+      }
+      plen -= acm_p->atr_res_len;
       STREAM_TO_ARRAY(acm_p->atr_res, p, acm_p->atr_res_len);
       /* ATR_RES
       Byte 3~12 Byte 13 Byte 14 Byte 15 Byte 16 Byte 17 Byte 18~18+n
       NFCID3T   DIDT    BST     BRT     TO      PPT     [GT0 ... GTn] */
       mpl_idx = 14;
       gb_idx = NCI_P_GEN_BYTE_INDEX;
+
+      if (acm_p->atr_res_len < mpl_idx + 1) {
+        goto invalid_packet;
+      }
       acm_p->waiting_time = acm_p->atr_res[NCI_L_NFC_DEP_TO_INDEX] & 0x0F;
       mpl = ((acm_p->atr_res[mpl_idx]) >> 4) & 0x03;
       acm_p->max_payload_size = nfc_mpl_code_to_size[mpl];
@@ -886,16 +962,30 @@ Available after Technology Detection
     }
   } else if (NCI_DISCOVERY_TYPE_LISTEN_ACTIVE == p_param->mode) {
     acm_p = &p_param->param.acm_p;
+
+    if (plen < 1) {
+      goto invalid_packet;
+    }
+    plen--;
     acm_p->atr_res_len = *p++;
     if (acm_p->atr_res_len > 0) {
       if (acm_p->atr_res_len > NFC_MAX_ATS_LEN)
         acm_p->atr_res_len = NFC_MAX_ATS_LEN;
+
+      if (plen < acm_p->atr_res_len) {
+        goto invalid_packet;
+      }
+      plen -= acm_p->atr_res_len;
       STREAM_TO_ARRAY(acm_p->atr_res, p, acm_p->atr_res_len);
       /* ATR_REQ
       Byte 3~12 Byte 13 Byte 14 Byte 15 Byte 16 Byte 17~17+n
       NFCID3I   DIDI    BSI     BRI     PPI     [GI0 ... GIn] */
       mpl_idx = 13;
       gb_idx = NCI_L_GEN_BYTE_INDEX;
+
+      if (acm_p->atr_res_len < mpl_idx + 1) {
+        goto invalid_packet;
+      }
       mpl = ((acm_p->atr_res[mpl_idx]) >> 4) & 0x03;
       acm_p->max_payload_size = nfc_mpl_code_to_size[mpl];
       if (acm_p->atr_res_len > gb_idx) {
@@ -906,7 +996,7 @@ Available after Technology Detection
       }
     }
   }
-
+invalid_packet:
   return (p_start + len);
 }
 
@@ -919,11 +1009,17 @@ Available after Technology Detection
 ** Returns          void
 **
 *******************************************************************************/
-void nfc_ncif_proc_discover_ntf(uint8_t* p,
-                                __attribute__((unused)) uint16_t plen) {
+void nfc_ncif_proc_discover_ntf(uint8_t* p, uint16_t plen) {
   tNFC_DISCOVER evt_data;
 
   if (nfc_cb.p_discv_cback) {
+    // validate packet length should be larger than (NCI header + rf_disc_id +
+    // protocol + mode + length of rf parameters).
+    if (plen < NCI_MSG_HDR_SIZE + 4) {
+      evt_data.status = NCI_STATUS_FAILED;
+      goto invalid_packet;
+    }
+    plen -= (NCI_MSG_HDR_SIZE + 4);
     p += NCI_MSG_HDR_SIZE;
     evt_data.status = NCI_STATUS_OK;
     evt_data.result.rf_disc_id = *p++;
@@ -931,9 +1027,18 @@ void nfc_ncif_proc_discover_ntf(uint8_t* p,
 
     /* fill in tNFC_RESULT_DEVT */
     evt_data.result.rf_tech_param.mode = *p++;
+
+    // validate packet length should be larger than (rf_tech_param + ntf_type)
+    if (plen < *p + 1) {
+      evt_data.status = NCI_STATUS_FAILED;
+      goto invalid_packet;
+    }
+    plen -= (*p + 1);
     p = nfc_ncif_decode_rf_params(&evt_data.result.rf_tech_param, p);
 
     evt_data.result.more = *p++;
+
+  invalid_packet:
     (*nfc_cb.p_discv_cback)(NFC_RESULT_DEVT, &evt_data);
   }
 }
@@ -979,10 +1084,19 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
   uint8_t *pp, len_act;
   uint8_t buff_size, num_buff;
   tNFC_RF_PA_PARAMS* p_pa;
+  uint8_t plen = len, pplen = 0;
 
   nfc_set_state(NFC_STATE_OPEN);
 
   memset(p_intf, 0, sizeof(tNFC_INTF_PARAMS));
+  // validate packet length should be larger than (rf_disc_id + type +
+  // protocol + mode + buff_size + num_buff + length of rf parameters).
+  if (plen < 7) {
+    evt_data.status = NCI_STATUS_FAILED;
+    goto invalid_packet;
+  }
+  plen -= 7;
+
   evt_data.activate.rf_disc_id = *p++;
   p_intf->type = *p++;
   evt_data.activate.protocol = *p++;
@@ -1000,6 +1114,13 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
   buff_size = *p++;
   num_buff = *p++;
   /* fill in tNFC_activate_DEVT */
+  // validate remaining packet length should be larger than (rf_tech_param +
+  // data_mode + tx_bitrate + rx_bitrte + len_act).
+  if (plen < *p + 4) {
+    evt_data.status = NCI_STATUS_FAILED;
+    goto invalid_packet;
+  }
+  plen -= (*p + 4);
   p = nfc_ncif_decode_rf_params(&evt_data.activate.rf_tech_param, p);
 
   evt_data.activate.data_mode = *p++;
@@ -1015,6 +1136,11 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
   if (p_intf->intf_param.frame.param_len > NFC_MAX_RAW_PARAMS)
     p_intf->intf_param.frame.param_len = NFC_MAX_RAW_PARAMS;
   pp = p;
+
+  if (plen < p_intf->intf_param.frame.param_len) {
+    evt_data.status = NCI_STATUS_FAILED;
+    goto invalid_packet;
+  }
   STREAM_TO_ARRAY(p_intf->intf_param.frame.param, pp,
                   p_intf->intf_param.frame.param_len);
   if (evt_data.activate.intf_param.type == NCI_INTERFACE_ISO_DEP) {
@@ -1025,25 +1151,57 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
     switch (mode) {
       case NCI_DISCOVERY_TYPE_POLL_A:
         p_pa_iso = &p_intf->intf_param.pa_iso;
+
+        if (plen < 1) {
+          evt_data.status = NCI_STATUS_FAILED;
+          goto invalid_packet;
+        }
+        plen--;
         p_pa_iso->ats_res_len = *p++;
 
         if (p_pa_iso->ats_res_len == 0) break;
 
         if (p_pa_iso->ats_res_len > NFC_MAX_ATS_LEN)
           p_pa_iso->ats_res_len = NFC_MAX_ATS_LEN;
+
+        if (plen < p_pa_iso->ats_res_len) {
+          evt_data.status = NCI_STATUS_FAILED;
+          goto invalid_packet;
+        }
+        plen -= p_pa_iso->ats_res_len;
         STREAM_TO_ARRAY(p_pa_iso->ats_res, p, p_pa_iso->ats_res_len);
+
+        pplen = p_pa_iso->ats_res_len;
         pp = &p_pa_iso->ats_res[NCI_ATS_T0_INDEX];
         t0 = p_pa_iso->ats_res[NCI_ATS_T0_INDEX];
         pp++;                           /* T0 */
-        if (t0 & NCI_ATS_TA_MASK) pp++; /* TA */
+        pplen--;
+        if (t0 & NCI_ATS_TA_MASK) {
+          if (pplen < 1) {
+            evt_data.status = NCI_STATUS_FAILED;
+            goto invalid_packet;
+          }
+          pplen--;
+          pp++; /* TA */
+        }
         if (t0 & NCI_ATS_TB_MASK) {
           /* FWI (Frame Waiting time Integer) & SPGI (Start-up Frame Guard time
            * Integer) */
+          if (pplen < 1) {
+            evt_data.status = NCI_STATUS_FAILED;
+            goto invalid_packet;
+          }
+          pplen--;
           p_pa_iso->fwi = (((*pp) >> 4) & 0x0F);
           p_pa_iso->sfgi = ((*pp) & 0x0F);
           pp++; /* TB */
         }
         if (t0 & NCI_ATS_TC_MASK) {
+          if (pplen < 1) {
+            evt_data.status = NCI_STATUS_FAILED;
+            goto invalid_packet;
+          }
+          pplen--;
           p_pa_iso->nad_used = ((*pp) & 0x01);
           pp++; /* TC */
         }
@@ -1051,10 +1209,19 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
             (uint8_t)(p_pa_iso->ats_res_len - (pp - p_pa_iso->ats_res));
         if (p_pa_iso->his_byte_len > NFC_MAX_HIS_BYTES_LEN)
           p_pa_iso->his_byte_len = NFC_MAX_HIS_BYTES_LEN;
+        if (pplen < p_pa_iso->his_byte_len) {
+          evt_data.status = NCI_STATUS_FAILED;
+          goto invalid_packet;
+        }
         memcpy(p_pa_iso->his_byte, pp, p_pa_iso->his_byte_len);
         break;
 
       case NCI_DISCOVERY_TYPE_LISTEN_A:
+        if (plen < 1) {
+          evt_data.status = NCI_STATUS_FAILED;
+          goto invalid_packet;
+        }
+        plen--;
         p_intf->intf_param.la_iso.rats = *p++;
         gettimeofday(&timer_start, nullptr);
         break;
@@ -1065,12 +1232,24 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
         MBLI/DID Higher layer - Response
         */
         p_pb_iso = &p_intf->intf_param.pb_iso;
+
+        if (plen < 1) {
+          evt_data.status = NCI_STATUS_FAILED;
+          goto invalid_packet;
+        }
+        plen--;
         p_pb_iso->attrib_res_len = *p++;
 
         if (p_pb_iso->attrib_res_len == 0) break;
 
         if (p_pb_iso->attrib_res_len > NFC_MAX_ATTRIB_LEN)
           p_pb_iso->attrib_res_len = NFC_MAX_ATTRIB_LEN;
+
+        if (plen < p_pb_iso->attrib_res_len) {
+          evt_data.status = NCI_STATUS_FAILED;
+          goto invalid_packet;
+        }
+        plen -= p_pb_iso->attrib_res_len;
         STREAM_TO_ARRAY(p_pb_iso->attrib_res, p, p_pb_iso->attrib_res_len);
         p_pb_iso->mbli = (p_pb_iso->attrib_res[0]) >> 4;
         if (p_pb_iso->attrib_res_len > NFC_PB_ATTRIB_REQ_FIXED_BYTES) {
@@ -1090,13 +1269,30 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
         NFCID0   Param 1 Param 2 Param 3 Param 4 Higher layer - INF
         */
         p_lb_iso = &p_intf->intf_param.lb_iso;
+
+        if (plen < 1) {
+          evt_data.status = NCI_STATUS_FAILED;
+          goto invalid_packet;
+        }
+        plen--;
         p_lb_iso->attrib_req_len = *p++;
 
         if (p_lb_iso->attrib_req_len == 0) break;
 
         if (p_lb_iso->attrib_req_len > NFC_MAX_ATTRIB_LEN)
           p_lb_iso->attrib_req_len = NFC_MAX_ATTRIB_LEN;
+
+        if (plen < p_lb_iso->attrib_req_len) {
+          evt_data.status = NCI_STATUS_FAILED;
+          goto invalid_packet;
+        }
+        plen -= p_lb_iso->attrib_req_len;
         STREAM_TO_ARRAY(p_lb_iso->attrib_req, p, p_lb_iso->attrib_req_len);
+
+        if (p_lb_iso->attrib_req_len < NFC_NFCID0_MAX_LEN) {
+          evt_data.status = NCI_STATUS_FAILED;
+          goto invalid_packet;
+        }
         memcpy(p_lb_iso->nfcid0, p_lb_iso->attrib_req, NFC_NFCID0_MAX_LEN);
         if (p_lb_iso->attrib_req_len > NFC_LB_ATTRIB_REQ_FIXED_BYTES) {
           p_lb_iso->hi_info_len =
@@ -1134,6 +1330,11 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
         p_pa_nfc->atr_res_len =
                   evt_data.activate.rf_tech_param.param.acm_p.atr_res_len;
     } else {
+      if (plen < 1) {
+        evt_data.status = NCI_STATUS_FAILED;
+        goto invalid_packet;
+      }
+      plen--;
       p_pa_nfc->atr_res_len = *p++;
     }
 
@@ -1145,12 +1346,17 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
           ((mode == NCI_DISCOVERY_TYPE_POLL_ACTIVE) ||
            (mode == NCI_DISCOVERY_TYPE_LISTEN_ACTIVE))) {
          /* NCI 2.0 : ATR_RES is included in RF technology parameters in active mode */
-          memcpy(p_pa_nfc->atr_res,
-                         evt_data.activate.rf_tech_param.param.acm_p.atr_res,
-                         p_pa_nfc->atr_res_len);
-          } else {
-             STREAM_TO_ARRAY(p_pa_nfc->atr_res, p, p_pa_nfc->atr_res_len);
-         }
+         memcpy(p_pa_nfc->atr_res,
+                evt_data.activate.rf_tech_param.param.acm_p.atr_res,
+                p_pa_nfc->atr_res_len);
+      } else {
+        if (plen < p_pa_nfc->atr_res_len) {
+          evt_data.status = NCI_STATUS_FAILED;
+          goto invalid_packet;
+        }
+        plen -= p_pa_nfc->atr_res_len;
+        STREAM_TO_ARRAY(p_pa_nfc->atr_res, p, p_pa_nfc->atr_res_len);
+      }
 
       if ((mode == NCI_DISCOVERY_TYPE_POLL_A) ||
           (mode == NCI_DISCOVERY_TYPE_POLL_F) ||
@@ -1164,6 +1370,11 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
         NFCID3T   DIDT    BST     BRT     TO      PPT     [GT0 ... GTn] */
         mpl_idx = 14;
         gb_idx = NCI_P_GEN_BYTE_INDEX;
+
+        if (p_pa_nfc->atr_res_len < NCI_L_NFC_DEP_TO_INDEX + 1) {
+          evt_data.status = NCI_STATUS_FAILED;
+          goto invalid_packet;
+        }
         p_pa_nfc->waiting_time =
             p_pa_nfc->atr_res[NCI_L_NFC_DEP_TO_INDEX] & 0x0F;
       } else if ((mode == NCI_DISCOVERY_TYPE_LISTEN_A) ||
@@ -1180,6 +1391,10 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
         gb_idx = NCI_L_GEN_BYTE_INDEX;
       }
 
+      if (p_pa_nfc->atr_res_len < mpl_idx + 1) {
+        evt_data.status = NCI_STATUS_FAILED;
+        goto invalid_packet;
+      }
       mpl = ((p_pa_nfc->atr_res[mpl_idx]) >> 4) & 0x03;
       p_pa_nfc->max_payload_size = nfc_mpl_code_to_size[mpl];
 #if (NXP_EXTNS == TRUE)
@@ -1202,6 +1417,12 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
     p_pa = &evt_data.activate.rf_tech_param.param.pa;
     if ((len_act == NCI_T1T_HR_LEN) && (p_pa->hr_len == 0)) {
       p_pa->hr_len = NCI_T1T_HR_LEN;
+
+      if (plen < 2) {
+        evt_data.status = NCI_STATUS_FAILED;
+        goto invalid_packet;
+      }
+      plen -= 2;
       p_pa->hr[0] = *p++;
       p_pa->hr[1] = *p++;
     }
@@ -1226,6 +1447,7 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
   p_cb->num_buff = num_buff;
   p_cb->init_credits = num_buff;
 
+invalid_packet:
   if (nfc_cb.p_discv_cback) {
     (*nfc_cb.p_discv_cback)(NFC_ACTIVATE_DEVT, &evt_data);
   }
