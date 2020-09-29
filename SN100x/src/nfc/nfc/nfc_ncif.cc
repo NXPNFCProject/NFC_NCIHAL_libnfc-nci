@@ -177,6 +177,8 @@ void nfc_ncif_update_window(void) {
 void nfc_ncif_cmd_timeout(void) {
   LOG(ERROR) << StringPrintf("nfc_ncif_cmd_timeout");
 
+  storeNativeCrashLogs();
+
   /* report an error */
   nfc_ncif_event_status(NFC_GEN_ERROR_REVT, NFC_STATUS_HW_TIMEOUT);
   nfc_ncif_event_status(NFC_NFCC_TIMEOUT_REVT, NFC_STATUS_HW_TIMEOUT);
@@ -187,7 +189,6 @@ void nfc_ncif_cmd_timeout(void) {
   }
 
   /* XXX maco since this failure is unrecoverable, abort the process */
-  storeNativeCrashLogs();
   abort();
 }
 
