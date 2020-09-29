@@ -359,13 +359,18 @@ void nci_proc_ee_management_rsp(NFC_HDR* p_msg) {
   NCI_MSG_PRS_HDR1(pp, op_code);
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("nci_proc_ee_management_rsp opcode:0x%x", op_code);
-  len = *pp++;
+  len = p_msg->len - NCI_MSG_HDR_SIZE;
+  /* Use pmsg->len in boundary checks, skip *pp */
+  pp++;
 
   switch (op_code) {
     case NCI_MSG_NFCEE_DISCOVER:
-      nfc_response.nfcee_discover.status = *pp++;
-      nfc_response.nfcee_discover.num_nfcee = *pp++;
-
+      if (len > 1) {
+        nfc_response.nfcee_discover.status = *pp++;
+        nfc_response.nfcee_discover.num_nfcee = *pp++;
+      } else {
+        nfc_response.nfcee_discover.status = NFC_STATUS_FAILED;
+      }
       if (nfc_response.nfcee_discover.status != NFC_STATUS_OK)
         nfc_response.nfcee_discover.num_nfcee = 0;
 
@@ -373,7 +378,11 @@ void nci_proc_ee_management_rsp(NFC_HDR* p_msg) {
       break;
 
     case NCI_MSG_NFCEE_MODE_SET:
-      nfc_response.mode_set.status = *pp;
+      if (len > 0) {
+        nfc_response.mode_set.status = *pp;
+      } else {
+        nfc_response.mode_set.status = NFC_STATUS_FAILED;
+      }
       nfc_response.mode_set.nfcee_id = *p_old++;
       nfc_response.mode_set.mode = *p_old++;
       if (nfc_cb.nci_version != NCI_VERSION_2_0 || *pp != NCI_STATUS_OK) {
@@ -386,7 +395,11 @@ void nci_proc_ee_management_rsp(NFC_HDR* p_msg) {
       break;
 
     case NCI_MSG_NFCEE_POWER_LINK_CTRL:
-      nfc_response.pl_control.status = *pp;
+      if (len > 0) {
+        nfc_response.pl_control.status = *pp;
+      } else {
+        nfc_response.pl_control.status = NFC_STATUS_FAILED;
+      }
       nfc_response.pl_control.nfcee_id = *p_old++;
       nfc_response.pl_control.pl_control = *p_old++;
       event = NFC_NFCEE_PL_CONTROL_REVT;
