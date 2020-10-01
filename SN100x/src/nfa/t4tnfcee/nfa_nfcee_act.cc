@@ -582,8 +582,7 @@ bool isWritePermitted(void) {
       "%s : 0x%2x", __func__,
       ccFileInfo.find(nfa_t4tnfcee_cb.cur_fileId)->second.write_access);
   return ((ccFileInfo.find(nfa_t4tnfcee_cb.cur_fileId)->second.write_access !=
-           T4T_NFCEE_WRITE_NOT_ALLOWED) &&
-          isDataLenBelowMaxFileCapacity());
+           T4T_NFCEE_WRITE_NOT_ALLOWED));
 }
 
 /*******************************************************************************
@@ -613,7 +612,10 @@ bool isDataLenBelowMaxFileCapacity(void) {
  *******************************************************************************/
 tNFC_STATUS getWritePreconditionStatus() {
   if (!isWritePermitted()) return NFA_STATUS_READ_ONLY;
-
+  if (!isDataLenBelowMaxFileCapacity()) {
+    DLOG_IF(ERROR, nfc_debug_enabled) << StringPrintf("Data Len exceeds max file size");
+    return NFA_STATUS_FAILED;
+  }
   if (nfa_t4tnfcee_cb.cur_fileId == NDEF_FILE_ID) {
     tNDEF_STATUS ndef_status;
     if ((ndef_status = NDEF_MsgValidate(nfa_t4tnfcee_cb.p_dataBuf,
