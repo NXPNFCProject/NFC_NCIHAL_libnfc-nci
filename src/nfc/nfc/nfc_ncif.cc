@@ -1498,10 +1498,22 @@ Available after Technology Detection
   } else if (NCI_DISCOVERY_TYPE_POLL_ACTIVE == p_param->mode) {
     acm_p = &p_param->param.acm_p;
 
+#if (NXP_EXTNS == TRUE)
+    /*Skip RF Tech Specific Parametres*/
+    p = p+len;
+    /*Skip RF Technology mode, Tx , Rx baud rate & length params
+     * Byte 1         Byte 2     Byte 3    Byte 4
+     * Tech and Mode  Tx BR      Rx BR     Length of Act Param  */
+    p = p + 3;
+    plen = *p;
+    p++;
+#endif
+
     if (plen < 1) {
       goto invalid_packet;
     }
     plen--;
+
     acm_p->atr_res_len = *p++;
     if (acm_p->atr_res_len > 0) {
       if (acm_p->atr_res_len > NFC_MAX_ATS_LEN)
