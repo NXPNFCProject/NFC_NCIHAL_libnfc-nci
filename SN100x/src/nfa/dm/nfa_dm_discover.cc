@@ -1193,7 +1193,13 @@ void nfa_dm_start_rf_discover(void) {
     }
 #if (NXP_EXTNS == TRUE)
     {
-      tech_list = nfa_ee_get_supported_tech_list(nfa_dm_cb.selected_uicc_id);
+      bool isDynamicUiccEnabled = NfcConfig::getUnsigned(NAME_NXP_DUAL_UICC_ENABLE, 0x00);
+      if (isDynamicUiccEnabled) {
+        tech_list = nfa_ee_get_supported_tech_list(UICC1_HOST);
+        tech_list |= nfa_ee_get_supported_tech_list(UICC2_HOST);
+      } else {
+        tech_list = nfa_ee_get_supported_tech_list(nfa_dm_cb.selected_uicc_id);
+      }
       dm_disc_mask = nfa_dm_config_ee_discover_tech_mask(tech_list, dm_disc_mask);
     }
 #endif
