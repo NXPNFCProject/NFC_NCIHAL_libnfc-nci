@@ -15,11 +15,12 @@
  *  limitations under the License.
  *
  ******************************************************************************/
-#if (NXP_EXTNS == TRUE)
+
 #pragma once
 #include <nfa_sys.h>
 #include "nfa_hci_int.h"
 
+#if (NXP_EXTNS == TRUE && NXP_SRD == TRUE)
 /* Event to start SRD */
 #define NFA_SRD_START_EVT 1
 /* Event to stop SRD*/

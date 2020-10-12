@@ -64,7 +64,9 @@
 #include "nfa_dm_int.h"
 #include "nfa_ee_int.h"
 #include "nfa_hci_int.h"
+#if(NXP_SRD == TRUE)
 #include "nfa_srd_int.h"
+#endif
 #include "nfc_config.h"
 #endif
 
@@ -2370,7 +2372,7 @@ void nfc_ncif_proc_generic_error_ntf(tNFC_STATUS status)
                   (uint16_t)(NFC_TTYPE_SE_TEMP_ERROR_DELAY),
                   nfc_cb.nci_ese_cold_temp_timeout);
   }
-#if (NXP_EXTNS == TRUE)
+#if (NXP_EXTNS == TRUE && NXP_SRD == TRUE)
   else if (status == NCI_STATUS_SRD_TIMEOUT) {
     nfa_srd_timeout_ntf();
   }

@@ -51,7 +51,9 @@
 #include "nfa_hci_int.h"
 #if (NXP_EXTNS == TRUE)
 #include "nfa_ee_int.h"
+#if(NXP_SRD == TRUE)
 #include "nfa_srd_int.h"
+#endif
 #include "nfa_nv_co.h"
 #include "nfa_scr_int.h"
 #endif
@@ -2268,10 +2270,11 @@ static void nfa_hci_handle_connectivity_gate_pkt(uint8_t* p_data,
         evt_data.rcvd_evt.evt_code = nfa_hci_cb.inst;
         evt_data.rcvd_evt.evt_len = data_len;
         evt_data.rcvd_evt.p_evt_buf = p_data;
-
+#if(NXP_EXTNS == TRUE && NXP_SRD == TRUE)
         if (nfa_srd_check_hci_evt(&evt_data)) {
           return;
         }
+#endif
 
         /* notify NFA_HCI_EVENT_RCVD_EVT to the application */
         nfa_hciu_send_to_apps_handling_connectivity_evts(NFA_HCI_EVENT_RCVD_EVT,
