@@ -1539,6 +1539,10 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
             NFA_EeGetInfo(&nfa_hci_cb.num_nfcee, nfa_hci_cb.ee_info);
             if (nfa_hci_enable_one_nfcee() == false) {
               DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hci_enable_one_nfcee() failed");
+#if (NXP_EXTNS == TRUE)
+              nfa_hciu_send_get_param_cmd(NFA_HCI_ADMIN_PIPE,
+                                          NFA_HCI_HOST_LIST_INDEX);
+#endif
             }
           }
         }
