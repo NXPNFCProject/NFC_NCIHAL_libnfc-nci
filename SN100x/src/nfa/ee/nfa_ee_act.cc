@@ -50,8 +50,9 @@
 #include "nfa_hci_int.h"
 #if (NXP_EXTNS == TRUE)
 #include "nfa_nfcee_int.h"
-#include "nfc_config.h"
 #include "nfa_scr_int.h"
+#include "nfc_config.h"
+#include "nfc_int.h"
 #endif
 
 #include <statslog.h>
@@ -2810,7 +2811,17 @@ void nfa_ee_nci_nfcee_status_ntf(tNFA_EE_MSG* p_data) {
           (*nfa_ee_cb.p_enable_cback)(NFA_EE_UNRECOVERABLE_ERROR);
       } else if(p_ee->nfcee_status == NFC_NFCEE_STS_INIT_COMPLETED) {
           if (nfa_ee_cb.p_enable_cback)
-                      (*nfa_ee_cb.p_enable_cback) (NFA_EE_STATUS_INIT_COMPLETED);
+            (*nfa_ee_cb.p_enable_cback)(NFA_EE_STATUS_INIT_COMPLETED);
+          /* Restart  Mode set ntf timer when NFCEE Status is INIT
+           * completed */
+          if (nfc_cb.flags & NFC_FL_WAIT_MODE_SET_NTF) {
+            DLOG_IF(INFO, nfc_debug_enabled)
+                << StringPrintf("Re-starting mode set ntf timer..");
+            nfc_stop_timer(&nfc_cb.nci_mode_set_ntf_timer);
+            nfc_start_timer(&nfc_cb.nci_mode_set_ntf_timer,
+                            (uint16_t)(NFC_TTYPE_WAIT_MODE_SET_NTF),
+                            NFC_MODE_SET_NTF_TIMEOUT);
+          }
       }
   }
 }
