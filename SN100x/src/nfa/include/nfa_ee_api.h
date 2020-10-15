@@ -550,53 +550,6 @@ extern tNFA_STATUS NFA_EeAddSystemCodeRouting(uint16_t systemcode,
 **
 *******************************************************************************/
 extern tNFA_STATUS NFA_EeRemoveSystemCodeRouting(uint16_t systemcode);
-#if (NXP_EXTNS == TRUE)
-/*******************************************************************************
-**
-** Function         NFA_EeAddApduPatternRouting
-**
-** Description      This function is called to add an APDU pattern entry in the
-**                  listen mode routing table in NFCC. The status of this
-**                  operation is reported as the NFA_EE_ADD_APDU_EVT.
-**
-** Note:            If RF discovery is started,
-**                  NFA_StopRfDiscovery()/NFA_RF_DISCOVERY_STOPPED_EVT should
-**                  happen before calling this function
-**
-** Note:            NFA_EeUpdateNow() should be called after last NFA-EE
-**                  function to change the listen mode routing is called.
-**
-** Returns          NFA_STATUS_OK if successfully initiated
-**                  NFA_STATUS_FAILED otherwise
-**                  NFA_STATUS_INVALID_PARAM If bad parameter
-**
-*******************************************************************************/
-extern tNFA_STATUS NFA_EeAddApduPatternRouting(uint8_t apdu_data_len,uint8_t* apdu_data, uint8_t apdu_mask_len,
-  uint8_t* apdu_mask, tNFA_HANDLE ee_handle, uint8_t power_state);
-
-/*******************************************************************************
-**
-** Function         NFA_EeRemoveApduPatternRouting
-**
-** Description      This function is called to remove the given APDU pattern entry from
-**                  the listen mode routing table. If the entry configures VS,
-**                  it is also removed. The status of this operation is reported
-**                  as the NFA_EE_REMOVE_APDU_EVT.
-**
-** Note:            If RF discovery is started,
-**                  NFA_StopRfDiscovery()/NFA_RF_DISCOVERY_STOPPED_EVT should
-**                  happen before calling this function
-**
-** Note:            NFA_EeUpdateNow() should be called after last NFA-EE
-**                  function to change the listen mode routing is called.
-**
-** Returns          NFA_STATUS_OK if successfully initiated
-**                  NFA_STATUS_FAILED otherwise
-**                  NFA_STATUS_INVALID_PARAM If bad parameter
-**
-*******************************************************************************/
-extern tNFA_STATUS NFA_EeRemoveApduPatternRouting(uint8_t apdu_len, uint8_t* p_apdu);
-#endif
 
 /*******************************************************************************
 **
