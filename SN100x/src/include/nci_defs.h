@@ -54,6 +54,7 @@
 #define NCI_MAX_VSC_SIZE 0xFF
 #if (NXP_EXTNS == TRUE)
 #define APPL_DTA_MODE TRUE
+#define NCI_MAX_DATA_PAYLOAD_SIZE 0xFF
 #endif
 /* NCI header (3) + callback function pointer(8; use 8 to be safe) + HCIT (1
  * byte) */

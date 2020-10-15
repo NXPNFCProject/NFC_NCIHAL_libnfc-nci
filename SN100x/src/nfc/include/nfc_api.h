@@ -150,6 +150,8 @@ typedef uint8_t tNFC_STATUS;
 #define UICC2_HOST ((unsigned char)0x81)
 #define DH_HOST ((unsigned char)0x00)
 #define ESE_HOST ((unsigned char)0xC0)
+#define NCI_SELECT_CMD_P1 0x04
+#define NFC_SELECT_CMD_INS 0xA4
 #define NXP_FEATURE_ENABLED \
   ((unsigned char)0x01) /* flag to indicate NXP feature is enabled*/
 #define NXP_FEATURE_DISABLED \
