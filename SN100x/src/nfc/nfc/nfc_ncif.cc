@@ -85,8 +85,8 @@ extern std::string nfc_storage_path;
 
 #if (NXP_EXTNS == TRUE)
 #define NCI_MSG_GET_RFSTATUS 0x39
-#define IS_PROCESS_ABORT(p, mt, gid, oid)                                          \
-        ((NCI_MT_RSP == mt && NCI_STATUS_SEMANTIC_ERROR == p[NCI_MSG_STATUS_BYTE]) \
+#define IS_PROCESS_ABORT(status, mt, gid, oid)                                     \
+        ((NCI_MT_RSP == mt && NCI_STATUS_SEMANTIC_ERROR == status)                 \
           && !(NCI_GID_CORE == gid && NCI_MSG_CORE_SET_POWER_SUB_STATE == oid)     \
           && !(NCI_GID_RF_MANAGE == gid && NCI_MSG_RF_ISO_DEP_NAK_PRESENCE == oid) \
           && !(NCI_GID_PROP == gid && NCI_MSG_GET_RFSTATUS == oid))
@@ -493,7 +493,8 @@ bool nfc_ncif_process_event(NFC_HDR* p_msg) {
   oid = ((*p) & NCI_OID_MASK);
 
 #if (NXP_EXTNS == TRUE)
-  if (IS_PROCESS_ABORT(p,mt,gid,oid))
+  /* p[2] to refer status byte*/
+  if (IS_PROCESS_ABORT(p[2],mt,gid,oid))
   {/* If we have received NCI_STATUS_SEMANTIC_ERROR, abort the process!!
     * EXCEPTION: CORE_SET_POWER_SUB_STATE_CMD & RF_ISO_DEP_NAK_PRESENCE_CMD */
     LOG(ERROR) <<StringPrintf("Received NCI_STATUS_SEMANTIC_ERROR\nAborting...");
