@@ -733,6 +733,11 @@ static void rw_mfc_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   /* Assume the data is just the response byte sequence */
 #if (NXP_EXTNS != TRUE)
   p = (uint8_t*)(mfc_data + 1) + mfc_data->offset;
+#else
+  if ((p_mfc->state != RW_MFC_STATE_IDLE) && (mfc_data ==  NULL)) {
+    LOG(ERROR) << StringPrintf("%s NULL pointer", __func__);
+    return;
+  }
 #endif
   switch (p_mfc->state) {
     case RW_MFC_STATE_IDLE:
