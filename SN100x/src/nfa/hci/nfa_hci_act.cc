@@ -51,6 +51,7 @@
 #include "nfa_hci_int.h"
 #if (NXP_EXTNS == TRUE)
 #include "nfa_ee_int.h"
+#include "nfa_mdt_int.h"
 #include "nfa_nv_co.h"
 #include "nfa_scr_int.h"
 #endif
@@ -2283,9 +2284,13 @@ static void nfa_hci_handle_connectivity_gate_pkt(uint8_t* p_data,
         evt_data.rcvd_evt.evt_len = data_len;
         evt_data.rcvd_evt.p_evt_buf = p_data;
 
-    /* notify NFA_HCI_EVENT_RCVD_EVT to the application */
-    nfa_hciu_send_to_apps_handling_connectivity_evts(NFA_HCI_EVENT_RCVD_EVT,
-                                                     &evt_data);
+        if (nfa_mdt_check_hci_evt(&evt_data)) {
+          return;
+        }
+
+        /* notify NFA_HCI_EVENT_RCVD_EVT to the application */
+        nfa_hciu_send_to_apps_handling_connectivity_evts(NFA_HCI_EVENT_RCVD_EVT,
+                                                         &evt_data);
 #if(NXP_EXTNS == TRUE)
       }
 #endif
@@ -2390,6 +2395,7 @@ static void nfa_hci_handle_generic_gate_evt(uint8_t* p_data, uint16_t data_len,
   nfa_hci_cb.rsp_buf_size = 0;
   nfa_hci_cb.p_rsp_buf = nullptr;
 #endif
+
   /* notify NFA_HCI_EVENT_RCVD_EVT to the application */
   nfa_hciu_send_to_app(NFA_HCI_EVENT_RCVD_EVT, &evt_data, p_gate->gate_owner);
 }
