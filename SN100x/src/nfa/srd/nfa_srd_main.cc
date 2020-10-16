@@ -18,7 +18,7 @@
 #if (NXP_EXTNS == TRUE)
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
-#include <nfa_mdt_int.h>
+#include <nfa_srd_int.h>
 #include "NfcAdaptation.h"
 #include "nfa_dm_int.h"
 #include "nfa_hci_defs.h"
@@ -27,15 +27,15 @@
 using android::base::StringPrintf;
 
 extern bool nfc_debug_enabled;
-ThreadCondVar mdtDeactivateEvtCb;
-ThreadCondVar mdtDiscoverymapEvt;
+ThreadCondVar srdDeactivateEvtCb;
+ThreadCondVar srdDiscoverymapEvt;
 tNFA_HCI_EVT_DATA p_evtdata;
 
 /*Local static function declarations*/
-void nfa_mdt_process_hci_evt(tNFA_HCI_EVT event, tNFA_HCI_EVT_DATA* p_data);
-void nfa_mdt_deactivate_req_evt(tNFC_DISCOVER_EVT event,
+void nfa_srd_process_hci_evt(tNFA_HCI_EVT event, tNFA_HCI_EVT_DATA* p_data);
+void nfa_srd_deactivate_req_evt(tNFC_DISCOVER_EVT event,
                                 tNFC_DISCOVER* evt_data);
-void nfa_mdt_discovermap_cb(tNFC_DISCOVER_EVT event, tNFC_DISCOVER* p_data);
+void nfa_srd_discovermap_cb(tNFC_DISCOVER_EVT event, tNFC_DISCOVER* p_data);
 
 /******************************************************************************
  **  Constants
@@ -45,15 +45,15 @@ void nfa_mdt_discovermap_cb(tNFC_DISCOVER_EVT event, tNFC_DISCOVER* p_data);
 
 /*******************************************************************************
 **
-** Function         nfa_mdt_start
+** Function         nfa_srd_start
 **
 ** Description      Process to send discover map command with RF interface.
 **
 ** Returns          None
 **
 *******************************************************************************/
-void* nfa_mdt_start(void*) {
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(" nfa_mdt_start: Enter");
+void* nfa_srd_start(void*) {
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(" nfa_srd_start: Enter");
   tNFA_STATUS status = NFA_STATUS_FAILED;
   tNCI_DISCOVER_MAPS* p_intf_mapping = nullptr;
 
@@ -66,26 +66,26 @@ void* nfa_mdt_start(void*) {
   if (p_intf_mapping != nullptr &&
       (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_IDLE ||
        nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_POLL_ACTIVE)) {
-    mdtDiscoverymapEvt.lock();
+    srdDiscoverymapEvt.lock();
     (void)NFC_DiscoveryMap(NFC_SWP_RD_NUM_INTERFACE_MAP, p_intf_mapping,
-                           nfa_mdt_discovermap_cb);
-    mdtDiscoverymapEvt.wait();
-    status = mdt_t.rsp_status;
+                           nfa_srd_discovermap_cb);
+    srdDiscoverymapEvt.wait();
+    status = srd_t.rsp_status;
   }
   if (status == NFC_STATUS_OK) {
-    mdt_t.mdt_state = ENABLE;
+    srd_t.srd_state = ENABLE;
   }
   /* notify NFA_HCI_EVENT_RCVD_EVT to the application */
   nfa_hciu_send_to_apps_handling_connectivity_evts(NFA_HCI_EVENT_RCVD_EVT,
                                                    &p_evtdata);
 
   pthread_exit(NULL);
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(" nfa_mdt_start:Exit");
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(" nfa_srd_start:Exit");
 }
 
 /*******************************************************************************
 **
-** Function         nfa_mdt_stop
+** Function         nfa_srd_stop
 **
 ** Description      Process to reset the default settings for discover map
 **                  command.
@@ -93,8 +93,8 @@ void* nfa_mdt_start(void*) {
 ** Returns          None
 **
 *******************************************************************************/
-void* nfa_mdt_stop(void*) {
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(" nfa_mdt_stop:Enter");
+void* nfa_srd_stop(void*) {
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(" nfa_srd_stop:Enter");
   tNCI_DISCOVER_MAPS* p_intf_mapping = nullptr;
 
   const tNCI_DISCOVER_MAPS
@@ -115,83 +115,83 @@ void* nfa_mdt_stop(void*) {
   p_intf_mapping = (tNCI_DISCOVER_MAPS*)nfc_interface_mapping_default;
 
   if (!(nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_IDLE)) {
-    mdtDeactivateEvtCb.lock();
+    srdDeactivateEvtCb.lock();
     if (NFA_STATUS_OK == NFA_StopRfDiscovery()) {
       if (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_POLL_ACTIVE) {
-        mdt_t.wait_for_deact_ntf = true;
+        srd_t.wait_for_deact_ntf = true;
       }
     }
-    mdtDeactivateEvtCb.wait();
+    srdDeactivateEvtCb.wait();
   }
   if (p_intf_mapping != nullptr &&
       (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_IDLE ||
        nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_POLL_ACTIVE)) {
-    mdtDiscoverymapEvt.lock();
+    srdDiscoverymapEvt.lock();
     (void)NFC_DiscoveryMap(NFC_NUM_INTERFACE_MAP, p_intf_mapping,
-                           nfa_mdt_discovermap_cb);
-    mdtDiscoverymapEvt.wait();
+                           nfa_srd_discovermap_cb);
+    srdDiscoverymapEvt.wait();
   }
-  if (mdt_t.mdt_state == TIMEOUT) {
-    nfa_hciu_send_to_apps_handling_connectivity_evts(NFA_MDT_EVT_TIMEOUT,
+  if (srd_t.srd_state == TIMEOUT) {
+    nfa_hciu_send_to_apps_handling_connectivity_evts(NFA_SRD_EVT_TIMEOUT,
                                                      &p_evtdata);
   } else {
     nfa_hciu_send_to_apps_handling_connectivity_evts(NFA_HCI_EVENT_RCVD_EVT,
                                                      &p_evtdata);
   }
-  mdt_t.mdt_state = DISABLE;
+  srd_t.srd_state = DISABLE;
   pthread_exit(NULL);
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(" nfa_mdt_stop:Exit");
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(" nfa_srd_stop:Exit");
 }
 /*******************************************************************************
  **
- ** Function:        nfa_mdt_discovermap_cb
+ ** Function:        nfa_srd_discovermap_cb
  **
  ** Description:     callback for Discover Map command
  **
  ** Returns:         void
  **
  *******************************************************************************/
-void nfa_mdt_discovermap_cb(tNFC_DISCOVER_EVT event, tNFC_DISCOVER* p_data) {
+void nfa_srd_discovermap_cb(tNFC_DISCOVER_EVT event, tNFC_DISCOVER* p_data) {
   switch (event) {
     case NFC_MAP_DEVT:
-      if (p_data) mdt_t.rsp_status = p_data->status;
-      mdtDiscoverymapEvt.signal();
+      if (p_data) srd_t.rsp_status = p_data->status;
+      srdDiscoverymapEvt.signal();
       break;
   }
   return;
 }
 /*******************************************************************************
 **
-** Function         mdtCallback
+** Function         srdCallback
 **
-** Description      callback for Mdt specific HCI events
+** Description      callback for Srd specific HCI events
 **
 ** Returns          none
 **
 *******************************************************************************/
-void nfa_mdt_process_hci_evt(tNFA_HCI_EVT event, tNFA_HCI_EVT_DATA* p_data) {
-  pthread_t MdtThread;
+void nfa_srd_process_hci_evt(tNFA_HCI_EVT event, tNFA_HCI_EVT_DATA* p_data) {
+  pthread_t SrdThread;
   pthread_attr_t attr;
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
   p_evtdata = *p_data;
   switch (event) {
-    case NFA_MDT_START_EVT:
-      if (pthread_create(&MdtThread, &attr, nfa_mdt_start, nullptr) < 0) {
+    case NFA_SRD_START_EVT:
+      if (pthread_create(&SrdThread, &attr, nfa_srd_start, nullptr) < 0) {
         DLOG_IF(ERROR, nfc_debug_enabled)
-            << StringPrintf("MdtThread start creation failed");
+            << StringPrintf("SrdThread start creation failed");
       }
       break;
-    case NFA_MDT_STOP_EVT:
-      if (pthread_create(&MdtThread, &attr, nfa_mdt_stop, nullptr) < 0) {
+    case NFA_SRD_STOP_EVT:
+      if (pthread_create(&SrdThread, &attr, nfa_srd_stop, nullptr) < 0) {
         DLOG_IF(ERROR, nfc_debug_enabled)
-            << StringPrintf("MdtThread stop creation failed");
+            << StringPrintf("SrdThread stop creation failed");
       }
       break;
-    case NFA_MDT_FEATURE_NOT_SUPPORT_EVT:
+    case NFA_SRD_FEATURE_NOT_SUPPORT_EVT:
       memset(&p_evtdata, 0, sizeof(p_evtdata));
       nfa_hciu_send_to_apps_handling_connectivity_evts(
-          NFA_MDT_FEATURE_NOT_SUPPORT_EVT, &p_evtdata);
+          NFA_SRD_FEATURE_NOT_SUPPORT_EVT, &p_evtdata);
       break;
     default:
       DLOG_IF(INFO, nfc_debug_enabled)
@@ -202,39 +202,39 @@ void nfa_mdt_process_hci_evt(tNFA_HCI_EVT event, tNFA_HCI_EVT_DATA* p_data) {
 }
 /*******************************************************************************
 **
-** Function         nfa_mdt_deactivate_req_evt
+** Function         nfa_srd_deactivate_req_evt
 **
-** Description      callback for Mdt deactivate response
+** Description      callback for Srd deactivate response
 **
 ** Returns          None
 **
 *******************************************************************************/
-void nfa_mdt_deactivate_req_evt(tNFC_DISCOVER_EVT event,
+void nfa_srd_deactivate_req_evt(tNFC_DISCOVER_EVT event,
                                 tNFC_DISCOVER* evt_data) {
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("%s :Enter event:0x%2x", __func__, event);
 
-  if (mdt_t.mdt_state == FEATURE_NOT_SUPPORTED) {
+  if (srd_t.srd_state == FEATURE_NOT_SUPPORTED) {
     DLOG_IF(ERROR, nfc_debug_enabled)
-        << StringPrintf("%s : MDT Feature not supported", __func__);
+        << StringPrintf("%s : SRD Feature not supported", __func__);
     return;
   }
 
   switch (event) {
     case NFA_DM_RF_DEACTIVATE_RSP:
-      if (!mdt_t.wait_for_deact_ntf &&
+      if (!srd_t.wait_for_deact_ntf &&
           evt_data->deactivate.type == NFA_DEACTIVATE_TYPE_IDLE) {
-        mdt_t.rsp_status = evt_data->deactivate.status;
-        mdtDeactivateEvtCb.signal();
+        srd_t.rsp_status = evt_data->deactivate.status;
+        srdDeactivateEvtCb.signal();
       }
       break;
     case NFA_DM_RF_DEACTIVATE_NTF:
       /*Handle the scenario where tag is present and stop req is trigger*/
-      if (mdt_t.wait_for_deact_ntf &&
+      if (srd_t.wait_for_deact_ntf &&
           (evt_data->deactivate.type == NFA_DEACTIVATE_TYPE_IDLE)) {
-        mdt_t.rsp_status = evt_data->deactivate.status;
-        mdtDeactivateEvtCb.signal();
-        mdt_t.wait_for_deact_ntf = false;
+        srd_t.rsp_status = evt_data->deactivate.status;
+        srdDeactivateEvtCb.signal();
+        srd_t.wait_for_deact_ntf = false;
       }
       break;
 
@@ -247,17 +247,17 @@ void nfa_mdt_deactivate_req_evt(tNFC_DISCOVER_EVT event,
 }
 /*******************************************************************************
 **
-** Function         nfa_mdt_check_hci_evt
+** Function         nfa_srd_check_hci_evt
 **
-** Description      This function shall be called to check whether MDT HCI EVT
+** Description      This function shall be called to check whether SRD HCI EVT
 **                   or not.
 **
 ** Returns          TRUE/FALSE
 **
 *******************************************************************************/
-bool nfa_mdt_check_hci_evt(tNFA_HCI_EVT_DATA* evt_data) {
-  static const uint8_t TAG_MDT_AID = 0x81;
-  static const uint8_t TAG_MDT_EVT_DATA = 0x82;
+bool nfa_srd_check_hci_evt(tNFA_HCI_EVT_DATA* evt_data) {
+  static const uint8_t TAG_SRD_AID = 0x81;
+  static const uint8_t TAG_SRD_EVT_DATA = 0x82;
   static const uint8_t INDEX1_FIELD_VALUE = 0xA0;
   static const uint8_t INDEX2_FIELD_VALUE = 0xFE;
   uint8_t inst = evt_data->rcvd_evt.evt_code;
@@ -269,31 +269,31 @@ bool nfa_mdt_check_hci_evt(tNFA_HCI_EVT_DATA* evt_data) {
   uint8_t len_aid = 0;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s :Enter ", __func__);
-  if (inst == NFA_HCI_EVT_TRANSACTION && *p_data++ == TAG_MDT_AID) {
+  if (inst == NFA_HCI_EVT_TRANSACTION && *p_data++ == TAG_SRD_AID) {
     len_aid = *p_data++;
     if (memcmp(p_data, aid, len_aid) == 0) {
       p_data += len_aid;
-      if (*p_data == TAG_MDT_EVT_DATA) {
+      if (*p_data == TAG_SRD_EVT_DATA) {
         if (*(p_data + 3) == INDEX1_FIELD_VALUE &&
             *(p_data + 4) == INDEX2_FIELD_VALUE) {
-          if (mdt_t.mdt_state == FEATURE_NOT_SUPPORTED) {
-            nfa_mdt_process_hci_evt(NFA_MDT_FEATURE_NOT_SUPPORT_EVT, evt_data);
+          if (srd_t.srd_state == FEATURE_NOT_SUPPORTED) {
+            nfa_srd_process_hci_evt(NFA_SRD_FEATURE_NOT_SUPPORT_EVT, evt_data);
             is_require = true;
           } else if (*(p_data + 6) == 0x01) {
-            if (mdt_t.mdt_state == ENABLE) {
+            if (srd_t.srd_state == ENABLE) {
               DLOG_IF(INFO, nfc_debug_enabled)
-                  << StringPrintf("%s :MDT Enabled ", __func__);
+                  << StringPrintf("%s :SRD Enabled ", __func__);
             } else {
-              nfa_mdt_process_hci_evt(NFA_MDT_START_EVT, evt_data);
+              nfa_srd_process_hci_evt(NFA_SRD_START_EVT, evt_data);
               is_require = true;
             }
           } else if (*(p_data + 6) == 0x00) {
-            if (mdt_t.mdt_state == DISABLE) {
+            if (srd_t.srd_state == DISABLE) {
               DLOG_IF(INFO, nfc_debug_enabled)
-                  << StringPrintf("%s :MDT Disabled ", __func__);
+                  << StringPrintf("%s :SRD Disabled ", __func__);
             } else {
               is_require = true;
-              nfa_mdt_process_hci_evt(NFA_MDT_STOP_EVT, evt_data);
+              nfa_srd_process_hci_evt(NFA_SRD_STOP_EVT, evt_data);
             }
           }
         }
@@ -306,74 +306,74 @@ bool nfa_mdt_check_hci_evt(tNFA_HCI_EVT_DATA* evt_data) {
 }
 /*******************************************************************************
 **
-** Function         nfa_mdt_timeout_ntf
+** Function         nfa_srd_timeout_ntf
 **
-** Description      This function handles MDT TIMEOUT NTF
+** Description      This function handles SRD TIMEOUT NTF
 **
 ** Returns          void
 **
 *******************************************************************************/
-void nfa_mdt_timeout_ntf() {
-  if (mdt_t.mdt_state == TIMEOUT || mdt_t.mdt_state == FEATURE_NOT_SUPPORTED) {
+void nfa_srd_timeout_ntf() {
+  if (srd_t.srd_state == TIMEOUT || srd_t.srd_state == FEATURE_NOT_SUPPORTED) {
     return;
   }
-  mdt_t.mdt_state = TIMEOUT;
+  srd_t.srd_state = TIMEOUT;
   memset(&p_evtdata, 0, sizeof(p_evtdata));
-  nfa_mdt_process_hci_evt(NFA_MDT_STOP_EVT, &p_evtdata);
+  nfa_srd_process_hci_evt(NFA_SRD_STOP_EVT, &p_evtdata);
 }
 /*******************************************************************************
 **
-** Function         nfa_mdt_init
+** Function         nfa_srd_init
 **
-** Description      Initalize the MDT module
+** Description      Initalize the SRD module
 **
 ** Returns          void
 **
 *******************************************************************************/
-void nfa_mdt_init() {
-  memset(&mdt_t, 0, sizeof(mdt_t));
+void nfa_srd_init() {
+  memset(&srd_t, 0, sizeof(srd_t));
   memset(&p_evtdata, 0, sizeof(p_evtdata));
-  uint16_t MDT_DISABLE_MASK = 0xFFFF;
+  uint16_t SRD_DISABLE_MASK = 0xFFFF;
   uint16_t isFeatureDisable = 0x0000;
-  std::vector<uint8_t> mdt_config;
+  std::vector<uint8_t> srd_config;
   DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf(" %s Enter : mdt_state 0x%2x", __func__, mdt_t.mdt_state);
+      << StringPrintf(" %s Enter : srd_state 0x%2x", __func__, srd_t.srd_state);
 
-  if ((NfcConfig::hasKey(NAME_NXP_MDT_TIMEOUT))) {
-    mdt_config = NfcConfig::getBytes(NAME_NXP_MDT_TIMEOUT);
-    if (mdt_config.size() > 0) {
-      isFeatureDisable = ((mdt_config[1] << 8) & MDT_DISABLE_MASK);
-      isFeatureDisable = (isFeatureDisable | mdt_config[0]);
+  if ((NfcConfig::hasKey(NAME_NXP_SRD_TIMEOUT))) {
+    srd_config = NfcConfig::getBytes(NAME_NXP_SRD_TIMEOUT);
+    if (srd_config.size() > 0) {
+      isFeatureDisable = ((srd_config[1] << 8) & SRD_DISABLE_MASK);
+      isFeatureDisable = (isFeatureDisable | srd_config[0]);
     }
   }
-  if (!(NfcConfig::hasKey(NAME_NXP_MDT_TIMEOUT)) || !isFeatureDisable) {
-    /* NXP_MDT_TIMEOUT value not found in config file. */
-    mdt_t.mdt_state = FEATURE_NOT_SUPPORTED;
+  if (!(NfcConfig::hasKey(NAME_NXP_SRD_TIMEOUT)) || !isFeatureDisable) {
+    /* NXP_SRD_TIMEOUT value not found in config file. */
+    srd_t.srd_state = FEATURE_NOT_SUPPORTED;
   }
   DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf(" %s Exit : mdt_state 0x%2x", __func__, mdt_t.mdt_state);
+      << StringPrintf(" %s Exit : srd_state 0x%2x", __func__, srd_t.srd_state);
 }
 /*******************************************************************************
 **
-** Function         nfa_mdt_deInit
+** Function         nfa_srd_deInit
 **
-** Description      De-Initalize the MDT module
+** Description      De-Initalize the SRD module
 **
 ** Returns          void
 **
 *******************************************************************************/
-void nfa_mdt_deInit() {}
+void nfa_srd_deInit() {}
 
 /*******************************************************************************
 **
-** Function         nfa_mdt_get_state
+** Function         nfa_srd_get_state
 **
-** Description      The API calls to get the mdt current state.
+** Description      The API calls to get the srd current state.
 **
 ** Returns          void
 **
 *******************************************************************************/
-int nfa_mdt_get_state(){
-  return mdt_t.mdt_state;
+int nfa_srd_get_state(){
+  return srd_t.srd_state;
 }
 #endif

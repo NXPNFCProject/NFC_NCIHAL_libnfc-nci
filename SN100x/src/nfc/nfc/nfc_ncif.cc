@@ -64,7 +64,7 @@
 #include "nfa_dm_int.h"
 #include "nfa_ee_int.h"
 #include "nfa_hci_int.h"
-#include "nfa_mdt_int.h"
+#include "nfa_srd_int.h"
 #include "nfc_config.h"
 #endif
 
@@ -2385,8 +2385,8 @@ void nfc_ncif_proc_generic_error_ntf(tNFC_STATUS status)
       abort();
       break;
     }
-    case NCI_STATUS_MDT_TIMEOUT:
-      nfa_mdt_timeout_ntf();
+    case NCI_STATUS_SRD_TIMEOUT:
+      nfa_srd_timeout_ntf();
       break;
     default:
       DLOG_IF(INFO, nfc_debug_enabled)

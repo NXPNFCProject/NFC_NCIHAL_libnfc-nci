@@ -20,30 +20,30 @@
 #include <nfa_sys.h>
 #include "nfa_hci_int.h"
 
-/* Event to start MDT */
-#define NFA_MDT_START_EVT 1
-/* Event to stop MDT*/
-#define NFA_MDT_STOP_EVT 2
+/* Event to start SRD */
+#define NFA_SRD_START_EVT 1
+/* Event to stop SRD*/
+#define NFA_SRD_STOP_EVT 2
 
-#define NCI_STATUS_MDT_TIMEOUT 0xE2
+#define NCI_STATUS_SRD_TIMEOUT 0xE2
 
-#define NFA_MDT_PROCESS_EVT(event, evt_data) \
-  { nfa_mdt_deactivate_req_evt(event, evt_data); }
+#define NFA_SRD_PROCESS_EVT(event, evt_data) \
+  { nfa_srd_deactivate_req_evt(event, evt_data); }
 
 struct {
-  int mdt_state;
+  int srd_state;
   tNFA_STATUS rsp_status;
   bool wait_for_deact_ntf;
-} mdt_t;
+} srd_t;
 
 enum { DISABLE, ENABLE, TIMEOUT, FEATURE_NOT_SUPPORTED = 0xFF };
 
-/* Action & utility functions in nfa_mdt_main.cc */
-extern void nfa_mdt_deactivate_req_evt(tNFC_DISCOVER_EVT event,
+/* Action & utility functions in nfa_srd_main.cc */
+extern void nfa_srd_deactivate_req_evt(tNFC_DISCOVER_EVT event,
                                        tNFC_DISCOVER* evt_data);
-bool nfa_mdt_check_hci_evt(tNFA_HCI_EVT_DATA* evt_data);
-void nfa_mdt_timeout_ntf();
-void nfa_mdt_init();
-void nfa_mdt_deInit();
-int nfa_mdt_get_state();
+bool nfa_srd_check_hci_evt(tNFA_HCI_EVT_DATA* evt_data);
+void nfa_srd_timeout_ntf();
+void nfa_srd_init();
+void nfa_srd_deInit();
+int nfa_srd_get_state();
 #endif

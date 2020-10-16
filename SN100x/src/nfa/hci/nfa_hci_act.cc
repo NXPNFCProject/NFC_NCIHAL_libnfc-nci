@@ -51,7 +51,7 @@
 #include "nfa_hci_int.h"
 #if (NXP_EXTNS == TRUE)
 #include "nfa_ee_int.h"
-#include "nfa_mdt_int.h"
+#include "nfa_srd_int.h"
 #include "nfa_nv_co.h"
 #include "nfa_scr_int.h"
 #endif
@@ -2284,7 +2284,7 @@ static void nfa_hci_handle_connectivity_gate_pkt(uint8_t* p_data,
         evt_data.rcvd_evt.evt_len = data_len;
         evt_data.rcvd_evt.p_evt_buf = p_data;
 
-        if (nfa_mdt_check_hci_evt(&evt_data)) {
+        if (nfa_srd_check_hci_evt(&evt_data)) {
           return;
         }
 
