@@ -64,7 +64,9 @@
 #include "nfa_dm_int.h"
 #include "nfa_ee_int.h"
 #include "nfa_hci_int.h"
+#if(NXP_SRD == TRUE)
 #include "nfa_srd_int.h"
+#endif
 #include "nfc_config.h"
 #endif
 
@@ -2385,9 +2387,11 @@ void nfc_ncif_proc_generic_error_ntf(tNFC_STATUS status)
       abort();
       break;
     }
+ #if (NXP_SRD == TRUE)
     case NCI_STATUS_SRD_TIMEOUT:
       nfa_srd_timeout_ntf();
       break;
+#endif
     default:
       DLOG_IF(INFO, nfc_debug_enabled)
               << StringPrintf("%s: Unhandled CORE_GENERIC_ERROR_NTF status = %d", __func__, status);

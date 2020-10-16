@@ -15,7 +15,7 @@
  *  limitations under the License.
  *
  ******************************************************************************/
-#if (NXP_EXTNS == TRUE)
+
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
 #include <nfa_srd_int.h>
@@ -24,8 +24,8 @@
 #include "nfa_hci_defs.h"
 #include "nfc_api.h"
 #include "nfc_config.h"
+#if (NXP_EXTNS == TRUE && NXP_SRD == TRUE)
 using android::base::StringPrintf;
-
 extern bool nfc_debug_enabled;
 ThreadCondVar srdDeactivateEvtCb;
 ThreadCondVar srdDiscoverymapEvt;
