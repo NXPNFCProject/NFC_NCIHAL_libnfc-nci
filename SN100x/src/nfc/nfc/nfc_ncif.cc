@@ -59,12 +59,13 @@
 #include "rw_int.h"
 
 #if (NXP_EXTNS == TRUE)
-#include "nfa_ce_int.h"
-#include "nfa_ee_int.h"
-#include "nfa_dm_int.h"
-#include "nfa_hci_int.h"
-#include "nfc_config.h"
 #include "NfcAdaptation.h"
+#include "nfa_ce_int.h"
+#include "nfa_dm_int.h"
+#include "nfa_ee_int.h"
+#include "nfa_hci_int.h"
+#include "nfa_mdt_int.h"
+#include "nfc_config.h"
 #endif
 
 #include <statslog.h>
@@ -2384,6 +2385,9 @@ void nfc_ncif_proc_generic_error_ntf(tNFC_STATUS status)
       abort();
       break;
     }
+    case NCI_STATUS_MDT_TIMEOUT:
+      nfa_mdt_timeout_ntf();
+      break;
     default:
       DLOG_IF(INFO, nfc_debug_enabled)
               << StringPrintf("%s: Unhandled CORE_GENERIC_ERROR_NTF status = %d", __func__, status);

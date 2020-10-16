@@ -108,6 +108,8 @@
 #define NFA_HCI_APDU_ABORTED_EVT   0x18    /* Stopped waiting for Response APDU            */
 #define NFA_HCI_RSP_APDU_RCVD_EVT  0x19    /* Response APDU received from server APDU Host */
 #define NFA_HCI_INIT_COMPLETED     0x20
+#define NFA_MDT_EVT_TIMEOUT 0x21
+#define NFA_MDT_FEATURE_NOT_SUPPORT_EVT 0x22
 #endif
 typedef uint8_t tNFA_HCI_EVT;
 

@@ -23,6 +23,7 @@
 #include "nfa_dm_int.h"
 #include "nfa_hci_defs.h"
 #include "nfc_api.h"
+#include "nfc_config.h"
 using android::base::StringPrintf;
 
 extern bool nfc_debug_enabled;
@@ -111,23 +112,31 @@ void* nfa_mdt_stop(void*) {
       };
 
   p_intf_mapping = (tNCI_DISCOVER_MAPS*)nfc_interface_mapping_default;
-  mdtDeactivateEvtCb.lock();
-  if(NFA_STATUS_OK == NFA_StopRfDiscovery()) {
-    if (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_POLL_ACTIVE) {
-      mdt_t.wait_for_deact_ntf = true;
+
+  if (!(nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_IDLE)) {
+    mdtDeactivateEvtCb.lock();
+    if (NFA_STATUS_OK == NFA_StopRfDiscovery()) {
+      if (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_POLL_ACTIVE) {
+        mdt_t.wait_for_deact_ntf = true;
+      }
     }
     mdtDeactivateEvtCb.wait();
-    if (p_intf_mapping != nullptr && mdt_t.rsp_status == NFA_STATUS_OK &&
-        (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_IDLE ||
-         nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_POLL_ACTIVE)) {
-      mdtDiscoverymapEvt.lock();
-      (void)NFC_DiscoveryMap(NFC_NUM_INTERFACE_MAP, p_intf_mapping,
-                             nfa_mdt_discovermap_cb);
-      mdtDiscoverymapEvt.wait();
-    }
   }
-  nfa_hciu_send_to_apps_handling_connectivity_evts(NFA_HCI_EVENT_RCVD_EVT,
-                                                   &p_evtdata);
+  if (p_intf_mapping != nullptr &&
+      (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_IDLE ||
+       nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_POLL_ACTIVE)) {
+    mdtDiscoverymapEvt.lock();
+    (void)NFC_DiscoveryMap(NFC_NUM_INTERFACE_MAP, p_intf_mapping,
+                           nfa_mdt_discovermap_cb);
+    mdtDiscoverymapEvt.wait();
+  }
+  if (mdt_t.mdt_state == TIMEOUT) {
+    nfa_hciu_send_to_apps_handling_connectivity_evts(NFA_MDT_EVT_TIMEOUT,
+                                                     &p_evtdata);
+  } else {
+    nfa_hciu_send_to_apps_handling_connectivity_evts(NFA_HCI_EVENT_RCVD_EVT,
+                                                     &p_evtdata);
+  }
   mdt_t.mdt_state = DISABLE;
   pthread_exit(NULL);
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(" nfa_mdt_stop:Exit");
@@ -167,18 +176,21 @@ void nfa_mdt_process_hci_evt(tNFA_HCI_EVT event, tNFA_HCI_EVT_DATA* p_data) {
   p_evtdata = *p_data;
   switch (event) {
     case NFA_MDT_START_EVT:
-      if (mdt_t.mdt_state == ENABLE) break;
       if (pthread_create(&MdtThread, &attr, nfa_mdt_start, nullptr) < 0) {
         DLOG_IF(ERROR, nfc_debug_enabled)
             << StringPrintf("MdtThread start creation failed");
       }
       break;
     case NFA_MDT_STOP_EVT:
-      if (mdt_t.mdt_state == DISABLE) break;
       if (pthread_create(&MdtThread, &attr, nfa_mdt_stop, nullptr) < 0) {
         DLOG_IF(ERROR, nfc_debug_enabled)
             << StringPrintf("MdtThread stop creation failed");
       }
+      break;
+    case NFA_MDT_FEATURE_NOT_SUPPORT_EVT:
+      memset(&p_evtdata, 0, sizeof(p_evtdata));
+      nfa_hciu_send_to_apps_handling_connectivity_evts(
+          NFA_MDT_FEATURE_NOT_SUPPORT_EVT, &p_evtdata);
       break;
     default:
       DLOG_IF(INFO, nfc_debug_enabled)
@@ -201,9 +213,15 @@ void nfa_mdt_deactivate_req_evt(tNFC_DISCOVER_EVT event,
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("%s :Enter event:0x%2x", __func__, event);
 
+  if (mdt_t.mdt_state == FEATURE_NOT_SUPPORTED) {
+    DLOG_IF(ERROR, nfc_debug_enabled)
+        << StringPrintf("%s : MDT Feature not supported", __func__);
+    return;
+  }
+
   switch (event) {
     case NFA_DM_RF_DEACTIVATE_RSP:
-      if (mdt_t.mdt_state == ENABLE && !mdt_t.wait_for_deact_ntf &&
+      if (!mdt_t.wait_for_deact_ntf &&
           evt_data->deactivate.type == NFA_DEACTIVATE_TYPE_IDLE) {
         mdt_t.rsp_status = evt_data->deactivate.status;
         mdtDeactivateEvtCb.signal();
@@ -211,13 +229,14 @@ void nfa_mdt_deactivate_req_evt(tNFC_DISCOVER_EVT event,
       break;
     case NFA_DM_RF_DEACTIVATE_NTF:
       /*Handle the scenario where tag is present and stop req is trigger*/
-      if (mdt_t.mdt_state == ENABLE && mdt_t.wait_for_deact_ntf &&
+      if (mdt_t.wait_for_deact_ntf &&
           (evt_data->deactivate.type == NFA_DEACTIVATE_TYPE_IDLE)) {
         mdt_t.rsp_status = evt_data->deactivate.status;
         mdtDeactivateEvtCb.signal();
         mdt_t.wait_for_deact_ntf = false;
       }
       break;
+
     default:
       DLOG_IF(INFO, nfc_debug_enabled)
           << StringPrintf("%s Unknown Event!!", __func__);
@@ -256,12 +275,25 @@ bool nfa_mdt_check_hci_evt(tNFA_HCI_EVT_DATA* evt_data) {
       if (*p_data == TAG_MDT_EVT_DATA) {
         if (*(p_data + 3) == INDEX1_FIELD_VALUE &&
             *(p_data + 4) == INDEX2_FIELD_VALUE) {
-          if (*(p_data + 6) == 0x01) {
-            nfa_mdt_process_hci_evt(NFA_MDT_START_EVT, evt_data);
+          if (mdt_t.mdt_state == FEATURE_NOT_SUPPORTED) {
+            nfa_mdt_process_hci_evt(NFA_MDT_FEATURE_NOT_SUPPORT_EVT, evt_data);
             is_require = true;
+          } else if (*(p_data + 6) == 0x01) {
+            if (mdt_t.mdt_state == ENABLE) {
+              DLOG_IF(INFO, nfc_debug_enabled)
+                  << StringPrintf("%s :MDT Enabled ", __func__);
+            } else {
+              nfa_mdt_process_hci_evt(NFA_MDT_START_EVT, evt_data);
+              is_require = true;
+            }
           } else if (*(p_data + 6) == 0x00) {
-            is_require = true;
-            nfa_mdt_process_hci_evt(NFA_MDT_STOP_EVT, evt_data);
+            if (mdt_t.mdt_state == DISABLE) {
+              DLOG_IF(INFO, nfc_debug_enabled)
+                  << StringPrintf("%s :MDT Disabled ", __func__);
+            } else {
+              is_require = true;
+              nfa_mdt_process_hci_evt(NFA_MDT_STOP_EVT, evt_data);
+            }
           }
         }
       }
@@ -271,4 +303,63 @@ bool nfa_mdt_check_hci_evt(tNFA_HCI_EVT_DATA* evt_data) {
       << StringPrintf("%s :Exit %d", __func__, is_require);
   return is_require;
 }
+/*******************************************************************************
+**
+** Function         nfa_mdt_timeout_ntf
+**
+** Description      This function handles MDT TIMEOUT NTF
+**
+** Returns          void
+**
+*******************************************************************************/
+void nfa_mdt_timeout_ntf() {
+  if (mdt_t.mdt_state == TIMEOUT || mdt_t.mdt_state == FEATURE_NOT_SUPPORTED) {
+    return;
+  }
+  mdt_t.mdt_state = TIMEOUT;
+  memset(&p_evtdata, 0, sizeof(p_evtdata));
+  nfa_mdt_process_hci_evt(NFA_MDT_STOP_EVT, &p_evtdata);
+}
+/*******************************************************************************
+**
+** Function         nfa_mdt_init
+**
+** Description      Initalize the MDT module
+**
+** Returns          void
+**
+*******************************************************************************/
+void nfa_mdt_init() {
+  memset(&mdt_t, 0, sizeof(mdt_t));
+  memset(&p_evtdata, 0, sizeof(p_evtdata));
+  uint16_t MDT_DISABLE_MASK = 0xFFFF;
+  uint16_t isFeatureDisable = 0x0000;
+  std::vector<uint8_t> mdt_config;
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf(" %s Enter : mdt_state 0x%2x", __func__, mdt_t.mdt_state);
+
+  if ((NfcConfig::hasKey(NAME_NXP_MDT_TIMEOUT))) {
+    mdt_config = NfcConfig::getBytes(NAME_NXP_MDT_TIMEOUT);
+    if (mdt_config.size() > 0) {
+      isFeatureDisable = ((mdt_config[1] << 8) & MDT_DISABLE_MASK);
+      isFeatureDisable = (isFeatureDisable | mdt_config[0]);
+    }
+  }
+  if (!(NfcConfig::hasKey(NAME_NXP_MDT_TIMEOUT)) || !isFeatureDisable) {
+    /* NXP_MDT_TIMEOUT value not found in config file. */
+    mdt_t.mdt_state = FEATURE_NOT_SUPPORTED;
+  }
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf(" %s Exit : mdt_state 0x%2x", __func__, mdt_t.mdt_state);
+}
+/*******************************************************************************
+**
+** Function         nfa_mdt_deInit
+**
+** Description      De-Initalize the MDT module
+**
+** Returns          void
+**
+*******************************************************************************/
+void nfa_mdt_deInit() {}
 #endif

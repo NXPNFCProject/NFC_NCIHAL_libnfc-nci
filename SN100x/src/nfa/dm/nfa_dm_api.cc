@@ -60,6 +60,7 @@ using android::base::StringPrintf;
 extern bool nfc_debug_enabled;
 #if (NXP_EXTNS == TRUE)
 extern void nfa_t4tnfcee_init();
+extern void nfa_mdt_init();
 #endif
 /*****************************************************************************
 **  Constants
@@ -99,7 +100,8 @@ void NFA_Init(tHAL_NFC_ENTRY* p_hal_entry_tbl) {
     #if (NXP_EXTNS == TRUE)
     nfa_t4tnfcee_init();
     nfa_scr_init();
-    #endif
+    nfa_mdt_init();
+#endif
     nfa_hci_init();
   }
 #if (NXP_EXTNS == TRUE)
