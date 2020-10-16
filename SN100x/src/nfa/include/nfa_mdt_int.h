@@ -45,4 +45,5 @@ bool nfa_mdt_check_hci_evt(tNFA_HCI_EVT_DATA* evt_data);
 void nfa_mdt_timeout_ntf();
 void nfa_mdt_init();
 void nfa_mdt_deInit();
+int nfa_mdt_get_state();
 #endif
