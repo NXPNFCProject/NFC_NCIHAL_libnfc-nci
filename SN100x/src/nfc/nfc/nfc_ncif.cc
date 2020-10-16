@@ -2181,7 +2181,6 @@ void nfc_ncif_proc_data(NFC_HDR* p_msg) {
         /* when MW receive select command with slow host enable,we consider as a ISO DEP protocol
            and setting value of init credit and callback function*/
         nfa_ce_set_t4t_listen_params();
-        p_cb = nfc_find_conn_cb_by_conn_id(cid);
         p_cb->num_buff = NFC_CONN_INITIAL_CREDITS;
         p_cb->buff_size = NCI_MAX_DATA_PAYLOAD_SIZE;
       }
