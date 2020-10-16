@@ -3259,7 +3259,11 @@ bool nfa_dm_p2p_prio_logic(uint8_t event, uint8_t* p, uint8_t event_type) {
     nfc_stop_quick_timer(&p2p_prio_logic_data.timer_list);
   }
 
-  if (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_DISCOVERY) {
+  if (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_DISCOVERY
+#if (NXP_EXTNS == TRUE)
+      || nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_POLL_ACTIVE
+#endif
+  ) {
     uint8_t rf_disc_id = 0xFF;
     uint8_t type = 0xFF;
     uint8_t protocol = 0xFF;
@@ -3302,10 +3306,20 @@ bool nfa_dm_p2p_prio_logic(uint8_t event, uint8_t* p, uint8_t event_type) {
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
           "ISO-DEP Detected First Time  Resume the Polling Loop");
 #if (NXP_EXTNS == TRUE)
-      p2p_prio_logic_data.flags |= (P2P_W4_NF_RES | P2P_W4_RES);
-#endif
+      nfa_dm_disc_new_state(NFA_DM_RFST_POLL_ACTIVE);
+      if(!((nfa_dm_cb.disc_cb.disc_flags & NFA_DM_DISC_FLAGS_W4_RSP) ||
+                  (nfa_dm_cb.disc_cb.disc_flags & NFA_DM_DISC_FLAGS_W4_NTF))) {
+        if (NFA_STATUS_OK ==
+            nfa_dm_rf_deactivate(NFA_DEACTIVATE_TYPE_DISCOVERY)) {
+          p2p_prio_logic_data.flags |= (P2P_W4_NF_RES | P2P_W4_RES);
+          return false;
+        }
+      }
+      return true;
+#else
       nci_snd_deactivate_cmd(NFA_DEACTIVATE_TYPE_DISCOVERY);
       return false;
+#endif
     }
 
     else if (event == NCI_MSG_RF_INTF_ACTIVATED &&
@@ -3319,10 +3333,20 @@ bool nfa_dm_p2p_prio_logic(uint8_t event, uint8_t* p, uint8_t event_type) {
           "Loop");
       nfc_stop_quick_timer(&p2p_prio_logic_data.timer_list);
 #if (NXP_EXTNS == TRUE)
-      p2p_prio_logic_data.flags |= (P2P_W4_NF_RES | P2P_W4_RES);
-#endif
+      nfa_dm_disc_new_state(NFA_DM_RFST_POLL_ACTIVE);
+      if(!((nfa_dm_cb.disc_cb.disc_flags & NFA_DM_DISC_FLAGS_W4_RSP) ||
+              (nfa_dm_cb.disc_cb.disc_flags & NFA_DM_DISC_FLAGS_W4_NTF))) {
+        if (NFA_STATUS_OK ==
+            nfa_dm_rf_deactivate(NFA_DEACTIVATE_TYPE_DISCOVERY)) {
+          p2p_prio_logic_data.flags |= (P2P_W4_NF_RES | P2P_W4_RES);
+          return false;
+        }
+      }
+      return true;
+#else
       nci_snd_deactivate_cmd(NFA_DEACTIVATE_TYPE_DISCOVERY);
       return false;
+#endif
     }
 
     else if (event == NCI_MSG_RF_INTF_ACTIVATED &&
@@ -3369,6 +3393,7 @@ bool nfa_dm_p2p_prio_logic(uint8_t event, uint8_t* p, uint8_t event_type) {
 #if (NXP_EXTNS == TRUE)
       //Clear P2P_W4_RES flag
       p2p_prio_logic_data.flags &= ~P2P_W4_RES;
+      nfa_dm_cb.disc_cb.disc_flags &= ~NFA_DM_DISC_FLAGS_W4_RSP;
 #endif
       return false;
     }
@@ -3386,6 +3411,8 @@ bool nfa_dm_p2p_prio_logic(uint8_t event, uint8_t* p, uint8_t event_type) {
 #if (NXP_EXTNS == TRUE)
       //clear P2P_W4_NF_RES flag
       p2p_prio_logic_data.flags &= ~P2P_W4_NF_RES;
+      nfa_dm_cb.disc_cb.disc_flags &= ~NFA_DM_DISC_FLAGS_W4_NTF;
+      nfa_dm_disc_new_state(NFA_DM_RFST_DISCOVERY);
 #endif
       nfc_start_quick_timer(&p2p_prio_logic_data.timer_list,
                             NFC_TTYPE_P2P_PRIO_RESPONSE,
