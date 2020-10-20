@@ -305,34 +305,36 @@ void GKI_stop_timer(uint8_t tnum) {
 
   GKI_disable();
 
-  switch (tnum) {
+  if (task_id < GKI_MAX_TASKS) {
+    switch (tnum) {
 #if (GKI_NUM_TIMERS > 0)
-    case TIMER_0:
-      gki_cb.com.OSTaskTmr0R[task_id] = 0;
-      gki_cb.com.OSTaskTmr0[task_id] = 0;
-      break;
+      case TIMER_0:
+        gki_cb.com.OSTaskTmr0R[task_id] = 0;
+        gki_cb.com.OSTaskTmr0[task_id] = 0;
+        break;
 #endif
 
 #if (GKI_NUM_TIMERS > 1)
-    case TIMER_1:
-      gki_cb.com.OSTaskTmr1R[task_id] = 0;
-      gki_cb.com.OSTaskTmr1[task_id] = 0;
-      break;
+      case TIMER_1:
+        gki_cb.com.OSTaskTmr1R[task_id] = 0;
+        gki_cb.com.OSTaskTmr1[task_id] = 0;
+        break;
 #endif
 
 #if (GKI_NUM_TIMERS > 2)
-    case TIMER_2:
-      gki_cb.com.OSTaskTmr2R[task_id] = 0;
-      gki_cb.com.OSTaskTmr2[task_id] = 0;
-      break;
+      case TIMER_2:
+        gki_cb.com.OSTaskTmr2R[task_id] = 0;
+        gki_cb.com.OSTaskTmr2[task_id] = 0;
+        break;
 #endif
 
 #if (GKI_NUM_TIMERS > 3)
-    case TIMER_3:
-      gki_cb.com.OSTaskTmr3R[task_id] = 0;
-      gki_cb.com.OSTaskTmr3[task_id] = 0;
-      break;
+      case TIMER_3:
+        gki_cb.com.OSTaskTmr3R[task_id] = 0;
+        gki_cb.com.OSTaskTmr3[task_id] = 0;
+        break;
 #endif
+    }
   }
 
   if (gki_timers_is_timer_running() == false) {
