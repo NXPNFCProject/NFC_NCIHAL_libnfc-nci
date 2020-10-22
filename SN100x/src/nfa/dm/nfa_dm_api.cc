@@ -1515,12 +1515,23 @@ tNFA_MW_VERSION NFA_GetMwVersion() {
   mwVer.validation |= (NXP_EN_SN220U << 15);
   mwVer.android_version = NXP_ANDROID_VER;
   DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("0x%x:NFC MW Major Version:", NFC_NXP_MW_VERSION_MAJ);
+      << StringPrintf("0x%x:NFC CBC Major Version:", NFC_NXP_CBC_VERSION_MAJ);
   DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("0x%x:NFC MW Minor Version:", NFC_NXP_MW_VERSION_MIN);
-  mwVer.major_version = NFC_NXP_MW_VERSION_MAJ;
-  mwVer.minor_version = NFC_NXP_MW_VERSION_MIN;
+      << StringPrintf("0x%x:NFC CBC Minor Version:", NFC_NXP_CBC_VERSION_MIN);
+  mwVer.cbc_major_version = NFC_NXP_CBC_VERSION_MAJ;
+  mwVer.cbc_minor_version = NFC_NXP_CBC_VERSION_MIN;
   mwVer.rc_version = NFC_NXP_MW_RC_VERSION;
+  switch (nfcFL.chipType) {
+    case sn220u:
+      mwVer.major_version = NFC_NXP_MW_SN220_VERSION_MAJ;
+      mwVer.minor_version = NFC_NXP_MW_SN220_VERSION_MIN;
+      break;
+    case sn100u:
+    default:
+      mwVer.major_version = NFC_NXP_MW_SN1XX_VERSION_MAJ;
+      mwVer.minor_version = NFC_NXP_MW_SN1XX_VERSION_MIN;
+      break;
+  }
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("mwVer:Major=0x%x,Minor=0x%x", mwVer.major_version,
                  mwVer.minor_version);

@@ -346,6 +346,8 @@ typedef struct {
   uint8_t minor_version;   /* Minor Version of Mw */
   uint8_t cust_id;         /*Customer id*/
   uint8_t rc_version;      /*RC version*/
+  uint8_t cbc_major_version;   /* Major Version of Common Code Base*/
+  uint8_t cbc_minor_version;   /* Minor Version of Common Code Base */
 } tNFA_MW_VERSION;
 #endif
 
