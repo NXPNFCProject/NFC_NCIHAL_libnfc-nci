@@ -2560,6 +2560,12 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
           if (nfa_dm_cb.deactivate_cmd_retry_count == 3) {
             if ((!old_sleep_wakeup_flag) ||
                 (!nfa_dm_cb.disc_cb.deact_pending)) {
+#if (NXP_EXTNS == TRUE)
+              /* Notify failure to application before starting recovery */
+              tNFA_CONN_EVT_DATA conn_evt;
+              conn_evt.status = NFC_DEACTIVATE_REASON_DH_REQ_FAILED;
+              nfa_dm_conn_cback_event_notify(NFA_DEACTIVATE_FAIL_EVT, &conn_evt);
+#endif
               nfa_dm_send_deactivate_cmd(NFA_DEACTIVATE_TYPE_DISCOVERY);
             }
           } else {
