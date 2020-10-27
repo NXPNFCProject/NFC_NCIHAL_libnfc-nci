@@ -101,6 +101,77 @@ extern std::string nfc_storage_path;
 static tNFC_FW_VERSION nfc_fw_version;
 uint8_t nfcc_dh_conn_id = 0xFF;
 extern void nfa_hci_rsp_timeout();
+
+/* Structure which can contains NCI command data and it's length*/
+typedef struct {
+  /* length of data buffer */
+  uint16_t len = 0;
+  /* NCI command buffer */
+  std::unique_ptr<uint8_t[]> data = nullptr;
+} NCICMD;
+
+/* Global buffer to store the last specific NCI command */
+static NCICMD last_cmd;
+
+/*******************************************************************************
+**
+** Function         check_and_store_last_cmd
+**
+** Description      This function checks if NCI command require to store
+**                  then stores the same NCI command.
+**
+** Returns          void
+**
+*******************************************************************************/
+static void check_and_store_last_cmd(NFC_HDR* p_buf) {
+  if (p_buf == nullptr) {
+    return;
+  }
+  last_cmd.len = 0;
+  last_cmd.data = nullptr;
+  uint8_t* ps = (uint8_t*)((p_buf) + 1) + p_buf->offset;
+  if (ps != nullptr &&
+      ((p_buf->len > 1 &&
+        ps[0] == ((NCI_MT_CMD << NCI_MT_SHIFT) | NCI_GID_RF_MANAGE) &&
+        ps[1] == NCI_MSG_RF_DEACTIVATE) ||
+       (p_buf->len > 4 &&
+        ps[0] == ((NCI_MT_CMD << NCI_MT_SHIFT) | NCI_GID_CORE) &&
+        ps[1] == NCI_MSG_CORE_SET_CONFIG &&
+        ps[4] == NCI_PARAM_ID_CON_DISCOVERY_PARAM))) {
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("check_and_store_last_cmd:");
+    last_cmd.len = p_buf->len;
+    last_cmd.data = std::make_unique<uint8_t[]>(last_cmd.len);
+    memcpy(last_cmd.data.get(), ps, last_cmd.len);
+  }
+}
+
+/*******************************************************************************
+**
+** Function         check_and_send_last_cmd
+**
+** Description      This function checks if last stored command require
+**                  to send then sends last stored NCI command.
+**
+** Returns          true if able to send last stored command. In all other
+**                  case false.
+**
+*******************************************************************************/
+static bool check_and_send_last_cmd() {
+  if (last_cmd.data != nullptr) {
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("check_and_send_last_cmd:");
+    nfc_cb.p_hal->write(last_cmd.len, last_cmd.data.get());
+    last_cmd.data = nullptr;
+    last_cmd.len = 0;
+    /* start NFC command-timeout timer */
+    nfc_start_timer(&nfc_cb.nci_wait_rsp_timer,
+                    (uint16_t)(NFC_TTYPE_NCI_WAIT_RSP),
+                    nfc_cb.nci_wait_rsp_tout);
+    return true;
+  }
+  return false;
+}
 #endif
 
 static struct timeval timer_start;
@@ -180,6 +251,11 @@ void nfc_ncif_update_window(void) {
 void nfc_ncif_cmd_timeout(void) {
   LOG(ERROR) << StringPrintf("nfc_ncif_cmd_timeout");
 
+#if (NXP_EXTNS == TRUE)
+  if (check_and_send_last_cmd()) {
+    return;
+  }
+#endif
   storeNativeCrashLogs();
 
   /* report an error */
@@ -389,7 +465,9 @@ void nfc_ncif_check_cmd_queue(NFC_HDR* p_buf) {
 
       /* Indicate command is pending */
       nfc_cb.nci_cmd_window--;
-
+#if (NXP_EXTNS == TRUE)
+      check_and_store_last_cmd(p_buf);
+#endif
       /* send to HAL */
       HAL_WRITE(p_buf);
       /* start NFC command-timeout timer */
