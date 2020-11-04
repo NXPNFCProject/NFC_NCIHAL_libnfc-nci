@@ -2271,7 +2271,7 @@ bool nfc_ncif_proc_proprietary_rsp(uint8_t mt, uint8_t gid, uint8_t oid) {
       break;
   }
 #if (NXP_EXTNS == TRUE)
-  if(stat && !isRstRsp) {
+  if (stat && !isRstRsp && (mt != NCI_MT_NTF)) {
     nfc_cb.rawVsCbflag = false;
   }
 #endif
