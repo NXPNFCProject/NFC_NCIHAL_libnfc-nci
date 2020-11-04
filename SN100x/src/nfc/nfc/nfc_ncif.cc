@@ -962,13 +962,14 @@ Available after Technology Detection
     acm_p = &p_param->param.acm_p;
 
 #if (NXP_EXTNS == TRUE)
-    /*Skip RF Tech Specific Parametres*/
-    p = p+len;
-    /*No RF Technology specific parameters, skipping next 3 bytes
-     * Byte 1         Byte 2 Byte 3  Byte 4
-     * Tech and Mode  BST    BRT     offset*/
-    p = p + 3;
+    /*Skip RF Tech Specific Parametres +
+      Skip RF Technology mode, Tx , Rx baud rate & length params
+     * Byte 1         Byte 2     Byte 3    Byte 4
+     * Tech and Mode  Tx BR      Rx BR     Length of Act Param  */
+    p = p + len + 3;
     plen = *p++;
+    LOG(INFO) << StringPrintf("Length of RF Technology Specific Parameters,"
+                              " plen: 0x%x, atr_res_len: 0x%x", plen, *p);
 #endif
 
     if (plen < 1) {
