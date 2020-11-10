@@ -945,6 +945,14 @@ bool nfa_ce_activate_ntf(tNFA_CE_MSG* p_ce_msg) {
     }
   } else if (p_cb->activation_params.intf_param.type ==
              NFC_INTERFACE_EE_DIRECT_RF) {
+#if (NXP_EXTNS == TRUE)
+    for (i = 0; i < NFA_CE_LISTEN_INFO_IDX_INVALID; i++) {
+      if ((p_cb->listen_info[i].flags & NFA_CE_LISTEN_INFO_IN_USE) &&
+          (p_cb->listen_info[i].flags & NFA_CE_LISTEN_INFO_T4T_AID)) {
+        p_cb->listen_info[i].flags |= NFA_CE_LISTEN_INFO_T4T_ACTIVATE_PND;
+      }
+    }
+#endif
     /* search any entry listening UICC */
     for (i = 0; i < NFA_CE_LISTEN_INFO_IDX_INVALID; i++) {
       if ((p_cb->listen_info[i].flags & NFA_CE_LISTEN_INFO_IN_USE) &&
@@ -1062,7 +1070,13 @@ bool nfa_ce_deactivate_ntf(tNFA_CE_MSG* p_ce_msg) {
         conn_evt.deactivated.type = deact_type;
         if (p_cb->p_active_conn_cback)
           (*p_cb->p_active_conn_cback)(NFA_DEACTIVATED_EVT, &conn_evt);
-      } else if ((p_cb->activation_params.protocol == NFA_PROTOCOL_ISO_DEP) &&
+      } else if ((p_cb->activation_params.protocol == NFA_PROTOCOL_ISO_DEP
+#if (NXP_EXTNS == TRUE)
+                  /* Protocol type unknown check to notify deactivate NTF for
+                   * NFCEE Direct RF activation */
+                  || p_cb->activation_params.protocol == NFC_PROTOCOL_UNKNOWN
+#endif
+                  ) &&
                  (p_cb->listen_info[i].protocol_mask &
                   NFA_PROTOCOL_MASK_ISO_DEP)) {
         /* Don't send NFA_DEACTIVATED_EVT if NFA_ACTIVATED_EVT wasn't sent */
