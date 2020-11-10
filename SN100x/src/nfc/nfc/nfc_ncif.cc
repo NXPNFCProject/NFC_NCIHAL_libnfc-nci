@@ -172,6 +172,25 @@ static bool check_and_send_last_cmd() {
   }
   return false;
 }
+
+/*******************************************************************************
+**
+** Function         get_file_size
+**
+** Description      This function calculates the input file size
+**
+** Returns          off_t: size of the input file.
+**
+*******************************************************************************/
+static off_t get_file_size(const char *filepath) {
+  // calculate file size
+  struct stat st;
+  if (stat(filepath, &st) == 0) {
+    return st.st_size;
+  } else {
+    return 0;
+  }
+}
 #endif
 
 static struct timeval timer_start;
@@ -186,6 +205,9 @@ void storeNativeCrashLogs(void) {
   off_t fileSize;
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("%s: file=%s", __func__, filepath.c_str());
+#if (NXP_EXTNS == TRUE)
+  fileSize = get_file_size(filepath.c_str());
+#else
   // check file size
   struct stat st;
   if (stat(filepath.c_str(), &st) == 0) {
@@ -193,7 +215,7 @@ void storeNativeCrashLogs(void) {
   } else {
     fileSize = 0;
   }
-
+#endif
   if (fileSize >= NATIVE_CRASH_FILE_SIZE) {
     fileStream =
         open(filepath.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
