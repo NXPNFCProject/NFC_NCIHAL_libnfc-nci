@@ -1543,6 +1543,12 @@ void nfc_ncif_proc_reset_rsp(uint8_t* p, bool is_ntf) {
       STREAM_TO_UINT8(nfc_fw_version.rom_code_version, p);
       STREAM_TO_UINT8(nfc_fw_version.major_version, p);
       STREAM_TO_UINT8(nfc_fw_version.minor_version, p);
+      if (nfc_cb.nfc_state == NFC_STATE_CORE_INIT) {
+        NFC_SetFeatureList(nfc_fw_version);
+        nfa_ee_max_ee_cfg = nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED;
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+            "NFA_EE_MAX_EE_SUPPORTED to use %d", nfa_ee_max_ee_cfg);
+      }
 #endif
       DLOG_IF(INFO, nfc_debug_enabled)
           << StringPrintf(" CORE_RESET_NTF nci_version%x", nfc_cb.nci_version);

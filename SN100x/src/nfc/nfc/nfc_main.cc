@@ -101,7 +101,7 @@ extern uint8_t nfa_ee_max_ee_cfg;
 extern std::string nfc_storage_path;
 tNfc_featureList nfcFL;
 static tNFC_chipType chipType;
-static void NFC_GetFeatureList();
+tNFC_chipType ProcessChipType(tNFC_FW_VERSION nfc_fw_version);
 #endif
 #if (NFC_RW_ONLY == FALSE)
 #if (NXP_EXTNS == TRUE)
@@ -659,19 +659,11 @@ static void nfc_main_hal_cback(uint8_t event, tHAL_NFC_STATUS status) {
       */
       if (nfc_cb.nfc_state == NFC_STATE_W4_HAL_OPEN) {
         if (status == HAL_NFC_STATUS_OK) {
-#if (NXP_EXTNS == TRUE)
-            NFC_GetFeatureList();
-#endif
           /* Notify NFC_TASK that NCI tranport is initialized */
           GKI_send_event(NFC_TASK, NFC_TASK_EVT_TRANSPORT_READY);
         } else {
           nfc_main_post_hal_evt(event, status);
         }
-#if (NXP_EXTNS == TRUE)
-        nfa_ee_max_ee_cfg = nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED;
-        DLOG_IF(INFO, nfc_debug_enabled)
-          << StringPrintf("NFA_EE_MAX_EE_SUPPORTED to use %d", nfa_ee_max_ee_cfg);
-#endif
       }
 #if (NXP_EXTNS == TRUE)
       else if (status == HAL_NFC_STATUS_REFUSED) {
@@ -1593,20 +1585,40 @@ std::string NFC_GetStatusName(tNFC_STATUS status) {
 #if (NXP_EXTNS == TRUE)
 /*******************************************************************************
  **
- ** Function         NFC_GetFeatureList
+ ** Function         NFC_ProcessChipType
  **
- ** Description      Gets the chipType from hal which is already configured
- **                  during init time.
+ ** Description      Get the chipType from FW version info.
+ **
+ ** Returns          chip Type
+ *******************************************************************************/
+tNFC_chipType NFC_ProcessChipType(tNFC_FW_VERSION nfc_fw_version) {
+  tNFC_chipType chipType = sn100u;
+  if (nfc_fw_version.rom_code_version == 0x01 &&
+      nfc_fw_version.major_version == 0x10) {
+    /* For SN1xx Rom code version : 0x01 && major version : 0x10*/
+    chipType = sn100u;
+  } else if (nfc_fw_version.rom_code_version == 0x01 &&
+             nfc_fw_version.major_version == 0x01) {
+    /* For SN220 Rom code version : 0x01 && major version : 0x01*/
+    chipType = sn220u;
+  }
+  return chipType;
+}
+/*******************************************************************************
+ **
+ ** Function         NFC_SetFeatureList
+ **
+ ** Description      Gets the chipType from FW version info.
  **                  Initializes featureList based onChipType
  **
  ** Returns          Nothing
  *******************************************************************************/
-void NFC_GetFeatureList() {
-    LOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFC_GetFeatureList() Enter");
-    chipType = sn100u;
-    CONFIGURE_FEATURELIST(chipType);
-    LOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFC_GetFeatureList ()chipType = %d", chipType);
-
+void NFC_SetFeatureList(tNFC_FW_VERSION nfc_fw_version) {
+  LOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: Enter", __func__);
+  chipType = NFC_ProcessChipType(nfc_fw_version);
+  CONFIGURE_FEATURELIST(chipType);
+  LOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("%s: chipType = %d", __func__, chipType);
 }
 /*******************************************************************************
  **

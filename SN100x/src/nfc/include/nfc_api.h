@@ -1499,4 +1499,18 @@ extern void NFC_SetStaticHciCback(tNFC_CONN_CBACK* p_cback);
 *******************************************************************************/
 extern std::string NFC_GetStatusName(tNFC_STATUS status);
 
+/*******************************************************************************
+**
+** Function         NFC_SetFeatureList
+**
+** Description      This function to find the Chip type and configure the
+**                  supported feature list.
+**
+** Parameters       nfc_fw_version - FW version info.
+**
+** Returns          Nothing
+**
+*******************************************************************************/
+extern void NFC_SetFeatureList(tNFC_FW_VERSION nfc_fw_version);
+
 #endif /* NFC_API_H */
