@@ -265,7 +265,7 @@
 
 /* Maximum time to discover NFCEE */
 #ifndef NFA_EE_DISCV_TIMEOUT_VAL
-#define NFA_EE_DISCV_TIMEOUT_VAL 2000
+#define NFA_EE_DISCV_TIMEOUT_VAL 3000
 #endif
 
 /* Number of times reader/writer should attempt to resend a command on failure
