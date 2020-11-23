@@ -3402,6 +3402,7 @@ bool nfa_dm_p2p_prio_logic(uint8_t event, uint8_t* p, uint8_t event_type) {
       //clear P2P_W4_NF_RES flag
       p2p_prio_logic_data.flags &= ~P2P_W4_NF_RES;
       nfa_dm_cb.disc_cb.disc_flags &= ~NFA_DM_DISC_FLAGS_W4_NTF;
+      nfa_sys_stop_timer(&nfa_dm_cb.disc_cb.tle);
       nfa_dm_disc_new_state(NFA_DM_RFST_DISCOVERY);
 #endif
       nfc_start_quick_timer(&p2p_prio_logic_data.timer_list,
