@@ -2782,12 +2782,21 @@ void rw_i93_sm_format(NFC_HDR* p_resp) {
         LOG(ERROR) << StringPrintf("Cannot allocate buffer");
         rw_i93_handle_error(NFC_STATUS_FAILED);
         break;
-      } else if (p_i93->block_size > RW_I93_FORMAT_DATA_LEN) {
-        /* Possible leaking information from previous NFC transactions */
-        /* Clear previous values */
-        memset(p_i93->p_update_data, I93_ICODE_TLV_TYPE_NULL,
-               I93_MAX_BLOCK_LENGH);
-        android_errorWriteLog(0x534e4554, "139738828");
+      } else {
+        switch (p_i93->block_size) {
+          case 4:
+          case 8:
+            break;
+          case 16:
+          case 32: /* initialize unpopulated buffer b/139738828 */
+            memset(p_i93->p_update_data, I93_ICODE_TLV_TYPE_NULL,
+                   I93_MAX_BLOCK_LENGH);
+            break;
+          default:
+            android_errorWriteLog(0x534e4554, "157650336");
+            rw_i93_handle_error(NFC_STATUS_FAILED);
+            return;
+        }
       }
 
       p = p_i93->p_update_data;
