@@ -56,18 +56,18 @@
 #define NXP_EN_SN110U    0
 #define NXP_EN_SN100U    0
 #define NXP_EN_SN220U    1
-#define NXP_ANDROID_VER (11U)        /* NXP android version */
+#define NXP_ANDROID_VER (12U)        /* NXP android version */
 #define NFC_NXP_MW_CUSTOMER_ID (0x00) /* MW Customer Id */
 #define NFC_NXP_MW_RC_VERSION  (0x00) /* MW RC Version */
 
-#define NFC_NXP_CBC_VERSION_MAJ (0x02) /* CBC Major Version */
+#define NFC_NXP_CBC_VERSION_MAJ (0x01) /* CBC Major Version */
 #define NFC_NXP_CBC_VERSION_MIN (0x00) /* CBC Minor Version */
 
-#define NFC_NXP_MW_SN1XX_VERSION_MAJ (0x06) /* MW Major Version for SN1XX*/
+#define NFC_NXP_MW_SN1XX_VERSION_MAJ (0x00) /* MW Major Version for SN1XX*/
 #define NFC_NXP_MW_SN1XX_VERSION_MIN (0x00) /* MW Minor Version for SN1xx*/
 
-#define NFC_NXP_MW_SN220_VERSION_MAJ (0x03) /* MW Major Version for SN220*/
-#define NFC_NXP_MW_SN220_VERSION_MIN (0x01) /* MW Minor Version for SN220*/
+#define NFC_NXP_MW_SN220_VERSION_MAJ (0x00) /* MW Major Version for SN220*/
+#define NFC_NXP_MW_SN220_VERSION_MIN (0x00) /* MW Minor Version for SN220*/
 #define NFC_EE_DISC_OP_REMOVE 1
 #endif
 /* NFC application return status codes */
