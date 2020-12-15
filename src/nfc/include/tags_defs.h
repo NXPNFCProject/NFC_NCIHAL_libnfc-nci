@@ -472,6 +472,8 @@ typedef uint8_t tT3T_POLL_RC;
  **
  */
 
+#define I93_VERSION_1_x 0x40 /* major mapping version 1.x */
+
 /* A single sub-carrier frequency shall be used by VICC */
 #define I93_FLAG_SUB_CARRIER_SINGLE 0x00
 /* High data rate shall be used */
