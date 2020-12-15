@@ -2592,6 +2592,14 @@ tNFC_STATUS RW_T3tCheckNDef(void) {
   } else if (p_cb->ndef_attrib.ln == 0) {
     LOG(ERROR) << StringPrintf("Type 3 tag contains empty NDEF message");
     return (NFC_STATUS_FAILED);
+  } else if (p_cb->ndef_attrib.writef ==
+             T3T_MSG_NDEF_WRITEF_ON) /* Tag's NDEF memory write in progress? */
+  {
+    LOG(ERROR) << StringPrintf(
+        "%s - WriteFlag ON: NDEF data may be inconsistent, "
+        "conclude NDEF Read procedure",
+        __func__);
+    return (NFC_STATUS_FAILED);
   }
 
   /* Check number of blocks needed for this update */
