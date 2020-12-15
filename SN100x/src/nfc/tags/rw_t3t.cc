@@ -2804,7 +2804,7 @@ tNFC_STATUS RW_T3tPresenceCheck(void) {
     }
   } else {
     /* IDLE state: send POLL command */
-    retval = (tNFC_STATUS)nci_snd_t3t_polling(0xFFFF, T3T_POLL_RC_SC, 0);
+    retval = (tNFC_STATUS)nci_snd_t3t_polling(0xFFFF, T3T_POLL_RC_SC, 0x03);
     if (retval == NCI_STATUS_OK) {
       p_rw_cb->tcb.t3t.flags |= RW_T3T_FL_W4_PRESENCE_CHECK_POLL_RSP;
       p_rw_cb->tcb.t3t.rw_state = RW_T3T_STATE_COMMAND_PENDING;
