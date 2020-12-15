@@ -1890,6 +1890,13 @@ void rw_i93_sm_detect_ndef(NFC_HDR* p_resp) {
 
       if ((cc[0] == I93_ICODE_CC_MAGIC_NUMER_E1) ||
           (cc[0] == I93_ICODE_CC_MAGIC_NUMER_E2)) {
+        if ((cc[1] & 0xC0) > I93_VERSION_1_x) {
+          DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+              "%s - Major mapping version above 1 %d.x", __func__, cc[1] >> 6);
+          /* major mapping version above 1 not supported */
+          rw_i93_handle_error(NFC_STATUS_FAILED);
+          break;
+        }
         if ((cc[1] & I93_ICODE_CC_READ_ACCESS_MASK) ==
             I93_ICODE_CC_READ_ACCESS_GRANTED) {
           if ((cc[1] & I93_ICODE_CC_WRITE_ACCESS_MASK) !=
