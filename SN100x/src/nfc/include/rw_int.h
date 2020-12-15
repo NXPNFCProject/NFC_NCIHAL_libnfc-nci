@@ -274,7 +274,7 @@ typedef struct {
 /* Maximum supported Lock control TLVS in the tag           */
 #define RW_T2T_MAX_LOCK_TLVS 0x05
 /* Maximum supported dynamic lock bytes                     */
-#define RW_T2T_MAX_LOCK_BYTES 0x1E
+#define RW_T2T_MAX_LOCK_BYTES 0x20
 #define RW_T2T_SEGMENT_BYTES 128
 #define RW_T2T_SEGMENT_SIZE 16
 
