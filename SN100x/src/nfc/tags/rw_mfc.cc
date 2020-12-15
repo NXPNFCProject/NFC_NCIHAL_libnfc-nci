@@ -1064,7 +1064,7 @@ static void rw_mfc_handle_read_op(uint8_t* data) {
       if (tlv_found) {
         p_mfc->ndef_status = MFC_NDEF_DETECTED;
         p_mfc->ndef_first_block = p_mfc->last_block_accessed.block;
-        rw_mfc_ntf_tlv_detect_complete(tlv_found);
+        rw_mfc_ntf_tlv_detect_complete(NFC_STATUS_OK);
       }
       break;
 
