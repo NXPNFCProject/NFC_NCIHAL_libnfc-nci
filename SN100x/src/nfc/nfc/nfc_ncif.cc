@@ -177,39 +177,8 @@ static bool check_and_send_last_cmd() {
 static struct timeval timer_start;
 static struct timeval timer_end;
 
+#define DEFAULT_CRASH_NFCSNOOP_PATH "/data/misc/nfc/logs/native_crash_logs"
 static const off_t NATIVE_CRASH_FILE_SIZE = (1024 * 1024);
-
-void storeNativeCrashLogs(void) {
-  std::string filename = "/native_crash_logs";
-  std::string filepath = nfc_storage_path + filename;
-  int fileStream;
-  off_t fileSize;
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("%s: file=%s", __func__, filepath.c_str());
-  // check file size
-  struct stat st;
-  if (stat(filepath.c_str(), &st) == 0) {
-    fileSize = st.st_size;
-  } else {
-    fileSize = 0;
-  }
-
-  if (fileSize >= NATIVE_CRASH_FILE_SIZE) {
-    fileStream =
-        open(filepath.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-  } else {
-    fileStream =
-        open(filepath.c_str(), O_RDWR | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
-  }
-
-  if (fileStream >= 0) {
-    debug_nfcsnoop_dump(fileStream);
-    close(fileStream);
-  } else {
-    LOG(ERROR) << StringPrintf("%s: fail to create, error = %d", __func__,
-                               errno);
-  }
-}
 
 /*******************************************************************************
 **
@@ -256,7 +225,7 @@ void nfc_ncif_cmd_timeout(void) {
     return;
   }
 #endif
-  storeNativeCrashLogs();
+  storeNfcSnoopLogs(DEFAULT_CRASH_NFCSNOOP_PATH, NATIVE_CRASH_FILE_SIZE);
 
   /* report an error */
   nfc_ncif_event_status(NFC_GEN_ERROR_REVT, NFC_STATUS_HW_TIMEOUT);
