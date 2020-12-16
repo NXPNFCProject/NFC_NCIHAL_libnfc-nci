@@ -333,8 +333,8 @@ typedef enum {
   NFA_DTA_CR9 = 0x00000090,
   NFA_DTA_CR10 = 0x000000A0,
   NFA_DTA_CR11 = 0x000000B0,
-  NFA_DTA_CR12 = 0x000000C0,
 #endif
+  NFA_DTA_CR12 = 0x00000040,
 } tNFA_eDtaModes;
 
 #if (NXP_EXTNS == TRUE)
