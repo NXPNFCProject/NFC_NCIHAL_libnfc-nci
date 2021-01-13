@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright 2018-2020 NXP
+ *  Copyright 2018-2021 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -42,18 +42,6 @@
 #define JCOP_VER_3_3    3
 #define JCOP_VER_4_0    4
 #define JCOP_VER_5_0    5
-#ifndef FW_LIB_ROOT_DIR
-#define FW_LIB_ROOT_DIR "/vendor/lib64/"
-#endif
-#ifndef FW_BIN_ROOT_DIR
-#define FW_BIN_ROOT_DIR "/vendor/firmware/"
-#endif
-#ifndef FW_LIB_EXTENSION
-#define FW_LIB_EXTENSION ".so"
-#endif
-#ifndef FW_BIN_EXTENSION
-#define FW_BIN_EXTENSION ".bin"
-#endif
 using namespace std;
 typedef enum {
     NFCC_DWNLD_WITH_VEN_RESET,
@@ -153,10 +141,6 @@ typedef struct {
 typedef struct {
     uint8_t nfcNxpEse : 1;
     tNFC_chipType chipType;
-    std::string _FW_LIB_PATH;
-    std::string _PLATFORM_LIB_PATH;
-    std::string _PKU_LIB_PATH;
-    std::string _FW_BIN_PATH;
     uint16_t _PHDNLDNFC_USERDATA_EEPROM_OFFSET;
     uint16_t _PHDNLDNFC_USERDATA_EEPROM_LEN;
     uint8_t  _FW_MOBILE_MAJOR_NUMBER;
@@ -401,8 +385,6 @@ extern tNfc_featureList nfcFL;
       nfcFL.nfcMwFL._NCI_INTERFACE_UICC_DIRECT = 0x82;                       \
       nfcFL.nfcMwFL._NCI_INTERFACE_ESE_DIRECT = 0x83;                        \
       nfcFL._FW_MOBILE_MAJOR_NUMBER = FW_MOBILE_MAJOR_NUMBER_SN220U;         \
-      SRTCPY_FW("libsn220u_fw", "libsn220u_fw_platform", "libsn220u_fw_pku") \
-      STRCPY_FW_BIN("sn220u")                                                \
     }                                                                        \
     if (chipType == sn100u) {                                                \
       nfcFL.nfccFL._NFCC_DWNLD_MODE = NFCC_DWNLD_WITH_NCI_CMD;               \
@@ -431,8 +413,6 @@ extern tNfc_featureList nfcFL;
       nfcFL.nfcMwFL._NCI_INTERFACE_UICC_DIRECT = 0x82;                       \
       nfcFL.nfcMwFL._NCI_INTERFACE_ESE_DIRECT = 0x83;                        \
       nfcFL._FW_MOBILE_MAJOR_NUMBER = FW_MOBILE_MAJOR_NUMBER_SN100U;         \
-      SRTCPY_FW("libsn100u_fw", "libsn100u_fw_platform", "libsn100u_fw_pku") \
-      STRCPY_FW_BIN("sn100u")                                                \
     }                                                                        \
     if (chipType == pn557) {                                                 \
       nfcFL.nfccFL._NFCC_I2C_READ_WRITE_IMPROVEMENT = true;                  \
@@ -458,8 +438,6 @@ extern tNfc_featureList nfcFL;
       nfcFL.nfcMwFL._NCI_INTERFACE_UICC_DIRECT = 0x82;                       \
       nfcFL.nfcMwFL._NCI_INTERFACE_ESE_DIRECT = 0x83;                        \
                                                                              \
-      SRTCPY_FW("libpn557_fw", "libpn557_fw_platform", "libpn557_fw_pku")    \
-      STRCPY_FW_BIN("pn557")                                                 \
     } else if (chipType == pn553) {                                          \
       nfcFL.nfccFL._NFCC_I2C_READ_WRITE_IMPROVEMENT = true;                  \
       nfcFL.nfccFL._NFCC_MIFARE_TIANJIN = false;                             \
@@ -487,9 +465,6 @@ extern tNfc_featureList nfcFL;
       nfcFL.nfcMwFL._NCI_INTERFACE_UICC_DIRECT = 0x82;                       \
       nfcFL.nfcMwFL._NCI_INTERFACE_ESE_DIRECT = 0x83;                        \
                                                                              \
-      SRTCPY_FW("libpn553tc_fw", "libpn553tc_fw_platform",                   \
-                "libpn553tc_fw_pku")                                         \
-      STRCPY_FW_BIN("pn553")                                                 \
       nfcFL._FW_MOBILE_MAJOR_NUMBER = FW_MOBILE_MAJOR_NUMBER_PN553;          \
                                                                              \
     } else if (chipType == pn551) {                                          \
@@ -517,9 +492,6 @@ extern tNfc_featureList nfcFL;
       nfcFL.nfcMwFL._NCI_INTERFACE_UICC_DIRECT = 0x82;                       \
       nfcFL.nfcMwFL._NCI_INTERFACE_ESE_DIRECT = 0x83;                        \
                                                                              \
-      SRTCPY_FW("libpn551_fw", "libpn551_fw_platform", "libpn551_fw_pku")    \
-                                                                             \
-      STRCPY_FW_BIN("pn551")                                                 \
       nfcFL._PHDNLDNFC_USERDATA_EEPROM_OFFSET = 0x02BCU;                     \
       nfcFL._PHDNLDNFC_USERDATA_EEPROM_LEN = 0x0C00U;                        \
       nfcFL._FW_MOBILE_MAJOR_NUMBER = FW_MOBILE_MAJOR_NUMBER_PN551;          \
@@ -547,9 +519,6 @@ extern tNfc_featureList nfcFL;
       nfcFL.nfcMwFL._NCI_INTERFACE_UICC_DIRECT = 0x82;                       \
       nfcFL.nfcMwFL._NCI_INTERFACE_ESE_DIRECT = 0x83;                        \
                                                                              \
-      SRTCPY_FW("libpn548ad_fw", "libpn548ad_fw_platform",                   \
-                "libpn548ad_fw_pku")                                         \
-                                                                             \
       nfcFL._PHDNLDNFC_USERDATA_EEPROM_OFFSET = 0x02BCU;                     \
       nfcFL._PHDNLDNFC_USERDATA_EEPROM_LEN = 0x0C00U;                        \
                                                                              \
@@ -574,36 +543,8 @@ extern tNfc_featureList nfcFL;
       nfcFL.nfcMwFL._NCI_INTERFACE_UICC_DIRECT = 0x81;                       \
       nfcFL.nfcMwFL._NCI_INTERFACE_ESE_DIRECT = 0x82;                        \
                                                                              \
-      SRTCPY_FW("libpn547_fw", "libpn547_fw_platform", "libpn547_fw_pku")    \
-                                                                             \
     } else if (chipType == DEFAULT_CHIP_TYPE) {                              \
       nfcFL.nfccFL._NFCC_FORCE_FW_DOWNLOAD = true;                           \
     }                                                                        \
   }
-#define STRCPY_FW_LIB(str) {                                                \
-  nfcFL._FW_LIB_PATH.clear();                                               \
-  nfcFL._FW_LIB_PATH.append(FW_LIB_ROOT_DIR);                               \
-  nfcFL._FW_LIB_PATH.append(str);                                           \
-  nfcFL._FW_LIB_PATH.append(FW_LIB_EXTENSION);                              \
-}
-#define STRCPY_FW_BIN(str) {                                                \
-  nfcFL._FW_BIN_PATH.clear();                                               \
-  nfcFL._FW_BIN_PATH.append(FW_BIN_ROOT_DIR);                               \
-  nfcFL._FW_BIN_PATH.append(str);                                           \
-  nfcFL._FW_BIN_PATH.append(FW_BIN_EXTENSION);                              \
-}
-#define SRTCPY_FW(str1, str2,str3) {     \
-  nfcFL._FW_LIB_PATH.clear();                                               \
-  nfcFL._FW_LIB_PATH.append(FW_LIB_ROOT_DIR);                               \
-  nfcFL._FW_LIB_PATH.append(str1);                                           \
-  nfcFL._FW_LIB_PATH.append(FW_LIB_EXTENSION);                              \
-  nfcFL._PLATFORM_LIB_PATH.clear();                                               \
-  nfcFL._PLATFORM_LIB_PATH.append(FW_LIB_ROOT_DIR);                               \
-  nfcFL._PLATFORM_LIB_PATH.append(str2);                                           \
-  nfcFL._PLATFORM_LIB_PATH.append(FW_LIB_EXTENSION);                         \
-  nfcFL._PKU_LIB_PATH.clear();                                                \
-  nfcFL._PKU_LIB_PATH.append(FW_LIB_ROOT_DIR);                               \
-  nfcFL._PKU_LIB_PATH.append(str3);                                            \
-  nfcFL._PKU_LIB_PATH.append(FW_LIB_EXTENSION);                              \
-}
 #endif
