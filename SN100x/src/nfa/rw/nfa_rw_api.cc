@@ -25,6 +25,7 @@
 
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
+#include <log/log.h>
 
 #include "nfa_api.h"
 #include "nfa_rw_int.h"
@@ -1097,7 +1098,7 @@ tNFA_STATUS NFA_RwI93WriteMultipleBlocks(uint8_t first_block_number,
                                          uint16_t number_blocks,
                                          uint8_t* p_data) {
   tNFA_RW_OPERATION* p_msg;
-  uint16_t data_length;
+  uint32_t data_length;
 
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("%d, %d", first_block_number, number_blocks);
@@ -1112,6 +1113,11 @@ tNFA_STATUS NFA_RwI93WriteMultipleBlocks(uint8_t first_block_number,
   }
 
   data_length = nfa_rw_cb.i93_block_size * number_blocks;
+
+  if (data_length + sizeof(tNFA_RW_OPERATION) > UINT16_MAX) {
+    android_errorWriteLog(0x534e4554, "157650338");
+    return (NFA_STATUS_FAILED);
+  }
 
   p_msg = (tNFA_RW_OPERATION*)GKI_getbuf(
       (uint16_t)(sizeof(tNFA_RW_OPERATION) + data_length));
