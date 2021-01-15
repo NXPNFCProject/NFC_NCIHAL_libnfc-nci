@@ -46,6 +46,7 @@
 
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
+#include <log/log.h>
 
 #include "nfc_target.h"
 
@@ -192,6 +193,11 @@ tNFC_STATUS RW_SendRawFrame(uint8_t* p_raw_data, uint16_t data_len) {
   uint8_t* p;
 
   if (rw_cb.p_cback) {
+    if (data_len > GKI_get_pool_bufsize(NFC_RW_POOL_ID) - NCI_MSG_OFFSET_SIZE -
+                       NCI_DATA_HDR_SIZE - 1) {
+      android_errorWriteLog(0x534e4554, "157650117");
+      return NFC_STATUS_FAILED;
+    }
     /* a valid opcode for RW - remove */
     p_data = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID);
     if (p_data) {
