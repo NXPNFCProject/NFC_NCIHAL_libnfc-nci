@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright 2020 NXP
+ *  Copyright 2020-2021 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -31,12 +31,8 @@ ThreadCondVar srdDeactivateEvtCb;
 ThreadCondVar srdDiscoverymapEvt;
 tNFA_HCI_EVT_DATA p_evtdata;
 
-/*Local static function declarations*/
-void nfa_srd_process_hci_evt(tNFA_HCI_EVT event, tNFA_HCI_EVT_DATA* p_data);
-void nfa_srd_deactivate_req_evt(tNFC_DISCOVER_EVT event,
-                                tNFC_DISCOVER* evt_data);
+bool nfa_srd_check_hci_evt(tNFA_HCI_EVT_DATA* evt_data);
 void nfa_srd_discovermap_cb(tNFC_DISCOVER_EVT event, tNFC_DISCOVER* p_data);
-
 /******************************************************************************
  **  Constants
  *****************************************************************************/
@@ -45,57 +41,23 @@ void nfa_srd_discovermap_cb(tNFC_DISCOVER_EVT event, tNFC_DISCOVER* p_data);
 
 /*******************************************************************************
 **
-** Function         nfa_srd_start
+** Function         nfa_srd_snd_discover_map
 **
 ** Description      Process to send discover map command with RF interface.
 **
 ** Returns          None
 **
 *******************************************************************************/
-void* nfa_srd_start(void*) {
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(" nfa_srd_start: Enter");
-  tNFA_STATUS status = NFA_STATUS_FAILED;
+void nfa_srd_snd_discover_map(tNFA_SRD_EVT event) {
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf(" %s: Enter : %d", __func__, event);
   tNCI_DISCOVER_MAPS* p_intf_mapping = nullptr;
+  uint8_t p_params;
 
   const tNCI_DISCOVER_MAPS
       nfc_interface_mapping_mfc[NFC_SWP_RD_NUM_INTERFACE_MAP] = {
           {NCI_PROTOCOL_T2T, NCI_INTERFACE_MODE_POLL, NCI_INTERFACE_FRAME},
           {NCI_PROTOCOL_ISO_DEP, NCI_INTERFACE_MODE_POLL, NCI_INTERFACE_FRAME}};
-  p_intf_mapping = (tNCI_DISCOVER_MAPS*)nfc_interface_mapping_mfc;
-
-  if (p_intf_mapping != nullptr &&
-      (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_IDLE ||
-       nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_POLL_ACTIVE)) {
-    srdDiscoverymapEvt.lock();
-    (void)NFC_DiscoveryMap(NFC_SWP_RD_NUM_INTERFACE_MAP, p_intf_mapping,
-                           nfa_srd_discovermap_cb);
-    srdDiscoverymapEvt.wait();
-    status = srd_t.rsp_status;
-  }
-  if (status == NFC_STATUS_OK) {
-    srd_t.srd_state = ENABLE;
-  }
-  /* notify NFA_HCI_EVENT_RCVD_EVT to the application */
-  nfa_hciu_send_to_apps_handling_connectivity_evts(NFA_HCI_EVENT_RCVD_EVT,
-                                                   &p_evtdata);
-
-  pthread_exit(NULL);
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(" nfa_srd_start:Exit");
-}
-
-/*******************************************************************************
-**
-** Function         nfa_srd_stop
-**
-** Description      Process to reset the default settings for discover map
-**                  command.
-**
-** Returns          None
-**
-*******************************************************************************/
-void* nfa_srd_stop(void*) {
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(" nfa_srd_stop:Enter");
-  tNCI_DISCOVER_MAPS* p_intf_mapping = nullptr;
 
   const tNCI_DISCOVER_MAPS
       nfc_interface_mapping_default[NFC_NUM_INTERFACE_MAP] = {
@@ -112,36 +74,24 @@ void* nfa_srd_stop(void*) {
         {NCI_PROTOCOL_T3T, NCI_INTERFACE_MODE_LISTEN, NCI_INTERFACE_FRAME},
       };
 
-  p_intf_mapping = (tNCI_DISCOVER_MAPS*)nfc_interface_mapping_default;
-
-  if (!(nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_IDLE)) {
-    srdDeactivateEvtCb.lock();
-    if (NFA_STATUS_OK == NFA_StopRfDiscovery()) {
-      if (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_POLL_ACTIVE) {
-        srd_t.wait_for_deact_ntf = true;
-      }
+  switch (event) {
+    case NFA_SRD_START_EVT:
+      p_intf_mapping = (tNCI_DISCOVER_MAPS*)nfc_interface_mapping_mfc;
+      p_params = NFC_SWP_RD_NUM_INTERFACE_MAP;
+      break;
+    case NFA_SRD_STOP_EVT:
+      p_intf_mapping = (tNCI_DISCOVER_MAPS*)nfc_interface_mapping_default;
+      p_params = NFC_NUM_INTERFACE_MAP;
+      break;
     }
-    srdDeactivateEvtCb.wait();
+
+    if (p_intf_mapping != nullptr) {
+      (void)NFC_DiscoveryMap(p_params, p_intf_mapping,
+                             nfa_srd_discovermap_cb);
   }
-  if (p_intf_mapping != nullptr &&
-      (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_IDLE ||
-       nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_POLL_ACTIVE)) {
-    srdDiscoverymapEvt.lock();
-    (void)NFC_DiscoveryMap(NFC_NUM_INTERFACE_MAP, p_intf_mapping,
-                           nfa_srd_discovermap_cb);
-    srdDiscoverymapEvt.wait();
-  }
-  if (srd_t.srd_state == TIMEOUT) {
-    nfa_hciu_send_to_apps_handling_connectivity_evts(NFA_SRD_EVT_TIMEOUT,
-                                                     &p_evtdata);
-  } else {
-    nfa_hciu_send_to_apps_handling_connectivity_evts(NFA_HCI_EVENT_RCVD_EVT,
-                                                     &p_evtdata);
-  }
-  srd_t.srd_state = DISABLE;
-  pthread_exit(NULL);
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(" nfa_srd_stop:Exit");
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(" %s: Exit", __func__);
 }
+
 /*******************************************************************************
  **
  ** Function:        nfa_srd_discovermap_cb
@@ -152,40 +102,76 @@ void* nfa_srd_stop(void*) {
  **
  *******************************************************************************/
 void nfa_srd_discovermap_cb(tNFC_DISCOVER_EVT event, tNFC_DISCOVER* p_data) {
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf(" %s: Exit status 0x%2x", __func__, p_data->status);
+
   switch (event) {
     case NFC_MAP_DEVT:
-      if (p_data) srd_t.rsp_status = p_data->status;
-      srdDiscoverymapEvt.signal();
+      if (srd_t.srd_state == TIMEOUT) {
+        nfa_hciu_send_to_apps_handling_connectivity_evts(NFA_SRD_EVT_TIMEOUT,
+                                                         &p_evtdata);
+        srd_t.srd_state = DISABLE;
+      } else {
+        nfa_hciu_send_to_apps_handling_connectivity_evts(NFA_HCI_EVENT_RCVD_EVT,
+                                                         &p_evtdata);
+      }
       break;
   }
   return;
 }
 /*******************************************************************************
 **
-** Function         srdCallback
+** Function         nfa_srd_process_evt
 **
-** Description      callback for Srd specific HCI events
+** Description      Process SRD events.
 **
 ** Returns          none
 **
 *******************************************************************************/
-void nfa_srd_process_hci_evt(tNFA_HCI_EVT event, tNFA_HCI_EVT_DATA* p_data) {
-  pthread_t SrdThread;
-  pthread_attr_t attr;
-  pthread_attr_init(&attr);
-  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-  p_evtdata = *p_data;
+void nfa_srd_process_evt(tNFA_SRD_EVT event, tNFA_HCI_EVT_DATA* evt_data,
+                         tNFC_DISCOVER* disc_evtdata) {
+  if(evt_data) p_evtdata = *evt_data;
   switch (event) {
     case NFA_SRD_START_EVT:
-      if (pthread_create(&SrdThread, &attr, nfa_srd_start, nullptr) < 0) {
-        DLOG_IF(ERROR, nfc_debug_enabled)
-            << StringPrintf("SrdThread start creation failed");
+      if (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_IDLE ||
+          nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_POLL_ACTIVE) {
+        nfa_srd_snd_discover_map(event);
+        srd_t.srd_state = ENABLE;
       }
       break;
+    case NFA_SRD_TIMEOUT_EVT:
+      if (srd_t.srd_state == TIMEOUT ||
+          srd_t.srd_state == FEATURE_NOT_SUPPORTED) {
+        return;
+      }
+      srd_t.srd_state = TIMEOUT;
+      memset(&p_evtdata, 0, sizeof(p_evtdata));
+      [[fallthrough]];
     case NFA_SRD_STOP_EVT:
-      if (pthread_create(&SrdThread, &attr, nfa_srd_stop, nullptr) < 0) {
-        DLOG_IF(ERROR, nfc_debug_enabled)
-            << StringPrintf("SrdThread stop creation failed");
+      if (!(nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_IDLE)) {
+        if (NFA_STATUS_OK != NFA_StopRfDiscovery()) {
+          DLOG_IF(INFO, nfc_debug_enabled)
+              << StringPrintf("%s Failed Stop Rf!!", __func__);
+        } else {
+          srd_t.isStopping = true;
+        }
+      }
+      break;
+    case NFA_DM_RF_DEACTIVATE_RSP:
+    case NFA_DM_RF_DEACTIVATE_NTF:
+      if (srd_t.isStopping &&
+          disc_evtdata->deactivate.type == NFA_DEACTIVATE_TYPE_IDLE) {
+        if (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_POLL_ACTIVE &&
+            event == NFA_DM_RF_DEACTIVATE_RSP) {
+          break;
+        }
+        nfa_srd_snd_discover_map(NFA_SRD_STOP_EVT);
+        if (srd_t.srd_state != TIMEOUT) {
+          /*Don't update the state in case of Timeout
+           *It need to update after notfiy timeout to
+           *upper layer*/
+          srd_t.srd_state = DISABLE;
+        }
       }
       break;
     case NFA_SRD_FEATURE_NOT_SUPPORT_EVT:
@@ -198,53 +184,8 @@ void nfa_srd_process_hci_evt(tNFA_HCI_EVT event, tNFA_HCI_EVT_DATA* p_data) {
           << StringPrintf("%s Unknown Event!!", __func__);
       break;
   }
-  pthread_attr_destroy(&attr);
 }
-/*******************************************************************************
-**
-** Function         nfa_srd_deactivate_req_evt
-**
-** Description      callback for Srd deactivate response
-**
-** Returns          None
-**
-*******************************************************************************/
-void nfa_srd_deactivate_req_evt(tNFC_DISCOVER_EVT event,
-                                tNFC_DISCOVER* evt_data) {
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("%s :Enter event:0x%2x", __func__, event);
 
-  if (srd_t.srd_state == FEATURE_NOT_SUPPORTED) {
-    DLOG_IF(ERROR, nfc_debug_enabled)
-        << StringPrintf("%s : SRD Feature not supported", __func__);
-    return;
-  }
-
-  switch (event) {
-    case NFA_DM_RF_DEACTIVATE_RSP:
-      if (!srd_t.wait_for_deact_ntf &&
-          evt_data->deactivate.type == NFA_DEACTIVATE_TYPE_IDLE) {
-        srd_t.rsp_status = evt_data->deactivate.status;
-        srdDeactivateEvtCb.signal();
-      }
-      break;
-    case NFA_DM_RF_DEACTIVATE_NTF:
-      /*Handle the scenario where tag is present and stop req is trigger*/
-      if (srd_t.wait_for_deact_ntf &&
-          (evt_data->deactivate.type == NFA_DEACTIVATE_TYPE_IDLE)) {
-        srd_t.rsp_status = evt_data->deactivate.status;
-        srdDeactivateEvtCb.signal();
-        srd_t.wait_for_deact_ntf = false;
-      }
-      break;
-
-    default:
-      DLOG_IF(INFO, nfc_debug_enabled)
-          << StringPrintf("%s Unknown Event!!", __func__);
-      break;
-  }
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s :Exit ", __func__);
-}
 /*******************************************************************************
 **
 ** Function         nfa_srd_check_hci_evt
@@ -277,14 +218,15 @@ bool nfa_srd_check_hci_evt(tNFA_HCI_EVT_DATA* evt_data) {
         if (*(p_data + 3) == INDEX1_FIELD_VALUE &&
             *(p_data + 4) == INDEX2_FIELD_VALUE) {
           if (srd_t.srd_state == FEATURE_NOT_SUPPORTED) {
-            nfa_srd_process_hci_evt(NFA_SRD_FEATURE_NOT_SUPPORT_EVT, evt_data);
+            nfa_srd_process_evt(NFA_SRD_FEATURE_NOT_SUPPORT_EVT, evt_data,
+                                nullptr);
             is_require = true;
           } else if (*(p_data + 6) == 0x01) {
             if (srd_t.srd_state == ENABLE) {
               DLOG_IF(INFO, nfc_debug_enabled)
                   << StringPrintf("%s :SRD Enabled ", __func__);
             } else {
-              nfa_srd_process_hci_evt(NFA_SRD_START_EVT, evt_data);
+              nfa_srd_process_evt(NFA_SRD_START_EVT, evt_data, nullptr);
               is_require = true;
             }
           } else if (*(p_data + 6) == 0x00) {
@@ -293,7 +235,7 @@ bool nfa_srd_check_hci_evt(tNFA_HCI_EVT_DATA* evt_data) {
                   << StringPrintf("%s :SRD Disabled ", __func__);
             } else {
               is_require = true;
-              nfa_srd_process_hci_evt(NFA_SRD_STOP_EVT, evt_data);
+              nfa_srd_process_evt(NFA_SRD_STOP_EVT, evt_data, nullptr);
             }
           }
         }
@@ -304,23 +246,7 @@ bool nfa_srd_check_hci_evt(tNFA_HCI_EVT_DATA* evt_data) {
       << StringPrintf("%s :Exit %d", __func__, is_require);
   return is_require;
 }
-/*******************************************************************************
-**
-** Function         nfa_srd_timeout_ntf
-**
-** Description      This function handles SRD TIMEOUT NTF
-**
-** Returns          void
-**
-*******************************************************************************/
-void nfa_srd_timeout_ntf() {
-  if (srd_t.srd_state == TIMEOUT || srd_t.srd_state == FEATURE_NOT_SUPPORTED) {
-    return;
-  }
-  srd_t.srd_state = TIMEOUT;
-  memset(&p_evtdata, 0, sizeof(p_evtdata));
-  nfa_srd_process_hci_evt(NFA_SRD_STOP_EVT, &p_evtdata);
-}
+
 /*******************************************************************************
 **
 ** Function         nfa_srd_init
@@ -353,16 +279,6 @@ void nfa_srd_init() {
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf(" %s Exit : srd_state 0x%2x", __func__, srd_t.srd_state);
 }
-/*******************************************************************************
-**
-** Function         nfa_srd_deInit
-**
-** Description      De-Initalize the SRD module
-**
-** Returns          void
-**
-*******************************************************************************/
-void nfa_srd_deInit() {}
 
 /*******************************************************************************
 **

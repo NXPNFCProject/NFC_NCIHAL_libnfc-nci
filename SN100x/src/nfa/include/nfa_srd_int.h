@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright 2020 NXP
+ *  Copyright 2020-2021 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,26 +25,27 @@
 #define NFA_SRD_START_EVT 1
 /* Event to stop SRD*/
 #define NFA_SRD_STOP_EVT 2
+/* Event SRD timeout*/
+#define NFA_SRD_TIMEOUT_EVT 3
 
 #define NCI_STATUS_SRD_TIMEOUT 0xE2
 
-#define NFA_SRD_PROCESS_EVT(event, evt_data) \
-  { nfa_srd_deactivate_req_evt(event, evt_data); }
+#define NFA_SRD_PROCESS_EVT(event, evt_data, disc_evtdata) \
+  { nfa_srd_process_evt(event, evt_data, disc_evtdata); }
+
+typedef uint8_t tNFA_SRD_EVT;
 
 struct {
   int srd_state;
-  tNFA_STATUS rsp_status;
-  bool wait_for_deact_ntf;
+  bool isStopping;
 } srd_t;
 
 enum { DISABLE, ENABLE, TIMEOUT, FEATURE_NOT_SUPPORTED = 0xFF };
 
 /* Action & utility functions in nfa_srd_main.cc */
-extern void nfa_srd_deactivate_req_evt(tNFC_DISCOVER_EVT event,
-                                       tNFC_DISCOVER* evt_data);
-bool nfa_srd_check_hci_evt(tNFA_HCI_EVT_DATA* evt_data);
-void nfa_srd_timeout_ntf();
+extern void nfa_srd_process_evt(tNFA_SRD_EVT event, tNFA_HCI_EVT_DATA* evt_data,
+                                tNFC_DISCOVER* disc_evtdata);
 void nfa_srd_init();
-void nfa_srd_deInit();
 int nfa_srd_get_state();
+bool nfa_srd_check_hci_evt(tNFA_HCI_EVT_DATA* evt_data);
 #endif

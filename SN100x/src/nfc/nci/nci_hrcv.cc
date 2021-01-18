@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2019 NXP
+ *  Copyright 2019-2021 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -55,6 +55,9 @@
 #include "nfc_int.h"
 #if (NXP_EXTNS == TRUE)
 #include "nfa_ee_int.h"
+#if(NXP_SRD == TRUE)
+#include "nfa_srd_int.h"
+#endif
 #endif
 
 using android::base::StringPrintf;
@@ -156,6 +159,12 @@ void nci_proc_core_ntf(NFC_HDR* p_msg) {
       break;
 
     case NCI_MSG_CORE_GEN_ERR_STATUS:
+#if (NXP_EXTNS == TRUE && NXP_SRD == TRUE)
+      if (*pp == NCI_STATUS_SRD_TIMEOUT) {
+        NFA_SRD_PROCESS_EVT(NFA_SRD_TIMEOUT_EVT, nullptr, nullptr);
+        break;
+      }
+#endif
       /* process the error ntf */
       /* in case of timeout: notify the static connection callback */
       nfc_ncif_event_status(NFC_GEN_ERROR_REVT, *pp);
