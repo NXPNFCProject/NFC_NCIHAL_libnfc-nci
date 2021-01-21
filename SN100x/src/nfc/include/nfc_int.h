@@ -86,7 +86,7 @@
 #define NFC_TTYPE_P2P_PRIO_LOGIC_CLEANUP 111
 #define NFC_TTYPE_RW_MFC_RESPONSE 112
 /* time out for mode set notification */
-#define NFC_MODE_SET_NTF_TIMEOUT 1
+#define NFC_MODE_SET_NTF_TIMEOUT 2
 /* NFC Task event messages */
 
 enum {
