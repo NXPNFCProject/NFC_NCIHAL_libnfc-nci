@@ -128,8 +128,11 @@ void nfa_srd_discovermap_cb(tNFC_DISCOVER_EVT event, tNFC_DISCOVER* p_data) {
 ** Returns          none
 **
 *******************************************************************************/
-void nfa_srd_process_evt(tNFA_SRD_EVT event, tNFA_HCI_EVT_DATA* evt_data,
-                         tNFC_DISCOVER* disc_evtdata) {
+void nfa_srd_process_evt(tNFA_SRD_EVT event, tNFA_HCI_EVT_DATA* evt_data) {
+
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("%s Enter: event:%d", __func__,event);
+
   if(evt_data) p_evtdata = *evt_data;
   switch (event) {
     case NFA_SRD_START_EVT:
@@ -157,23 +160,7 @@ void nfa_srd_process_evt(tNFA_SRD_EVT event, tNFA_HCI_EVT_DATA* evt_data,
         }
       }
       break;
-    case NFA_DM_RF_DEACTIVATE_RSP:
-    case NFA_DM_RF_DEACTIVATE_NTF:
-      if (srd_t.isStopping &&
-          disc_evtdata->deactivate.type == NFA_DEACTIVATE_TYPE_IDLE) {
-        if (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_POLL_ACTIVE &&
-            event == NFA_DM_RF_DEACTIVATE_RSP) {
-          break;
-        }
-        nfa_srd_snd_discover_map(NFA_SRD_STOP_EVT);
-        if (srd_t.srd_state != TIMEOUT) {
-          /*Don't update the state in case of Timeout
-           *It need to update after notfiy timeout to
-           *upper layer*/
-          srd_t.srd_state = DISABLE;
-        }
-      }
-      break;
+
     case NFA_SRD_FEATURE_NOT_SUPPORT_EVT:
       memset(&p_evtdata, 0, sizeof(p_evtdata));
       nfa_hciu_send_to_apps_handling_connectivity_evts(
@@ -185,7 +172,46 @@ void nfa_srd_process_evt(tNFA_SRD_EVT event, tNFA_HCI_EVT_DATA* evt_data,
       break;
   }
 }
+/*******************************************************************************
+**
+** Function         nfa_srd_dm_process_evt
+**
+** Description      Process DM events.
+**
+** Returns          none
+**
+*******************************************************************************/
+void nfa_srd_dm_process_evt(tNFC_DISCOVER_EVT event,
+        tNFC_DISCOVER* disc_evtdata) {
 
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("%s Enter: event:%d", __func__,event);
+
+  switch (event) {
+      case NFA_DM_RF_DEACTIVATE_RSP:
+      case NFA_DM_RF_DEACTIVATE_NTF:
+        if (srd_t.isStopping &&
+            disc_evtdata->deactivate.type == NFA_DEACTIVATE_TYPE_IDLE) {
+          if (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_POLL_ACTIVE &&
+              event == NFA_DM_RF_DEACTIVATE_RSP) {
+            break;
+          }
+          nfa_srd_snd_discover_map(NFA_SRD_STOP_EVT);
+          if (srd_t.srd_state != TIMEOUT) {
+            /*Don't update the state in case of Timeout
+             *It need to update after notfiy timeout to
+             *upper layer*/
+            srd_t.srd_state = DISABLE;
+          }
+          srd_t.isStopping = false;
+        }
+        break;
+      default:
+        DLOG_IF(INFO, nfc_debug_enabled)
+            << StringPrintf("%s Unknown Event!!", __func__);
+        break;
+  }
+}
 /*******************************************************************************
 **
 ** Function         nfa_srd_check_hci_evt
@@ -218,15 +244,14 @@ bool nfa_srd_check_hci_evt(tNFA_HCI_EVT_DATA* evt_data) {
         if (*(p_data + 3) == INDEX1_FIELD_VALUE &&
             *(p_data + 4) == INDEX2_FIELD_VALUE) {
           if (srd_t.srd_state == FEATURE_NOT_SUPPORTED) {
-            nfa_srd_process_evt(NFA_SRD_FEATURE_NOT_SUPPORT_EVT, evt_data,
-                                nullptr);
+            nfa_srd_process_evt(NFA_SRD_FEATURE_NOT_SUPPORT_EVT, evt_data);
             is_require = true;
           } else if (*(p_data + 6) == 0x01) {
             if (srd_t.srd_state == ENABLE) {
               DLOG_IF(INFO, nfc_debug_enabled)
                   << StringPrintf("%s :SRD Enabled ", __func__);
             } else {
-              nfa_srd_process_evt(NFA_SRD_START_EVT, evt_data, nullptr);
+              nfa_srd_process_evt(NFA_SRD_START_EVT, evt_data);
               is_require = true;
             }
           } else if (*(p_data + 6) == 0x00) {
@@ -235,7 +260,7 @@ bool nfa_srd_check_hci_evt(tNFA_HCI_EVT_DATA* evt_data) {
                   << StringPrintf("%s :SRD Disabled ", __func__);
             } else {
               is_require = true;
-              nfa_srd_process_evt(NFA_SRD_STOP_EVT, evt_data, nullptr);
+              nfa_srd_process_evt(NFA_SRD_STOP_EVT, evt_data);
             }
           }
         }

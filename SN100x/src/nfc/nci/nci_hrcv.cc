@@ -161,7 +161,7 @@ void nci_proc_core_ntf(NFC_HDR* p_msg) {
     case NCI_MSG_CORE_GEN_ERR_STATUS:
 #if (NXP_EXTNS == TRUE && NXP_SRD == TRUE)
       if (*pp == NCI_STATUS_SRD_TIMEOUT) {
-        NFA_SRD_PROCESS_EVT(NFA_SRD_TIMEOUT_EVT, nullptr, nullptr);
+        NFA_SRD_PROCESS_EVT(NFA_SRD_TIMEOUT_EVT, nullptr);
         break;
       }
 #endif
