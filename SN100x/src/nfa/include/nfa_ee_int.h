@@ -744,5 +744,6 @@ void nfa_ee_nci_nfcee_status_ntf(tNFA_EE_MSG* p_data);
 uint16_t nfa_ee_api_get_max_aid_config_length();
 uint16_t nfa_ee_lmrt_size();
 uint8_t nfa_ee_get_supported_tech_list(uint8_t nfcee_id);
+bool nfa_ee_check_recovery_required(tNCI_EE_NTF_STATUS nfcee_status);
 #endif
 #endif /* NFA_P2P_INT_H */

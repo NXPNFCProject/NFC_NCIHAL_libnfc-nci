@@ -91,7 +91,6 @@ const uint8_t nfa_ee_tech_list[NFA_EE_NUM_TECH] = {
 #if (NXP_EXTNS == TRUE)
 uint8_t NFA_REMOVE_ALL_AID[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 uint8_t NFA_REMOVE_ALL_APDU[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xEF};
-
 #endif
 
 static void add_route_tech_proto_tlv(uint8_t** pp, uint8_t tlv_type,
@@ -2130,6 +2129,23 @@ uint8_t nfa_ee_get_supported_tech_list(uint8_t nfcee_id) {
                    tech_list, nfcee_id);
   return tech_list;
 }
+
+/*******************************************************************************
+**
+** Function         nfa_ee_check_recovery_required
+**
+** Description      Whether NFCEE recovery required for NFCEE status
+*notification
+**
+** Returns          bool(true(required)/false(Not required))
+**
+*******************************************************************************/
+bool nfa_ee_check_recovery_required(tNCI_EE_NTF_STATUS nfcee_status) {
+  return (nfcee_status == NFC_NFCEE_STS_UNRECOVERABLE_ERROR ||
+          ((nfcee_status & 0xF0) == NFC_NFCEE_STS_PROP_UNRECOVERABLE_ERROR) ||
+          (nfcee_status) == NFC_NFCEE_STS_PMUVCC_OFF);
+}
+
 #endif
 /*******************************************************************************
 **
@@ -2338,27 +2354,26 @@ void nfa_ee_nci_nfcee_status_ntf(tNFA_EE_MSG* p_data) {
   tNFA_EE_ECB* p_cb = nfa_ee_find_ecb(p_ee->nfcee_id);
   if(p_cb != nullptr) {
       p_cb->nfcee_status = p_ee->nfcee_status;
-      if(p_ee->nfcee_status == NFC_NFCEE_STS_UNRECOVERABLE_ERROR ||
-        ((p_ee->nfcee_status & 0xF0 ) == NFC_NFCEE_STS_PROP_UNRECOVERABLE_ERROR)) {
+      if (nfa_ee_check_recovery_required(p_cb->nfcee_status)) {
         if (nfa_dm_cb.disc_cb.disc_state != NFA_DM_RFST_IDLE) {
           nfa_ee_cb.ee_flags |= NFA_EE_FLAG_RECOVERY;
           nfa_dm_act_stop_rf_discovery(NULL);
         }
         if (nfa_ee_cb.p_enable_cback)
           (*nfa_ee_cb.p_enable_cback)(NFA_EE_UNRECOVERABLE_ERROR);
-      } else if(p_ee->nfcee_status == NFC_NFCEE_STS_INIT_COMPLETED) {
-          if (nfa_ee_cb.p_enable_cback)
-            (*nfa_ee_cb.p_enable_cback)(NFA_EE_STATUS_INIT_COMPLETED);
-          /* Restart  Mode set ntf timer when NFCEE Status is INIT
-           * completed */
-          if (nfc_cb.flags & NFC_FL_WAIT_MODE_SET_NTF) {
-            DLOG_IF(INFO, nfc_debug_enabled)
-                << StringPrintf("Re-starting mode set ntf timer..");
-            nfc_stop_timer(&nfc_cb.nci_mode_set_ntf_timer);
-            nfc_start_timer(&nfc_cb.nci_mode_set_ntf_timer,
-                            (uint16_t)(NFC_TTYPE_WAIT_MODE_SET_NTF),
-                            NFC_MODE_SET_NTF_TIMEOUT);
-          }
+      } else if (p_ee->nfcee_status == NFC_NFCEE_STS_INIT_COMPLETED) {
+        if (nfa_ee_cb.p_enable_cback)
+          (*nfa_ee_cb.p_enable_cback)(NFA_EE_STATUS_INIT_COMPLETED);
+        /* Restart  Mode set ntf timer when NFCEE Status is INIT
+         * completed */
+        if (nfc_cb.flags & NFC_FL_WAIT_MODE_SET_NTF) {
+          DLOG_IF(INFO, nfc_debug_enabled)
+              << StringPrintf("Re-starting mode set ntf timer..");
+          nfc_stop_timer(&nfc_cb.nci_mode_set_ntf_timer);
+          nfc_start_timer(&nfc_cb.nci_mode_set_ntf_timer,
+                          (uint16_t)(NFC_TTYPE_WAIT_MODE_SET_NTF),
+                          NFC_MODE_SET_NTF_TIMEOUT);
+        }
       }
   }
 }
