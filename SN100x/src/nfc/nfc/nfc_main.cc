@@ -376,8 +376,9 @@ void nfc_enabled(tNFC_STATUS nfc_status, NFC_HDR* p_init_rsp_msg) {
       memcpy(evt_data.enable.vs_interface, nfc_cb.vs_interface,
              NFC_NFCC_MAX_NUM_VS_INTERFACE);
     } else {
-      /* one byte is consumed in the top expression */
-      lremain -= sizeof(uint16_t) + NFC_NFCC_INFO_LEN;
+      /* For VERSION_UNKNOWN one byte is consumed in the top expression */
+      lremain -= sizeof(uint16_t) + NFC_NFCC_INFO_LEN +
+                 (nfc_cb.nci_version == NCI_VERSION_1_0 ? 1 : 0);
       if (lremain < 0) {
         nfc_status = NCI_STATUS_FAILED;
         goto plen_err;
