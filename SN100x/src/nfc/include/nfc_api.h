@@ -448,6 +448,7 @@ typedef struct {
   uint8_t nfcee_id;   /* NFCEE ID                         */
   uint8_t num_tlvs;   /* number of TLVs                   */
   uint8_t tlv_size;   /* the total len of all TLVs        */
+  uint8_t qualifier_type;                  /* qualifier type */
   uint8_t param_tlvs[NFC_MAX_EE_TLV_SIZE]; /* the TLVs         */
 } tNFC_GET_ROUTING_REVT;
 
