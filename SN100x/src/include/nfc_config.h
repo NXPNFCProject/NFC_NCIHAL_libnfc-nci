@@ -30,7 +30,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2020 NXP
+ *  Copyright 2018-2021 NXP
  *
  ******************************************************************************/
 #pragma once
@@ -133,6 +133,7 @@
 #define NAME_NXP_T4T_NDEF_NFCEE_AID "NXP_T4T_NDEF_NFCEE_AID"
 #define NAME_NXP_NON_STD_CARD_TIMEDIFF "NXP_NON_STD_CARD_TIMEDIFF"
 #define NAME_NXP_SRD_TIMEOUT "NXP_SRD_TIMEOUT"
+#define NAME_NXP_UICC_ETSI_SUPPORT "NXP_UICC_ETSI_SUPPORT"
 #endif
 
 class NfcConfig {

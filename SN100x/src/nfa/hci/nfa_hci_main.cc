@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2020 NXP
+ *  Copyright 2018-2021 NXP
  *
  ******************************************************************************/
 
@@ -1075,6 +1075,8 @@ static void nfa_hci_sys_enable(void) {
 #if(NXP_EXTNS == TRUE)
   nfa_hci_cb.se_apdu_gate_support =
       NfcConfig::getUnsigned(NAME_NXP_SE_APDU_GATE_SUPPORT, 0x00);
+  nfa_hci_cb.uicc_etsi_support =
+      NfcConfig::getUnsigned(NAME_NXP_UICC_ETSI_SUPPORT, 0x00);
 #endif
 }
 
