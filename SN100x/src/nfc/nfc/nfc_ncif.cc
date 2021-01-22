@@ -1615,6 +1615,7 @@ void nfc_ncif_proc_deactivate(uint8_t status, uint8_t deact_type, bool is_ntf) {
 void nfc_ncif_proc_ee_action(uint8_t* p, uint16_t plen) {
   tNFC_EE_ACTION_REVT evt_data;
   tNFC_RESPONSE_CBACK* p_cback = nfc_cb.p_resp_cback;
+  tNFC_RESPONSE nfc_response;
   uint8_t data_len, ulen, tag, *p_data;
   uint8_t max_len;
   if (!p) {
@@ -1623,17 +1624,26 @@ void nfc_ncif_proc_ee_action(uint8_t* p, uint16_t plen) {
   }
   if (p_cback) {
     memset(&evt_data.act_data, 0, sizeof(tNFC_ACTION_DATA));
+    if (plen > 3) {
+      plen -= 3;
+    } else {
+      evt_data.status = NFC_STATUS_FAILED;
+      evt_data.nfcee_id = 0;
+      nfc_response.ee_action = evt_data;
+      (*p_cback)(NFC_EE_ACTION_REVT, &nfc_response);
+      android_errorWriteLog(0x534e4554, "157649306");
+      return;
+    }
     evt_data.status = NFC_STATUS_OK;
     evt_data.nfcee_id = *p++;
     evt_data.act_data.trigger = *p++;
 #if(NXP_EXTNS == TRUE)
     if ((plen != 0) && (p != NULL)){
-       STREAM_TO_ARRAY(&evt_data.act_data.nfc_act_data.data, p, plen-2);
-       evt_data.act_data.nfc_act_data.len_data = plen-2;
+       STREAM_TO_ARRAY(&evt_data.act_data.nfc_act_data.data, p, plen+1);
+       evt_data.act_data.nfc_act_data.len_data = plen+1;
     }
 #endif
     data_len = *p++;
-    if (plen >= 3) plen -= 3;
     if (data_len > plen) data_len = (uint8_t)plen;
 
     switch (evt_data.act_data.trigger) {
@@ -1676,7 +1686,6 @@ void nfc_ncif_proc_ee_action(uint8_t* p, uint16_t plen) {
         }
         break;
     }
-    tNFC_RESPONSE nfc_response;
     nfc_response.ee_action = evt_data;
     (*p_cback)(NFC_EE_ACTION_REVT, &nfc_response);
   }
