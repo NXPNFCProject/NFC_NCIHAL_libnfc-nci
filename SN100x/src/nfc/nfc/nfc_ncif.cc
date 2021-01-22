@@ -161,6 +161,7 @@ static bool check_and_send_last_cmd() {
   if (last_cmd.data != nullptr) {
     DLOG_IF(INFO, nfc_debug_enabled)
         << StringPrintf("check_and_send_last_cmd:");
+    NfcAdaptation::GetInstance().HalSetProperty("nfc.cmd_timeout", "");
     nfc_cb.p_hal->write(last_cmd.len, last_cmd.data.get());
     last_cmd.data = nullptr;
     last_cmd.len = 0;
