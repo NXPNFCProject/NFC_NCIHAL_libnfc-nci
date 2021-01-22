@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018 NXP
+ *  Copyright 2018,2021 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -80,6 +80,20 @@ tNFC_STATUS NFC_NfceeDiscover(bool discover) {
 #endif
   return nci_snd_nfcee_discover((uint8_t)(
       discover ? NCI_DISCOVER_ACTION_ENABLE : NCI_DISCOVER_ACTION_DISABLE));
+}
+
+/*******************************************************************************
+**
+** Function         NFC_NfceeClearWaitModeSetNtf
+**
+** Description      Clear Nfcee Mode set notification wait flag
+**
+** Returns          void
+**
+*******************************************************************************/
+void NFC_NfceeClearWaitModeSetNtf(void) {
+  if(nfc_cb.flags & NFC_FL_WAIT_MODE_SET_NTF)
+    nfc_cb.flags &= ~NFC_FL_WAIT_MODE_SET_NTF;
 }
 
 /*******************************************************************************
