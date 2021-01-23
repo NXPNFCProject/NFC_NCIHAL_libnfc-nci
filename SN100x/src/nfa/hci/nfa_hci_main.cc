@@ -409,7 +409,6 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                 nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
                 nfa_hci_cb.curr_nfcee = nfa_ee_cb.ecb[ee_entry_index].nfcee_id;
                 nfa_hci_cb.next_nfcee_idx = 0x00;
-                NFC_NfceeClearWaitModeSetNtf();
                 if(NFC_NfceeDiscover(true) == NFC_STATUS_FAILED) {
                   DLOG_IF(INFO, nfc_debug_enabled)
                     << StringPrintf("NFA_EE_RECOVERY unable to perform");
