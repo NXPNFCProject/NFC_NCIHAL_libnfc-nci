@@ -1754,7 +1754,7 @@ void nfc_ncif_proc_ee_discover_req(uint8_t* p, uint16_t plen) {
 **
 *******************************************************************************/
 void nfc_ncif_proc_get_routing(uint8_t* p, uint8_t len) {
-  tNFC_GET_ROUTING_REVT evt_data;
+  tNFC_GET_ROUTING_REVT evt_data = {};
   uint8_t more, num_entries, xx, *pn;
   tNFC_STATUS status = NFC_STATUS_CONTINUE;
 
