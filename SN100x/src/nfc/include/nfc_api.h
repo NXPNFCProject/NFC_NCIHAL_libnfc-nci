@@ -60,11 +60,11 @@
 #define NFC_NXP_MW_CUSTOMER_ID (0x00) /* MW Customer Id */
 #define NFC_NXP_MW_RC_VERSION  (0x00) /* MW RC Version */
 
-#define NFC_NXP_CBC_VERSION_MAJ (0x01) /* CBC Major Version */
-#define NFC_NXP_CBC_VERSION_MIN (0x02) /* CBC Minor Version */
+#define NFC_NXP_CBC_VERSION_MAJ (0x02) /* CBC Major Version */
+#define NFC_NXP_CBC_VERSION_MIN (0x00) /* CBC Minor Version */
 
-#define NFC_NXP_MW_SN1XX_VERSION_MAJ (0x50) /* MW Major Version for SN1XX*/
-#define NFC_NXP_MW_SN1XX_VERSION_MIN (0x01) /* MW Minor Version for SN1xx*/
+#define NFC_NXP_MW_SN1XX_VERSION_MAJ (0x51) /* MW Major Version for SN1XX*/
+#define NFC_NXP_MW_SN1XX_VERSION_MIN (0x00) /* MW Minor Version for SN1xx*/
 
 #define NFC_NXP_MW_SN220_VERSION_MAJ (0x00) /* MW Major Version for SN220*/
 #define NFC_NXP_MW_SN220_VERSION_MIN (0x02) /* MW Minor Version for SN220*/
