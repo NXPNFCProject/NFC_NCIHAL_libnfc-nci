@@ -1755,7 +1755,10 @@ static void rw_t2t_handle_config_tag_readonly(uint8_t* p_data) {
 
       /* First soft lock the tag */
       rw_t2t_soft_lock_tag();
-
+      if (p_t2t->b_hard_lock) {
+        /* Tag configuration not complete */
+        status = NFC_STATUS_OK;
+      }
       break;
 
     case RW_T2T_SUBSTATE_WAIT_SET_CC_RO:
@@ -1767,11 +1770,21 @@ static void rw_t2t_handle_config_tag_readonly(uint8_t* p_data) {
         status = NFC_STATUS_OK;
         b_notify = true;
         break;
+      } else {
+        /* Tag configuration not complete */
+        status = NFC_STATUS_OK;
+        /* Copy the internal bytes */
+        memcpy(write_block,
+               &p_t2t->tag_hdr[T2T_STATIC_LOCK0 - T2T_INTERNAL_BYTES_LEN],
+               T2T_INTERNAL_BYTES_LEN);
+        /* Set all Static lock bits */
+        write_block[T2T_STATIC_LOCK0 % T2T_BLOCK_SIZE] = 0xFF;
+        write_block[T2T_STATIC_LOCK1 % T2T_BLOCK_SIZE] = 0xFF;
+        p_t2t->substate = RW_T2T_SUBSTATE_WAIT_SET_DYN_LOCK_BITS;
+        status = rw_t2t_write((T2T_STATIC_LOCK0 / T2T_BLOCK_SIZE), write_block);
       }
-      FALLTHROUGH_INTENDED;
+      break;
 
-    /* Coverity: [FALSE-POSITIVE error] intended fall through */
-    /* Missing break statement between cases in switch statement */
     case RW_T2T_SUBSTATE_WAIT_SET_DYN_LOCK_BITS:
 
       num_locks = 0;
@@ -1786,8 +1799,21 @@ static void rw_t2t_handle_config_tag_readonly(uint8_t* p_data) {
         if (!b_pending &&
             p_t2t->lockbyte[num_locks].lock_status == RW_T2T_LOCK_NOT_UPDATED) {
           /* One or more dynamic lock bits are not set */
-          b_pending = true;
-          read_lock = num_locks;
+          if (num_locks == 0) {
+            offset = p_t2t->lock_tlv[p_t2t->lockbyte[0].tlv_index].offset +
+                     p_t2t->lockbyte[0].byte_index;
+            if (offset % T2T_BLOCK_SIZE) {
+              /* For backward compatibility in case the DynLock_Area is not
+               * aligned to a block boundary, first read the block not to
+               * overwrite possible NDEF or Reserved data
+               */
+              b_pending = true;
+              read_lock = num_locks;
+            } else {
+              /* Write zero in internal byte */
+              memset(write_block, 0, T2T_BLOCK_SIZE);
+            }
+          }
         }
         num_locks++;
       }
@@ -1795,34 +1821,23 @@ static void rw_t2t_handle_config_tag_readonly(uint8_t* p_data) {
       if (b_pending) {
         /* Read the block where dynamic lock bits are present to avoid writing
          * to NDEF bytes in the same block */
-        offset = p_t2t->lock_tlv[p_t2t->lockbyte[read_lock].tlv_index].offset +
-                 p_t2t->lockbyte[read_lock].byte_index;
         p_t2t->substate = RW_T2T_SUBSTATE_WAIT_READ_DYN_LOCK_BYTE_BLOCK;
         status = rw_t2t_read((uint16_t)(offset / T2T_BLOCK_LEN));
       } else {
-        /* Now set Static lock bits as no more dynamic lock bits to set */
-
-        /* Copy the internal bytes */
-        memcpy(write_block,
-               &p_t2t->tag_hdr[T2T_STATIC_LOCK0 - T2T_INTERNAL_BYTES_LEN],
-               T2T_INTERNAL_BYTES_LEN);
-        /* Set all Static lock bits */
-        write_block[T2T_STATIC_LOCK0 % T2T_BLOCK_SIZE] = 0xFF;
-        write_block[T2T_STATIC_LOCK1 % T2T_BLOCK_SIZE] = 0xFF;
-        p_t2t->substate = RW_T2T_SUBSTATE_WAIT_SET_ST_LOCK_BITS;
-        status = rw_t2t_write((T2T_STATIC_LOCK0 / T2T_BLOCK_SIZE), write_block);
+        /* Now set the dynamic lock bits present in the block read now */
+        status = rw_t2t_set_dynamic_lock_bits(write_block);
+        if (status == NFC_STATUS_CONTINUE) {
+          /* Tag configuration complete */
+          status = NFC_STATUS_OK;
+          b_notify = true;
+        }
       }
+
       break;
 
     case RW_T2T_SUBSTATE_WAIT_READ_DYN_LOCK_BYTE_BLOCK:
       /* Now set the dynamic lock bits present in the block read now */
       status = rw_t2t_set_dynamic_lock_bits(p_data);
-      break;
-
-    case RW_T2T_SUBSTATE_WAIT_SET_ST_LOCK_BITS:
-      /* Tag configuration complete */
-      status = NFC_STATUS_OK;
-      b_notify = true;
       break;
   }
 
@@ -2463,6 +2478,9 @@ tNFC_STATUS rw_t2t_set_dynamic_lock_bits(uint8_t* p_data) {
         status = NFC_STATUS_FAILED;
 
       break;
+
+    } else {
+      status = NFC_STATUS_CONTINUE;
     }
     num_locks++;
   }
