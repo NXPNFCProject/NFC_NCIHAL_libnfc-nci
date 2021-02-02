@@ -421,10 +421,8 @@ typedef struct {
 #define NFA_P2P_PAUSED_EVT 38
 /* P2P services resumed event */
 #define NFA_P2P_RESUMED_EVT 39
-#if (NXP_EXTNS == TRUE)
-/* Last credit Ntf received for tunneling data */
-#define NFA_TMW_CREDIT_EVT 40
-#endif
+/* T2T command completed */
+#define NFA_T2T_CMD_CPLT_EVT 40
 /* NFC deactivation type */
 #define NFA_DEACTIVATE_TYPE_IDLE NFC_DEACTIVATE_TYPE_IDLE
 #define NFA_DEACTIVATE_TYPE_SLEEP NFC_DEACTIVATE_TYPE_SLEEP
