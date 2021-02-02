@@ -1010,21 +1010,7 @@ void nfa_ee_api_deregister(tNFA_EE_MSG* p_data) {
   nfa_ee_cb.p_ee_cback[index] = nullptr;
   if (p_cback) (*p_cback)(NFA_EE_DEREGISTER_EVT, &evt_data);
 }
-#if (NXP_EXTNS == TRUE)
-/*******************************************************************************
-**
-** Function         nfa_ee_api_power_link_set
-**
-** Description      process power link command request
-**
-** Returns          void
-**
-*******************************************************************************/
-void nfa_ee_api_power_link_set(tNFA_EE_MSG* p_data) {
-    NFC_NfceePLConfig(p_data->pwr_lnk_ctrl_set.nfcee_id, p_data->pwr_lnk_ctrl_set.cfg_value);
-    return;
-}
-#endif
+
 /*******************************************************************************
 **
 ** Function         nfa_ee_api_mode_set
@@ -1895,6 +1881,20 @@ void nfa_ee_api_disconnect(tNFA_EE_MSG* p_data) {
 
 /*******************************************************************************
 **
+** Function         nfa_ee_api_pwr_and_link_ctrl
+**
+** Description      Initiates closing of the connection to the given NFCEE
+**
+** Returns          void
+**
+*******************************************************************************/
+void nfa_ee_api_pwr_and_link_ctrl(tNFA_EE_MSG* p_data) {
+  NFC_NfceePLConfig(p_data->pwr_and_link_ctrl.nfcee_id,
+                    p_data->pwr_and_link_ctrl.config);
+}
+
+/*******************************************************************************
+**
 ** Function         nfa_ee_report_disc_done
 **
 ** Description      Process the callback for NFCEE discovery response
@@ -2493,28 +2493,7 @@ static void nfa_ee_report_discover_req_evt(void) {
   nfa_ee_build_discover_req_evt(&nfa_ee_cback_data.discover_req);
   nfa_ee_report_event(nullptr, NFA_EE_DISCOVER_REQ_EVT, &nfa_ee_cback_data);
 }
-#if (NXP_EXTNS == TRUE)
-/*******************************************************************************
-**
-** Function         nfa_ee_nci_pwr_link_ctrl_rsp
-**
-** Description      Process the result for NFCEE PWR and link ctrl response
-**
-** Returns          void
-**
-*******************************************************************************/
-void nfa_ee_nci_pwr_link_ctrl_rsp(tNFA_EE_MSG* p_data) {
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf(" nfa_ee_nci_pwr_link_ctrl_rsp()");
-    tNFA_EE_CBACK_DATA nfa_ee_cback_data;
-    tNFC_NFCEE_EE_PWR_LNK_REVT* p_rsp = p_data->pwr_lnk_ctrl_rsp.p_data;
-    nfa_ee_cback_data.pwr_lnk_ctrl.status = p_rsp->status;
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf(" nfa_ee_nci_pwr_link_ctrl_rsp: status = %d ",
-                        nfa_ee_cback_data.pwr_lnk_ctrl.status);
-    nfa_ee_report_event(NULL, NFA_EE_PWR_LINK_CTRL_EVT, &nfa_ee_cback_data);
-}
-#endif
+
 /*******************************************************************************
 **
 ** Function         nfa_ee_nci_mode_set_rsp
@@ -2670,6 +2649,29 @@ void nfa_ee_nci_wait_rsp(tNFA_EE_MSG* p_data) {
     if (p_rsp->opcode == NCI_MSG_RF_SET_ROUTING) nfa_ee_cb.wait_rsp--;
   }
   nfa_ee_report_update_evt();
+}
+
+/*******************************************************************************
+**
+** Function         nfa_ee_pwr_and_link_ctrl_rsp
+**
+** Description      Process the result for NCI response
+**
+** Returns          void
+**
+*******************************************************************************/
+void nfa_ee_pwr_and_link_ctrl_rsp(tNFA_EE_MSG* p_data) {
+  tNFA_EE_CBACK_DATA evt_data;
+  if (p_data != nullptr) {
+#if(NXP_EXTNS == TRUE)
+    evt_data.status = p_data->ncfee_pwr_and_link_ctrl_rsp.p_data->status;
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf(" %s: status = %d ", __func__, evt_data.status);
+#else
+    evt_data.status = NFA_STATUS_OK;
+#endif
+    nfa_ee_report_event(nullptr, NFA_EE_PWR_AND_LINK_CTRL_EVT, &evt_data);
+  }
 }
 
 /*******************************************************************************

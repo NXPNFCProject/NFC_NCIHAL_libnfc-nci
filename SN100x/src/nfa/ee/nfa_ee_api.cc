@@ -304,40 +304,7 @@ tNFA_STATUS NFA_EeDeregister(tNFA_EE_CBACK* p_cback) {
 
   return status;
 }
-#if (NXP_EXTNS == TRUE)
-/*******************************************************************************
-**
-** Function         NFA_SendPowerLinkCommand
-**
-** Description      This function is called to send an NCI Vendor Specific
-**                  command to NFCC.
-**
-**                  nfcee_id             - The NFCEE id.
-**                  cfg_value            - The config value
-**
-** Returns          NFA_STATUS_OK if successfully initiated
-**                  NFA_STATUS_FAILED otherwise
-**
-*******************************************************************************/
-tNFA_STATUS NFA_SendPowerLinkCommand(uint8_t nfcee_id, uint8_t cfg_value) {
-  tNFA_EE_API_POWER_LINK_EVT* p_msg;
 
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("NFA_SendPowerLinkCommand() nfcee_id=0x%x", nfcee_id);
-
-  if ((p_msg = (tNFA_EE_API_POWER_LINK_EVT*)GKI_getbuf(sizeof(tNFA_EE_API_POWER_LINK_EVT))) != nullptr) {
-    p_msg->hdr.event = NFA_EE_NCI_PWR_LNK_CTRL_SET_EVT;
-    p_msg->nfcee_id= nfcee_id;
-    p_msg->cfg_value = cfg_value;
-    nfa_ee_cb.ese_prv_pwr_cfg = cfg_value;
-    nfa_sys_sendmsg(p_msg);
-
-    return (NFA_STATUS_OK);
-  }
-
-  return (NFA_STATUS_FAILED);
-}
-#endif
 /*******************************************************************************
 **
 ** Function         NFA_EeModeSet
@@ -1081,6 +1048,52 @@ tNFA_STATUS NFA_EeDisconnect(tNFA_HANDLE ee_handle) {
 
   return status;
 }
+
+/*******************************************************************************
+**
+** Function         NFA_EePowerAndLinkCtrl
+**
+** Description      This Control Message is used by the DH to constrain the way
+**                  the NFCC manages the power supply and communication links
+**                  between the NFCC and its connected NFCEEs.
+**
+** Returns          NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_FAILED otherwise
+**                  NFA_STATUS_INVALID_PARAM If bad parameter
+**
+*******************************************************************************/
+tNFA_STATUS NFA_EePowerAndLinkCtrl(tNFA_HANDLE ee_handle, uint8_t config) {
+  tNFA_EE_API_PWR_AND_LINK_CTRL* p_msg;
+  tNFA_STATUS status = NFA_STATUS_FAILED;
+  uint8_t nfcee_id = (uint8_t)(ee_handle & 0xFF);
+  tNFA_EE_ECB* p_cb;
+
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("handle:<0x%x>, config:<0x%x>", ee_handle, config);
+  p_cb = nfa_ee_find_ecb(nfcee_id);
+
+  if ((p_cb == nullptr) || (p_cb->ee_status != NFA_EE_STATUS_ACTIVE)) {
+    LOG(ERROR) << StringPrintf("Bad ee_handle");
+    status = NFA_STATUS_INVALID_PARAM;
+  } else {
+    p_msg = (tNFA_EE_API_PWR_AND_LINK_CTRL*)GKI_getbuf(
+        sizeof(tNFA_EE_API_PWR_AND_LINK_CTRL));
+    if (p_msg != nullptr) {
+      p_msg->hdr.event = NFA_EE_API_PWR_AND_LINK_CTRL_EVT;
+      p_msg->nfcee_id = nfcee_id;
+      p_msg->config = config;
+#if (NXP_EXTNS == TRUE)
+      nfa_ee_cb.ese_prv_pwr_cfg = config;
+#endif
+      nfa_sys_sendmsg(p_msg);
+
+      status = NFA_STATUS_OK;
+    }
+  }
+
+  return status;
+}
+
 #if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **

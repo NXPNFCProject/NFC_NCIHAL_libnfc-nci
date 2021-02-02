@@ -91,11 +91,11 @@ enum {
   NFA_EE_NEW_EE_EVT, /* A new NFCEE is discovered                             */
   NFA_EE_ACTION_EVT, /* An action happened in NFCEE                           */
   NFA_EE_DISCOVER_REQ_EVT, /* NFCEE Discover Request Notification */
+  NFA_EE_PWR_AND_LINK_CTRL_EVT, /* NFCEE power and link ctrl */
   NFA_EE_NO_MEM_ERR_EVT,   /* Error - out of GKI buffers */
   NFA_EE_NO_CB_ERR_EVT, /* Error - Can not find control block or wrong state */
 #if (NXP_EXTNS == TRUE)
   NFA_EE_SET_MODE_INFO_EVT,
-  NFA_EE_PWR_LINK_CTRL_EVT, /* NFCEE Pwr and link cotnrol command Evt */
   NFA_EE_ADD_APDU_EVT,  /* The status for adding an APDU pattern to a routing table entry*/
   NFA_EE_REMOVE_APDU_EVT /* The status for removing an APDU pattern from a routing table */
 #endif
@@ -204,10 +204,6 @@ typedef struct {
   tNFA_STATUS status;
   uint8_t nfcee_id;
 } tNFA_EE_SET_MODE_INFO;
-typedef struct {
-  tNFA_STATUS status;       /* NFA_STATUS_OK is successful  */
-  tNFA_EE_STATUS ee_status; /* The NFCEE status             */
-} tNFA_EE_PWR_LNK_CTRL;
 #endif
 typedef struct {
   tNFA_HANDLE ee_handle;          /* Handle of MFCEE      */
@@ -260,7 +256,6 @@ typedef union {
   tNFA_EE_MODE_SET mode_set;
 #if (NXP_EXTNS == TRUE)
   tNFA_EE_SET_MODE_INFO ee_set_mode_info;
-  tNFA_EE_PWR_LNK_CTRL pwr_lnk_ctrl;
 #endif
   tNFA_EE_INFO new_ee;
   tNFA_EE_DISCOVER_REQ discover_req;
@@ -643,6 +638,22 @@ extern tNFA_STATUS NFA_EeSendData(tNFA_HANDLE ee_handle, uint16_t data_len,
 *******************************************************************************/
 extern tNFA_STATUS NFA_EeDisconnect(tNFA_HANDLE ee_handle);
 
+/*******************************************************************************
+**
+** Function         NFA_EePowerAndLinkCtrl
+**
+** Description      This Control Message is used by the DH to constrain the way
+**                  the NFCC manages the power supply and communication links
+**                  between the NFCC and its connected NFCEEs.
+**
+** Returns          NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_FAILED otherwise
+**                  NFA_STATUS_INVALID_PARAM If bad parameter
+**
+*******************************************************************************/
+extern tNFA_STATUS NFA_EePowerAndLinkCtrl(tNFA_HANDLE ee_handle,
+                                          uint8_t config);
+
 #if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
@@ -659,18 +670,6 @@ extern tNFA_STATUS NFA_EeDisconnect(tNFA_HANDLE ee_handle);
 **
 *******************************************************************************/
 extern tNFA_STATUS NFA_AllEeGetInfo(uint8_t* p_num_nfcee, tNFA_EE_INFO* p_info);
-/*******************************************************************************
-**
-** Function         NFA_SendPowerLinkCommand
-**
-** Description      This function sends the power link control command
-**
-** Returns          NFA_STATUS_OK if successfully initiated
-**                  NFA_STATUS_FAILED otherwise
-**                  NFA_STATUS_INVALID_PARAM If bad parameter
-**
-*******************************************************************************/
-extern tNFA_STATUS NFA_SendPowerLinkCommand(uint8_t nfcee_id, uint8_t cfg_value);
 
 /*******************************************************************************
 **

@@ -115,6 +115,7 @@ enum {
   NFA_EE_API_CONNECT_EVT,
   NFA_EE_API_SEND_DATA_EVT,
   NFA_EE_API_DISCONNECT_EVT,
+  NFA_EE_API_PWR_AND_LINK_CTRL_EVT,
 
   NFA_EE_NCI_DISC_RSP_EVT,
   NFA_EE_NCI_DISC_NTF_EVT,
@@ -128,11 +129,8 @@ enum {
   NFA_EE_ROUT_TIMEOUT_EVT,
   NFA_EE_DISCV_TIMEOUT_EVT,
   NFA_EE_CFG_TO_NFCC_EVT,
-#if (NXP_EXTNS == TRUE)
-  NFA_EE_NCI_PWR_LNK_CTRL_SET_EVT,
-  NFA_EE_NCI_PWR_LNK_CTRL_RSP_EVT,
   NFA_EE_NCI_NFCEE_STATUS_NTF_EVT,
-#endif
+  NFA_EE_PWR_CONTROL_EVT,
   NFA_EE_MAX_EVT
 
 };
@@ -345,30 +343,23 @@ typedef struct {
   uint8_t mode;
 } tNFA_EE_API_MODE_SET;
 
-#if (NXP_EXTNS == TRUE)
 /* data type for NFA_EE_NCI_NFCEE_STATUS_EVT */
 typedef struct {
   NFC_HDR hdr;
   tNFC_NFCEE_STATUS_REVT* p_data;
 } tNFA_EE_NCI_NFCEE_STATUS_NTF;
 
+/* data type for NFA_EE_NCI_NFCEE_STATUS_EVT */
+typedef struct {
+  NFC_HDR hdr;
+  tNFC_NFCEE_PL_CONTROL_REVT* p_data;
+} tNFA_EE_NCI_PWR_AND_LINK_CTRL_RSP;
+
+#if (NXP_EXTNS == TRUE)
 typedef struct {
   NFC_HDR hdr;
   tNFC_NFCEE_MODE_SET_INFO* p_data;
 } tNFA_EE_NCI_SET_MODE_INFO;
-
-/* data type for NFA_EE_NCI_MODE_SET_RSP_EVT */
-typedef struct {
-  NFC_HDR hdr;
-  tNFC_NFCEE_EE_PWR_LNK_REVT* p_data;
-} tNFA_EE_NCI_PWR_LNK_CTRL;
-
-/* data type for NFA_EE_API_POWER_LINK_EVT */
-typedef struct {
-  NFC_HDR hdr;
-  uint8_t nfcee_id;
-  uint8_t cfg_value;
-} tNFA_EE_API_POWER_LINK_EVT;
 #endif
 
 /* data type for NFA_EE_API_SET_TECH_CFG_EVT */
@@ -477,6 +468,14 @@ typedef struct {
   uint8_t nfcee_id;
 } tNFA_EE_API_DISCONNECT;
 
+/* data type for NFA_EE_API_PWR_AND_LINK_CTRL_EVT */
+typedef struct {
+  NFC_HDR hdr;
+  tNFA_EE_ECB* p_cb;
+  uint8_t nfcee_id;
+  uint8_t config;
+} tNFA_EE_API_PWR_AND_LINK_CTRL;
+
 /* common data type for internal events with nfa_ee_use_cfg_cb[] as TRUE */
 typedef struct {
   NFC_HDR hdr;
@@ -549,6 +548,7 @@ typedef union {
   tNFA_EE_API_CONNECT connect;
   tNFA_EE_API_SEND_DATA send_data;
   tNFA_EE_API_DISCONNECT disconnect;
+  tNFA_EE_API_PWR_AND_LINK_CTRL pwr_and_link_ctrl;
   tNFA_EE_NCI_DISC_RSP disc_rsp;
   tNFA_EE_NCI_DISC_NTF disc_ntf;
   tNFA_EE_NCI_MODE_SET mode_set_rsp;
@@ -556,11 +556,10 @@ typedef union {
   tNFA_EE_NCI_CONN conn;
   tNFA_EE_NCI_ACTION act;
   tNFA_EE_NCI_DISC_REQ disc_req;
+  tNFA_EE_NCI_NFCEE_STATUS_NTF nfcee_status_ntf;
+  tNFA_EE_NCI_PWR_AND_LINK_CTRL_RSP ncfee_pwr_and_link_ctrl_rsp;
 #if (NXP_EXTNS == TRUE)
   tNFA_EE_NCI_SET_MODE_INFO mode_set_info;
-  tNFA_EE_API_POWER_LINK_EVT pwr_lnk_ctrl_set;
-  tNFA_EE_NCI_PWR_LNK_CTRL pwr_lnk_ctrl_rsp;
-  tNFA_EE_NCI_NFCEE_STATUS_NTF nfcee_status_ntf;
   tNFA_EE_API_ADD_APDU add_apdu;
   tNFA_EE_API_REMOVE_APDU rm_apdu;
 #endif
@@ -708,6 +707,7 @@ void nfa_ee_api_update_now(tNFA_EE_MSG* p_data);
 void nfa_ee_api_connect(tNFA_EE_MSG* p_data);
 void nfa_ee_api_send_data(tNFA_EE_MSG* p_data);
 void nfa_ee_api_disconnect(tNFA_EE_MSG* p_data);
+void nfa_ee_api_pwr_and_link_ctrl(tNFA_EE_MSG* p_data);
 void nfa_ee_report_disc_done(bool notify_sys);
 void nfa_ee_nci_disc_rsp(tNFA_EE_MSG* p_data);
 void nfa_ee_nci_disc_ntf(tNFA_EE_MSG* p_data);
@@ -736,11 +736,12 @@ void nfa_ee_check_disable(void);
 bool nfa_ee_restore_ntf_done(void);
 void nfa_ee_check_restore_complete(void);
 int nfa_ee_find_max_aid_cfg_len(void);
+void nfa_ee_nci_nfcee_status_ntf(tNFA_EE_MSG* p_data);
+void nfa_ee_pwr_and_link_ctrl_rsp(tNFA_EE_MSG* p_data);
 #if (NXP_EXTNS == TRUE)
 void nfa_ee_nci_set_mode_info(tNFA_EE_MSG* p_data);
 void nfa_ee_nci_pwr_link_ctrl_rsp(tNFA_EE_MSG* p_data);
 void nfa_ee_api_power_link_set(tNFA_EE_MSG* p_data);
-void nfa_ee_nci_nfcee_status_ntf(tNFA_EE_MSG* p_data);
 uint16_t nfa_ee_api_get_max_aid_config_length();
 uint16_t nfa_ee_lmrt_size();
 uint8_t nfa_ee_get_supported_tech_list(uint8_t nfcee_id);

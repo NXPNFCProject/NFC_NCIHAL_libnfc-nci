@@ -87,6 +87,7 @@ const tNFA_EE_SM_ACT nfa_ee_actions[] = {
     nfa_ee_api_connect,         /* NFA_EE_API_CONNECT_EVT       */
     nfa_ee_api_send_data,       /* NFA_EE_API_SEND_DATA_EVT     */
     nfa_ee_api_disconnect,      /* NFA_EE_API_DISCONNECT_EVT    */
+    nfa_ee_api_pwr_and_link_ctrl, /* NFA_EE_API_PWR_AND_LINK_CTRL_EVT */
     nfa_ee_nci_disc_rsp,        /* NFA_EE_NCI_DISC_RSP_EVT      */
     nfa_ee_nci_disc_ntf,        /* NFA_EE_NCI_DISC_NTF_EVT      */
     nfa_ee_nci_mode_set_rsp,    /* NFA_EE_NCI_MODE_SET_RSP_EVT  */
@@ -97,12 +98,9 @@ const tNFA_EE_SM_ACT nfa_ee_actions[] = {
     nfa_ee_nci_wait_rsp,        /* NFA_EE_NCI_WAIT_RSP_EVT      */
     nfa_ee_rout_timeout,        /* NFA_EE_ROUT_TIMEOUT_EVT      */
     nfa_ee_discv_timeout,       /* NFA_EE_DISCV_TIMEOUT_EVT     */
-    nfa_ee_lmrt_to_nfcc         /* NFA_EE_CFG_TO_NFCC_EVT       */
-#if (NXP_EXTNS == TRUE)
-    ,nfa_ee_api_power_link_set, /* NFA_EE_NCI_PWR_LNK_CTRL_SET_EVT */
-    nfa_ee_nci_pwr_link_ctrl_rsp, /*NFA_EE_NCI_PWR_LNK_CTRL_RSP_EVT*/
-    nfa_ee_nci_nfcee_status_ntf,   /*NFA_EE_NCI_NFCEE_STATUS_NTF_EVT*/
-#endif
+    nfa_ee_lmrt_to_nfcc,          /* NFA_EE_CFG_TO_NFCC_EVT       */
+    nfa_ee_nci_nfcee_status_ntf,  /*NFA_EE_NCI_NFCEE_STATUS_NTF_EVT*/
+    nfa_ee_pwr_and_link_ctrl_rsp  /* NFA_EE_PWR_CONTROL_EVT */
 };
 
 /*******************************************************************************
@@ -378,11 +376,12 @@ void nfa_ee_proc_evt(tNFC_RESPONSE_EVT event, void* p_data) {
       int_event = NFA_EE_NCI_WAIT_RSP_EVT;
       cbk.opcode = NCI_MSG_RF_SET_ROUTING;
       break;
-#if (NXP_EXTNS == TRUE)
-    case NFC_NFCEE_PL_CONTROL_REVT: /* 6  NFCEE PWR LNK CTRL response */
-      int_event = NFA_EE_NCI_PWR_LNK_CTRL_RSP_EVT;
+
+    case NFC_NFCEE_PL_CONTROL_REVT:
+      int_event = NFA_EE_PWR_CONTROL_EVT;
       break;
 
+#if (NXP_EXTNS == TRUE)
     case NFC_NFCEE_STATUS_REVT:
       int_event = NFA_EE_NCI_NFCEE_STATUS_NTF_EVT;
       break;
@@ -631,18 +630,14 @@ static std::string nfa_ee_sm_evt_2_str(uint16_t event) {
       return "API_SEND_DATA";
     case NFA_EE_API_DISCONNECT_EVT:
       return "API_DISCONNECT";
+    case NFA_EE_API_PWR_AND_LINK_CTRL_EVT:
+      return "NFA_EE_API_PWR_AND_LINK_CTRL_EVT";
     case NFA_EE_NCI_DISC_RSP_EVT:
       return "NCI_DISC_RSP";
     case NFA_EE_NCI_DISC_NTF_EVT:
       return "NCI_DISC_NTF";
     case NFA_EE_NCI_MODE_SET_RSP_EVT:
       return "NCI_MODE_SET";
-#if (NXP_EXTNS == TRUE)
-    case NFA_EE_NCI_PWR_LNK_CTRL_SET_EVT:
-      return "NFA_EE_NCI_PWR_LNK_CTRL_SET_EVT,";
-    case NFA_EE_NCI_PWR_LNK_CTRL_RSP_EVT:
-      return "NCI_PWR_LNK_CTRL";
-#endif
     case NFA_EE_NCI_CONN_EVT:
       return "NCI_CONN";
     case NFA_EE_NCI_DATA_EVT:
@@ -659,6 +654,8 @@ static std::string nfa_ee_sm_evt_2_str(uint16_t event) {
       return "NFA_EE_DISCV_TIMEOUT_EVT";
     case NFA_EE_CFG_TO_NFCC_EVT:
       return "CFG_TO_NFCC";
+    case NFA_EE_PWR_CONTROL_EVT:
+      return "NFA_EE_PWR_CONTROL_EVT";
     default:
       return "Unknown";
   }
