@@ -425,7 +425,7 @@ static void rw_t2t_handle_tlv_detect_rsp(uint8_t* p_data) {
   bool found = false;
   tRW_EVENT event;
   uint8_t index;
-  uint8_t count = 0;
+  uint16_t count = 0;
   uint8_t xx;
   tNFC_STATUS status;
   tT2T_CMD_RSP_INFO* p_cmd_rsp_info =
@@ -644,15 +644,11 @@ static void rw_t2t_handle_tlv_detect_rsp(uint8_t* p_data) {
                     p_t2t->tlv_value[0] & 0x0F;
                 p_t2t->lock_tlv[p_t2t->num_lock_tlvs].bytes_locked_per_bit =
                     (uint8_t)tags_pow(2, ((p_t2t->tlv_value[2] & 0xF0) >> 4));
-                /* Note: 0 value in DLA_NbrLockBits means 256 */
+                /* Note: 0 value in DLA_NbrLockBits means 256 bits */
                 count = p_t2t->tlv_value[1];
                 /* Set it to max value that can be stored in lockbytes */
                 if (count == 0) {
-#if RW_T2T_MAX_LOCK_BYTES > 0x1F
-                  count = UCHAR_MAX;
-#else
                   count = RW_T2T_MAX_LOCK_BYTES * TAG_BITS_PER_BYTE;
-#endif
                 }
                 p_t2t->lock_tlv[p_t2t->num_lock_tlvs].num_bits = count;
                 count = count / TAG_BITS_PER_BYTE +
@@ -711,8 +707,13 @@ static void rw_t2t_handle_tlv_detect_rsp(uint8_t* p_data) {
                       (uint8_t)tags_pow(2, p_t2t->tlv_value[2] & 0x0F);
                   p_t2t->mem_tlv[p_t2t->num_mem_tlvs].offset +=
                       p_t2t->tlv_value[0] & 0x0F;
-                  p_t2t->mem_tlv[p_t2t->num_mem_tlvs].num_bytes =
-                      p_t2t->tlv_value[1];
+                  count = p_t2t->tlv_value[1];
+                  /* Note: 0 value in Rsvd_Area_Size means 256 bytes */
+                  if (count == 0) {
+                    count = 0x100;
+                  }
+                  p_t2t->mem_tlv[p_t2t->num_mem_tlvs].num_bytes = count;
+
                   p_t2t->num_mem_tlvs++;
                   rw_t2t_update_attributes();
                   p_t2t->substate = RW_T2T_SUBSTATE_WAIT_TLV_DETECT;
