@@ -1051,7 +1051,7 @@ void NfcAdaptation::HalPowerCycle() {
 **
 *******************************************************************************/
 uint8_t NfcAdaptation::HalGetMaxNfcee() {
-  const char* func = "NfcAdaptation::HalPowerCycle";
+  const char* func = "NfcAdaptation::HalGetMaxNfcee";
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s", func);
   return nfa_ee_max_ee_cfg;
 }
