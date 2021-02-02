@@ -634,11 +634,11 @@ static void rw_t2t_handle_tlv_detect_rsp(uint8_t* p_data) {
                 p_t2t->lock_tlv[p_t2t->num_lock_tlvs].offset =
                     (p_t2t->tlv_value[0] >> 4) & 0x0F;
                 p_t2t->lock_tlv[p_t2t->num_lock_tlvs].offset *=
-                    (uint8_t)tags_pow(2, p_t2t->tlv_value[2] & 0x0F);
+                    (uint16_t)tags_pow(2, p_t2t->tlv_value[2] & 0x0F);
                 p_t2t->lock_tlv[p_t2t->num_lock_tlvs].offset +=
                     p_t2t->tlv_value[0] & 0x0F;
                 p_t2t->lock_tlv[p_t2t->num_lock_tlvs].bytes_locked_per_bit =
-                    (uint8_t)tags_pow(2, ((p_t2t->tlv_value[2] & 0xF0) >> 4));
+                    (uint16_t)tags_pow(2, ((p_t2t->tlv_value[2] & 0xF0) >> 4));
                 /* Note: 0 value in DLA_NbrLockBits means 256 bits */
                 count = p_t2t->tlv_value[1];
                 /* Set it to max value that can be stored in lockbytes */
@@ -696,13 +696,13 @@ static void rw_t2t_handle_tlv_detect_rsp(uint8_t* p_data) {
                   p_t2t->mem_tlv[p_t2t->num_mem_tlvs].offset =
                       (p_t2t->tlv_value[0] >> 4) & 0x0F;
                   p_t2t->mem_tlv[p_t2t->num_mem_tlvs].offset *=
-                      (uint8_t)tags_pow(2, p_t2t->tlv_value[2] & 0x0F);
+                      (uint16_t)tags_pow(2, p_t2t->tlv_value[2] & 0x0F);
                   p_t2t->mem_tlv[p_t2t->num_mem_tlvs].offset +=
                       p_t2t->tlv_value[0] & 0x0F;
                   count = p_t2t->tlv_value[1];
                   /* Note: 0 value in Rsvd_Area_Size means 256 bytes */
                   if (count == 0) {
-                    count = 0x100;
+                    count = RW_T2T_MAX_LOCK_BYTES * TAG_BITS_PER_BYTE;
                   }
                   p_t2t->mem_tlv[p_t2t->num_mem_tlvs].num_bytes = count;
 
@@ -2069,7 +2069,7 @@ static uint8_t rw_t2t_get_lock_bits_for_segment(uint8_t segment,
   uint16_t lower_offset, upper_offset;
   uint8_t num_dynamic_locks = 0;
   uint8_t bit_count = 0;
-  uint8_t bytes_locked_per_bit;
+  uint16_t bytes_locked_per_bit;
   uint8_t num_bits;
   tRW_T2T_CB* p_t2t = &rw_cb.tcb.t2t;
   bool b_all_bits_are_locks = true;
@@ -2203,10 +2203,10 @@ static void rw_t2t_update_lock_attributes(void) {
   uint8_t num_static_lock_bytes = 0;
   uint8_t num_dyn_lock_bytes = 0;
   uint8_t bits_covered = 0;
-  uint8_t bytes_covered = 0;
+  uint16_t bytes_covered = 0;
   uint8_t block_count = 0;
   bool b_all_bits_are_locks = true;
-  uint8_t bytes_locked_per_lock_bit;
+  uint16_t bytes_locked_per_lock_bit;
   uint8_t start_lock_byte;
   uint8_t start_lock_bit;
   uint8_t end_lock_byte;
