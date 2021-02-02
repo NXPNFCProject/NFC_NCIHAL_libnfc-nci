@@ -887,6 +887,7 @@ void rw_t2t_extract_default_locks_info(void) {
   tRW_T2T_CB* p_t2t = &rw_cb.tcb.t2t;
   const tT2T_INIT_TAG* p_ret;
   uint8_t bytes_locked_per_lock_bit = T2T_DEFAULT_LOCK_BLPB;
+  uint16_t t2t_dyn_lock_area_size;
 
   if ((p_t2t->num_lock_tlvs == 0) &&
       (p_t2t->tag_hdr[T2T_CC2_TMS_BYTE] > T2T_CC2_TMS_STATIC)) {
@@ -896,10 +897,12 @@ void rw_t2t_extract_default_locks_info(void) {
     p_ret = t2t_tag_init_data(p_t2t->tag_hdr[0], false, 0);
     if (p_ret != nullptr) bytes_locked_per_lock_bit = p_ret->default_lock_blpb;
 
-    num_dynamic_lock_bits =
+    t2t_dyn_lock_area_size =
         ((p_t2t->tag_hdr[T2T_CC2_TMS_BYTE] * T2T_TMS_TAG_FACTOR) -
-         (T2T_STATIC_SIZE - T2T_HEADER_SIZE)) /
-        bytes_locked_per_lock_bit;
+         (T2T_STATIC_SIZE - T2T_HEADER_SIZE));
+    num_dynamic_lock_bits = t2t_dyn_lock_area_size / bytes_locked_per_lock_bit;
+    num_dynamic_lock_bits += (t2t_dyn_lock_area_size % 8 == 0) ? 0 : 1;
+
     num_dynamic_lock_bytes = num_dynamic_lock_bits / 8;
     num_dynamic_lock_bytes += (num_dynamic_lock_bits % 8 == 0) ? 0 : 1;
     if (num_dynamic_lock_bytes > RW_T2T_MAX_LOCK_BYTES) {
