@@ -18,6 +18,7 @@ cc_defaults {
     sanitize: {
         integer_overflow: true,
         misc_undefined: ["bounds"],
+        scs: true,
         diag: {
             integer_overflow: true,
             misc_undefined: ["bounds"],
