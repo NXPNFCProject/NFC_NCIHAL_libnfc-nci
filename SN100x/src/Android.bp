@@ -27,6 +27,7 @@ cc_library_shared {
         "libnfcutils",
     ],
     cflags: [
+        "-DDYN_ALLOC=1",
         "-DBUILDCFG=1",
         "-Wall",
         "-Werror",

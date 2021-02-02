@@ -70,7 +70,11 @@
 #if (NXP_EXTNS == TRUE)
 #define GKI_NUM_FIXED_BUF_POOLS 5
 #else
+#ifdef DYN_ALLOC
+#define GKI_NUM_FIXED_BUF_POOLS 0
+#else
 #define GKI_NUM_FIXED_BUF_POOLS 4
+#endif
 #endif
 
 #if (NXP_EXTNS == TRUE)
