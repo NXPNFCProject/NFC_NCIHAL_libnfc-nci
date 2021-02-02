@@ -487,6 +487,9 @@ void NfcAdaptation::DeviceShutdown() {
   } else if (mHal_1_1 != nullptr) {
     mHal_1_1->closeForPowerOffCase();
   }
+  if (mHal) {
+    mHal->unlinkToDeath(mNfcHalDeathRecipient);
+  }
 }
 
 /*******************************************************************************
