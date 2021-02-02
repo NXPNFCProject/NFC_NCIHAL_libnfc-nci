@@ -1410,25 +1410,27 @@ static uint8_t rw_t2t_get_ndef_flags(void) {
 *******************************************************************************/
 static uint16_t rw_t2t_get_ndef_max_size(void) {
   uint16_t offset;
-  uint8_t xx;
   tRW_T2T_CB* p_t2t = &rw_cb.tcb.t2t;
-  uint16_t tag_size = (p_t2t->tag_hdr[T2T_CC2_TMS_BYTE] * T2T_TMS_TAG_FACTOR) +
-                      (T2T_FIRST_DATA_BLOCK * T2T_BLOCK_LEN) +
-                      p_t2t->num_lockbytes;
+  uint16_t tag_size = (p_t2t->tag_hdr[T2T_CC2_TMS_BYTE] * T2T_TMS_TAG_FACTOR);
 
-  for (xx = 0; xx < p_t2t->num_mem_tlvs; xx++)
-    tag_size += p_t2t->mem_tlv[xx].num_bytes;
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("%s - T2T_Area size: %d", __func__, tag_size);
+
+  /* Add header to compute max T2T NDEF data offset */
+  tag_size += (T2T_FIRST_DATA_BLOCK * T2T_BLOCK_LEN);
 
   offset = p_t2t->ndef_msg_offset;
   p_t2t->max_ndef_msg_len = 0;
 
-  if ((tag_size < T2T_STATIC_SIZE) ||
-      (tag_size > (T2T_SECTOR_SIZE * T2T_MAX_SECTOR)) ||
+  if ((tag_size <= T2T_STATIC_SIZE) ||
       ((p_t2t->tag_hdr[T2T_CC0_NMN_BYTE] != T2T_CC0_NMN) &&
        (p_t2t->tag_hdr[T2T_CC0_NMN_BYTE] != 0))) {
     /* Tag not formated, assume static tag */
     p_t2t->max_ndef_msg_len = T2T_STATIC_SIZE - T2T_HEADER_SIZE -
                               T2T_TLV_TYPE_LEN - T2T_SHORT_NDEF_LEN_FIELD_LEN;
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("%s - Tag assumed static : max_ndef_msg_len=%d",
+                        __func__, p_t2t->max_ndef_msg_len);
     return p_t2t->max_ndef_msg_len;
   }
 
@@ -1440,15 +1442,19 @@ static uint16_t rw_t2t_get_ndef_max_size(void) {
     }
     offset++;
   }
+
   /* NDEF Length field length changes based on NDEF size */
   if ((p_t2t->max_ndef_msg_len >= T2T_LONG_NDEF_LEN_FIELD_BYTE0) &&
       ((p_t2t->ndef_msg_offset - p_t2t->ndef_header_offset) ==
        T2T_SHORT_NDEF_LEN_FIELD_LEN)) {
     p_t2t->max_ndef_msg_len -=
-        (p_t2t->max_ndef_msg_len == T2T_LONG_NDEF_LEN_FIELD_BYTE0)
-            ? 1
-            : (T2T_LONG_NDEF_LEN_FIELD_LEN - T2T_SHORT_NDEF_LEN_FIELD_LEN);
+        (T2T_LONG_NDEF_LEN_FIELD_LEN - T2T_SHORT_NDEF_LEN_FIELD_LEN);
   }
+
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("%s - Max NDEF data storage: max_ndef_msg_len=%d",
+                      __func__, p_t2t->max_ndef_msg_len);
+
   return p_t2t->max_ndef_msg_len;
 }
 
