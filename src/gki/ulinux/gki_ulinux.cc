@@ -363,9 +363,9 @@ void GKI_shutdown(void) {
 
 /*******************************************************************************
  **
- ** Function        GKI_run
+ ** Function        gki_system_tick_start_stop_cback
  **
- ** Description     This function runs a task
+ ** Description     This function starts or stops timer
  **
  ** Parameters:     start: true start system tick (again), false stop
  **
