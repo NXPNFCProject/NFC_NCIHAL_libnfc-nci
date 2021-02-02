@@ -53,9 +53,9 @@
 
 
 #if (NXP_EXTNS == TRUE)
-#define NXP_EN_SN110U    0
-#define NXP_EN_SN100U    0
-#define NXP_EN_SN220U    1
+#define NXP_EN_SN110U    1
+#define NXP_EN_SN100U    1
+#define NXP_EN_SN220U    0
 #define NXP_ANDROID_VER (12U)        /* NXP android version */
 #define NFC_NXP_MW_CUSTOMER_ID (0x00) /* MW Customer Id */
 #define NFC_NXP_MW_RC_VERSION  (0x00) /* MW RC Version */
