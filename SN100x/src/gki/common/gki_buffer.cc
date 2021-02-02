@@ -269,11 +269,39 @@ void GKI_init_q(BUFFER_Q* p_q) {
 **
 ** Returns          A pointer to the buffer, or NULL if none available
 **
-*******************************************************************************/
+******************************************************************************/
 void* GKI_getbuf(uint16_t size) {
+  BUFFER_HDR_T* p_hdr;
+
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+  if (size == 0) {
+    LOG(ERROR) << StringPrintf("getbuf: Size is zero");
+    abort();
+  }
+
+  size_t total_sz = size + sizeof(BUFFER_HDR_T);
+  p_hdr = (BUFFER_HDR_T*)GKI_os_malloc(total_sz);
+  if (!p_hdr) {
+    LOG(ERROR) << StringPrintf("unable to allocate buffer!!!!!");
+    abort();
+  }
+
+  memset(p_hdr, 0, total_sz);
+
+  p_hdr->task_id = GKI_get_taskid();
+  p_hdr->status = BUF_STATUS_UNLINKED;
+  p_hdr->p_next = nullptr;
+  p_hdr->Type = 0;
+
+  p_hdr->q_id = 0;
+  p_hdr->size = size;
+
+  UNUSED(gki_alloc_free_queue);
+
+  return (void*)((uint8_t*)p_hdr + BUFFER_HDR_SIZE);
+#else
   uint8_t i;
   FREE_QUEUE_T* Q;
-  BUFFER_HDR_T* p_hdr;
   tGKI_COM_CB* p_cb = &gki_cb.com;
 
   if (size == 0) {
@@ -338,6 +366,7 @@ void* GKI_getbuf(uint16_t size) {
   GKI_enable();
 
   return (nullptr);
+#endif
 }
 
 /*******************************************************************************
@@ -357,6 +386,28 @@ void* GKI_getbuf(uint16_t size) {
 **
 *******************************************************************************/
 void* GKI_getpoolbuf(uint8_t pool_id) {
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+  uint16_t size = 0;
+  switch (pool_id) {
+    // NFC_NCI_POOL_ID, NFC_RW_POOL_ID and NFC_CE_POOL_ID are all redefined to
+    // GKI_POOL_ID_2.
+    case GKI_POOL_ID_2:
+      size = GKI_BUF2_SIZE;
+      break;
+
+    // LLCP_POOL_ID, GKI_MAX_BUF_SIZE_POOL_ID are redefined to GKI_POOL_ID_3.
+    case GKI_POOL_ID_3:
+      size = GKI_BUF3_SIZE;
+      break;
+
+    default:
+      LOG(ERROR) << StringPrintf("Unknown pool ID: %d", pool_id);
+      abort();
+      break;
+  }
+
+  return GKI_getbuf(size);
+#else
   FREE_QUEUE_T* Q;
   BUFFER_HDR_T* p_hdr;
   tGKI_COM_CB* p_cb = &gki_cb.com;
@@ -399,6 +450,7 @@ void* GKI_getpoolbuf(uint8_t pool_id) {
 
   /* try for free buffers in public pools */
   return (GKI_getbuf(p_cb->freeq[pool_id].size));
+#endif
 }
 
 /*******************************************************************************
@@ -414,8 +466,24 @@ void* GKI_getpoolbuf(uint8_t pool_id) {
 **
 *******************************************************************************/
 void GKI_freebuf(void* p_buf) {
-  FREE_QUEUE_T* Q;
   BUFFER_HDR_T* p_hdr;
+
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+  p_hdr = (BUFFER_HDR_T*)((uint8_t*)p_buf - BUFFER_HDR_SIZE);
+
+  if (p_hdr->status != BUF_STATUS_UNLINKED) {
+    GKI_exception(GKI_ERROR_FREEBUF_BUF_LINKED, "Freeing Linked Buf");
+    return;
+  }
+
+  if (p_hdr->q_id >= GKI_NUM_TOTAL_BUF_POOLS) {
+    GKI_exception(GKI_ERROR_FREEBUF_BAD_QID, "Bad Buf QId");
+    return;
+  }
+
+  GKI_os_free(p_hdr);
+#else
+  FREE_QUEUE_T* Q;
 
 #if (GKI_ENABLE_BUF_CORRUPTION_CHECK == TRUE)
   if (!p_buf || gki_chk_buf_damage(p_buf)) {
@@ -455,7 +523,7 @@ void GKI_freebuf(void* p_buf) {
 
   GKI_enable();
 
-  return;
+#endif
 }
 
 /*******************************************************************************
@@ -474,6 +542,9 @@ uint16_t GKI_get_buf_size(void* p_buf) {
 
   p_hdr = (BUFFER_HDR_T*)((uint8_t*)p_buf - BUFFER_HDR_SIZE);
 
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+  return p_hdr->size;
+#else
   if ((uintptr_t)p_hdr & 1) return (0);
 
   if (p_hdr->q_id < GKI_NUM_TOTAL_BUF_POOLS) {
@@ -481,6 +552,7 @@ uint16_t GKI_get_buf_size(void* p_buf) {
   }
 
   return (0);
+#endif
 }
 
 /*******************************************************************************
@@ -506,6 +578,7 @@ bool gki_chk_buf_damage(void* p_buf) {
 
 #else
 
+  UNUSED(p_buf);
   return false;
 
 #endif

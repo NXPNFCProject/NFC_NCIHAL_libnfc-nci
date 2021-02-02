@@ -775,7 +775,14 @@ static void nfc_main_hal_data_cback(uint16_t data_len, uint8_t* p_data) {
   }
 
   if (p_data) {
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+    // GKI_getpoolbuf returns a fixed size of memory buffer, which is usually
+    // bigger than NFC packets. This may hide OOB issues.
+    p_msg = (NFC_HDR*)GKI_getbuf(sizeof(NFC_HDR) + NFC_RECEIVE_MSGS_OFFSET +
+                                 data_len);
+#else
     p_msg = (NFC_HDR*)GKI_getpoolbuf(NFC_NCI_POOL_ID);
+#endif
     if (p_msg != nullptr) {
       /* Initialize NFC_HDR */
       p_msg->len = data_len;

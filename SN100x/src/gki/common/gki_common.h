@@ -54,6 +54,9 @@ typedef struct _buffer_hdr {
   uint8_t task_id;            /* task which allocated the buffer*/
   uint8_t status;             /* FREE, UNLINKED or QUEUED */
   uint8_t Type;
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+  uint16_t size;
+#endif
 } BUFFER_HDR_T;
 
 typedef struct _free_queue {
