@@ -240,9 +240,6 @@ void nfc_ncif_cmd_timeout(void) {
   if (nfc_cb.nfc_state == NFC_STATE_CORE_INIT) {
     nfc_enabled(NFC_STATUS_FAILED, nullptr);
   }
-
-  /* XXX maco since this failure is unrecoverable, abort the process */
-  abort();
 }
 
 /*******************************************************************************
