@@ -58,9 +58,10 @@
 #include "nfc_int.h"
 #if (NXP_EXTNS == TRUE)
 #include <config.h>
-#include "nfc_config.h"
+#include "nfa_mdt_int.h"
 #include "nfa_nfcee_int.h"
 #include "nfa_scr_int.h"
+#include "nfc_config.h"
 #endif
 using android::base::StringPrintf;
 
@@ -845,6 +846,7 @@ static void nfa_dm_disc_discovery_cback(tNFC_DISCOVER_EVT event,
   nfa_dm_disc_sm_execute(dm_disc_event, &nfa_dm_rf_disc_data);
 #if(NXP_EXTNS == TRUE)
   if(p_data) NFA_SCR_PROCESS_EVT(dm_disc_event, p_data->status);
+  NFA_MDT_PROCESS_EVT(dm_disc_event, p_data);
 #endif
 }
 

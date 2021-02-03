@@ -56,8 +56,8 @@
 #define NXP_EN_SN110U    1
 #define NXP_EN_SN100U    1
 #define NXP_ANDROID_VER (11U)        /* NXP android version */
-#define NFC_NXP_MW_VERSION_MAJ (0x51) /* MW Major Version */
-#define NFC_NXP_MW_VERSION_MIN (0x01) /* MW Minor Version */
+#define NFC_NXP_MW_VERSION_MAJ (0x52) /* MW Major Version */
+#define NFC_NXP_MW_VERSION_MIN (0x00) /* MW Minor Version */
 #define NFC_NXP_MW_CUSTOMER_ID (0x00) /* MW Customer Id */
 #define NFC_NXP_MW_RC_VERSION  (0x00) /* MW RC Version */
 #define NFC_EE_DISC_OP_REMOVE 1
@@ -149,6 +149,8 @@ typedef uint8_t tNFC_STATUS;
 #define UICC2_HOST ((unsigned char)0x81)
 #define DH_HOST ((unsigned char)0x00)
 #define ESE_HOST ((unsigned char)0xC0)
+#define NCI_SELECT_CMD_P1 0x04
+#define NFC_SELECT_CMD_INS 0xA4
 #define NXP_FEATURE_ENABLED \
   ((unsigned char)0x01) /* flag to indicate NXP feature is enabled*/
 #define NXP_FEATURE_DISABLED \

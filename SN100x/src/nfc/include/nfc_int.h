@@ -138,6 +138,7 @@ enum {
 #define NFC_FL_HCI_FC_STOPPED 0x01
 
 #define NFC_CONN_NO_CREDITS 0x00
+#define NFC_CONN_INITIAL_CREDITS 0x01
 #endif
 #if (NFC_RW_ONLY == FALSE)
 /* only allow the entries that the NFCC can support */

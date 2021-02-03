@@ -85,8 +85,8 @@ extern std::string nfc_storage_path;
 
 #if (NXP_EXTNS == TRUE)
 #define NCI_MSG_GET_RFSTATUS 0x39
-#define IS_PROCESS_ABORT(p, mt, gid, oid)                                          \
-        ((NCI_MT_RSP == mt && NCI_STATUS_SEMANTIC_ERROR == p[NCI_MSG_STATUS_BYTE]) \
+#define IS_PROCESS_ABORT(status, mt, gid, oid)                                     \
+        ((NCI_MT_RSP == mt && NCI_STATUS_SEMANTIC_ERROR == status)                 \
           && !(NCI_GID_CORE == gid && NCI_MSG_CORE_SET_POWER_SUB_STATE == oid)     \
           && !(NCI_GID_RF_MANAGE == gid && NCI_MSG_RF_ISO_DEP_NAK_PRESENCE == oid) \
           && !(NCI_GID_PROP == gid && NCI_MSG_GET_RFSTATUS == oid))
@@ -493,7 +493,8 @@ bool nfc_ncif_process_event(NFC_HDR* p_msg) {
   oid = ((*p) & NCI_OID_MASK);
 
 #if (NXP_EXTNS == TRUE)
-  if (IS_PROCESS_ABORT(p,mt,gid,oid))
+  /* p[2] to refer status byte*/
+  if (IS_PROCESS_ABORT(p[2],mt,gid,oid))
   {/* If we have received NCI_STATUS_SEMANTIC_ERROR, abort the process!!
     * EXCEPTION: CORE_SET_POWER_SUB_STATE_CMD & RF_ISO_DEP_NAK_PRESENCE_CMD */
     LOG(ERROR) <<StringPrintf("Received NCI_STATUS_SEMANTIC_ERROR\nAborting...");
@@ -2163,6 +2164,18 @@ void nfc_ncif_proc_data(NFC_HDR* p_msg) {
         /* Indicate upper layer that local device started receiving data */
         (*p_cb->p_cback)(p_cb->conn_id, NFC_DATA_START_CEVT, nullptr);
       }
+#if (NXP_EXTNS == TRUE)
+      /* ++pp to skip cla byte */
+      else if (((*(++pp)) == NFC_SELECT_CMD_INS) && ((*(++pp)) == NCI_SELECT_CMD_P1)
+              && (nfa_dm_cb.disc_cb.disc_state==NFA_DM_RFST_LISTEN_ACTIVE)) {
+        /* when MW receive select command with slow host enable,we consider as a ISO DEP protocol
+           and setting value of init credit and callback function*/
+        nfa_ce_set_t4t_listen_params();
+        p_cb = nfc_find_conn_cb_by_conn_id(cid);
+        p_cb->num_buff = NFC_CONN_INITIAL_CREDITS;
+        p_cb->buff_size = NCI_MAX_DATA_PAYLOAD_SIZE;
+      }
+#endif
       /* enqueue the new buffer to the rx queue */
       GKI_enqueue(&p_cb->rx_q, p_msg);
       nfc_data_event(p_cb);

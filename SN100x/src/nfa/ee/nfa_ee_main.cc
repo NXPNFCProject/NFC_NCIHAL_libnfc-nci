@@ -102,8 +102,6 @@ const tNFA_EE_SM_ACT nfa_ee_actions[] = {
     ,nfa_ee_api_power_link_set, /* NFA_EE_NCI_PWR_LNK_CTRL_SET_EVT */
     nfa_ee_nci_pwr_link_ctrl_rsp, /*NFA_EE_NCI_PWR_LNK_CTRL_RSP_EVT*/
     nfa_ee_nci_nfcee_status_ntf,   /*NFA_EE_NCI_NFCEE_STATUS_NTF_EVT*/
-    nfa_ee_api_add_apdu,       /* NFA_EE_API_ADD_AID_EVT       */
-    nfa_ee_api_remove_apdu    /* NFA_EE_API_REMOVE_AID_EVT    */
 #endif
 };
 
