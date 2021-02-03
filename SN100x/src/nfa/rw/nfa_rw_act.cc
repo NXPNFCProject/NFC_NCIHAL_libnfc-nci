@@ -997,10 +997,11 @@ static void nfa_rw_handle_t3t_evt(tRW_EVENT event, tRW_DATA* p_rw_data) {
       break;
 
     case RW_T3T_INTF_ERROR_EVT:
-      conn_evt_data.status = p_rw_data->status;
-#if (NXP_EXTNS == TRUE)
+      DLOG_IF(INFO, nfc_debug_enabled)
+          << StringPrintf("%s; send deactivate", __func__);
       nfa_dm_rf_deactivate(NFA_DEACTIVATE_TYPE_DISCOVERY);
-#else
+#if (NXP_EXTNS == FALSE)
+      conn_evt_data.status = p_rw_data->status;
       nfa_dm_act_conn_cback_notify(NFA_RW_INTF_ERROR_EVT, &conn_evt_data);
 #endif
       break;
