@@ -30,7 +30,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2020 NXP
+ *  Copyright 2018-2021 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -1014,6 +1014,17 @@ static tNFC_STATUS nfa_dm_send_deactivate_cmd(tNFC_DEACT_TYPE deactivate_type) {
           DLOG_IF(INFO, nfc_debug_enabled)
         << StringPrintf("Overriding NFA_DM_DISC_NTF_TIMEOUT to use %lu", num);
         }
+      }
+      if ((nfa_dm_cb.disc_cb.activated_protocol == NFA_PROTOCOL_NFC_DEP) &&
+          (nfa_p2p_cb.is_initiator)) {
+        if (NfcConfig::hasKey(NAME_NXP_P2P_DISC_NTF_TIMEOUT)) {
+          num = NfcConfig::getUnsigned(NAME_NXP_P2P_DISC_NTF_TIMEOUT);
+          num *= 1000;
+        } else {
+          num = NFA_P2P_DISC_NTF_TIMEOUT;
+        }
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+            "Overriding NFA_DM_DISC_NTF_TIMEOUT to use %lu", num);
       }
       DLOG_IF(INFO, nfc_debug_enabled)
         << StringPrintf("Starting timer value %lu", num);

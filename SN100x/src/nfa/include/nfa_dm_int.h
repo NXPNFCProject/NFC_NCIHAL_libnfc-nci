@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2020 NXP
+ *  Copyright 2018-2021 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -421,6 +421,9 @@ enum {
 ** transport delay (1sec) and max RWT (5sec)
 */
 #define NFA_DM_DISC_TIMEOUT_W4_DEACT_NTF (NFC_DEACTIVATE_TIMEOUT * 1000 + 6000)
+
+/* timeout for waiting deactivation NTF in P2P activate mode */
+#define NFA_P2P_DISC_NTF_TIMEOUT 22000
 
 typedef struct {
   uint16_t disc_duration; /* Disc duration                                    */
