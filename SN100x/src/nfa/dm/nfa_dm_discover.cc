@@ -863,7 +863,7 @@ static void nfa_dm_disc_discovery_cback(tNFC_DISCOVER_EVT event,
 #if(NXP_EXTNS == TRUE)
   if(p_data) NFA_SCR_PROCESS_EVT(dm_disc_event, p_data->status);
 #if(NXP_SRD ==  TRUE)
-  NFA_SRD_PROCESS_EVT(dm_disc_event, nullptr, p_data);
+  nfa_srd_dm_process_evt(dm_disc_event, p_data);
 #endif
 #endif
 }

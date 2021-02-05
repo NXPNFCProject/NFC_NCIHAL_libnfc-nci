@@ -30,8 +30,8 @@
 
 #define NCI_STATUS_SRD_TIMEOUT 0xE2
 
-#define NFA_SRD_PROCESS_EVT(event, evt_data, disc_evtdata) \
-  { nfa_srd_process_evt(event, evt_data, disc_evtdata); }
+#define NFA_SRD_PROCESS_EVT(event, evt_data) \
+  { nfa_srd_process_evt(event, evt_data); }
 
 typedef uint8_t tNFA_SRD_EVT;
 
@@ -43,9 +43,10 @@ struct {
 enum { DISABLE, ENABLE, TIMEOUT, FEATURE_NOT_SUPPORTED = 0xFF };
 
 /* Action & utility functions in nfa_srd_main.cc */
-extern void nfa_srd_process_evt(tNFA_SRD_EVT event, tNFA_HCI_EVT_DATA* evt_data,
-                                tNFC_DISCOVER* disc_evtdata);
+extern void nfa_srd_process_evt(tNFA_SRD_EVT event, tNFA_HCI_EVT_DATA* evt_data);
 void nfa_srd_init();
 int nfa_srd_get_state();
 bool nfa_srd_check_hci_evt(tNFA_HCI_EVT_DATA* evt_data);
+void nfa_srd_dm_process_evt(tNFC_DISCOVER_EVT event,
+        tNFC_DISCOVER* disc_evtdata);
 #endif
