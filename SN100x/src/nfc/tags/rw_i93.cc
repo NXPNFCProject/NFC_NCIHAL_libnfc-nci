@@ -1172,6 +1172,13 @@ tNFC_STATUS rw_i93_send_cmd_write_multi_blocks(uint16_t first_block_number,
 
   DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
+  if (number_blocks * rw_cb.tcb.i93.block_size >
+      GKI_get_pool_bufsize(NFC_RW_POOL_ID) - NCI_MSG_OFFSET_SIZE -
+          NCI_DATA_HDR_SIZE - 1 -
+          (rw_cb.tcb.i93.intl_flags & RW_I93_FLAG_EXT_COMMANDS ? 2 : 0) - 12) {
+    android_errorWriteLog(0x534e4554, "157650365");
+    return NFC_STATUS_FAILED;
+  }
   p_cmd = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID);
 
   if (!p_cmd) {
@@ -1206,9 +1213,6 @@ tNFC_STATUS rw_i93_send_cmd_write_multi_blocks(uint16_t first_block_number,
     UINT8_TO_STREAM(
         p, number_blocks - 1); /* Number of blocks, 0x00 to read one block */
   }
-
-  UINT8_TO_STREAM(
-      p, number_blocks - 1); /* Number of blocks, 0x00 to read one block */
 
   /* Data */
   ARRAY_TO_STREAM(p, p_data, number_blocks * rw_cb.tcb.i93.block_size);
