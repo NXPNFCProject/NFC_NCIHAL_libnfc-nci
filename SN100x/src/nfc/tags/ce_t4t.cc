@@ -751,7 +751,9 @@ static void ce_t4t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
         BE_STREAM_TO_UINT8(length, p_cmd);  /* Lc     */
 
         /* check if valid parameters */
-        if ((uint32_t)length <= CE_T4T_MAX_LC) {
+        if ((uint32_t)length <= CE_T4T_MAX_LC &&
+            /* check if data fits into the apdu */
+            (uint16_t)length <= p_c_apdu->len - T4T_CMD_MAX_HDR_SIZE) {
           if (length + offset > ce_cb.mem.t4t.max_file_size) {
             LOG(ERROR) << StringPrintf(
                 "CET4T: length (%d) + offset (%d) must be less than "
@@ -763,6 +765,7 @@ static void ce_t4t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
           LOG(ERROR) << StringPrintf(
               "CET4T: length (%d) must be less than MLc (%zu)", length,
               CE_T4T_MAX_LC);
+          android_errorWriteLog(0x534e4554, "157649298");
           length = 0;
         }
 
