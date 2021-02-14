@@ -543,6 +543,8 @@ typedef struct {
   uint8_t cur_poll_rc; /* RC used in current POLL command */
 
   uint8_t flags; /* Flags see RW_T3T_FL_* */
+  /* Recall System Code used in last T3T polling command */
+  int32_t cur_active_sc;
 } tRW_T3T_CB;
 
 /*
