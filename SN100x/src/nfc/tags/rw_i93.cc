@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2020 NXP
+ *  Copyright 2018-2021 NXP
  *
  ******************************************************************************/
 
@@ -3097,7 +3097,8 @@ void rw_i93_handle_error(tNFC_STATUS status) {
   if (rw_cb.p_cback) {
     rw_data.status = status;
 #if (NXP_EXTNS == TRUE)
-      if(NFC_STATUS_TIMEOUT == rw_data.status)
+      if((NFC_STATUS_TIMEOUT == rw_data.status)
+         && (p_i93->sent_cmd != I93_CMD_STAY_QUIET))
       {
         p_i93->state = RW_I93_STATE_IDLE;
       }

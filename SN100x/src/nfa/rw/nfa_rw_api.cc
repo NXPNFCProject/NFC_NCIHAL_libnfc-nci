@@ -15,6 +15,25 @@
  *  limitations under the License.
  *
  ******************************************************************************/
+/******************************************************************************
+ *
+ *  The original Work has been changed by NXP.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  Copyright 2021 NXP
+ *
+ ******************************************************************************/
 
 /******************************************************************************
  *
@@ -930,8 +949,13 @@ tNFA_STATUS NFA_RwI93StayQuiet(uint8_t* p_uid) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_I93_STAY_QUIET;
+#if (NXP_EXTNS == TRUE)
+    p_msg->params.i93_cmd.uid_present = true;
+    memcpy(p_msg->params.i93_cmd.uid, p_uid, I93_UID_BYTE_LEN);
+#else
     p_msg->params.i93_cmd.p_data = (uint8_t*)(p_msg + 1);
     memcpy(p_msg->params.i93_cmd.p_data, p_uid, I93_UID_BYTE_LEN);
+#endif
 
     nfa_sys_sendmsg(p_msg);
 
