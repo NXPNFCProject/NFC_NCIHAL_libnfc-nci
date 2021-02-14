@@ -382,15 +382,24 @@ typedef uint8_t tT3T_POLL_RC;
 #define T4T_CMD_MIN_HDR_SIZE 4 /* CLA, INS, P1, P2 */
 #define T4T_CMD_MAX_HDR_SIZE 5 /* CLA, INS, P1, P2, Lc */
 
+/* CLA, INS, P1, P2, Data ODO */
+#define T4T_CMD_MIN_EXT_HDR_SIZE 9
+/* CLA, INS, P1, P2, Lc, Data ODO, Le
+ * with Lc and Le coded using Extended Field Coding */
+#define T4T_CMD_MAX_EXT_HDR_SIZE 15
+
+#define T4T_VERSION_3_0 0x30 /* version 3.0 */
 #define T4T_VERSION_2_0 0x20 /* version 2.0 */
 #define T4T_VERSION_1_0 0x10 /* version 1.0 */
-#define T4T_MY_VERSION T4T_VERSION_2_0
+#define T4T_MY_VERSION T4T_VERSION_3_0
 #define T4T_GET_MAJOR_VERSION(x) ((x) >> 4)
 
 #define T4T_CMD_CLASS 0x00
 #define T4T_CMD_INS_SELECT 0xA4
 #define T4T_CMD_INS_READ_BINARY 0xB0
 #define T4T_CMD_INS_UPDATE_BINARY 0xD6
+#define T4T_CMD_INS_READ_BINARY_ODO 0xB1
+#define T4T_CMD_INS_UPDATE_BINARY_ODO 0xD7
 #define T4T_CMD_DES_CLASS 0x90
 #define T4T_CMD_INS_GET_HW_VERSION 0x60
 #define T4T_CMD_CREATE_AID 0xCA
@@ -434,6 +443,8 @@ typedef uint8_t tT3T_POLL_RC;
 
 #define T4T_VERSION_OFFSET_IN_CC 0x02
 #define T4T_FC_TLV_OFFSET_IN_CC 0x07
+/* size of T(1),L(1),V(8) for extended NDEF file control */
+#define T4T_ENDEF_FC_V_FIELD_OFFSET 0x09
 /* Offset of Write access byte from type field in CC */
 #define T4T_FC_WRITE_ACCESS_OFFSET_IN_TLV 0x07
 
@@ -444,8 +455,18 @@ typedef uint8_t tT3T_POLL_RC;
 /* size of V(6) for file control */
 #define T4T_FILE_CONTROL_LENGTH 0x06
 
+#define T4T_ENDEF_FILE_CONTROL_TYPE 0x06 /* Extended NDEF File Control Type */
+/* size of T(1),L(1),V(8) for extended NDEF file control */
+#define T4T_ENDEF_FILE_CONTROL_TLV_SIZE 0x0A
+/* size of V(8) for extended NDEF file control */
+#define T4T_ENDEF_FILE_CONTROL_LENGTH 0x08
+
 /* read access granted without any security */
 #define T4T_FC_READ_ACCESS 0x00
+/* no read access granted at all */
+#define T4T_FC_NO_READ_ACCESS 0xFF
+/* proprietary read access range start */
+#define T4T_FC_READ_ACCESS_PROP_START 0x80
 /* write access granted without any security */
 #define T4T_FC_WRITE_ACCESS 0x00
 /* proprietary write access range start */
@@ -454,6 +475,7 @@ typedef uint8_t tT3T_POLL_RC;
 #define T4T_FC_NO_WRITE_ACCESS 0xFF
 
 #define T4T_FILE_LENGTH_SIZE 0x02
+#define T4T_EFILE_LENGTH_SIZE 0x04
 #define T4T_ADDI_FRAME_RESP 0xAFU
 #define T4T_DES_GET_VERSION_LEN 0x09
 #define T4T_SIZE_IDENTIFIER_2K 0x16U

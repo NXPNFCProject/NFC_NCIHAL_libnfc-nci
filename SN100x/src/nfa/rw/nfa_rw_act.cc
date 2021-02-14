@@ -802,7 +802,7 @@ static void nfa_rw_handle_t2t_evt(tRW_EVENT event, tRW_DATA* p_rw_data) {
       break;
 
     case RW_T2T_TLV_DETECT_EVT: /* Lock control/Mem/Prop tlv detection complete
-                                   */
+                                 */
       nfa_rw_handle_tlv_detect(p_rw_data);
       break;
 
@@ -1780,8 +1780,7 @@ static tNFC_STATUS nfa_rw_start_ndef_write(void) {
       status = RW_T3tUpdateNDef(nfa_rw_cb.ndef_wr_len, nfa_rw_cb.p_ndef_wr_buf);
     } else if (NFC_PROTOCOL_ISO_DEP == protocol) {
       /* ISODEP/4A,4B- NFC-A or NFC-B */
-      status = RW_T4tUpdateNDef((uint16_t)nfa_rw_cb.ndef_wr_len,
-                                nfa_rw_cb.p_ndef_wr_buf);
+      status = RW_T4tUpdateNDef(nfa_rw_cb.ndef_wr_len, nfa_rw_cb.p_ndef_wr_buf);
     } else if (NFC_PROTOCOL_T5T == protocol) {
       /* ISO 15693 */
       status = RW_I93UpdateNDef((uint16_t)nfa_rw_cb.ndef_wr_len,
@@ -1874,8 +1873,8 @@ static bool nfa_rw_write_ndef(tNFA_RW_MSG* p_data) {
   } else if (nfa_rw_cb.ndef_st == NFA_RW_NDEF_ST_FALSE) {
     if (nfa_rw_cb.protocol == NFC_PROTOCOL_T1T) {
       /* For Type 1 tag, NDEF can be written on Initialized tag
-      *  Perform ndef detection first to check if tag is in Initialized state to
-      * Write NDEF */
+       *  Perform ndef detection first to check if tag is in Initialized state
+       * to Write NDEF */
       write_status = nfa_rw_start_ndef_detection();
     } else {
       /* Tag is not NDEF */
