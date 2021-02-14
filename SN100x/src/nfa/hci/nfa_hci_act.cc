@@ -2991,8 +2991,11 @@ static void nfa_hci_handle_apdu_app_gate_hcp_msg_data (uint8_t *p_data, uint16_t
                     p_apdu_pipe_reg_info->reg_info_valid = true;
                     if (!nfa_hci_enable_one_nfcee ())
                     {
+                        evt_data.init_completed.status = NFA_STATUS_OK;
                         nfa_hci_startup_complete (NFA_STATUS_OK);
                         NFA_SCR_PROCESS_EVT(NFA_SCR_ESE_RECOVERY_COMPLETE_EVT, NFA_STATUS_OK);
+                        //Notify upper layer post Nfc init, if any recovery
+                        nfa_hciu_send_to_all_apps(NFA_HCI_INIT_COMPLETED, &evt_data);
                     }
                 }
             }
