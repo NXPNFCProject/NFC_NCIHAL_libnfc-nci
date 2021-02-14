@@ -509,7 +509,7 @@ extern tNFA_STATUS NFA_RwI93Inventory(bool afi_present, uint8_t afi,
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-extern tNFA_STATUS NFA_RwI93StayQuiet(void);
+extern tNFA_STATUS NFA_RwI93StayQuiet(uint8_t* p_uid);
 
 /*******************************************************************************
 **

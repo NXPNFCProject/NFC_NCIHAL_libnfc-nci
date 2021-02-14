@@ -1033,7 +1033,7 @@ extern tNFC_STATUS RW_I93Inventory(bool including_afi, uint8_t afi,
 **                  NFC_STATUS_FAILED if other error
 **
 *******************************************************************************/
-extern tNFC_STATUS RW_I93StayQuiet(void);
+extern tNFC_STATUS RW_I93StayQuiet(uint8_t* p_uid);
 
 /*******************************************************************************
 **

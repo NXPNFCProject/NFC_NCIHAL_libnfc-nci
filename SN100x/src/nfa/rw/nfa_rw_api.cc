@@ -916,7 +916,7 @@ tNFA_STATUS NFA_RwI93Inventory(bool afi_present, uint8_t afi, uint8_t* p_uid) {
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwI93StayQuiet(void) {
+tNFA_STATUS NFA_RwI93StayQuiet(uint8_t* p_uid) {
   tNFA_RW_OPERATION* p_msg;
 
   DLOG_IF(INFO, nfc_debug_enabled) << __func__;
@@ -930,6 +930,8 @@ tNFA_STATUS NFA_RwI93StayQuiet(void) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_I93_STAY_QUIET;
+    p_msg->params.i93_cmd.p_data = (uint8_t*)(p_msg + 1);
+    memcpy(p_msg->params.i93_cmd.p_data, p_uid, I93_UID_BYTE_LEN);
 
     nfa_sys_sendmsg(p_msg);
 
