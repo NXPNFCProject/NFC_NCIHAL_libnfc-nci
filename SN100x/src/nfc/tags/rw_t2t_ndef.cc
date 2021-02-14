@@ -1984,6 +1984,9 @@ static void rw_t2t_update_attributes(void) {
   uint16_t lower_offset;
   uint16_t upper_offset;
   uint16_t offset;
+  uint16_t offset_in_seg;
+  uint16_t block_boundary;
+  uint8_t num_internal_bytes;
   uint8_t num_bytes;
 
   /* Prepare attr for the current segment */
@@ -2003,18 +2006,53 @@ static void rw_t2t_update_attributes(void) {
     if (offset >= lower_offset && offset < upper_offset) {
       /* Calculate offset in the current segment as p_t2t->attr is prepared for
        * one segment only */
-      offset %= RW_T2T_SEGMENT_BYTES;
+      offset_in_seg = offset % RW_T2T_SEGMENT_BYTES;
       /* Every bit in p_t2t->attr indicates one byte of the tag is either a
        * lock/reserved byte or not
        * So, each array element in p_t2t->attr covers two blocks in the tag as
        * T2 block size is 4 and array element size is 8
        * Set the corresponding bit in attr to indicate - reserved byte */
-      p_t2t->attr[offset / TAG_BITS_PER_BYTE] |=
-          rw_t2t_mask_bits[offset % TAG_BITS_PER_BYTE];
+      p_t2t->attr[offset_in_seg / TAG_BITS_PER_BYTE] |=
+          rw_t2t_mask_bits[offset_in_seg % TAG_BITS_PER_BYTE];
     }
     count++;
   }
 
+  block_boundary = (offset + 1) % T2T_BLOCK_LEN;
+  if (block_boundary) {
+    /* End of DynLock_Area is not aligned to a block boundary. The bytes that
+     * are not part of the area within the same block are Internal Bytes (see
+     * [T2T-TS] section 4.7).
+     * According to REQ 4.4.1.5, either write them to 00h or to their existing
+     * values. However according to the NDEF Write procedure, REQ 7.5.5.5,
+     * symbol 5, the Reader SHALL not write to the DynLock_Area and the
+     * Rsvd_Area(s), as indicated by the Lock Control TLV or the Memory
+     * Control TLVs, if any.
+     * Choice is made to consider the bytes within the same block as the
+     * DynLock_Area last bytes as lock bytes i.e. they will not be written
+     * and therefore previously read (steps anyhow not expected by NFC Forum
+     * Test Specifications).
+     */
+    num_internal_bytes = T2T_BLOCK_LEN - block_boundary;
+    count = 1;
+
+    while (count <= num_internal_bytes) {
+      offset++;
+      if (offset >= lower_offset && offset < upper_offset) {
+        /* Calculate offset in the current segment as p_t2t->attr is prepared
+         * for one segment only */
+        offset_in_seg = offset % RW_T2T_SEGMENT_BYTES;
+        /* Every bit in p_t2t->attr indicates one byte of the tag is either a
+         * lock/reserved/internal byte or not
+         * So, each array element in p_t2t->attr covers two blocks in the tag as
+         * T2 block size is 4 and array element size is 8
+         * Set the corresponding bit in attr to indicate - reserved byte */
+        p_t2t->attr[offset_in_seg / TAG_BITS_PER_BYTE] |=
+            rw_t2t_mask_bits[offset_in_seg % TAG_BITS_PER_BYTE];
+      }
+      count++;
+    }
+  }
   /* Search reserved bytes identified by all memory tlvs present in the tag */
   count = 0;
   while (count < p_t2t->num_mem_tlvs) {
