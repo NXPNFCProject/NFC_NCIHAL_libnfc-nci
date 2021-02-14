@@ -1522,3 +1522,43 @@ tNFA_STATUS NFA_RwI93GetMultiBlockSecurityStatus(uint8_t first_block_number,
 
   return (NFA_STATUS_FAILED);
 }
+
+/*******************************************************************************
+**
+** Function         NFA_RwI93SetAddressingMode
+**
+** Description:
+**      Set addressing mode to use to communicate with T5T tag.
+**      mode = 0: addressed (default if API not called)
+**      mode = 1: non-addressed
+**
+** Returns:
+**      NFA_STATUS_OK if successfully initiated
+**      NFA_STATUS_WRONG_PROTOCOL: T5T tag not activated
+**      NFA_STATUS_FAILED otherwise
+**
+*******************************************************************************/
+tNFA_STATUS NFA_RwI93SetAddressingMode(uint8_t mode) {
+  tNFA_RW_OPERATION* p_msg;
+
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s - %d", __func__, mode);
+
+  if (nfa_rw_cb.protocol != NFC_PROTOCOL_T5T) {
+    return (NFA_STATUS_WRONG_PROTOCOL);
+  }
+
+  p_msg = (tNFA_RW_OPERATION*)GKI_getbuf((uint16_t)(sizeof(tNFA_RW_OPERATION)));
+  if (p_msg != nullptr) {
+    /* Fill in tNFA_RW_OPERATION struct */
+    p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
+    p_msg->op = NFA_RW_OP_I93_SET_ADDR_MODE;
+
+    p_msg->params.i93_cmd.addr_mode = mode;
+
+    nfa_sys_sendmsg(p_msg);
+
+    return (NFA_STATUS_OK);
+  }
+
+  return (NFA_STATUS_FAILED);
+}
