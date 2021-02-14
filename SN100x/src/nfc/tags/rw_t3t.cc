@@ -2937,7 +2937,7 @@ tNFC_STATUS RW_T3tGetSystemCodes(void) {
                                p_cb->rw_state);
     return (NFC_STATUS_FAILED);
   } else {
-    retval = (tNFC_STATUS)nci_snd_t3t_polling(0xFFFF, T3T_POLL_RC_SC, 0);
+    retval = (tNFC_STATUS)nci_snd_t3t_polling(0xFFFF, T3T_POLL_RC_SC, 0x0F);
     if (retval == NCI_STATUS_OK) {
       p_cb->cur_cmd = RW_T3T_CMD_GET_SYSTEM_CODES;
       p_cb->cur_tout = RW_T3T_DEFAULT_CMD_TIMEOUT_TICKS;
