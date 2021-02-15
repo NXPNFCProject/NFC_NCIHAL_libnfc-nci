@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2020 NXP
+ *  Copyright 2018-2021 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -649,6 +649,7 @@ typedef struct {
                                   Application                       */
   uint8_t mode;
   uint8_t recovery_cnt;        /* Recovery counter for ESE*/
+  bool require_rf_restart;     /* Restart RF while NFCEE recovery*/
 #endif
 } tNFA_EE_CB;
 

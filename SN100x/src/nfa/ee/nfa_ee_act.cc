@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2020 NXP
+ *  Copyright 2018-2021 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -2355,7 +2355,8 @@ void nfa_ee_nci_nfcee_status_ntf(tNFA_EE_MSG* p_data) {
   if(p_cb != nullptr) {
       p_cb->nfcee_status = p_ee->nfcee_status;
       if (nfa_ee_check_recovery_required(p_cb->nfcee_status)) {
-        if (nfa_dm_cb.disc_cb.disc_state != NFA_DM_RFST_IDLE) {
+        if (nfa_ee_cb.require_rf_restart &&
+            nfa_dm_cb.disc_cb.disc_state != NFA_DM_RFST_IDLE) {
           nfa_ee_cb.ee_flags |= NFA_EE_FLAG_RECOVERY;
           nfa_dm_act_stop_rf_discovery(NULL);
         }
