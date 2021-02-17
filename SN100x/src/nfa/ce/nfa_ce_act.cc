@@ -1056,7 +1056,9 @@ bool nfa_ce_deactivate_ntf(tNFA_CE_MSG* p_ce_msg) {
 
     return true;
   } else {
+#if (NXP_EXTNS != TRUE)
     deact_type = NFC_DEACTIVATE_TYPE_IDLE;
+#endif
   }
 
   /* Tag is in idle state */

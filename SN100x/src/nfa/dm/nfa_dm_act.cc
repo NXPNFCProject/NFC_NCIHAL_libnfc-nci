@@ -1568,6 +1568,13 @@ static void nfa_dm_act_data_cback(__attribute__((unused)) uint8_t conn_id,
   } else if (event == NFC_DEACTIVATE_CEVT) {
     NFC_SetStaticRfCback(nullptr);
   }
+#if (NXP_EXTNS == TRUE)
+    else if (event == NFC_ERROR_CEVT) {
+    LOG(ERROR) << StringPrintf(
+          "received NFC_ERROR_CEVT with status = 0x%X", p_data->status);
+      nfa_dm_rf_deactivate(NFA_DEACTIVATE_TYPE_DISCOVERY);
+  }
+#endif
 }
 
 /*******************************************************************************
@@ -1790,7 +1797,11 @@ static void nfa_dm_poll_disc_cback(tNFA_DM_RF_DISC_EVT event,
             (p_data->deactivate.type == NFC_DEACTIVATE_TYPE_SLEEP_AF)) {
           evt_data.deactivated.type = NFA_DEACTIVATE_TYPE_SLEEP;
         } else {
+#if (NXP_EXTNS == TRUE)
+          evt_data.deactivated.type = p_data->deactivate.type;
+#else
           evt_data.deactivated.type = NFA_DEACTIVATE_TYPE_IDLE;
+#endif
         }
         /* notify deactivation to application */
         nfa_dm_conn_cback_event_notify(NFA_DEACTIVATED_EVT, &evt_data);
