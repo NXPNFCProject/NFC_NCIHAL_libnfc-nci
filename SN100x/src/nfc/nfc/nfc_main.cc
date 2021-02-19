@@ -104,6 +104,12 @@ extern std::string nfc_storage_path;
 tNfc_featureList nfcFL;
 static tNFC_chipType chipType;
 tNFC_chipType ProcessChipType(tNFC_FW_VERSION nfc_fw_version);
+/*product[] will be used to print product version and
+should be kept in accordance with tNFC_chipType*/
+const char* product[13] = {"UNKNOWN", "PN547C2", "PN65T", "PN548C2",
+                           "PN66T",   "PN551",   "PN67T", "PN553",
+                           "PN80T",   "PN557",   "PN81T",  "SN100U",
+                           "SN220U"};
 #endif
 #if (NFC_RW_ONLY == FALSE)
 #if (NXP_EXTNS == TRUE)
@@ -1710,6 +1716,13 @@ void NFC_SetFeatureList(tNFC_FW_VERSION nfc_fw_version) {
   CONFIGURE_FEATURELIST(chipType);
   LOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("%s: chipType = %d", __func__, chipType);
+#if(NXP_EXTNS == TRUE)
+  if (!(((nfcFL.chipType == sn220u) && NXP_EN_SN220U) && ((nfcFL.chipType == sn100u) && (NXP_EN_SN110U || NXP_EN_SN100U)))) {
+    LOG(ERROR) << StringPrintf("************************************************************************");
+    LOG(ERROR) << StringPrintf("*****USING UNTESTED SECURE NFC MW FOR CHIP %s : NOT RECOMMENDED*****", product[nfcFL.chipType]);
+    LOG(ERROR) << StringPrintf("************************************************************************");
+  }
+#endif
 }
 /*******************************************************************************
  **
