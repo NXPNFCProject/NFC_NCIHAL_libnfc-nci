@@ -841,8 +841,18 @@ typedef union {
   tRW_MFC_CB mfc;
 } tRW_TCB;
 
+/* RW callback type */
+#define RW_CB_TYPE_UNKNOWN 0
+#define RW_CB_TYPE_T1T 1
+#define RW_CB_TYPE_T2T 2
+#define RW_CB_TYPE_T3T 3
+#define RW_CB_TYPE_T4T 4
+#define RW_CB_TYPE_T5T 5
+typedef uint8_t tRW_CB_TYPE;
+
 /* RW control blocks */
 typedef struct {
+  tRW_CB_TYPE tcb_type;
   tRW_TCB tcb;
   tRW_CBACK* p_cback;
   uint32_t cur_retry; /* Retry count for the current operation */

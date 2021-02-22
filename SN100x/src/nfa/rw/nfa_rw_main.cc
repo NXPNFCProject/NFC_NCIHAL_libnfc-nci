@@ -29,6 +29,7 @@
 #include "nfa_dm_int.h"
 #include "nfa_rw_api.h"
 #include "nfa_rw_int.h"
+#include "rw_int.h"
 
 using android::base::StringPrintf;
 
@@ -87,6 +88,54 @@ void nfa_rw_init(void) {
 **
 *******************************************************************************/
 void nfa_rw_sys_disable(void) {
+  tRW_T1T_CB* p_t1t;
+  tRW_T2T_CB* p_t2t;
+  tRW_T3T_CB* p_t3t;
+  tRW_T4T_CB* p_t4t;
+  tRW_I93_CB* p_i93;
+
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
+
+  switch (rw_cb.tcb_type) {
+    case RW_CB_TYPE_T1T:
+      p_t1t = &rw_cb.tcb.t1t;
+      if (p_t1t->p_cur_cmd_buf != NULL) {
+        GKI_freebuf(p_t1t->p_cur_cmd_buf);
+        p_t1t->p_cur_cmd_buf = NULL;
+      }
+      break;
+    case RW_CB_TYPE_T2T:
+      p_t2t = &rw_cb.tcb.t2t;
+      if (p_t2t->p_cur_cmd_buf != NULL) {
+        GKI_freebuf(p_t2t->p_cur_cmd_buf);
+        p_t2t->p_cur_cmd_buf = NULL;
+      }
+      if (p_t2t->p_sec_cmd_buf != NULL) {
+        GKI_freebuf(p_t2t->p_sec_cmd_buf);
+        p_t2t->p_sec_cmd_buf = NULL;
+      }
+      break;
+    case RW_CB_TYPE_T3T:
+      p_t3t = &rw_cb.tcb.t3t;
+      if (p_t3t->p_cur_cmd_buf != NULL) {
+        GKI_freebuf(p_t3t->p_cur_cmd_buf);
+        p_t3t->p_cur_cmd_buf = NULL;
+      }
+      break;
+    case RW_CB_TYPE_T4T: /* do nothing */
+      p_t4t = &rw_cb.tcb.t4t;
+      break;
+    case RW_CB_TYPE_T5T:
+      p_i93 = &rw_cb.tcb.i93;
+      if (p_i93->p_retry_cmd != NULL) {
+        GKI_freebuf(p_i93->p_retry_cmd);
+        p_i93->p_retry_cmd = NULL;
+      }
+      break;
+    default: /* do nothing */
+      break;
+  }
+
   /* Return to idle */
   NFC_SetStaticRfCback(nullptr);
 
