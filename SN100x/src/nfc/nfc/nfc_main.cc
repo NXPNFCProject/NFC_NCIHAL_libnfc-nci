@@ -1717,7 +1717,7 @@ void NFC_SetFeatureList(tNFC_FW_VERSION nfc_fw_version) {
   LOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("%s: chipType = %d", __func__, chipType);
 #if(NXP_EXTNS == TRUE)
-  if (!(((nfcFL.chipType == sn220u) && NXP_EN_SN220U) && ((nfcFL.chipType == sn100u) && (NXP_EN_SN110U || NXP_EN_SN100U)))) {
+  if (!(((nfcFL.chipType == sn220u) && NXP_EN_SN220U) || ((nfcFL.chipType == sn100u) && (NXP_EN_SN110U || NXP_EN_SN100U)))) {
     LOG(ERROR) << StringPrintf("************************************************************************");
     LOG(ERROR) << StringPrintf("*****USING UNTESTED SECURE NFC MW FOR CHIP %s : NOT RECOMMENDED*****", product[nfcFL.chipType]);
     LOG(ERROR) << StringPrintf("************************************************************************");
