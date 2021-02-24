@@ -450,7 +450,7 @@ static void nfa_ee_add_proto_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
           DLOG_IF(INFO, nfc_debug_enabled)
               << StringPrintf("%s - NFC DEP added for DH!!!", __func__);
         }else {
-          return;
+          continue;
         }
       } else {
         add_route_tech_proto_tlv(&pp, proto_tag, p_cb->nfcee_id, power_cfg,
