@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2020 NXP
+ *  Copyright 2018-2021 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -1072,7 +1072,16 @@ tNFA_STATUS NFA_EePowerAndLinkCtrl(tNFA_HANDLE ee_handle, uint8_t config) {
       << StringPrintf("handle:<0x%x>, config:<0x%x>", ee_handle, config);
   p_cb = nfa_ee_find_ecb(nfcee_id);
 
-  if ((p_cb == nullptr) || (p_cb->ee_status != NFA_EE_STATUS_ACTIVE)) {
+  if (p_cb == nullptr
+#if(NXP_EXTNS != TRUE)
+  /*
+   * The DH MAY send NFCEE_POWER_AND_LINK_CNTRL_CMD at any time after NCI
+   *  initialization, even for an NFCEE that is disabled or unresponsive.
+   *  The NFCC SHALL use the DH settings when the NFCEE is enabled
+   * */
+  || (p_cb->ee_status != NFA_EE_STATUS_ACTIVE)
+#endif
+  ) {
     LOG(ERROR) << StringPrintf("Bad ee_handle");
     status = NFA_STATUS_INVALID_PARAM;
   } else {
