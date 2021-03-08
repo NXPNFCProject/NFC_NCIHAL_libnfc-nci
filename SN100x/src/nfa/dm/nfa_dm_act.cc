@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2020 NXP
+ *  Copyright 2018-2021 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -1026,6 +1026,12 @@ tNFA_STATUS nfa_dm_start_polling(void) {
     }
     if (poll_tech_mask & NFA_TECHNOLOGY_MASK_KOVIO) {
       poll_disc_mask |= NFA_DM_DISC_MASK_P_KOVIO;
+    }
+#if (NXP_EXTNS == TRUE)
+    if (!(nfc_cb.nci_interfaces & (1 << NCI_INTERFACE_NFC_DEP))) {
+      poll_disc_mask &= ~(NFA_DM_DISC_MASK_PACM_NFC_DEP|NFA_DM_DISC_MASK_PAA_NFC_DEP|
+                              NFA_DM_DISC_MASK_PFA_NFC_DEP|NFA_DM_DISC_MASK_PF_NFC_DEP);
+#endif
     }
 
     nfa_dm_cb.poll_disc_handle = nfa_dm_add_rf_discover(
