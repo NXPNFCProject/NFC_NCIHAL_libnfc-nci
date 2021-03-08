@@ -837,7 +837,13 @@ static bool rw_t4t_read_file(uint32_t offset, uint32_t length,
     UINT8_TO_BE_STREAM(p, T4T_CMD_INS_READ_BINARY);
     /* Lc and Data fields absent */
     UINT16_TO_BE_STREAM(p, offset);
-    if (p_t4t->intl_flags & RW_T4T_EXT_FIELD_CODING) {
+
+    if ((p_t4t->intl_flags & RW_T4T_EXT_FIELD_CODING)
+#if(NXP_EXTNS == TRUE)
+    // If the current read request length is extended
+    && (length > 255)
+#endif
+    ) {
       /* Coded over three bytes with first one null */
       p_c_apdu->len = T4T_CMD_MIN_HDR_SIZE + 3; /* adding Le */
       UINT8_TO_BE_STREAM(p, 0x00);
