@@ -1031,8 +1031,8 @@ tNFA_STATUS nfa_dm_start_polling(void) {
     if (!(nfc_cb.nci_interfaces & (1 << NCI_INTERFACE_NFC_DEP))) {
       poll_disc_mask &= ~(NFA_DM_DISC_MASK_PACM_NFC_DEP|NFA_DM_DISC_MASK_PAA_NFC_DEP|
                               NFA_DM_DISC_MASK_PFA_NFC_DEP|NFA_DM_DISC_MASK_PF_NFC_DEP);
-#endif
     }
+#endif
 
     nfa_dm_cb.poll_disc_handle = nfa_dm_add_rf_discover(
         poll_disc_mask, NFA_DM_DISC_HOST_ID_DH, nfa_dm_poll_disc_cback);
