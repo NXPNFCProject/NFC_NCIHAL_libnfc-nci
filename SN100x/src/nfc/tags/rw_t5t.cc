@@ -408,7 +408,7 @@ void rw_t5t_sm_detect_ndef(NFC_HDR* p_resp) {
         rw_data.ndef.protocol = NFC_PROTOCOL_T5T;
         rw_data.ndef.flags = 0;
         rw_data.ndef.flags |= RW_NDEF_FL_SUPPORTED;
-        rw_data.ndef.flags |= RW_NDEF_FL_FORMATED; // NOTYPO
+        rw_data.ndef.flags |= RW_NDEF_FL_FORMATED;  // NOTYPO
         rw_data.ndef.flags |= RW_NDEF_FL_FORMATABLE;
         rw_data.ndef.cur_size = p_i93->ndef_length;
 
