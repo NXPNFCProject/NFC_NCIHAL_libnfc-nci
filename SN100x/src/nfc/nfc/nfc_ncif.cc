@@ -133,8 +133,10 @@ static void check_and_store_last_cmd(NFC_HDR* p_buf) {
         ps[1] == NCI_MSG_RF_DEACTIVATE) ||
        (p_buf->len > 4 &&
         ps[0] == ((NCI_MT_CMD << NCI_MT_SHIFT) | NCI_GID_EE_MANAGE) &&
-        ps[1] == NCI_MSG_NFCEE_MODE_SET  &&
-        ps[4] == NFC_MODE_DEACTIVATE )||
+        ps[1] == NCI_MSG_NFCEE_MODE_SET && ps[4] == NFC_MODE_DEACTIVATE) ||
+       (p_buf->len > 1 &&
+        ps[0] == ((NCI_MT_CMD << NCI_MT_SHIFT) | NCI_GID_CORE) &&
+        ps[1] == NCI_MSG_CORE_SET_POWER_SUB_STATE) ||
        (p_buf->len > 4 &&
         ps[0] == ((NCI_MT_CMD << NCI_MT_SHIFT) | NCI_GID_CORE) &&
         ps[1] == NCI_MSG_CORE_SET_CONFIG &&
