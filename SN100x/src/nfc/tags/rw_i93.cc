@@ -4302,21 +4302,25 @@ tNFC_STATUS RW_I93PresenceCheck(void) {
 ** Description      Set if the tag must be addressed with UID or not.
 **
 **                  The addressing mode (addressed or non-addressed) must be
-*done
-**                  at the module initialization prior to the Tag activation.
+**                  done at the module initialization prior to the Tag
+**                  activation.
 **
 ** Returns          NFC_STATUS_OK, if mode is stored
 **                  NFC_STATUS_FAILED: other error
 **
 *****************************************************************************/
-tNFC_STATUS RW_I93SetAddressingMode(uint8_t mode) {
+tNFC_STATUS RW_I93SetAddressingMode(bool mode) {
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("%s - I93 state:%d", __func__, rw_cb.tcb.i93.state);
 
   if (rw_cb.tcb.i93.state == RW_I93_STATE_IDLE) {
     DLOG_IF(INFO, nfc_debug_enabled)
         << StringPrintf("%s - mode:%d", __func__, mode);
-    rw_cb.tcb.i93.addr_mode = mode;
+    if (mode) {
+      rw_cb.tcb.i93.addr_mode = RW_I93_MODE_ADDRESSED;
+    } else {
+      rw_cb.tcb.i93.addr_mode = RW_I93_MODE_NON_ADDRESSED;
+    }
     return NFC_STATUS_OK;
   } else {
     return NFC_STATUS_FAILED;

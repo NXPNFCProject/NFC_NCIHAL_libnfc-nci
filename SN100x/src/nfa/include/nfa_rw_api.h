@@ -778,8 +778,8 @@ extern tNFA_STATUS NFA_RwI93GetMultiBlockSecurityStatus(
 **
 ** Description:
 **      Set addressing mode to use to communicate with T5T tag.
-**      mode = 0: addressed (default if API not called)
-**      mode = 1: non-addressed
+**      mode = true: addressed (default if API not called)
+**      mode = false: non-addressed
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
@@ -787,6 +787,6 @@ extern tNFA_STATUS NFA_RwI93GetMultiBlockSecurityStatus(
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-extern tNFA_STATUS NFA_RwI93SetAddressingMode(uint8_t mode);
+extern tNFA_STATUS NFA_RwI93SetAddressingMode(bool mode);
 
 #endif /* NFA_RW_API_H */

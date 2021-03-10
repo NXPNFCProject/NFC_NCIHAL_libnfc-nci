@@ -215,7 +215,7 @@ typedef struct {
   bool afi_present;
   uint8_t afi;
   uint8_t dsfid;
-  uint8_t addr_mode;
+  bool addr_mode;
   uint16_t first_block_number;
   uint16_t number_blocks;
   uint8_t* p_data;

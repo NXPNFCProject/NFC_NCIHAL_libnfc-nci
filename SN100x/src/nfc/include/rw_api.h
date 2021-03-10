@@ -1371,7 +1371,7 @@ extern tNFC_STATUS RW_I93PresenceCheck(void);
 **                  NFC_STATUS_FAILED: other error
 **
 *****************************************************************************/
-extern tNFC_STATUS RW_I93SetAddressingMode(uint8_t mode);
+extern tNFC_STATUS RW_I93SetAddressingMode(bool mode);
 
 /*******************************************************************************
 **

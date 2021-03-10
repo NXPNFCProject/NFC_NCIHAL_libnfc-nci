@@ -1555,8 +1555,8 @@ tNFA_STATUS NFA_RwI93GetMultiBlockSecurityStatus(uint8_t first_block_number,
 **
 ** Description:
 **      Set addressing mode to use to communicate with T5T tag.
-**      mode = 0: addressed (default if API not called)
-**      mode = 1: non-addressed
+**      mode = true: addressed (default if API not called)
+**      mode = false: non-addressed
 **
 ** Returns:
 **      NFA_STATUS_OK if successfully initiated
@@ -1564,7 +1564,7 @@ tNFA_STATUS NFA_RwI93GetMultiBlockSecurityStatus(uint8_t first_block_number,
 **      NFA_STATUS_FAILED otherwise
 **
 *******************************************************************************/
-tNFA_STATUS NFA_RwI93SetAddressingMode(uint8_t mode) {
+tNFA_STATUS NFA_RwI93SetAddressingMode(bool mode) {
   tNFA_RW_OPERATION* p_msg;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s - %d", __func__, mode);
