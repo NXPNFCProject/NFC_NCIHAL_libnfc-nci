@@ -1646,7 +1646,12 @@ std::string NFC_GetStatusName(tNFC_STATUS status) {
  *******************************************************************************/
 void NFC_GetFeatureList() {
     LOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFC_GetFeatureList() Enter");
-    chipType = sn100u;
+    if (NfcConfig::hasKey(NAME_NXP_NFC_CHIP_TYPE)) {
+      chipType = (tNFC_chipType)NfcConfig::getUnsigned(NAME_NXP_NFC_CHIP_TYPE);
+      LOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NXP_NFC_CHIP 0x%02X", chipType);
+    } else {
+      chipType = sn100u;
+    }
     CONFIGURE_FEATURELIST(chipType);
     LOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFC_GetFeatureList ()chipType = %d", chipType);
 
