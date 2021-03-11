@@ -1936,6 +1936,10 @@ void nfc_ncif_proc_reset_rsp(uint8_t* p, bool is_ntf) {
   uint8_t* p_len = p - 1;
   uint8_t status = NCI_STATUS_FAILED;
   uint8_t wait_for_ntf = FALSE;
+#if (NXP_EXTNS == TRUE)
+  uint8_t infoLen = 0;
+  uint8_t fwVerOffset = 0;
+#endif
 
   status = *p_len > 0 ? *p++ : NCI_STATUS_FAILED;
   if (*p_len > 2 && is_ntf) {
@@ -1954,7 +1958,13 @@ void nfc_ncif_proc_reset_rsp(uint8_t* p, bool is_ntf) {
       p++;
       STREAM_TO_UINT8(nfc_cb.nci_version, p);
 #if (NXP_EXTNS == TRUE)
-      p += 4;
+      p++;
+      STREAM_TO_UINT8(infoLen, p);
+      fwVerOffset = infoLen - 3;
+      DLOG_IF(INFO, nfc_debug_enabled)
+          << StringPrintf(" CORE_RESET_NTF info len = %d, offset = %d", infoLen, fwVerOffset);
+      p += fwVerOffset;
+
       STREAM_TO_UINT8(nfc_fw_version.rom_code_version, p);
       STREAM_TO_UINT8(nfc_fw_version.major_version, p);
       STREAM_TO_UINT8(nfc_fw_version.minor_version, p);
