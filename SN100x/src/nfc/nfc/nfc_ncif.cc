@@ -350,8 +350,8 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
     if (p_cb->num_buff != NFC_CONN_NO_FC) p_cb->num_buff--;
 
     /* send to HAL */
+    nfcsnoop_capture(p, false);
     HAL_WRITE(p);
-  nfcsnoop_capture(p, false);
 #if (NXP_EXTNS == TRUE)
     /* start NFC data ntf timeout timer */
     if (p_cb->conn_id != NFC_RF_CONN_ID) {
