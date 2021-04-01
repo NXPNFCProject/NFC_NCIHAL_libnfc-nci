@@ -1751,6 +1751,7 @@ void nfc_ncif_proc_get_routing(uint8_t* p, uint8_t len) {
   tNFC_GET_ROUTING_REVT evt_data = {};
   uint8_t more, num_entries, xx, *pn;
   tNFC_STATUS status = NFC_STATUS_CONTINUE;
+  memset(&evt_data, 0, sizeof(tNFC_GET_ROUTING_REVT));
 
   if (len >= 2 && nfc_cb.p_resp_cback) {
     more = *p++;
