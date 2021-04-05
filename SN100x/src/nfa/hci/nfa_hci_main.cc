@@ -1372,6 +1372,11 @@ static void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
 #if(NXP_EXTNS == TRUE)
   if (nfa_hci_cb.type == NFA_HCI_EVENT_TYPE) {
           /* Response APDU: stop the timers */
+
+      /*Do not stop the timer for WTX event, if atr response not received. This
+       * allows timeout in case atr response is not received at all, which helps
+       * upper layer API to get unblocked and take necessary action*/
+      if(!(p_pipe_cmdrsp_info->w4_atr_evt && nfa_hci_cb.inst == NFA_HCI_EVT_WTX))
       nfa_sys_stop_timer (&(p_pipe_cmdrsp_info->rsp_timer));
       if(p_pipe_cmdrsp_info->w4_rsp_apdu_evt) {
       /*Clear chaining resp pending once full resp is received*/

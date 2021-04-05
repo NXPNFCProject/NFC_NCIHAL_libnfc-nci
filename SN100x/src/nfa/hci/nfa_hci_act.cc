@@ -3104,6 +3104,13 @@ static void nfa_hci_handle_apdu_app_gate_hcp_msg_data (uint8_t *p_data, uint16_t
                   }
                 }
                 /* More processing time needed for APDU sent to UICC */
+#if (NXP_EXTNS == TRUE)
+                /*Do not restart the timer if atr response not received. This
+                 * allows timeout in case atr response is not received at
+                 * all, which helps upper layer API to unblock and take necessary
+                 * action*/
+                if (!p_pipe_cmdrsp_info->w4_atr_evt)
+#endif
                 nfa_sys_start_timer (&(p_pipe_cmdrsp_info->rsp_timer),
                           NFA_HCI_RSP_TIMEOUT_EVT, p_pipe_cmdrsp_info->rsp_timeout);
                 DLOG_IF(INFO, nfc_debug_enabled)
