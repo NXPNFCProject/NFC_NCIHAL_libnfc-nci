@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2020 NXP
+ *  Copyright 2018-2021 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -425,6 +425,11 @@ typedef uint8_t tNCI_INTF_TYPE;
 /* NCI2.0 standardizes P2P poll active*/
 #define NCI_DISCOVERY_TYPE_POLL_ACTIVE 0x03
 #define NCI_DISCOVERY_TYPE_POLL_F_ACTIVE 0x05
+#if (NXP_EXTNS == TRUE)
+#if (NXP_QTAG == TRUE)
+#define NCI_DISCOVERY_TYPE_POLL_Q 0x71
+#endif
+#endif
 #define NCI_DISCOVERY_TYPE_LISTEN_A 0x80
 #define NCI_DISCOVERY_TYPE_LISTEN_B 0x81
 #define NCI_DISCOVERY_TYPE_LISTEN_F 0x82
@@ -667,6 +672,20 @@ typedef struct {
   uint8_t hr_len;  /* 2, if T1T HR0/HR1 is reported */
   uint8_t hr[NCI_T1T_HR_LEN]; /* T1T HR0 is in hr[0], HR1 is in hr[1] */
 } tNCI_RF_PA_PARAMS;
+
+#if (NXP_EXTNS == TRUE)
+#if (NXP_QTAG == TRUE)
+typedef struct {
+  uint8_t sens_res[2]; /* SENS_RES Response (ATQA). Available after Technology
+                          Detection */
+  uint8_t nfcid1_len;  /* 4, 7 or 10 */
+  uint8_t nfcid1[NCI_NFCID1_MAX_LEN]; /* AKA NFCID1 */
+  uint8_t sel_rsp; /* SEL_RSP (SAK) Available after Collision Resolution */
+  uint8_t hr_len;  /* 2, if T1T HR0/HR1 is reported */
+  uint8_t hr[NCI_T1T_HR_LEN]; /* T1T HR0 is in hr[0], HR1 is in hr[1] */
+} tNCI_RF_PQ_PARAMS;
+#endif
+#endif
 
 #define NCI_MAX_SENSB_RES_LEN 12
 typedef struct {

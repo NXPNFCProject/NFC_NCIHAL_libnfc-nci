@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2020 NXP
+ *  Copyright 2018-2021 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -981,6 +981,13 @@ tNFA_STATUS nfa_dm_start_polling(void) {
 
   /* start RF discovery with discovery callback */
   if (nfa_dm_cb.poll_disc_handle == NFA_HANDLE_INVALID) {
+#if (NXP_EXTNS == TRUE)
+#if (NXP_QTAG == TRUE)
+    if (poll_tech_mask & NFA_TECHNOLOGY_MASK_Q) {
+      poll_disc_mask |= NFA_DM_DISC_MASK_PQ_ISO_DEP;
+    }
+#endif
+#endif
     if (poll_tech_mask & NFA_TECHNOLOGY_MASK_A) {
       poll_disc_mask |= NFA_DM_DISC_MASK_PA_T1T;
       poll_disc_mask |= NFA_DM_DISC_MASK_PA_T2T;
@@ -1875,7 +1882,27 @@ void nfa_dm_notify_activation_status(tNFA_STATUS status,
         nfcid_len = p_tech_params->param.pa.nfcid1_len;
         p_nfcid = p_tech_params->param.pa.nfcid1;
       }
-    } else if (p_tech_params->mode == NFC_DISCOVERY_TYPE_POLL_B) {
+    }
+#if (NXP_EXTNS == TRUE)
+#if (NXP_QTAG == TRUE)
+    else if (p_tech_params->mode == NFC_DISCOVERY_TYPE_POLL_Q) {
+      if ((p_tech_params->param.pq.nfcid1_len == 0) && (p_params != nullptr)) {
+        nfcid_len = sizeof(p_params->t1t.uid);
+        p_nfcid = p_params->t1t.uid;
+        evt_data.activated.activate_ntf.rf_tech_param.param.pq.nfcid1_len =
+            nfcid_len;
+        if (nfcid_len > 0 && p_nfcid != nullptr) {
+          memcpy(evt_data.activated.activate_ntf.rf_tech_param.param.pq.nfcid1,
+                 p_nfcid, nfcid_len);
+        }
+      } else {
+        nfcid_len = p_tech_params->param.pq.nfcid1_len;
+        p_nfcid = p_tech_params->param.pq.nfcid1;
+      }
+    }
+#endif
+#endif
+    else if (p_tech_params->mode == NFC_DISCOVERY_TYPE_POLL_B) {
       nfcid_len = NFC_NFCID0_MAX_LEN;
       p_nfcid = p_tech_params->param.pb.nfcid0;
 #if (NXP_EXTNS == TRUE)

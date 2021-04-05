@@ -197,6 +197,19 @@ static uint8_t nfa_dm_get_rf_discover_config(
       }
     }
   }
+
+#if (NXP_QTAG == TRUE)
+  /* Check polling Q */
+  if (dm_disc_mask & NFA_DM_DISC_MASK_PQ_ISO_DEP) {
+    disc_params[num_params].type = NFC_DISCOVERY_TYPE_POLL_Q;
+    /*Discovery Frequency: RF Technology and Mode will be executed in every
+     * discovery period*/
+    disc_params[num_params].frequency = 1;
+    num_params++;
+
+    if (num_params >= max_params) return num_params;
+  }
+#endif
 #endif
   /* Check polling A */
   if (dm_disc_mask &
@@ -725,7 +738,15 @@ static tNFA_DM_DISC_TECH_PROTO_MASK nfa_dm_disc_get_disc_mask(
         disc_mask = NFA_DM_DISC_MASK_PA_NFC_DEP;
         break;
     }
-  } else if (NFC_DISCOVERY_TYPE_POLL_B == tech_n_mode) {
+  }
+#if (NXP_EXTNS == TRUE)
+#if (NXP_QTAG == TRUE)
+  else if (NFC_DISCOVERY_TYPE_POLL_Q == tech_n_mode) {
+    disc_mask = NFA_DM_DISC_MASK_PQ_ISO_DEP;
+  }
+#endif
+#endif
+  else if (NFC_DISCOVERY_TYPE_POLL_B == tech_n_mode) {
     if (protocol == NFC_PROTOCOL_ISO_DEP)
       disc_mask = NFA_DM_DISC_MASK_PB_ISO_DEP;
 #if (NXP_EXTNS == TRUE)
