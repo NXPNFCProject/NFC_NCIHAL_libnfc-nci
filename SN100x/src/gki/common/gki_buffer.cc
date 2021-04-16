@@ -139,7 +139,7 @@ static bool gki_alloc_free_queue(uint8_t id) {
 **
 *******************************************************************************/
 void gki_buffer_init(void) {
-  uint8_t i, tt, mb;
+  uint8_t tt, mb;
   tGKI_COM_CB* p_cb = &gki_cb.com;
 
   /* Initialize mailboxes */
@@ -230,10 +230,12 @@ void gki_buffer_init(void) {
   gki_init_free_queue(15, GKI_BUF15_SIZE, GKI_BUF15_MAX, p_cb->bufpool15);
 #endif
 
+#if (GKI_NUM_FIXED_BUF_POOLS > 0)
   /* add pools to the pool_list which is arranged in the order of size */
-  for (i = 0; i < GKI_NUM_FIXED_BUF_POOLS; i++) {
+  for (uint8_t i = 0; i < GKI_NUM_FIXED_BUF_POOLS; i++) {
     p_cb->pool_list[i] = i;
   }
+#endif
 
   p_cb->curr_total_no_of_pools = GKI_NUM_FIXED_BUF_POOLS;
 
