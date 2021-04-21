@@ -2707,7 +2707,7 @@ bool nfa_rw_activate_ntf(tNFA_RW_MSG* p_data) {
     memcpy(tag_params.t2t.uid, p_activate_params->rf_tech_param.param.pa.nfcid1,
            p_activate_params->rf_tech_param.param.pa.nfcid1_len);
   } else if (NFC_PROTOCOL_T3T == nfa_rw_cb.protocol) {
-    if (appl_dta_mode_flag) {
+    if ((appl_dta_mode_flag) && ((nfa_dm_cb.eDtaMode & 0xF0) != NFA_DTA_CR12)) {
       /* Incase of DTA mode Dont send commands to get system code. Just notify
        * activation */
       activate_notify = true;
