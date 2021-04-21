@@ -182,8 +182,11 @@ void nfc_free_conn_cb(tNFC_CONN_CB* p_cb) {
 
   while ((p_buf = GKI_dequeue(&p_cb->tx_q)) != nullptr) GKI_freebuf(p_buf);
 
-  if (p_cb->conn_id <= NFC_MAX_CONN_ID)
+  if (p_cb->conn_id <= NFC_MAX_CONN_ID) {
     nfc_cb.conn_id[p_cb->conn_id] = 0;
+  } else {
+    LOG(ERROR) << StringPrintf("invalid conn_id.");
+  }
   p_cb->p_cback = nullptr;
   p_cb->conn_id = NFC_ILLEGAL_CONN_ID;
 }
