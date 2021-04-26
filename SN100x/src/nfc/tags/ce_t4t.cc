@@ -18,7 +18,7 @@
 /******************************************************************************
  *  The original Work has been changed by NXP.
  *
- *  Copyright 2019-2020 NXP
+ *  Copyright 2019-2021 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -653,6 +653,9 @@ static void ce_t4t_data_cback(uint8_t conn_id, tNFC_CONN_EVT event,
     } else {
       GKI_freebuf(p_c_apdu);
       ce_t4t_send_status(T4T_RSP_NOT_FOUND);
+#if (NXP_EXTNS == TRUE)
+      return;
+#endif
     }
   } else if (ce_cb.mem.t4t.status & CE_T4T_STATUS_WILDCARD_AID_SELECTED) {
     DLOG_IF(INFO, nfc_debug_enabled)
