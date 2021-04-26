@@ -117,6 +117,10 @@ void nfa_srd_discovermap_cb(tNFC_DISCOVER_EVT event, tNFC_DISCOVER* p_data) {
       }
       break;
   }
+  if (p_evtdata.rcvd_evt.p_evt_buf != nullptr) {
+    GKI_freebuf(p_evtdata.rcvd_evt.p_evt_buf);
+    p_evtdata.rcvd_evt.p_evt_buf = nullptr;
+  }
   return;
 }
 /*******************************************************************************
@@ -133,7 +137,23 @@ void nfa_srd_process_evt(tNFA_SRD_EVT event, tNFA_HCI_EVT_DATA* evt_data) {
     DLOG_IF(INFO, nfc_debug_enabled)
         << StringPrintf("%s Enter: event:%d", __func__,event);
 
-  if(evt_data) p_evtdata = *evt_data;
+    if (evt_data) {
+      if (p_evtdata.rcvd_evt.p_evt_buf != nullptr) {
+        GKI_freebuf(p_evtdata.rcvd_evt.p_evt_buf);
+        p_evtdata.rcvd_evt.p_evt_buf = nullptr;
+      }
+      p_evtdata = *evt_data;
+      p_evtdata.rcvd_evt.p_evt_buf =
+          (uint8_t*)GKI_getbuf(p_evtdata.rcvd_evt.evt_len);
+      if (p_evtdata.rcvd_evt.p_evt_buf != nullptr) {
+        memcpy(p_evtdata.rcvd_evt.p_evt_buf, evt_data->rcvd_evt.p_evt_buf,
+               p_evtdata.rcvd_evt.evt_len);
+      } else {
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+            "%s Error allocating memory (p_evtdata.rcvd_evt.p_evt_buf)",
+            __func__);
+      }
+    }
   switch (event) {
     case NFA_SRD_START_EVT:
       if (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_IDLE ||
@@ -148,6 +168,10 @@ void nfa_srd_process_evt(tNFA_SRD_EVT event, tNFA_HCI_EVT_DATA* evt_data) {
         return;
       }
       srd_t.srd_state = TIMEOUT;
+      if (p_evtdata.rcvd_evt.p_evt_buf != nullptr) {
+        GKI_freebuf(p_evtdata.rcvd_evt.p_evt_buf);
+        p_evtdata.rcvd_evt.p_evt_buf = nullptr;
+      }
       memset(&p_evtdata, 0, sizeof(p_evtdata));
       [[fallthrough]];
     case NFA_SRD_STOP_EVT:
@@ -162,6 +186,10 @@ void nfa_srd_process_evt(tNFA_SRD_EVT event, tNFA_HCI_EVT_DATA* evt_data) {
       break;
 
     case NFA_SRD_FEATURE_NOT_SUPPORT_EVT:
+      if (p_evtdata.rcvd_evt.p_evt_buf != nullptr) {
+        GKI_freebuf(p_evtdata.rcvd_evt.p_evt_buf);
+        p_evtdata.rcvd_evt.p_evt_buf = nullptr;
+      }
       memset(&p_evtdata, 0, sizeof(p_evtdata));
       nfa_hciu_send_to_apps_handling_connectivity_evts(
           NFA_SRD_FEATURE_NOT_SUPPORT_EVT, &p_evtdata);
@@ -283,6 +311,10 @@ bool nfa_srd_check_hci_evt(tNFA_HCI_EVT_DATA* evt_data) {
 *******************************************************************************/
 void nfa_srd_init() {
   memset(&srd_t, 0, sizeof(srd_t));
+  if (p_evtdata.rcvd_evt.p_evt_buf != nullptr) {
+    GKI_freebuf(p_evtdata.rcvd_evt.p_evt_buf);
+    p_evtdata.rcvd_evt.p_evt_buf = nullptr;
+  }
   memset(&p_evtdata, 0, sizeof(p_evtdata));
   uint16_t SRD_DISABLE_MASK = 0xFFFF;
   uint16_t isFeatureDisable = 0x0000;
