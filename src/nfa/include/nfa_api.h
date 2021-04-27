@@ -407,13 +407,15 @@ typedef struct {
 #define NFA_P2P_PAUSED_EVT 38
 /* P2P services resumed event */
 #define NFA_P2P_RESUMED_EVT 39
+/* T2T command completed */
+#define NFA_T2T_CMD_CPLT_EVT 40
 #if (NXP_EXTNS == TRUE)
 /* ESE Listen configured */
-#define NFA_CE_ESE_LISTEN_CONFIGURED_EVT 40
+#define NFA_CE_ESE_LISTEN_CONFIGURED_EVT 61
 /* Activated intf for updating the   tech variables */
-#define NFA_ACTIVATED_UPDATE_EVT 41
+#define NFA_ACTIVATED_UPDATE_EVT 62
 /* Passive Listening disabled event */
-#define NFA_PASSIVE_LISTEN_DISABLED_EVT 44
+#define NFA_PASSIVE_LISTEN_DISABLED_EVT 63
 #endif
 /* NFC deactivation type */
 #define NFA_DEACTIVATE_TYPE_IDLE NFC_DEACTIVATE_TYPE_IDLE
