@@ -380,8 +380,6 @@ typedef uint8_t tRW_T2T_LOCK_STATUS;
 #define RW_T2T_SUBSTATE_WAIT_READ_DYN_LOCK_BYTE_BLOCK 0x1A
 /* waiting for response to set dynamic lock bits            */
 #define RW_T2T_SUBSTATE_WAIT_SET_DYN_LOCK_BITS 0x1B
-/* waiting for response to set static lock bits             */
-#define RW_T2T_SUBSTATE_WAIT_SET_ST_LOCK_BITS 0x1C
 
 typedef struct {
   uint16_t offset;              /* Offset of the lock byte in the Tag */
