@@ -19,7 +19,7 @@
  *
  *  The original Work has been changed by NXP.
  *
- *  Copyright 2015-2020 NXP
+ *  Copyright 2018-2021 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -153,7 +153,7 @@ typedef uint8_t tRW_T1T_LOCK_STATUS;
 typedef struct {
   uint16_t offset;  /* Offset of the lock byte in the Tag                   */
   uint8_t num_bits; /* Number of lock bits in the lock byte                 */
-  uint8_t bytes_locked_per_bit; /* No. of tag bytes gets locked by a bit in this
+  uint16_t bytes_locked_per_bit; /* No. of tag bytes gets locked by a bit in this
                                    byte   */
 } tRW_T1T_LOCK_INFO;
 
