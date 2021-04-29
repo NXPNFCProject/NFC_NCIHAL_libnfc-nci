@@ -734,8 +734,9 @@ static void llcp_dlc_proc_connect_pdu(uint8_t dsap, uint8_t ssap,
   /* check if any data link */
   p_dlcb = llcp_dlc_find_dlcb_by_sap(dsap, ssap);
   if (p_dlcb) {
-    LOG(ERROR) << StringPrintf("Data link is aleady established");
-    llcp_util_send_dm(ssap, dsap, LLCP_SAP_DM_REASON_TEMP_REJECT_THIS);
+    LOG(ERROR) << StringPrintf("Data link is aleady established; Sending FRMR");
+    llcp_util_send_frmr(p_dlcb, LLCP_FRMR_W_ERROR_FLAG, LLCP_PDU_CONNECT_TYPE, 0);
+    llcp_dlsm_execute(p_dlcb, LLCP_DLC_EVENT_FRAME_ERROR, nullptr);
   } else {
     /* allocate data link connection control block and notify upper layer
      * through state machine */
