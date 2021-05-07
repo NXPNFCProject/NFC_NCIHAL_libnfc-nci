@@ -965,7 +965,7 @@ extern tNFC_STATUS RW_T4tReadNDef(void);
 **                  NFC_STATUS_FAILED if T4T is busy or other error
 **
 *******************************************************************************/
-extern tNFC_STATUS RW_T4tUpdateNDef(uint16_t length, uint8_t* p_data);
+extern tNFC_STATUS RW_T4tUpdateNDef(uint32_t length, uint8_t* p_data);
 
 /*****************************************************************************
 **

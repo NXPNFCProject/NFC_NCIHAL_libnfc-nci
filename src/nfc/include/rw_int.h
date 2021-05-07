@@ -555,16 +555,31 @@ typedef struct {
 
 /* Max data size using a single UpdateBinary. 6 bytes are for CLA, INS, P1, P2,
  * Lc */
+/* Use worst case where Extended Field Coding and ODO format are used */
 #define RW_T4T_MAX_DATA_PER_WRITE                              \
   (NFC_RW_POOL_BUF_SIZE - NFC_HDR_SIZE - NCI_MSG_OFFSET_SIZE - \
-   NCI_DATA_HDR_SIZE - T4T_CMD_MAX_HDR_SIZE)
+   NCI_DATA_HDR_SIZE - T4T_CMD_MAX_EXT_HDR_SIZE)
 
+#define RW_T4T_EXT_FIELD_CODING 0x01
+#define RW_T4T_DDO_LC_FIELD_CODING 0x02
+
+#define RW_T4T_BER_TLV_LENGTH_1_BYTE 0x01
+#define RW_T4T_BER_TLV_LENGTH_2_BYTES 0x02
+#define RW_T4T_BER_TLV_LENGTH_3_BYTES 0x03
+
+/* Minimum data header in command APDU data:
+ * ODO: 54 00 xxyyzz: tag '54' with 3-byte offset xxyyzz
+ * DDO: 53 Ld {data to be written to the ENDEF File}
+ * Ld (data length) can be 1, 2 or 3 bytes
+ */
+#define RW_T4T_ODO_DDO_HEADER_MIN_LENGTH 0x06 /* ODO + tag '53' */
 /* Mandatory NDEF file control */
 typedef struct {
   uint16_t file_id;       /* File Identifier          */
-  uint16_t max_file_size; /* Max NDEF file size       */
+  uint32_t max_file_size; /* Max NDEF file size       */
   uint8_t read_access;    /* read access condition    */
   uint8_t write_access;   /* write access condition   */
+  uint8_t nlen_size;      /* (E)NLEN size (2 or 4 bytes) */
 } tRW_T4T_NDEF_FC;
 
 /* Capability Container */
@@ -586,10 +601,11 @@ typedef struct {
   uint8_t version;               /* currently effective version      */
   TIMER_LIST_ENT timer;          /* timeout for each API call        */
 
-  uint16_t ndef_length;    /* length of NDEF data              */
-  uint8_t* p_update_data;  /* pointer of data to update        */
-  uint16_t rw_length;      /* remaining bytes to read/write    */
-  uint16_t rw_offset;      /* remaining offset to read/write   */
+  uint32_t ndef_length;   /* length of NDEF data              */
+  uint8_t* p_update_data; /* pointer of data to update        */
+  uint32_t rw_length;     /* remaining bytes to read/write    */
+  uint32_t rw_offset;     /* remaining offset to read/write   */
+
   NFC_HDR* p_data_to_free; /* GKI buffet to delete after done  */
 
   tRW_T4T_CC cc_file; /* Capability Container File        */
@@ -606,6 +622,7 @@ typedef struct {
   uint16_t max_update_size; /* max updating size per a command  */
   uint16_t card_size;
   uint8_t card_type;
+  uint8_t intl_flags; /* flags for internal information   */
 } tRW_T4T_CB;
 
 /* RW retransmission statistics */
