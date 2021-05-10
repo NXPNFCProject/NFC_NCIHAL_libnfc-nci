@@ -805,7 +805,7 @@ tNFC_STATUS rw_i93_send_cmd_inventory(uint8_t* p_uid, bool including_afi,
 ** Returns          tNFC_STATUS
 **
 *******************************************************************************/
-tNFC_STATUS rw_i93_send_cmd_stay_quiet(void) {
+tNFC_STATUS rw_i93_send_cmd_stay_quiet(uint8_t* p_uid) {
   NFC_HDR* p_cmd;
   uint8_t* p;
 
@@ -830,7 +830,9 @@ tNFC_STATUS rw_i93_send_cmd_stay_quiet(void) {
   UINT8_TO_STREAM(p, I93_CMD_STAY_QUIET);
 
   /* Parameters */
-  ARRAY8_TO_STREAM(p, rw_cb.tcb.i93.uid); /* UID */
+  /* Beware the UID is provided with the same order as the transmission
+     one (LSB first) */
+  ARRAY_TO_STREAM(p, p_uid, I93_UID_BYTE_LEN); /* UID */
 
   if (rw_i93_send_to_lower(p_cmd)) {
     rw_cb.tcb.i93.sent_cmd = I93_CMD_STAY_QUIET;
@@ -3449,21 +3451,23 @@ tNFC_STATUS RW_I93Inventory(bool including_afi, uint8_t afi, uint8_t* p_uid) {
 **                  NFC_STATUS_FAILED if other error
 **
 *******************************************************************************/
-tNFC_STATUS RW_I93StayQuiet(void) {
-  tNFC_STATUS status;
+tNFC_STATUS RW_I93StayQuiet(uint8_t* p_uid) {
+  tNFC_STATUS status = NFC_STATUS_FAILED;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("RW_I93StayQuiet ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   if (rw_cb.tcb.i93.state != RW_I93_STATE_IDLE) {
-    LOG(ERROR) << StringPrintf(
-        "RW_I93StayQuiet ():Unable to start command at state (0x%X)",
-        rw_cb.tcb.i93.state);
+    LOG(ERROR) << StringPrintf("%s - Unable to start command at state (0x%X)",
+                               __func__, rw_cb.tcb.i93.state);
     return NFC_STATUS_BUSY;
   }
 
-  status = rw_i93_send_cmd_stay_quiet();
-  if (status == NFC_STATUS_OK) {
-    rw_cb.tcb.i93.state = RW_I93_STATE_BUSY;
+  if (p_uid) {
+    status = rw_i93_send_cmd_stay_quiet(p_uid);
+    if (status == NFC_STATUS_OK) {
+      rw_cb.tcb.i93.state = RW_I93_STATE_BUSY;
+      rw_cb.tcb.i93.addr_mode = RW_I93_MODE_ADDRESSED;
+    }
   }
 
   return status;
