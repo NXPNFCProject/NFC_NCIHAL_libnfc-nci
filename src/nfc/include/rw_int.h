@@ -699,6 +699,8 @@ typedef uint8_t tRW_I93_RW_SUBSTATE;
 #define RW_I93_FLAG_16BIT_NUM_BLOCK 0x10
 /* use extended commands */
 #define RW_I93_FLAG_EXT_COMMANDS 0x20
+/* use SMS bit in Selected state           */
+#define RW_I93_FLAG_SELECTED_STATE 0x80
 
 /* searching for type                      */
 #define RW_I93_TLV_DETECT_STATE_TYPE 0x01

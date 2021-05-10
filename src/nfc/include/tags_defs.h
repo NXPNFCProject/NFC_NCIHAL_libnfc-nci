@@ -512,6 +512,9 @@ typedef uint8_t tT3T_POLL_RC;
  * It shall be executed only by VICC */
 #define I93_FLAG_ADDRESS_SET 0x20
 /* whose UID matches the UID specified in the request */
+/* Request is addressed with SMS (Select Mode Selector). UID field is included
+ * or not.  It shall be executed by the unique VICC to be in SELECTED state */
+#define I93_FLAG_SELECT_SET 0x10
 
 /* AFI field is present     */
 #define I93_FLAG_AFI_PRESENT 0x10

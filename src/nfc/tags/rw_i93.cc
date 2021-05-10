@@ -880,12 +880,15 @@ tNFC_STATUS rw_i93_send_cmd_read_single_block(uint16_t block_number,
   p = (uint8_t*)(p_cmd + 1) + p_cmd->offset;
 
   /* Flags */
-  if (p_i93->addr_mode == RW_I93_MODE_ADDRESSED)
+  if (p_i93->addr_mode == RW_I93_MODE_ADDRESSED) {
     flags = (I93_FLAG_ADDRESS_SET | RW_I93_FLAG_SUB_CARRIER |
              RW_I93_FLAG_DATA_RATE);
-  else
+  } else {
     flags = (RW_I93_FLAG_SUB_CARRIER | RW_I93_FLAG_DATA_RATE);
 
+    if (rw_cb.tcb.i93.intl_flags & RW_I93_FLAG_SELECTED_STATE)
+      flags |= I93_FLAG_SELECT_SET;
+  }
   if (read_security) flags |= I93_FLAG_OPTION_SET;
 
   if (rw_cb.tcb.i93.intl_flags & RW_I93_FLAG_16BIT_NUM_BLOCK)
@@ -969,6 +972,8 @@ tNFC_STATUS rw_i93_send_cmd_write_single_block(uint16_t block_number,
                RW_I93_FLAG_DATA_RATE);
     } else {
       flags = (RW_I93_FLAG_SUB_CARRIER | RW_I93_FLAG_DATA_RATE);
+      if (rw_cb.tcb.i93.intl_flags & RW_I93_FLAG_SELECTED_STATE)
+        flags |= I93_FLAG_SELECT_SET;
     }
   }
 
@@ -1060,6 +1065,9 @@ tNFC_STATUS rw_i93_send_cmd_lock_block(uint16_t block_number) {
               RW_I93_FLAG_DATA_RATE;
     } else {
       flags = RW_I93_FLAG_SUB_CARRIER | RW_I93_FLAG_DATA_RATE;
+
+      if (rw_cb.tcb.i93.intl_flags & RW_I93_FLAG_SELECTED_STATE)
+        flags |= I93_FLAG_SELECT_SET;
     }
     UINT8_TO_STREAM(p, flags);
   }
@@ -1126,11 +1134,15 @@ tNFC_STATUS rw_i93_send_cmd_read_multi_blocks(uint16_t first_block_number,
   p = (uint8_t*)(p_cmd + 1) + p_cmd->offset;
 
   /* Flags */
-  if (p_i93->addr_mode == RW_I93_MODE_ADDRESSED)
+  if (p_i93->addr_mode == RW_I93_MODE_ADDRESSED) {
     flags = (I93_FLAG_ADDRESS_SET | RW_I93_FLAG_SUB_CARRIER |
              RW_I93_FLAG_DATA_RATE);
-  else
+  } else {
     flags = (RW_I93_FLAG_SUB_CARRIER | RW_I93_FLAG_DATA_RATE);
+
+    if (rw_cb.tcb.i93.intl_flags & RW_I93_FLAG_SELECTED_STATE)
+      flags |= I93_FLAG_SELECT_SET;
+  }
 
   if (rw_cb.tcb.i93.intl_flags & RW_I93_FLAG_16BIT_NUM_BLOCK) {
     flags |= I93_FLAG_PROT_EXT_YES;
@@ -1281,7 +1293,9 @@ tNFC_STATUS rw_i93_send_cmd_select(uint8_t* p_uid) {
   UINT8_TO_STREAM(p, I93_CMD_SELECT);
 
   /* Parameters */
-  ARRAY8_TO_STREAM(p, p_uid); /* UID */
+  /* Beware the UID is provided with the same order as the transmission
+     one (LSB first) */
+  ARRAY_TO_STREAM(p, p_uid, I93_UID_BYTE_LEN); /* UID */
 
   if (rw_i93_send_to_lower(p_cmd)) {
     rw_cb.tcb.i93.sent_cmd = I93_CMD_SELECT;
@@ -3635,12 +3649,11 @@ tNFC_STATUS RW_I93WriteMultipleBlocks(uint16_t first_block_number,
                                       uint16_t number_blocks, uint8_t* p_data) {
   tNFC_STATUS status;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("RW_I93WriteMultipleBlocks ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   if (rw_cb.tcb.i93.state != RW_I93_STATE_IDLE) {
-    LOG(ERROR) << StringPrintf(
-        "RW_I93WriteMultipleBlocks ():Unable to start command at state (0x%X)",
-        rw_cb.tcb.i93.state);
+    LOG(ERROR) << StringPrintf("%s - Unable to start command at state (0x%X)",
+                               __func__, rw_cb.tcb.i93.state);
     return NFC_STATUS_BUSY;
   }
 
@@ -3680,11 +3693,11 @@ tNFC_STATUS RW_I93WriteMultipleBlocks(uint16_t first_block_number,
 tNFC_STATUS RW_I93Select(uint8_t* p_uid) {
   tNFC_STATUS status;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("RW_I93Select ()");
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   if (rw_cb.tcb.i93.state != RW_I93_STATE_IDLE) {
-    LOG(ERROR) << StringPrintf("RW_I93Select ():Unable to start command at state (0x%X)",
-                    rw_cb.tcb.i93.state);
+    LOG(ERROR) << StringPrintf("%s - Unable to start command at state (0x%X)",
+                               __func__, rw_cb.tcb.i93.state);
     return NFC_STATUS_BUSY;
   }
 
@@ -3692,9 +3705,11 @@ tNFC_STATUS RW_I93Select(uint8_t* p_uid) {
     status = rw_i93_send_cmd_select(p_uid);
     if (status == NFC_STATUS_OK) {
       rw_cb.tcb.i93.state = RW_I93_STATE_BUSY;
+      rw_cb.tcb.i93.addr_mode = RW_I93_MODE_NON_ADDRESSED;
+      rw_cb.tcb.i93.intl_flags |= RW_I93_FLAG_SELECTED_STATE;
     }
   } else {
-    LOG(ERROR) << StringPrintf("RW_I93Select ():UID shall be provided");
+    LOG(ERROR) << StringPrintf("%s - UID shall be provided", __func__);
     status = NFC_STATUS_FAILED;
   }
 
