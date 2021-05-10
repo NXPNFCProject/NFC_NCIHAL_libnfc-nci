@@ -937,6 +937,11 @@ tNFC_STATUS rw_i93_send_cmd_write_single_block(uint16_t block_number,
       if (rw_cb.tcb.i93.intl_flags & RW_I93_FLAG_SELECTED_STATE)
         flags |= I93_FLAG_SELECT_SET;
     }
+
+    if (rw_cb.tcb.i93.intl_flags & RW_I93_FLAG_SPECIAL_FRAME) {
+      /* Option Flag bit must be set */
+      flags |= I93_FLAG_OPTION_SET;
+    }
   }
 
   if (rw_cb.tcb.i93.intl_flags & RW_I93_FLAG_16BIT_NUM_BLOCK)
@@ -1030,6 +1035,10 @@ tNFC_STATUS rw_i93_send_cmd_lock_block(uint16_t block_number) {
 
       if (rw_cb.tcb.i93.intl_flags & RW_I93_FLAG_SELECTED_STATE)
         flags |= I93_FLAG_SELECT_SET;
+    }
+    if (rw_cb.tcb.i93.intl_flags & RW_I93_FLAG_SPECIAL_FRAME) {
+      /* Option Flag bit must be set */
+      flags |= I93_FLAG_OPTION_SET;
     }
     UINT8_TO_STREAM(p, flags);
   }
@@ -1944,6 +1953,10 @@ void rw_i93_sm_detect_ndef(NFC_HDR* p_resp) {
           if (cc[3] & I93_ICODE_CC_MBREAD_MASK) {
             /* tag supports read multiple blocks command */
             p_i93->intl_flags |= RW_I93_FLAG_READ_MULTI_BLOCK;
+          }
+          if (cc[3] & I93_ICODE_CC_SPECIAL_FRAME_MASK) {
+            /* tag supports Special Frame for Write-Alike commands */
+            p_i93->intl_flags |= RW_I93_FLAG_SPECIAL_FRAME;
           }
           if (cc[0] == I93_ICODE_CC_MAGIC_NUMER_E2) {
             p_i93->intl_flags |= RW_I93_FLAG_EXT_COMMANDS;

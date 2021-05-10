@@ -624,6 +624,8 @@ typedef uint8_t tT3T_POLL_RC;
 /* More than 2040 bytes are supported in CC[3] */
 #define I93_STM_CC_OVERFLOW_MASK 0x04
 #define I93_ONS_CC_OVERFLOW_MASK 0x04
+/* Special Frame are supported in CC[3] */
+#define I93_ICODE_CC_SPECIAL_FRAME_MASK 0x10
 
 /* ICODE TLV type */
 #define I93_ICODE_TLV_TYPE_NULL 0x00 /* NULL TLV         */
