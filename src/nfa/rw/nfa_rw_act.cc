@@ -2804,8 +2804,23 @@ bool nfa_rw_activate_ntf(tNFA_RW_MSG* p_data) {
       /* Tag-it HF-I Plus Chip/Inlay supports Get System Information Command */
       /* just try for others */
 
-      if (RW_I93GetSysInfo(nfa_rw_cb.i93_uid) != NFC_STATUS_OK) {
-        /* notify activation without AFI/MEM size/IC-Ref */
+      if (!appl_dta_mode_flag) {
+        if (RW_I93GetSysInfo(nfa_rw_cb.i93_uid) != NFC_STATUS_OK) {
+          /* notify activation without AFI/MEM size/IC-Ref */
+          nfa_rw_cb.flags &= ~NFA_RW_FL_ACTIVATION_NTF_PENDING;
+          activate_notify = true;
+
+          tag_params.i93.info_flags = I93_INFO_FLAG_DSFID;
+          tag_params.i93.dsfid = nfa_rw_cb.i93_dsfid;
+          tag_params.i93.block_size = 0;
+          tag_params.i93.num_block = 0;
+          memcpy(tag_params.i93.uid, nfa_rw_cb.i93_uid, I93_UID_BYTE_LEN);
+        } else {
+          /* reset memory size */
+          nfa_rw_cb.i93_block_size = 0;
+          nfa_rw_cb.i93_num_block = 0;
+        }
+      } else {
         nfa_rw_cb.flags &= ~NFA_RW_FL_ACTIVATION_NTF_PENDING;
         activate_notify = true;
 
@@ -2814,10 +2829,6 @@ bool nfa_rw_activate_ntf(tNFA_RW_MSG* p_data) {
         tag_params.i93.block_size = 0;
         tag_params.i93.num_block = 0;
         memcpy(tag_params.i93.uid, nfa_rw_cb.i93_uid, I93_UID_BYTE_LEN);
-      } else {
-        /* reset memory size */
-        nfa_rw_cb.i93_block_size = 0;
-        nfa_rw_cb.i93_num_block = 0;
       }
     }
   }

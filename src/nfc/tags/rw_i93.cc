@@ -59,6 +59,7 @@
 using android::base::StringPrintf;
 
 extern bool nfc_debug_enabled;
+extern unsigned char appl_dta_mode_flag;
 
 #if (NXP_EXTNS == TRUE)
 /* Response timeout     */
@@ -3999,8 +4000,10 @@ tNFC_STATUS RW_I93DetectNDef(void) {
   if (rw_cb.tcb.i93.uid[0] != I93_UID_FIRST_BYTE) {
     status = rw_i93_send_cmd_inventory(nullptr, false, 0x00);
     sub_state = RW_I93_SUBSTATE_WAIT_UID;
-  } else if ((rw_cb.tcb.i93.num_block == 0) ||
-             (rw_cb.tcb.i93.block_size == 0)) {
+
+  } else if (((rw_cb.tcb.i93.num_block == 0) ||
+              (rw_cb.tcb.i93.block_size == 0)) &&
+             (!appl_dta_mode_flag)) {
     status =
         rw_i93_send_cmd_get_sys_info(rw_cb.tcb.i93.uid, I93_FLAG_PROT_EXT_NO);
     sub_state = RW_I93_SUBSTATE_WAIT_SYS_INFO;
