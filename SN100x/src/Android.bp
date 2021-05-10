@@ -33,7 +33,8 @@ cc_library_shared {
         "-Werror",
         "-Wimplicit-fallthrough",
         "-DNXP_EXTNS=TRUE",
-        "-DNXP_SRD=TRUE"
+        "-DNXP_SRD=TRUE",
+        "-DNXP_QTAG=TRUE"
     ],
     local_include_dirs: [
         "include",

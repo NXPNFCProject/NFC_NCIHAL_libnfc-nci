@@ -545,6 +545,9 @@ typedef uint8_t tNFC_PROTOCOL;
 #define NFC_DISCOVERY_TYPE_LISTEN_ISO15693 NCI_DISCOVERY_TYPE_LISTEN_ISO15693
 #define NFC_DISCOVERY_TYPE_LISTEN_B_PRIME NCI_DISCOVERY_TYPE_LISTEN_B_PRIME
 #if (NXP_EXTNS == TRUE)
+#if (NXP_QTAG == TRUE)
+#define NFC_DISCOVERY_TYPE_POLL_Q NCI_DISCOVERY_TYPE_POLL_Q
+#endif
 #define NFC_DISCOVERY_TYPE_FIELD_DETECT NCI_DISCOVERY_TYPE_FIELD_DETECT
 #endif
 typedef uint8_t tNFC_DISCOVERY_TYPE;
@@ -712,6 +715,11 @@ typedef uint16_t tNFC_DISCOVER_EVT;
 typedef tNFC_STATUS tNFC_START_DEVT;
 
 typedef tNCI_RF_PA_PARAMS tNFC_RF_PA_PARAMS;
+#if (NXP_EXTNS == TRUE)
+#if (NXP_QTAG == TRUE)
+typedef tNCI_RF_PQ_PARAMS tNFC_RF_PQ_PARAMS;
+#endif
+#endif
 #define NFC_MAX_SENSB_RES_LEN NCI_MAX_SENSB_RES_LEN
 #define NFC_NFCID0_MAX_LEN 4
 #if (NXP_EXTNS == TRUE)
@@ -763,6 +771,11 @@ typedef tNCI_RF_ACM_P_PARAMS tNFC_RF_ACM_P_PARAMS;
 
 typedef union {
   tNFC_RF_PA_PARAMS pa;
+#if (NXP_EXTNS == TRUE)
+#if (NXP_QTAG == TRUE)
+  tNFC_RF_PQ_PARAMS pq;
+#endif
+#endif
   tNFC_RF_PB_PARAMS pb;
   tNFC_RF_PF_PARAMS pf;
   tNFC_RF_LF_PARAMS lf;
@@ -804,6 +817,20 @@ typedef struct {
   uint8_t his_byte_len;             /* len of historical bytes          */
   uint8_t his_byte[NFC_MAX_HIS_BYTES_LEN]; /* historical bytes             */
 } tNFC_INTF_PA_ISO_DEP;
+
+#if (NXP_EXTNS == TRUE)
+#if (NXP_QTAG == TRUE)
+typedef struct {
+  uint8_t ats_res_len;              /* Length of ATS RES                */
+  uint8_t ats_res[NFC_MAX_ATS_LEN]; /* ATS RES                          */
+  bool nad_used;                    /* NAD is used or not               */
+  uint8_t fwi;                      /* Frame Waiting time Integer       */
+  uint8_t sfgi;                     /* Start-up Frame Guard time Integer*/
+  uint8_t his_byte_len;             /* len of historical bytes          */
+  uint8_t his_byte[NFC_MAX_HIS_BYTES_LEN]; /* historical bytes             */
+} tNFC_INTF_PQ_ISO_DEP;
+#endif
+#endif
 
 typedef struct { uint8_t rats; /* RATS */ } tNFC_INTF_LA_ISO_DEP;
 
@@ -861,6 +888,11 @@ typedef struct {
   union {
     tNFC_INTF_LA_ISO_DEP la_iso;
     tNFC_INTF_PA_ISO_DEP pa_iso;
+#if (NXP_EXTNS == TRUE)
+#if (NXP_QTAG == TRUE)
+    tNFC_INTF_PQ_ISO_DEP pq_iso;
+#endif
+#endif
     tNFC_INTF_LB_ISO_DEP lb_iso;
     tNFC_INTF_PB_ISO_DEP pb_iso;
     tNFC_INTF_LA_NFC_DEP la_nfc;

@@ -154,9 +154,15 @@ typedef uint8_t tNFA_PMID;
 #define NFA_TECHNOLOGY_MASK_A_ACTIVE 0x40
 /* NFC Technology F active mode */
 #define NFA_TECHNOLOGY_MASK_F_ACTIVE 0x80
+#if (NXP_EXTNS == TRUE)
+#if (NXP_QTAG == TRUE)
+#define NFA_TECHNOLOGY_MASK_Q 0x100 /* Proprietary Technology       */
 /* All supported technologies   */
+typedef uint16_t tNFA_TECHNOLOGY_MASK;
+#else
 typedef uint8_t tNFA_TECHNOLOGY_MASK;
-
+#endif
+#endif
 /* Definitions for NFC protocol for RW, CE and P2P APIs */
 /* Type1Tag - NFC-A */
 #define NFA_PROTOCOL_T1T NFC_PROTOCOL_T1T

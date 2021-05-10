@@ -31,7 +31,7 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 *
-*  Copyright 2018-2020 NXP
+*  Copyright 2018-2021 NXP
 *
 ******************************************************************************/
 
@@ -285,7 +285,14 @@ tNFC_STATUS RW_SetActivatedTagType(tNFC_ACTIVATE_DEVT* p_activate_params,
     ) {
     /* ISODEP/4A,4B- NFC-A or NFC-B */
     if ((p_activate_params->rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_B) ||
-        (p_activate_params->rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A)) {
+        (p_activate_params->rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A)
+    /* NFC-Q */
+#if (NXP_EXTNS == TRUE)
+#if (NXP_QTAG == TRUE)
+        || (p_activate_params->rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_Q)
+#endif
+#endif
+    ) {
       rw_cb.tcb_type = RW_CB_TYPE_T4T;
       status = rw_t4t_select();
     }
