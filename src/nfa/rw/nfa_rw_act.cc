@@ -2516,6 +2516,25 @@ static bool nfa_rw_i93_command(tNFA_RW_MSG* p_data) {
           p_data->op_req.params.i93_cmd.number_blocks);
       break;
 
+    case NFA_RW_OP_I93_SET_ADDR_MODE:
+      i93_command = I93_CMD_SET_ADDR_MODE;
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+          "%s - T5T addressing mode (0: addressed, "
+          "1: non-addressed) is %d",
+          __func__, p_data->op_req.params.i93_cmd.addr_mode);
+
+      status = RW_I93SetAddressingMode(p_data->op_req.params.i93_cmd.addr_mode);
+      if (status != NFC_STATUS_OK) {
+        break;
+      }
+
+      /* Command complete - perform cleanup, notify app */
+      nfa_rw_command_complete();
+      conn_evt_data.i93_cmd_cplt.status = NFA_STATUS_OK;
+      conn_evt_data.i93_cmd_cplt.sent_command = i93_command;
+      nfa_dm_act_conn_cback_notify(NFA_I93_CMD_CPLT_EVT, &conn_evt_data);
+      break;
+
     default:
       break;
   }
@@ -3034,6 +3053,7 @@ bool nfa_rw_handle_op_req(tNFA_RW_MSG* p_data) {
     case NFA_RW_OP_I93_LOCK_DSFID:
     case NFA_RW_OP_I93_GET_SYS_INFO:
     case NFA_RW_OP_I93_GET_MULTI_BLOCK_STATUS:
+    case NFA_RW_OP_I93_SET_ADDR_MODE:
       nfa_rw_i93_command(p_data);
       break;
 

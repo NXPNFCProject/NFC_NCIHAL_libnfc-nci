@@ -760,6 +760,7 @@ typedef struct {
 
   uint8_t tlv_detect_state; /* TLV detecting state              */
   uint8_t tlv_type;         /* currently detected type          */
+  uint8_t addr_mode;
   uint16_t tlv_length;      /* currently detected length        */
 
   uint16_t ndef_tlv_start_offset; /* offset of first byte of NDEF TLV */

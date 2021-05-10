@@ -806,4 +806,21 @@ extern void NFA_SetEmvCoState(bool flag);
 #endif
 
 
+/*******************************************************************************
+**
+** Function         NFA_RwI93SetAddressingMode
+**
+** Description:
+**      Set addressing mode to use to communicate with T5T tag.
+**      mode = true: addressed (default if API not called)
+**      mode = false: non-addressed
+**
+** Returns:
+**      NFA_STATUS_OK if successfully initiated
+**      NFA_STATUS_WRONG_PROTOCOL: T5T tag not activated
+**      NFA_STATUS_FAILED otherwise
+**
+*******************************************************************************/
+extern tNFA_STATUS NFA_RwI93SetAddressingMode(bool mode);
+
 #endif /* NFA_RW_API_H */

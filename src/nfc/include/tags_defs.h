@@ -508,8 +508,8 @@ typedef uint8_t tT3T_POLL_RC;
 /* Protocol format is extended. Reserved for future use */
 #define I93_FLAG_PROT_EXT_YES 0x08
 
-/* Request is addressed. UID field is included. It shall be executed only by
- * VICC */
+/* Request is addressed with AMS (Address Mode Selector). UID field is included.
+ * It shall be executed only by VICC */
 #define I93_FLAG_ADDRESS_SET 0x20
 /* whose UID matches the UID specified in the request */
 
@@ -567,6 +567,7 @@ typedef uint8_t tT3T_POLL_RC;
 #define I93_CMD_GET_MULTI_BLK_SEC 0x2C
 /* Get extended multiple block security status */
 #define I93_CMD_EXT_GET_MULTI_BLK_SEC 0x3C
+#define I93_CMD_SET_ADDR_MODE 0x3D /* Set address mode            */
 
 /* Information flags definition */
 /* DSFID is supported and DSFID field is present */

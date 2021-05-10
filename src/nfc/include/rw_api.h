@@ -200,6 +200,9 @@ typedef uint8_t tRW_NDEF_FLAG;
 #define RW_T4T_CHK_EMPTY_I_BLOCK 1
 #define RW_T4T_CHK_ISO_DEP_NAK_PRES_CHK 5
 
+#define RW_I93_MODE_ADDRESSED 0
+#define RW_I93_MODE_NON_ADDRESSED 1
+
 typedef struct {
   tNFC_STATUS status;
   uint16_t msg_len; /* Length of the NDEF message */
@@ -1357,6 +1360,22 @@ extern tNFC_STATUS RW_I93SetTagReadOnly(void);
 **
 *****************************************************************************/
 extern tNFC_STATUS RW_I93PresenceCheck(void);
+
+/*****************************************************************************
+**
+** Function         RW_I93SetAddressingMode
+**
+** Description      Set if the tag must be addressed with UID or not.
+**
+**                  The addressing mode (addressed or non-addressed) must be
+**                  done at the module initialization prior to the Tag
+**                  activation.
+**
+** Returns          NFC_STATUS_OK, if mode is stored
+**                  NFC_STATUS_FAILED: other error
+**
+*****************************************************************************/
+extern tNFC_STATUS RW_I93SetAddressingMode(bool mode);
 
 /*******************************************************************************
 **
