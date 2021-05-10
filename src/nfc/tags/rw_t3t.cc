@@ -2977,7 +2977,7 @@ tNFC_STATUS RW_T3tGetSystemCodes(void) {
       possibly */
     p_cb->cur_active_sc = T3T_SYSTEM_CODE_FELICA_LITE;
 
-    retval = (tNFC_STATUS)nci_snd_t3t_polling(0xFFFF, T3T_POLL_RC_SC, 0);
+    retval = (tNFC_STATUS)nci_snd_t3t_polling(0xFFFF, T3T_POLL_RC_SC, 0x0F);
     if (retval == NCI_STATUS_OK) {
       p_cb->cur_cmd = RW_T3T_CMD_GET_SYSTEM_CODES;
       p_cb->cur_tout = RW_T3T_DEFAULT_CMD_TIMEOUT_TICKS;
