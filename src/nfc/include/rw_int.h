@@ -712,6 +712,50 @@ typedef uint8_t tRW_I93_RW_SUBSTATE;
 #define RW_I93_TLV_DETECT_STATE_LENGTH_3 0x04
 /* reading value field                     */
 #define RW_I93_TLV_DETECT_STATE_VALUE 0x05
+#define RW_I93_GET_SYS_INFO_MEM_INFO 1
+#define RW_T5T_CC_READ_MEM_INFO 0
+
+/* capability Container CC Size */
+#define RW_I93_CC_SIZE 4
+
+/* main state */
+enum {
+  RW_I93_STATE_NOT_ACTIVATED, /* ISO15693 is not activated            */
+  RW_I93_STATE_IDLE,          /* waiting for upper layer API          */
+  RW_I93_STATE_BUSY,          /* waiting for response from tag        */
+
+  RW_I93_STATE_DETECT_NDEF,   /* performing NDEF detection precedure  */
+  RW_I93_STATE_READ_NDEF,     /* performing read NDEF procedure       */
+  RW_I93_STATE_UPDATE_NDEF,   /* performing update NDEF procedure     */
+  RW_I93_STATE_FORMAT,        /* performing format procedure          */
+  RW_I93_STATE_SET_READ_ONLY, /* performing set read-only procedure   */
+
+  RW_I93_STATE_PRESENCE_CHECK /* checking presence of tag             */
+};
+
+/* sub state */
+enum {
+  RW_I93_SUBSTATE_WAIT_UID,          /* waiting for response of inventory    */
+  RW_I93_SUBSTATE_WAIT_SYS_INFO,     /* waiting for response of get sys info */
+  RW_I93_SUBSTATE_WAIT_CC,           /* waiting for reading CC               */
+  RW_I93_SUBSTATE_WAIT_CC_EXT,       /* waiting for reading CC second byte   */
+  RW_I93_SUBSTATE_SEARCH_NDEF_TLV,   /* searching NDEF TLV                   */
+  RW_I93_SUBSTATE_CHECK_LOCK_STATUS, /* check if any NDEF TLV is locked      */
+
+  RW_I93_SUBSTATE_RESET_LEN,  /* set length to 0 to update NDEF TLV   */
+  RW_I93_SUBSTATE_WRITE_NDEF, /* writing NDEF and Terminator TLV      */
+  RW_I93_SUBSTATE_UPDATE_LEN, /* set length into NDEF TLV             */
+
+  RW_I93_SUBSTATE_WAIT_RESET_DSFID_AFI, /* reset DSFID and AFI */
+  RW_I93_SUBSTATE_CHECK_READ_ONLY,   /* check if any block is locked         */
+  RW_I93_SUBSTATE_WRITE_CC_NDEF_TLV, /* write CC and empty NDEF/Terminator TLV
+                                      */
+
+  RW_I93_SUBSTATE_WAIT_UPDATE_CC, /* updating CC as read-only             */
+  RW_I93_SUBSTATE_LOCK_NDEF_TLV,  /* lock blocks of NDEF TLV              */
+  RW_I93_SUBSTATE_WAIT_LOCK_CC,   /* lock block of CC                     */
+  RW_I93_SUBSTATE_LOCK_T5T_AREA   /* lock blocks of T5T_Area              */
+};
 
 enum {
   RW_I93_ICODE_SLI,                  /* ICODE SLI, SLIX                  */
@@ -763,6 +807,15 @@ typedef struct {
   uint8_t tlv_detect_state; /* TLV detecting state              */
   uint8_t tlv_type;         /* currently detected type          */
   uint8_t addr_mode;
+  uint8_t i93_t5t_mode;
+  uint8_t t5t_area_start_block;  /* offset of first block of T5T_Area  */
+  uint16_t t5t_area_last_offset; /* offset of last byte of T5T_Area  */
+
+  /* Greedy collection with NDEF Detection data */
+  uint8_t gre_validity;
+  uint8_t gre_cc_content[8];
+  uint16_t gre_ndef_tlv_pos;
+  uint16_t gre_ndef_tlv_length;
   uint16_t tlv_length;      /* currently detected length        */
 
   uint16_t ndef_tlv_start_offset; /* offset of first byte of NDEF TLV */
@@ -862,6 +915,11 @@ extern void rw_t4t_process_timeout(TIMER_LIST_ENT* p_tle);
 
 extern tNFC_STATUS rw_i93_select(uint8_t* p_uid);
 extern void rw_i93_process_timeout(TIMER_LIST_ENT* p_tle);
+extern std::string rw_i93_get_state_name(uint8_t state);
+extern std::string rw_i93_get_sub_state_name(uint8_t sub_state);
+extern void rw_t5t_sm_detect_ndef(NFC_HDR*);
+extern void rw_t5t_sm_update_ndef(NFC_HDR*);
+extern void rw_t5t_sm_set_read_only(NFC_HDR*);
 
 void nfa_rw_update_pupi_id(uint8_t* p, uint8_t len);
 extern void rw_t4t_handle_isodep_nak_rsp(uint8_t status, bool is_ntf);

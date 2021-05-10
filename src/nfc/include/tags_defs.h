@@ -599,6 +599,11 @@ typedef uint8_t tT3T_POLL_RC;
 /* Max block size in bytes */
 #define I93_MAX_BLOCK_LENGH 32
 
+/* Block lengths */
+#define I93_BLEN_4BYTES 0x04
+#define I93_BLEN_8BYTES 0x08
+#define I93_BLEN_16BYTES 0x10
+#define I93_BLEN_32BYTES 0x20
 /* ICODE Capability Container(CC) definition */
 #define I93_ICODE_CC_MAGIC_NUMER_E1 0xE1 /* magic number in CC[0]  */
 #define I93_ICODE_CC_MAGIC_NUMER_E2 0xE2 /* magic number in CC[0]  */
