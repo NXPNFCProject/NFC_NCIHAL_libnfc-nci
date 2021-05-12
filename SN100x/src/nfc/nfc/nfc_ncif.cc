@@ -1901,10 +1901,15 @@ void nfc_ncif_proc_reset_rsp(uint8_t* p, bool is_ntf) {
       p++;
       STREAM_TO_UINT8(nfc_cb.nci_version, p);
 #if (NXP_EXTNS == TRUE)
-      p += 4;
-      STREAM_TO_UINT8(nfc_fw_version.rom_code_version, p);
-      STREAM_TO_UINT8(nfc_fw_version.major_version, p);
-      STREAM_TO_UINT8(nfc_fw_version.minor_version, p);
+      p += 1; /* p points Manufacture Specific Info length */
+      /* Manufacture Length should be minimum 3 bytes to parse
+       * ROM code version, FW Major & Minor Version */
+      if (*p>2) {
+        p += ((*p)-2); /* p points to FW rom code version */
+        STREAM_TO_UINT8(nfc_fw_version.rom_code_version, p);
+        STREAM_TO_UINT8(nfc_fw_version.major_version, p);
+        STREAM_TO_UINT8(nfc_fw_version.minor_version, p);
+      }
       if (nfc_cb.nfc_state == NFC_STATE_CORE_INIT) {
         NFC_SetFeatureList(nfc_fw_version);
         nfa_ee_max_ee_cfg = nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED;
