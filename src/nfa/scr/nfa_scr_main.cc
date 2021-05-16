@@ -126,7 +126,7 @@ void nfa_scr_init(void) {
   } else {
     nfa_scr_cb.tag_op_timeout = 20; /* 20 seconds */
   }
-  nfa_scr_cb.poll_prof_sel_cfg = NfcConfig::getUnsigned(NAME_NFA_CONFIG_FORMAT);
+  nfa_scr_cb.poll_prof_sel_cfg = NfcConfig::getUnsigned(NAME_NFA_CONFIG_FORMAT, 0);
   if (nfa_scr_cb.poll_prof_sel_cfg == 0x00) {
     nfa_scr_cb.poll_prof_sel_cfg = 1;
   }
