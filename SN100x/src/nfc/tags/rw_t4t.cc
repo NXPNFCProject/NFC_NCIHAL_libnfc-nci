@@ -827,6 +827,9 @@ static bool rw_t4t_read_file(uint32_t offset, uint32_t length,
     } else {
       LOG(ERROR) << StringPrintf("%s - Cannot read above 0x7FFF for MV2.0",
                                  __func__);
+#if (NXP_EXTNS == TRUE)
+      GKI_freebuf(p_c_apdu);
+#endif
       return false;
     }
   } else {
@@ -935,12 +938,14 @@ static bool rw_t4t_update_file(void) {
       << StringPrintf("%s - rw_offset:%d, rw_length:%d", __func__,
                       p_t4t->rw_offset, p_t4t->rw_length);
 
+#if (NXP_EXTNS != TRUE)
   p_c_apdu = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID);
 
   if (!p_c_apdu) {
     LOG(ERROR) << StringPrintf("%s - Cannot allocate buffer", __func__);
     return false;
   }
+#endif
 
   /* try to send all of remaining data */
   length = p_t4t->rw_length;
@@ -950,6 +955,15 @@ static bool rw_t4t_update_file(void) {
                                __func__);
     return false;
   }
+
+#if (NXP_EXTNS == TRUE)
+  p_c_apdu = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID);
+
+  if (!p_c_apdu) {
+    LOG(ERROR) << StringPrintf("%s - Cannot allocate buffer", __func__);
+    return false;
+  }
+#endif
 
   /* adjust updating length if payload is bigger than max size per single
    * command */
@@ -1086,6 +1100,9 @@ static bool rw_t4t_update_file(void) {
       } else {
         LOG(ERROR) << StringPrintf(
             "%s - Data to be written to MV3.0 tag exceeds 0xFFFF", __func__);
+#if (NXP_EXTNS == TRUE)
+        GKI_freebuf(p_c_apdu);
+#endif
         return false;
       }
 
@@ -1105,6 +1122,9 @@ static bool rw_t4t_update_file(void) {
     } else {
       LOG(ERROR) << StringPrintf("%s - Cannot write above 0x7FFF for MV2.0",
                                  __func__);
+#if (NXP_EXTNS == TRUE)
+      GKI_freebuf(p_c_apdu);
+#endif
       return false;
     }
   } else {
@@ -1247,6 +1267,9 @@ static bool rw_t4t_select_application(uint8_t version) {
 
     p_c_apdu->len = T4T_CMD_MAX_HDR_SIZE + T4T_V20_NDEF_TAG_AID_LEN + 1;
   } else {
+#if (NXP_EXTNS == TRUE)
+    GKI_freebuf(p_c_apdu);
+#endif
     return false;
   }
 

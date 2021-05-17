@@ -367,8 +367,15 @@ tNFA_STATUS NFA_RwLocateTlv(uint8_t tlv_type) {
       p_msg->op = NFA_RW_OP_DETECT_MEM_TLV;
     } else if (tlv_type == TAG_NDEF_TLV) {
       p_msg->op = NFA_RW_OP_DETECT_NDEF;
+#if (NXP_EXTNS == TRUE)
+    } else {
+      GKI_freebuf(p_msg);
+      return (NFA_STATUS_FAILED);
+    }
+#else
     } else
       return (NFA_STATUS_FAILED);
+#endif
 
     nfa_sys_sendmsg(p_msg);
 
