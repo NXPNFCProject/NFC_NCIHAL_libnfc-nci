@@ -1937,7 +1937,7 @@ static void rw_t4t_sm_detect_ndef(NFC_HDR* p_r_apdu) {
 ** Returns          none
 **
 *******************************************************************************/
-static void rw_t4t_sm_read_ndef(NFC_HDR * p_r_apdu) {
+static void rw_t4t_sm_read_ndef(NFC_HDR* p_r_apdu) {
   tRW_T4T_CB* p_t4t = &rw_cb.tcb.t4t;
   uint8_t* p;
   uint16_t status_words;
@@ -2056,42 +2056,27 @@ static void rw_t4t_sm_read_ndef(NFC_HDR * p_r_apdu) {
             rw_t4t_handle_error(NFC_STATUS_BAD_RESP, 0, 0);
             break;
           }
-        } else if ((p_r_apdu->len > 0) && (p_r_apdu->len <= p_t4t->rw_length)) {
-          p_t4t->rw_length -= p_r_apdu->len;
-          p_t4t->rw_offset += p_r_apdu->len;
         } else {
-          LOG(ERROR) << StringPrintf(
-              "%s - invalid payload length (%d), rw_length "
-              "(%d)",
-              __func__, p_r_apdu->len, p_t4t->rw_length);
+          LOG(ERROR) << StringPrintf("%s - invalid DDO tag", __func__);
           rw_t4t_handle_error(NFC_STATUS_BAD_RESP, 0, 0);
           break;
         }
-        if (rw_cb.p_cback) {
-          rw_data.data.status = NFC_STATUS_OK;
-          rw_data.data.p_data = p_r_apdu;
+      } else if ((p_r_apdu->len > 0) && (p_r_apdu->len <= p_t4t->rw_length)) {
+        p_t4t->rw_length -= p_r_apdu->len;
+        p_t4t->rw_offset += p_r_apdu->len;
+      } else {
+        LOG(ERROR) << StringPrintf(
+            "%s - invalid payload length (%d), rw_length "
+            "(%d)",
+            __func__, p_r_apdu->len, p_t4t->rw_length);
+        rw_t4t_handle_error(NFC_STATUS_BAD_RESP, 0, 0);
+        break;
+      }
+      if (rw_cb.p_cback) {
+        rw_data.data.status = NFC_STATUS_OK;
+        rw_data.data.p_data = p_r_apdu;
 
-          /* if need to read more data */
-          if (p_t4t->rw_length > 0) {
-            (*(rw_cb.p_cback))(RW_T4T_NDEF_READ_EVT, &rw_data);
-
-            if (!rw_t4t_read_file(p_t4t->rw_offset, p_t4t->rw_length, true)) {
-              rw_t4t_handle_error(NFC_STATUS_FAILED, 0, 0);
-            }
-          } else {
-            p_t4t->state = RW_T4T_STATE_IDLE;
-
-            (*(rw_cb.p_cback))(RW_T4T_NDEF_READ_CPLT_EVT, &rw_data);
-
-            DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-                "%s - Sent RW_T4T_NDEF_READ_CPLT_EVT", __func__);
-          }
-
-          p_r_apdu = nullptr;
-        } else {
-          p_t4t->rw_length = 0;
-          p_t4t->state = RW_T4T_STATE_IDLE;
-        }
+        /* if need to read more data */
         if (p_t4t->rw_length > 0) {
           (*(rw_cb.p_cback))(RW_T4T_NDEF_READ_EVT, &rw_data);
 
@@ -2103,8 +2088,8 @@ static void rw_t4t_sm_read_ndef(NFC_HDR * p_r_apdu) {
 
           (*(rw_cb.p_cback))(RW_T4T_NDEF_READ_CPLT_EVT, &rw_data);
 
-          DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-              "%s - Sent RW_T4T_NDEF_READ_CPLT_EVT",__func__);
+          DLOG_IF(INFO, nfc_debug_enabled)
+              << StringPrintf("%s - Sent RW_T4T_NDEF_READ_CPLT_EVT", __func__);
         }
 
         p_r_apdu = nullptr;
@@ -2113,14 +2098,14 @@ static void rw_t4t_sm_read_ndef(NFC_HDR * p_r_apdu) {
         p_t4t->state = RW_T4T_STATE_IDLE;
       }
       break;
-  default:
-    LOG(ERROR) << StringPrintf("%s - unknown sub_state = %d", __func__,
-                               p_t4t->sub_state);
-    rw_t4t_handle_error(NFC_STATUS_FAILED, 0, 0);
-    break;
-}
+    default:
+      LOG(ERROR) << StringPrintf("%s - unknown sub_state = %d", __func__,
+                                 p_t4t->sub_state);
+      rw_t4t_handle_error(NFC_STATUS_FAILED, 0, 0);
+      break;
+  }
 
-if (p_r_apdu) GKI_freebuf(p_r_apdu);
+  if (p_r_apdu) GKI_freebuf(p_r_apdu);
 }
 
 /*******************************************************************************
