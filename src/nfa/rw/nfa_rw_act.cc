@@ -2763,19 +2763,18 @@ bool nfa_rw_activate_ntf(tNFA_RW_MSG* p_data) {
           << "nfa_rw_handle_op_req is holding on to soon-garbage stack memory.";
     }
   }
-#if (NXP_EXTNS == TRUE)
   else if (NFC_PROTOCOL_T3BT == nfa_rw_cb.protocol) {
 
     activate_notify =
         false; /* Delay notifying upper layer of NFA_ACTIVATED_EVT until system
                   codes are retrieved */
+    /* Issue command to get Felica system codes */
     tNFA_RW_MSG msg;
     msg.op_req.op = NFA_RW_OP_T3BT_PUPI;
     bool free_buf = nfa_rw_handle_op_req(&msg);
     CHECK(free_buf)
         << "nfa_rw_handle_op_req is holding on to soon-garbage stack memory.";
   }
-#endif
   else if (NFC_PROTOCOL_T5T == nfa_rw_cb.protocol) {
     /* Delay notifying upper layer of NFA_ACTIVATED_EVT to retrieve additional
      * tag infomation */
