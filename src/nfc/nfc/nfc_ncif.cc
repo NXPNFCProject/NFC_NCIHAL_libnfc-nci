@@ -2500,7 +2500,7 @@ void nfc_ncif_proc_reset_rsp(uint8_t* p, bool is_ntf) {
       }
   }
 #else
-    LOG(ERROR) << StringPrintf("reset notification!!:0x%x ", status);
+    LOG(WARNING) << StringPrintf("reset notification!!:0x%x ", status);
     /* clean up, if the state is OPEN
      * FW does not report reset ntf right now */
     if (status == NCI2_0_RESET_TRIGGER_TYPE_CORE_RESET_CMD_RECEIVED ||
@@ -2514,8 +2514,9 @@ void nfc_ncif_proc_reset_rsp(uint8_t* p, bool is_ntf) {
       status = NCI_STATUS_OK;
     } else {
       /* CORE_RESET_NTF received error case , trigger recovery*/
-      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("CORE_RESET_NTF Received status nfc_state : 0x%x : 0x%x",
-                       status, nfc_cb.nfc_state);
+      LOG(ERROR) << StringPrintf(
+          "CORE_RESET_NTF Received status nfc_state : 0x%x : 0x%x", status,
+          nfc_cb.nfc_state);
       nfc_ncif_cmd_timeout();
       status = NCI_STATUS_FAILED;
     }
