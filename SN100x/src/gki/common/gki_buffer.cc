@@ -1363,10 +1363,35 @@ void GKI_delete_pool(uint8_t pool_id) {
 **
 *******************************************************************************/
 uint16_t GKI_get_pool_bufsize(uint8_t pool_id) {
+#if defined(DYN_ALLOC) || defined(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION)
+  uint16_t size = 0;
+  switch (pool_id) {
+    case GKI_POOL_ID_0:
+      size = GKI_BUF0_SIZE;
+      break;
+    case GKI_POOL_ID_1:
+      size = GKI_BUF1_SIZE;
+      break;
+    case GKI_POOL_ID_2:
+      size = GKI_BUF2_SIZE;
+      break;
+    case GKI_POOL_ID_3:
+      size = GKI_BUF3_SIZE;
+      break;
+      /* Here could be more pool ids, but they are not used in the current
+       * implementation */
+    default:
+      LOG(ERROR) << StringPrintf("Unknown pool ID: %d", pool_id);
+      return (0);
+      break;
+  }
+  return (size);
+#else
   if (pool_id < GKI_NUM_TOTAL_BUF_POOLS)
     return (gki_cb.com.freeq[pool_id].size);
 
   return (0);
+#endif
 }
 
 /*******************************************************************************
