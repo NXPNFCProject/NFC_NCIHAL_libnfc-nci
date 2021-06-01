@@ -701,7 +701,10 @@ typedef uint8_t tT3T_POLL_RC;
 /* IC Reference for M24LR16E-R: 01001110(b), blockSize: 4, numberBlocks: 0x200
  */
 #define I93_IC_REF_STM_M24LR16E_R 0x4E
-/* IC Reference for M24LR64E-R: 01011110(b), blockSize: 4, numberBlocks: 0x800
+/* IC Reference for M24LR16D-W: 01001101(b), blockSize: 4, numberBlocks: 0x200
+ */
+#define I93_IC_REF_STM_M24LR16D_W 0x4D
+/* IC Reference for M24LR64D-W: 01011110(b), blockSize: 4, numberBlocks: 0x800
  */
 #define I93_IC_REF_STM_M24LR64E_R 0x5E
 /* IC Reference for ST25DV04K: 00100100(b), blockSize: 4, numberBlocks: 0x80

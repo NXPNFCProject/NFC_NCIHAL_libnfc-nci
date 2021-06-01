@@ -777,6 +777,7 @@ enum {
   RW_I93_STM_M24LR64_R,              /* STM M24LR64-R                    */
   RW_I93_STM_M24LR04E_R,             /* STM M24LR04E-R                   */
   RW_I93_STM_M24LR16E_R,             /* STM M24LR16E-R                   */
+  RW_I93_STM_M24LR16D_W,             /* STM M24LR16D-W                   */
   RW_I93_STM_M24LR64E_R,             /* STM M24LR64E-R                   */
   RW_I93_STM_ST25DV04K,              /* STM ST25DV04K                    */
   RW_I93_STM_ST25DVHIK,              /* STM ST25DV 16K OR 64K            */
