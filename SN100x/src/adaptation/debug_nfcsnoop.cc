@@ -117,33 +117,19 @@ static bool nfcsnoop_compress(ringbuffer_t* rb_dst, ringbuffer_t* rb_src) {
   if (deflateInit(&zs, Z_DEFAULT_COMPRESSION) != Z_OK) return false;
 
   bool rc = true;
-#if (NXP_EXTNS == TRUE)
   std::unique_ptr<uint8_t> block_src(new uint8_t[BLOCK_SIZE]);
   std::unique_ptr<uint8_t> block_dst(new uint8_t[BLOCK_SIZE]);
-#else
-  uint8_t block_src[BLOCK_SIZE];
-  uint8_t block_dst[BLOCK_SIZE];
-#endif
 
   const size_t num_blocks =
       (ringbuffer_size(rb_src) + BLOCK_SIZE - 1) / BLOCK_SIZE;
   for (size_t i = 0; i < num_blocks; ++i) {
     zs.avail_in =
-#if (NXP_EXTNS == TRUE)
         ringbuffer_peek(rb_src, i * BLOCK_SIZE, block_src.get(), BLOCK_SIZE);
     zs.next_in = block_src.get();
-#else
-        ringbuffer_peek(rb_src, i * BLOCK_SIZE, block_src, BLOCK_SIZE);
-    zs.next_in = block_src;
-#endif
 
     do {
       zs.avail_out = BLOCK_SIZE;
-#if (NXP_EXTNS == TRUE)
       zs.next_out = block_dst.get();
-#else
-      zs.next_out = block_dst;
-#endif
       int err = deflate(&zs, (i == num_blocks - 1) ? Z_FINISH : Z_NO_FLUSH);
       if (err == Z_STREAM_ERROR) {
         rc = false;
@@ -151,11 +137,7 @@ static bool nfcsnoop_compress(ringbuffer_t* rb_dst, ringbuffer_t* rb_src) {
       }
 
       const size_t length = BLOCK_SIZE - zs.avail_out;
-#if (NXP_EXTNS == TRUE)
       ringbuffer_insert(rb_dst, block_dst.get(), length);
-#else
-      ringbuffer_insert(rb_dst, block_dst, length);
-#endif
     } while (zs.avail_out == 0);
   }
 
