@@ -194,7 +194,7 @@ typedef uint8_t tNFA_EE_CONN_ST;
 #if (NXP_EXTNS == TRUE)
 #define NFA_EE_ECB_FLAGS_SYSCODE 0x0200
 #else
-#define NFA_EE_ECB_FLAGS_SYSCODE 0xE0
+#define NFA_EE_ECB_FLAGS_SYSCODE 0x01
 #endif
 /* VS changed                         */
 #define NFA_EE_ECB_FLAGS_VS 0x10
