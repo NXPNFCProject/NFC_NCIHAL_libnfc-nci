@@ -44,6 +44,7 @@
 
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
+#include <log/log.h>
 
 #include "nfc_target.h"
 
@@ -293,6 +294,11 @@ void nci_proc_rf_management_ntf(NFC_HDR* p_msg) {
       break;
 
     case NCI_MSG_RF_DEACTIVATE:
+      if (p_msg->len < 5) {
+        /* NCI_HEADER(3) + Deactivation Type(1) + Deactivation Reason(1) */
+        android_errorWriteLog(0x534e4554, "164440989");
+        return;
+      }
       if (nfa_dm_p2p_prio_logic(op_code, pp, NFA_DM_P2P_PRIO_NTF) == false) {
         return;
       }
