@@ -1548,7 +1548,7 @@ void nfa_ee_api_remove_aid(tNFA_EE_MSG* p_data) {
   }
 #endif
   else {
-    LOG(ERROR) << StringPrintf(
+    LOG(WARNING) << StringPrintf(
         "nfa_ee_api_remove_aid The AID entry is not in the database");
     evt_data.status = NFA_STATUS_INVALID_PARAM;
   }
@@ -2525,8 +2525,8 @@ void nfa_ee_nci_mode_set_rsp(tNFA_EE_MSG* p_data) {
   /* update routing table and vs on mode change */
   nfa_ee_start_timer();
 #endif
-  LOG(ERROR) << StringPrintf("%s p_rsp->status:0x%02x", __func__,
-                             p_rsp->status);
+  LOG(WARNING) << StringPrintf("%s p_rsp->status:0x%02x", __func__,
+                               p_rsp->status);
   if (p_rsp->status == NFA_STATUS_OK) {
     if (p_rsp->mode == NFA_EE_MD_ACTIVATE) {
 #if (NXP_EXTNS == TRUE)
