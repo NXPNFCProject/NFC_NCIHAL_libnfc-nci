@@ -473,6 +473,11 @@ tNFA_STATUS nfa_dm_check_set_config(uint8_t tlv_list_len, uint8_t* p_tlv_list,
       /* Increment setcfg_pending counter */
       nfa_dm_cb.setcfg_pending_num++;
     }
+
+    if ((nfa_dm_cb.eDtaMode & NFA_DTA_HCEF_MODE) == NFA_DTA_HCEF_MODE) {
+      nfa_dm_cb.eDtaMode &= ~NFA_DTA_HCEF_MODE;
+    }
+
     return (nfc_status);
 
   } else {
