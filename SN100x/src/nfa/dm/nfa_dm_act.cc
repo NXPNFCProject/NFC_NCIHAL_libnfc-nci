@@ -1580,10 +1580,23 @@ static void nfa_dm_act_data_cback(__attribute__((unused)) uint8_t conn_id,
     NFC_SetStaticRfCback(nullptr);
   }
 #if (NXP_EXTNS == TRUE)
-    else if (event == NFC_ERROR_CEVT) {
+  else if (event == NFC_ERROR_CEVT) {
     LOG(ERROR) << StringPrintf(
           "received NFC_ERROR_CEVT with status = 0x%X", p_data->status);
       nfa_dm_rf_deactivate(NFA_DEACTIVATE_TYPE_DISCOVERY);
+  }
+#else
+  /* needed if CLF reports timeout, transmission or protocol error to notify DTA
+   * that may need to resume discovery if DH stays in POLL_ACTIVE state */
+  else if (appl_dta_mode_flag && (event == NFC_ERROR_CEVT)) {
+    if (p_data) {
+      evt_data.data.status = p_data->data.status;
+      nfa_dm_conn_cback_event_notify(NFA_RW_INTF_ERROR_EVT, &evt_data);
+    } else {
+      LOG(ERROR) << StringPrintf(
+          "received NFC_ERROR_CEVT with NULL data "
+          "pointer");
+    }
   }
 #endif
 }
