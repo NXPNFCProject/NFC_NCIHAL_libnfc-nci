@@ -93,6 +93,7 @@ void nfa_rw_sys_disable(void) {
   tRW_T3T_CB* p_t3t;
   tRW_T4T_CB* p_t4t;
   tRW_I93_CB* p_i93;
+  tRW_MFC_CB* p_mfc;
 
   DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
@@ -132,9 +133,17 @@ void nfa_rw_sys_disable(void) {
         p_i93->p_retry_cmd = NULL;
       }
       break;
+    case RW_CB_TYPE_MIFARE:
+      p_mfc = &rw_cb.tcb.mfc;
+      if (p_mfc->p_cur_cmd_buf != NULL) {
+        GKI_freebuf(p_mfc->p_cur_cmd_buf);
+        p_mfc->p_cur_cmd_buf = NULL;
+      }
+      break;
     default: /* do nothing */
       break;
   }
+  rw_cb.tcb_type = RW_CB_TYPE_UNKNOWN;
 
   /* Return to idle */
   NFC_SetStaticRfCback(nullptr);

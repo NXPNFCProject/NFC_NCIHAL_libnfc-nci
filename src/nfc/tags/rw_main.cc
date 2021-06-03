@@ -282,6 +282,7 @@ tNFC_STATUS RW_SetActivatedTagType(tNFC_ACTIVATE_DEVT* p_activate_params,
   } else if (NFC_PROTOCOL_MIFARE == p_activate_params->protocol) {
     /* Mifare Classic*/
     if (p_activate_params->rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A) {
+      rw_cb.tcb_type = RW_CB_TYPE_MIFARE;
       status = rw_mfc_select(
           p_activate_params->rf_tech_param.param.pa.sel_rsp,
           p_activate_params->rf_tech_param.param.pa.nfcid1 +

@@ -850,6 +850,7 @@ typedef union {
 #define RW_CB_TYPE_T3T 3
 #define RW_CB_TYPE_T4T 4
 #define RW_CB_TYPE_T5T 5
+#define RW_CB_TYPE_MIFARE 6
 typedef uint8_t tRW_CB_TYPE;
 
 /* RW control blocks */
