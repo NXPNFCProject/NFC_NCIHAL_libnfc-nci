@@ -1822,12 +1822,17 @@ void nfc_ncif_proc_ee_action(uint8_t* p, uint16_t plen) {
     evt_data.nfcee_id = *p++;
     evt_data.act_data.trigger = *p++;
 #if(NXP_EXTNS == TRUE)
-    if ((plen != 0) && (p != NULL)){
-       STREAM_TO_ARRAY(&evt_data.act_data.nfc_act_data.data, p, plen+1);
-       evt_data.act_data.nfc_act_data.len_data = plen+1;
-    }
-#endif
+    uint8_t* pp = p;
     data_len = *p++;
+    if ((data_len != 0) && (pp != NULL)) {
+      // data=AID Len(1 byte) + AID(<= 16 byte) + Trigger(1byte) + Len(1 byte) +
+      // status word(2 byte)
+      STREAM_TO_ARRAY(&evt_data.act_data.nfc_act_data.data, pp, data_len + 5);
+      evt_data.act_data.nfc_act_data.len_data = data_len + 5;
+    }
+#else
+    data_len = *p++;
+#endif
     if (data_len > plen) data_len = (uint8_t)plen;
 
     switch (evt_data.act_data.trigger) {
