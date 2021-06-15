@@ -1816,6 +1816,28 @@ void nfc_ncif_proc_ee_action(uint8_t* p, uint16_t plen) {
           data_len -= ulen;
         }
         break;
+#if(NXP_EXTNS == TRUE)
+      case NCI_EE_TRIG_RF_PROT_PROP_RSP_NTF:
+      case NCI_EE_TRIG_RF_TECH_PROP_RSP_NTF:
+        if (data_len > NFC_MAX_AID_LEN) data_len = NFC_MAX_AID_LEN;
+        DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("AID len = %d", data_len);
+        evt_data.act_data.param.aid.len_aid = data_len;
+        STREAM_TO_ARRAY(evt_data.act_data.param.aid.aid, p, data_len);
+        plen = plen - data_len;
+        if ((plen != 0) && (*p++ == NCI_EE_TRIG_PROP_RSP_NTF)) {
+          evt_data.act_data.nfc_act_data.len_data = *p++;
+          STREAM_TO_ARRAY(&evt_data.act_data.nfc_act_data.data, p,
+                          evt_data.act_data.nfc_act_data.len_data);
+        }
+      break;
+      case NCI_EE_TRIG_PROP_RSP_NTF:
+        DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("NCI_EE_TRIG_PROP_APP Data len = %d", data_len);
+        evt_data.act_data.nfc_act_data.len_data = data_len;
+        STREAM_TO_ARRAY(&evt_data.act_data.nfc_act_data.data, p, data_len);
+      break;
+#endif
     }
     nfc_response.ee_action = evt_data;
     (*p_cback)(NFC_EE_ACTION_REVT, &nfc_response);

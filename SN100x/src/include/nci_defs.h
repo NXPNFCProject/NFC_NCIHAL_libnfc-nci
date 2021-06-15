@@ -464,6 +464,12 @@ typedef uint8_t tNCI_DISCOVERY_TYPE;
 #define NCI_EE_TRIG_RF_TECHNOLOGY 0x02
 #define NCI_EE_TRIG_APP_INIT 0x10
 
+#if (NXP_EXTNS == TRUE)
+#define NCI_EE_TRIG_PROP_RSP_NTF 0xF2
+#define NCI_EE_TRIG_RF_PROT_PROP_RSP_NTF 0xF0
+#define NCI_EE_TRIG_RF_TECH_PROP_RSP_NTF 0xF1
+#endif
+
 #define NCI_EE_ACT_TAG_AID 0xC0   /* AID                 */
 #define NCI_EE_ACT_TAG_DATA 0xC3  /* hex data for app    */
 
