@@ -1425,6 +1425,11 @@ void nfa_hci_handle_admin_gate_cmd(uint8_t* p_data) {
           if(source_host == NFA_HCI_FIRST_PROP_HOST) {
             NFA_SCR_PROCESS_EVT(NFA_SCR_ESE_RECOVERY_START_EVT, NFA_STATUS_OK);
           }
+          if (nfa_ee_cb.require_rf_restart &&
+              nfa_dm_cb.disc_cb.disc_state != NFA_DM_RFST_IDLE) {
+            nfa_ee_cb.ee_flags |= NFA_EE_FLAG_RECOVERY;
+            nfa_dm_act_stop_rf_discovery(NULL);
+          }
           nfa_hciu_send_msg(NFA_HCI_ADMIN_PIPE, NFA_HCI_RESPONSE_TYPE, response,
               rsp_len, &data);
           /* If starting up, handle events here */
