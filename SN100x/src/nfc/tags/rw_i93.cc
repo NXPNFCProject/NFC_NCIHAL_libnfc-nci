@@ -681,11 +681,17 @@ bool rw_i93_send_to_lower(NFC_HDR* p_msg) {
     rw_cb.tcb.i93.p_retry_cmd = nullptr;
   }
 
+  uint16_t msg_size = sizeof(NFC_HDR) + p_msg->offset + p_msg->len;
+
   rw_cb.tcb.i93.p_retry_cmd = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID);
 
-  if (rw_cb.tcb.i93.p_retry_cmd) {
-    memcpy(rw_cb.tcb.i93.p_retry_cmd, p_msg,
-           sizeof(NFC_HDR) + p_msg->offset + p_msg->len);
+  if (rw_cb.tcb.i93.p_retry_cmd &&
+      GKI_get_pool_bufsize(NFC_RW_POOL_ID) >= msg_size) {
+    memcpy(rw_cb.tcb.i93.p_retry_cmd, p_msg, msg_size);
+  } else {
+    LOG(ERROR) << StringPrintf("Memory allocation error");
+    android_errorWriteLog(0x534e4554, "157650357");
+    return false;
   }
 
   if (NFC_SendData(NFC_RF_CONN_ID, p_msg) != NFC_STATUS_OK) {
