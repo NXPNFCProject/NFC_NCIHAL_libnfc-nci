@@ -48,11 +48,11 @@
 #include "nfa_dm_int.h"
 #include "nfa_ee_int.h"
 #include "nfa_hci_int.h"
+#include "nfc_int.h"
 #if (NXP_EXTNS == TRUE)
 #include "nfa_nfcee_int.h"
 #include "nfa_scr_int.h"
 #include "nfc_config.h"
-#include "nfc_int.h"
 #endif
 
 #include <statslog.h>
@@ -449,7 +449,7 @@ static void nfa_ee_add_proto_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
                                   NCI_ROUTE_PWR_STATE_ON, NFC_PROTOCOL_NFC_DEP);
           DLOG_IF(INFO, nfc_debug_enabled)
               << StringPrintf("%s - NFC DEP added for DH!!!", __func__);
-        }else {
+        } else {
           continue;
         }
       } else {

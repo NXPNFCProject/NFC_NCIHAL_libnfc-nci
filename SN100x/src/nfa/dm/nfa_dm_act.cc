@@ -54,11 +54,12 @@
 
 #if (NFC_NFCEE_INCLUDED == TRUE)
 #include "nfa_ee_int.h"
-#include "nfc_int.h"
 #if (NXP_EXTNS == TRUE)
 #include "nfa_scr_int.h"
 #endif
 #endif
+
+#include "nfc_int.h"
 
 #if (NFA_SNEP_INCLUDED == TRUE)
 #include "nfa_snep_int.h"
@@ -1027,16 +1028,19 @@ tNFA_STATUS nfa_dm_start_polling(void) {
     if (poll_tech_mask & NFA_TECHNOLOGY_MASK_KOVIO) {
       poll_disc_mask |= NFA_DM_DISC_MASK_P_KOVIO;
     }
-#if (NXP_EXTNS == TRUE)
+
     if (!(nfc_cb.nci_interfaces & (1 << NCI_INTERFACE_NFC_DEP))) {
-      poll_disc_mask &= ~(NFA_DM_DISC_MASK_PACM_NFC_DEP|NFA_DM_DISC_MASK_PAA_NFC_DEP|
-                              NFA_DM_DISC_MASK_PFA_NFC_DEP|NFA_DM_DISC_MASK_PF_NFC_DEP);
+      /* Remove NFC-DEP related Discovery mask, if NFC_DEP interface is not
+       * supported */
+      poll_disc_mask &=
+          ~(NFA_DM_DISC_MASK_PACM_NFC_DEP | NFA_DM_DISC_MASK_PAA_NFC_DEP |
+            NFA_DM_DISC_MASK_PFA_NFC_DEP | NFA_DM_DISC_MASK_PF_NFC_DEP);
     }
+
 #if (NXP_QTAG == TRUE)
     if (poll_tech_mask & NFA_TECHNOLOGY_MASK_Q) {
       poll_disc_mask |= NFA_DM_DISC_MASK_PQ_ISO_DEP;
     }
-#endif
 #endif
 
     nfa_dm_cb.poll_disc_handle = nfa_dm_add_rf_discover(
