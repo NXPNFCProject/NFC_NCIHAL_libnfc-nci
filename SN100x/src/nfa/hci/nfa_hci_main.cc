@@ -848,9 +848,6 @@ void nfa_hci_startup_complete(tNFA_STATUS status) {
 #if(NXP_EXTNS == TRUE)
   if ((nfa_ee_cb.ee_flags & NFA_EE_FLAG_RECOVERY) == NFA_EE_FLAG_RECOVERY) {
     nfa_ee_cb.ee_flags &= ~NFA_EE_FLAG_RECOVERY;
-    if (status != NFA_STATUS_OK) {
-      nfa_dm_act_start_rf_discovery(NULL);
-    }
   }
   if (nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD) {
         if (nfa_hci_cb.next_nfcee_idx == nfa_hci_cb.num_nfcee) {
