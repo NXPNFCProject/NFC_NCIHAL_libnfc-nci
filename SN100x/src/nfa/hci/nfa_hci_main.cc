@@ -311,7 +311,10 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                        evt_data.init_completed.status = NFA_STATUS_OK;
                        DLOG_IF(INFO, nfc_debug_enabled)
                           << StringPrintf("All NFCEE's Initialized");
-                         NFA_SCR_PROCESS_EVT(NFA_SCR_ESE_RECOVERY_COMPLETE_EVT, NFA_STATUS_OK);
+                       if ((nfa_ee_cb.ee_flags & NFA_EE_FLAG_RECOVERY) == NFA_EE_FLAG_RECOVERY) {
+                         nfa_ee_cb.ee_flags &= ~NFA_EE_FLAG_RECOVERY;
+                       }
+                       NFA_SCR_PROCESS_EVT(NFA_SCR_ESE_RECOVERY_COMPLETE_EVT, NFA_STATUS_OK);
 
                        nfa_hciu_send_to_all_apps(NFA_HCI_INIT_COMPLETED, &evt_data);
                      }
