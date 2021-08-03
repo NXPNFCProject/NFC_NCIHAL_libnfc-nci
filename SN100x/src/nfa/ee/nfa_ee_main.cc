@@ -193,6 +193,9 @@ void nfa_ee_restore_one_ecb(tNFA_EE_ECB* p_cb) {
   tNFC_NFCEE_MODE_SET_REVT rsp;
   tNFA_EE_NCI_MODE_SET ee_msg;
 
+#if (NXP_EXTNS == TRUE)
+  memset(&ee_msg, 0, sizeof(tNFA_EE_NCI_MODE_SET));
+#endif
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "nfcee_id:0x%x, ecb_flags:0x%x ee_status:0x%x "
       "ee_old_status: 0x%x",

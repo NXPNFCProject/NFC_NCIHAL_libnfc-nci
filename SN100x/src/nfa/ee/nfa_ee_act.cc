@@ -616,6 +616,9 @@ static void nfa_ee_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
                               tNFC_CONN* p_data) {
   tNFA_EE_NCI_CONN cbk;
 
+#if (NXP_EXTNS == TRUE)
+  memset(&cbk, 0, sizeof(tNFA_EE_NCI_CONN));
+#endif
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "nfa_ee_conn_cback: conn_id: %d, event=0x%02x", conn_id, event);
 
@@ -2778,6 +2781,9 @@ void nfa_ee_nci_action_ntf(tNFA_EE_MSG* p_data) {
   tNFC_EE_ACTION_REVT* p_cbk = p_data->act.p_data;
   tNFA_EE_ACTION evt_data;
 
+#if (NXP_EXTNS == TRUE)
+  memset(&evt_data, 0, sizeof(tNFA_EE_ACTION));
+#endif
   evt_data.ee_handle = (tNFA_HANDLE)p_cbk->nfcee_id | NFA_HANDLE_GROUP_EE;
   evt_data.trigger = p_cbk->act_data.trigger;
   memcpy(&(evt_data.param), &(p_cbk->act_data.param),

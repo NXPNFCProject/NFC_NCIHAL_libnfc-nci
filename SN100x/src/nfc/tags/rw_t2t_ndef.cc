@@ -31,7 +31,7 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 *
-*  Copyright 2020 NXP
+*  Copyright 2020-2021 NXP
 *
 ******************************************************************************/
 /******************************************************************************
@@ -1744,7 +1744,11 @@ static void rw_t2t_handle_config_tag_readonly(uint8_t* p_data) {
   tRW_T2T_CB* p_t2t = &rw_cb.tcb.t2t;
   tNFC_STATUS status = NFC_STATUS_FAILED;
   bool b_notify = false;
+#if (NXP_EXTNS == TRUE)
+  uint8_t write_block[T2T_BLOCK_SIZE] = {0};
+#else
   uint8_t write_block[T2T_BLOCK_SIZE];
+#endif
   bool b_pending = false;
   uint8_t read_lock = 0;
   uint8_t num_locks = 0;
