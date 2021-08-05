@@ -63,6 +63,17 @@
 #define NFC_NXP_MW_CUSTOMER_ID (0x00) /* MW Customer Id */
 #define NFC_NXP_MW_RC_VERSION  (0x00) /* MW RC Version */
 #define NFC_EE_DISC_OP_REMOVE 1
+
+#define NFC_NXP_FW_PN557_ROMCODE_VERISON (0x12) /*FW PN557 ROM CODE VERSION*/
+#define NFC_NXP_SFWU_PN557_MAJOR_VERSION (0x21) /*sFWu PN557 firmware major version*/
+#define NFC_NXP_FW_PN557_MAJOR_VERSION (0x1) /*sFWu PN557 firmware major version*/
+
+#define NFC_NXP_FW_SN100U_ROMCODE_VERISON (0x01) /*FW sn100u ROM CODE VERSION*/
+#define NFC_NXP_FW_SN100U_MAJOR_VERSION (0x10) /*sFWu PN557 firmware major version*/
+
+#define NFC_NXP_FW_SN220U_ROMCODE_VERISON (0x01) /*FW sn220u ROM CODE VERSION*/
+#define NFC_NXP_FW_SN220U_MAJOR_VERSION (0x01) /*sFWu sn220u firmware major version*/
+
 #endif
 /* NFC application return status codes */
 /* Command succeeded    */

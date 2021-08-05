@@ -1699,14 +1699,19 @@ std::string NFC_GetStatusName(tNFC_STATUS status) {
  *******************************************************************************/
 tNFC_chipType NFC_ProcessChipType(tNFC_FW_VERSION nfc_fw_version) {
   tNFC_chipType chipType = sn100u;
-  if (nfc_fw_version.rom_code_version == 0x01 &&
-      nfc_fw_version.major_version == 0x10) {
+  if (nfc_fw_version.rom_code_version == NFC_NXP_FW_SN100U_ROMCODE_VERISON &&
+      nfc_fw_version.major_version == NFC_NXP_FW_SN100U_MAJOR_VERSION) {
     /* For SN1xx Rom code version : 0x01 && major version : 0x10*/
     chipType = sn100u;
-  } else if (nfc_fw_version.rom_code_version == 0x01 &&
-             nfc_fw_version.major_version == 0x01) {
+  } else if (nfc_fw_version.rom_code_version == NFC_NXP_FW_SN220U_ROMCODE_VERISON &&
+             nfc_fw_version.major_version == NFC_NXP_FW_SN220U_MAJOR_VERSION) {
     /* For SN220 Rom code version : 0x01 && major version : 0x01*/
     chipType = sn220u;
+  } else if (nfc_fw_version.rom_code_version == NFC_NXP_FW_PN557_ROMCODE_VERISON &&
+            ((nfc_fw_version.major_version == NFC_NXP_SFWU_PN557_MAJOR_VERSION) ||
+            (nfc_fw_version.major_version == NFC_NXP_FW_PN557_MAJOR_VERSION))) {
+    /* For PN557 Rom code version : 0x12 && major version : 0x01 or 0x21*/
+    chipType = pn557;
   }
   return chipType;
 }
@@ -1726,7 +1731,8 @@ void NFC_SetFeatureList(tNFC_FW_VERSION nfc_fw_version) {
   LOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("%s: chipType = %d", __func__, chipType);
 #if(NXP_EXTNS == TRUE)
-  if (!(((nfcFL.chipType == sn220u) && NXP_EN_SN220U) || ((nfcFL.chipType == sn100u) && (NXP_EN_SN110U || NXP_EN_SN100U)))) {
+  if (!(((nfcFL.chipType == sn220u) && NXP_EN_SN220U) || ((nfcFL.chipType == sn100u) && (NXP_EN_SN110U || NXP_EN_SN100U)) ||
+      ((nfcFL.chipType == pn557) && NXP_EN_PN557))) {
     LOG(ERROR) << StringPrintf("************************************************************************");
     LOG(ERROR) << StringPrintf("*****USING UNTESTED SECURE NFC MW FOR CHIP %s : NOT RECOMMENDED*****", product[nfcFL.chipType]);
     LOG(ERROR) << StringPrintf("************************************************************************");
