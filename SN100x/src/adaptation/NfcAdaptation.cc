@@ -29,7 +29,7 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 *
-*  Copyright 2018-2020 NXP
+*  Copyright 2018-2021 NXP
 *
 ******************************************************************************/
 #include <android-base/stringprintf.h>
@@ -91,7 +91,7 @@ tHAL_NFC_CBACK* NfcAdaptation::mHalCallback = nullptr;
 tHAL_NFC_DATA_CBACK* NfcAdaptation::mHalDataCallback = nullptr;
 ThreadCondVar NfcAdaptation::mHalOpenCompletedEvent;
 #if (NXP_EXTNS == TRUE)
-ThreadCondVar NfcAdaptation::mHalDataCallbackEvent;
+sem_t NfcAdaptation::mSemHalDataCallBackEvent;
 #endif
 
 sp<INfc> NfcAdaptation::mHal;
@@ -881,9 +881,31 @@ bool NfcAdaptation::resetEse(uint64_t level) {
 *******************************************************************************/
 void NfcAdaptation::HalWriteIntf(uint16_t data_len, uint8_t* p_data) {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: Enter ", __func__);
-  mHalDataCallbackEvent.lock();
+  int semval = 0;
+  int sem_timedout = 2, s;
+
+  sem_getvalue(&mSemHalDataCallBackEvent, &semval);
+  //Reset semval to 0x00
+  while (semval > 0x00) {
+    s = sem_wait(&mSemHalDataCallBackEvent);
+    if (s == -1) {
+      ALOGE("%s: sem_wait failed !!!", __func__);
+    }
+    sem_getvalue(&mSemHalDataCallBackEvent, &semval);
+  }
+
   HalWrite(data_len, p_data);
-  mHalDataCallbackEvent.wait();
+
+  struct timespec ts;
+  clock_gettime(CLOCK_REALTIME, &ts);
+  ts.tv_sec += sem_timedout;
+  while ((s = sem_timedwait(&mSemHalDataCallBackEvent, &ts)) == -1 &&
+           errno == EINTR){
+    continue;
+  }
+  if (s == -1) {
+    ALOGE("%s: sem_timedout Timed Out !!!", __func__);
+  }
 }
 #endif
 /*******************************************************************************
@@ -1010,6 +1032,9 @@ bool NfcAdaptation::DownloadFirmware() {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: try open HAL", func);
 #if (NXP_EXTNS == TRUE)
   NfcStatus status;
+  if (0 != sem_init(&mSemHalDataCallBackEvent, 0, 0)) {
+    return isDownloadFirmwareCompleted;
+  }
   mCallback = new NfcClientCallback(HalDownloadFirmwareCallback, HalDownloadFirmwareDataCallback);
   if (mHal_1_1 != nullptr) {
     status = mHal_1_1->open_1_1(mCallback);
@@ -1033,6 +1058,7 @@ bool NfcAdaptation::DownloadFirmware() {
           (fw_dl_status != (uint8_t)NfcHalFwUpdateStatus::HAL_NFC_FW_UPDATE_INVALID)) {
     (*NfcAdaptation::GetInstance().p_fwupdate_status_cback)(fw_dl_status);
   }
+  sem_destroy(&mSemHalDataCallBackEvent);
 #else
   HalOpen(HalDownloadFirmwareCallback, HalDownloadFirmwareDataCallback);
   mHalOpenCompletedEvent.wait();
@@ -1151,12 +1177,12 @@ void NfcAdaptation::HalDownloadFirmwareDataCallback(
           p_data++;
           nfc_ncif_proc_reset_rsp(p_data, is_ntf);
           if(is_ntf)
-            mHalDataCallbackEvent.signal();
+            sem_post(&mSemHalDataCallBackEvent);
         }
         break;
       case NCI_MSG_CORE_INIT:
         if (mt == NCI_MT_RSP)
-          mHalDataCallbackEvent.signal();
+          sem_post(&mSemHalDataCallBackEvent);
         break;
     }
   }

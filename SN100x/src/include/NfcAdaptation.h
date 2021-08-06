@@ -29,7 +29,7 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 *
-*  Copyright 2020 NXP
+*  Copyright 2020-2021 NXP
 *
 ******************************************************************************/
 #pragma once
@@ -38,6 +38,10 @@
 #include "config.h"
 #include "nfc_hal_api.h"
 #include "nfc_target.h"
+
+#if (NXP_EXTNS == TRUE)
+#include <semaphore.h>
+#endif
 
 #include <utils/RefBase.h>
 
@@ -165,7 +169,7 @@ class NfcAdaptation {
   static tHAL_NFC_DATA_CBACK* mHalDataCallback;
   static ThreadCondVar mHalOpenCompletedEvent;
 #if (NXP_EXTNS == TRUE)
-  static ThreadCondVar mHalDataCallbackEvent;
+  static sem_t mSemHalDataCallBackEvent;
 #endif
   static ThreadCondVar mHalCloseCompletedEvent;
 
