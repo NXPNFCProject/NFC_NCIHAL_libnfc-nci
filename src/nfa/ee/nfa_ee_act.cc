@@ -49,6 +49,7 @@
 #include "nfa_dm_int.h"
 #include "nfa_ee_int.h"
 #include "nci_hmsgs.h"
+#include "nfc_int.h"
 #if (NXP_EXTNS == TRUE)
 #include "nfa_hci_int.h"
 #include <nfc_config.h>
@@ -530,11 +531,16 @@ static void nfa_ee_add_proto_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
       }
       if (p_cb->nfcee_id == NFC_DH_ID &&
           nfa_ee_proto_mask_list[xx] == NFA_PROTOCOL_MASK_NFC_DEP) {
-        /* add NFC-DEP routing to HOST */
-        add_route_tech_proto_tlv(&pp, NFC_ROUTE_TAG_PROTO, NFC_DH_ID,
-                                 NCI_ROUTE_PWR_STATE_ON, NFC_PROTOCOL_NFC_DEP);
-        DLOG_IF(INFO, nfc_debug_enabled)
-            << StringPrintf("%s - NFC DEP added for DH!!!", __func__);
+        /* add NFC-DEP routing to HOST if NFC_DEP interface is supported */
+        if (nfc_cb.nci_interfaces & (1 << NCI_INTERFACE_NFC_DEP)) {
+          add_route_tech_proto_tlv(&pp, NFC_ROUTE_TAG_PROTO, NFC_DH_ID,
+                                   NCI_ROUTE_PWR_STATE_ON,
+                                   NFC_PROTOCOL_NFC_DEP);
+          DLOG_IF(INFO, nfc_debug_enabled)
+              << StringPrintf("%s - NFC DEP added for DH!!!", __func__);
+        } else {
+          continue;
+        }
       } else {
         add_route_tech_proto_tlv(&pp, proto_tag, p_cb->nfcee_id, power_cfg,
                                  nfa_ee_proto_list[xx]);
