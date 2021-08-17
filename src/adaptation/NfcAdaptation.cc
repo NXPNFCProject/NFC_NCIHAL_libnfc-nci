@@ -17,9 +17,9 @@
  ******************************************************************************/
 /******************************************************************************
  *
- *  The original Work has been changed by NXP Semiconductors.
+ *  The original Work has been changed by NXP.
  *
- *  Copyright (C) 2015-2020 NXP Semiconductors
+ *  Copyright 2015-2020 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -135,14 +135,9 @@ void initializeGlobalDebugEnabledFlag() {
   nfc_debug_enabled =
       (NfcConfig::getUnsigned(NAME_NFC_DEBUG_ENABLED, 0) != 0) ? true : false;
 
-  char valueStr[PROPERTY_VALUE_MAX] = {0};
-  int len = property_get("nfc.debug_enabled", valueStr, "");
-  if (len > 0) {
-    // let Android property override .conf variable
-    unsigned debug_enabled = 0;
-    sscanf(valueStr, "%u", &debug_enabled);
-    nfc_debug_enabled = (debug_enabled == 0) ? false : true;
-  }
+  bool debug_enabled = property_get_bool("persist.nfc.debug_enabled", false);
+
+  nfc_debug_enabled = (nfc_debug_enabled || debug_enabled);
 
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("%s: level=%u", __func__, nfc_debug_enabled);
