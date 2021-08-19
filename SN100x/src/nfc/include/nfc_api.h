@@ -56,6 +56,7 @@
 #define NXP_EN_SN110U    1
 #define NXP_EN_SN100U    1
 #define NXP_EN_SN220U    1
+#define NXP_EN_PN557     1
 #define NXP_ANDROID_VER (12U)        /* NXP android version */
 #define NFC_NXP_MW_VERSION_MAJ (0x08) /* MW Major Version */
 #define NFC_NXP_MW_VERSION_MIN (0x00) /* MW Minor Version */
