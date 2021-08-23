@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2020 NXP
+ *  Copyright 2018-2021 NXP
  *
  ******************************************************************************/
 
@@ -1978,11 +1978,14 @@ void nfa_rw_presence_check(tNFA_RW_MSG* p_data) {
   /* Handle presence check failure */
   if (status != NFC_STATUS_OK)
     nfa_rw_handle_presence_check_rsp(NFC_STATUS_FAILED);
-  else if (!unsupported) {
 #if (NXP_EXTNS == TRUE)
-    if (protocol == NFC_PROTOCOL_T5T)
+  else {
+    if (protocol == NFC_PROTOCOL_T5T) {
       p_nfa_dm_cfg->presence_check_timeout =
         NFA_DM_MAX_PRESENCE_CHECK_TIMEOUT + RW_I93_MAX_RSP_TIMEOUT;
+    }
+#else
+  else if (!unsupported) {
 #endif
       nfa_sys_start_timer(&nfa_rw_cb.tle, NFA_RW_PRESENCE_CHECK_TIMEOUT_EVT,
                           p_nfa_dm_cfg->presence_check_timeout);
