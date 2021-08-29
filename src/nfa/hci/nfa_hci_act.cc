@@ -19,7 +19,7 @@
  *
  *  The original Work has been changed by NXP.
  *
- *  Copyright 2015-2020 NXP
+ *  Copyright 2015-2021 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -1154,7 +1154,7 @@ static void nfa_hci_api_add_static_pipe(tNFA_HCI_EVENT_DATA* p_evt_data) {
 *******************************************************************************/
 void nfa_hci_handle_link_mgm_gate_cmd(uint8_t* p_data) {
   uint8_t index;
-  uint8_t data[2];
+  uint8_t data[2] = {0};
   uint8_t rsp_len = 0;
   uint8_t response = NFA_HCI_ANY_OK;
 
@@ -2009,7 +2009,7 @@ void nfa_hci_handle_dyn_pipe_pkt(uint8_t pipe_id, uint8_t* p_data,
 *******************************************************************************/
 static void nfa_hci_handle_identity_mgmt_gate_pkt(uint8_t* p_data,
                                                   tNFA_HCI_DYN_PIPE* p_pipe) {
-  uint8_t data[20];
+  uint8_t data[20] = {0};
   uint8_t index;
   uint8_t gate_rsp[3 + NFA_HCI_MAX_GATE_CB], num_gates;
   uint16_t rsp_len = 0;
@@ -2318,7 +2318,7 @@ static void nfa_hci_handle_connectivity_gate_pkt(uint8_t* p_data,
 *******************************************************************************/
 static void nfa_hci_handle_loopback_gate_pkt(uint8_t* p_data, uint16_t data_len,
                                              tNFA_HCI_DYN_PIPE* p_pipe) {
-  uint8_t data[1];
+  uint8_t data[1] = {0};
   uint8_t rsp_len = 0;
   tNFA_HCI_RESPONSE response = NFA_HCI_ANY_OK;
   tNFA_HCI_EVT_DATA evt_data;

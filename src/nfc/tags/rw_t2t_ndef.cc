@@ -19,7 +19,7 @@
  *
  *  The original Work has been changed by NXP.
  *
- *  Copyright 2015-2020 NXP
+ *  Copyright 2015-2021 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -1759,7 +1759,7 @@ static void rw_t2t_handle_config_tag_readonly(uint8_t* p_data) {
   tRW_T2T_CB* p_t2t = &rw_cb.tcb.t2t;
   tNFC_STATUS status = NFC_STATUS_FAILED;
   bool b_notify = false;
-  uint8_t write_block[T2T_BLOCK_SIZE];
+  uint8_t write_block[T2T_BLOCK_SIZE] = {0};
   bool b_pending = false;
   uint8_t read_lock = 0;
   uint8_t num_locks = 0;

@@ -19,7 +19,7 @@
  *
  *  The original Work has been changed by NXP.
  *
- *  Copyright 2015-2020 NXP
+ *  Copyright 2015-2021 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -200,6 +200,10 @@ void nfa_ee_restore_one_ecb(tNFA_EE_ECB* p_cb) {
   uint8_t mask;
   tNFC_NFCEE_MODE_SET_REVT rsp;
   tNFA_EE_NCI_MODE_SET ee_msg;
+
+#if (NXP_EXTNS == TRUE)
+  memset(&ee_msg, 0, sizeof(tNFA_EE_NCI_MODE_SET));
+#endif
 
    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "nfa_ee_restore_one_ecb () nfcee_id:0x%x, ecb_flags:0x%x ee_status:0x%x "
