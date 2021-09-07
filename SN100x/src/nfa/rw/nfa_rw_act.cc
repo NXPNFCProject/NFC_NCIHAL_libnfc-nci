@@ -1972,6 +1972,11 @@ void nfa_rw_presence_check(tNFA_RW_MSG* p_data) {
       /* Let DM perform presence check (by putting tag to sleep and then waking
        * it up) */
       status = nfa_dm_disc_sleep_wakeup();
+#if (NXP_EXTNS == TRUE)
+      /* keeping it back to false to start presence check timer for all tags
+      except Kovio */
+      unsupported = false;
+#endif
     }
   }
 
@@ -1980,12 +1985,13 @@ void nfa_rw_presence_check(tNFA_RW_MSG* p_data) {
     nfa_rw_handle_presence_check_rsp(NFC_STATUS_FAILED);
   else if (!unsupported) {
 #if (NXP_EXTNS == TRUE)
-    if (protocol == NFC_PROTOCOL_T5T)
+    if (protocol == NFC_PROTOCOL_T5T) {
       p_nfa_dm_cfg->presence_check_timeout =
         NFA_DM_MAX_PRESENCE_CHECK_TIMEOUT + RW_I93_MAX_RSP_TIMEOUT;
+    }
 #endif
-      nfa_sys_start_timer(&nfa_rw_cb.tle, NFA_RW_PRESENCE_CHECK_TIMEOUT_EVT,
-                          p_nfa_dm_cfg->presence_check_timeout);
+    nfa_sys_start_timer(&nfa_rw_cb.tle, NFA_RW_PRESENCE_CHECK_TIMEOUT_EVT,
+                        p_nfa_dm_cfg->presence_check_timeout);
   }
 }
 
