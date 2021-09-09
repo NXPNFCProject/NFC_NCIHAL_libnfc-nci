@@ -313,8 +313,6 @@ void GKI_shutdown(void) {
    * GKI_exception problem due to btu->hci sleep request events  */
   for (task_id = GKI_MAX_TASKS; task_id > 0; task_id--) {
     if (gki_cb.com.OSRdyTbl[task_id - 1] != TASK_DEAD) {
-      gki_cb.com.OSRdyTbl[task_id - 1] = TASK_DEAD;
-
       /* paranoi settings, make sure that we do not execute any mailbox events
        */
       gki_cb.com.OSWaitEvt[task_id - 1] &=
@@ -668,7 +666,7 @@ uint16_t GKI_wait(uint16_t flag, uint32_t timeout) {
     if (gki_cb.com.OSTaskQFirst[rtask][3])
       gki_cb.com.OSWaitEvt[rtask] |= TASK_MBOX_3_EVT_MASK;
 
-    if (gki_cb.com.OSRdyTbl[rtask] == TASK_DEAD) {
+    if (gki_cb.com.OSWaitEvt[rtask] == EVENT_MASK(GKI_SHUTDOWN_EVT)) {
       gki_cb.com.OSWaitEvt[rtask] = 0;
       /* unlock thread_evt_mutex as pthread_cond_wait() does auto lock when cond
        * is met */
@@ -1119,6 +1117,11 @@ void GKI_exit_task(uint8_t task_id) {
     return;
   }
   GKI_disable();
+  if (gki_cb.com.OSRdyTbl[task_id] == TASK_DEAD) {
+      GKI_enable();
+      LOG(WARNING) << StringPrintf("%s: task_id %d was already stopped.", __func__, task_id);
+      return;
+  }
   gki_cb.com.OSRdyTbl[task_id] = TASK_DEAD;
 
   /* Destroy mutex and condition variable objects */
