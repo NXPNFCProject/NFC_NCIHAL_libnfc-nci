@@ -1906,7 +1906,7 @@ static void rw_t4t_sm_detect_ndef(NFC_HDR* p_r_apdu) {
                         p_t4t->cc_file.ndef_fc.nlen_size) {
           p_t4t->ndef_status = RW_T4T_NDEF_STATUS_NDEF_DETECTED;
 
-          if (p_t4t->cc_file.ndef_fc.write_access != T4T_FC_WRITE_ACCESS) {
+          if (p_t4t->cc_file.ndef_fc.write_access == T4T_FC_NO_WRITE_ACCESS) {
             p_t4t->ndef_status |= RW_T4T_NDEF_STATUS_NDEF_READ_ONLY;
           }
 
