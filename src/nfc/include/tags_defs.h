@@ -641,6 +641,7 @@ typedef uint8_t tT3T_POLL_RC;
 #define I93_UID_IC_MFG_CODE_NXP 0x04
 #define I93_UID_IC_MFG_CODE_TI 0x07
 #define I93_UID_IC_MFG_CODE_ONS 0x67
+#define I93_UID_IC_MFG_CODE_SIC 0x39
 
 /* NXP, UID Coding of ICODE type (UID Bit 48-41) */
 /* ICODE SLI, SLIX     */
@@ -724,6 +725,10 @@ typedef uint8_t tT3T_POLL_RC;
 #define I93_IC_REF_ONS_N24RF64  0x6A
 /* IC Reference for N24RF64E: 01101110(b), blockSize: 4, numberBlocks: 0x800 */
 #define I93_IC_REF_ONS_N24RF64E 0x6E
+
+/* SIC, product version (IC manufacturer code) */
+/* IC Reference for SIC81T1:  00000001(b), blockSize: 4, numberBlocks: 0x800 */
+#define I93_IC_REF_SIC_81T1 0x01
 
 #define I93_STM_BLOCKS_PER_SECTOR 32
 #define I93_STM_MAX_BLOCKS_PER_READ 32
