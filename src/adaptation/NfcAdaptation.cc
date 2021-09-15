@@ -19,7 +19,7 @@
  *
  *  The original Work has been changed by NXP.
  *
- *  Copyright 2015-2020 NXP
+ *  Copyright 2015-2021 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -186,10 +186,22 @@ class NfcDeathRecipient : public hidl_death_recipient {
   virtual void serviceDied(
       uint64_t /* cookie */,
       const wp<::android::hidl::base::V1_0::IBase>& /* who */) {
-    ALOGE("NfcDeathRecipient::serviceDied - Nfc service died");
+    ALOGE("NfcDeathRecipient::serviceDied - Nfc service died. Killing"
+	"NfcService");
     mNfcDeathHal->unlinkToDeath(this);
     mNfcDeathHal = nullptr;
     abort();
+  }
+  void finalize() {
+    if (mNfcDeathHal) {
+      mNfcDeathHal->unlinkToDeath(this);
+    } else {
+      DLOG_IF(INFO, nfc_debug_enabled)
+          << StringPrintf("%s: mNfcDeathHal is not set", __func__);
+    }
+
+    ALOGI("NfcDeathRecipient::destructor - NfcService");
+    mNfcDeathHal = NULL;
   }
 };
 
@@ -203,7 +215,6 @@ class NfcDeathRecipient : public hidl_death_recipient {
 **
 *******************************************************************************/
 NfcAdaptation::NfcAdaptation() {
-  mNfcHalDeathRecipient = new NfcDeathRecipient(mHal);
   memset(&mHalEntryFuncs, 0, sizeof(mHalEntryFuncs));
   memset(&mNxpNfcHalConfig, 0, sizeof(NxpNfcHalConfig));
   memset(&AdapCfgInfo, 0, sizeof(NxpNciCfgInfo));
@@ -632,6 +643,7 @@ void NfcAdaptation::Finalize() {
 
   mCallback = nullptr;
   memset(&mHalEntryFuncs, 0, sizeof(mHalEntryFuncs));
+  mNfcHalDeathRecipient->finalize();
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: exit", func);
   delete this;
 }
@@ -762,6 +774,7 @@ void NfcAdaptation::InitializeHalDeviceContext() {
     LOG(INFO) << StringPrintf("%s: INfc::getService() returned %p (%s)", func, mHal.get(),
           (mHal->isRemote() ? "remote" : "local"));
   }
+  mNfcHalDeathRecipient = new NfcDeathRecipient(mHal);
   mHal->linkToDeath(mNfcHalDeathRecipient,0);
 #if (NXP_EXTNS == TRUE)
   LOG(INFO) << StringPrintf("%s: INxpNfc::getService()", func);
