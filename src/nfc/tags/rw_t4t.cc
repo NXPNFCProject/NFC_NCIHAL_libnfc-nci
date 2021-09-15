@@ -59,6 +59,7 @@
 using android::base::StringPrintf;
 
 extern bool nfc_debug_enabled;
+extern unsigned char appl_dta_mode_flag;
 
 /* main state */
 /* T4T is not activated                 */
@@ -1259,7 +1260,8 @@ static bool rw_t4t_validate_cc_file(void) {
    return false;
  }
 
- if (p_t4t->cc_file.max_lc < 0x000D) {
+ if (p_t4t->cc_file.max_lc < 0x0001 ||
+     ((p_t4t->cc_file.max_lc < 0x000D) && appl_dta_mode_flag)) {
    LOG(ERROR) << StringPrintf("%s - MaxLc (%d) is too small", __func__,
                               p_t4t->cc_file.max_lc);
    return false;
