@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2019-2020 NXP
+ *  Copyright 2019-2021 NXP
  *
  ******************************************************************************/
 #include <errno.h>
@@ -322,7 +322,7 @@ void GKI_shutdown(void) {
 #if (NXP_EXTNS == TRUE)
       if (((task_id - 1) == BTU_TASK)) {
         gki_cb.com.system_tick_running = false;
-        *p_run_cond = GKI_TIMER_TICK_STOP_COND; /* stop system tick */
+        *p_run_cond = GKI_TIMER_TICK_EXIT_COND; /* stop system tick */
       }
 #endif
 #if (FALSE == GKI_PTHREAD_JOINABLE)
@@ -497,14 +497,6 @@ void GKI_run(__attribute__((unused)) void* p_task_id) {
       GKI_timer_update(1);
     } while (GKI_TIMER_TICK_RUN_COND == *p_run_cond);
 
-#if(NXP_EXTNS == TRUE)
-   /* when stop condition is set & state is set to
-     * dead shall clear wait event to avoid shut down delay*/
-    if(gki_cb.com.OSRdyTbl[BTU_TASK] == TASK_DEAD) {
-      gki_cb.com.OSWaitEvt[BTU_TASK] = 0;
-    }
-#endif
-
 /* currently on reason to exit above loop is no_timer_suspend ==
  * GKI_TIMER_TICK_STOP_COND
  * block timer main thread till re-armed by  */
@@ -523,6 +515,9 @@ void GKI_run(__attribute__((unused)) void* p_task_id) {
         << StringPrintf(">>> RESTARTED run_cond: %d", *p_run_cond);
 #endif
   } /* for */
+#endif
+#if(NXP_EXTNS == TRUE)
+  gki_cb.com.OSWaitEvt[BTU_TASK] = 0;
 #endif
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s exit", __func__);
 }
