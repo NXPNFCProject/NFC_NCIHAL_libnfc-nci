@@ -19,7 +19,7 @@
  *
  *  The original Work has been changed by NXP.
  *
- *  Copyright 2015-2020 NXP
+ *  Copyright 2015-2021 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -1411,6 +1411,8 @@ void nfa_hci_handle_nv_read(uint8_t block, tNFA_STATUS status) {
       os_tick = GKI_get_os_tick_count();
       memcpy(session_id, (uint8_t*)&os_tick, (NFA_HCI_SESSION_ID_LEN / 2));
       nfa_hci_restore_default_config(session_id);
+      // To Align with AOSP code and complete the hci restore session
+      nfa_hci_startup();
     }
 #if (NXP_EXTNS == TRUE)
     else {
