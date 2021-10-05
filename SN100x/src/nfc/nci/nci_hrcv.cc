@@ -316,6 +316,10 @@ void nci_proc_rf_management_ntf(NFC_HDR* p_msg) {
       break;
 
     case NCI_MSG_RF_FIELD:
+      if (p_msg->len < 4) {
+        android_errorWriteLog(0x534e4554, "176582502");
+        return;
+      }
       nfc_ncif_proc_rf_field_ntf(*pp);
       break;
 
@@ -340,6 +344,10 @@ void nci_proc_rf_management_ntf(NFC_HDR* p_msg) {
 #endif
 #endif
     case NCI_MSG_RF_ISO_DEP_NAK_PRESENCE:
+      if (p_msg->len < 4) {
+        android_errorWriteLog(0x534e4554, "176582502");
+        return;
+      }
       nfc_ncif_proc_isodep_nak_presence_check_status(*pp, true);
       break;
     default:
