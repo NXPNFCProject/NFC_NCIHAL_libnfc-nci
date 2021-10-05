@@ -51,6 +51,7 @@
 #include "bt_types.h"
 
 #include "nfc_api.h"
+#include "nfc_int.h"
 #include "nci_hmsgs.h"
 #include "rw_api.h"
 #include "rw_int.h"
@@ -226,6 +227,38 @@ tNFC_STATUS RW_SetActivatedTagType(tNFC_ACTIVATE_DEVT* p_activate_params,
   if (p_cback == nullptr) {
     LOG(ERROR) << StringPrintf("RW_SetActivatedTagType called with NULL callback");
     return (NFC_STATUS_FAILED);
+  }
+
+  switch (rw_cb.tcb_type) {
+    case RW_CB_TYPE_T1T: {
+      nfc_stop_quick_timer(&rw_cb.tcb.t1t.timer);
+      break;
+    }
+    case RW_CB_TYPE_T2T: {
+      nfc_stop_quick_timer(&rw_cb.tcb.t2t.t2_timer);
+      break;
+    }
+    case RW_CB_TYPE_T3T: {
+      nfc_stop_quick_timer(&rw_cb.tcb.t3t.timer);
+      nfc_stop_quick_timer(&rw_cb.tcb.t3t.poll_timer);
+      break;
+    }
+    case RW_CB_TYPE_T4T: {
+      nfc_stop_quick_timer(&rw_cb.tcb.t4t.timer);
+      break;
+    }
+    case RW_CB_TYPE_T5T: {
+      nfc_stop_quick_timer(&rw_cb.tcb.i93.timer);
+      break;
+    }
+    case RW_CB_TYPE_MIFARE: {
+      nfc_stop_quick_timer(&rw_cb.tcb.mfc.timer);
+      nfc_stop_quick_timer(&rw_cb.tcb.mfc.mfc_timer);
+      break;
+    }
+    case RW_CB_TYPE_UNKNOWN: {
+      break;
+    }
   }
 
   /* Reset tag-specific area of control block */
