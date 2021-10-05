@@ -385,6 +385,8 @@ void nci_proc_ee_management_rsp(NFC_HDR* p_msg) {
         nfc_response.mode_set.status = *pp;
       } else {
         nfc_response.mode_set.status = NFC_STATUS_FAILED;
+        android_errorWriteLog(0x534e4554, "176203800");
+        return;
       }
       nfc_response.mode_set.nfcee_id = *p_old++;
       //mode_set.nfcee_id = 0;
