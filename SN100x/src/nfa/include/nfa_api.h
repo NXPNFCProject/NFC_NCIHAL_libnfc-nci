@@ -1601,5 +1601,27 @@ extern void NFA_SetFieldDetectMode(bool mode);
 **
 *******************************************************************************/
 extern bool NFA_IsFieldDetectEnabled();
+/*******************************************************************************
+**
+** Function         NFA_SetRssiMode
+**
+** Description      Updates RSSI mode true/false, This will be effective
+**                  from next RF discovery cycle.
+**
+** Returns          void
+**
+*******************************************************************************/
+extern void NFA_SetRssiMode(bool enable);
+
+/*******************************************************************************
+**
+** Function         NFA_IsRssiEnabled
+**
+** Description      Returns current status of RSSI mode
+**
+** Returns          true/false
+**
+*******************************************************************************/
+extern bool NFA_IsRssiEnabled();
 #endif
 #endif /* NFA_API_H */

@@ -437,6 +437,37 @@ bool NFA_IsFieldDetectEnabled() {
                       (nfa_dm_cb.isFieldDetectEnabled) ? "ENABLE" : "DISABLE");
   return nfa_dm_cb.isFieldDetectEnabled;
 }
+/*******************************************************************************
+**
+** Function         NFA_SetRssiMode
+**
+** Description      Updates RSSI mode true/false
+**
+** Returns          void
+**
+*******************************************************************************/
+void NFA_SetRssiMode(bool enable) {
+  nfa_dm_cb.isRssiEnabled = enable;
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("%s rssiMode = 0x%s", __func__,
+                      (nfa_dm_cb.isRssiEnabled) ? "ENABLE" : "DISABLE");
+}
+
+/*******************************************************************************
+**
+** Function         NFA_IsRssiEnabled
+**
+** Description      Returns current status of RSSI mode
+**
+** Returns          true/false
+**
+*******************************************************************************/
+bool NFA_IsRssiEnabled() {
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("%s Current rssiMode = 0x%s", __func__,
+                      (nfa_dm_cb.isRssiEnabled) ? "ENABLE" : "DISABLE");
+  return nfa_dm_cb.isRssiEnabled;
+}
 #endif
 /*******************************************************************************
 **
