@@ -1482,6 +1482,19 @@ extern tNFC_STATUS NFC_ISODEPNakPresCheck();
 **
 *******************************************************************************/
 extern tNFC_FW_VERSION nfc_ncif_getFWVersion();
+/*******************************************************************************
+**
+** Function         NFC_SetFeatureList
+**
+** Description      This function to find the Chip type and configure the
+**                  supported feature list.
+**
+** Parameters       nfc_fw_version - FW version info.
+**
+** Returns          Nothing
+**
+*******************************************************************************/
+extern void NFC_SetFeatureList(tNFC_FW_VERSION nfc_fw_version);
 #endif
 
 /*******************************************************************************
