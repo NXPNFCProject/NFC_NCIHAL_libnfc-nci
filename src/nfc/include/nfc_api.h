@@ -19,7 +19,7 @@
  *
  *  The original Work has been changed by NXP.
  *
- *  Copyright 2015-2020 NXP
+ *  Copyright 2015-2021 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -120,8 +120,8 @@
 #define NXP_EN_PN557     1
 #define NXP_EN_PN81T     1
 #define NXP_ANDROID_VER (12U)        /* NXP android version */
-#define NFC_NXP_MW_VERSION_MAJ (0x01) /* MW Major Version */
-#define NFC_NXP_MW_VERSION_MIN (0x01) /* MW Minor Version */
+#define NFC_NXP_MW_VERSION_MAJ (0x02) /* MW Major Version */
+#define NFC_NXP_MW_VERSION_MIN (0x00) /* MW Minor Version */
 #define NFC_NXP_MW_CUSTOMER_ID (0x00) /* MW Customer Id */
 #endif
 /* 0xE0 ~0xFF are proprietary status codes */
