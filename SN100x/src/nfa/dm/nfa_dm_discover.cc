@@ -1536,6 +1536,11 @@ static tNFA_STATUS nfa_dm_disc_notify_activation(tNFC_DISCOVER* p_data) {
     }
     return (NFA_STATUS_FAILED);
   }
+
+  if (nfa_dm_cb.disc_cb.kovio_tle.in_use && protocol != NFC_PROTOCOL_KOVIO) {
+    nfa_dm_disc_report_kovio_presence_check(NFA_STATUS_FAILED);
+    return (NFA_STATUS_FAILED);
+  }
 #endif
 
   /* get bit mask of technolgies/mode and protocol */
