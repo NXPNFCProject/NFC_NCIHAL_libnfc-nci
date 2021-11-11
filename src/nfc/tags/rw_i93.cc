@@ -1558,7 +1558,7 @@ tNFC_STATUS rw_i93_send_cmd_get_ext_sys_info(uint8_t* p_uid) {
   }
 
   p_cmd->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
-  p_cmd->len = 10;
+  p_cmd->len = 11;
   p = (uint8_t*)(p_cmd + 1) + p_cmd->offset;
 
   /* Flags */
