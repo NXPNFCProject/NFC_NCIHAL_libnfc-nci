@@ -83,3 +83,102 @@ cc_library_shared {
     },
 
 }
+cc_defaults {
+    name: "nfc_fuzzer_defaults",
+    native_coverage: true,
+    static_libs: [
+        "libnfcutils",
+        "libcutils",
+        "liblog",
+        "libbase",
+        "libchrome",
+    ],
+    cflags: [
+        "-DBUILDCFG=1",
+        "-Wall",
+        "-Werror",
+        "-Wimplicit-fallthrough",
+        "-g",
+        "-DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION",
+        "-DGKI_ENABLE_BUF_CORRUPTION_CHECK=FALSE",
+    ],
+    product_variables: {
+        debuggable: {
+            cflags: [
+                "-DDCHECK_ALWAYS_ON"
+            ],
+        },
+    },
+    local_include_dirs: [
+        "include",
+        "gki/ulinux",
+        "gki/common",
+        "nfc/include",
+        "nfa/include",
+        "fuzzers/inc",
+    ],
+}
+
+cc_fuzz {
+    name: "nfc_nci_fuzzer",
+    defaults: ["nfc_fuzzer_defaults"],
+    srcs: [
+        "nfc/nci/*.cc",
+        "nfc/nfc/*.cc",
+        "gki/common/*.cc",
+        "gki/ulinux/*.cc",
+        "fuzzers/*.cc",
+        "fuzzers/nci/*.cc",
+    ],
+}
+
+cc_fuzz {
+    name: "nfc_rw_fuzzer",
+    defaults: ["nfc_fuzzer_defaults"],
+    srcs: [
+        "nfc/tags/rw_*.cc",
+        "nfc/tags/tags_int.cc",
+        "gki/common/*.cc",
+        "gki/ulinux/*.cc",
+        "fuzzers/*.cc",
+        "fuzzers/rw/*.cc",
+    ],
+}
+
+cc_fuzz {
+    name: "nfc_ce_fuzzer",
+    defaults: ["nfc_fuzzer_defaults"],
+    srcs: [
+        "nfc/tags/ce_*.cc",
+        "nfc/tags/tags_int.cc",
+        "gki/common/*.cc",
+        "gki/ulinux/*.cc",
+        "fuzzers/*.cc",
+        "fuzzers/ce/*.cc",
+    ],
+}
+
+cc_fuzz {
+    name: "nfc_ndef_fuzzer",
+    defaults: ["nfc_fuzzer_defaults"],
+    srcs: [
+        "nfa/dm/nfa_dm_ndef.cc",
+        "nfc/ndef/*.cc",
+        "gki/common/*.cc",
+        "gki/ulinux/*.cc",
+        "fuzzers/*.cc",
+        "fuzzers/ndef/*.cc",
+    ],
+}
+
+cc_fuzz {
+    name: "nfc_llcp_fuzzer",
+    defaults: ["nfc_fuzzer_defaults"],
+    srcs: [
+        "nfc/llcp/*.cc",
+        "gki/common/*.cc",
+        "gki/ulinux/*.cc",
+        "fuzzers/*.cc",
+        "fuzzers/llcp/*.cc",
+    ],
+}
