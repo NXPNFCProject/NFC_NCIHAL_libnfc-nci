@@ -659,9 +659,6 @@ static void rw_mfc_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   tRW_MFC_CB* p_mfc = &rw_cb.tcb.mfc;
   tRW_READ_DATA evt_data;
   NFC_HDR* mfc_data = {};
-#if (NXP_EXTNS != TRUE)
-  uint8_t* p;
-#endif
   tRW_DATA rw_data;
 
   if (!p_data) {

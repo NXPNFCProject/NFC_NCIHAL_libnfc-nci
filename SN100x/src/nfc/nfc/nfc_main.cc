@@ -509,10 +509,15 @@ void nfc_main_handle_hal_evt(tNFC_HAL_EVT_MSG* p_msg) {
       break;
 
     case HAL_NFC_POST_INIT_CPLT_EVT:
-      if (NfcAdaptation::GetInstance().NFA_GetBootMode() == NFC_FAST_BOOT_MODE) {
-          nfc_set_state(NFC_STATE_IDLE);
-          nfa_sys_cback_notify_MinEnable_complete(0);
-      }else if (nfc_cb.p_nci_init_rsp) {
+#if (NXP_EXTNS == TRUE)
+      if (NfcAdaptation::GetInstance().NFA_GetBootMode() ==
+          NFC_FAST_BOOT_MODE) {
+        nfc_set_state(NFC_STATE_IDLE);
+        nfa_sys_cback_notify_MinEnable_complete(0);
+      } else if (nfc_cb.p_nci_init_rsp) {
+#else
+      if (nfc_cb.p_nci_init_rsp) {
+#endif
         /*
         ** if NFC_Disable() is called before receiving
         ** HAL_NFC_POST_INIT_CPLT_EVT, then wait for HAL_NFC_CLOSE_CPLT_EVT.

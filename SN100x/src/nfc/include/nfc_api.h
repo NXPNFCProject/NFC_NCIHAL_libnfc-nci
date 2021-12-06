@@ -1585,8 +1585,9 @@ extern std::string NFC_GetStatusName(tNFC_STATUS status);
 ** Returns          Nothing
 **
 *******************************************************************************/
+#if (NXP_EXTNS == TRUE)
 extern void NFC_SetFeatureList(tNFC_FW_VERSION nfc_fw_version);
-
+#endif
 /*******************************************************************************
 **
 ** Function         NFC_RfIntfExtStart

@@ -1160,9 +1160,11 @@ void NfcAdaptation::NFA_SetBootMode(uint8_t boot_mode) {
 ** Returns          none
 **
 *******************************************************************************/
+#if (NXP_EXTNS == TRUE)
 uint8_t NfcAdaptation::NFA_GetBootMode() {
   return nfcBootMode;
 }
+#endif
 /*******************************************************************************
 **
 ** Function:    NfcAdaptation::HalDownloadFirmwareDataCallback

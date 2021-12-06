@@ -291,12 +291,13 @@ tNFC_STATUS RW_SetActivatedTagType(tNFC_ACTIVATE_DEVT* p_activate_params,
     }
   } else if (NFC_PROTOCOL_T2T == p_activate_params->protocol) {
     /* Type2Tag    - NFC-A */
-    if ((p_activate_params->rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A)
-#if (NXP_EXTNS == TRUE)
-        ||
-        (p_activate_params->rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_WLC)
+#if (NXP_EXTNS != TRUE)
+    if (p_activate_params->rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A)
+#else
+    if ((p_activate_params->rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A) ||
+        (p_activate_params->rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_WLC))
 #endif
-    ) {
+    {
       rw_cb.tcb_type = RW_CB_TYPE_T2T;
       if (p_activate_params->rf_tech_param.param.pa.sel_rsp ==
           NFC_SEL_RES_NFC_FORUM_T2T)
