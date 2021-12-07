@@ -157,9 +157,9 @@ typedef uint8_t tNFA_PMID;
 #if (NXP_EXTNS == TRUE)
 #if (NXP_QTAG == TRUE)
 #define NFA_TECHNOLOGY_MASK_Q 0x100 /* Proprietary Technology       */
+#endif
 /* All supported technologies   */
 typedef uint16_t tNFA_TECHNOLOGY_MASK;
-#endif
 #else
 typedef uint8_t tNFA_TECHNOLOGY_MASK;
 #endif
