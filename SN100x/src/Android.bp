@@ -109,6 +109,12 @@ cc_defaults {
             ],
         },
     },
+    sanitize : {
+        misc_undefined: [
+            "bounds",
+        ],
+        address: true,
+    },
     local_include_dirs: [
         "include",
         "gki/ulinux",
