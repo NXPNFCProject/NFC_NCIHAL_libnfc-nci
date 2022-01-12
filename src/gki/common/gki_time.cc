@@ -15,6 +15,24 @@
  *  limitations under the License.
  *
  ******************************************************************************/
+/******************************************************************************
+ *
+ *  Copyright 2021 NXP
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
+ ******************************************************************************/
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
 #include "gki_int.h"
@@ -193,6 +211,14 @@ void GKI_start_timer(uint8_t tnum, int32_t ticks, bool is_continuous) {
   }
   bool bad_timer = false;
 
+#if (NXP_EXTNS == TRUE)
+  if (task_id >= GKI_MAX_TASKS) {
+    LOG(ERROR) << StringPrintf(
+    "%s: invalid task_id:0x%02x. start timer failed", __func__, task_id);
+    return;
+  }
+#endif
+
   if (ticks <= 0) ticks = 1;
 
   orig_ticks = ticks; /* save the ticks in case adjustment is necessary */
@@ -296,34 +322,36 @@ void GKI_stop_timer(uint8_t tnum) {
   }
   GKI_disable();
 
-  switch (tnum) {
+  if (task_id < GKI_MAX_TASKS) {
+    switch (tnum) {
 #if (GKI_NUM_TIMERS > 0)
-    case TIMER_0:
-      gki_cb.com.OSTaskTmr0R[task_id] = 0;
-      gki_cb.com.OSTaskTmr0[task_id] = 0;
-      break;
+      case TIMER_0:
+        gki_cb.com.OSTaskTmr0R[task_id] = 0;
+        gki_cb.com.OSTaskTmr0[task_id] = 0;
+        break;
 #endif
 
 #if (GKI_NUM_TIMERS > 1)
-    case TIMER_1:
-      gki_cb.com.OSTaskTmr1R[task_id] = 0;
-      gki_cb.com.OSTaskTmr1[task_id] = 0;
-      break;
+      case TIMER_1:
+        gki_cb.com.OSTaskTmr1R[task_id] = 0;
+        gki_cb.com.OSTaskTmr1[task_id] = 0;
+        break;
 #endif
 
 #if (GKI_NUM_TIMERS > 2)
-    case TIMER_2:
-      gki_cb.com.OSTaskTmr2R[task_id] = 0;
-      gki_cb.com.OSTaskTmr2[task_id] = 0;
-      break;
+      case TIMER_2:
+        gki_cb.com.OSTaskTmr2R[task_id] = 0;
+        gki_cb.com.OSTaskTmr2[task_id] = 0;
+        break;
 #endif
 
 #if (GKI_NUM_TIMERS > 3)
-    case TIMER_3:
-      gki_cb.com.OSTaskTmr3R[task_id] = 0;
-      gki_cb.com.OSTaskTmr3[task_id] = 0;
-      break;
+      case TIMER_3:
+        gki_cb.com.OSTaskTmr3R[task_id] = 0;
+        gki_cb.com.OSTaskTmr3[task_id] = 0;
+        break;
 #endif
+    }
   }
 
   if (gki_timers_is_timer_running() == false) {
