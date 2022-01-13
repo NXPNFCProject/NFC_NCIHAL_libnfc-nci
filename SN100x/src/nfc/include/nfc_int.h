@@ -232,6 +232,8 @@ typedef struct {
   bool reassembly; /* Reassemble fragmented data pkt */
   uint8_t last_hdr[NFC_SAVED_HDR_SIZE]; /* part of last NCI command header */
   uint8_t last_cmd[NFC_SAVED_CMD_SIZE]; /* part of last NCI command payload */
+  uint8_t
+      last_nfcee_cmd[NFC_SAVED_CMD_SIZE]; /* part of last NCI command payload */
   void* p_vsc_cback;       /* the callback function for last VSC command */
   BUFFER_Q nci_cmd_xmit_q; /* NCI command queue */
   TIMER_LIST_ENT

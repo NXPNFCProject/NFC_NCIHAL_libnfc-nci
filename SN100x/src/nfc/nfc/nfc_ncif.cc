@@ -424,6 +424,11 @@ void nfc_ncif_check_cmd_queue(NFC_HDR* p_buf) {
       ps = (uint8_t*)(p_buf + 1) + p_buf->offset;
       memcpy(nfc_cb.last_hdr, ps, NFC_SAVED_HDR_SIZE);
       memcpy(nfc_cb.last_cmd, ps + NCI_MSG_HDR_SIZE, NFC_SAVED_CMD_SIZE);
+      // Check first byte to check if this is an NFCEE command
+      if (*ps == ((NCI_MT_CMD << NCI_MT_SHIFT) | NCI_GID_EE_MANAGE)) {
+        memcpy(nfc_cb.last_nfcee_cmd, ps + NCI_MSG_HDR_SIZE,
+               NFC_SAVED_CMD_SIZE);
+      }
       if (p_buf->layer_specific == NFC_WAIT_RSP_VSC) {
         /* save the callback for NCI VSCs)  */
         nfc_cb.p_vsc_cback = (void*)((tNFC_NCI_VS_MSG*)p_buf)->p_cback;
@@ -2493,11 +2498,7 @@ void nfc_mode_set_ntf_timeout() {
   LOG(ERROR) << StringPrintf("%s", __func__);
   tNFC_RESPONSE nfc_response;
   nfc_response.mode_set.status = NCI_STATUS_FAILED;
-#if(NXP_EXTNS == TRUE)
-  nfc_response.mode_set.nfcee_id = nfa_ee_cb.nfcee_id;
-#else
-  nfc_response.mode_set.nfcee_id = *nfc_cb.last_cmd;
-#endif
+  nfc_response.mode_set.nfcee_id = *nfc_cb.last_nfcee_cmd;
   nfc_response.mode_set.mode = NCI_NFCEE_MD_DEACTIVATE;
 #if (NXP_EXTNS == TRUE)
   nfc_cb.flags &= ~NFC_FL_WAIT_MODE_SET_NTF;
