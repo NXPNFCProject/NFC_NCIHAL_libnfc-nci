@@ -722,7 +722,9 @@ static void rw_mfc_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   }
 
   if ((p_mfc->state != RW_MFC_STATE_IDLE) && (mfc_data ==  NULL)) {
-    LOG(ERROR) << StringPrintf("%s NULL pointer", __func__);
+    if (p_mfc->state != RW_MFC_STATE_NOT_ACTIVATED) {
+      LOG(ERROR) << StringPrintf("%s NULL pointer", __func__);
+    }
     return;
   }
 
