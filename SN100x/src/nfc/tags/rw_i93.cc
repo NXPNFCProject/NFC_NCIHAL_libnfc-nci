@@ -2311,6 +2311,9 @@ void rw_i93_sm_read_ndef(NFC_HDR* p_resp) {
 
     if (p_resp->len > 0) {
       (*(rw_cb.p_cback))(RW_I93_NDEF_READ_EVT, &rw_data);
+    } else {
+      // free buffer, if len == 0
+      GKI_freebuf(p_resp);
     }
 
     /* this will make read data from next block */
