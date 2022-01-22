@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2021 NXP
+ *  Copyright 2018-2022 NXP
  *
  ******************************************************************************/
 
@@ -139,13 +139,17 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
           int xx;
           for (xx = 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++) {
               if(nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_UNRECOVERABLE_ERRROR) {
-                  nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_UNRECOVERABLE_ERRROR);
-                  /* Discovery operation is complete, retrieve discovery result */
-                  nfa_hci_cb.num_nfcee = NFA_HCI_MAX_HOST_IN_NETWORK;
-                  NFA_EeGetInfo(&nfa_hci_cb.num_nfcee, nfa_hci_cb.ee_info);
-                  for (int yy = 0; yy < nfa_hci_cb.num_nfcee; yy++) {
-                      nfa_hci_cb.ee_info[yy].hci_enable_state = NFA_HCI_FL_EE_NONE;
-                      nfa_hciu_add_host_resetting((nfa_hci_cb.ee_info[yy].ee_handle & ~NFA_HANDLE_GROUP_EE), NFCEE_REINIT);
+                nfa_hciu_clear_host_resetting(
+                    nfa_hci_cb.curr_nfcee,
+                    NFCEE_UNRECOVERABLE_ERRROR | NFCEE_RECOVERY_IN_PROGRESS);
+                /* Discovery operation is complete, retrieve discovery result */
+                nfa_hci_cb.num_nfcee = NFA_HCI_MAX_HOST_IN_NETWORK;
+                NFA_EeGetInfo(&nfa_hci_cb.num_nfcee, nfa_hci_cb.ee_info);
+                for (int yy = 0; yy < nfa_hci_cb.num_nfcee; yy++) {
+                  nfa_hci_cb.ee_info[yy].hci_enable_state = NFA_HCI_FL_EE_NONE;
+                  nfa_hciu_add_host_resetting(
+                      (nfa_hci_cb.ee_info[yy].ee_handle & ~NFA_HANDLE_GROUP_EE),
+                      NFCEE_REINIT);
                   }
                   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
                          " NFCEE_UNRECOVERABLE_ERRROR  reset handling");
@@ -296,8 +300,11 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                      nfa_hci_cb.ee_info[nfa_hci_cb.next_nfcee_idx].hci_enable_state = NFA_HCI_FL_EE_ENABLED;
 
                      if(nfa_hci_cb.next_nfcee_idx < nfa_hci_cb.num_nfcee) {
-                       DLOG_IF(INFO, nfc_debug_enabled)
-                          << StringPrintf("NFCEE_UNRECOVERABLE_ERRROR reset handling");
+                       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+                           "NFCEE_UNRECOVERABLE_ERRROR reset handling "
+                           "nfa_hci_cb.next_nfcee_idx %d  nfa_hci_cb.num_nfcee "
+                           "%d",
+                           nfa_hci_cb.next_nfcee_idx, nfa_hci_cb.num_nfcee);
                        if (nfa_hci_enable_one_nfcee() == false) {
                         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hci_enable_one_nfcee() failed");
                        }
@@ -408,7 +415,9 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                 NFA_SCR_PROCESS_EVT(NFA_SCR_ESE_RECOVERY_START_EVT, NFA_STATUS_OK);
               }
               if(!nfa_hciu_is_host_reseting(nfa_ee_cb.ecb[ee_entry_index].nfcee_id)) {
-                nfa_hciu_add_host_resetting(nfa_ee_cb.ecb[ee_entry_index].nfcee_id, NFCEE_UNRECOVERABLE_ERRROR);
+                nfa_hciu_add_host_resetting(
+                    nfa_ee_cb.ecb[ee_entry_index].nfcee_id,
+                    NFCEE_UNRECOVERABLE_ERRROR | NFCEE_RECOVERY_IN_PROGRESS);
                 nfa_hci_release_transceive(nfa_ee_cb.ecb[ee_entry_index].nfcee_id, NFA_STATUS_HCI_UNRECOVERABLE_ERROR);
                 nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
                 nfa_hci_cb.curr_nfcee = nfa_ee_cb.ecb[ee_entry_index].nfcee_id;
@@ -420,7 +429,8 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                 }
               }
             }
-            nfa_hciu_add_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_UNRECOVERABLE_ERRROR);
+            nfa_hciu_add_host_resetting(nfa_hci_cb.curr_nfcee,
+                                          NFCEE_UNRECOVERABLE_ERRROR);
             break;
           }
           ee_entry_index++;

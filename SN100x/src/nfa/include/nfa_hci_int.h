@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2021 NXP
+ *  Copyright 2018-2022 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -121,11 +121,20 @@ extern uint8_t HCI_LOOPBACK_DEBUG;
 #define NFA_HCI_STATE_RESTORE_NETWK_ENABLE 0x08
 #if(NXP_EXTNS == TRUE)
 /*NFCEE Recovery codes*/
+
+/*HCI_CLEAR_ALL_PIPE event received*/
 #define NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED       0x01
+/*NFCEE Unrecoverable status notification received*/
 #define NFCEE_UNRECOVERABLE_ERRROR              0x10
+/*NFCEE Discovery notification received*/
 #define NFCEE_REINIT                            0x02
+/*NFCEE removed notification received*/
 #define NFCEE_REMOVED_NTF                       0x04
+/*NFCEE Initialization completed status notification received*/
 #define NFCEE_INIT_COMPLETED                    0x08
+/*NFCEE unrecoverable error handling triggered*/
+#define NFCEE_RECOVERY_IN_PROGRESS              0x20
+
 #define NFA_HCI_MAX_RSP_WAIT_TIME 0x0C
 /* After the reception of WTX, maximum response timeout value is 30 sec */
 #define NFA_HCI_CHAIN_PKT_RSP_TIMEOUT 30000
@@ -780,5 +789,6 @@ extern void nfa_hciu_clear_host_resetting(uint8_t host_id, uint8_t reset_cfg);
 extern void nfa_hci_handle_pending_host_reset();
 extern uint8_t nfa_hciu_get_hci_host_id(uint8_t nfceeid);
 extern void nfa_hci_handle_control_evt(tNFC_CONN_EVT event,tNFC_CONN* p_data);
+extern bool nfa_hciu_check_host_resetting(uint8_t host_id, uint8_t reset_type);
 #endif
 #endif /* NFA_HCI_INT_H */

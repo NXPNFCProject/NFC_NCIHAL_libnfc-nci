@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2021 NXP
+ *  Copyright 2018-2022 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -2715,11 +2715,19 @@ void nfa_hci_handle_pending_host_reset() {
         nfa_hci_handle_clear_all_pipe_cmd(nfa_hci_cb.reset_host[xx].host_id);
         break;
       } else if (nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_UNRECOVERABLE_ERRROR) {
-          nfa_hci_release_transceive(nfa_hci_cb.reset_host[xx].host_id, NFA_STATUS_HCI_UNRECOVERABLE_ERROR);
+          nfa_hci_release_transceive(nfa_hci_cb.reset_host[xx].host_id,
+                                     NFA_STATUS_HCI_UNRECOVERABLE_ERROR);
           nfa_hci_cb.curr_nfcee = nfa_hci_cb.reset_host[xx].host_id;
           nfa_hci_cb.next_nfcee_idx = 0x00;
-          if(NFC_NfceeDiscover(true) == NFC_STATUS_FAILED) {
-            DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFCEE_UNRECOVERABLE_ERRROR unable to handle");
+          if (!nfa_hciu_check_host_resetting(nfa_hci_cb.reset_host[xx].host_id,
+                                           NFCEE_RECOVERY_IN_PROGRESS)) {
+            if (NFC_NfceeDiscover(true) == NFC_STATUS_FAILED) {
+              DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+                  "NFCEE_UNRECOVERABLE_ERRROR unable to handle");
+            }
+          } else {
+            DLOG_IF(INFO, nfc_debug_enabled)
+                << StringPrintf("NFCEE re-initialization ongoing..........");
           }
           break;
         }
