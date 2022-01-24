@@ -30,7 +30,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2021 NXP
+ *  Copyright 2018-2022 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -3270,6 +3270,10 @@ bool nfa_dm_p2p_prio_logic(uint8_t event, uint8_t* p, uint8_t event_type) {
       ) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
         "returning from nfa_dm_p2p_prio_logic  Disable p2p_prio_logic");
+#if (NXP_EXTNS == TRUE)
+    // Stop p2p prio logic timer in reader mode
+    nfc_stop_quick_timer(&p2p_prio_logic_data.timer_list);
+#endif
     return true;
   }
 #if (NXP_EXTNS == TRUE)
