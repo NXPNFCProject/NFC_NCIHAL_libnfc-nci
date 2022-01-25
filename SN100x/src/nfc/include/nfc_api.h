@@ -1507,7 +1507,7 @@ extern tNFC_STATUS NFC_TestLoopback(NFC_HDR* p_data);
 *******************************************************************************/
 extern tNFC_STATUS NFC_ISODEPNakPresCheck();
 
-#if (NXP_EXTNS == TRUE || APPL_DTA_MODE == TRUE)
+#if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         nfc_ncif_getFWVersion
