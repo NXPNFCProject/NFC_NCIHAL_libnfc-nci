@@ -19,6 +19,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <sys/types.h>
 
 typedef struct ringbuffer_t ringbuffer_t;
 
