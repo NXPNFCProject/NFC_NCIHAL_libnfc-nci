@@ -48,10 +48,12 @@
 /*****************************************************************************
 **  Constants and data types
 *****************************************************************************/
-/* the number of tNFA_EE_ECBs (for NFCEEs and DH) */
-#define NFA_EE_NUM_ECBS (NFA_EE_MAX_EE_SUPPORTED + 1)
+/* the number of tNFA_EE_ECBs (for NFCEEs and DH) + Empty aid ECB */
+#define NFA_EE_NUM_ECBS (NFA_EE_MAX_EE_SUPPORTED + 2)
 /* The index for DH in nfa_ee_cb.ee_cb[] */
 #define NFA_EE_CB_4_DH NFA_EE_MAX_EE_SUPPORTED
+/* The index for Empty aid in nfa_ee_cb.ee_cb[] */
+#define NFA_EE_EMPTY_AID_ECB (NFA_EE_CB_4_DH + 1)
 #define NFA_EE_INVALID 0xFF
 /* only A, B, F, Bprime are supported by UICC now */
 #define NFA_EE_MAX_TECH_ROUTE 4
