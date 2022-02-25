@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2021 NXP
+ *  Copyright 2018-2022 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -3310,7 +3310,6 @@ static bool nfa_hci_api_abort_apdu (tNFA_HCI_EVENT_DATA *p_evt_data)
     uint8_t                     pipe_id = 0;;
     tNFC_STATUS                 status = NFA_STATUS_FAILED;
     bool                        send_abort_ntf = FALSE;
-    bool                        apdu_dropped = FALSE;
     bool                        host_reseting = FALSE;
     tNFA_HCI_EVT_DATA           evt_data;
     tNFA_HCI_DYN_PIPE           *p_pipe;
@@ -3345,7 +3344,6 @@ static bool nfa_hci_api_abort_apdu (tNFA_HCI_EVENT_DATA *p_evt_data)
                     GKI_remove_from_queue (&nfa_hci_cb.hci_host_reset_api_q, p_msg);
                     GKI_freebuf (p_msg);
 
-                    apdu_dropped = true;
                     break;
                 }
             }
