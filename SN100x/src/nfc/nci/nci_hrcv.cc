@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2019-2021 NXP
+ *  Copyright 2019-2022 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -201,14 +201,14 @@ void nci_proc_core_ntf(NFC_HDR* p_msg) {
 *******************************************************************************/
 void nci_proc_rf_management_rsp(NFC_HDR* p_msg) {
   uint8_t* p;
-  uint8_t *pp, len, op_code;
+  uint8_t *pp, op_code;
   uint8_t* p_old = nfc_cb.last_cmd;
 
   /* find the start of the NCI message and parse the NCI header */
   p = (uint8_t*)(p_msg + 1) + p_msg->offset;
   pp = p + 1;
   NCI_MSG_PRS_HDR1(pp, op_code);
-  len = *pp++;
+  pp++;  // len = *pp++;
 
   switch (op_code) {
     case NCI_MSG_RF_DISCOVER:
@@ -590,14 +590,14 @@ void nci_proc_ee_management_ntf(NFC_HDR* p_msg) {
 void nci_proc_prop_rsp(NFC_HDR* p_msg) {
   uint8_t* p;
   uint8_t* p_evt;
-  uint8_t *pp, len, op_code;
+  uint8_t *pp, op_code;
   tNFC_VS_CBACK* p_cback = (tNFC_VS_CBACK*)nfc_cb.p_vsc_cback;
 
   /* find the start of the NCI message and parse the NCI header */
   p = p_evt = (uint8_t*)(p_msg + 1) + p_msg->offset;
   pp = p + 1;
   NCI_MSG_PRS_HDR1(pp, op_code);
-  len = *pp++;
+  pp++;  // len = *pp++;
 
   /*If there's a pending/stored command, restore the associated address of the
    * callback function */
@@ -647,14 +647,14 @@ void nci_proc_prop_raw_vs_rsp(NFC_HDR* p_msg) {
 void nci_proc_prop_ntf(NFC_HDR* p_msg) {
   uint8_t* p;
   uint8_t* p_evt;
-  uint8_t *pp, len, op_code;
+  uint8_t *pp, op_code;
   int i;
 
   /* find the start of the NCI message and parse the NCI header */
   p = p_evt = (uint8_t*)(p_msg + 1) + p_msg->offset;
   pp = p + 1;
   NCI_MSG_PRS_HDR1(pp, op_code);
-  len = *pp++;
+  pp++;  // len = *pp++;
 
   for (i = 0; i < NFC_NUM_VS_CBACKS; i++) {
     if (nfc_cb.p_vs_cb[i]) {

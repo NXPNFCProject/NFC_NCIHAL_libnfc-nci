@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2021 NXP
+ *  Copyright 2018-2022 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -2812,7 +2812,6 @@ void nfa_ee_nci_action_ntf(tNFA_EE_MSG* p_data) {
 *******************************************************************************/
 void nfa_ee_nci_disc_req_ntf(tNFA_EE_MSG* p_data) {
   tNFC_EE_DISCOVER_REQ_REVT* p_cbk = p_data->disc_req.p_data;
-  tNFA_HANDLE ee_handle;
   tNFA_EE_ECB* p_cb = nullptr;
   uint8_t report_ntf = 0;
   uint8_t xx;
@@ -2823,8 +2822,6 @@ void nfa_ee_nci_disc_req_ntf(tNFA_EE_MSG* p_data) {
       "num_info: %d cur_ee:%d", p_cbk->num_info, nfa_ee_cb.cur_ee);
 
   for (xx = 0; xx < p_cbk->num_info; xx++) {
-    ee_handle = NFA_HANDLE_GROUP_EE | p_cbk->info[xx].nfcee_id;
-
     p_cb = nfa_ee_find_ecb(p_cbk->info[xx].nfcee_id);
     if (!p_cb) {
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
@@ -3218,7 +3215,6 @@ void nfa_ee_lmrt_to_nfcc(__attribute__((unused)) tNFA_EE_MSG* p_data) {
   int max_len;
   tNFA_STATUS status = NFA_STATUS_FAILED;
   int cur_offset;
-  uint8_t max_tlv;
 
   /* update routing table: DH and the activated NFCEEs */
   max_len = (NFC_GetLmrtSize() > NFA_EE_ROUT_BUF_SIZE) ? NFC_GetLmrtSize()
@@ -3250,9 +3246,6 @@ void nfa_ee_lmrt_to_nfcc(__attribute__((unused)) tNFA_EE_MSG* p_data) {
 #if (NXP_EXTNS == TRUE)
   max_len = NFC_GetLmrtSize();
 #endif
-  max_tlv =
-      (uint8_t)((max_len > NFA_EE_ROUT_MAX_TLV_SIZE) ? NFA_EE_ROUT_MAX_TLV_SIZE
-                                                     : max_len);
   cur_offset = 0;
   /* use the first byte of the buffer (p) to keep the num_tlv */
   *p = 0;

@@ -15,6 +15,25 @@
  *  limitations under the License.
  *
  ******************************************************************************/
+ /******************************************************************************
+ *
+ *  The original Work has been changed by NXP.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  Copyright 2019-2022 NXP
+ *
+ ******************************************************************************/
 
 /******************************************************************************
  *
@@ -91,7 +110,6 @@ void nfa_rw_sys_disable(void) {
   tRW_T1T_CB* p_t1t;
   tRW_T2T_CB* p_t2t;
   tRW_T3T_CB* p_t3t;
-  tRW_T4T_CB* p_t4t;
   tRW_I93_CB* p_i93;
   tRW_MFC_CB* p_mfc;
 
@@ -124,7 +142,6 @@ void nfa_rw_sys_disable(void) {
       }
       break;
     case RW_CB_TYPE_T4T: /* do nothing */
-      p_t4t = &rw_cb.tcb.t4t;
       break;
     case RW_CB_TYPE_T5T:
       p_i93 = &rw_cb.tcb.i93;

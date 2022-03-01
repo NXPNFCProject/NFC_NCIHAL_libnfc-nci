@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2019-2020 NXP
+ *  Copyright 2019-2022 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -302,7 +302,7 @@ void nfa_p2p_proc_llcp_data_ind(tLLCP_SAP_CBACK_DATA* p_data) {
 **
 *******************************************************************************/
 void nfa_p2p_proc_llcp_connect_ind(tLLCP_SAP_CBACK_DATA* p_data) {
-  uint8_t server_sap, local_sap;
+  uint8_t server_sap;
   tNFA_P2P_EVT_DATA evt_data;
   uint8_t xx;
 
@@ -310,7 +310,6 @@ void nfa_p2p_proc_llcp_connect_ind(tLLCP_SAP_CBACK_DATA* p_data) {
       << StringPrintf("server_sap:0x%x", p_data->connect_ind.server_sap);
 
   server_sap = p_data->connect_ind.server_sap;
-  local_sap = p_data->connect_ind.local_sap;
 
   if (nfa_p2p_cb.sap_cb[server_sap].p_cback) {
     xx = nfa_p2p_allocate_conn_cb(server_sap);

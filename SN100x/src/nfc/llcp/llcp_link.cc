@@ -17,7 +17,7 @@
  ******************************************************************************/
 /******************************************************************************
  *
- *  Copyright 2019-2020 NXP
+ *  Copyright 2019-2022 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -1109,7 +1109,7 @@ static void llcp_link_proc_ui_pdu(uint8_t local_sap, uint8_t remote_sap,
 *******************************************************************************/
 static void llcp_link_proc_agf_pdu(NFC_HDR* p_agf) {
   uint16_t agf_length;
-  uint8_t *p, *p_info, *p_pdu_length;
+  uint8_t *p, *p_info;
   uint16_t pdu_hdr, pdu_length, pdu_num;
   uint8_t dsap, ptype, ssap;
 
@@ -1159,7 +1159,6 @@ static void llcp_link_proc_agf_pdu(NFC_HDR* p_agf) {
 
   while (agf_length >= (LLCP_PDU_HEADER_SIZE + LLCP_PDU_AGF_LEN_SIZE)) {
     /* get length of PDU */
-    p_pdu_length = p;
     BE_STREAM_TO_UINT16(pdu_length, p);
     agf_length -= LLCP_PDU_AGF_LEN_SIZE;
 

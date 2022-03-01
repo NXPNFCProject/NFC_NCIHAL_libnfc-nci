@@ -15,7 +15,7 @@
  *******************************************************************************/
 /******************************************************************************
  *
- *  Copyright 2019-2020 NXP
+ *  Copyright 2019-2022 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -1006,20 +1006,19 @@ static void rw_mfc_handle_tlv_detect_rsp(uint8_t* p_data) {
  *******************************************************************************/
 static void rw_mfc_resume_op() {
   tRW_MFC_CB* p_mfc = &rw_cb.tcb.mfc;
-  bool status = true;
 
   switch (p_mfc->state) {
     case RW_MFC_STATE_DETECT_TLV:
-      status = rw_mfc_readBlock(p_mfc->next_block.block);
+      rw_mfc_readBlock(p_mfc->next_block.block);
       break;
     case RW_MFC_STATE_READ_NDEF:
-      status = rw_mfc_readBlock(p_mfc->next_block.block);
+      rw_mfc_readBlock(p_mfc->next_block.block);
       break;
     case RW_MFC_STATE_NDEF_FORMAT:
-      status = rw_mfc_formatBlock(p_mfc->next_block.block);
+      rw_mfc_formatBlock(p_mfc->next_block.block);
       break;
     case RW_MFC_STATE_UPDATE_NDEF:
-      status = rw_mfc_writeBlock(p_mfc->next_block.block);
+      rw_mfc_writeBlock(p_mfc->next_block.block);
       break;
   }
 }
