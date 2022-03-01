@@ -1176,7 +1176,6 @@ static void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "%s State: %u  Cmd: %u", __func__, nfa_hci_cb.hci_state, event);
 #if(NXP_EXTNS == TRUE)
-  tNFA_HCI_DYN_GATE         *p_gate;
   tNFA_HCI_PIPE_CMDRSP_INFO *p_pipe_cmdrsp_info = nullptr;
 #endif
 
@@ -1190,7 +1189,7 @@ static void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
       nfa_hciu_alloc_gate (NFA_HCI_GEN_PURPOSE_APDU_APP_GATE, NFA_HCI_APP_HANDLE_NONE);
       nfa_hciu_alloc_gate (NFA_HCI_ID_MNGMNT_APP_GATE, NFA_HCI_APP_HANDLE_NONE);
       nfa_hciu_alloc_gate (NFA_HCI_APDU_APP_GATE, NFA_HCI_APP_HANDLE_NONE);
-      p_gate = nfa_hciu_alloc_gate (NFA_HCI_APDU_GATE, NFA_HCI_APP_HANDLE_NONE);
+      nfa_hciu_alloc_gate (NFA_HCI_APDU_GATE, NFA_HCI_APP_HANDLE_NONE);
 
       /* Set flag waiting for EVT_ATR on APDU Pipes connected to different UICC host */
       //nfa_hciu_set_server_apdu_host_not_ready (p_gate);

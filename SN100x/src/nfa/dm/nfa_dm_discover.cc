@@ -2467,12 +2467,11 @@ static void nfa_dm_disc_sm_w4_host_select(tNFA_DM_RF_DISC_SM_EVENT event,
 *******************************************************************************/
 static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
                                        tNFA_DM_RF_DISC_DATA* p_data) {
-  tNFC_STATUS status;
   tNFA_DM_DISC_FLAGS old_sleep_wakeup_flag =
       (nfa_dm_cb.disc_cb.disc_flags & NFA_DM_DISC_FLAGS_CHECKING);
   bool sleep_wakeup_event = false;
   bool sleep_wakeup_event_processed = false;
-#if(NXP_EXTNS == TRUE)
+#if (NXP_EXTNS == TRUE)
   tNFA_CONN_EVT_DATA conn_evt_data;
 #endif
   switch (event) {
@@ -2481,7 +2480,7 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
       if (nfa_dm_cb.disc_cb.activated_protocol == NCI_PROTOCOL_MIFARE) {
         nfa_dm_cb.disc_cb.deact_pending = true;
         nfa_dm_cb.disc_cb.pending_deact_type = p_data->deactivate_type;
-        status = nfa_dm_send_deactivate_cmd(p_data->deactivate_type);
+        nfa_dm_send_deactivate_cmd(p_data->deactivate_type);
         break;
       }
 
@@ -2491,7 +2490,7 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
         nfa_dm_cb.disc_cb.deact_pending = true;
         nfa_dm_cb.disc_cb.pending_deact_type = p_data->deactivate_type;
       } else {
-        status = nfa_dm_send_deactivate_cmd(p_data->deactivate_type);
+        nfa_dm_send_deactivate_cmd(p_data->deactivate_type);
       }
 
       break;
@@ -3315,7 +3314,6 @@ bool nfa_dm_p2p_prio_logic(uint8_t event, uint8_t* p, uint8_t event_type) {
       || nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_POLL_ACTIVE
 #endif
   ) {
-    uint8_t rf_disc_id = 0xFF;
     uint8_t type = 0xFF;
     uint8_t protocol = 0xFF;
     uint8_t tech_mode = 0xFF;
@@ -3323,7 +3321,7 @@ bool nfa_dm_p2p_prio_logic(uint8_t event, uint8_t* p, uint8_t event_type) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("P2P_Prio_Logic");
 
     if (event == NCI_MSG_RF_INTF_ACTIVATED) {
-      rf_disc_id = *p++;
+      p++;  // rf_disc_id = *p++;
       type = *p++;
       protocol = *p++;
       tech_mode = *p++;
