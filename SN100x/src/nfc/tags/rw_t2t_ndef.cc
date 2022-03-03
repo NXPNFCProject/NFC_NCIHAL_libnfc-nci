@@ -425,8 +425,10 @@ static void rw_t2t_handle_tlv_detect_rsp(uint8_t* p_data) {
   uint16_t count = 0;
   uint8_t xx;
   tNFC_STATUS status;
+#if (NXP_EXTNS != TRUE)
   tT2T_CMD_RSP_INFO* p_cmd_rsp_info =
       (tT2T_CMD_RSP_INFO*)rw_cb.tcb.t2t.p_cmd_rsp_info;
+#endif
   uint8_t tlvtype = p_t2t->tlv_detect;
 
   if (p_t2t->work_offset == 0) {
@@ -741,7 +743,9 @@ static void rw_t2t_handle_tlv_detect_rsp(uint8_t* p_data) {
 
   p_t2t->work_offset += T2T_READ_DATA_LEN;
 
+#if (NXP_EXTNS != TRUE)
   rw_t2t_info_to_event(p_cmd_rsp_info);
+#endif
 
   /* If not found and not failed, read next block and search tlv */
   if (!found && !failed) {
