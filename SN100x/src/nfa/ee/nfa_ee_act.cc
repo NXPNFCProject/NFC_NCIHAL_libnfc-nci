@@ -762,8 +762,23 @@ tNFA_EE_ECB* nfa_ee_find_aid_offset(uint8_t aid_len, uint8_t* p_aid,
                                     int* p_offset, int* p_entry) {
   int xx, yy, aid_len_offset, offset;
   tNFA_EE_ECB *p_ret = nullptr, *p_ecb;
+
+#if (NXP_EXTNS == TRUE)
+/* Find offset for Empty AID route*/
+  if (aid_len == 0x00) {
+    p_ecb = &nfa_ee_cb.ecb[NFA_EE_CB_4_DH + 1];
+    if (p_ecb->aid_entries) {
+      return p_ecb;
+    }
+    return p_ret;
+  }
+
+  /* Find offset other NFCEE & DH*/
+  p_ecb = &nfa_ee_cb.ecb[NFA_EE_CB_4_DH];
+#else
   /* NFA_EE_CB_4_DH + Empty aid ECB */
   p_ecb = &nfa_ee_cb.ecb[NFA_EE_CB_4_DH + 1];
+#endif
   aid_len_offset = 1; /* skip the tag */
   for (yy = 0; yy <= nfa_ee_cb.cur_ee; yy++) {
     if (p_ecb->aid_entries) {
