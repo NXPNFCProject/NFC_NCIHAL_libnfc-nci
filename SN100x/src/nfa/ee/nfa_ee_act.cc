@@ -762,8 +762,8 @@ tNFA_EE_ECB* nfa_ee_find_aid_offset(uint8_t aid_len, uint8_t* p_aid,
                                     int* p_offset, int* p_entry) {
   int xx, yy, aid_len_offset, offset;
   tNFA_EE_ECB *p_ret = nullptr, *p_ecb;
-  /* NFA_EE_CB_4_DH + Empty aid ECB */
-  p_ecb = &nfa_ee_cb.ecb[NFA_EE_CB_4_DH + 1];
+
+  p_ecb = &nfa_ee_cb.ecb[NFA_EE_CB_4_DH];
   aid_len_offset = 1; /* skip the tag */
   for (yy = 0; yy <= nfa_ee_cb.cur_ee; yy++) {
     if (p_ecb->aid_entries) {
@@ -3272,16 +3272,6 @@ void nfa_ee_lmrt_to_nfcc(__attribute__((unused)) tNFA_EE_MSG* p_data) {
         << StringPrintf("%s --add the routing for DH!!", __func__);
     nfa_ee_route_add_one_ecb_by_route_order(&nfa_ee_cb.ecb[NFA_EE_CB_4_DH], rt,
                                             &max_len, more, p, &cur_offset);
-
-    if (rt == NCI_ROUTE_ORDER_AID) {
-      p_cb = &nfa_ee_cb.ecb[NFA_EE_EMPTY_AID_ECB];
-      if (p_cb->ee_status == NFC_NFCEE_STATUS_ACTIVE) {
-        DLOG_IF(INFO, nfc_debug_enabled)
-            << StringPrintf("%s --add the routing for Empty Aid!!", __func__);
-        nfa_ee_route_add_one_ecb_by_route_order(p_cb, rt, &max_len, more, p,
-                                                &cur_offset);
-      }
-    }
   }
 
   GKI_freebuf(p);
