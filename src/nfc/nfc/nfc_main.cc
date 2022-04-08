@@ -46,7 +46,9 @@
 #include "NfcAdaptation.h"
 #include <android-base/stringprintf.h>
 #include <android/hardware/nfc/1.1/types.h>
+#if (NXP_EXTNS == TRUE)
 #include <vendor/nxp/nxpnfc/2.0/types.h>
+#endif
 #include <base/logging.h>
 #include <cutils/properties.h>
 
@@ -97,10 +99,12 @@ extern void delete_stack_non_volatile_store(bool forceDelete);
 ** Declarations
 ****************************************************************************/
 tNFC_CB nfc_cb;
+#if(NXP_EXTNS == TRUE)
 uint8_t i2c_fragmentation_enabled = 0xff;
 
 tNfc_featureList nfcFL;
 static tNFC_chipType chipType = (tNFC_chipType)0x00;
+#endif
 #if (NFC_RW_ONLY == FALSE)
 #if (NXP_EXTNS == TRUE)
 #define NFC_NUM_INTERFACE_MAP 3
@@ -111,8 +115,9 @@ static tNFC_chipType chipType = (tNFC_chipType)0x00;
 #else
 #define NFC_NUM_INTERFACE_MAP 1
 #endif
-
+#if (NXP_EXTNS == TRUE)
 static void NFC_GetFeatureList();
+#endif
 static const tNCI_DISCOVER_MAPS nfc_interface_mapping[NFC_NUM_INTERFACE_MAP] = {
     /* Protocols that use Frame Interface do not need to be included in the
        interface mapping */
@@ -132,6 +137,7 @@ static const tNCI_DISCOVER_MAPS nfc_interface_mapping[NFC_NUM_INTERFACE_MAP] = {
 #endif
 };
 
+#if (NXP_EXTNS == TRUE)
 static const tNCI_DISCOVER_MAPS nfc_interface_mapping_stat[NFC_NUM_INTERFACE_MAP_STAT] = {
     /* Protocols that use Frame Interface do not need to be included in the
        interface mapping */
@@ -144,6 +150,7 @@ static const tNCI_DISCOVER_MAPS nfc_interface_mapping_stat[NFC_NUM_INTERFACE_MAP
      NCI_INTERFACE_NFC_DEP}
 #endif
 };
+#endif
 
 /*******************************************************************************
 **
@@ -732,14 +739,19 @@ static void nfc_main_hal_cback(uint8_t event, tHAL_NFC_STATUS status) {
       */
       if (nfc_cb.nfc_state == NFC_STATE_W4_HAL_OPEN) {
         if (status == HAL_NFC_STATUS_OK) {
-            NFC_GetFeatureList();
+#if (NXP_EXTNS == TRUE)
+          NFC_GetFeatureList();
+#endif
           /* Notify NFC_TASK that NCI tranport is initialized */
           GKI_send_event(NFC_TASK, NFC_TASK_EVT_TRANSPORT_READY);
         } else {
           nfc_main_post_hal_evt(event, status);
         }
+#if (NXP_EXTNS == TRUE)
         nfa_ee_max_ee_cfg = nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED;
-        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_EE_MAX_EE_SUPPORTED to use %d", nfa_ee_max_ee_cfg);
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+            "NFA_EE_MAX_EE_SUPPORTED to use %d", nfa_ee_max_ee_cfg);
+#endif
       }
       break;
 
@@ -769,6 +781,7 @@ static void nfc_main_hal_cback(uint8_t event, tHAL_NFC_STATUS status) {
 #endif
       nfc_main_post_hal_evt(event, status);
       break;
+#if(NXP_EXTNS == TRUE)
     case HAL_NFC_ENABLE_I2C_FRAGMENTATION_EVT: {
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfc_main_hal_cback handled  event  %x", event);
       set_i2c_fragmentation_enabled(I2C_FRAGMENATATION_ENABLED);
@@ -787,6 +800,7 @@ static void nfc_main_hal_cback(uint8_t event, tHAL_NFC_STATUS status) {
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("ESE Update complete : Restart NFC service");
       abort();
       break;
+#endif
     default:
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfc_main_hal_cback unhandled event %x", event);
       break;
@@ -939,14 +953,16 @@ void NFC_Init(tHAL_NFC_ENTRY* p_hal_entry_tbl)
   nfc_cb.nfc_state = NFC_STATE_NONE;
   nfc_cb.nci_cmd_window = NCI_MAX_CMD_WINDOW;
   nfc_cb.nci_wait_rsp_tout = NFC_CMD_CMPL_TIMEOUT;
-
+#if(NXP_EXTNS == TRUE)
   if(nfcFL.chipType != pn547C2) {
+#endif
   nfc_cb.p_disc_maps = nfc_interface_mapping;
+#if(NXP_EXTNS == TRUE)
   }
   else {
       nfc_cb.p_disc_maps = nfc_interface_mapping_stat;
   }
-
+#endif
   nfc_cb.num_disc_maps = NFC_NUM_INTERFACE_MAP;
   nfc_cb.nci_ctrl_size = NCI_CTRL_INIT_SIZE;
   nfc_cb.reassembly = true;
@@ -965,9 +981,8 @@ void NFC_Init(tHAL_NFC_ENTRY* p_hal_entry_tbl)
   nfc_cb.pwr_link_cmd.reqSrc = NFC_INTF_REQ_SRC_DWP;
   nfc_cb.bBlkPwrlinkAndModeSetCmd = false;
   nfc_cb.isLowRam = p_hal_entry_cntxt->isLowRam;
-  if (p_hal_entry_cntxt->boot_mode != NFC_FAST_BOOT_MODE)
+  if (p_hal_entry_cntxt->boot_mode != NFC_FAST_BOOT_MODE) {
 #endif
-  {
     rw_init();
     ce_init();
     llcp_init();
@@ -1586,13 +1601,12 @@ tNFC_STATUS NFC_PowerCycleNFCC(void) {
   return NFC_STATUS_FAILED;
 }
 
+#if (NXP_EXTNS == TRUE)
 void set_i2c_fragmentation_enabled(int value) {
   i2c_fragmentation_enabled = value;
 }
 
 int get_i2c_fragmentation_enabled() { return i2c_fragmentation_enabled; }
-
-#if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         NFC_ReqWiredAccess
@@ -1647,8 +1661,6 @@ int32_t NFC_GetP61Status(void* pdata) {
   *(uint32_t*)pdata = status;
   return status;
 }
-
-#if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 +**
 ** Function         NFC_Nfcee_PwrLinkCtrl
@@ -1676,7 +1688,6 @@ tNFC_STATUS NFC_Nfcee_PwrLinkCtrl(uint8_t nfcee_id, uint8_t cfg_value,
   return nci_snd_pwr_nd_lnk_ctrl_cmd(nfcee_id, cfg_value, reqSrc);
 }
 
-#endif
 
 /*******************************************************************************
 **
@@ -1726,9 +1737,6 @@ int32_t NFC_RelForceDwpOnOffWait (void *pdata)
   }
   return status;
 }
-#endif
-
-#if (NXP_EXTNS == TRUE)
 
 /*******************************************************************************
 **
@@ -1850,6 +1858,7 @@ void NFC_SetStaticHciCback (tNFC_CONN_CBACK    *p_cback)
     }
 }
 
+#if(NXP_EXTNS == TRUE)
 /*******************************************************************************
  **
  ** Function         NFC_GetFeatureList
@@ -1936,7 +1945,7 @@ void NFC_updateHciInitStatus(tNFC_HCI_INIT_STATUS updateStatus) {
 tNFC_chipType NFC_GetChipType() {
     return chipType;
 }
-
+#endif
 /*******************************************************************************
 **
 ** Function         NFC_GetStatusName

@@ -246,8 +246,9 @@
 #define NCI_MSG_NFCEE_STATUS   2
 #if (NXP_EXTNS == TRUE)
 #define NCI_MSG_NFCEE_PWR_LNK_CTRL 3
-#define NCI_MSG_NFCEE_POWER_LINK_CTRL 4
 #endif
+#define NCI_MSG_NFCEE_POWER_LINK_CTRL 4
+
 
 /**********************************************
  * NCI Proprietary  Group       - F

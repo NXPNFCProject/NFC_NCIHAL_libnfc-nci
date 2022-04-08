@@ -52,7 +52,7 @@
 #include "nci_hmsgs.h"
 #include "nfc_api.h"
 #include "nfc_int.h"
-
+#include "include/debug_lmrt.h"
 using android::base::StringPrintf;
 
 extern bool nfc_debug_enabled;
@@ -431,6 +431,7 @@ uint8_t nci_snd_iso_dep_nak_presence_check_cmd()
 uint8_t nci_snd_nfcee_mode_set(uint8_t nfcee_id, uint8_t nfcee_mode) {
   NFC_HDR* p;
   uint8_t* pp;
+#if (NXP_EXTNS == TRUE)
   if (nfcFL.eseFL._ESE_DUAL_MODE_PRIO_SCHEME ==
           nfcFL.eseFL._ESE_WIRED_MODE_RESUME) {
       if ((nfc_cb.bBlkPwrlinkAndModeSetCmd) && (NFCEE_ID_ESE == nfcee_id)) {
@@ -442,6 +443,7 @@ uint8_t nci_snd_nfcee_mode_set(uint8_t nfcee_id, uint8_t nfcee_mode) {
           return NCI_STATUS_OK;
       }
   }
+#endif
   p = NCI_GET_CMD_BUF(NCI_CORE_PARAM_SIZE_NFCEE_MODE_SET);
   if (p == nullptr) return (NCI_STATUS_FAILED);
 

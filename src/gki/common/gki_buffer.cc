@@ -491,7 +491,7 @@ bool gki_chk_buf_damage(void* p_buf) {
   return (true);
 
 #else
-
+  UNUSED(p_buf);
   return (false);
 
 #endif

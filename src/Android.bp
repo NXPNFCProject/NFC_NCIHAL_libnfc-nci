@@ -1,88 +1,176 @@
-cc_library_shared {
-    arch: {
-        arm: {
-            instruction_set: "arm",
-        },
+cc_library_shared{
+  arch : {
+    arm : {
+      instruction_set : "arm",
     },
-    name: "libnfc-nci",
-    shared_libs: [
-        "libcutils",
-        "liblog",
-        "libdl",
-        "libhardware",
-        "libchrome",
-        "libbase",
-        "libz",
-        "libstatslog",
+  },
+  name : "libnfc-nci",
+  shared_libs : [
+    "libcutils",
+    "liblog",
+    "libdl",
+    "libhardware",
+    "libchrome",
+    "libbase",
+    "libz",
+    "libstatslog",
 
-        // Treble configuration
-        "libhidlbase",
-        "libutils",
-        "android.hardware.nfc@1.0",
-        "android.hardware.nfc@1.1",
-        "android.hardware.nfc@1.2",
-        "vendor.nxp.nxpnfc@2.0",
-        "vendor.nxp.nxpnfclegacy@1.0",
-    ],
-    static_libs: [
-        "libnfcutils",
-    ],
-    cflags: [
-        "-DBUILDCFG=1",
-        "-Wall",
-        "-Werror",
-        "-DNXP_EXTNS=TRUE",
-        "-DNFC_NXP_AID_MAX_SIZE_DYN=TRUE",
-        "-DNXP_NFCC_HCE_F=TRUE",
-        "-DNFC_NXP_LISTEN_ROUTE_TBL_OPTIMIZATION=TRUE",
-        "-DANDROID"
-    ],
-    local_include_dirs: [
-        "include",
-        "gki/ulinux",
-        "gki/common",
-        "nfa/include",
-        "nfc/include",
-    ],
-    srcs: [
-        "nfa/ce/*.cc",
-        "nfa/dm/*.cc",
-        "nfa/ee/*.cc",
-        "nfa/hci/*.cc",
-        "nfa/p2p/*.cc",
-        "nfa/rw/*.cc",
-        "nfa/scr/*.cc",
-        "nfa/sys/*.cc",
-        "nfc/llcp/*.cc",
-        "nfc/nci/*.cc",
-        "nfc/ndef/*.cc",
-        "nfc/nfc/*.cc",
-        "nfc/tags/*.cc",
-        "adaptation/*.cc",
-        "gki/common/*.cc",
-        "gki/ulinux/*.cc",
-    ],
-    required: [
-        // Provide a default libnfc-nci.conf in /system/etc for devices that
-        // does not ship one in /product
-        "libnfc-nci.conf-default",
-    ],
-    product_variables: {
-        debuggable: {
-            cflags: [
-                "-DDCHECK_ALWAYS_ON",
-            ],
-        },
+    // Treble configuration
+    "libhidlbase",
+    "libutils",
+    "android.hardware.nfc@1.0",
+    "android.hardware.nfc@1.1",
+    "android.hardware.nfc@1.2",
+    "vendor.nxp.nxpnfc@2.0",
+    "vendor.nxp.nxpnfclegacy@1.0",
+  ],
+  static_libs : [
+    "libnfcutils",
+  ],
+  cflags : [
+    "-DBUILDCFG=1", "-Wall", "-Werror", "-DNXP_EXTNS=TRUE",
+    "-DNFC_NXP_AID_MAX_SIZE_DYN=TRUE", "-DNXP_NFCC_HCE_F=TRUE",
+    "-DNFC_NXP_LISTEN_ROUTE_TBL_OPTIMIZATION=TRUE", "-DANDROID"
+  ],
+  local_include_dirs : [
+    "include",
+    "gki/ulinux",
+    "gki/common",
+    "nfa/include",
+    "nfc/include",
+  ],
+  srcs : [
+    "nfa/ce/*.cc",
+    "nfa/dm/*.cc",
+    "nfa/ee/*.cc",
+    "nfa/hci/*.cc",
+    "nfa/p2p/*.cc",
+    "nfa/rw/*.cc",
+    "nfa/scr/*.cc",
+    "nfa/sys/*.cc",
+    "nfc/llcp/*.cc",
+    "nfc/nci/*.cc",
+    "nfc/ndef/*.cc",
+    "nfc/nfc/*.cc",
+    "nfc/tags/*.cc",
+    "adaptation/*.cc",
+    "gki/common/*.cc",
+    "gki/ulinux/*.cc",
+  ],
+  required : [
+    // Provide a default libnfc-nci.conf in /system/etc for devices that
+    // does not ship one in /product
+    "libnfc-nci.conf-default",
+  ],
+  product_variables : {
+    debuggable : {
+      cflags : [
+        "-DDCHECK_ALWAYS_ON",
+      ],
     },
-    sanitize: {
-        misc_undefined: ["bounds"],
-        integer_overflow: true,
-        scs: true,
-        diag: {
-            integer_overflow: true,
-            misc_undefined: ["bounds"],
-            no_recover: ["bounds", "integer"],
-        },
+  },
+  sanitize : {
+    misc_undefined : ["bounds"],
+    integer_overflow : true,
+    scs : true,
+    diag : {
+      integer_overflow : true,
+      misc_undefined : ["bounds"],
+      no_recover : [ "bounds", "integer" ],
     },
+  },
 
+}
+
+cc_defaults{
+  name : "nfc_fuzzer_defaults",
+  native_coverage : true,
+  static_libs : [
+    "libnfcutils",
+    "libcutils",
+    "liblog",
+    "libbase",
+    "libchrome",
+  ],
+  cflags : [
+    "-DBUILDCFG=1",
+    "-Wall",
+    "-Werror",
+    "-Wimplicit-fallthrough",
+    "-g",
+    "-DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION",
+    "-DGKI_ENABLE_BUF_CORRUPTION_CHECK=FALSE",
+  ],
+  product_variables : {
+    debuggable : {
+      cflags : [
+      "-DDCHECK_ALWAYS_ON"
+      ],
+    },
+  },
+  sanitize : {
+    misc_undefined : [
+      "bounds",
+    ],
+    address : true,
+  },
+  local_include_dirs : [
+    "include",
+    "gki/ulinux",
+    "gki/common",
+    "nfc/include",
+    "nfa/include",
+    "fuzzers/inc",
+  ],
+}
+
+cc_fuzz{
+  name : "nfc_rw_fuzzer",
+  defaults : ["nfc_fuzzer_defaults"],
+  srcs : [
+    "nfc/tags/rw_*.cc",
+    "nfc/tags/tags_int.cc",
+    "gki/common/*.cc",
+    "gki/ulinux/*.cc",
+    "fuzzers/*.cc",
+    "fuzzers/rw/*.cc",
+  ],
+}
+
+cc_fuzz{
+  name : "nfc_ce_fuzzer",
+  defaults : ["nfc_fuzzer_defaults"],
+  srcs : [
+    "nfc/tags/ce_*.cc",
+    "nfc/tags/tags_int.cc",
+    "gki/common/*.cc",
+    "gki/ulinux/*.cc",
+    "fuzzers/*.cc",
+    "fuzzers/ce/*.cc",
+  ],
+}
+
+cc_fuzz{
+  name : "nfc_ndef_fuzzer",
+  defaults : ["nfc_fuzzer_defaults"],
+  srcs : [
+    "nfa/dm/nfa_dm_ndef.cc",
+    "nfc/ndef/*.cc",
+    "gki/common/*.cc",
+    "gki/ulinux/*.cc",
+    "fuzzers/*.cc",
+    "fuzzers/ndef/*.cc",
+  ],
+}
+
+cc_fuzz {
+   name: "nfc_llcp_fuzzer",
+   defaults : ["nfc_fuzzer_defaults"],
+   srcs : [
+    "nfc/llcp/*.cc",
+    "gki/common/*.cc",
+    "gki/ulinux/*.cc",
+    "fuzzers/*.cc",
+    "fuzzers/llcp/*.cc",
+  ],
 }

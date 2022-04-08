@@ -57,7 +57,7 @@
 #endif
 #include <statslog.h>
 #include "metrics.h"
-
+#include "include/debug_lmrt.h"
 using android::base::StringPrintf;
 
 extern bool nfc_debug_enabled;

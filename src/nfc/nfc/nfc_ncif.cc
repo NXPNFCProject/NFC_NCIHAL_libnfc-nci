@@ -115,6 +115,7 @@ static struct timeval timer_end;
 #define DEFAULT_CRASH_NFCSNOOP_PATH "/data/misc/nfc/logs/native_crash_logs"
 static const off_t NATIVE_CRASH_FILE_SIZE = (1024 * 1024);
 
+#if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         nfc_hal_nfcc_get_reset_info
@@ -169,7 +170,7 @@ uint8_t nfc_hal_nfcc_get_reset_info(void) {
   }
   return core_status;
 }
-
+#endif
 /*******************************************************************************
 **
 ** Function         nfc_ncif_update_window
@@ -732,31 +733,37 @@ bool nfc_ncif_process_event(NFC_HDR* p_msg) {
       /* make sure this is the RSP we are waiting for before updating the
        * command window */
       if ((old_gid != gid) || (old_oid != oid)) {
-          if ((nfcFL.nfcNxpEse && nfcFL.eseFL._ESE_ETSI_READER_ENABLE) &&
-                  ((gid == NCI_GID_RF_MANAGE) && (oid == NCI_MSG_RF_DISCOVER)) &&
-                  (etsi_reader_in_progress == true)) {
-              DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Changing disc_state and disc_flags");
-              nfa_dm_cb.disc_cb.disc_state = NFA_DM_RFST_IDLE;
-              nfa_dm_cb.disc_cb.disc_flags &=
-                      ~(NFA_DM_DISC_FLAGS_W4_NTF | NFA_DM_DISC_FLAGS_STOPPING);
-              nfa_dm_cb.disc_cb.disc_flags |=
-                      (NFA_DM_DISC_FLAGS_W4_RSP | NFA_DM_DISC_FLAGS_NOTIFY |
-                              NFA_DM_DISC_FLAGS_ENABLED);
-              disc_deact_ntf_timeout_handler(NFC_NFCC_TIMEOUT_REVT);
+#if (NXP_EXTNS == TRUE)
+        if ((nfcFL.nfcNxpEse && nfcFL.eseFL._ESE_ETSI_READER_ENABLE) &&
+            ((gid == NCI_GID_RF_MANAGE) && (oid == NCI_MSG_RF_DISCOVER)) &&
+            (etsi_reader_in_progress == true)) {
+          DLOG_IF(INFO, nfc_debug_enabled)
+              << StringPrintf("Changing disc_state and disc_flags");
+          nfa_dm_cb.disc_cb.disc_state = NFA_DM_RFST_IDLE;
+          nfa_dm_cb.disc_cb.disc_flags &=
+              ~(NFA_DM_DISC_FLAGS_W4_NTF | NFA_DM_DISC_FLAGS_STOPPING);
+          nfa_dm_cb.disc_cb.disc_flags |=
+              (NFA_DM_DISC_FLAGS_W4_RSP | NFA_DM_DISC_FLAGS_NOTIFY |
+               NFA_DM_DISC_FLAGS_ENABLED);
+          disc_deact_ntf_timeout_handler(NFC_NFCC_TIMEOUT_REVT);
+        } else {
+          /*no response after the deactivate command, handling the error
+           * scenario after the recovery*/
+          if ((gid == NCI_GID_RF_MANAGE) && (oid == NCI_MSG_RF_DISCOVER) &&
+              (nfc_cb.nci_cmd_window == 0)) {
+            DLOG_IF(INFO, nfc_debug_enabled)
+                << StringPrintf("resetting the nci_cmd_window");
+            nfc_cb.nci_cmd_window++;
           } else {
-              /*no response after the deactivate command, handling the error
-               * scenario after the recovery*/
-              if ((gid == NCI_GID_RF_MANAGE) && (oid == NCI_MSG_RF_DISCOVER) &&
-                      (nfc_cb.nci_cmd_window == 0)) {
-                  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("resetting the nci_cmd_window");
-                  nfc_cb.nci_cmd_window++;
-              } else {
-                  LOG(ERROR) << StringPrintf(
-                          "nfc_ncif_process_event unexpected rsp: gid:0x%x, oid:0x%x",
-                          gid, oid);
-                  return true;
-              }
+#endif
+            LOG(ERROR) << StringPrintf(
+                "nfc_ncif_process_event unexpected rsp: gid:0x%x, oid:0x%x",
+                gid, oid);
+            return true;
+#if (NXP_EXTNS == TRUE)
           }
+        }
+#endif
       }
 
       switch (gid) {
@@ -2285,43 +2292,44 @@ void nfc_ncif_proc_get_routing(__attribute__((unused)) uint8_t* p,
   __attribute__((unused)) tNFC_STATUS status = NFC_STATUS_CONTINUE;
 
 #if (NXP_EXTNS == FALSE)
-  if (nfc_cb.p_resp_cback) {
+  tNFC_GET_ROUTING_REVT evt_data;
+  uint8_t more, num_entries, xx, *pn;
+
+  if (len >= 2 && nfc_cb.p_resp_cback) {
     more = *p++;
     num_entries = *p++;
+    if (num_entries == 0) return;
+    len -= 2;
+    if (len < 2) {
+      LOG(ERROR) << StringPrintf("Invalid len=%d", len);
+      return;
+    }
     for (xx = 0; xx < num_entries; xx++) {
       if ((more == false) && (xx == (num_entries - 1))) status = NFC_STATUS_OK;
       evt_data.status = (tNFC_STATUS)status;
-      evt_data.nfcee_id = *p++;
-      evt_data.num_tlvs = *p++;
-      evt_data.tlv_size = 0;
-      pn = evt_data.param_tlvs;
-      for (yy = 0; yy < evt_data.num_tlvs; yy++) {
-        tl = *(p + 1);
-        tl += NFC_TL_SIZE;
-        evt_data.tlv_size += tl;
-        if (evt_data.tlv_size > NFC_MAX_EE_TLV_SIZE) {
-          android_errorWriteLog(0x534e4554, "117554809");
-          LOG(ERROR) << __func__ << "Invalid data format";
-          return;
-        }
-        STREAM_TO_ARRAY(pn, p, tl);
-        pn += tl;
+      if (len >= 2)
+        len -= 2;
+      else
+        return;
+      evt_data.qualifier_type = *p++;
+      evt_data.num_tlvs = 1;
+      evt_data.tlv_size = *p++;
+      if (evt_data.tlv_size > NFC_MAX_EE_TLV_SIZE) {
+        android_errorWriteLog(0x534e4554, "117554809");
+        LOG(ERROR) << __func__ << "Invalid data format";
+        return;
       }
-      (*nfc_cb.p_resp_cback)(NFC_GET_ROUTING_REVT, (tNFC_RESPONSE*)&evt_data);
+      if (evt_data.tlv_size > len) {
+        LOG(ERROR) << StringPrintf("Invalid evt_data.tlv_size");
+        return;
+      } else
+        len -= evt_data.tlv_size;
+      pn = evt_data.param_tlvs;
+      STREAM_TO_ARRAY(pn, p, evt_data.tlv_size);
+      tNFC_RESPONSE nfc_response;
+      nfc_response.get_routing = evt_data;
+      (*nfc_cb.p_resp_cback)(NFC_GET_ROUTING_REVT, &nfc_response);
     }
-  }
-  if (nfc_cb.p_resp_cback) {
-    more = *p;
-    if (more == false) {
-      status = NFC_STATUS_OK;
-    }
-    evt_data.status = (tNFC_STATUS)status;
-    evt_data.num_tlvs = *(p + 1);
-    evt_data.tlv_size = len;
-    memcpy(evt_data.param_tlvs, p, len);
-    tNFC_RESPONSE nfc_response;
-    nfc_response.get_routing = evt_data;
-    (*nfc_cb.p_resp_cback)(NFC_GET_ROUTING_REVT, &nfc_response);
   }
 #endif
 }
@@ -2413,7 +2421,9 @@ void nfc_ncif_report_conn_close_evt(uint8_t conn_id, tNFC_STATUS status) {
 **
 *******************************************************************************/
 void nfc_ncif_proc_reset_rsp(uint8_t* p, bool is_ntf) {
+#if (NXP_EXTNS == TRUE)
   uint8_t* temp = p, len;
+#endif
   uint8_t* p_len = p - 1;
   uint8_t status = NCI_STATUS_FAILED;
   uint8_t wait_for_ntf = FALSE;
@@ -2562,14 +2572,16 @@ void nfc_ncif_proc_reset_rsp(uint8_t* p, bool is_ntf) {
                              (uint16_t)(NFC_TTYPE_NCI_WAIT_RSP),
                              nfc_cb.nci_wait_rsp_tout);
           } else {
-            /*MW tries to reInitialize, so clear nfa_dm_cb.params before
-             *proceeding, to avoid having previously initialized values if any*/
-            memset(&nfa_dm_cb.params, 0x00, sizeof(tNFA_DM_PARAMS));
-            if (nfc_cb.nci_version == NCI_VERSION_1_0)
-              nci_snd_core_init(NCI_VERSION_1_0);
-            else
-              nci_snd_core_init(NCI_VERSION_2_0);
-          }
+/*MW tries to reInitialize, so clear nfa_dm_cb.params before
+ *proceeding, to avoid having previously initialized values if any*/
+#if (NXP_EXTNS == TRUE)
+        memset(&nfa_dm_cb.params, 0x00, sizeof(tNFA_DM_PARAMS));
+#endif
+        if (nfc_cb.nci_version == NCI_VERSION_1_0)
+          nci_snd_core_init(NCI_VERSION_1_0);
+        else
+          nci_snd_core_init(NCI_VERSION_2_0);
+      }
 #if (NXP_EXTNS == TRUE)
       }
 #endif
@@ -2680,10 +2692,11 @@ void nfc_ncif_proc_init_rsp(NFC_HDR* p_msg) {
       nfc_ncif_set_MaxRoutingTableSize(p);
   }
 
-#endif
+
 
   /* TODO To be removed after 553 bringup */
   fw_mw_ver_status = NCI_STATUS_OK;
+#endif
   if (status == NCI_STATUS_OK
 #if (NXP_EXTNS == TRUE)
       && fw_status == NCI_STATUS_OK && NCI_STATUS_OK == fw_mw_ver_status

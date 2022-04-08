@@ -42,22 +42,25 @@
 #include "nfc_hal_api.h"
 #include <hardware/nfc.h>
 #include <utils/RefBase.h>
-#include <android/hardware/nfc/1.0/INfc.h>
-#include <android/hardware/nfc/1.0/INfcClientCallback.h>
-#include <android/hardware/nfc/1.0/types.h>
+#if (NXP_EXTNS == TRUE)
+#include <android/hardware/nfc/1.1/INfc.h>
+#include <android/hardware/nfc/1.1/INfcClientCallback.h>
+#include <android/hardware/nfc/1.1/types.h>
 #include <vendor/nxp/nxpnfc/2.0/INxpNfc.h>
 #include <vendor/nxp/nxpnfclegacy/1.0/INxpNfcLegacy.h>
 #include <vendor/nxp/nxpnfclegacy/1.0/types.h>
 
 using vendor::nxp::nxpnfclegacy::V1_0::INxpNfcLegacy;
 using vendor::nxp::nxpnfc::V2_0::INxpNfc;
-using ::android::sp;
+
 using ::vendor::nxp::nxpnfclegacy::V1_0::NxpNfcHalEseState;
 using ::vendor::nxp::nxpnfclegacy::V1_0::NfcHciInitStatus;
 using ::vendor::nxp::nxpnfclegacy::V1_0::NxpNciCfgInfo;
 using vendor::nxp::nxpnfclegacy::V1_0::NxpNfcHalConfig;
 using ::vendor::nxp::nxpnfclegacy::V1_0::NxpNciExtnCmd;
 using ::vendor::nxp::nxpnfclegacy::V1_0::NxpNciExtnResp;
+#endif
+using ::android::sp;
 
 namespace android {
 namespace hardware {
@@ -209,7 +212,9 @@ class NfcAdaptation {
   static void HalGetCachedNfccConfig(tNxpNci_getCfg_info_t *nxpNciAtrInfo);
   static void HalGetNxpConfig(NxpAdaptationConfig& NfcConfigData);
   static uint32_t HalNciTransceive(phNxpNci_Extn_Cmd_t* in,phNxpNci_Extn_Resp_t* out);
+  #if (NXP_EXTNS == TRUE)
   NxpNfcHalConfig mNxpNfcHalConfig;
+  #endif
   static NfcAdaptation& GetInstance();
   tHAL_NFC_ENTRY* GetHalEntryFuncs();
   bool DownloadFirmware();
@@ -219,9 +224,9 @@ class NfcAdaptation {
 #if (NXP_EXTNS == TRUE)
   void MinInitialize();
   int HalGetFwDwnldFlag(uint8_t* fwDnldRequest);
-#endif
   NxpNciCfgInfo AdapCfgInfo;
   NxpNciExtnResp mNciResp;
+#endif
  private:
   NfcAdaptation();
   void signal();
@@ -238,8 +243,10 @@ class NfcAdaptation {
   static android::sp<android::hardware::nfc::V1_0::INfc> mHal;
   static android::sp<android::hardware::nfc::V1_1::INfc> mHal_1_1;
   static android::sp<android::hardware::nfc::V1_2::INfc> mHal_1_2;
+#if (NXP_EXTNS == TRUE)
   static android::sp<vendor::nxp::nxpnfc::V2_0::INxpNfc> mHalNxpNfc;
   static android::sp<vendor::nxp::nxpnfclegacy::V1_0::INxpNfcLegacy> mHalNxpNfcLegacy;
+#endif
   static android::hardware::nfc::V1_1::INfcClientCallback* mCallback;
   sp<NfcDeathRecipient> mNfcHalDeathRecipient;
 #if (NXP_EXTNS == TRUE)

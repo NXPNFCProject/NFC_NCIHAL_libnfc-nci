@@ -159,10 +159,16 @@ static void rw_t3t_handle_get_sc_poll_rsp(tRW_T3T_CB* p_cb, uint8_t nci_status,
                                           uint8_t num_responses,
                                           uint8_t sensf_res_buf_size,
                                           uint8_t* p_sensf_res_buf);
+#if (NXP_EXTNS == TRUE)
 static void rw_t3t_handle_ndef_detect_poll_rsp(tRW_T3T_CB* p_cb,
                                                uint8_t nci_status,
                                                uint8_t num_responses,
                                                uint8_t* p_sensf_res_buf);
+#else
+static void rw_t3t_handle_ndef_detect_poll_rsp(tRW_T3T_CB* p_cb,
+                                               uint8_t nci_status,
+                                               uint8_t num_responses);
+#endif
 static void rw_t3t_handle_fmt_poll_rsp(tRW_T3T_CB* p_cb, uint8_t nci_status,
                                        uint8_t num_responses);
 static void rw_t3t_handle_sro_poll_rsp(tRW_T3T_CB* p_cb, uint8_t nci_status,
@@ -414,7 +420,12 @@ void rw_t3t_handle_nci_poll_ntf(uint8_t nci_status, uint8_t num_responses,
   } else if (p_cb->flags & RW_T3T_FL_W4_NDEF_DETECT_POLL_RSP) {
     /* Handle POLL ntf in response to ndef detection */
     p_cb->flags &= ~RW_T3T_FL_W4_NDEF_DETECT_POLL_RSP;
-    rw_t3t_handle_ndef_detect_poll_rsp(p_cb, nci_status, num_responses,p_sensf_res_buf);
+#if (NXP_EXTNS == TRUE)
+    rw_t3t_handle_ndef_detect_poll_rsp(p_cb, nci_status, num_responses,
+                                       p_sensf_res_buf);
+#else
+    rw_t3t_handle_ndef_detect_poll_rsp(p_cb, nci_status, num_responses);
+#endif
   } else {
     /* Handle POLL ntf in response to RW_T3tPoll */
     p_cb->flags &= ~RW_T3T_FL_W4_USER_POLL_RSP;
@@ -560,7 +571,11 @@ void rw_t3t_process_timeout(TIMER_LIST_ENT* p_tle) {
     } else if (p_cb->flags & RW_T3T_FL_W4_NDEF_DETECT_POLL_RSP) {
       /* POLL timeout for ndef detection */
       p_cb->flags &= ~RW_T3T_FL_W4_NDEF_DETECT_POLL_RSP;
+#if (NXP_EXTNS == TRUE)
       rw_t3t_handle_ndef_detect_poll_rsp(p_cb, NFC_STATUS_TIMEOUT, 0, nullptr);
+#else
+      rw_t3t_handle_ndef_detect_poll_rsp(p_cb, NFC_STATUS_TIMEOUT, 0);
+#endif
     } else {
       /* Timeout waiting for response for RW_T3tPoll */
       evt_data.t3t_poll.status = NFC_STATUS_FAILED;
@@ -1754,12 +1769,19 @@ static void rw_t3t_handle_get_sc_poll_rsp(tRW_T3T_CB* p_cb, uint8_t nci_status,
 ** Returns          Nothing
 **
 *****************************************************************************/
+#if (NXP_EXTNS == TRUE)
 static void rw_t3t_handle_ndef_detect_poll_rsp(tRW_T3T_CB* p_cb,
                                                uint8_t nci_status,
                                                uint8_t num_responses,
-                                               uint8_t* p_sensf_res_buf) {
+                                               uint8_t* p_sensf_res_buf)
+#else
+static void rw_t3t_handle_ndef_detect_poll_rsp(tRW_T3T_CB* p_cb,
+                                               uint8_t nci_status,
+                                               uint8_t num_responses)
+#endif
+{
   NFC_HDR* p_cmd_buf;
-  uint8_t* p, *p_cmd_start;
+  uint8_t *p, *p_cmd_start;
   tRW_DATA evt_data;
 
   /* Validate response for NDEF poll */
@@ -1775,7 +1797,6 @@ static void rw_t3t_handle_ndef_detect_poll_rsp(tRW_T3T_CB* p_cb,
 
       /* Add CHECK opcode to message  */
       UINT8_TO_STREAM(p, T3T_MSG_OPC_CHECK_CMD);
-
 #if (NXP_EXTNS == TRUE)
       /* Update NFCID2 using SENSF_RES */
       memcpy(p_cb->peer_nfcid2, (p_sensf_res_buf + NCI_SENSF_RES_OFFSET_NFCID2),
