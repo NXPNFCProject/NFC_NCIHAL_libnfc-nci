@@ -140,7 +140,7 @@ void GKI_init(void) {
   pthread_mutexattr_init(&attr);
 
 #ifndef __CYGWIN__
-  pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
+  pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
 #endif
   p_os = &gki_cb.os;
   pthread_mutex_init(&p_os->GKI_mutex, &attr);
