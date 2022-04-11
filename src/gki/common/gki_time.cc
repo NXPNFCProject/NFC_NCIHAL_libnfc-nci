@@ -17,7 +17,7 @@
  ******************************************************************************/
 /******************************************************************************
  *
- *  Copyright 2021 NXP
+ *  Copyright 2021-2022 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -210,6 +210,14 @@ void GKI_start_timer(uint8_t tnum, int32_t ticks, bool is_continuous) {
     task_id = 14;
   }
   bool bad_timer = false;
+
+#if (NXP_EXTNS == TRUE)
+  if (task_id >= GKI_MAX_TASKS) {
+    LOG(ERROR) << StringPrintf(
+    "%s: invalid task_id:0x%02x. start timer failed", __func__, task_id);
+    return;
+  }
+#endif
 
 #if (NXP_EXTNS == TRUE)
   if (task_id >= GKI_MAX_TASKS) {
