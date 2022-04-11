@@ -40,11 +40,13 @@
  *  This file contains the action functions for NFA-EE
  *
  ******************************************************************************/
-#include <string.h>
-
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
+#include <statslog.h>
+#include <string.h>
 
+#include "include/debug_lmrt.h"
+#include "metrics.h"
 #include "nfa_api.h"
 #include "nfa_dm_int.h"
 #include "nfa_ee_int.h"
@@ -55,9 +57,6 @@
 #include <nfc_config.h>
 #include "nfa_scr_int.h"
 #endif
-#include <statslog.h>
-#include "metrics.h"
-#include "include/debug_lmrt.h"
 using android::base::StringPrintf;
 
 extern bool nfc_debug_enabled;
@@ -3190,7 +3189,9 @@ void nfa_ee_report_update_evt(void) {
 
     if (nfa_ee_cb.ee_wait_evt & NFA_EE_WAIT_UPDATE) {
       nfa_ee_cb.ee_wait_evt &= ~NFA_EE_WAIT_UPDATE;
-      /* finished updating NFCC; report NFA_EE_UPDATED_EVT now */
+      /* finished updating NFCC; record the committed listen mode routing
+       * configuration command; report NFA_EE_UPDATED_EVT now */
+      lmrt_update();
       evt_data.status = NFA_STATUS_OK;
       nfa_ee_report_event(nullptr, NFA_EE_UPDATED_EVT, &evt_data);
     }

@@ -1511,7 +1511,7 @@ extern tNFC_STATUS NFC_ISODEPNakPresCheck ();
 *******************************************************************************/
 extern std::string NFC_GetStatusName(tNFC_STATUS status);
 
-#if (NXP_EXTNS == TRUE || APPL_DTA_MODE == TRUE)
+#if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         nfc_ncif_getFWVersion
