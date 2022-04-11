@@ -687,7 +687,11 @@ tNFA_STATUS NFA_EeAddAidRouting(tNFA_HANDLE ee_handle, uint8_t aid_len,
   tNFA_EE_ECB* p_cb;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_EeAddAidRouting(): handle:<0x%x>", ee_handle);
-  p_cb = nfa_ee_find_ecb(nfcee_id);
+  if (aid_len == 0) {
+    p_cb = &nfa_ee_cb.ecb[NFA_EE_EMPTY_AID_ECB];
+  } else {
+    p_cb = nfa_ee_find_ecb(nfcee_id);
+  }
 
   /* validate parameters - make sure the AID is in valid length range */
 #if (NXP_EXTNS == TRUE)
@@ -703,6 +707,7 @@ tNFA_STATUS NFA_EeAddAidRouting(tNFA_HANDLE ee_handle, uint8_t aid_len,
         << StringPrintf("Bad ee_handle or AID (len=%d)", aid_len);
     status = NFA_STATUS_INVALID_PARAM;
   } else {
+    p_cb->nfcee_id = nfcee_id;
     p_msg = (tNFA_EE_API_ADD_AID*)GKI_getbuf(size);
     if (p_msg != nullptr) {
 #if (NXP_EXTNS == TRUE)
