@@ -1632,7 +1632,7 @@ static void rw_t4t_sm_detect_ndef(NFC_HDR* p_r_apdu) {
   uint32_t nlen;
   uint32_t cc_file_offset = 0x00;
   uint16_t status_words;
-  uint8_t cc_file_rsp_len = 0;
+  uint8_t cc_file_rsp_len = T4T_CC_FILE_MIN_LEN;
   tRW_DATA rw_data;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
@@ -1680,7 +1680,6 @@ static void rw_t4t_sm_detect_ndef(NFC_HDR* p_r_apdu) {
 
       /* CC file has been selected then read mandatory part of CC file */
       cc_file_offset = 0x00;
-      cc_file_rsp_len = T4T_CC_FILE_MIN_LEN;
       if (!rw_t4t_read_file(cc_file_offset, cc_file_rsp_len, false)) {
         rw_t4t_handle_error(NFC_STATUS_FAILED, 0, 0);
       } else {
