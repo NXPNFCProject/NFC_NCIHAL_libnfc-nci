@@ -19,7 +19,7 @@
  *
  *  The original Work has been changed by NXP.
  *
- *  Copyright 2015-2020 NXP
+ *  Copyright 2015-2020,2022 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -629,8 +629,6 @@ static void nfa_ee_add_apdu_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
                                         uint8_t* p, uint8_t* ps,
                                         int* p_cur_offset, int* p_max_len) {
     uint8_t num_tlv = *ps, len;
-    uint16_t tlv_size;
-    tlv_size = (uint8_t)*p_cur_offset;
     int start_offset, xx;
     uint8_t  *pa;
     uint8_t* p_start;
@@ -673,7 +671,6 @@ static void nfa_ee_add_apdu_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
                    *p_cur_offset = new_size;
                    pp = ps + 1;
                    p = pp;
-                   tlv_size = (uint8_t)*p_cur_offset;
                    max_tlv = (uint8_t)((*p_max_len > NFA_EE_ROUT_MAX_TLV_SIZE)
                                         ? NFA_EE_ROUT_MAX_TLV_SIZE
                                         : *p_max_len);
@@ -3373,7 +3370,6 @@ uint8_t nfa_ee_get_supported_tech_list(uint8_t nfcee_id) {
 *******************************************************************************/
 void nfa_ee_nci_disc_req_ntf(tNFA_EE_MSG* p_data) {
   tNFC_EE_DISCOVER_REQ_REVT* p_cbk = p_data->disc_req.p_data;
-  tNFA_HANDLE ee_handle;
   tNFA_EE_ECB* p_cb = nullptr;
   uint8_t report_ntf = 0;
   uint8_t xx;
@@ -3385,8 +3381,6 @@ void nfa_ee_nci_disc_req_ntf(tNFA_EE_MSG* p_data) {
                       p_cbk->num_info, nfa_ee_cb.cur_ee);
 
   for (xx = 0; xx < p_cbk->num_info; xx++) {
-    ee_handle = NFA_HANDLE_GROUP_EE | p_cbk->info[xx].nfcee_id;
-
     p_cb = nfa_ee_find_ecb(p_cbk->info[xx].nfcee_id);
     if (!p_cb) {
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Cannot find cb for NFCEE: 0x%x",
@@ -3800,7 +3794,6 @@ void nfa_ee_lmrt_to_nfcc(__attribute__((unused)) tNFA_EE_MSG* p_data) {
   int max_len;
   tNFA_STATUS status = NFA_STATUS_FAILED;
   int cur_offset;
-  uint8_t max_tlv;
 #if (NXP_EXTNS == TRUE)
   tNFA_EE_CBACK_DATA evt_data = {0};
 #endif
@@ -3876,9 +3869,6 @@ void nfa_ee_lmrt_to_nfcc(__attribute__((unused)) tNFA_EE_MSG* p_data) {
   }
   max_len = NFC_GetLmrtSize();
 #endif
-  max_tlv =
-      (uint8_t)((max_len > NFA_EE_ROUT_MAX_TLV_SIZE) ? NFA_EE_ROUT_MAX_TLV_SIZE
-                                                     : max_len);
   cur_offset = 0;
   /* use the first byte of the buffer (p) to keep the num_tlv */
   *p = 0;

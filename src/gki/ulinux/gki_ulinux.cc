@@ -15,6 +15,25 @@
  *  limitations under the License.
  *
  ******************************************************************************/
+/******************************************************************************
+ *
+ *  The original Work has been changed by NXP.
+ *
+ *  Copyright 2022 NXP
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ ******************************************************************************/
 #include <errno.h>
 #include <malloc.h>
 #include <stdarg.h>
@@ -601,13 +620,12 @@ uint16_t GKI_wait(uint16_t flag, uint32_t timeout) {
 
   gki_pthread_info_t* p_pthread_info = &gki_pthread_info[rtask];
   if (p_pthread_info->pCond != nullptr && p_pthread_info->pMutex != nullptr) {
-    int ret;
     DLOG_IF(INFO, nfc_debug_enabled)
         << StringPrintf("GKI_wait task=%i, pCond/pMutex = %p/%p", rtask,
                         p_pthread_info->pCond, p_pthread_info->pMutex);
-    ret = pthread_mutex_lock(p_pthread_info->pMutex);
-    ret = pthread_cond_signal(p_pthread_info->pCond);
-    ret = pthread_mutex_unlock(p_pthread_info->pMutex);
+    pthread_mutex_lock(p_pthread_info->pMutex);
+    pthread_cond_signal(p_pthread_info->pCond);
+    pthread_mutex_unlock(p_pthread_info->pMutex);
     p_pthread_info->pMutex = nullptr;
     p_pthread_info->pCond = nullptr;
   }

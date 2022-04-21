@@ -19,7 +19,7 @@
  *
  *  The original Work has been changed by NXP.
  *
- *  Copyright 2015-2020 NXP
+ *  Copyright 2015-2020,2022 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -1921,15 +1921,12 @@ void NFC_updateHciInitStatus(tNFC_HCI_INIT_STATUS updateStatus) {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "%s Enter :  start condition : %d", __func__, updateStatus);
 
-  int32_t ioctlStat;
   if (updateStatus == NFC_HCI_INIT_START) {
     SyncEventGuard guard(nfc_cb.hciEvt);
-    ioctlStat =
-        nfc_cb.p_hal->HciInitUpdateState(updateStatus);
+    nfc_cb.p_hal->HciInitUpdateState(updateStatus);
     nfc_cb.hciEvt.wait(2 * 1000);
   } else {
-    ioctlStat =
-         nfc_cb.p_hal->HciInitUpdateState(updateStatus);
+    nfc_cb.p_hal->HciInitUpdateState(updateStatus);
   }
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "%s Exit :  updateStatus condition : %d", __func__, updateStatus);

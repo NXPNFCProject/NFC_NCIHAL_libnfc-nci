@@ -646,8 +646,6 @@ void nfc_ncif_send_cmd(NFC_HDR* p_buf) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("p_buf is NULL.");
     return;
   }
-  uint8_t* cmd = nullptr;
-  cmd = (uint8_t*)(p_buf + 1) + p_buf->offset;
 
   if (sListenActivated == true) {
     nfc_stop_timer(&nfc_cb.listen_activation_timer_list);

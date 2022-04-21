@@ -19,7 +19,7 @@
  *
  *  The original Work has been changed by NXP Semiconductors.
  *
- *  Copyright (C) 2015-2018 NXP Semiconductors
+ *  Copyright (C) 2015-2018,2022 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -190,14 +190,14 @@ void nci_proc_core_ntf(NFC_HDR* p_msg) {
 *******************************************************************************/
 void nci_proc_rf_management_rsp(NFC_HDR* p_msg) {
   uint8_t* p;
-  uint8_t* pp, len, op_code;
+  uint8_t* pp, op_code;
   uint8_t* p_old = nfc_cb.last_cmd;
 
   /* find the start of the NCI message and parse the NCI header */
   p = (uint8_t*)(p_msg + 1) + p_msg->offset;
   pp = p + 1;
   NCI_MSG_PRS_HDR1(pp, op_code);
-  len = *pp++;
+  pp++;  // len = *pp++;
 
   switch (op_code) {
     case NCI_MSG_RF_DISCOVER:
@@ -460,7 +460,7 @@ void nci_proc_ee_management_rsp(NFC_HDR* p_msg) {
 *******************************************************************************/
 void nci_proc_ee_management_ntf(NFC_HDR* p_msg) {
   uint8_t* p;
-  uint8_t* pp, len, op_code;
+  uint8_t* pp, op_code;
   tNFC_RESPONSE_CBACK* p_cback = nfc_cb.p_resp_cback;
   tNFC_RESPONSE nfc_response;
   tNFC_RESPONSE_EVT event = NFC_NFCEE_INFO_REVT;
@@ -473,7 +473,7 @@ void nci_proc_ee_management_ntf(NFC_HDR* p_msg) {
   pp = p + 1;
   NCI_MSG_PRS_HDR1(pp, op_code);
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nci_proc_ee_management_ntf opcode:0x%x", op_code);
-  len = *pp++;
+  pp++;  // len = *pp++;
 
   if (op_code == NCI_MSG_NFCEE_DISCOVER) {
     nfc_response.nfcee_info.nfcee_id = *pp++;
@@ -584,14 +584,14 @@ void nci_proc_ee_management_ntf(NFC_HDR* p_msg) {
 void nci_proc_prop_rsp(NFC_HDR* p_msg) {
   uint8_t* p;
   uint8_t* p_evt;
-  uint8_t* pp, len, op_code;
+  uint8_t* pp, op_code;
   tNFC_VS_CBACK* p_cback = (tNFC_VS_CBACK*)nfc_cb.p_vsc_cback;
 
   /* find the start of the NCI message and parse the NCI header */
   p = p_evt = (uint8_t*)(p_msg + 1) + p_msg->offset;
   pp = p + 1;
   NCI_MSG_PRS_HDR1(pp, op_code);
-  len = *pp++;
+  pp++;  // len = *pp++;
 
   /*If there's a pending/stored command, restore the associated address of the
    * callback function */
@@ -641,14 +641,14 @@ void nci_proc_prop_raw_vs_rsp(NFC_HDR* p_msg) {
 void nci_proc_prop_ntf(NFC_HDR* p_msg) {
   uint8_t* p;
   uint8_t* p_evt;
-  uint8_t* pp, len, op_code;
+  uint8_t* pp, op_code;
   int i;
 
   /* find the start of the NCI message and parse the NCI header */
   p = p_evt = (uint8_t*)(p_msg + 1) + p_msg->offset;
   pp = p + 1;
   NCI_MSG_PRS_HDR1(pp, op_code);
-  len = *pp++;
+  pp++;  // len = *pp++;
 
 #if (NXP_EXTNS == TRUE)
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nci_proc_prop_ntf:op_code =0x%x", op_code);
