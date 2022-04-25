@@ -77,6 +77,13 @@ ConfigValue::ConfigValue(unsigned value) {
   value_unsigned_ = value;
 }
 
+ConfigValue::ConfigValue(std::vector<int8_t> value) {
+  CHECK(!(value.empty()));
+  type_ = BYTES;
+  value_bytes_ = std::vector<uint8_t>(value.begin(), value.end());
+  value_unsigned_ = 0;
+}
+
 ConfigValue::ConfigValue(std::vector<uint8_t> value) {
   CHECK(!(value.empty()));
   type_ = BYTES;

@@ -1526,7 +1526,7 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
           /* Set WHITELIST */
           nfa_hciu_send_set_param_cmd(
               NFA_HCI_ADMIN_PIPE, NFA_HCI_WHITELIST_INDEX,
-              p_nfa_hci_cfg->num_whitelist_host, p_nfa_hci_cfg->p_whitelist);
+              p_nfa_hci_cfg->num_allowlist_host, p_nfa_hci_cfg->p_allowlist);
         } else if (nfa_hci_cb.param_in_use == NFA_HCI_WHITELIST_INDEX) {
 #if (NXP_EXTNS == TRUE)
           DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
@@ -1596,7 +1596,7 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
             /* Session has not changed, Set WHITELIST */
             nfa_hciu_send_set_param_cmd(
                 NFA_HCI_ADMIN_PIPE, NFA_HCI_WHITELIST_INDEX,
-                p_nfa_hci_cfg->num_whitelist_host, p_nfa_hci_cfg->p_whitelist);
+                p_nfa_hci_cfg->num_allowlist_host, p_nfa_hci_cfg->p_allowlist);
           } else {
             /* Something wrong, NVRAM data could be corrupt or first start with
              * default session id */
