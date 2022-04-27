@@ -310,7 +310,6 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
     if (!p_cb->num_buff) p_cb->num_buff++;
     core_reset_init_num_buff = false;
   }
-#endif
   if (get_i2c_fragmentation_enabled() == I2C_FRAGMENATATION_ENABLED) {
     if (nfc_cb.i2c_data_t.nci_cmd_channel_busy == 1 && p_data) {
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NxpNci : avoiding data packet sending data packet");
@@ -322,6 +321,11 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
   }
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfc_ncif_send_data :%d, num_buff:%d qc:%d", p_cb->conn_id,
                    p_cb->num_buff, p_cb->tx_q.count);
+#else
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("nfc_ncif_send_data :%d, num_buff:%d qc:%d",
+                      p_cb->conn_id, p_cb->num_buff, p_cb->tx_q.count);
+#endif
   if (p_cb->id == NFC_RF_CONN_ID) {
     if (nfc_cb.nfc_state != NFC_STATE_OPEN) {
       if (nfc_cb.nfc_state == NFC_STATE_CLOSING) {
@@ -563,15 +567,12 @@ void nfc_ncif_check_cmd_queue(NFC_HDR* p_buf) {
 
       /* send to HAL */
       HAL_WRITE(p_buf);
-#if (NXP_EXTNS != TRUE)
-      /* Indicate command is pending */
-      nfc_cb.nci_cmd_window--;
-#endif
+#if (NXP_EXTNS == TRUE)
       if (get_i2c_fragmentation_enabled() == I2C_FRAGMENATATION_ENABLED) {
         nfc_cb.i2c_data_t.nci_cmd_channel_busy = 1;
         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("setting channel busy flag");
       }
-
+#endif
       /* start NFC command-timeout timer */
       nfc_start_timer(&nfc_cb.nci_wait_rsp_timer,
                       (uint16_t)(NFC_TTYPE_NCI_WAIT_RSP),
@@ -791,7 +792,7 @@ bool nfc_ncif_process_event(NFC_HDR* p_msg) {
       nfc_cb.cmd_size = 0x00;
       memset(nfc_cb.last_hdr, 0, NFC_SAVED_HDR_SIZE);
       memset(nfc_cb.last_cmd, 0, NFC_SAVED_CMD_SIZE);
-#endif
+
       if (get_i2c_fragmentation_enabled() == I2C_FRAGMENATATION_ENABLED) {
         nfc_cb.i2c_data_t.nci_cmd_channel_busy = 0;
         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s,updating window", __func__);
@@ -806,6 +807,9 @@ bool nfc_ncif_process_event(NFC_HDR* p_msg) {
       } else {
         nfc_ncif_update_window();
       }
+#else
+      nfc_ncif_update_window();
+#endif
       break;
     case NCI_MT_NTF:
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFC received ntf gid:%d", gid);
@@ -1283,10 +1287,11 @@ void nfc_ncif_proc_credits(uint8_t* p, uint16_t plen) {
         if (p_cb->conn_id == NFC_NFCEE_CONN_ID) {
           nfc_cb.bIsCreditNtfRcvd = true;
         }
-#endif
+
         if (get_i2c_fragmentation_enabled() == I2C_FRAGMENATATION_ENABLED) {
           nfc_ncif_update_data_queue();
         }
+#endif
         /* check if there's nay data in tx q to be sent */
         nfc_ncif_send_data(p_cb, nullptr);
       }
@@ -2717,7 +2722,9 @@ void nfc_ncif_proc_init_rsp(NFC_HDR* p_msg) {
 
       nfc_cb.p_nci_init_rsp = p_msg;
       nfc_cb.p_hal->core_initialized(p_msg->len, p);
+#if (NXP_EXTNS == TRUE)
       check_nfcee_session_and_reset();
+#endif
     }
   }
 #if (NXP_EXTNS == TRUE)
@@ -3099,6 +3106,7 @@ void nfc_ncif_proc_data(NFC_HDR* p_msg) {
   }
   GKI_freebuf(p_msg);
 }
+#if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         nfc_modeset_ntf_timeout
@@ -3125,7 +3133,6 @@ void nfc_modeset_ntf_timeout()
         (*p_cback) (event, &nfc_response);
 }
 
-#if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
 ** Function         nfc_ncif_credit_ntf_timeout
@@ -3190,7 +3197,7 @@ void nfc_ncif_credit_ntf_timeout() {
   nfc_ncif_cmd_timeout();
   // nci_snd_core_reset(0x00);
 }
-
+#endif
 /*******************************************************************************
 **
 ** Function         nfc_ncif_process_proprietary_rsp
@@ -3270,8 +3277,6 @@ bool nfc_ncif_proc_proprietary_rsp(uint8_t mt, uint8_t gid, uint8_t oid) {
       "%s: exit status=%u rawVsCbflag=%u", __func__, stat, nfc_cb.rawVsCbflag);
   return stat;
 }
-
-#endif
 
 #if (NXP_EXTNS == TRUE)
 void disc_deact_ntf_timeout_handler(tNFC_RESPONSE_EVT event) {

@@ -119,6 +119,20 @@ cc_defaults{
   ],
 }
 
+cc_fuzz {
+    name: "nfc_nci_fuzzer",
+    defaults: ["nfc_fuzzer_defaults"],
+    srcs: [
+        "nfc/nci/*.cc",
+        "nfc/nfc/*.cc",
+        "adaptation/debug_lmrt.cc",
+        "gki/common/*.cc",
+        "gki/ulinux/*.cc",
+        "fuzzers/*.cc",
+        "fuzzers/nci/*.cc",
+    ],
+}
+
 cc_fuzz{
   name : "nfc_rw_fuzzer",
   defaults : ["nfc_fuzzer_defaults"],

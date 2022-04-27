@@ -17,7 +17,11 @@
 /*
  * NXP features declarations
  */
+#if (NXP_EXTNS == TRUE)
+#include <stdint.h>
+#else
 #include <unistd.h>
+#endif
 #include <string.h>
 #ifndef NXP_FEATURES_H
 #define NXP_FEATURES_H

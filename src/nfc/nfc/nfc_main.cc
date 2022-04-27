@@ -1096,6 +1096,7 @@ tNFC_STATUS NFC_DiscoveryMap(uint8_t num, tNFC_DISCOVER_MAPS* p_maps,
     is_supported = false;
     if (p_maps[xx].intf_type > NCI_INTERFACE_MAX) {
         for (yy = 0; yy < NFC_NFCC_MAX_NUM_VS_INTERFACE; yy++) {
+#if (NXP_EXTNS == TRUE)
             if(nfcFL.nfccFL._NFCC_FW_WA) {
                 if ((nfc_cb.vs_interface[yy] == p_maps[xx].intf_type) ||
                         (nfcFL.nfcMwFL._NCI_INTERFACE_ESE_DIRECT == p_maps[xx].intf_type)) {
@@ -1110,9 +1111,17 @@ tNFC_STATUS NFC_DiscoveryMap(uint8_t num, tNFC_DISCOVER_MAPS* p_maps,
         }
         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("[%d]: vs intf_type:0x%x is_supported:%d", xx,
                 p_maps[xx].intf_type, is_supported);
+#else
+        if (nfc_cb.vs_interface[yy] == p_maps[xx].intf_type)
+          is_supported = true;
+      }
+      DLOG_IF(INFO, nfc_debug_enabled)
+          << StringPrintf("[%d]: vs intf_type:0x%x is_supported:%d", xx,
+                          p_maps[xx].intf_type, is_supported);
+#endif
     } else {
       intf_mask = (1 << (p_maps[xx].intf_type));
-      if ((intf_mask & nfc_cb.nci_interfaces)) {
+      if (intf_mask & nfc_cb.nci_interfaces) {
         is_supported = true;
       }
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("[%d]: intf_type:%d intf_mask: 0x%x is_supported:%d", xx,
@@ -1129,9 +1138,11 @@ tNFC_STATUS NFC_DiscoveryMap(uint8_t num, tNFC_DISCOVER_MAPS* p_maps,
       LOG(WARNING) << StringPrintf(
           "NFC_DiscoveryMap interface=0x%x is not supported by NFCC",
           p_maps[xx].intf_type);
+#if (NXP_EXTNS == TRUE)
       if(nfcFL.chipType != pn547C2) {
           return NFC_STATUS_FAILED;
       }
+#endif
     }
   }
 

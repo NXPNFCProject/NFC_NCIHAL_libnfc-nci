@@ -443,8 +443,10 @@ void nfc_start_quick_timer(TIMER_LIST_ENT* p_tle, uint16_t type,
                            uint32_t timeout);
 void nfc_stop_quick_timer(TIMER_LIST_ENT* p_tle);
 void nfc_process_quick_timer_evt(void);
+#if (NXP_EXTNS == TRUE)
 void set_i2c_fragmentation_enabled(int value);
 int get_i2c_fragmentation_enabled();
 void check_nfcee_session_and_reset();
+#endif
 
 #endif /* NFC_INT_H_ */
