@@ -69,7 +69,11 @@
 #define GKI_BUF0_MAX 40
 
 #if (NXP_EXTNS == TRUE)
+#ifdef DYN_ALLOC
+#define GKI_NUM_FIXED_BUF_POOLS 0
+#else
 #define GKI_NUM_FIXED_BUF_POOLS 5
+#endif
 #else
 #ifdef DYN_ALLOC
 #define GKI_NUM_FIXED_BUF_POOLS 0
