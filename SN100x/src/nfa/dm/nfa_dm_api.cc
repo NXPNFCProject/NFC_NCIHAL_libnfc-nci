@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2021 NXP
+ *  Copyright 2018-2022 NXP
  *
  ******************************************************************************/
 
@@ -1545,6 +1545,7 @@ tNFA_MW_VERSION NFA_GetMwVersion() {
   mwVer.validation = (NXP_EN_SN100U << 13);
   mwVer.validation |= (NXP_EN_SN110U << 14);
   mwVer.validation |= (NXP_EN_SN220U << 15);
+  mwVer.validation |= (NXP_EN_PN560 << 16);
   mwVer.validation |= (NXP_EN_PN557 << 11);
   mwVer.android_version = NXP_ANDROID_VER;
   DLOG_IF(INFO, nfc_debug_enabled)
