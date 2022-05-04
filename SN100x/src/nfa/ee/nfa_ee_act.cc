@@ -467,24 +467,52 @@ static void nfa_ee_add_proto_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
   *ps = num_tlv;
 }
 
-static void nfa_ee_add_aid_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
-                                        uint8_t* p, uint8_t* ps,
-                                        int* p_cur_offset, int* p_max_len) {
+/*******************************************************************************
+**
+** Function         nfa_ee_add_aid_route_to_ecb
+**
+** Description      Adds AIDs corresponding to ecb into listen mode routing
+**                  table(LMRT) buffer. Empty AID needs to be pushed as last
+**                  entry in LMRT. If Empty AID is part of any of the ecb,
+**                  its index is stored in tNFA_EE_EMPTY_AID_ECB structure.
+**                  If addEmptyAidRoute is set to true, only empty AID will
+**                  be added into LMRT buffer
+**
+** Returns          void
+**
+*******************************************************************************/
+static void nfa_ee_add_aid_route_to_ecb(tNFA_EE_ECB *p_cb, uint8_t *pp,
+                                        uint8_t *p, uint8_t *ps,
+                                        int *p_cur_offset, int *p_max_len,
+                                        tNFA_EE_EMPTY_AID_ECB &empty_aid_ecb) {
   uint8_t num_tlv = *ps;
 
   /* add the AID routing */
   if (p_cb->aid_entries) {
     int start_offset = 0;
-    for (int xx = 0; xx < p_cb->aid_entries; xx++) {
+    int xx = 0;
+    if (empty_aid_ecb.addEmptyAidRoute && empty_aid_ecb.index != -1) {
+      xx = empty_aid_ecb.index;
+    }
+    for (; xx < p_cb->aid_entries; xx++) {
+      /*
+       * If addEmptyAidRoute is false and aid is empty AID don't add to the
+       * LMRT buffer. Instead update the empty aid ecb and index, which will
+       * be used later to add empty add at the end of the routing table
+       */
+      if (p_cb->aid_len[xx] == NFA_EMPTY_AID_TLV_LEN &&
+          !empty_aid_ecb.addEmptyAidRoute) {
+        empty_aid_ecb.p_cb = p_cb;
+        empty_aid_ecb.index = xx;
+        continue;
+      }
       /* remember the beginning of this AID routing entry, just in case we
        * need to put it in next command */
       uint8_t route_qual = 0;
       uint8_t* p_start = pp;
       /* add one AID entry */
       if (p_cb->aid_rt_info[xx] & NFA_EE_AE_ROUTE) {
-#if(NXP_EXTNS != TRUE)
         num_tlv++;
-#endif
         uint8_t* pa = &p_cb->aid_cfg[start_offset];
 
         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
@@ -504,23 +532,13 @@ static void nfa_ee_add_aid_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
 
         uint8_t tag =
             NFC_ROUTE_TAG_AID | nfa_ee_cb.route_block_control | route_qual;
-#if(NXP_EXTNS == TRUE)
-    if(nfa_ee_is_active(p_cb->aid_rt_loc[xx]|NFA_HANDLE_GROUP_EE)) {
-        add_route_aid_tlv(&pp, pa, p_cb->aid_rt_loc[xx], p_cb->aid_pwr_cfg[xx], tag);
-        num_tlv++;
-    }
-#else
+
         add_route_aid_tlv(&pp, pa, p_cb->nfcee_id, p_cb->aid_pwr_cfg[xx], tag);
-#endif
       }
       start_offset += p_cb->aid_len[xx];
       uint8_t new_size = (uint8_t)(pp - p_start);
       nfa_ee_check_set_routing(new_size, p_max_len, ps, p_cur_offset);
-      if (*ps == 0
-#if(NXP_EXTNS == TRUE)
-      && (num_tlv > 0x00)
-#endif
-) {
+      if (*ps == 0) {
         /* just sent routing command, update local */
         *ps = 1;
         num_tlv = *ps;
@@ -533,6 +551,11 @@ static void nfa_ee_add_aid_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
         /* add the new entry */
         *ps = num_tlv;
         *p_cur_offset += new_size;
+      }
+
+      if (empty_aid_ecb.addEmptyAidRoute) {
+        // Break the loop after adding Empty AID
+        break;
       }
     }
   } else {
@@ -1309,10 +1332,6 @@ void nfa_ee_api_clear_proto_cfg(tNFA_EE_MSG* p_data) {
 void nfa_ee_api_add_aid(tNFA_EE_MSG* p_data) {
   tNFA_EE_API_ADD_AID* p_add = &p_data->add_aid;
   tNFA_EE_ECB* p_cb = p_data->cfg_hdr.p_cb;
-
-#if (NXP_EXTNS == TRUE)
-  tNFA_EE_ECB* dh_ecb = nullptr;
-#endif
   tNFA_EE_ECB* p_chk_cb;
   uint8_t *p, *p_start;
   int len, len_needed;
@@ -1323,27 +1342,10 @@ void nfa_ee_api_add_aid(tNFA_EE_MSG* p_data) {
   nfa_ee_trace_aid("nfa_ee_api_add_aid", p_cb->nfcee_id, p_add->aid_len,
                    p_add->p_aid);
   int max_aid_cfg_length = nfa_ee_find_max_aid_cfg_len();
-#if (NXP_EXTNS == TRUE)
-  if (!p_add->aid_len) max_aid_cfg_length += NFA_EE_EMPTY_AID_ROUTE_LEN;
-#endif
-
   int max_aid_entries = max_aid_cfg_length / NFA_MIN_AID_LEN + 1;
 
   p_chk_cb =
       nfa_ee_find_aid_offset(p_add->aid_len, p_add->p_aid, &offset, &entry);
-#if (NXP_EXTNS == TRUE)
-  if(NFA_GetNCIVersion() == NCI_VERSION_1_0) {//FIX THIS
-    if((p_add->power_state & 0x08) || (p_add->power_state & 0x20)) {
-      p_add->power_state &= ~0x08;
-      p_add->power_state &= ~0x20;
-      p_add->power_state |= NCI_ROUTE_PWR_STATE_SCREEN_OFF_UNLOCK();
-    }
-    if(p_add->power_state & 0x10){
-      p_add->power_state &= ~0x10;
-      p_add->power_state |= NCI_ROUTE_PWR_STATE_SCREEN_ON_LOCK();
-    }
-  }
-#endif
   if (p_chk_cb) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
         "nfa_ee_api_add_aid The AID entry is already in the database");
@@ -1357,9 +1359,6 @@ void nfa_ee_api_add_aid(tNFA_EE_MSG* p_data) {
         p_cb->aid_rt_info[entry] &= ~NFA_EE_AE_ROUTE;
       } else {
         p_cb->aid_pwr_cfg[entry] = p_add->power_state;
-#if (NXP_EXTNS == TRUE)
-        p_cb->aid_info[entry] = p_add->aidInfo;
-#endif
       }
     } else {
       LOG(ERROR) << StringPrintf(
@@ -1370,12 +1369,7 @@ void nfa_ee_api_add_aid(tNFA_EE_MSG* p_data) {
     }
   } else {
     /* Find the total length so far */
-#if (NXP_EXTNS == TRUE)
-    len = nfa_all_ee_find_total_aid_len();
-    dh_ecb = &nfa_ee_cb.ecb[NFA_EE_CB_4_DH];
-#else
     len = nfa_ee_find_total_aid_len(p_cb, 0);
-#endif
 
     /* make sure the control block has enough room to hold this entry */
     len_needed = p_add->aid_len + 2; /* tag/len */
@@ -1386,13 +1380,7 @@ void nfa_ee_api_add_aid(tNFA_EE_MSG* p_data) {
           "NFA_EE_MAX_AID_CFG_LEN:%d",
           len_needed, len, max_aid_cfg_length);
       evt_data.status = NFA_STATUS_BUFFER_FULL;
-    }
-#if (NXP_EXTNS == TRUE)
-    else if (dh_ecb->aid_entries < max_aid_entries)
-#else
-    else if (p_cb->aid_entries < max_aid_entries)
-#endif
-    {
+    } else if (p_cb->aid_entries < max_aid_entries) {
       /* 4 = 1 (tag) + 1 (len) + 1(nfcee_id) + 1(power cfg) */
       new_size = nfa_ee_total_lmrt_size() + 4 + p_add->aid_len;
       if (new_size > NFC_GetLmrtSize()) {
@@ -1400,31 +1388,17 @@ void nfa_ee_api_add_aid(tNFA_EE_MSG* p_data) {
         evt_data.status = NFA_STATUS_BUFFER_FULL;
       } else {
         /* add AID */
-
-#if (NXP_EXTNS == TRUE)
-        len = nfa_ee_find_total_aid_len(dh_ecb, 0);
-        // Always use single aid_cfg buffer to keep the aid order intact.
-        dh_ecb->aid_pwr_cfg[dh_ecb->aid_entries] = p_add->power_state;
-        dh_ecb->aid_rt_info[dh_ecb->aid_entries] = NFA_EE_AE_ROUTE;
-        dh_ecb->aid_rt_loc[dh_ecb->aid_entries] = p_cb->nfcee_id;
-        dh_ecb->aid_info[dh_ecb->aid_entries] = p_add->aidInfo;
-        p = dh_ecb->aid_cfg + len;
-#else
         p_cb->aid_pwr_cfg[p_cb->aid_entries] = p_add->power_state;
         p_cb->aid_info[p_cb->aid_entries] = p_add->aidInfo;
         p_cb->aid_rt_info[p_cb->aid_entries] = NFA_EE_AE_ROUTE;
         p = p_cb->aid_cfg + len;
-#endif
         p_start = p;
         *p++ = NFA_EE_AID_CFG_TAG_NAME;
         *p++ = p_add->aid_len;
         memcpy(p, p_add->p_aid, p_add->aid_len);
         p += p_add->aid_len;
-#if (NXP_EXTNS == TRUE)
-        dh_ecb->aid_len[dh_ecb->aid_entries++] = (uint8_t)(p - p_start);
-#else
-         p_cb->aid_len[p_cb->aid_entries++] = (uint8_t)(p - p_start);
-#endif
+
+        p_cb->aid_len[p_cb->aid_entries++] = (uint8_t)(p - p_start);
       }
     } else {
       LOG(ERROR) << StringPrintf("Exceed NFA_EE_MAX_AID_ENTRIES:%d",
@@ -3004,9 +2978,9 @@ void nfa_ee_check_set_routing(uint16_t new_size, int* p_max_len, uint8_t* p,
 ** Returns          NFA_STATUS_OK, if ok to continue
 **
 *******************************************************************************/
-void nfa_ee_route_add_one_ecb_by_route_order(tNFA_EE_ECB* p_cb, int rout_type,
-                                             int* p_max_len, bool more,
-                                             uint8_t* ps, int* p_cur_offset) {
+void nfa_ee_route_add_one_ecb_by_route_order(
+    tNFA_EE_ECB *p_cb, int rout_type, int *p_max_len, bool more, uint8_t *ps,
+    int *p_cur_offset, tNFA_EE_EMPTY_AID_ECB &empty_aid_ecb) {
   /* use the first byte of the buffer (ps) to keep the num_tlv */
   uint8_t num_tlv = *ps;
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
@@ -3033,7 +3007,8 @@ void nfa_ee_route_add_one_ecb_by_route_order(tNFA_EE_ECB* p_cb, int rout_type,
       nfa_ee_add_proto_route_to_ecb(p_cb, pp, p, ps, p_cur_offset);
     } break;
     case NCI_ROUTE_ORDER_AID: {
-      nfa_ee_add_aid_route_to_ecb(p_cb, pp, p, ps, p_cur_offset, p_max_len);
+      nfa_ee_add_aid_route_to_ecb(p_cb, pp, p, ps, p_cur_offset, p_max_len,
+                                  empty_aid_ecb);
     } break;
     case NCI_ROUTE_ORDER_SYS_CODE: {
       nfa_ee_add_sys_code_route_to_ecb(p_cb, pp, p, ps, p_cur_offset,
@@ -3254,6 +3229,10 @@ void nfa_ee_lmrt_to_nfcc(__attribute__((unused)) tNFA_EE_MSG* p_data) {
    * adding the entry in RT*/
   nfa_ee_update_route_size(&nfa_ee_cb.ecb[NFA_EE_CB_4_DH]);
 #endif
+  tNFA_EE_EMPTY_AID_ECB empty_aid_ecb;
+  memset(&empty_aid_ecb, 0x00, sizeof(tNFA_EE_EMPTY_AID_ECB));
+  empty_aid_ecb.index = -1;
+
   for (int rt = NCI_ROUTE_ORDER_AID; rt <= NCI_ROUTE_ORDER_TECHNOLOGY; rt++) {
     /* add the routing entries for NFCEEs */
     p_cb = &nfa_ee_cb.ecb[0];
@@ -3263,7 +3242,7 @@ void nfa_ee_lmrt_to_nfcc(__attribute__((unused)) tNFA_EE_MSG* p_data) {
         DLOG_IF(INFO, nfc_debug_enabled)
             << StringPrintf("%s --add the routing for NFCEEs!!", __func__);
         nfa_ee_route_add_one_ecb_by_route_order(p_cb, rt, &max_len, more, p,
-                                                &cur_offset);
+                                                &cur_offset, empty_aid_ecb);
       }
     }
     if (rt == NCI_ROUTE_ORDER_TECHNOLOGY) more = false;
@@ -3271,7 +3250,19 @@ void nfa_ee_lmrt_to_nfcc(__attribute__((unused)) tNFA_EE_MSG* p_data) {
     DLOG_IF(INFO, nfc_debug_enabled)
         << StringPrintf("%s --add the routing for DH!!", __func__);
     nfa_ee_route_add_one_ecb_by_route_order(&nfa_ee_cb.ecb[NFA_EE_CB_4_DH], rt,
-                                            &max_len, more, p, &cur_offset);
+                                            &max_len, more, p, &cur_offset,
+                                            empty_aid_ecb);
+
+    if (rt == NCI_ROUTE_ORDER_AID) {
+      if (empty_aid_ecb.p_cb) {
+        DLOG_IF(INFO, nfc_debug_enabled)
+            << StringPrintf("%s --add Empty AID routing", __func__);
+        empty_aid_ecb.addEmptyAidRoute = true;
+        nfa_ee_route_add_one_ecb_by_route_order(empty_aid_ecb.p_cb, rt,
+                                                &max_len, more, p, &cur_offset,
+                                                empty_aid_ecb);
+      }
+    }
   }
 
   GKI_freebuf(p);
