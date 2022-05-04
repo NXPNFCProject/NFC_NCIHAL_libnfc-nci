@@ -17,6 +17,7 @@
  ******************************************************************************/
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
+#include <log/log.h>
 #include "gki_int.h"
 
 #if (GKI_NUM_TOTAL_BUF_POOLS > 16)
@@ -258,8 +259,9 @@ void* GKI_getbuf(uint16_t size) {
   FREE_QUEUE_T* Q;
 
 #if defined(DYN_ALLOC) || defined(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION)
-  if (size == 0) {
-    LOG(ERROR) << StringPrintf("getbuf: Size is zero");
+  if (size == 0 || size > (USHRT_MAX - 3)) {
+    LOG(ERROR) << StringPrintf("getbuf: Requested size(%d) is invalid", size);
+    android_errorWriteLog(0x534e4554, "205729183");
 #ifndef DYN_ALLOC
     abort();
 #else
