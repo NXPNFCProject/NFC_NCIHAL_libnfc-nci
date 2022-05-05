@@ -1021,8 +1021,8 @@ void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
     } else {
 #if (NXP_EXTNS == TRUE)
       nfa_hciu_send_set_param_cmd(NFA_HCI_ADMIN_PIPE, NFA_HCI_WHITELIST_INDEX,
-                                  p_nfa_hci_cfg->num_whitelist_host,
-                                  p_nfa_hci_cfg->p_whitelist);
+                                  p_nfa_hci_cfg->num_allowlist_host,
+                                  p_nfa_hci_cfg->p_allowlist);
 #else
       /* Read session id, to know DH session id is correct */
       nfa_hciu_send_get_param_cmd(NFA_HCI_ADMIN_PIPE,

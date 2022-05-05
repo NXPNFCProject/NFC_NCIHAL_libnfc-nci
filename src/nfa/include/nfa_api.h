@@ -655,10 +655,10 @@ typedef struct {
   uint16_t hci_netwk_enable_timeout;
   /* Maximum time to wait for EE DISC REQ NTF(s) after HOT PLUG EVT(s) */
   uint16_t hcp_response_timeout;
-  /* Number of host in the whitelist of Terminal host */
-  uint8_t num_whitelist_host;
-  /* Whitelist of Terminal Host */
-  uint8_t* p_whitelist;
+  /* Number of host in the allowlist of Terminal host */
+  uint8_t num_allowlist_host;
+  /* Allowlist of Terminal Host */
+  uint8_t* p_allowlist;
 } tNFA_HCI_CFG;
 
 /*

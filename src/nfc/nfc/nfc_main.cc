@@ -221,7 +221,7 @@ static std::string nfc_hal_event_name(uint8_t event) {
 
     case HAL_NFC_ERROR_EVT:
       return ("HAL_NFC_ERROR_EVT");
-    case (uint32_t)NfcEvent::HCI_NETWORK_RESET:
+    case HAL_HCI_NETWORK_RESET:
       return "HCI_NETWORK_RESET";
 #if (NXP_EXTNS == TRUE)
     case HAL_NFC_POST_MIN_INIT_CPLT_EVT:
@@ -642,7 +642,7 @@ void nfc_main_handle_hal_evt(tNFC_HAL_EVT_MSG* p_msg) {
           break;
       }
       break;
-    case (uint32_t)NfcEvent::HCI_NETWORK_RESET:
+    case HAL_HCI_NETWORK_RESET:
       delete_stack_non_volatile_store(true);
       break;
 #if (NXP_EXTNS == TRUE)
@@ -761,7 +761,7 @@ static void nfc_main_hal_cback(uint8_t event, tHAL_NFC_STATUS status) {
     case HAL_NFC_REQUEST_CONTROL_EVT:
     case HAL_NFC_RELEASE_CONTROL_EVT:
     case HAL_NFC_ERROR_EVT:
-    case (uint32_t)NfcEvent::HCI_NETWORK_RESET:
+    case HAL_HCI_NETWORK_RESET:
 #if (NXP_EXTNS == TRUE)
     case HAL_NFC_POST_MIN_INIT_CPLT_EVT:
         if( nfcFL.nfccFL._NFCC_I2C_READ_WRITE_IMPROVEMENT) {

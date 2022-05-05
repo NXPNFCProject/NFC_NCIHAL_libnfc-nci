@@ -42,8 +42,8 @@
  ******************************************************************************/
 #ifndef NFC_HAL_API_H
 #define NFC_HAL_API_H
-#include <hardware/nfc.h>
 #include "data_types.h"
+#include "hardware_nfc.h"
 #include "nfc_hal_target.h"
 
 typedef struct {
