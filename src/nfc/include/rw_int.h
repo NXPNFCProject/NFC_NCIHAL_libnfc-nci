@@ -787,7 +787,6 @@ enum {
   RW_I93_ONS_N24RF16E,               /* ONS N24RF16E                     */
   RW_I93_ONS_N24RF64,                /* ONS N24RF64                      */
   RW_I93_ONS_N24RF64E,               /* ONS N24RF64E                     */
-  RW_I93_SIC_81T1,                   /* SIC 81T1                         */
   RW_I93_UNKNOWN_PRODUCT             /* Unknwon product version          */
 };
 
