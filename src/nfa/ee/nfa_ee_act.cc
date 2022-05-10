@@ -909,8 +909,13 @@ tNFA_EE_ECB* nfa_ee_find_aid_offset(uint8_t aid_len, uint8_t* p_aid,
   int xx, yy, aid_len_offset, offset;
   tNFA_EE_ECB* p_ret = nullptr, *p_ecb;
 
-  /* NFA_EE_CB_4_DH + Empty aid ECB */
-  p_ecb = &nfa_ee_cb.ecb[NFA_EE_CB_4_DH + 1];
+  if (NFA_GetNCIVersion() != NCI_VERSION_2_0) {
+    p_ecb = &nfa_ee_cb.ecb[NFA_EE_CB_4_DH];
+  } else {
+    /* NFA_EE_CB_4_DH + Empty aid ECB */
+    p_ecb = &nfa_ee_cb.ecb[NFA_EE_CB_4_DH + 1];
+  }
+
   aid_len_offset = 1; /* skip the tag */
   for (yy = 0; yy <= nfa_ee_cb.cur_ee; yy++) {
     if (p_ecb->aid_entries) {
@@ -3896,6 +3901,7 @@ void nfa_ee_lmrt_to_nfcc(__attribute__((unused)) tNFA_EE_MSG* p_data) {
     nfa_ee_route_add_one_ecb_by_route_order(&nfa_ee_cb.ecb[NFA_EE_CB_4_DH], rt,
                                             &max_len, more, p, &cur_offset);
 
+if(NFA_GetNCIVersion() == NCI_VERSION_2_0) {
     if (rt == NCI_ROUTE_ORDER_AID) {
       p_cb = &nfa_ee_cb.ecb[NFA_EE_EMPTY_AID_ECB];
       if (p_cb->ee_status == NFC_NFCEE_STATUS_ACTIVE) {
@@ -3906,6 +3912,7 @@ void nfa_ee_lmrt_to_nfcc(__attribute__((unused)) tNFA_EE_MSG* p_data) {
       }
     }
   }
+}
 #if (NXP_EXTNS == TRUE)
   nfa_ee_cb.ee_flags &= ~NFA_EE_FLAG_CFG_NFC_DEP;
   evt_data.status = status;

@@ -19,7 +19,7 @@
  *
  *  The original Work has been changed by NXP.
  *
- *  Copyright 2015-2020 NXP
+ *  Copyright 2015-2020,2022 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -687,7 +687,7 @@ tNFA_STATUS NFA_EeAddAidRouting(tNFA_HANDLE ee_handle, uint8_t aid_len,
   tNFA_EE_ECB* p_cb;
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_EeAddAidRouting(): handle:<0x%x>", ee_handle);
-  if (aid_len == 0) {
+  if ((aid_len == 0) && (NFA_GetNCIVersion() == NCI_VERSION_2_0)){
     p_cb = &nfa_ee_cb.ecb[NFA_EE_EMPTY_AID_ECB];
   } else {
     p_cb = nfa_ee_find_ecb(nfcee_id);
@@ -707,7 +707,9 @@ tNFA_STATUS NFA_EeAddAidRouting(tNFA_HANDLE ee_handle, uint8_t aid_len,
         << StringPrintf("Bad ee_handle or AID (len=%d)", aid_len);
     status = NFA_STATUS_INVALID_PARAM;
   } else {
+    if(NFA_GetNCIVersion() == NCI_VERSION_2_0) {
     p_cb->nfcee_id = nfcee_id;
+  }
     p_msg = (tNFA_EE_API_ADD_AID*)GKI_getbuf(size);
     if (p_msg != nullptr) {
 #if (NXP_EXTNS == TRUE)
