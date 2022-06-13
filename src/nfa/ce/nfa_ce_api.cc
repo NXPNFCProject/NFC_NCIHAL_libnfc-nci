@@ -17,9 +17,9 @@
  ******************************************************************************/
 /******************************************************************************
  *
- *  The original Work has been changed by NXP Semiconductors.
+ *  The original Work has been changed by NXP.
  *
- *  Copyright (C) 2015 NXP Semiconductors
+ *  Copyright 2015,2022 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -499,7 +499,11 @@ tNFA_STATUS NFA_CeSetIsoDepListenTech(tNFA_TECHNOLOGY_MASK tech_mask) {
       (NFA_TECHNOLOGY_MASK_A | NFA_TECHNOLOGY_MASK_B);
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("NFA_CeSetIsoDepListenTech (): 0x%x", tech_mask);
+#if (NXP_EXTNS == TRUE)
+  if (((tech_mask & ~use_mask) != 0)) {
+#else
   if (((tech_mask & use_mask) == 0) || ((tech_mask & ~use_mask) != 0)) {
+#endif
     LOG(ERROR) << StringPrintf("NFA_CeSetIsoDepListenTech: Invalid technology mask");
     return (NFA_STATUS_INVALID_PARAM);
   }
