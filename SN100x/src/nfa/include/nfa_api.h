@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2021 NXP
+ *  Copyright 2018-2022 NXP
  *
  ******************************************************************************/
 
@@ -226,6 +226,8 @@ typedef uint8_t tNFA_PROTOCOL_MASK;
 #define NFA_DM_SET_TRANSIT_CONFIG_EVT 14
 
 #define NFA_DM_GET_ROUTE_CONFIG_REVT 10
+
+#define NFA_DM_GEN_ERROR_REVT 12
 #endif
 /* T1T HR length            */
 #define NFA_T1T_HR_LEN T1T_HR_LEN

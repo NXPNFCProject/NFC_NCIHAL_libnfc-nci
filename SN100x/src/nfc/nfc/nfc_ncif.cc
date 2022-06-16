@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2021 NXP
+ *  Copyright 2018-2022 NXP
  *
  ******************************************************************************/
 
@@ -2581,8 +2581,9 @@ void nfc_ncif_proc_generic_error_ntf(tNFC_STATUS status)
                     nfc_cb.nci_ese_cold_temp_timeout);
       break;
     }
-    case NCI_STATUS_SYNTAX_ERROR:
     case NCI_STATUS_PMU_TXLDO_OVERCURRENT:
+      break;
+    case NCI_STATUS_SYNTAX_ERROR:
     case NCI_STATUS_GPADC_ERROR:
     {
       LOG(ERROR) <<StringPrintf("\nAborting...");
