@@ -212,6 +212,8 @@ typedef uint8_t tNFC_STATUS;
   ((unsigned char)0xEA) /* param for retrieveing HCI session ID for UICC */
 #define NXP_NFC_PARAM_SWP_SESSIONID_INT1A \
   ((unsigned char)0x1E) /* param for retrieveing HCI session ID for UICC2 */
+#define NXP_NFC_TXLDO_OVER_CURRENT \
+  ((unsigned char)0xE3) /* Core generic error for TXLDO OVER CURRENT */
 #endif
 /**********************************************
  * NFC Config Parameter IDs defined by NCI

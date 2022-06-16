@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2021 NXP
+ *  Copyright 2018-2022 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -425,7 +425,14 @@ static void nfa_dm_nfc_response_cback(tNFC_RESPONSE_EVT event,
 
     case NFC_GEN_ERROR_REVT: /* generic error command or notification */
 #if(NXP_EXTNS == TRUE)
-      if(p_data) NFA_SCR_PROCESS_EVT(NFA_SCR_MULTIPLE_TARGET_DETECTED_EVT, p_data->status);
+      if (p_data) {
+        dm_cback_data.status = p_data->status;
+        NFA_SCR_PROCESS_EVT(NFA_SCR_MULTIPLE_TARGET_DETECTED_EVT,
+                            p_data->status);
+        if (dm_cback_data.status == NXP_NFC_TXLDO_OVER_CURRENT) {
+          (*nfa_dm_cb.p_dm_cback)(NFA_DM_GEN_ERROR_REVT, &dm_cback_data);
+        }
+      }
 #endif
       break;
 
