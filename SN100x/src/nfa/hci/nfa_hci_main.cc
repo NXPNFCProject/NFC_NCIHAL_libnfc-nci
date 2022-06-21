@@ -390,7 +390,15 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                     if(status == NFA_STATUS_OK) {
                       break;
                     }
-                }
+                  } else {
+                    /* After NFC Init, If NFCEE_STATUS_NTF received with status
+                     * INIT_COMPLETED notify to upper layer to re-configure the
+                     * LMRT & Restart RF Discovery.  */
+                    tNFA_HCI_EVT_DATA evt_data;
+                    evt_data.init_completed.status = NFA_STATUS_OK;
+                    nfa_hciu_send_to_all_apps(NFA_HCI_INIT_COMPLETED,
+                                              &evt_data);
+                  }
               }
             }
             else
