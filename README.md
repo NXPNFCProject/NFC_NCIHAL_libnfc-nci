@@ -10,7 +10,7 @@
 | Android Version        | NXP Release          | NXP Tag  |
 | :-------------: |:---------------------:| :-----:|
 | aosp-master            |  13.02.01 (SN100/SN110/SN220) |  NFC_AR_00_E800_13.02.01_OpnSrc |
-| aosp-master              |  13.03.00 (SN100/SN110/SN220) |  NFC_AR_00_E800_13.03.00_OpnSrc || AOSP-MASTER              |  13.03.00 (SN100/SN110/SN220) |  NFC_AR_00_E800_13.03.00_OpnSrc |
+| aosp-master              |  13.03.00 (SN100/SN110/SN220) |  NFC_AR_00_E800_13.03.00_OpnSrc |
 
 
 
@@ -37,7 +37,10 @@
 | android-12.0.0_r2              |  12.0D.00 (SN100/SN110/PN557) |  NFC_AR_00_E800_12.0D.00_OpnSrc |
 | android-12.0.0_r2              |  12.10.00 (SN100/SN110/SN220) |  NFC_AR_00_E800_12.10.00_OpnSrc |
 | android-12.0.0_r2              |  12.12.00 (PN557/SN100/SN110/SN220) |  NFC_AR_00_E800_12.12.00_OpnSrc |
-| android-12.0.0_r2              |  12.14.00 (PN557/PN560/SN100/SN110/SN220) |  NFC_AR_00_E800_12.14.00_OpnSrc |
+| android-12.0.0_r2              |  12.14.00 (PN557/PN560/SN100/SN110/SN220) |  NFC_AR_00_1E800_12.14.00_OpnSrc |
+
+
+
 
 
 #### Supported Version on "br_android_ncihalx_row_11" branch
@@ -85,7 +88,7 @@
 | aosp-master              |  10.00.0B (SN100) |  NFC_AR_00_6000_10.00.0B_OpnSrc |
 | aosp-master              |  10.00.0C (SN110) |  NFC_AR_00_6000_10.00.0C_OpnSrc |
 | android-10.0.0_r2              |  10.00.0D (SN110) |  NFC_AR_00_6000_10.00.0D_OpnSrc |
-| android-10.0.0_r2              |  10.00.0F (SN110) |  NFC_AR_00_6000_10.00.0F_OpnSrc || android-10.0.0_r2              |  10.00.0F (SN110) |  NFC_AR_00_6000_10.00.0F_OpnSrc |
+| android-10.0.0_r2              |  10.00.0F (SN110) |  NFC_AR_00_6000_10.00.0F_OpnSrc |
 | android-10.0.0_r2              |  10.00.14 (SN1xx) |  NFC_AR_00_6000_10.00.14_OpnSrc |
 | android-10.0.0_r2              |  10.00.15 (SN1xx) |  NFC_AR_00_6000_10.00.15_OpnSrc |
 | android-10.0.0_r2              |  10.00.17 (SN110) |  NFC_AR_00_6000_10.00.17_OpnSrc |
