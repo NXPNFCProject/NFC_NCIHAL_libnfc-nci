@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2021 NXP
+ *  Copyright 2018-2022 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -324,6 +324,7 @@ typedef struct {
   tNFA_EE_ECB *p_cb;
   int8_t index;
   bool addEmptyAidRoute;
+  int offset;
 } tNFA_EE_EMPTY_AID_ECB;
 
 /* data type for NFA_EE_API_DISCOVER_EVT */

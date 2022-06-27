@@ -493,6 +493,7 @@ static void nfa_ee_add_aid_route_to_ecb(tNFA_EE_ECB *p_cb, uint8_t *pp,
     int xx = 0;
     if (empty_aid_ecb.addEmptyAidRoute && empty_aid_ecb.index != -1) {
       xx = empty_aid_ecb.index;
+      start_offset = empty_aid_ecb.offset;
     }
     for (; xx < p_cb->aid_entries; xx++) {
       /*
@@ -504,6 +505,8 @@ static void nfa_ee_add_aid_route_to_ecb(tNFA_EE_ECB *p_cb, uint8_t *pp,
           !empty_aid_ecb.addEmptyAidRoute) {
         empty_aid_ecb.p_cb = p_cb;
         empty_aid_ecb.index = xx;
+        empty_aid_ecb.offset = start_offset;
+        start_offset += p_cb->aid_len[xx];
         continue;
       }
       /* remember the beginning of this AID routing entry, just in case we
