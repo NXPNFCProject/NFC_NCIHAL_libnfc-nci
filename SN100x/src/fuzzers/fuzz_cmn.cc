@@ -9,6 +9,12 @@ bool storeNfcSnoopLogs(std::string, off_t) { return true; };
 uint8_t appl_dta_mode_flag = 0;
 bool nfc_debug_enabled = true;
 
+namespace android {
+namespace util {
+void stats_write(int32_t, ...) {}
+}  // namespace util
+}  // namespace android
+
 #ifdef STANDALONE_FUZZER
 int main(int argc, char* argv[]) {
   uint_t iterations = 50;

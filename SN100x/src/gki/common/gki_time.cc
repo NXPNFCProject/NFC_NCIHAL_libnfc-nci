@@ -708,6 +708,14 @@ uint16_t GKI_update_timer_list(TIMER_LIST_Q* p_timer_listq,
   return (num_time_out);
 }
 
+bool GKI_timer_list_empty(TIMER_LIST_Q* p_timer_listq) {
+  return p_timer_listq->p_first == nullptr;
+}
+
+TIMER_LIST_ENT* GKI_timer_list_first(TIMER_LIST_Q* p_timer_listq) {
+  return p_timer_listq->p_first;
+}
+
 /*******************************************************************************
 **
 ** Function         GKI_get_remaining_ticks

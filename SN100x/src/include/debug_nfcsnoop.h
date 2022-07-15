@@ -19,6 +19,9 @@
 #define _DEBUG_NFCSNOOP_
 
 #include <stdint.h>
+
+#include <string>
+
 #include "nfc_target.h"
 #include "nfc_types.h"
 

@@ -191,3 +191,54 @@ cc_fuzz {
         "fuzzers/llcp/*.cc",
     ],
 }
+
+cc_library_static {
+    name: "nfc_integration_fuzzer_proto",
+    owner: "google",
+    host_supported: true,
+    srcs: ["fuzzers/integration/nfc_integration_fuzzer.proto"],
+    proto: {
+        type: "full",
+        export_proto_headers: true,
+    },
+    shared_libs: ["libprotobuf-cpp-full"],
+}
+
+cc_fuzz {
+    name: "nfc_integration_fuzzer",
+    defaults: ["nfc_fuzzer_defaults"],
+    srcs: [
+        "adaptation/debug_nfcsnoop.cc",
+        "fuzzers/integration/*.cc",
+        "fuzzers/integration/fakes/*.cc",
+        "gki/common/gki_buffer.cc",
+        "nfa/ce/*.cc",
+        "nfa/dm/*.cc",
+        "nfa/ee/*.cc",
+        "nfa/hci/*.cc",
+        "nfa/p2p/*.cc",
+        "nfa/rw/*.cc",
+        "nfa/sys/*.cc",
+        "nfc/llcp/*.cc",
+        "nfc/nci/*.cc",
+        "nfc/ndef/*.cc",
+        "nfc/nfc/*.cc",
+        "nfc/tags/*.cc",
+    ],
+    cflags: [
+        "-DNFC_INTEGRATION_FUZZER",
+    ],
+    local_include_dirs: [
+        "fuzzers/integration",
+        "fuzzers/integration/fakes",
+    ],
+    static_libs: [
+        "libprotobuf-mutator",
+        "libutils",
+        "nfc_integration_fuzzer_proto",
+    ],
+    shared_libs: [
+        "libprotobuf-cpp-full",
+        "libz",
+    ]
+}

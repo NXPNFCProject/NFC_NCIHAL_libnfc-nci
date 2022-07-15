@@ -85,10 +85,10 @@ void nfa_sys_ptim_timer_update(tPTIM_CB* p_cb) {
   p_cb->last_gki_ticks = new_ticks_count;
 
   /* while there are expired timers */
-  while ((p_cb->timer_queue.p_first) &&
-         (p_cb->timer_queue.p_first->ticks <= 0)) {
+  while (!GKI_timer_list_empty(&p_cb->timer_queue) &&
+         (GKI_timer_list_first(&p_cb->timer_queue)->ticks <= 0)) {
     /* removed expired timer from list */
-    p_tle = p_cb->timer_queue.p_first;
+    p_tle = GKI_timer_list_first(&p_cb->timer_queue);
     DLOG_IF(INFO, nfc_debug_enabled)
         << StringPrintf("nfa_sys_ptim_timer_update expired: %p", p_tle);
     GKI_remove_from_timer_list(&p_cb->timer_queue, p_tle);
@@ -107,7 +107,7 @@ void nfa_sys_ptim_timer_update(tPTIM_CB* p_cb) {
   }
 
   /* if timer list is empty stop periodic GKI timer */
-  if (p_cb->timer_queue.p_first == nullptr) {
+  if (GKI_timer_list_empty(&p_cb->timer_queue)) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("ptim timer stop");
     GKI_stop_timer(p_cb->timer_id);
   }
@@ -129,7 +129,7 @@ void nfa_sys_ptim_start_timer(tPTIM_CB* p_cb, TIMER_LIST_ENT* p_tle,
       << StringPrintf("nfa_sys_ptim_start_timer %p", p_tle);
 
   /* if timer list is currently empty, start periodic GKI timer */
-  if (p_cb->timer_queue.p_first == nullptr) {
+  if (GKI_timer_list_empty(&p_cb->timer_queue)) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("ptim timer start");
     p_cb->last_gki_ticks = GKI_get_tick_count();
     GKI_start_timer(p_cb->timer_id, GKI_MS_TO_TICKS(p_cb->period), true);
@@ -159,7 +159,7 @@ void nfa_sys_ptim_stop_timer(tPTIM_CB* p_cb, TIMER_LIST_ENT* p_tle) {
   GKI_remove_from_timer_list(&p_cb->timer_queue, p_tle);
 
   /* if timer list is empty stop periodic GKI timer */
-  if (p_cb->timer_queue.p_first == nullptr) {
+  if (GKI_timer_list_empty(&p_cb->timer_queue)) {
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("ptim timer stop");
     GKI_stop_timer(p_cb->timer_id);
   }

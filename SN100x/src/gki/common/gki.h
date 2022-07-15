@@ -26,6 +26,10 @@
 #define NFC_STANDALONE FALSE
 #endif
 
+#ifdef NFC_INTEGRATION_FUZZER
+#include <list>
+#endif
+
 #include <string>
 
 #include "bt_types.h"
@@ -299,6 +303,15 @@ typedef void(TIMER_CBACK)(TIMER_LIST_ENT* p_tle);
 
 /* Define a timer list entry
 */
+#ifdef NFC_INTEGRATION_FUZZER
+struct TIMER_LIST_ENT {
+  TIMER_CBACK* p_cback;
+  int32_t ticks;
+  uintptr_t param;
+  uint16_t event;
+  uint8_t in_use;
+};
+#else
 struct TIMER_LIST_ENT {
   TIMER_LIST_ENT* p_next;
   TIMER_LIST_ENT* p_prev;
@@ -308,14 +321,19 @@ struct TIMER_LIST_ENT {
   uint16_t event;
   uint8_t in_use;
 };
+#endif
 
 /* Define a timer list queue
 */
+#ifdef NFC_INTEGRATION_FUZZER
+typedef std::list<TIMER_LIST_ENT*> TIMER_LIST_Q;
+#else
 typedef struct {
   TIMER_LIST_ENT* p_first;
   TIMER_LIST_ENT* p_last;
   int32_t last_ticks;
 } TIMER_LIST_Q;
+#endif
 
 /***********************************************************************
 ** This queue is a general purpose buffer queue, for application use.
@@ -408,6 +426,8 @@ extern void GKI_remove_from_timer_list(TIMER_LIST_Q*, TIMER_LIST_ENT*);
 extern void GKI_start_timer(uint8_t, int32_t, bool);
 extern void GKI_stop_timer(uint8_t);
 extern void GKI_timer_update(int32_t);
+extern bool GKI_timer_list_empty(TIMER_LIST_Q*);
+extern TIMER_LIST_ENT* GKI_timer_list_first(TIMER_LIST_Q*);
 extern uint16_t GKI_update_timer_list(TIMER_LIST_Q*, int32_t);
 extern uint32_t GKI_get_remaining_ticks(TIMER_LIST_Q*, TIMER_LIST_ENT*);
 extern uint16_t GKI_wait(uint16_t, uint32_t);

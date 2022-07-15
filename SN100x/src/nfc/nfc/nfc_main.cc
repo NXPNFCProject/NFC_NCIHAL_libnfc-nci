@@ -919,6 +919,8 @@ void NFC_Init(tHAL_NFC_ENTRY* p_hal_entry_tbl) {
   }
   if (NfcAdaptation::GetInstance().NFA_GetBootMode() == NFC_NORMAL_BOOT_MODE) {
 #endif
+  GKI_init_timer_list(&nfc_cb.timer_queue);
+  GKI_init_timer_list(&nfc_cb.quick_timer_queue);
   rw_init();
   ce_init();
   llcp_init();

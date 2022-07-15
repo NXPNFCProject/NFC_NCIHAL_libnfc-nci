@@ -13,7 +13,7 @@ enum {
   NFC_ERROR_OCCURRED,
 };
 
-void stats_write(int32_t, ...) {}
+void stats_write(int32_t, ...);
 }  // namespace util
 }  // namespace android
 

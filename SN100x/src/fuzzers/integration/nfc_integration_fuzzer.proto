@@ -1,0 +1,390 @@
+syntax = "proto2";
+
+message Session {
+  repeated Command commands = 1;
+  optional bytes data_provider = 2;
+  optional SimulatePacketArrival setup_packet = 3;
+  optional DtaMode dta_mode = 4;
+}
+
+enum DtaMode {
+  FUZZER_NFA_DTA_DEFAULT_MODE = 0x1;
+  FUZZER_NFA_DTA_LLCP_MODE = 0x2;
+  FUZZER_NFA_DTA_HCEF_MODE = 0x4;
+  FUZZER_NFA_DTA_CR8 = 0x80;
+}
+
+message Command {
+  oneof command {
+    // HAL Simulation Messages
+    SimulatePacketArrival simulate_packet_arrival = 1;
+    SimulateHALEvent simulate_hal_event = 2;
+    SimulateStructuredPacket simulate_structured_packet = 3;
+    bytes send_raw_frame = 4;
+
+    // Asynchronous task handling
+    EmptyMessage do_nci_messages = 5;
+    EmptyMessage do_nfa_tasks = 6;
+    EmptyMessage simulate_timer_event = 7;
+    EmptyMessage simulate_quick_timer_event = 8;
+
+    // Configuration APIs
+    Select select = 9;
+    ConfigureUiccListenTech configure_uicc_listen_tech = 10;
+    EmptyMessage register_t3t = 11;
+    EmptyMessage start_rf_discovery = 12;
+    EmptyMessage stop_rf_discovery = 13;
+    EmptyMessage set_iso_listen_tech = 14;
+
+    // RW APIs
+    EmptyMessage rw_format_tag = 15;
+    RwPresenceCheck rw_presence_check = 16;
+    bool rw_set_tag_read_only = 17;
+
+    // EE APIs
+    EmptyMessage ee_update_now = 18;
+    EeAddAidRouting ee_add_aid_routing = 19;
+
+    // NDEF APIs
+    EmptyMessage read_ndef = 20;
+    EmptyMessage detect_ndef = 21;
+    WriteNdef write_ndef = 22;
+
+    // P2P APIs
+    P2pRegisterServer p2p_register_server = 23;
+    P2pAcceptConn p2p_accept_conn = 24;
+    EmptyMessage p2p_register_client = 25;
+    int32 p2p_deregister = 26;
+    P2pConnectBySap p2p_connect_by_sap = 27;
+    P2pConnectByName p2p_connect_by_name = 28;
+    P2pSendUi p2p_send_ui = 29;
+    P2pDisconnect p2p_disconnect = 30;
+    EmptyMessage pause_p2p = 31;
+    EmptyMessage resume_p2p = 32;
+    P2pReadData p2p_read_data = 33;
+    P2pSendData p2p_send_data = 34;
+  }
+}
+
+message ConfigureUiccListenTech {
+  optional int32 ee_handle = 1;
+  optional int32 tech_mask = 2;
+}
+
+message P2pDisconnect {
+  optional int32 handle = 1;
+  optional bool flush = 2;
+}
+
+message P2pSendUi {
+  optional int32 handle = 1;
+  optional int32 dsap = 2;
+  optional bytes data = 3;
+}
+
+message P2pConnectByName {
+  optional int32 client_handle = 1;
+  optional bytes service_name = 2;
+  optional int32 miu = 3;
+  optional int32 rw = 4;
+}
+
+message Select {
+  optional int32 rf_select_id = 1;
+  optional Protocol protocol = 2;
+  optional int32 rf_interface = 3;
+}
+
+message RwPresenceCheck {
+  enum PresChkOption {
+    FUZZING_NFA_RW_PRES_CHK_DEFAULT = 0;
+    FUZZING_NFA_RW_PRES_CHK_I_BLOCK = 1;
+    FUZZING_NFA_RW_PRES_CHK_ISO_DEP_NAK = 5;
+  }
+  optional PresChkOption option = 1;
+}
+
+message P2pConnectBySap {
+  optional int32 handle = 1;
+  optional int32 dsap = 2;
+  optional int32 miu = 3;
+  optional int32 rw = 4;
+}
+
+message P2pReadData {
+  optional int32 handle = 1;
+  optional int32 length = 2;
+}
+
+message P2pSendData {
+  optional int32 handle = 1;
+  optional bytes data = 2;
+}
+
+message P2pAcceptConn {
+  optional int32 handle = 1;
+  optional int32 miu = 2;
+  optional int32 rw = 3;
+}
+
+message P2pRegisterServer {
+  optional bytes service_name = 1;
+  optional int32 server_sap = 2;
+}
+
+message EeAddAidRouting {
+  optional int32 ee_handle = 1;
+  optional bytes aid = 2;
+  optional bool power_state = 3;
+  optional int32 aid_info = 4;
+}
+
+message EmptyMessage {}
+
+message SimulateStructuredPacket {
+  // Additional packet types, gids, and opcodes
+  // can be added here and in the child messages.
+  oneof packet {
+    MtNtf ntf = 1;
+  }
+}
+
+message MtNtf {
+  oneof gid {
+    RfManagementNtf rf_manage = 1;
+  }
+}
+
+message RfManagementNtf {
+  oneof opcode {
+    RfManageIntfActivated intf_activated = 1;
+  }
+}
+
+// RF_INTF_ACTIVATED_NTF message
+message RfManageIntfActivated {
+  optional int32 rf_discovery_id = 1;
+  optional Protocol rf_protocol = 2;
+  optional DiscoveryType data_mode = 3;
+  optional NfcBitRate tx_bitrate = 4;
+  optional NfcBitRate rx_bitrate = 5;
+  optional int32 buff_size = 6;
+  optional int32 num_buff = 7;
+  optional bytes rf_tech_param_buffer = 8;
+  optional bytes intf_param_buffer = 9;
+}
+
+enum NfcBitRate {
+  FUZZER_NCI_BIT_RATE_106 = 0x00;
+  FUZZER_NCI_BIT_RATE_212 = 0x01;
+  FUZZER_NCI_BIT_RATE_424 = 0x02;
+  FUZZER_NCI_BIT_RATE_848 = 0x03;
+  FUZZER_NCI_BIT_RATE_1696 = 0x04;
+  FUZZER_NCI_BIT_RATE_3392 = 0x05;
+  FUZZER_NCI_BIT_RATE_6784 = 0x06;
+}
+
+message NfcIntfFrame {
+  optional bytes param = 1;
+}
+
+message NfcIntfLaIsoDep {
+  optional int32 rats = 1;
+}
+
+message NfcIntfPaIsoDep {
+  optional bytes ats_res = 1;
+  optional bool nad_used = 2;
+  optional int32 fwi = 3;
+  optional int32 sfgi = 4;
+  optional bytes his_byte = 5;
+}
+
+message NfcIntfLbIsoDep {
+  optional bytes attrib_req = 1;
+  optional bytes hi_info = 2;
+  optional bytes nfcid0 = 3;
+}
+
+message NfcIntfPbIsoDep {
+  optional bytes attrib_res = 1;
+  optional bytes hi_info = 2;
+  optional int32 mbli = 3;
+}
+
+message NfcIntfLaNfcDep {
+  optional bytes atr_req = 1;
+  optional int32 max_payload_size = 2;
+  optional bytes gen_bytes = 3;
+}
+
+message NfcIntfPaNfcDep {
+  optional bytes atr_res = 1;
+  optional int32 max_payload_size = 2;
+  optional bytes gen_bytes = 3;
+  optional int32 waiting_time = 4;
+}
+
+message Protocol {
+  enum ProtocolValue {
+    FUZZER_PROTOCOL_UNKNOWN = 0;
+    FUZZER_PROTOCOL_T1T = 1;
+    FUZZER_PROTOCOL_T2T = 2;
+    FUZZER_PROTOCOL_T3T = 3;
+    FUZZER_PROTOCOL_T5T = 6;
+    FUZZER_PROTOCOL_ISO_DEP = 4;
+    FUZZER_PROTOCOL_NFC_DEP = 5;
+    // These are proprietary and must be converted at runtime
+    // based on the config.
+    // See src/include/vendor_cfg.h
+    FUZZER_PROTOCOL_MIFARE = 7;
+    FUZZER_PROTOCOL_ISO15693 = 8;
+    FUZZER_PROTOCOL_B_PRIME = 9;
+    FUZZER_PROTOCOL_KOVIO = 10;
+  }
+  // Only access this from within a helper function that
+  // does the runtime config-based conversion.
+  optional ProtocolValue value = 1;
+}
+
+message DiscoveryType {
+  enum DiscoveryTypeValue {
+    FUZZER_DISCOVERY_TYPE_POLL_A = 0x00;
+    FUZZER_DISCOVERY_TYPE_POLL_B = 0x01;
+    FUZZER_DISCOVERY_TYPE_POLL_F = 0x02;
+    FUZZER_DISCOVERY_TYPE_POLL_V = 0x06;
+    FUZZER_DISCOVERY_TYPE_POLL_A_ACTIVE = 0x03;
+    FUZZER_DISCOVERY_TYPE_POLL_F_ACTIVE = 0x05;
+    FUZZER_DISCOVERY_TYPE_LISTEN_A = 0x80;
+    FUZZER_DISCOVERY_TYPE_LISTEN_B = 0x81;
+    FUZZER_DISCOVERY_TYPE_LISTEN_F = 0x82;
+    FUZZER_DISCOVERY_TYPE_LISTEN_A_ACTIVE = 0x83;
+    FUZZER_DISCOVERY_TYPE_LISTEN_F_ACTIVE = 0x85;
+    FUZZER_DISCOVERY_TYPE_LISTEN_ISO15693 = 0x86;
+    // These are proprietary and must be converted at runtime
+    // based on the config.
+    FUZZER_DISCOVERY_TYPE_POLL_B_PRIME = 10;
+    FUZZER_DISCOVERY_TYPE_POLL_KOVIO = 11;
+    FUZZER_DISCOVERY_TYPE_LISTEN_B_PRIME = 12;
+  }
+  optional DiscoveryTypeValue value = 1;
+}
+
+message NfcRfPiso15693 {
+  optional int32 flag = 1;
+  optional bytes uid = 2;
+}
+
+message NfcRfPbParams {
+  optional bytes sensb_res = 1;
+  optional bytes nfcid0 = 2;
+}
+
+message NfcRfPfParams {
+  optional int32 bit_rate = 1;
+  optional bytes sensf_res = 2;
+  optional bytes nfcid2 = 3;
+  optional int32 mrti_check = 4;
+  optional int32 mrti_update = 5;
+}
+
+message NfcRfLfParams {
+  optional bytes nfcid2 = 1;
+}
+
+message NfcRfPiso15693Params {
+  optional int32 flag = 1;
+  optional int32 dsfid = 2;
+  optional bytes uid = 3;
+}
+
+message NfcRfPkovioParams {
+  optional bytes uid = 1;
+}
+
+message NfcRfAcmPParams {
+  optional bytes atr_res = 1;
+  optional int32 max_payload_size = 2;
+  optional bytes gen_bytes = 3;
+  optional int32 waiting_time = 4;
+}
+
+enum Mt {
+  FUZZER_NCI_MT_DATA = 0;
+  FUZZER_NCI_MT_CMD = 1;
+  FUZZER_NCI_MT_RSP = 2;
+  FUZZER_NCI_MT_NTF = 3;
+}
+
+enum Gid {
+  FUZZER_NCI_GID_CORE = 0x00;
+  FUZZER_NCI_GID_RF_MANAGE = 0x01;
+  FUZZER_NCI_GID_EE_MANAGE = 0x02;
+  FUZZER_NCI_GID_PROP = 0x0F;
+}
+
+enum Opcode {
+  option allow_alias = true;
+  FUZZER_NCI_MSG_CORE_RESET = 0;
+  FUZZER_NCI_MSG_CORE_INIT = 1;
+  FUZZER_NCI_MSG_CORE_SET_CONFIG = 2;
+  FUZZER_NCI_MSG_CORE_GET_CONFIG = 3;
+  FUZZER_NCI_MSG_CORE_CONN_CREATE = 4;
+  FUZZER_NCI_MSG_CORE_CONN_CLOSE = 5;
+  FUZZER_NCI_MSG_CORE_CONN_CREDITS = 6;
+  FUZZER_NCI_MSG_CORE_GEN_ERR_STATUS = 7;
+  FUZZER_NCI_MSG_CORE_INTF_ERR_STATUS = 8;
+  FUZZER_NCI_MSG_CORE_SET_POWER_SUB_STATE = 9;
+  FUZZER_NCI_MSG_RF_DISCOVER_MAP = 0;
+  FUZZER_NCI_MSG_RF_SET_ROUTING = 1;
+  FUZZER_NCI_MSG_RF_GET_ROUTING = 2;
+  FUZZER_NCI_MSG_RF_DISCOVER = 3;
+  FUZZER_NCI_MSG_RF_DISCOVER_SELECT = 4;
+  FUZZER_NCI_MSG_RF_INTF_ACTIVATED = 5;
+  FUZZER_NCI_MSG_RF_DEACTIVATE = 6;
+  FUZZER_NCI_MSG_RF_FIELD = 7;
+  FUZZER_NCI_MSG_RF_T3T_POLLING = 8;
+  FUZZER_NCI_MSG_RF_EE_ACTION = 9;
+  FUZZER_NCI_MSG_RF_EE_DISCOVERY_REQ = 10;
+  FUZZER_NCI_MSG_RF_PARAMETER_UPDATE = 11;
+  FUZZER_NCI_MSG_RF_ISO_DEP_NAK_PRESENCE = 16;
+  FUZZER_NCI_MSG_NFCEE_DISCOVER = 0;
+  FUZZER_NCI_MSG_NFCEE_MODE_SET = 1;
+  FUZZER_NCI_MSG_NFCEE_STATUS = 2;
+  FUZZER_NCI_MSG_NFCEE_POWER_LINK_CTRL = 3;
+}
+
+message SimulatePacketArrival {
+  optional bytes packet = 1;
+  optional Mt mt = 2;
+  optional Gid gid = 3;
+  optional Opcode opcode = 4;
+  optional bool pbf = 5;
+}
+
+enum HalEvent {
+  FUZZER_HAL_NFC_OPEN_CPLT_EVT = 0;
+  FUZZER_HAL_NFC_CLOSE_CPLT_EVT = 1;
+  FUZZER_HAL_NFC_POST_INIT_CPLT_EVT = 2;
+  FUZZER_HAL_NFC_PRE_DISCOVER_CPLT_EVT = 3;
+  FUZZER_HAL_NFC_REQUEST_CONTROL_EVT = 4;
+  FUZZER_HAL_NFC_RELEASE_CONTROL_EVT = 5;
+  FUZZER_HAL_NFC_ERROR_EVT = 6;
+}
+
+enum HalStatus {
+  FUZZER_HAL_NFC_STATUS_OK = 0;
+  FUZZER_HAL_NFC_STATUS_FAILED = 1;
+  FUZZER_HAL_NFC_STATUS_ERR_TRANSPORT = 2;
+  FUZZER_HAL_NFC_STATUS_ERR_CMD_TIMEOUT = 3;
+  FUZZER_HAL_NFC_STATUS_REFUSED = 4;
+}
+
+message SimulateHALEvent {
+  optional HalEvent hal_event = 1;
+  optional HalStatus hal_status = 2;
+}
+
+message WriteNdef {
+  optional uint32 size = 1;
+}
