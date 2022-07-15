@@ -212,6 +212,7 @@ cc_fuzz {
         "fuzzers/integration/*.cc",
         "fuzzers/integration/fakes/*.cc",
         "gki/common/gki_buffer.cc",
+        "adaptation/debug_lmrt.cc",
         "nfa/ce/*.cc",
         "nfa/dm/*.cc",
         "nfa/ee/*.cc",
