@@ -484,6 +484,9 @@ void nfa_p2p_init(void) {
   uint8_t xx;
 
   DLOG_IF(INFO, nfc_debug_enabled) << __func__;
+  /* Set initial P2P flag to paused. So that if platform doesn't support P2P,
+   * p2p_prio_logic should be disabled in reader mode */
+  nfa_dm_cb.flags |= NFA_DM_FLAGS_P2P_PAUSED;
 
   /* initialize control block */
   memset(&nfa_p2p_cb, 0, sizeof(tNFA_P2P_CB));
