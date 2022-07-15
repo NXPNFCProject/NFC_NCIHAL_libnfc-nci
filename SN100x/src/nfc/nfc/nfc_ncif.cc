@@ -2189,6 +2189,19 @@ void nfc_ncif_proc_get_config_rsp(NFC_HDR* p_evt) {
 
 /*******************************************************************************
 **
+** Function         nfc_ncif_proc_t3t_polling_rsp
+**
+** Description      Handle NCI_MSG_RF_T3T_POLLING RSP
+**
+** Returns          void
+**
+*******************************************************************************/
+void nfc_ncif_proc_t3t_polling_rsp(uint8_t status) {
+  rw_t3t_handle_nci_poll_rsp(status);
+}
+
+/*******************************************************************************
+**
 ** Function         nfc_ncif_proc_t3t_polling_ntf
 **
 ** Description      Handle NCI_MSG_RF_T3T_POLLING NTF

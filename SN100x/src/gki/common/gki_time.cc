@@ -933,6 +933,9 @@ void GKI_remove_from_timer_list(TIMER_LIST_Q* p_timer_listq,
         break;
       }
     }
+    /* Recovering from unexpected state.
+       e.g. when TIMER_LIST_ENT is cleared before stop */
+    if (p_timer_listq->last_ticks) p_timer_listq->last_ticks = 0;
   }
 
   return;

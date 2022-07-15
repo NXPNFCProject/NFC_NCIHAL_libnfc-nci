@@ -914,6 +914,7 @@ void rw_t2t_handle_op_complete(void);
 extern void rw_t3t_process_timeout(TIMER_LIST_ENT* p_tle);
 extern tNFC_STATUS rw_t3t_select(uint8_t peer_nfcid2[NCI_RF_F_UID_LEN],
                                  uint8_t mrti_check, uint8_t mrti_update);
+void rw_t3t_handle_nci_poll_rsp(uint8_t nci_status);
 void rw_t3t_handle_nci_poll_ntf(uint8_t nci_status, uint8_t num_responses,
                                 uint8_t sensf_res_buf_size,
                                 uint8_t* p_sensf_res_buf);
