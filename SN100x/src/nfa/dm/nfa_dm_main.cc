@@ -44,6 +44,7 @@
 
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
+#include <log/log.h>
 
 #include "nfa_api.h"
 #include "nfa_dm_int.h"
@@ -270,6 +271,12 @@ tNFA_STATUS nfa_dm_check_set_config(uint8_t tlv_list_len, uint8_t* p_tlv_list,
     len = *(p_tlv_list + xx + 1);
     p_value = p_tlv_list + xx + 2;
     p_cur_len = nullptr;
+    if (len > (tlv_list_len - xx - 2)) {
+      LOG(ERROR) << StringPrintf("error: invalid TLV length: t:0x%x, l:%d",
+                                 type, len);
+      android_errorWriteLog(0x534e4554, "221216105");
+      return NFA_STATUS_FAILED;
+    }
 
     switch (type) {
       /*
