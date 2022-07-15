@@ -78,23 +78,25 @@ static const char* BUFFER_NAMES[BUFFER_SIZE] = {"LOG_SUMMARY",
 
 static std::mutex buffer_mutex;
 static ringbuffer_t* buffers[BUFFER_SIZE] = {nullptr, nullptr};
-static uint64_t last_timestamp_ms = 0;
+static uint64_t last_timestamp_ms[BUFFER_SIZE] = {0, 0};
 static bool isDebuggable = false;
 
 using android::base::StringPrintf;
 
 static void nfcsnoop_cb(const uint8_t* data, const size_t length,
                         bool is_received, const uint64_t timestamp_us,
-                        ringbuffer_t* buffer) {
+                        size_t buffer_index) {
   nfcsnooz_header_t header;
 
   std::lock_guard<std::mutex> lock(buffer_mutex);
 
   // Make room in the ring buffer
 
-  while (ringbuffer_available(buffer) < (length + sizeof(nfcsnooz_header_t))) {
-    ringbuffer_pop(buffer, (uint8_t*)&header, sizeof(nfcsnooz_header_t));
-    ringbuffer_delete(buffer, header.length);
+  while (ringbuffer_available(buffers[buffer_index]) <
+         (length + sizeof(nfcsnooz_header_t))) {
+    ringbuffer_pop(buffers[buffer_index], (uint8_t*)&header,
+                   sizeof(nfcsnooz_header_t));
+    ringbuffer_delete(buffers[buffer_index], header.length);
   }
 
   // Insert data
@@ -102,15 +104,17 @@ static void nfcsnoop_cb(const uint8_t* data, const size_t length,
   header.is_received = is_received ? 1 : 0;
 
   uint64_t delta_time_ms = 0;
-  if (last_timestamp_ms) {
-    __builtin_sub_overflow(timestamp_us, last_timestamp_ms, &delta_time_ms);
+  if (last_timestamp_ms[buffer_index]) {
+    __builtin_sub_overflow(timestamp_us, last_timestamp_ms[buffer_index],
+                           &delta_time_ms);
   }
   header.delta_time_ms = delta_time_ms;
 
-  last_timestamp_ms = timestamp_us;
+  last_timestamp_ms[buffer_index] = timestamp_us;
 
-  ringbuffer_insert(buffer, (uint8_t*)&header, sizeof(nfcsnooz_header_t));
-  ringbuffer_insert(buffer, data, length);
+  ringbuffer_insert(buffers[buffer_index], (uint8_t*)&header,
+                    sizeof(nfcsnooz_header_t));
+  ringbuffer_insert(buffers[buffer_index], data, length);
 }
 
 static bool nfcsnoop_compress(ringbuffer_t* rb_dst, ringbuffer_t* rb_src) {
@@ -175,13 +179,13 @@ void nfcsnoop_capture(const NFC_HDR* packet, bool is_received) {
 
   if (mt == NCI_MT_NTF && gid == NCI_GID_PROP) {
     nfcsnoop_cb(p, p[2] + NCI_MSG_HDR_SIZE, is_received, timestamp,
-                buffers[VENDOR_BUFFER_INDEX]);
+                VENDOR_BUFFER_INDEX);
   } else if (mt == NCI_MT_DATA) {
     nfcsnoop_cb(p, NCI_DATA_HDR_SIZE, is_received, timestamp,
-                buffers[SYSTEM_BUFFER_INDEX]);
+                SYSTEM_BUFFER_INDEX);
   } else if (packet->len > 2) {
     nfcsnoop_cb(p, p[2] + NCI_MSG_HDR_SIZE, is_received, timestamp,
-                buffers[SYSTEM_BUFFER_INDEX]);
+                SYSTEM_BUFFER_INDEX);
   }
 }
 
@@ -216,15 +220,15 @@ void debug_nfcsnoop_dump(int fd) {
     }
   }
 
-  // Prepend preamble
-
-  nfcsnooz_preamble_t preamble;
-  preamble.version = NFCSNOOZ_CURRENT_VERSION;
-  preamble.last_timestamp_ms = last_timestamp_ms;
-
   // Compress data
 
   for (size_t buffer_index = 0; buffer_index < BUFFER_SIZE; ++buffer_index) {
+    // Prepend preamble
+
+    nfcsnooz_preamble_t preamble;
+    preamble.version = NFCSNOOZ_CURRENT_VERSION;
+    preamble.last_timestamp_ms = last_timestamp_ms[buffer_index];
+
     ringbuffer_insert(ringbuffers[buffer_index], (uint8_t*)&preamble,
                       sizeof(nfcsnooz_preamble_t));
 
