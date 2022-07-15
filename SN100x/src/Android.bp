@@ -125,6 +125,15 @@ cc_defaults {
         "nfa/include",
         "fuzzers/inc",
     ],
+    fuzz_config: {
+       cc: [
+            "android-security-assurance-redteam@google.com",
+            "zachoverflow@google.com",
+            "jackcwyu@google.com",
+            "georgekgchang@google.com",
+            "alisher@google.com",
+        ],
+    },
 }
 
 cc_fuzz {
