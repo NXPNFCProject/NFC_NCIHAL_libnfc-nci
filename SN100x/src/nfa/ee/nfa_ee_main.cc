@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2021 NXP
+ *  Copyright 2018-2022 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -99,7 +99,9 @@ const tNFA_EE_SM_ACT nfa_ee_actions[] = {
     nfa_ee_rout_timeout,        /* NFA_EE_ROUT_TIMEOUT_EVT      */
     nfa_ee_discv_timeout,       /* NFA_EE_DISCV_TIMEOUT_EVT     */
     nfa_ee_lmrt_to_nfcc,          /* NFA_EE_CFG_TO_NFCC_EVT       */
+#if (NXP_EXTNS == TRUE)
     nfa_ee_nci_nfcee_status_ntf,  /*NFA_EE_NCI_NFCEE_STATUS_NTF_EVT*/
+#endif
     nfa_ee_pwr_and_link_ctrl_rsp  /* NFA_EE_PWR_CONTROL_EVT */
 };
 

@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2021 NXP
+ *  Copyright 2018-2022 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -677,8 +677,8 @@ tNFA_STATUS NFA_EeAddAidRouting(tNFA_HANDLE ee_handle, uint8_t aid_len,
 #if (NXP_EXTNS == TRUE)
       DLOG_IF(INFO, nfc_debug_enabled)
         << StringPrintf("aid:<%02x%02x>", p_aid[0], p_aid[1]);
-}
 #endif
+      }
       nfa_sys_sendmsg(p_msg);
 
       status = NFA_STATUS_OK;
