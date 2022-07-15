@@ -1800,7 +1800,7 @@ tNFC_STATUS rw_i93_get_next_block_sec(void) {
     num_blocks = RW_I93_GET_MULTI_BLOCK_SEC_SIZE;
 
   DLOG_IF(INFO, nfc_debug_enabled)
-      << __func__ << std::hex << rw_cb.tcb.i93.intl_flags;
+      << StringPrintf("%s intl_flags=%d", __func__, rw_cb.tcb.i93.intl_flags);
   return rw_i93_send_cmd_get_multi_block_sec(p_i93->rw_offset, num_blocks);
 }
 
