@@ -12,13 +12,20 @@
 #include "nfc_api.h"
 #include "nfc_int.h"
 #include "nfc_task_helpers.h"
+#include "rw_int.h"
 
 extern uint32_t g_tick_count;
+extern tRW_CB rw_cb;
 
 FuzzedDataProvider* g_fuzzed_data;
 
 static bool g_saw_event = false;
 static tNFA_EE_DISCOVER_REQ g_ee_info;
+
+void fuzz_cback(tRW_EVENT event, tRW_DATA *p_rw_data) {
+  (void)event;
+  (void)p_rw_data;
+}
 
 static void nfa_dm_callback(uint8_t event, tNFA_DM_CBACK_DATA*) {
   g_saw_event = true;
@@ -501,6 +508,7 @@ bool NfcIntegrationFuzzer::Setup() {
   memset(&g_ee_info, 0, sizeof(g_ee_info));
   NFA_Init(&fuzzed_hal_entry);
 
+  rw_cb.p_cback = &fuzz_cback;
   NFA_Enable(nfa_dm_callback, nfa_conn_callback);
   DoAllTasks(false);
 
