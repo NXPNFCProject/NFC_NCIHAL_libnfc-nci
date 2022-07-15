@@ -65,6 +65,8 @@
 using android::base::StringPrintf;
 
 extern bool nfc_debug_enabled;
+extern bool nfc_nci_reset_keep_cfg_enabled;
+extern uint8_t nfc_nci_reset_type;
 
 /*******************************************************************************
 **
@@ -403,11 +405,22 @@ uint32_t nfc_task(__attribute__((unused)) uint32_t arg) {
 
       /* Reset the NFC controller. */
       nfc_set_state(NFC_STATE_CORE_INIT);
-#if (NXP_EXTNS == TRUE)
-      nci_snd_core_reset(NCI_RESET_TYPE_KEEP_CFG);
-#else
-      nci_snd_core_reset(NCI_RESET_TYPE_RESET_CFG);
-#endif
+
+      /* Reset NCI configurations base on NAME_NCI_RESET_TYPE setting */
+      if (nfc_nci_reset_type == 0x02) {
+        /* 0x02, keep configurations. */
+        nci_snd_core_reset(NCI_RESET_TYPE_KEEP_CFG);
+        nfc_nci_reset_keep_cfg_enabled = true;
+      } else if (nfc_nci_reset_type == 0x01 &&
+                 !nfc_nci_reset_keep_cfg_enabled) {
+        /* 0x01, reset configurations only once every boot. */
+        nci_snd_core_reset(NCI_RESET_TYPE_KEEP_CFG);
+        nfc_nci_reset_keep_cfg_enabled = true;
+      } else {
+        /* Default, reset configurations every time*/
+        nci_snd_core_reset(NCI_RESET_TYPE_RESET_CFG);
+        nfc_nci_reset_keep_cfg_enabled = false;
+      }
     }
 
     if (event & NFC_MBOX_EVT_MASK) {

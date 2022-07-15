@@ -2,6 +2,8 @@
 
 bool nfc_debug_enabled = false;
 uint8_t appl_dta_mode_flag = 0;
+bool nfc_nci_reset_keep_cfg_enabled = false;
+uint8_t nfc_nci_reset_type = 0x00;
 
 NfcAdaptation* NfcAdaptation::mpInstance = nullptr;
 

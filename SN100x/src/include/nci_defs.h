@@ -277,10 +277,9 @@
 #define NCI_CON_CREATE_TAG_NFCEE_VAL 0x01
 
 #define NCI_CORE_PARAM_SIZE_CON_CLOSE 0x01     /* Conn ID (1 octet) */
-#if (NXP_EXTNS == TRUE)
-/* Keep the NCI configuration (if possible) and perform NCI initialization. */
+
+/* Keep the NCI configuration and perform NCI initialization. */
 #define NCI_RESET_TYPE_KEEP_CFG 0x00
-#endif
 /* Reset the NCI configuration, and perform NCI initialization. */
 #define NCI_RESET_TYPE_RESET_CFG 0x01
 

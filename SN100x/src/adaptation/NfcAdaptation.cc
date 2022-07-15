@@ -125,6 +125,8 @@ std::shared_ptr<INfcAidlClientCallback> mAidlCallback;
 std::shared_ptr<INfcAidl> mAidlHal;
 
 bool nfc_debug_enabled = false;
+bool nfc_nci_reset_keep_cfg_enabled = false;
+uint8_t nfc_nci_reset_type = 0x00;
 std::string nfc_storage_path;
 uint8_t appl_dta_mode_flag = 0x00;
 bool isDownloadFirmwareCompleted = false;
@@ -154,6 +156,17 @@ void initializeGlobalDebugEnabledFlag() {
 
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("%s: level=%u", __func__, nfc_debug_enabled);
+}
+
+// initialize NciResetType Flag
+// NCI_RESET_TYPE
+// 0x00 default, reset configurations every time.
+// 0x01, reset configurations only once every boot.
+// 0x02, keep configurations.
+void initializeNciResetTypeFlag() {
+  nfc_nci_reset_type = NfcConfig::getUnsigned(NAME_NCI_RESET_TYPE, 0);
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+      "%s: nfc_nci_reset_type=%u", __func__, nfc_nci_reset_type);
 }
 }  // namespace
 
@@ -479,6 +492,7 @@ void NfcAdaptation::Initialize() {
   logging::SetLogItems(false, false, false, false);
 
   initializeGlobalDebugEnabledFlag();
+  initializeNciResetTypeFlag();
 
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: enter", func);
 
