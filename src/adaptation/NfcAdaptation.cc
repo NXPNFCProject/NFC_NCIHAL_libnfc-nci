@@ -143,6 +143,7 @@ bool nfc_debug_enabled = false;
 std::string nfc_storage_path;
 uint8_t appl_dta_mode_flag = 0x00;
 bool isDownloadFirmwareCompleted = false;
+bool use_aidl = false;
 
 extern tNFA_DM_CFG nfa_dm_cfg;
 extern tNFA_PROPRIETARY_CFG nfa_proprietary_cfg;
@@ -276,6 +277,9 @@ class NfcAidlClientCallback
         break;
       case NfcAidlStatus::ERR_CMD_TIMEOUT:
         s_num = HAL_NFC_STATUS_ERR_CMD_TIMEOUT;
+        break;
+      case NfcAidlStatus::REFUSED:
+        s_num = HAL_NFC_STATUS_REFUSED;
         break;
       default:
         s_num = HAL_NFC_STATUS_FAILED;
@@ -515,30 +519,37 @@ void NfcAdaptation::GetVendorConfigs(
     configMap.emplace(NAME_NFA_PROPRIETARY_CFG, ConfigValue(nfaPropCfg));
     configMap.emplace(NAME_NFA_POLL_BAIL_OUT_MODE,
                       ConfigValue(aidlConfigValue.nfaPollBailOutMode ? 1 : 0));
-    configMap.emplace(NAME_DEFAULT_OFFHOST_ROUTE,
-                      ConfigValue(aidlConfigValue.defaultOffHostRoute));
-    if (configValue.offHostRouteUicc.size() != 0) {
+    if (aidlConfigValue.offHostRouteUicc.size() != 0) {
       configMap.emplace(NAME_OFFHOST_ROUTE_UICC,
                         ConfigValue(aidlConfigValue.offHostRouteUicc));
     }
-    if (configValue.offHostRouteEse.size() != 0) {
+    if (aidlConfigValue.offHostRouteEse.size() != 0) {
       configMap.emplace(NAME_OFFHOST_ROUTE_ESE,
                         ConfigValue(aidlConfigValue.offHostRouteEse));
     }
+    // AIDL byte would be int8_t in C++.
+    // Here we force cast int8_t to uint8_t for ConfigValue
+    configMap.emplace(
+        NAME_DEFAULT_OFFHOST_ROUTE,
+        ConfigValue((uint8_t)aidlConfigValue.defaultOffHostRoute));
     configMap.emplace(NAME_DEFAULT_ROUTE,
-                      ConfigValue(aidlConfigValue.defaultRoute));
-    configMap.emplace(NAME_DEFAULT_NFCF_ROUTE,
-                      ConfigValue(aidlConfigValue.defaultOffHostRouteFelica));
+                      ConfigValue((uint8_t)aidlConfigValue.defaultRoute));
+    configMap.emplace(
+        NAME_DEFAULT_NFCF_ROUTE,
+        ConfigValue((uint8_t)aidlConfigValue.defaultOffHostRouteFelica));
     configMap.emplace(NAME_DEFAULT_ISODEP_ROUTE,
-                      ConfigValue(aidlConfigValue.defaultIsoDepRoute));
-    configMap.emplace(NAME_DEFAULT_SYS_CODE_ROUTE,
-                      ConfigValue(aidlConfigValue.defaultSystemCodeRoute));
-    configMap.emplace(NAME_DEFAULT_SYS_CODE_PWR_STATE,
-                      ConfigValue(aidlConfigValue.defaultSystemCodePowerState));
+                      ConfigValue((uint8_t)aidlConfigValue.defaultIsoDepRoute));
+    configMap.emplace(
+        NAME_DEFAULT_SYS_CODE_ROUTE,
+        ConfigValue((uint8_t)aidlConfigValue.defaultSystemCodeRoute));
+    configMap.emplace(
+        NAME_DEFAULT_SYS_CODE_PWR_STATE,
+        ConfigValue((uint8_t)aidlConfigValue.defaultSystemCodePowerState));
     configMap.emplace(NAME_OFF_HOST_SIM_PIPE_ID,
-                      ConfigValue(aidlConfigValue.offHostSIMPipeId));
+                      ConfigValue((uint8_t)aidlConfigValue.offHostSIMPipeId));
     configMap.emplace(NAME_OFF_HOST_ESE_PIPE_ID,
-                      ConfigValue(aidlConfigValue.offHostESEPipeId));
+                      ConfigValue((uint8_t)aidlConfigValue.offHostESEPipeId));
+
     configMap.emplace(NAME_ISO_DEP_MAX_TRANSCEIVE,
                       ConfigValue(aidlConfigValue.maxIsoDepTransceiveLength));
     if (aidlConfigValue.hostAllowlist.size() != 0) {
@@ -917,9 +928,12 @@ void NfcAdaptation::InitializeHalDeviceContext() {
   mHalEntryFuncs.nciTransceive = HalNciTransceive;
 
   LOG(INFO) << StringPrintf("%s: Try INfcV1_1::getService()", func);
-  // TODO: Try get the NFC HIDL first before vendor AIDL impl complete
-  mHal = mHal_1_1 = mHal_1_2 = INfcV1_2::tryGetService();
-  if (mHal_1_2 == nullptr) {
+  mAidlHal = nullptr;
+  mHal = mHal_1_1 = mHal_1_2 = nullptr;
+  if (!use_aidl) {
+    mHal = mHal_1_1 = mHal_1_2 = INfcV1_2::getService();
+  }
+  if (!use_aidl && mHal_1_2 == nullptr) {
     mHal = mHal_1_1 = INfcV1_1::tryGetService();
     if (mHal_1_1 == nullptr) {
       LOG(INFO) << StringPrintf("%s: Try INfc::getService()", func);
@@ -934,6 +948,7 @@ void NfcAdaptation::InitializeHalDeviceContext() {
         AServiceManager_getService(NFC_AIDL_HAL_SERVICE_NAME.c_str()));
     mAidlHal = INfcAidl::fromBinder(binder);
     if (mAidlHal != nullptr) {
+      use_aidl = true;
       AIBinder_linkToDeath(mAidlHal->asBinder().get(), mDeathRecipient.get(),
                            this /* cookie */);
       mHal = mHal_1_1 = mHal_1_2 = nullptr;
