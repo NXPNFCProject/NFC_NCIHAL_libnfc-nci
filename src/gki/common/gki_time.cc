@@ -211,21 +211,11 @@ void GKI_start_timer(uint8_t tnum, int32_t ticks, bool is_continuous) {
   }
   bool bad_timer = false;
 
-#if (NXP_EXTNS == TRUE)
   if (task_id >= GKI_MAX_TASKS) {
-    LOG(ERROR) << StringPrintf(
-    "%s: invalid task_id:0x%02x. start timer failed", __func__, task_id);
+    LOG(ERROR) << StringPrintf("%s: invalid task_id:0x%02x. start timer failed",
+                               __func__, task_id);
     return;
   }
-#endif
-
-#if (NXP_EXTNS == TRUE)
-  if (task_id >= GKI_MAX_TASKS) {
-    LOG(ERROR) << StringPrintf(
-    "%s: invalid task_id:0x%02x. start timer failed", __func__, task_id);
-    return;
-  }
-#endif
 
   if (ticks <= 0) ticks = 1;
 
@@ -329,7 +319,6 @@ void GKI_stop_timer(uint8_t tnum) {
     task_id = 14;
   }
   GKI_disable();
-
   if (task_id < GKI_MAX_TASKS) {
     switch (tnum) {
 #if (GKI_NUM_TIMERS > 0)
