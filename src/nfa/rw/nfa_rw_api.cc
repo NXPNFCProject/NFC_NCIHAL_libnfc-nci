@@ -923,8 +923,8 @@ tNFA_STATUS NFA_RwI93StayQuiet(uint8_t* p_uid) {
     /* Fill in tNFA_RW_OPERATION struct */
     p_msg->hdr.event = NFA_RW_OP_REQUEST_EVT;
     p_msg->op = NFA_RW_OP_I93_STAY_QUIET;
-    p_msg->params.i93_cmd.p_data = (uint8_t*)(p_msg + 1);
-    memcpy(p_msg->params.i93_cmd.p_data, p_uid, I93_UID_BYTE_LEN);
+    p_msg->params.i93_cmd.uid_present = true;
+    memcpy(p_msg->params.i93_cmd.uid, p_uid, I93_UID_BYTE_LEN);
 
     nfa_sys_sendmsg(p_msg);
 
