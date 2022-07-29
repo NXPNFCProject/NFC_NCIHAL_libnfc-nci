@@ -25,6 +25,7 @@ tNFA_PROPRIETARY_CFG* p_nfa_proprietary_cfg =
 
 void rw_t4t_handle_isodep_nak_rsp(uint8_t, bool) {}
 
+void rw_t3t_handle_nci_poll_rsp(uint8_t) {}
 void rw_t3t_handle_nci_poll_ntf(uint8_t nci_status, uint8_t num_responses,
                                 uint8_t sensf_res_buf_size,
                                 uint8_t* p_sensf_res_buf) {

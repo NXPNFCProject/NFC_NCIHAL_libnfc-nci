@@ -345,6 +345,25 @@ void rw_t3t_process_error(tNFC_STATUS status) {
 
 /*******************************************************************************
 **
+** Function         rw_t3t_handle_nci_poll_rsp
+**
+** Description      Handle NCI_T3T_POLLING_RSP
+**
+** Returns          none
+**
+*******************************************************************************/
+void rw_t3t_handle_nci_poll_rsp(uint8_t nci_status) {
+  if (nci_status != NFC_STATUS_OK) {
+    tRW_T3T_CB* p_cb = &rw_cb.tcb.t3t;
+    /* in case of STATUS_REJECTED or other errors, */
+    /* NFCC MAY NOT send RF_T3T_POLLING_NTF */
+    /* stop timer for poll response */
+    nfc_stop_quick_timer(&p_cb->poll_timer);
+  }
+}
+
+/*******************************************************************************
+**
 ** Function         rw_t3t_start_poll_timer
 **
 ** Description      Start the timer for T3T POLL Command

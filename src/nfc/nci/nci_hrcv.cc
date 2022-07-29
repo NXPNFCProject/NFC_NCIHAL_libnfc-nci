@@ -210,6 +210,7 @@ void nci_proc_rf_management_rsp(NFC_HDR* p_msg) {
       break;
 
     case NCI_MSG_RF_T3T_POLLING:
+      nfc_ncif_proc_t3t_polling_rsp(*pp);
       break;
 
     case NCI_MSG_RF_DISCOVER_MAP:
