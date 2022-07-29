@@ -1523,6 +1523,15 @@ Available after Technology Detection
   } else if (NCI_DISCOVERY_TYPE_LISTEN_ACTIVE == p_param->mode) {
     acm_p = &p_param->param.acm_p;
 
+    /* Skip RF Tech Specific Parametres +
+     * Skip RF Technology mode, Tx , Rx baud rate & length params
+     * Byte 1         Byte 2     Byte 3    Byte 4
+     * Tech and Mode  Tx BR      Rx BR     Length of Act Param
+     */
+    p = p + len + 3;
+    plen = *p++;
+    LOG(INFO) << StringPrintf(
+        "RF Tech Specific Params, plen: 0x%x, atr_res_len: 0x%x", plen, *p);
     if (plen < 1) {
       goto invalid_packet;
     }
