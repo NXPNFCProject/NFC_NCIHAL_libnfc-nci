@@ -90,11 +90,13 @@ cc_defaults{
     "libchrome",
   ],
   cflags : [
+    "-DDYN_ALLOC=1",
     "-DBUILDCFG=1",
     "-Wall",
     "-Werror",
     "-Wimplicit-fallthrough",
     "-g",
+    "-DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION",
     "-DGKI_ENABLE_BUF_CORRUPTION_CHECK=FALSE",
   ],
   product_variables : {
