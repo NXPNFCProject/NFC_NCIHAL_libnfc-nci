@@ -1722,6 +1722,12 @@ void nfa_ee_api_add_aid(tNFA_EE_MSG* p_data) {
     {
       /* 4 = 1 (tag) + 1 (len) + 1(nfcee_id) + 1(power cfg) */
       new_size = nfa_ee_total_lmrt_size() + 4 + p_add->aid_len;
+#if (NXP_EXTNS == TRUE)
+      if (new_size == 0x04) {
+        LOG(ERROR) << StringPrintf("LMRT size is 0");
+        evt_data.status = NFA_STATUS_SEMANTIC_ERROR;
+      } else
+#endif
       if (new_size > NFC_GetLmrtSize()) {
         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("Exceed LMRT size:%d", new_size);
         evt_data.status = NFA_STATUS_BUFFER_FULL;
