@@ -24,6 +24,8 @@ cc_library_shared {
         // Add for AIDL
         "android.hardware.nfc-V1-ndk",
         "libbinder_ndk",
+        // Added for Memory leak trace
+        "libmemunreachable",
     ],
     static_libs: [
         "libnfcutils",

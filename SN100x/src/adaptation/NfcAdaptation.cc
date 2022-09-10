@@ -29,7 +29,7 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 *
-*  Copyright 2018-2021 NXP
+*  Copyright 2018-2022 NXP
 *
 ******************************************************************************/
 #include <aidl/android/hardware/nfc/BnNfc.h>
@@ -55,8 +55,9 @@
 #include "NfcAdaptation.h"
 #include "debug_nfcsnoop.h"
 #if (NXP_EXTNS == TRUE)
-#include <vendor/nxp/nxpnfc/2.0/INxpNfc.h>
 #include <hidl/LegacySupport.h>
+#include <memunreachable/memunreachable.h>
+#include <vendor/nxp/nxpnfc/2.0/INxpNfc.h>
 #endif
 #include "nfa_api.h"
 #include "nfa_rw_api.h"
@@ -689,7 +690,14 @@ void NfcAdaptation::DeviceShutdown() {
 ** Returns:     None.
 **
 *******************************************************************************/
-void NfcAdaptation::Dump(int fd) { debug_nfcsnoop_dump(fd); }
+void NfcAdaptation::Dump(int fd) {
+  debug_nfcsnoop_dump(fd);
+#if (NXP_EXTNS == TRUE)
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("\n LibNfc MemoryLeak Info =  %s \n",
+                      android::GetUnreachableMemoryString(true, 10000).c_str());
+#endif
+}
 
 /*******************************************************************************
 **
