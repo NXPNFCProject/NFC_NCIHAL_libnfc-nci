@@ -30,7 +30,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2019-2020 NXP
+ *  Copyright 2019-2020, 2022 NXP
  *
  ******************************************************************************/
 
@@ -792,6 +792,12 @@ tNFC_STATUS rw_t3t_send_next_ndef_update_cmd(tRW_T3T_CB* p_cb) {
     /* Construct T3T message */
     p = p_cmd_start = (uint8_t*)(p_cmd_buf + 1) + p_cmd_buf->offset;
 
+#if (NXP_EXTNS == TRUE)
+    if (p_cb->ndef_msg_len < p_cb->ndef_msg_bytes_sent) {
+      return NFC_STATUS_FAILED;
+    }
+#endif
+
     /* Calculate number of ndef bytes remaining to write */
     ndef_bytes_remaining = p_cb->ndef_msg_len - p_cb->ndef_msg_bytes_sent;
 
@@ -932,6 +938,12 @@ tNFC_STATUS rw_t3t_send_next_ndef_check_cmd(tRW_T3T_CB* p_cb) {
   if (p_cmd_buf != nullptr) {
     /* Construct T3T message */
     p = p_cmd_start = (uint8_t*)(p_cmd_buf + 1) + p_cmd_buf->offset;
+
+#if (NXP_EXTNS == TRUE)
+    if (p_cb->ndef_attrib.ln < p_cb->ndef_rx_offset) {
+      return NFC_STATUS_FAILED;
+    }
+#endif
 
     /* Calculate number of ndef bytes remaining to read */
     ndef_bytes_remaining = p_cb->ndef_attrib.ln - p_cb->ndef_rx_offset;
