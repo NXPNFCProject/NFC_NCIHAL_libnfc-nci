@@ -793,6 +793,7 @@ tNFC_STATUS rw_t3t_send_next_ndef_update_cmd(tRW_T3T_CB* p_cb) {
 
 #if (NXP_EXTNS == TRUE)
     if (p_cb->ndef_msg_len < p_cb->ndef_msg_bytes_sent) {
+      GKI_freebuf(p_cmd_buf);
       return NFC_STATUS_FAILED;
     }
 #endif
@@ -940,6 +941,7 @@ tNFC_STATUS rw_t3t_send_next_ndef_check_cmd(tRW_T3T_CB* p_cb) {
 
 #if (NXP_EXTNS == TRUE)
     if (p_cb->ndef_attrib.ln < p_cb->ndef_rx_offset) {
+      GKI_freebuf(p_cmd_buf);
       return NFC_STATUS_FAILED;
     }
 #endif
