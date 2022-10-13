@@ -1348,18 +1348,12 @@ void NfcAdaptation::HalDownloadFirmwareCallback(nfc_event_t event,
       DLOG_IF(INFO, nfc_debug_enabled)
           << StringPrintf("%s: HAL_NFC_OPEN_CPLT_EVT", func);
       if (event_status == HAL_NFC_STATUS_OK) isDownloadFirmwareCompleted = true;
-#if (NXP_EXTNS == TRUE)
-    if(event_status == HAL_NFC_STATUS_OK)
-#endif
       mHalOpenCompletedEvent.signal();
       break;
     }
     case HAL_NFC_CLOSE_CPLT_EVT: {
       DLOG_IF(INFO, nfc_debug_enabled)
           << StringPrintf("%s: HAL_NFC_CLOSE_CPLT_EVT", func);
-#if (NXP_EXTNS == TRUE)
-     if(event_status == HAL_NFC_STATUS_OK)
-#endif
       break;
     }
   }
