@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright 2019-2020 NXP
+ *  Copyright 2019-2020, 2022 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 
 /******************************************************************************
  *
- *This is the main implementation file for the NFA Secure Reader(ETSI/POS/MFC).
+ *This is the main implementation file for the NFA Secure Reader(ETSI/POS).
  *
  *****************************************************************************/
 #include <android-base/stringprintf.h>
@@ -94,7 +94,6 @@ static const tNFA_SYS_REG nfa_scr_sys_reg = {nullptr, nfa_scr_evt_hdlr,
  **  NFA SCR callback to be called from other modules
  *****************************************************************************/
 bool nfa_scr_cback(uint8_t event, uint8_t status);
-extern bool nfa_mfc_cback(uint8_t event, uint8_t status);
 
 /*******************************************************************************
 **
@@ -288,8 +287,6 @@ bool nfa_scr_evt_hdlr(NFC_HDR* p_msg) {
 
       if (p_evt_data->type == NFA_SCR_MPOS) {
         set_smr_cback(nfa_scr_cback);
-      } else if (p_evt_data->type == NFA_SCR_MFC) {
-        set_smr_cback(nfa_mfc_cback);
       } else {
       }
       nfa_scr_set_reader_mode(p_evt_data->mode,

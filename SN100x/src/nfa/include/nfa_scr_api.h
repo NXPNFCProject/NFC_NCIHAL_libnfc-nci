@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright 2019-2020 NXP
+ *  Copyright 2019-2020, 2022 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 /******************************************************************************
  *
  *  This is the public interface file for NFA Secure Reader's application
- *  layer for (ETSI/POS/SCR/mPOS/MFC).
+ *  layer for (ETSI/POS/SCR/mPOS).
  *
  ******************************************************************************/
 
