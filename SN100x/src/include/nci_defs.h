@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2021 NXP
+ *  Copyright 2018-2022 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -418,7 +418,6 @@ typedef uint8_t tNCI_INTF_TYPE;
 
 #if (NXP_EXTNS == TRUE)
 #define NCI_PROTOCOL_ISO7816 0xA0
-#define NCI_PROTOCOL_MFC 0x80
 
 /**********************************************
  * Proprietary Protocols
