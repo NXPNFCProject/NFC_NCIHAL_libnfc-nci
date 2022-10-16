@@ -139,6 +139,9 @@ cc_defaults {
 cc_fuzz {
     name: "nfc_nci_fuzzer",
     defaults: ["nfc_fuzzer_defaults"],
+    fuzzing_frameworks: {
+      afl: false,
+    },
     srcs: [
         "nfc/nci/*.cc",
         "nfc/nfc/*.cc",
@@ -153,6 +156,9 @@ cc_fuzz {
 cc_fuzz {
     name: "nfc_rw_fuzzer",
     defaults: ["nfc_fuzzer_defaults"],
+    fuzzing_frameworks: {
+      afl: false,
+    },
     srcs: [
         "nfc/tags/rw_*.cc",
         "nfc/tags/tags_int.cc",
@@ -166,6 +172,9 @@ cc_fuzz {
 cc_fuzz {
     name: "nfc_ce_fuzzer",
     defaults: ["nfc_fuzzer_defaults"],
+    fuzzing_frameworks: {
+      afl: false,
+    },
     srcs: [
         "nfc/tags/ce_*.cc",
         "nfc/tags/tags_int.cc",
@@ -179,6 +188,9 @@ cc_fuzz {
 cc_fuzz {
     name: "nfc_ndef_fuzzer",
     defaults: ["nfc_fuzzer_defaults"],
+    fuzzing_frameworks: {
+      afl: false,
+    },
     srcs: [
         "nfa/dm/nfa_dm_ndef.cc",
         "nfc/ndef/*.cc",
@@ -192,6 +204,9 @@ cc_fuzz {
 cc_fuzz {
     name: "nfc_llcp_fuzzer",
     defaults: ["nfc_fuzzer_defaults"],
+    fuzzing_frameworks: {
+      afl: false,
+    },
     srcs: [
         "nfc/llcp/*.cc",
         "gki/common/*.cc",
@@ -216,6 +231,9 @@ cc_library_static {
 cc_fuzz {
     name: "nfc_integration_fuzzer",
     defaults: ["nfc_fuzzer_defaults"],
+    fuzzing_frameworks: {
+      afl: false,
+    },
     srcs: [
         "adaptation/debug_nfcsnoop.cc",
         "fuzzers/integration/*.cc",
