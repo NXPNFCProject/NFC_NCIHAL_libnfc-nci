@@ -619,6 +619,8 @@ static void rw_t2t_handle_tlv_detect_rsp(uint8_t* p_data) {
             } else {
               LOG(ERROR) << StringPrintf("Underflow p_t2t->bytes_count!");
               android_errorWriteLog(0x534e4554, "120506143");
+              failed = true;
+              break;
             }
             if ((tlvtype == TAG_LOCK_CTRL_TLV) || (tlvtype == TAG_NDEF_TLV)) {
               if (p_t2t->num_lockbytes > 0) {
@@ -683,6 +685,8 @@ static void rw_t2t_handle_tlv_detect_rsp(uint8_t* p_data) {
             } else {
               LOG(ERROR) << StringPrintf("bytes_count underflow!");
               android_errorWriteLog(0x534e4554, "120506143");
+              failed = true;
+              break;
             }
             if ((tlvtype == TAG_MEM_CTRL_TLV) || (tlvtype == TAG_NDEF_TLV)) {
               p_t2t->tlv_value[2 - p_t2t->bytes_count] = p_data[offset];
@@ -725,6 +729,8 @@ static void rw_t2t_handle_tlv_detect_rsp(uint8_t* p_data) {
             } else {
               LOG(ERROR) << StringPrintf("bytes_count underflow!");
               android_errorWriteLog(0x534e4554, "120506143");
+              failed = true;
+              break;
             }
             if (tlvtype == TAG_PROPRIETARY_TLV) {
               found = true;
@@ -738,6 +744,10 @@ static void rw_t2t_handle_tlv_detect_rsp(uint8_t* p_data) {
         }
         offset++;
         break;
+      default:
+        LOG(ERROR) << StringPrintf("Unknown p_t2t->substate=%d",
+                                   p_t2t->substate);
+        failed = true;
     }
   }
 
@@ -1997,7 +2007,7 @@ static void rw_t2t_update_attributes(void) {
   uint16_t offset_in_seg;
   uint16_t block_boundary;
   uint8_t num_internal_bytes;
-  uint8_t num_bytes;
+  uint16_t num_bytes;
 
   /* Prepare attr for the current segment */
   memset(p_t2t->attr, 0, RW_T2T_SEGMENT_SIZE * sizeof(uint8_t));
