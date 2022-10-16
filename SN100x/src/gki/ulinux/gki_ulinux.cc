@@ -331,11 +331,16 @@ void GKI_shutdown(void) {
       while ((gki_cb.com.OSWaitEvt[task_id - 1] != 0) && (++i < 10))
         usleep(100 * 1000);
 #else
-      /* wait for proper Arnold Schwarzenegger task state */
-      result = pthread_join(gki_cb.os.thread_id[task_id - 1], nullptr);
-      if (result < 0) {
-        DLOG_IF(INFO, nfc_debug_enabled)
-            << StringPrintf("FAILED: result: %d", result);
+      /* Skip BTU_TASK due to BTU_TASK is used for GKI_run() and it terminates
+       * after GKI_shutdown().
+       */
+      if ((task_id - 1) != BTU_TASK) {
+        /* wait for proper Arnold Schwarzenegger task state */
+        result = pthread_join(gki_cb.os.thread_id[task_id - 1], NULL);
+        if (result < 0) {
+          DLOG_IF(INFO, nfc_debug_enabled)
+              << StringPrintf("FAILED: result: %d", result);
+        }
       }
 #endif
       DLOG_IF(INFO, nfc_debug_enabled)
