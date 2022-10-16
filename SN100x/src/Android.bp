@@ -12,7 +12,7 @@ cc_library_shared {
         "libz",
         "libchrome",
         "libbase",
-	"libstatslog",
+        "libstatslog_nfc",
 
         // Treble configuration
         "libhidlbase",
@@ -136,6 +136,50 @@ cc_defaults {
     },
 }
 
+cc_library {
+    name: "libstatslog_nfc",
+    host_supported: true,
+    generated_sources: ["statslog_nfc.cpp"],
+    generated_headers: ["statslog_nfc.h"],
+    export_generated_headers: ["statslog_nfc.h"],
+    shared_libs: [
+        "libcutils",
+    ],
+    target: {
+        android: {
+            shared_libs: [
+                "libstatssocket",
+            ],
+        },
+        host: {
+            static_libs: [
+                "libstatssocket",
+            ],
+        },
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+genrule {
+    name: "statslog_nfc.h",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --header $(genDir)/statslog_nfc.h --module nfc --namespace nfc,stats",
+    out: [
+        "statslog_nfc.h",
+    ],
+}
+
+genrule {
+    name: "statslog_nfc.cpp",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --cpp $(genDir)/statslog_nfc.cpp --module nfc --namespace nfc,stats --importHeader statslog_nfc.h",
+    out: [
+        "statslog_nfc.cpp",
+    ],
+}
+
 cc_fuzz {
     name: "nfc_nci_fuzzer",
     defaults: ["nfc_fuzzer_defaults"],
@@ -151,6 +195,9 @@ cc_fuzz {
         "fuzzers/*.cc",
         "fuzzers/nci/*.cc",
     ],
+    shared_libs: [
+        "libstatslog_nfc",
+    ]
 }
 
 cc_fuzz {
@@ -267,6 +314,7 @@ cc_fuzz {
     ],
     shared_libs: [
         "libprotobuf-cpp-full",
+        "libstatslog_nfc",
         "libz",
     ]
 }
