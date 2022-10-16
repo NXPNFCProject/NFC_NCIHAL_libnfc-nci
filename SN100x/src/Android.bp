@@ -31,6 +31,7 @@ cc_library_shared {
     cflags: [
         "-DDYN_ALLOC=1",
         "-DBUILDCFG=1",
+        "-DGKI_PTHREAD_JOINABLE",
         "-Wall",
         "-Werror",
         "-Wimplicit-fallthrough",
