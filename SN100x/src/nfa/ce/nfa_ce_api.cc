@@ -21,10 +21,9 @@
  *  NFA interface for card emulation
  *
  ******************************************************************************/
-#include <string.h>
-
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
+#include <string.h>
 
 #include "nfa_api.h"
 #include "nfa_ce_int.h"

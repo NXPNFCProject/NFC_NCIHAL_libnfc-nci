@@ -22,15 +22,14 @@
  *  Reader/Writer mode.
  *
  ******************************************************************************/
-#include <string>
-
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
 
-#include "nfc_target.h"
+#include <string>
 
 #include "nci_hmsgs.h"
 #include "nfc_api.h"
+#include "nfc_target.h"
 #include "rw_api.h"
 #include "rw_int.h"
 
@@ -264,7 +263,7 @@ void rw_t1t_update_tag_state(void) {
       }
     } else {
       /* If NDEF is not yet detected then Tag remains in Initialized state
-      *  after NDEF Detection the Tag state may be updated */
+       *  after NDEF Detection the Tag state may be updated */
       p_t1t->tag_attribute = RW_T1_TAG_ATTRB_INITIALIZED;
     }
   } else {
@@ -1234,8 +1233,9 @@ static tNFC_STATUS rw_t1t_handle_ndef_read_rsp(uint8_t* p_data) {
       p_t1t->segment = (p_t1t->block_read * T1T_BLOCK_SIZE) / T1T_SEGMENT_SIZE;
       while (index < T1T_BLOCK_SIZE &&
              p_t1t->work_offset < p_t1t->ndef_msg_len) {
-        if (rw_t1t_is_lock_reserved_otp_byte((uint16_t)(
-                (p_t1t->block_read * T1T_BLOCK_SIZE) + index)) == false) {
+        if (rw_t1t_is_lock_reserved_otp_byte(
+                (uint16_t)((p_t1t->block_read * T1T_BLOCK_SIZE) + index)) ==
+            false) {
           p_t1t->p_ndef_buffer[p_t1t->work_offset] = p_data[index];
           p_t1t->work_offset++;
         }
@@ -1268,8 +1268,8 @@ static tNFC_STATUS rw_t1t_handle_ndef_read_rsp(uint8_t* p_data) {
     if ((p_t1t->hr[0] & 0x0F) != 1) {
       if ((p_t1t->ndef_msg_len - p_t1t->work_offset) <= T1T_BLOCK_SIZE) {
         p_t1t->block_read++;
-        ndef_status = rw_t1t_send_dyn_cmd(T1T_CMD_READ8,
-                                          (uint8_t)(p_t1t->block_read), nullptr);
+        ndef_status = rw_t1t_send_dyn_cmd(
+            T1T_CMD_READ8, (uint8_t)(p_t1t->block_read), nullptr);
         if (ndef_status == NFC_STATUS_OK) {
           ndef_status = NFC_STATUS_CONTINUE;
         }
@@ -1606,7 +1606,8 @@ static uint8_t rw_t1t_get_ndef_flags(void) {
   if ((p_t1t->hr[0] & 0xF0) == T1T_NDEF_SUPPORTED)
     flags |= RW_NDEF_FL_SUPPORTED;
 
-  if (t1t_tag_init_data(p_t1t->hr[0]) != nullptr) flags |= RW_NDEF_FL_FORMATABLE;
+  if (t1t_tag_init_data(p_t1t->hr[0]) != nullptr)
+    flags |= RW_NDEF_FL_FORMATABLE;
 
   if ((p_t1t->mem[T1T_CC_RWA_BYTE] & 0x0F) == T1T_CC_RWA_RO)
     flags |= RW_NDEF_FL_READ_ONLY;

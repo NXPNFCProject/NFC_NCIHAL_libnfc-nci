@@ -40,18 +40,16 @@
  *  mode.
  *
  ******************************************************************************/
-#include <log/log.h>
-#include <string.h>
-
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
-
-#include "nfc_target.h"
+#include <log/log.h>
+#include <string.h>
 
 #include "bt_types.h"
 #include "ce_api.h"
 #include "ce_int.h"
 #include "nfc_int.h"
+#include "nfc_target.h"
 #include "tags_int.h"
 
 using android::base::StringPrintf;

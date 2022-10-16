@@ -32,15 +32,15 @@
  ******************************************************************************/
 
 #include "nfc_config.h"
-#include "NfcAdaptation.h"
 
 #include <android-base/file.h>
 #include <android-base/logging.h>
 #include <android-base/parseint.h>
 #include <android-base/properties.h>
 #include <android-base/strings.h>
-
 #include <config.h>
+
+#include "NfcAdaptation.h"
 
 using namespace ::std;
 using namespace ::android::base;

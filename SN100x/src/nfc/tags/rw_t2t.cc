@@ -22,18 +22,17 @@
  *  mode.
  *
  ******************************************************************************/
-#include <string>
-
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
 
-#include "nfc_target.h"
+#include <string>
 
 #include "bt_types.h"
 #include "gki.h"
 #include "nci_hmsgs.h"
 #include "nfc_api.h"
 #include "nfc_int.h"
+#include "nfc_target.h"
 #include "rw_api.h"
 #include "rw_int.h"
 
@@ -498,9 +497,9 @@ static void rw_t2t_process_error(void) {
     /* allocate a new buffer for message */
     p_cmd_buf = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID);
     if (p_cmd_buf != nullptr) {
-      memcpy(p_cmd_buf, p_t2t->p_cur_cmd_buf, sizeof(NFC_HDR) +
-                                                  p_t2t->p_cur_cmd_buf->offset +
-                                                  p_t2t->p_cur_cmd_buf->len);
+      memcpy(p_cmd_buf, p_t2t->p_cur_cmd_buf,
+             sizeof(NFC_HDR) + p_t2t->p_cur_cmd_buf->offset +
+                 p_t2t->p_cur_cmd_buf->len);
 #if (RW_STATS_INCLUDED == TRUE)
       /* Update stats */
       rw_main_update_tx_stats(p_cmd_buf->len, true);
@@ -609,9 +608,9 @@ static void rw_t2t_resume_op(void) {
   /* allocate a new buffer for message */
   p_cmd_buf = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID);
   if (p_cmd_buf != nullptr) {
-    memcpy(p_cmd_buf, p_t2t->p_sec_cmd_buf, sizeof(NFC_HDR) +
-                                                p_t2t->p_sec_cmd_buf->offset +
-                                                p_t2t->p_sec_cmd_buf->len);
+    memcpy(p_cmd_buf, p_t2t->p_sec_cmd_buf,
+           sizeof(NFC_HDR) + p_t2t->p_sec_cmd_buf->offset +
+               p_t2t->p_sec_cmd_buf->len);
     memcpy(p_t2t->p_cur_cmd_buf, p_t2t->p_sec_cmd_buf,
            sizeof(NFC_HDR) + p_t2t->p_sec_cmd_buf->offset +
                p_t2t->p_sec_cmd_buf->len);

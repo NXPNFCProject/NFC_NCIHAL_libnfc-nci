@@ -17,14 +17,14 @@
  ******************************************************************************/
 #include "CrcChecksum.h"
 
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
 #include <fcntl.h>
 #if (NXP_EXTNS == FALSE)
 #include <unistd.h>
 #endif
-#include <string>
 
-#include <android-base/stringprintf.h>
-#include <base/logging.h>
+#include <string>
 
 using android::base::StringPrintf;
 

@@ -39,10 +39,10 @@
  *  This is the main implementation file for the NFA EE.
  *
  ******************************************************************************/
-#include <string>
-
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
+
+#include <string>
 
 #include "nfa_dm_int.h"
 #include "nfa_ee_int.h"

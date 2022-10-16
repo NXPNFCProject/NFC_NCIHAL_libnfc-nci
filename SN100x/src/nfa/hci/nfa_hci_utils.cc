@@ -40,11 +40,11 @@
  *  This file contains the utility functions for the NFA HCI.
  *
  ******************************************************************************/
-#include <string>
-
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
 #include <log/log.h>
+
+#include <string>
 
 #include "nfa_dm_int.h"
 #include "nfa_hci_api.h"

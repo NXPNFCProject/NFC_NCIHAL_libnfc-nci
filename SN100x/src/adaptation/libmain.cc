@@ -37,6 +37,7 @@
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
 #include <fcntl.h>
+
 #include <vector>
 
 #include "CrcChecksum.h"

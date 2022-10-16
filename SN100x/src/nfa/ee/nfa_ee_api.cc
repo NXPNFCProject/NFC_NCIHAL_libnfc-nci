@@ -39,11 +39,12 @@
  *  NFA interface to NFCEE - API functions
  *
  ******************************************************************************/
+#include "nfa_ee_api.h"
+
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
 
 #include "nfa_dm_int.h"
-#include "nfa_ee_api.h"
 #include "nfa_ee_int.h"
 #include "nfc_int.h"
 

@@ -40,11 +40,10 @@
  *  This file contains the action functions the NFA_CE state machine.
  *
  ******************************************************************************/
-#include <log/log.h>
-#include <string.h>
-
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
+#include <log/log.h>
+#include <string.h>
 
 #include "ce_api.h"
 #include "ndef_utils.h"
@@ -60,8 +59,8 @@ using android::base::StringPrintf;
 extern bool nfc_debug_enabled;
 
 /*****************************************************************************
-* Protocol-specific event handlers
-*****************************************************************************/
+ * Protocol-specific event handlers
+ *****************************************************************************/
 
 /*******************************************************************************
 **
@@ -287,8 +286,8 @@ void nfa_ce_handle_t4t_aid_evt(tCE_EVENT event, tCE_DATA* p_ce_data) {
 }
 
 /*****************************************************************************
-* Discovery configuration and discovery event handlers
-*****************************************************************************/
+ * Discovery configuration and discovery event handlers
+ *****************************************************************************/
 
 /*******************************************************************************
 **
@@ -541,8 +540,9 @@ tNFA_STATUS nfa_ce_start_listening(void) {
           /* register discovery callback to NFA DM */
           disc_handle = nfa_dm_add_rf_discover(
               listen_mask,
-              (tNFA_DM_DISC_HOST_ID)(
-                  p_cb->listen_info[listen_info_idx].ee_handle & 0x00FF),
+              (tNFA_DM_DISC_HOST_ID)(p_cb->listen_info[listen_info_idx]
+                                         .ee_handle &
+                                     0x00FF),
               nfa_ce_discovery_cback);
 
           if (disc_handle == NFA_HANDLE_INVALID)
@@ -1298,17 +1298,17 @@ bool nfa_ce_api_reg_listen(tNFA_CE_MSG* p_ce_msg) {
         (p_cb->listen_info[i].flags & NFA_CE_LISTEN_INFO_IN_USE) &&
         (p_cb->listen_info[i].flags & NFA_CE_LISTEN_INFO_UICC) &&
         (p_cb->listen_info[i].ee_handle == p_ce_msg->reg_listen.ee_handle)) {
-      if(p_cb->listen_info[i].tech_mask == p_ce_msg->reg_listen.tech_mask) {
+      if (p_cb->listen_info[i].tech_mask == p_ce_msg->reg_listen.tech_mask) {
         LOG(ERROR) << StringPrintf("UICC (0x%x) listening already specified",
-                                 p_ce_msg->reg_listen.ee_handle);
+                                   p_ce_msg->reg_listen.ee_handle);
         conn_evt.status = NFA_STATUS_FAILED;
         nfa_dm_conn_cback_event_notify(NFA_CE_UICC_LISTEN_CONFIGURED_EVT,
-                                     &conn_evt);
+                                       &conn_evt);
         return true;
       } else {
-        DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf("UICC (0x%x) listening parameter changed to %x",
-                                 p_ce_msg->reg_listen.ee_handle, p_ce_msg->reg_listen.tech_mask);
+        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+            "UICC (0x%x) listening parameter changed to %x",
+            p_ce_msg->reg_listen.ee_handle, p_ce_msg->reg_listen.tech_mask);
         listen_info_idx = i;
         break;
       }

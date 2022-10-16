@@ -35,10 +35,10 @@
  ******************************************************************************/
 #pragma once
 
+#include <config.h>
+
 #include <string>
 #include <vector>
-
-#include <config.h>
 
 /* Configs from libnfc-nci.conf */
 #define NAME_NFC_DEBUG_ENABLED "NFC_DEBUG_ENABLED"

@@ -37,6 +37,7 @@
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
 #include <log/log.h>
+
 #include "gki_int.h"
 
 #if (GKI_NUM_TOTAL_BUF_POOLS > 16)
@@ -459,7 +460,8 @@ void* GKI_getpoolbuf(uint8_t pool_id) {
 
   Q = &p_cb->freeq[pool_id];
   if (Q->cur_cnt < Q->total) {
-    if (Q->p_first == nullptr && gki_alloc_free_queue(pool_id) != true) return nullptr;
+    if (Q->p_first == nullptr && gki_alloc_free_queue(pool_id) != true)
+      return nullptr;
 
     if (Q->p_first == nullptr) {
       /* gki_alloc_free_queue() failed to alloc memory */
@@ -831,8 +833,7 @@ void* GKI_dequeue(BUFFER_Q* p_q) {
 
   p_hdr = (BUFFER_HDR_T*)((uint8_t*)p_q->p_first - BUFFER_HDR_SIZE);
 
-  /* Keep buffers such that GKI header is invisible
-  */
+  /* Keep buffers such that GKI header is invisible */
   if (p_hdr->p_next)
     p_q->p_first = ((uint8_t*)p_hdr->p_next + BUFFER_HDR_SIZE);
   else {
@@ -1003,8 +1004,8 @@ void* GKI_find_buf_start(void* p_user_area) {
 }
 
 /********************************************************
-* The following functions are not needed for light stack
-*********************************************************/
+ * The following functions are not needed for light stack
+ *********************************************************/
 #ifndef BTU_STACK_LITE_ENABLED
 #define BTU_STACK_LITE_ENABLED FALSE
 #endif

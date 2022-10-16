@@ -52,17 +52,17 @@ namespace nfc {
 namespace V1_0 {
 struct INfc;
 struct INfcClientCallback;
-}
+}  // namespace V1_0
 namespace V1_1 {
 struct INfc;
 struct INfcClientCallback;
-}
+}  // namespace V1_1
 namespace V1_2 {
 struct INfc;
 }
-}
-}
-}
+}  // namespace nfc
+}  // namespace hardware
+}  // namespace android
 #if (NXP_EXTNS == TRUE)
 namespace vendor {
 namespace nxp {
@@ -75,6 +75,7 @@ struct INxpNfc;
 }
 typedef void(tNFC_JNI_FWSTATUS_CBACK)(uint8_t status);
 #endif
+
 class ThreadMutex {
  public:
   ThreadMutex();

@@ -203,7 +203,7 @@ typedef struct {
   uint8_t hci_netwk_config_block;  /* Rsp awaiting for hci network configuration
                                       block */
   bool b_wait_hcp_conn_create_rsp; /* Waiting for hcp connection create response
-                                      */
+                                    */
   bool clear_all_pipes_to_uicc1;   /* UICC1 was restarted for patch download */
   bool update_session_id; /* Next response from NFCC is to Get Session id cmd */
   bool hci_fw_workaround; /* HAL HCI Workaround need */

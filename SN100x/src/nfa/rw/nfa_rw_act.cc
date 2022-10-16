@@ -40,11 +40,10 @@
  *  This file contains the action functions the NFA_RW state machine.
  *
  ******************************************************************************/
-#include <log/log.h>
-#include <string.h>
-
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
+#include <log/log.h>
+#include <string.h>
 
 #include "ndef_utils.h"
 #include "nfa_dm_int.h"

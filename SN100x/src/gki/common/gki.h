@@ -296,13 +296,11 @@
 #define GKI_SHUTDOWN_EVT APPL_EVT_7
 #endif
 
-/* Timer list entry callback type
-*/
+/* Timer list entry callback type */
 struct TIMER_LIST_ENT;
 typedef void(TIMER_CBACK)(TIMER_LIST_ENT* p_tle);
 
-/* Define a timer list entry
-*/
+/* Define a timer list entry */
 #ifdef NFC_INTEGRATION_FUZZER
 struct TIMER_LIST_ENT {
   TIMER_CBACK* p_cback;
@@ -323,8 +321,7 @@ struct TIMER_LIST_ENT {
 };
 #endif
 
-/* Define a timer list queue
-*/
+/* Define a timer list queue */
 #ifdef NFC_INTEGRATION_FUZZER
 typedef std::list<TIMER_LIST_ENT*> TIMER_LIST_Q;
 #else
@@ -344,8 +341,7 @@ typedef struct {
   uint16_t count;
 } BUFFER_Q;
 
-/* Task constants
-*/
+/* Task constants */
 #ifndef TASKPTR
 typedef uint32_t (*TASKPTR)(uint32_t);
 #endif
@@ -357,8 +353,7 @@ typedef uint32_t (*TASKPTR)(uint32_t);
 ** Function prototypes
 */
 
-/* Task management
-*/
+/* Task management */
 extern uint8_t GKI_create_task(TASKPTR, uint8_t, int8_t*, uint16_t*, uint16_t,
                                void*, void*);
 extern void GKI_exit_task(uint8_t);
@@ -370,21 +365,18 @@ extern void GKI_run(void*);
 extern void GKI_stop(void);
 extern uint8_t GKI_suspend_task(uint8_t);
 
-/* memory management
-*/
+/* memory management */
 extern void GKI_shiftdown(uint8_t* p_mem, uint32_t len, uint32_t shift_amount);
 extern void GKI_shiftup(uint8_t* p_dest, uint8_t* p_src, uint32_t len);
 
-/* To send buffers and events between tasks
-*/
+/* To send buffers and events between tasks */
 extern uint8_t GKI_isend_event(uint8_t, uint16_t);
 extern void GKI_isend_msg(uint8_t, uint8_t, void*);
 extern void* GKI_read_mbox(uint8_t);
 extern void GKI_send_msg(uint8_t, uint8_t, void*);
 extern uint8_t GKI_send_event(uint8_t, uint16_t);
 
-/* To get and release buffers, change owner and get size
-*/
+/* To get and release buffers, change owner and get size */
 extern void GKI_change_buf_owner(void*, uint8_t);
 extern uint8_t GKI_create_pool(uint16_t, uint16_t, uint8_t, void*);
 extern void GKI_delete_pool(uint8_t);
@@ -400,8 +392,7 @@ extern uint16_t GKI_poolutilization(uint8_t);
 extern void GKI_register_mempool(void* p_mem);
 extern uint8_t GKI_set_pool_permission(uint8_t, uint8_t);
 
-/* User buffer queue management
-*/
+/* User buffer queue management */
 extern void* GKI_dequeue(BUFFER_Q*);
 extern void GKI_enqueue(BUFFER_Q*, void*);
 extern void GKI_enqueue_head(BUFFER_Q*, void*);
@@ -413,8 +404,7 @@ extern bool GKI_queue_is_empty(BUFFER_Q*);
 extern void* GKI_remove_from_queue(BUFFER_Q*, void*);
 extern uint16_t GKI_get_pool_bufsize(uint8_t);
 
-/* Timer management
-*/
+/* Timer management */
 extern void GKI_add_to_timer_list(TIMER_LIST_Q*, TIMER_LIST_ENT*);
 extern void GKI_delay(uint32_t);
 extern uint32_t GKI_get_tick_count(void);
@@ -435,31 +425,27 @@ extern uint16_t GKI_wait(uint16_t, uint32_t);
 /* Start and Stop system time tick callback
  * true for start system tick if time queue is not empty
  * false to stop system tick if time queue is empty
-*/
+ */
 typedef void(SYSTEM_TICK_CBACK)(bool);
 
-/* Time queue management for system ticks
-*/
+/* Time queue management for system ticks */
 extern bool GKI_timer_queue_empty(void);
 extern void GKI_timer_queue_register_callback(SYSTEM_TICK_CBACK*);
 
-/* Disable Interrupts, Enable Interrupts
-*/
+/* Disable Interrupts, Enable Interrupts */
 extern void GKI_enable(void);
 extern void GKI_disable(void);
 extern void GKI_sched_lock(void);
 extern void GKI_sched_unlock(void);
 
-/* Allocate (Free) memory from an OS
-*/
+/* Allocate (Free) memory from an OS */
 extern void* GKI_os_malloc(uint32_t);
 extern void GKI_os_free(void*);
 
 /* os timer operation */
 extern uint32_t GKI_get_os_tick_count(void);
 
-/* Exception handling
-*/
+/* Exception handling */
 extern void GKI_exception(uint16_t, std::string);
 
 #endif

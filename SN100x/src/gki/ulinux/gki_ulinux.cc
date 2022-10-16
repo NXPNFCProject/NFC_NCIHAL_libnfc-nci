@@ -34,12 +34,11 @@
  *  Copyright 2019-2022 NXP
  *
  ******************************************************************************/
+#include <android-base/stringprintf.h>
+#include <base/logging.h>
 #include <errno.h>
 #include <malloc.h>
 #include <pthread.h> /* must be 1st header defined  */
-
-#include <android-base/stringprintf.h>
-#include <base/logging.h>
 
 #include "gki_int.h"
 
@@ -62,8 +61,7 @@ extern bool nfc_debug_enabled;
 
 #endif
 
-/* Define the structure that holds the GKI variables
-*/
+/* Define the structure that holds the GKI variables */
 tGKI_CB gki_cb;
 
 #define NANOSEC_PER_MILLISEC (1000000)
@@ -175,8 +173,7 @@ void GKI_init(void) {
 **
 *******************************************************************************/
 uint32_t GKI_get_os_tick_count(void) {
-  /* TODO - add any OS specific code here
-  **/
+  /* TODO - add any OS specific code here */
   return (gki_cb.com.OSTicks);
 }
 
@@ -383,7 +380,7 @@ void gki_system_tick_start_stop_cback(bool start) {
      */
     /* GKI_disable(); */
     *p_run_cond = GKI_TIMER_TICK_STOP_COND;
-/* GKI_enable(); */
+    /* GKI_enable(); */
   } else {
     /* restart GKI_timer_update() loop */
     *p_run_cond = GKI_TIMER_TICK_RUN_COND;
@@ -508,7 +505,7 @@ void GKI_run(__attribute__((unused)) void* p_task_id) {
       pthread_cond_wait(&gki_cb.os.gki_timer_cond, &gki_cb.os.gki_timer_mutex);
       pthread_mutex_unlock(&gki_cb.os.gki_timer_mutex);
     }
-/* potentially we need to adjust os gki_cb.com.OSTicks */
+    /* potentially we need to adjust os gki_cb.com.OSTicks */
 
 #ifdef GKI_TICK_TIMER_DEBUG
     DLOG_IF(INFO, nfc_debug_enabled)
@@ -1112,9 +1109,10 @@ void GKI_exit_task(uint8_t task_id) {
   }
   GKI_disable();
   if (gki_cb.com.OSRdyTbl[task_id] == TASK_DEAD) {
-      GKI_enable();
-      LOG(WARNING) << StringPrintf("%s: task_id %d was already stopped.", __func__, task_id);
-      return;
+    GKI_enable();
+    LOG(WARNING) << StringPrintf("%s: task_id %d was already stopped.",
+                                 __func__, task_id);
+    return;
   }
   gki_cb.com.OSRdyTbl[task_id] = TASK_DEAD;
 

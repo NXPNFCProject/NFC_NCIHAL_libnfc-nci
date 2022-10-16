@@ -40,10 +40,9 @@
  *  This is the main implementation file for the NFA_RW
  *
  ******************************************************************************/
-#include <string.h>
-
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
+#include <string.h>
 
 #include "nfa_dm_int.h"
 #include "nfa_rw_api.h"

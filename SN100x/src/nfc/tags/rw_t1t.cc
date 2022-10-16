@@ -22,17 +22,16 @@
  *  mode.
  *
  ******************************************************************************/
-#include <string>
-
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
 
-#include "nfc_target.h"
+#include <string>
 
 #include "gki.h"
 #include "nci_hmsgs.h"
 #include "nfc_api.h"
 #include "nfc_int.h"
+#include "nfc_target.h"
 #include "rw_api.h"
 #include "rw_int.h"
 
@@ -143,7 +142,7 @@ static void rw_t1t_data_cback(__attribute__((unused)) uint8_t conn_id,
     } else {
       /* Stop timer as some response to current command is received */
       nfc_stop_quick_timer(&p_t1t->timer);
-/* Retrasmit the last sent command if retry-count < max retry */
+      /* Retrasmit the last sent command if retry-count < max retry */
       LOG(ERROR) << StringPrintf(
           "T1T Frame error. state=%s command (opcode) = 0x%02x",
           rw_t1t_get_state_name(p_t1t->state).c_str(), p_cmd_rsp_info->opcode);
@@ -588,9 +587,9 @@ static void rw_t1t_process_error(void) {
     /* allocate a new buffer for message */
     p_cmd_buf = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID);
     if (p_cmd_buf != nullptr) {
-      memcpy(p_cmd_buf, p_t1t->p_cur_cmd_buf, sizeof(NFC_HDR) +
-                                                  p_t1t->p_cur_cmd_buf->offset +
-                                                  p_t1t->p_cur_cmd_buf->len);
+      memcpy(p_cmd_buf, p_t1t->p_cur_cmd_buf,
+             sizeof(NFC_HDR) + p_t1t->p_cur_cmd_buf->offset +
+                 p_t1t->p_cur_cmd_buf->len);
 
 #if (RW_STATS_INCLUDED == TRUE)
       /* Update stats */

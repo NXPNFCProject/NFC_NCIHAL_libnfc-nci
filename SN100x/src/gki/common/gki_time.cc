@@ -35,6 +35,7 @@
  ******************************************************************************/
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
+
 #include "gki_int.h"
 
 /* Make sure that this has been defined in target.h */
@@ -699,9 +700,9 @@ uint16_t GKI_update_timer_list(TIMER_LIST_Q* p_timer_listq,
     p_timer_listq->last_ticks -= num_units_since_last_update;
 
     /* If the last timer has expired set last_ticks to 0 so that other list
-    * update
-    * functions will calculate correctly
-    */
+     * update
+     * functions will calculate correctly
+     */
     if (p_timer_listq->last_ticks < 0) p_timer_listq->last_ticks = 0;
   }
 
@@ -891,19 +892,20 @@ void GKI_remove_from_timer_list(TIMER_LIST_Q* p_timer_listq,
     p_timer_listq->last_ticks -= p_tle->ticks;
   }
 
-  /* Unlink timer from the list.
-  */
+  /* Unlink timer from the list. */
   if (p_timer_listq->p_first == p_tle) {
     p_timer_listq->p_first = p_tle->p_next;
 
-    if (p_timer_listq->p_first != nullptr) p_timer_listq->p_first->p_prev = nullptr;
+    if (p_timer_listq->p_first != nullptr)
+      p_timer_listq->p_first->p_prev = nullptr;
 
     if (p_timer_listq->p_last == p_tle) p_timer_listq->p_last = nullptr;
   } else {
     if (p_timer_listq->p_last == p_tle) {
       p_timer_listq->p_last = p_tle->p_prev;
 
-      if (p_timer_listq->p_last != nullptr) p_timer_listq->p_last->p_next = nullptr;
+      if (p_timer_listq->p_last != nullptr)
+        p_timer_listq->p_last->p_next = nullptr;
     } else {
       if (p_tle->p_next != nullptr && p_tle->p_next->p_prev == p_tle)
         p_tle->p_next->p_prev = p_tle->p_prev;

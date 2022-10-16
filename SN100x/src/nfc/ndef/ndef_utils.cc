@@ -41,6 +41,7 @@
  *
  ******************************************************************************/
 #include "ndef_utils.h"
+
 #include <log/log.h>
 #include <string.h>
 
@@ -222,8 +223,8 @@ tNDEF_STATUS NDEF_MsgValidate(uint8_t* p_msg, uint32_t msg_len,
     }
     p_new = p_rec + (payload_len + type_len + id_len);
     if (p_rec > p_new || p_end < p_new) {
-        android_errorWriteLog(0x534e4554, "126200054");
-        return (NDEF_MSG_LENGTH_MISMATCH);
+      android_errorWriteLog(0x534e4554, "126200054");
+      return (NDEF_MSG_LENGTH_MISMATCH);
     }
 
     /* Point to next record */

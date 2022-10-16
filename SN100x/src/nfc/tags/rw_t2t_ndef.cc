@@ -40,17 +40,14 @@
  *  Reader/Writer mode.
  *
  ******************************************************************************/
-#include <log/log.h>
-#include <string.h>
-
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
 #include <log/log.h>
-
-#include "nfc_target.h"
+#include <string.h>
 
 #include "nci_hmsgs.h"
 #include "nfc_api.h"
+#include "nfc_target.h"
 #include "rw_api.h"
 #include "rw_int.h"
 
@@ -758,7 +755,8 @@ static void rw_t2t_handle_tlv_detect_rsp(uint8_t* p_data) {
   /* If not found and not failed, read next block and search tlv */
   if (!found && !failed) {
     if (p_t2t->work_offset >=
-        (p_t2t->tag_hdr[T2T_CC2_TMS_BYTE] * T2T_TMS_TAG_FACTOR + T2T_FIRST_DATA_BLOCK * T2T_BLOCK_LEN)) {
+        (p_t2t->tag_hdr[T2T_CC2_TMS_BYTE] * T2T_TMS_TAG_FACTOR +
+         T2T_FIRST_DATA_BLOCK * T2T_BLOCK_LEN)) {
       if (((tlvtype == TAG_LOCK_CTRL_TLV) && (p_t2t->num_lockbytes > 0)) ||
           ((tlvtype == TAG_MEM_CTRL_TLV) && (p_t2t->num_mem_tlvs > 0))) {
         found = true;
@@ -766,7 +764,8 @@ static void rw_t2t_handle_tlv_detect_rsp(uint8_t* p_data) {
         failed = true;
       }
     } else {
-      if (rw_t2t_read((uint16_t)(p_t2t->work_offset / T2T_BLOCK_LEN) ) != NFC_STATUS_OK)
+      if (rw_t2t_read((uint16_t)(p_t2t->work_offset / T2T_BLOCK_LEN)) !=
+          NFC_STATUS_OK)
         failed = true;
     }
   }
@@ -991,7 +990,6 @@ tNFC_STATUS rw_t2t_read_ndef_last_block(void) {
 
   return status;
 }
-
 
 /*******************************************************************************
 **
@@ -1933,10 +1931,11 @@ static void rw_t2t_handle_format_tag_rsp(uint8_t* p_data) {
         next_block = T2T_FIRST_DATA_BLOCK;
         p = p_t2t->ndef_final_block;
       } else {
-        addr = (uint16_t)(
-            ((uint16_t)p_t2t->tag_data[2] << 8 | p_t2t->tag_data[3]) *
-                ((uint16_t)p_t2t->tag_data[4] << 8 | p_t2t->tag_data[5]) +
-            T2T_STATIC_SIZE);
+        addr = (uint16_t)(((uint16_t)p_t2t->tag_data[2] << 8 |
+                           p_t2t->tag_data[3]) *
+                              ((uint16_t)p_t2t->tag_data[4] << 8 |
+                               p_t2t->tag_data[5]) +
+                          T2T_STATIC_SIZE);
         locked_area = ((uint16_t)p_t2t->tag_data[2] << 8 | p_t2t->tag_data[3]) *
                       ((uint16_t)p_t2t->tag_data[6]);
 
@@ -1957,7 +1956,8 @@ static void rw_t2t_handle_format_tag_rsp(uint8_t* p_data) {
       UINT8_TO_BE_STREAM(p, TAG_NDEF_TLV);
       UINT8_TO_BE_STREAM(p, 0);
 
-      if (((p_ret = t2t_tag_init_data(p_t2t->tag_hdr[0], false, 0)) != nullptr) &&
+      if (((p_ret = t2t_tag_init_data(p_t2t->tag_hdr[0], false, 0)) !=
+           nullptr) &&
           (!p_ret->b_otp)) {
         UINT8_TO_BE_STREAM(p, TAG_TERMINATOR_TLV);
       } else

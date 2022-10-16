@@ -41,19 +41,17 @@
  *  On the receive side, it routes events to the appropriate handler
  *  (callback). On the transmit side, it manages the command transmission.
  *
-******************************************************************************/
-#include <string.h>
-
+ ******************************************************************************/
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
 #include <log/log.h>
-
-#include "nfc_target.h"
+#include <string.h>
 
 #include "bt_types.h"
 #include "nci_hmsgs.h"
 #include "nfc_api.h"
 #include "nfc_int.h"
+#include "nfc_target.h"
 #include "rw_api.h"
 #include "rw_int.h"
 
@@ -65,14 +63,12 @@ tRW_CB rw_cb;
 
 /*******************************************************************************
 *******************************************************************************/
-void rw_init(void) {
-  memset(&rw_cb, 0, sizeof(tRW_CB));
-}
+void rw_init(void) { memset(&rw_cb, 0, sizeof(tRW_CB)); }
 
 #if (RW_STATS_INCLUDED == TRUE)
 /*******************************************************************************
-* Internal functions for statistics
-*******************************************************************************/
+ * Internal functions for statistics
+ *******************************************************************************/
 /*******************************************************************************
 **
 ** Function         rw_main_reset_stats

@@ -40,17 +40,15 @@
  *  mode.
  *
  ******************************************************************************/
-#include <string.h>
-
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
 #include <log/log.h>
-
-#include "nfc_target.h"
+#include <string.h>
 
 #include "bt_types.h"
 #include "ce_api.h"
 #include "ce_int.h"
+#include "nfc_target.h"
 
 using android::base::StringPrintf;
 
@@ -71,8 +69,8 @@ enum { CE_T3T_STATE_NOT_ACTIVATED, CE_T3T_STATE_IDLE, CE_T3T_STATE_UPDATING };
 #define CE_T3T_UPDATE_FL_UPDATE 0x04
 
 /*******************************************************************************
-* Static constant definitions
-*******************************************************************************/
+ * Static constant definitions
+ *******************************************************************************/
 /* Default PMm param */
 static const uint8_t CE_DEFAULT_LF_PMM[NCI_T3T_PMM_LEN] = {
     0x01, /* This PAD0 is used to identify HCE-F on Android */
@@ -496,8 +494,9 @@ void ce_t3t_handle_check_cmd(tCE_CB* p_ce_cb, NFC_HDR* p_cmd_msg) {
                   T3T_MSG_BLOCKSIZE);
             } else {
               ARRAY_TO_STREAM(
-                  p_dst, (&p_cb->ndef_info
-                               .p_buf[(block_number - 1) * T3T_MSG_BLOCKSIZE]),
+                  p_dst,
+                  (&p_cb->ndef_info
+                        .p_buf[(block_number - 1) * T3T_MSG_BLOCKSIZE]),
                   T3T_MSG_BLOCKSIZE);
             }
           }
@@ -892,9 +891,10 @@ tNFC_STATUS CE_T3tSetLocalNDEFMsg(bool read_only, uint32_t size_max,
   /* Save ndef attributes */
   else {
     p_cb->ndef_info.initialized = true;
-    p_cb->ndef_info.ln = size_current; /* Current length */
-    p_cb->ndef_info.nmaxb = (uint16_t)(
-        (size_max + 15) / T3T_MSG_BLOCKSIZE); /* Max length (in blocks) */
+    /* Current length */
+    p_cb->ndef_info.ln = size_current;
+    /* Max length (in blocks) */
+    p_cb->ndef_info.nmaxb = (uint16_t)((size_max + 15) / T3T_MSG_BLOCKSIZE);
     p_cb->ndef_info.rwflag =
         (read_only) ? T3T_MSG_NDEF_RWFLAG_RO : T3T_MSG_NDEF_RWFLAG_RW;
     p_cb->ndef_info.writef = T3T_MSG_NDEF_WRITEF_OFF;

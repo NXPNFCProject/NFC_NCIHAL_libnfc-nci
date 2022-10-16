@@ -40,6 +40,7 @@
 #include <memory.h>
 #include <stdio.h>
 #include <string.h>
+
 #include "data_types.h"
 
 #ifndef NFC_CONTORLLER_ID

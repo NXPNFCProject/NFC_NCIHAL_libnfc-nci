@@ -39,10 +39,11 @@
  *  NFA interface to HCI
  *
  ******************************************************************************/
+#include "nfa_hci_api.h"
+
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
 
-#include "nfa_hci_api.h"
 #include "nfa_hci_defs.h"
 #include "nfa_hci_int.h"
 

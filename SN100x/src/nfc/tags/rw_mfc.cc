@@ -41,12 +41,12 @@
 #include <base/logging.h>
 #include <log/log.h>
 #include <string.h>
-#include "bt_types.h"
-#include "nfc_target.h"
 
+#include "bt_types.h"
 #include "gki.h"
 #include "nfc_api.h"
 #include "nfc_int.h"
+#include "nfc_target.h"
 #include "rw_api.h"
 #include "rw_int.h"
 #include "tags_int.h"
@@ -419,7 +419,7 @@ static tNFC_STATUS rw_mfc_writeBlock(int block) {
       } else {
         UINT8_TO_BE_STREAM(p, 0x03);
         UINT8_TO_BE_STREAM(p, 0xFF);
-        UINT8_TO_BE_STREAM(p, (uint8_t)(p_mfc->ndef_length >>8));
+        UINT8_TO_BE_STREAM(p, (uint8_t)(p_mfc->ndef_length >> 8));
         UINT8_TO_BE_STREAM(p, (uint8_t)(p_mfc->ndef_length & 0xFF));
         index = index + 4;
       }

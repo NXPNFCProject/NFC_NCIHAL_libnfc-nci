@@ -21,10 +21,10 @@
  *  This is the main implementation file for the NFA_CE
  *
  ******************************************************************************/
-#include <string>
-
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
+
+#include <string>
 
 #include "nfa_ce_api.h"
 #include "nfa_ce_int.h"

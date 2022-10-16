@@ -23,17 +23,15 @@
  *  (callback). On the transmit side, it manages the command transmission.
  *
  ******************************************************************************/
-#include <string.h>
-
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
 #include <log/log.h>
-
-#include "nfc_target.h"
+#include <string.h>
 
 #include "bt_types.h"
 #include "ce_api.h"
 #include "ce_int.h"
+#include "nfc_target.h"
 
 using android::base::StringPrintf;
 

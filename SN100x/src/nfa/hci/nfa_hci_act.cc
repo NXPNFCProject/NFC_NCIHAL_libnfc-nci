@@ -39,11 +39,10 @@
  *  This file contains the action functions for the NFA HCI.
  *
  ******************************************************************************/
-#include <string.h>
-
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
 #include <log/log.h>
+#include <string.h>
 
 #include "nfa_dm_int.h"
 #include "nfa_hci_api.h"
@@ -435,7 +434,7 @@ void nfa_hci_api_deregister(tNFA_HCI_EVENT_DATA* p_evt_data) {
     if (p_cback) p_cback(NFA_HCI_DEREGISTER_EVT, &evt_data);
   } else {
     /* Delete all active pipes created for the application before de registering
-    **/
+     **/
     nfa_hci_cb.hci_state = NFA_HCI_STATE_APP_DEREGISTER;
 
     nfa_hciu_send_delete_pipe_cmd(p_pipe->pipe_id);
@@ -948,7 +947,9 @@ static bool nfa_hci_api_send_cmd(tNFA_HCI_EVENT_DATA* p_evt_data) {
 #if(NXP_EXTNS == TRUE)
   tNFA_HCI_PIPE_CMDRSP_INFO  *p_pipe_cmdrsp_info = nullptr;
 #endif
-  if ((p_pipe = nfa_hciu_find_pipe_by_pid(p_evt_data->send_cmd.pipe)) != nullptr) {
+
+  if ((p_pipe = nfa_hciu_find_pipe_by_pid(p_evt_data->send_cmd.pipe)) !=
+      nullptr) {
     app_handle = nfa_hciu_get_pipe_owner(p_evt_data->send_cmd.pipe);
 
     if ((nfa_hciu_is_active_host(p_pipe->dest_host)) &&
@@ -1030,7 +1031,8 @@ static void nfa_hci_api_send_rsp(tNFA_HCI_EVENT_DATA* p_evt_data) {
   tNFA_HCI_EVT_DATA evt_data;
   tNFA_HANDLE app_handle;
 
-  if ((p_pipe = nfa_hciu_find_pipe_by_pid(p_evt_data->send_rsp.pipe)) != nullptr) {
+  if ((p_pipe = nfa_hciu_find_pipe_by_pid(p_evt_data->send_rsp.pipe)) !=
+      nullptr) {
     app_handle = nfa_hciu_get_pipe_owner(p_evt_data->send_rsp.pipe);
 
     if ((nfa_hciu_is_active_host(p_pipe->dest_host)) &&
@@ -1082,7 +1084,9 @@ static bool nfa_hci_api_send_event(tNFA_HCI_EVENT_DATA* p_evt_data) {
 #if(NXP_EXTNS == TRUE)
   tNFA_HCI_PIPE_CMDRSP_INFO   *p_pipe_cmdrsp_info = nullptr;
 #endif
-  if ((p_pipe = nfa_hciu_find_pipe_by_pid(p_evt_data->send_evt.pipe)) != nullptr) {
+
+  if ((p_pipe = nfa_hciu_find_pipe_by_pid(p_evt_data->send_evt.pipe)) !=
+      nullptr) {
     app_handle = nfa_hciu_get_pipe_owner(p_evt_data->send_evt.pipe);
 
         if ((nfa_hciu_is_active_host(p_pipe->dest_host)) &&

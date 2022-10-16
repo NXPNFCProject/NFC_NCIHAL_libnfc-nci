@@ -19,6 +19,7 @@
 #define GKI_INT_H
 
 #include <pthread.h>
+
 #include "gki_common.h"
 
 /**********************************************************************

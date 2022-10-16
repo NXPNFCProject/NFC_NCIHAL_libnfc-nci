@@ -2426,7 +2426,7 @@ static void nfa_ee_build_discover_req_evt(tNFA_EE_DISCOVER_REQ* p_evt_data) {
 
   for (xx = 0; xx < nfa_ee_cb.cur_ee; xx++, p_cb++) {
     if ((p_cb->ee_status & NFA_EE_STATUS_INT_MASK) ||
-        (p_cb->ee_status != NFA_EE_STATUS_ACTIVE) ) {
+        (p_cb->ee_status != NFA_EE_STATUS_ACTIVE)) {
       continue;
     }
     p_info->ee_handle = (tNFA_HANDLE)p_cb->nfcee_id | NFA_HANDLE_GROUP_EE;
@@ -2735,7 +2735,8 @@ void nfa_ee_nci_conn(tNFA_EE_MSG* p_data) {
             evt_data.data.len = p_pkt->len;
             evt_data.data.p_buf = (uint8_t*)(p_pkt + 1) + p_pkt->offset;
             event = NFA_EE_DATA_EVT;
-            p_pkt = nullptr; /* so this function does not free this GKI buffer */
+            p_pkt = nullptr;
+            /* so this function does not free this GKI buffer */
           }
         }
         break;
