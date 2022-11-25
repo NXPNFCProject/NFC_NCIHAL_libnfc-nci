@@ -29,7 +29,7 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 *
-*  Copyright 2020-2021 NXP
+*  Copyright 2020-2022 NXP
 *
 ******************************************************************************/
 #pragma once
@@ -69,6 +69,15 @@ namespace nxp {
 namespace nxpnfc {
 namespace V2_0 {
 struct INxpNfc;
+}
+}
+}
+}
+namespace aidl {
+namespace vendor {
+namespace nxp {
+namespace nxpnfc_aidl {
+class INxpNfc;
 }
 }
 }
@@ -162,6 +171,7 @@ class NfcAdaptation {
   static android::sp<android::hardware::nfc::V1_2::INfc> mHal_1_2;
 #if (NXP_EXTNS == TRUE)
   static android::sp<vendor::nxp::nxpnfc::V2_0::INxpNfc> mHalNxpNfc;
+  static std::shared_ptr<::aidl::vendor::nxp::nxpnfc_aidl::INxpNfc> mAidlHalNxpNfc;
 #endif
   static android::hardware::nfc::V1_1::INfcClientCallback* mCallback;
   sp<NfcHalDeathRecipient> mNfcHalDeathRecipient;
@@ -176,6 +186,7 @@ class NfcAdaptation {
   static uint32_t NFCA_TASK(uint32_t arg);
   static uint32_t Thread(uint32_t arg);
   void InitializeHalDeviceContext();
+  static void InitializeAidlHalContext();
   static void HalDeviceContextCallback(nfc_event_t event,
                                        nfc_status_t event_status);
   static void HalDeviceContextDataCallback(uint16_t data_len, uint8_t* p_data);

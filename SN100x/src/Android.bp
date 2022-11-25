@@ -17,10 +17,13 @@ cc_library_shared {
         // Treble configuration
         "libhidlbase",
         "libutils",
+        "libbinder",
+        "libbinder_ndk",
         "android.hardware.nfc@1.0",
         "android.hardware.nfc@1.1",
         "android.hardware.nfc@1.2",
         "vendor.nxp.nxpnfc@2.0",
+        "vendor.nxp.nxpnfc_aidl-V1-ndk",
         // Add for AIDL
         "android.hardware.nfc-V1-ndk",
         "libbinder_ndk",
