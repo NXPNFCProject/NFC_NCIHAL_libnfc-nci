@@ -13,6 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/******************************************************************************
+ *
+ *  The original Work has been changed by NXP.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  Copyright 2022 NXP
+ *
+ ******************************************************************************/
 #pragma once
 
 typedef uint8_t nfc_event_t;
@@ -40,6 +59,9 @@ enum {
   HAL_NFC_RELEASE_CONTROL_EVT = 5u,
   HAL_NFC_ERROR_EVT = 6u,
   HAL_HCI_NETWORK_RESET = 7u,
+#if (NXP_EXTNS == TRUE)
+  HAL_NFC_FW_UPDATE_STATUS_EVT = 10u,
+#endif
 };
 
 enum {

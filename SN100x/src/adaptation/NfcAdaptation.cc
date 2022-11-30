@@ -255,6 +255,10 @@ class NfcAidlClientCallback
                                  NfcAidlStatus event_status) override {
     uint8_t e_num;
     uint8_t s_num;
+#if (NXP_EXTNS == TRUE)
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("%s: sendEvent %d", __func__, (int)event);
+#endif
     switch (event) {
       case NfcAidlEvent::OPEN_CPLT:
         e_num = HAL_NFC_OPEN_CPLT_EVT;
@@ -273,7 +277,15 @@ class NfcAidlClientCallback
         break;
       case NfcAidlEvent::ERROR:
       default:
+#if (NXP_EXTNS == TRUE)
+        if ((int)event == HAL_NFC_FW_UPDATE_STATUS_EVT) {
+          e_num = HAL_NFC_FW_UPDATE_STATUS_EVT;
+        } else {
+          e_num = HAL_NFC_ERROR_EVT;
+        }
+#else
         e_num = HAL_NFC_ERROR_EVT;
+#endif
     }
     switch (event_status) {
       case NfcAidlStatus::OK:
@@ -1305,18 +1317,13 @@ bool NfcAdaptation::DownloadFirmware() {
   mHalOpenCompletedEvent.lock();
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: try open HAL", func);
 #if (NXP_EXTNS == TRUE)
-  NfcStatus status;
   if (0 != sem_init(&mSemHalDataCallBackEvent, 0, 0)) {
     return isDownloadFirmwareCompleted;
   }
-  mCallback = new NfcClientCallback(HalDownloadFirmwareCallback, HalDownloadFirmwareDataCallback);
-  if (mHal_1_1 != nullptr) {
-    status = mHal_1_1->open_1_1(mCallback);
-  } else {
-    status = mHal->open(mCallback);
-  }
-  if(status == NfcStatus::OK){
-    mHalOpenCompletedEvent.wait();
+  HalOpen(HalDownloadFirmwareCallback, HalDownloadFirmwareDataCallback);
+  mHalOpenCompletedEvent.wait();
+
+  {
     uint8_t cmd_reset_nci[] = {0x20, 0x00, 0x01, 0x00};
     uint8_t cmd_reset_nci_size = sizeof(cmd_reset_nci) / sizeof(uint8_t);
     uint8_t cmd_init_nci[] = {0x20, 0x01, 0x02, 0x00, 0x00};
@@ -1326,7 +1333,7 @@ bool NfcAdaptation::DownloadFirmware() {
     uint8_t p_core_init_rsp_params = 0;
     HalCoreInitialized(sizeof(uint8_t), &p_core_init_rsp_params);
     DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: try close HAL", func);
-    status =mHal->close();
+    HalClose();
   }
   if (NfcAdaptation::GetInstance().p_fwupdate_status_cback &&
           (fw_dl_status != (uint8_t)NfcHalFwUpdateStatus::HAL_NFC_FW_UPDATE_INVALID)) {
