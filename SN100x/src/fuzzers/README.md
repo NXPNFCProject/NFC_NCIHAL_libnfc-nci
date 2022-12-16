@@ -88,7 +88,7 @@ tools installed:
 
     By default "fuzz run" will continue with whatever left last time. However,
     you can make it a fresh restart by passing a "-c" argument.
-
+  
 7. Other tools provided by `fuzz.sh`:
 
     Here are some extra options provided by `fuzz.sh` script:
@@ -96,3 +96,4 @@ tools installed:
     visualization of accumulated code coverage.
     * "fuzz gdb" setup gdb instance with the fuzz input so you can debug a
     specific crash.
+
