@@ -29,7 +29,7 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 *
-*  Copyright 2018-2022 NXP
+*  Copyright 2018-2023 NXP
 *
 ******************************************************************************/
 #include <aidl/android/hardware/nfc/BnNfc.h>
@@ -798,7 +798,7 @@ void NfcAdaptation::InitializeAidlHalContext() {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s", func);
   ::ndk::SpAIBinder binder(
 
-      AServiceManager_getService(NXPNFC_AIDL_HAL_SERVICE_NAME.c_str()));
+      AServiceManager_waitForService(NXPNFC_AIDL_HAL_SERVICE_NAME.c_str()));
   mAidlHalNxpNfc = INxpNfcAidl::fromBinder(binder);
   if (mAidlHalNxpNfc == nullptr) {
     LOG(INFO) << StringPrintf("%s: HIDL INxpNfc::tryGetService()", func);
@@ -854,7 +854,7 @@ void NfcAdaptation::InitializeHalDeviceContext() {
   if (mHal == nullptr) {
     // Try get AIDL
     ::ndk::SpAIBinder binder(
-        AServiceManager_getService(NFC_AIDL_HAL_SERVICE_NAME.c_str()));
+        AServiceManager_waitForService(NFC_AIDL_HAL_SERVICE_NAME.c_str()));
     mAidlHal = INfcAidl::fromBinder(binder);
     if (mAidlHal != nullptr) {
       use_aidl = true;
