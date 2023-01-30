@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2022 NXP
+ *  Copyright 2018-2023 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -1772,6 +1772,19 @@ static void nfa_dm_poll_disc_cback(tNFA_DM_RF_DISC_EVT event,
                 nfa_dm_cb.p_activate_ntf = nullptr;
               }
             } else {
+#if (NXP_EXTNS == TRUE)
+              DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+                  "sel_res:0x%02X, interface:0x%02X",
+                  nfa_dm_cb.disc_cb.activated_sel_res, nfc_cb.nci_interfaces);
+              /* if NFC_DEP interface is not supported, restart the discovery */
+              if (nfa_dm_cb.disc_cb.activated_sel_res ==
+                      NCI_PARAM_SEL_INFO_NFCDEP &&
+                  (!(nfc_cb.nci_interfaces & (1 << NCI_INTERFACE_NFC_DEP)))) {
+                /* deactivate and restart RF discovery */
+                nfa_dm_rf_deactivate(NFA_DEACTIVATE_TYPE_DISCOVERY);
+                break;
+              }
+#endif
               DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("P2P is paused");
               nfa_dm_notify_activation_status(NFA_STATUS_OK, nullptr);
             }
