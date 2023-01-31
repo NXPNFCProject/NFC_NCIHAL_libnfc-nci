@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2022 NXP
+ *  Copyright 2018-2023 NXP
  *
  ******************************************************************************/
 
@@ -84,11 +84,12 @@ extern std::string nfc_storage_path;
 
 #if (NXP_EXTNS == TRUE)
 #define NCI_MSG_GET_RFSTATUS 0x39
-#define IS_PROCESS_ABORT(status, mt, gid, oid)                                     \
-        ((NCI_MT_RSP == mt && NCI_STATUS_SEMANTIC_ERROR == status)                 \
-          && !(NCI_GID_CORE == gid && NCI_MSG_CORE_SET_POWER_SUB_STATE == oid)     \
-          && !(NCI_GID_RF_MANAGE == gid && NCI_MSG_RF_ISO_DEP_NAK_PRESENCE == oid) \
-          && !(NCI_GID_PROP == gid && NCI_MSG_GET_RFSTATUS == oid))
+#define IS_PROCESS_ABORT(status, mt, gid, oid)                              \
+  ((NCI_MT_RSP == mt && NCI_STATUS_SEMANTIC_ERROR == status) &&             \
+   !(NCI_GID_CORE == gid && NCI_MSG_CORE_SET_POWER_SUB_STATE == oid) &&     \
+   !(NCI_GID_RF_MANAGE == gid && NCI_MSG_RF_ISO_DEP_NAK_PRESENCE == oid) && \
+   !(NCI_GID_RF_MANAGE == gid && NCI_MSG_RF_T3T_POLLING == oid) &&          \
+   !(NCI_GID_PROP == gid && NCI_MSG_GET_RFSTATUS == oid))
 /* LR: Length Reduction Payload size
  * MP: Max Data Packet Payload size*/
 #define NCI_MAX_BUFFER_SIZE(LR, MP) \
