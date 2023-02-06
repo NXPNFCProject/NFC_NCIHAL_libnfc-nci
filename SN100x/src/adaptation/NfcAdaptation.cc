@@ -798,7 +798,7 @@ void NfcAdaptation::InitializeAidlHalContext() {
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s", func);
   ::ndk::SpAIBinder binder(
 
-      AServiceManager_waitForService(NXPNFC_AIDL_HAL_SERVICE_NAME.c_str()));
+      AServiceManager_checkService(NXPNFC_AIDL_HAL_SERVICE_NAME.c_str()));
   mAidlHalNxpNfc = INxpNfcAidl::fromBinder(binder);
   if (mAidlHalNxpNfc == nullptr) {
     LOG(INFO) << StringPrintf("%s: HIDL INxpNfc::tryGetService()", func);
