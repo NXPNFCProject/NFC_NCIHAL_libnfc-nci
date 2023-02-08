@@ -17,7 +17,7 @@
  ******************************************************************************/
 /******************************************************************************
  *
- *  Copyright 2019-2022 NXP
+ *  Copyright 2019-2023 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -457,6 +457,7 @@ void llcp_link_deactivate(uint8_t reason) {
    */
   if ((reason == LLCP_LINK_FRAME_ERROR) ||
       (reason == LLCP_LINK_LOCAL_INITIATED) ||
+      (reason == LLCP_LINK_TIMEOUT) ||
       (appl_dta_mode_flag && reason == LLCP_LINK_REMOTE_INITIATED &&
        llcp_cb.lcb.is_initiator == false &&
        (nfa_dm_cb.eDtaMode & 0xF0) != NFA_DTA_CR8)) {
