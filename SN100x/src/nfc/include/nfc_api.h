@@ -58,6 +58,7 @@
 #define NXP_EN_SN220U    1
 #define NXP_EN_PN560     1
 #define NXP_EN_PN557     1
+#define NXP_EN_SN300U    1
 #define NXP_ANDROID_VER (14U)        /* NXP android version */
 #define NFC_NXP_MW_VERSION_MAJ (0x04) /* MW Major Version */
 #define NFC_NXP_MW_VERSION_MIN (0x00) /* MW Minor Version */
@@ -74,6 +75,9 @@
 
 #define NFC_NXP_FW_SN220U_ROMCODE_VERISON (0x01) /*FW sn220u ROM CODE VERSION*/
 #define NFC_NXP_FW_SN220U_MAJOR_VERSION (0x01) /*sFWu sn220u firmware major version*/
+
+#define NFC_NXP_FW_SN300U_ROMCODE_VERISON (0x02) /*FW sn300u ROM CODE VERSION*/
+#define NFC_NXP_FW_SN300U_MAJOR_VERSION (0x01) /*sFWu sn300u firmware major version*/
 
 #endif
 /* NFC application return status codes */

@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2021 NXP
+ *  Copyright 2018-2021, 2023 NXP
  *
  ******************************************************************************/
 
@@ -106,10 +106,10 @@ static tNFC_chipType chipType;
 tNFC_chipType ProcessChipType(tNFC_FW_VERSION nfc_fw_version);
 /*product[] will be used to print product version and
 should be kept in accordance with tNFC_chipType*/
-const char* product[13] = {"UNKNOWN", "PN547C2", "PN65T", "PN548C2",
+const char* product[14] = {"UNKNOWN", "PN547C2", "PN65T", "PN548C2",
                            "PN66T",   "PN551",   "PN67T", "PN553",
                            "PN80T",   "PN557",   "PN81T",  "SN100U",
-                           "SN220U"};
+                           "SN220U", "SN300U"};
 #endif
 #if (NFC_RW_ONLY == FALSE)
 #if (NXP_EXTNS == TRUE)
@@ -1719,6 +1719,10 @@ tNFC_chipType NFC_ProcessChipType(tNFC_FW_VERSION nfc_fw_version) {
             (nfc_fw_version.major_version == NFC_NXP_FW_PN557_MAJOR_VERSION))) {
     /* For PN557 Rom code version : 0x12 && major version : 0x01 or 0x21*/
     chipType = pn557;
+  } else if (nfc_fw_version.rom_code_version == NFC_NXP_FW_SN300U_ROMCODE_VERISON &&
+             nfc_fw_version.major_version == NFC_NXP_FW_SN300U_MAJOR_VERSION) {
+    /* For SN300 Rom code version : 0x02 && major version : 0x01*/
+    chipType = sn300u;
   }
   return chipType;
 }
@@ -1738,7 +1742,8 @@ void NFC_SetFeatureList(tNFC_FW_VERSION nfc_fw_version) {
   LOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("%s: chipType = %d", __func__, chipType);
 #if(NXP_EXTNS == TRUE)
-  if (!(((nfcFL.chipType == sn220u) && NXP_EN_SN220U) || ((nfcFL.chipType == sn100u) && (NXP_EN_SN110U || NXP_EN_SN100U)) ||
+  if (!(((nfcFL.chipType == sn220u) && NXP_EN_SN220U) || ((nfcFL.chipType == sn300u) && NXP_EN_SN300U) ||
+        ((nfcFL.chipType == sn100u) && (NXP_EN_SN110U || NXP_EN_SN100U)) ||
       ((nfcFL.chipType == pn557) && NXP_EN_PN557))) {
     LOG(ERROR) << StringPrintf("************************************************************************");
     LOG(ERROR) << StringPrintf("*****USING UNTESTED SECURE NFC MW FOR CHIP %s : NOT RECOMMENDED*****", product[nfcFL.chipType]);

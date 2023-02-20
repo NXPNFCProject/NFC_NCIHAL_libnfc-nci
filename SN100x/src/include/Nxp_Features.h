@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright 2018-2022 NXP
+ *  Copyright 2018-2023 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -39,7 +39,8 @@ typedef enum {
   pn557 = 0x01,
   pn81T,
   sn100u,
-  sn220u
+  sn220u,
+  sn300u
 } tNFC_chipType;
 
 typedef struct {
@@ -78,7 +79,10 @@ extern tNfc_featureList nfcFL;
      case pn81T:                                                              \
       nfcFL.chipType = pn557;                                                 \
       FALLTHROUGH_INTENDED;                                                   \
+     case sn300u:                                                             \
+      FALLTHROUGH_INTENDED;                                                   \
      case sn220u:                                                             \
+      FALLTHROUGH_INTENDED;                                                   \
      case sn100u:                                                             \
       nfcFL.nfcNxpEse = true;                                                 \
       CONFIGURE_FEATURELIST_NFCC_WITH_ESE(chipType)                           \
@@ -96,6 +100,8 @@ extern tNfc_featureList nfcFL;
                                                                       \
     switch(chipType){                                                 \
      case sn220u:                                                     \
+      FALLTHROUGH_INTENDED;                                           \
+     case sn300u:                                                     \
       FALLTHROUGH_INTENDED;                                           \
      case sn100u:                                                     \
       CONFIGURE_FEATURELIST_NFCC(chipType)                            \
@@ -128,6 +134,8 @@ extern tNfc_featureList nfcFL;
     nfcFL.nfcMwFL._NCI_INTERFACE_ESE_DIRECT = 0x83;                          \
                                                                              \
     switch(chipType){                                                        \
+     case sn300u:                                                            \
+     FALLTHROUGH_INTENDED;                                                   \
      case sn220u:                                                            \
      FALLTHROUGH_INTENDED;                                                   \
      case sn100u:                                                            \
