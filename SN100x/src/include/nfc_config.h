@@ -30,7 +30,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2021 NXP
+ *  Copyright 2018-2021, 2023 NXP
  *
  ******************************************************************************/
 #pragma once
@@ -142,6 +142,7 @@
 #define NAME_NXP_AGC_DEBUG_ENABLE   "NXP_AGC_DEBUG_ENABLE"
 #define NAME_NXP_EXTENDED_FIELD_DETECT_MODE "NXP_EXTENDED_FIELD_DETECT_MODE"
 #define NAME_NXP_SPC_CONF_BLK "NXP_SPC_CONF_BLK"
+#define NAME_OFFHOST_PIPE_CFG_INFO "OFFHOST_PIPE_CFG_INFO"
 #endif
 
 class NfcConfig {

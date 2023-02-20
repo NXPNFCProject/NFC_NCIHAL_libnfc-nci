@@ -26,7 +26,7 @@
 #define NXP_FEATURES_H
 
 /*Including T4T NFCEE by incrementing 1*/
-#define NFA_EE_MAX_EE_SUPPORTED 5
+#define NFA_EE_MAX_EE_SUPPORTED 6
 
 using namespace std;
 typedef enum {

@@ -19,7 +19,7 @@
  *
  *  The original Work has been changed by NXP.
  *
- *  Copyright 2019-2020 NXP
+ *  Copyright 2019-2020, 2023 NXP
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
@@ -666,7 +666,7 @@
 #ifndef NFA_EE_MAX_EE_SUPPORTED
 /* Modified for NFC-A until we add dynamic support */
 /*Including T4T NFCEE by incrementing 1*/
-#define NFA_EE_MAX_EE_SUPPORTED 5
+#define NFA_EE_MAX_EE_SUPPORTED 6
 #endif
 
 /* Maximum number of AID entries per target_handle  */

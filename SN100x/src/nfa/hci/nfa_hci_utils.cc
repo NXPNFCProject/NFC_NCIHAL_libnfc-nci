@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2022 NXP
+ *  Copyright 2018-2023 NXP
  *
  ******************************************************************************/
 
@@ -2211,6 +2211,8 @@ uint8_t nfa_hciu_get_hci_host_id(uint8_t nfceeid)
       return NFA_HCI_UICC_HOST;
     case NFA_HCI_FIRST_PROP_HOST:
       return NFA_HCI_FIRST_PROP_HOST;
+    case NFA_HCI_EUICC_HOST:
+      return NFA_HCI_FIRST_PROP_HOST + 1;
     case NFA_HCI_FIRST_DYNAMIC_HOST + 1:
       return NFA_HCI_FIRST_DYNAMIC_HOST + 1;
     case NFA_HCI_FIRST_DYNAMIC_HOST + 2:

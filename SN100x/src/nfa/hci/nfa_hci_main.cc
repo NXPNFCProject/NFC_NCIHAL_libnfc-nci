@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2022 NXP
+ *  Copyright 2018-2023 NXP
  *
  ******************************************************************************/
 
@@ -97,6 +97,7 @@ static void nfa_hci_set_receive_buf(tNFA_HCI_PIPE_CMDRSP_INFO  *p_pipe_cmdrsp_in
 static bool nfa_hci_assemble_msg(uint8_t* p_data, uint16_t data_len);
 static void nfa_hci_app_notify_evt_transaction(uint8_t pipe, uint8_t* p_data,
         uint16_t data_len);
+static void nfa_hci_read_static_cfg();
 #else
 static void nfa_hci_set_receive_buf(uint8_t pipe);
 static void nfa_hci_assemble_msg(uint8_t* p_data, uint16_t data_len);
@@ -969,6 +970,13 @@ bool nfa_hci_enable_one_nfcee(void) {
                     enable_cmplt = true;
                     break;
                   }
+                  // By the time we reach here, connectivity pipes are already
+                  // created. Update nfa_hci_cb if it doesn't have the pipe info
+                  // already updated
+                  if ((nfa_hciu_find_dyn_conn_pipe_for_host(nfceeid) ==
+                       nullptr))
+                    nfa_hci_add_dyn_pipe_for_host(nfceeid);
+
                   nfa_hci_cb.next_nfcee_idx = xx + 1;
                 }
                 else if(nfa_hci_cb.ee_info[xx].hci_enable_state == NFA_HCI_FL_EE_ENABLING ||
@@ -1109,6 +1117,7 @@ static void nfa_hci_sys_enable(void) {
   nfa_sys_start_timer(&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT,
                       NFA_HCI_NV_READ_TIMEOUT_VAL);
 #if(NXP_EXTNS == TRUE)
+  nfa_hci_read_static_cfg();
   nfa_hci_cb.se_apdu_gate_support =
       NfcConfig::getUnsigned(NAME_NXP_SE_APDU_GATE_SUPPORT, 0x00);
   nfa_hci_cb.uicc_etsi_support =
@@ -1470,7 +1479,36 @@ static void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   p_pkt->len = 0;
   nfa_sys_sendmsg(p_pkt);
 }
-
+#if(NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         nfa_hci_read_static_cfg
+**
+** Description      Reads static configuration
+**
+** Returns          None
+**
+*******************************************************************************/
+void nfa_hci_read_static_cfg() {
+  DLOG_IF(INFO, nfc_debug_enabled) << "Read static info for hosts";
+  if (NfcConfig::hasKey(NAME_OFFHOST_PIPE_CFG_INFO)) {
+    std::vector<uint8_t> offhost_cfg = NfcConfig::getBytes(NAME_OFFHOST_PIPE_CFG_INFO);
+    uint8_t cfg_size = offhost_cfg.size();
+    if (cfg_size != 0 && (cfg_size%4 == 0)) {
+      for (int i=0,k =0 ; i < cfg_size  && k < NFA_HCI_MAX_HOST_IN_NETWORK; k++ ){
+        nfa_hci_cb.st_hci_cfg_info[k].dest_host_id = offhost_cfg[i++];
+        nfa_hci_cb.st_hci_cfg_info[k].local_gate = offhost_cfg[i++];
+        nfa_hci_cb.st_hci_cfg_info[k].conn_pipe_id = offhost_cfg[i++];
+        nfa_hci_cb.st_hci_cfg_info[k].dest_gate = offhost_cfg[i++];
+      }
+    } else {
+      LOG(ERROR) << StringPrintf("Config %s not formed properly!",NAME_OFFHOST_PIPE_CFG_INFO);
+    }
+  }else {
+    LOG(ERROR) << StringPrintf("Config %s not found in config file",NAME_OFFHOST_PIPE_CFG_INFO);
+  }
+}
+#endif
 /*******************************************************************************
 **
 ** Function         nfa_hci_handle_nv_read
