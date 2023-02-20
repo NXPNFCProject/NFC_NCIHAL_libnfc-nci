@@ -1721,7 +1721,6 @@ tNFC_chipType NFC_ProcessChipType(tNFC_FW_VERSION nfc_fw_version) {
     chipType = pn557;
   } else if (nfc_fw_version.rom_code_version == NFC_NXP_FW_SN300U_ROMCODE_VERISON &&
              nfc_fw_version.major_version == NFC_NXP_FW_SN300U_MAJOR_VERSION) {
-    /* For SN300 Rom code version : 0x02 && major version : 0x01*/
     chipType = sn300u;
   }
   return chipType;
