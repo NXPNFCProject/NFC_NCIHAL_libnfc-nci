@@ -2782,48 +2782,6 @@ bool nfa_hci_check_set_apdu_pipe_ready_for_next_host ()
     return done;
 }
 
-/*******************************************************************************
- **
- ** Function         nfa_hci_add_dyn_pipe_for_host
- **
- ** Description      Add dynamic pipe between local and dest host with gate and pipe
- **                  id read from static config, assuming the pipe already exists
- **
- ** Returns          TRUE, pipe is added
- **                  FALSE, otherwise
- **
- *******************************************************************************/
-bool nfa_hci_add_dyn_pipe_for_host(uint8_t nfcee_id) {
-  bool done = false;
-  bool found = false;
-  tNFA_HCI_RESPONSE resp = NFA_HCI_ANY_E_NOK;
-  tNFA_HCI_STATIC_CFG current;
-
-  // check if we have pipe info already available for this host
-  for (uint8_t xx = 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++) {
-    if (nfa_hci_cb.st_hci_cfg_info[xx].dest_host_id == nfcee_id) {
-      DLOG_IF(INFO, nfc_debug_enabled) << "Pipe info for host "<< nfcee_id <<" found in stored cfg";
-      found = true;
-      current = nfa_hci_cb.st_hci_cfg_info[xx];
-      break;
-    }
-  }
-  if (found) {
-    resp = nfa_hciu_add_pipe_to_gate(current.conn_pipe_id, current.local_gate,
-                                     current.dest_host_id, current.dest_gate);
-    if (resp == NFA_HCI_ANY_OK) {
-      tNFA_HCI_DYN_PIPE* p_pipe =
-          nfa_hciu_find_pipe_by_pid(current.conn_pipe_id);
-      if (p_pipe) {
-        p_pipe->pipe_state = NFA_HCI_PIPE_OPENED;
-        done = true;
-      }
-    } else {
-      DLOG_IF(ERROR, nfc_debug_enabled) << StringPrintf("Failed to add pipe");
-    }
-  }
-  return done;
-}
 
 /*******************************************************************************
 **

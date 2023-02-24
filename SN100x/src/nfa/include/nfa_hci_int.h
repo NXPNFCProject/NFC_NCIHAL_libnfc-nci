@@ -478,14 +478,6 @@ typedef struct
     uint32_t                   rsp_timeout;
 } tNFA_HCI_PIPE_CMDRSP_INFO;
 
-/* Static configuration used for pipe addition*/
-typedef struct {
-  uint8_t dest_host_id; /* nfcee ID of dest host */
-  uint8_t local_gate;   /* Local gate number */
-  uint8_t conn_pipe_id; /* Connectivity pipe ID */
-  uint8_t dest_gate;    /* Gate number at dest host */
-} tNFA_HCI_STATIC_CFG;
-
 #endif
 /* union of all event data types */
 typedef union {
@@ -592,10 +584,6 @@ typedef struct {
                                                          host network */
   uint8_t se_apdu_gate_support;
   uint8_t uicc_etsi_support;
-  tNFA_HCI_STATIC_CFG
-      st_hci_cfg_info[NFA_HCI_MAX_HOST_IN_NETWORK]; /* static info : host id ,
-                                                       pipe id , local and dest
-                                                       host gate id */
 #else
   uint8_t inactive_host[NFA_HCI_MAX_HOST_IN_NETWORK]; /* Inactive host in the
                                                          host network */
@@ -793,7 +781,6 @@ extern tNFA_HCI_PIPE_CMDRSP_INFO *nfa_hciu_get_pipe_cmdrsp_info (uint8_t pipe);
 extern uint8_t  nfa_hciu_find_server_apdu_gate_for_host (uint8_t host_id);
 extern tNFA_HCI_APDU_PIPE_REG_INFO *nfa_hciu_find_apdu_pipe_registry_info_for_host (uint8_t host_id);
 extern bool nfa_hci_check_set_apdu_pipe_ready_for_next_host ();
-extern bool nfa_hci_add_dyn_pipe_for_host(uint8_t nfcee_id);
 extern void nfa_hciu_set_server_apdu_host_not_ready (tNFA_HCI_DYN_GATE *p_gate);
 extern void nfa_hciu_update_host_list (uint8_t data_len, uint8_t *p_host_list);
 extern void nfa_hciu_add_host_resetting(uint8_t host_id, uint8_t reset_cfg);
