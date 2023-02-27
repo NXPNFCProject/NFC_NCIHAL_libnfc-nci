@@ -584,6 +584,7 @@ typedef struct {
                                                          host network */
   uint8_t se_apdu_gate_support;
   uint8_t uicc_etsi_support;
+  uint8_t euicc_wiredmode_support;
 #else
   uint8_t inactive_host[NFA_HCI_MAX_HOST_IN_NETWORK]; /* Inactive host in the
                                                          host network */

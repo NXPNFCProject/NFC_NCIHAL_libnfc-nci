@@ -1113,6 +1113,8 @@ static void nfa_hci_sys_enable(void) {
       NfcConfig::getUnsigned(NAME_NXP_SE_APDU_GATE_SUPPORT, 0x00);
   nfa_hci_cb.uicc_etsi_support =
       NfcConfig::getUnsigned(NAME_NXP_UICC_ETSI_SUPPORT, 0x00);
+  nfa_hci_cb.euicc_wiredmode_support =
+      NfcConfig::getUnsigned(NAME_NXP_SE_SMB_TERMINAL_TYPE, 0x00);
 #endif
 }
 

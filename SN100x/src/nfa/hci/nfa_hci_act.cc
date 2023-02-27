@@ -99,7 +99,8 @@ static void nfa_hci_handle_apdu_app_gate_hcp_msg_data (uint8_t *p_data, uint16_t
 static bool nfa_hci_api_send_apdu (tNFA_HCI_EVENT_DATA *p_evt_data);
 static bool nfa_hci_api_abort_apdu (tNFA_HCI_EVENT_DATA *p_evt_data);
 static void nfa_hci_handle_clear_all_pipe_cmd(uint8_t source_host);
-static void nfa_hci_api_add_prop_host_info ();
+static void nfa_hci_api_add_prop_host_info(
+    uint8_t propHostIndx = NFA_HCI_FIRST_PROP_HOST);
 static void nfa_hci_get_pipe_state_cb(uint8_t event, uint16_t param_len, uint8_t* p_param);
 static void nfa_hci_update_pipe_status(uint8_t local_gateId, uint8_t dest_gateId,uint8_t pipeId);
 static bool nfa_hci_check_nfcee_init_complete(uint8_t host_id);
@@ -2665,7 +2666,8 @@ static bool nfa_hci_set_apdu_pipe_ready_for_host (uint8_t host_id)
                     }
                     else
                     {
-                      if(nfa_hci_check_nfcee_init_complete(host_id))
+                      if (nfa_hci_check_nfcee_init_complete(host_id) ||
+                          host_id == NFA_HCI_EUICC_HOST)
                         nfa_hciu_send_create_pipe_cmd (NFA_HCI_APDU_APP_GATE,
                                                    host_id, gate_id);
                     }
@@ -2772,6 +2774,14 @@ bool nfa_hci_check_set_apdu_pipe_ready_for_next_host ()
               nfa_hci_api_add_prop_host_info();
               done = nfa_hci_set_apdu_pipe_ready_for_host(p_host->host_id);
             } else if (nfa_hci_cb.uicc_etsi_support) {
+              if (p_host->host_id == NFA_HCI_EUICC_HOST) {
+                if (!nfa_hci_cb.euicc_wiredmode_support) {
+                  continue;
+                }
+                LOG(ERROR) << StringPrintf("%s: Adding Prop Host info",
+                                           __func__);
+                nfa_hci_api_add_prop_host_info(NFA_HCI_EUICC_HOST);
+              }
               done = nfa_hci_set_apdu_pipe_ready_for_host(p_host->host_id);
             } else {
               done = false;
@@ -3479,29 +3489,33 @@ static bool nfa_hci_api_abort_apdu (tNFA_HCI_EVENT_DATA *p_evt_data)
 **
 ** Function         nfa_hci_api_add_prop_host_info
 **
-** Description      This api is used to fill data for eSE.
+** Description      This api is used to fill data for specified Host Index.
 **
 ** Returns          None
 **
 *******************************************************************************/
-static void nfa_hci_api_add_prop_host_info ()
-{
-    uint8_t NFA_HCI_PROP_HOST_GATE_LIST[] = {NFA_HCI_CARD_RF_A_GATE, NFA_HCI_LOOP_BACK_GATE,
-            NFA_HCI_IDENTITY_MANAGEMENT_GATE, NFA_HCI_APDU_GATE};
-    if ((!nfa_hciu_check_pipe_between_gates(NFA_HCI_ID_MNGMNT_APP_GATE, NFA_HCI_FIRST_PROP_HOST,
-            NFA_HCI_IDENTITY_MANAGEMENT_GATE))) {
-        DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf ("nfa_hci_api_add_prop_host_info");
-      nfa_hciu_add_pipe_to_gate(NFA_HCI_DEFAULT_ID_MANAGEMENT_PIPE, NFA_HCI_ID_MNGMNT_APP_GATE, NFA_HCI_FIRST_PROP_HOST,
-              NFA_HCI_IDENTITY_MANAGEMENT_GATE);
-      tNFA_HCI_DYN_PIPE* p_pipe = nfa_hciu_find_pipe_by_pid(NFA_HCI_DEFAULT_ID_MANAGEMENT_PIPE);
-      if(p_pipe)
-      {
-        p_pipe->pipe_state = NFA_HCI_PIPE_OPENED;
-        nfa_hciu_reset_apdu_pipe_registry_info_of_host (p_pipe->dest_host);
-        nfa_hciu_update_gate_list_of_host (p_pipe->dest_host, sizeof(NFA_HCI_PROP_HOST_GATE_LIST), NFA_HCI_PROP_HOST_GATE_LIST);
-      }
+static void nfa_hci_api_add_prop_host_info(uint8_t propHostIndx) {
+  uint8_t NFA_HCI_PROP_HOST_GATE_LIST[] = {
+      NFA_HCI_CARD_RF_A_GATE, NFA_HCI_LOOP_BACK_GATE,
+      NFA_HCI_IDENTITY_MANAGEMENT_GATE, NFA_HCI_APDU_GATE};
+  if ((!nfa_hciu_check_pipe_between_gates(NFA_HCI_ID_MNGMNT_APP_GATE,
+                                          propHostIndx,
+                                          NFA_HCI_IDENTITY_MANAGEMENT_GATE))) {
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("nfa_hci_api_add_prop_host_info");
+    nfa_hciu_add_pipe_to_gate(NFA_HCI_DEFAULT_ID_MANAGEMENT_PIPE,
+                              NFA_HCI_ID_MNGMNT_APP_GATE, propHostIndx,
+                              NFA_HCI_IDENTITY_MANAGEMENT_GATE);
+    tNFA_HCI_DYN_PIPE* p_pipe =
+        nfa_hciu_find_pipe_by_pid(NFA_HCI_DEFAULT_ID_MANAGEMENT_PIPE);
+    if (p_pipe) {
+      p_pipe->pipe_state = NFA_HCI_PIPE_OPENED;
+      nfa_hciu_reset_apdu_pipe_registry_info_of_host(p_pipe->dest_host);
+      nfa_hciu_update_gate_list_of_host(p_pipe->dest_host,
+                                        sizeof(NFA_HCI_PROP_HOST_GATE_LIST),
+                                        NFA_HCI_PROP_HOST_GATE_LIST);
     }
+  }
 }
 /*******************************************************************************
  **
