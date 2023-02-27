@@ -101,9 +101,9 @@ static bool nfa_hci_api_abort_apdu (tNFA_HCI_EVENT_DATA *p_evt_data);
 static void nfa_hci_handle_clear_all_pipe_cmd(uint8_t source_host);
 static void nfa_hci_api_add_prop_host_info(uint8_t propHostIndx);
 static void nfa_hci_get_pipe_state_cb(uint8_t event, uint16_t param_len, uint8_t* p_param);
-static void nfa_hci_update_pipe_status(
-    uint8_t local_gateId, uint8_t dest_gateId, uint8_t pipeId,
-    uint8_t hostId = NFA_HCI_FIRST_PROP_HOST);
+static void nfa_hci_update_pipe_status(uint8_t local_gateId,
+                                       uint8_t dest_gateId, uint8_t pipeId,
+                                       uint8_t hostId);
 static bool nfa_hci_check_nfcee_init_complete(uint8_t host_id);
 static void nfa_hci_notify_w4_atr_timeout();
 #endif
@@ -2502,7 +2502,8 @@ static void nfa_hci_get_pipe_state_cb(__attribute__((unused))uint8_t event, __at
             /*Update eSE APDU pipe status*/
             if (status == NFA_HCI_PIPE_OPENED) {
               nfa_hci_update_pipe_status(NFA_HCI_APDU_APP_GATE,
-                                         NFA_HCI_APDU_GATE, apdu_pipe);
+                                         NFA_HCI_APDU_GATE, apdu_pipe,
+                                         prop_host);
               apdu_pipe_status = NFA_HCI_PIPE_OPENED;
             } else {
               apdu_pipe_status = NFA_HCI_PIPE_CLOSED;
@@ -2511,7 +2512,9 @@ static void nfa_hci_get_pipe_state_cb(__attribute__((unused))uint8_t event, __at
           case NXP_NFC_ESE_CONN_PIPE_STATUS:
             /*Update eSE Connectivity pipe status*/
             if (status == NFA_HCI_PIPE_OPENED) {
-              nfa_hci_update_pipe_status(NFA_HCI_CONNECTIVITY_GATE, NFA_HCI_CONNECTIVITY_GATE, NFA_HCI_CONN_ESE_PIPE);
+              nfa_hci_update_pipe_status(NFA_HCI_CONNECTIVITY_GATE,
+                                         NFA_HCI_CONNECTIVITY_GATE,
+                                         NFA_HCI_CONN_ESE_PIPE, prop_host);
               conn_pipe_status = NFA_HCI_PIPE_OPENED;
             } else {
               conn_pipe_status = NFA_HCI_PIPE_CLOSED;
