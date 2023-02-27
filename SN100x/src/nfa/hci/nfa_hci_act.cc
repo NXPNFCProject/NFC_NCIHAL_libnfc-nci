@@ -2497,7 +2497,7 @@ static void nfa_hci_get_pipe_state_cb(__attribute__((unused))uint8_t event, __at
             /*Update eUICC APDU pipe status*/
             apdu_pipe = NFA_HCI_APDU_EUICC_PIPE;
             prop_host = NFA_HCI_EUICC_HOST;
-            FALLTHROUGH;
+            [[fallthrough]];
           case NXP_NFC_ESE_APDU_PIPE_STATUS:
             /*Update eSE APDU pipe status*/
             if (status == NFA_HCI_PIPE_OPENED) {
