@@ -1609,11 +1609,7 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
             /* Something wrong, NVRAM data could be corrupt or first start with
              * default session id */
             nfa_hciu_send_clear_all_pipe_cmd();
-#if(NXP_EXTNS == TRUE)
-            nfa_hci_cb.b_hci_netwk_reset = true;
-#else
             nfa_hci_cb.b_hci_new_sessionId = true;
-#endif
             if (data_len < NFA_HCI_SESSION_ID_LEN) {
               android_errorWriteLog(0x534e4554, "124524315");
             }
@@ -1624,7 +1620,6 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
       case NFA_HCI_ANY_OPEN_PIPE:
         nfa_hci_cb.cfg.admin_gate.pipe01_state = NFA_HCI_PIPE_OPENED;
         if (nfa_hci_cb.b_hci_netwk_reset) {
-#if(NXP_EXTNS != TRUE)
           /* Something wrong, NVRAM data could be corrupt or first start with
            * default session id */
           nfa_hciu_send_clear_all_pipe_cmd();
@@ -1632,9 +1627,6 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
           nfa_hci_cb.b_hci_new_sessionId = true;
         } else if (nfa_hci_cb.b_hci_new_sessionId) {
           nfa_hci_cb.b_hci_new_sessionId = false;
-#else
-          nfa_hci_cb.b_hci_netwk_reset = false;
-#endif
 
           /* Session ID is reset, Set New session id */
           memcpy(
