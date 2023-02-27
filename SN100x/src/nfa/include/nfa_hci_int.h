@@ -87,10 +87,14 @@ extern uint8_t HCI_LOOPBACK_DEBUG;
 #if(NXP_EXTNS == TRUE)
 /*Default pipe ID for prop host*/
 #define NFA_HCI_DEFAULT_ID_MANAGEMENT_PIPE 0x18
-/*Default conn pipe ID for prop host*/
+/*Default conn pipe ID for prop host eSE*/
 #define NFA_HCI_CONN_ESE_PIPE 0x16
-/*Default APDUpipe ID for prop host*/
+/*Default APDUpipe ID for prop host eSE*/
 #define NFA_HCI_APDUESE_PIPE 0x19
+/*Default conn pipe ID for prop host eUICC*/
+#define NFA_HCI_CONN_EUICC_PIPE 0x2B
+/*Default APDUpipe ID for prop host eUICC*/
+#define NFA_HCI_APDU_EUICC_PIPE 0x27
 #endif
 /* HCI SW Version number                       */
 #define NFA_HCI_VERSION_SW 0x090000
@@ -584,7 +588,6 @@ typedef struct {
                                                          host network */
   uint8_t se_apdu_gate_support;
   uint8_t uicc_etsi_support;
-  uint8_t euicc_wiredmode_support;
 #else
   uint8_t inactive_host[NFA_HCI_MAX_HOST_IN_NETWORK]; /* Inactive host in the
                                                          host network */
