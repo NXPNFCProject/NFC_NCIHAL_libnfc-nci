@@ -186,7 +186,7 @@ void nfcsnoop_capture(const NFC_HDR* packet, bool is_received) {
   if (mt == NCI_MT_NTF && gid == NCI_GID_PROP) {
     nfcsnoop_cb(p, p[2] + NCI_MSG_HDR_SIZE, is_received, timestamp,
                 VENDOR_BUFFER_INDEX);
-  } else if (mt == NCI_MT_DATA && isFullNfcSnoop) {
+  } else if (mt == NCI_MT_DATA) {
     nfcsnoop_cb(p,
                 isFullNfcSnoop ? p[2] + NCI_DATA_HDR_SIZE : NCI_DATA_HDR_SIZE,
                 is_received, timestamp, SYSTEM_BUFFER_INDEX);
