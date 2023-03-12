@@ -58,7 +58,7 @@
 #define DEFAULT_NFCSNOOP_PATH "/data/misc/nfc/logs/nfcsnoop_nci_logs"
 #define DEFAULT_NFCSNOOP_FILE_SIZE 32 * 1024 * 1024
 
-#define NFCSNOOP_LOG_MODE_PROPERTY "persist.nfc.nfcsnooplogmode"
+#define NFCSNOOP_LOG_MODE_PROPERTY "persist.nfc.snoop_log_mode"
 #define NFCSNOOP_MODE_FILTERED "filtered"
 #define NFCSNOOP_MODE_FULL "full"
 

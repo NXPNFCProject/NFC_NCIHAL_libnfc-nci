@@ -97,9 +97,9 @@ using NfcAidlStatus = ::aidl::android::hardware::nfc::NfcStatus;
 using ::aidl::android::hardware::nfc::NfcCloseType;
 using Status = ::ndk::ScopedAStatus;
 
-#define VERBOSE_VENDOR_LOG_PROPERTY "persist.nfc.verbosevendorlog"
-#define VERBOSE_VENDOR_LOG_ENABLED "enabled"
-#define VERBOSE_VENDOR_LOG_DISABLED "disabled"
+#define VERBOSE_VENDOR_LOG_PROPERTY "persist.nfc.vendor_debug_enabled"
+#define VERBOSE_VENDOR_LOG_ENABLED "true"
+#define VERBOSE_VENDOR_LOG_DISABLED "false"
 
 std::string NFC_AIDL_HAL_SERVICE_NAME = "android.hardware.nfc.INfc/default";
 #if (NXP_EXTNS == TRUE)
