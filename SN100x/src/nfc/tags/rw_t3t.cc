@@ -1616,6 +1616,12 @@ void rw_t3t_act_handle_check_ndef_rsp(tRW_T3T_CB* p_cb, NFC_HDR* p_msg_rsp) {
        * bytes (do not include padding to 16-byte boundary) */
       if ((p_cb->flags & RW_T3T_FL_IS_FINAL_NDEF_SEGMENT) &&
           (p_cb->ndef_attrib.ln & 0x000F)) {
+        if (rsp_num_bytes_rx < (16 - (p_cb->ndef_attrib.ln & 0x000F))) {
+          nfc_status = NFC_STATUS_FAILED;
+          GKI_freebuf(p_msg_rsp);
+          android_errorWriteLog(0x534e4554, "224002331");
+          return;
+        }
         rsp_num_bytes_rx -= (16 - (p_cb->ndef_attrib.ln & 0x000F));
       }
 
