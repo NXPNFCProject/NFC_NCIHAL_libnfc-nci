@@ -1081,11 +1081,11 @@ Available after Technology Detection
      */
     p = p + len + 3;
     plen = *p++;
-    LOG(INFO) << StringPrintf(
-        "RF Tech Specific Params, plen: 0x%x, atr_res_len: 0x%x", plen, *p);
     if (plen < 1) {
       goto invalid_packet;
     }
+    LOG(INFO) << StringPrintf(
+        "RF Tech Specific Params, plen: 0x%x, atr_res_len: 0x%x", plen, *p);
     plen--;
 
     acm_p->atr_res_len = *p++;
