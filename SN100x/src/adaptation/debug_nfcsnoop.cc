@@ -38,6 +38,7 @@
 #include "include/debug_nfcsnoop.h"
 
 #include <android-base/logging.h>
+#include <android-base/properties.h>
 #include <android-base/stringprintf.h>
 #include <cutils/properties.h>
 #include <fcntl.h>
@@ -56,6 +57,10 @@
 
 #define DEFAULT_NFCSNOOP_PATH "/data/misc/nfc/logs/nfcsnoop_nci_logs"
 #define DEFAULT_NFCSNOOP_FILE_SIZE 32 * 1024 * 1024
+
+#define NFCSNOOP_LOG_MODE_PROPERTY "persist.nfc.nfcsnooplogmode"
+#define NFCSNOOP_MODE_FILTERED "filtered"
+#define NFCSNOOP_MODE_FULL "full"
 
 // Total nfcsnoop memory log buffer size
 #ifndef NFCSNOOP_MEM_BUFFER_SIZE
@@ -80,6 +85,7 @@ static std::mutex buffer_mutex;
 static ringbuffer_t* buffers[BUFFER_SIZE] = {nullptr, nullptr};
 static uint64_t last_timestamp_ms[BUFFER_SIZE] = {0, 0};
 static bool isDebuggable = false;
+static bool isFullNfcSnoop = false;
 
 using android::base::StringPrintf;
 
@@ -180,9 +186,10 @@ void nfcsnoop_capture(const NFC_HDR* packet, bool is_received) {
   if (mt == NCI_MT_NTF && gid == NCI_GID_PROP) {
     nfcsnoop_cb(p, p[2] + NCI_MSG_HDR_SIZE, is_received, timestamp,
                 VENDOR_BUFFER_INDEX);
-  } else if (mt == NCI_MT_DATA) {
-    nfcsnoop_cb(p, NCI_DATA_HDR_SIZE, is_received, timestamp,
-                SYSTEM_BUFFER_INDEX);
+  } else if (mt == NCI_MT_DATA && isFullNfcSnoop) {
+    nfcsnoop_cb(p,
+                isFullNfcSnoop ? p[2] + NCI_DATA_HDR_SIZE : NCI_DATA_HDR_SIZE,
+                is_received, timestamp, SYSTEM_BUFFER_INDEX);
   } else if (packet->len > 2) {
     nfcsnoop_cb(p, p[2] + NCI_MSG_HDR_SIZE, is_received, timestamp,
                 SYSTEM_BUFFER_INDEX);
@@ -196,6 +203,10 @@ void debug_nfcsnoop_init(void) {
     }
   }
   isDebuggable = property_get_int32("ro.debuggable", 0);
+  isFullNfcSnoop = android::base::GetProperty(NFCSNOOP_LOG_MODE_PROPERTY, "")
+                           .compare(NFCSNOOP_MODE_FULL)
+                       ? false
+                       : true;
 }
 
 void debug_nfcsnoop_dump(int fd) {
