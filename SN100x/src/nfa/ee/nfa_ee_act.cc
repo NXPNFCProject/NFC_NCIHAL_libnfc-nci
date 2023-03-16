@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2022 NXP
+ *  Copyright 2018-2023 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -491,7 +491,7 @@ static void nfa_ee_add_aid_route_to_ecb(tNFA_EE_ECB *p_cb, uint8_t *pp,
   if (p_cb->aid_entries) {
     int start_offset = 0;
     int xx = 0;
-    if (empty_aid_ecb.addEmptyAidRoute && empty_aid_ecb.index != -1) {
+    if (empty_aid_ecb.addEmptyAidRoute) {
       xx = empty_aid_ecb.index;
       start_offset = empty_aid_ecb.offset;
     }
@@ -3235,7 +3235,6 @@ void nfa_ee_lmrt_to_nfcc(__attribute__((unused)) tNFA_EE_MSG* p_data) {
 #endif
   tNFA_EE_EMPTY_AID_ECB empty_aid_ecb;
   memset(&empty_aid_ecb, 0x00, sizeof(tNFA_EE_EMPTY_AID_ECB));
-  empty_aid_ecb.index = -1;
 
   for (int rt = NCI_ROUTE_ORDER_AID; rt <= NCI_ROUTE_ORDER_TECHNOLOGY; rt++) {
     /* add the routing entries for NFCEEs */
