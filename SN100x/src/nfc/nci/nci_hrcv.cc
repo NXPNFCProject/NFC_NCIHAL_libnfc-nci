@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2019-2022 NXP
+ *  Copyright 2019-2023 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -561,11 +561,11 @@ void nci_proc_ee_management_ntf(NFC_HDR* p_msg) {
 #if (NXP_EXTNS == TRUE)
   if(op_code == NCI_MSG_NFCEE_MODE_SET)
   {
-    if(nfc_response.mode_set.nfcee_id == 0xC0 && nfc_response.mode_set.mode)
-    {
+    if (nfc_response.mode_set.nfcee_id == NFA_HCI_FIRST_PROP_HOST &&
+        nfc_response.mode_set.mode) {
       LOG(ERROR) << StringPrintf("Mode set status :0x%x ", nfc_response.mode_set.status);
       event = NFC_NFCEE_STATUS_REVT;
-      if(nfc_response.mode_set.status == 0x03) {
+      if (nfc_response.mode_set.status == NCI_STATUS_FAILED) {
         nfc_response.nfcee_status.status = NCI_STATUS_OK;
         nfc_response.nfcee_status.nfcee_id = nfa_ee_cb.nfcee_id;
         if(nfa_ee_cb.recovery_cnt < MAX_NFCEE_REMOVED_RECOVERY_CNT) {

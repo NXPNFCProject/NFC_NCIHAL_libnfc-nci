@@ -2428,17 +2428,28 @@ tNFA_STATUS nfa_hci_getApduAndConnectivity_PipeStatus(uint8_t host_id) {
   NCI_MSG_BLD_HDR1(p, NCI_MSG_CORE_GET_CONFIG);
   parm_len = p++;
   num_param = p++;
-  UINT8_TO_STREAM(p, NXP_NFC_SET_CONFIG_PARAM_EXT);
-  if (host_id == NFA_HCI_FIRST_PROP_HOST) {
-    UINT8_TO_STREAM(p, NXP_NFC_ESE_APDU_PIPE_STATUS);
-  } else {
-    UINT8_TO_STREAM(p, NXP_NFC_EUICC_APDU_PIPE_STATUS);
-  }
-  (*num_param)++;
-  if (host_id == NFA_HCI_FIRST_PROP_HOST) {
-    UINT8_TO_STREAM(p, NXP_NFC_SET_CONFIG_PARAM_EXT);
-    UINT8_TO_STREAM(p, NXP_NFC_ESE_CONN_PIPE_STATUS);
-    (*num_param)++;
+  *num_param = 0x02;
+  switch (host_id) {
+    case NFA_HCI_FIRST_PROP_HOST: {
+      UINT8_TO_STREAM(p, NXP_NFC_SET_CONFIG_PARAM_EXT);
+      UINT8_TO_STREAM(p, NXP_NFC_ESE_APDU_PIPE_STATUS);
+      UINT8_TO_STREAM(p, NXP_NFC_SET_CONFIG_PARAM_EXT);
+      UINT8_TO_STREAM(p, NXP_NFC_ESE_CONN_PIPE_STATUS);
+    } break;
+    case NFA_HCI_EUICC1_HOST: {
+      UINT8_TO_STREAM(p, NXP_NFC_SET_CONFIG_PARAM_EXT);
+      UINT8_TO_STREAM(p, NXP_NFC_EUICC_APDU_PIPE_STATUS);
+      UINT8_TO_STREAM(p, NXP_NFC_SET_CONFIG_PARAM_EXT_ID1);
+      UINT8_TO_STREAM(p, NXP_NFC_EUICC1_CONN_PIPE_STATUS);
+    } break;
+    case NFA_HCI_EUICC2_HOST: {
+      UINT8_TO_STREAM(p, NXP_NFC_SET_CONFIG_PARAM_EXT);
+      UINT8_TO_STREAM(p, NXP_NFC_EUICC_APDU_PIPE_STATUS);
+      UINT8_TO_STREAM(p, NXP_NFC_SET_CONFIG_PARAM_EXT_ID1);
+      UINT8_TO_STREAM(p, NXP_NFC_EUICC2_CONN_PIPE_STATUS);
+    } break;
+    default:
+      *num_param = 0x00;
   }
 
   *parm_len = (p - num_param);
@@ -2466,57 +2477,63 @@ static void nfa_hci_get_pipe_state_cb(__attribute__((unused))uint8_t event, __at
 {
     uint8_t num_param_id         = 0x00;
     uint8_t NFA_PARAM_ID_INDEX   = 0x04;
-    uint8_t param_id1 = 0x00;
-    uint8_t param_id2 = 0x00;
-    uint8_t status    = 0x00;
+    // Vars to hold the ParamID bytes of APDU Pipe status
+    uint8_t param_id11 = 0x00, param_id12 = 0x00;
+    // Vars to hold the ParamID bytes of CONN Pipe status
+    uint8_t param_id21 = 0x00, param_id22 = 0x00;
     uint8_t apdu_pipe_status = NFA_HCI_PIPE_CLOSED;
     uint8_t conn_pipe_status = NFA_HCI_PIPE_CLOSED;
-    uint8_t apdu_pipe = NFA_HCI_APDUESE_PIPE;
     uint8_t prop_host = NFA_HCI_FIRST_PROP_HOST;
+    uint8_t apdu_pipe = NFA_HCI_APDUESE_PIPE;
+    uint8_t conn_pipe = NFA_HCI_CONN_ESE_PIPE;
 
     nfa_sys_stop_timer (&nfa_hci_cb.timer);
     p_param += NFA_PARAM_ID_INDEX;
     STREAM_TO_UINT8(num_param_id , p_param);
-    while(num_param_id > 0x00)
-    {
-      STREAM_TO_UINT8(param_id1, p_param);
-      STREAM_TO_UINT8(param_id2, p_param);
+    if (num_param_id == 0x02) {
+      STREAM_TO_UINT8(param_id11, p_param);
+      STREAM_TO_UINT8(param_id12, p_param);
+      STREAM_TO_UINT8(apdu_pipe_status, p_param);
       p_param++;
-      STREAM_TO_UINT8(status, p_param);
-      if (param_id1 == NXP_NFC_SET_CONFIG_PARAM_EXT) {
-        switch (param_id2) {
-          case NXP_NFC_EUICC_APDU_PIPE_STATUS:
-            /*Update eUICC APDU pipe status*/
-            apdu_pipe = NFA_HCI_APDU_EUICC_PIPE;
-            prop_host = NFA_HCI_EUICC_HOST;
-            [[fallthrough]];
-          case NXP_NFC_ESE_APDU_PIPE_STATUS:
-            /*Update eSE APDU pipe status*/
-            if (status == NFA_HCI_PIPE_OPENED) {
-              nfa_hci_update_pipe_status(NFA_HCI_APDU_APP_GATE,
-                                         NFA_HCI_APDU_GATE, apdu_pipe,
-                                         prop_host);
-              apdu_pipe_status = NFA_HCI_PIPE_OPENED;
-            } else {
-              apdu_pipe_status = NFA_HCI_PIPE_CLOSED;
-            }
-            break;
-          case NXP_NFC_ESE_CONN_PIPE_STATUS:
-            /*Update eSE Connectivity pipe status*/
-            if (status == NFA_HCI_PIPE_OPENED) {
-              nfa_hci_update_pipe_status(NFA_HCI_CONNECTIVITY_GATE,
-                                         NFA_HCI_CONNECTIVITY_GATE,
-                                         NFA_HCI_CONN_ESE_PIPE, prop_host);
-              conn_pipe_status = NFA_HCI_PIPE_OPENED;
-            } else {
-              conn_pipe_status = NFA_HCI_PIPE_CLOSED;
-            }
-            break;
-          default:
-            break;
+      STREAM_TO_UINT8(param_id21, p_param);
+      STREAM_TO_UINT8(param_id22, p_param);
+      STREAM_TO_UINT8(conn_pipe_status, p_param);
+      p_param++;
+
+      // Code to indentify the hostId and PipeIds
+      if (param_id11 == param_id21 == NXP_NFC_SET_CONFIG_PARAM_EXT &&
+          param_id12 == NXP_NFC_ESE_APDU_PIPE_STATUS &&
+          param_id22 == NXP_NFC_ESE_CONN_PIPE_STATUS) {
+        //eSE, use default set values
+      } else if (param_id11 == NXP_NFC_SET_CONFIG_PARAM_EXT &&
+          param_id12 == NXP_NFC_EUICC_APDU_PIPE_STATUS &&
+          param_id21 == NXP_NFC_SET_CONFIG_PARAM_EXT_ID1) {
+        if (param_id22 == NXP_NFC_EUICC1_CONN_PIPE_STATUS) {
+          //eUICC1
+          apdu_pipe = NFA_HCI_APDU_EUICC_PIPE;
+          conn_pipe = NFA_HCI_CONN_EUICC1_PIPE;
+          prop_host = NFA_HCI_EUICC1_HOST;
+        } else {
+          //eUICC2
+          apdu_pipe = NFA_HCI_APDU_EUICC_PIPE;
+          conn_pipe = NFA_HCI_CONN_EUICC2_PIPE;
+          prop_host = NFA_HCI_EUICC2_HOST;
         }
       }
-      num_param_id--;
+      /*Update eSE APDU pipe status*/
+      if (apdu_pipe_status == NFA_HCI_PIPE_OPENED) {
+        nfa_hci_update_pipe_status(NFA_HCI_APDU_APP_GATE,
+            NFA_HCI_APDU_GATE, apdu_pipe, prop_host);
+      } else {
+        apdu_pipe_status = NFA_HCI_PIPE_CLOSED;
+      }
+      /*Update eSE Connectivity pipe status*/
+      if (conn_pipe_status == NFA_HCI_PIPE_OPENED) {
+        nfa_hci_update_pipe_status(NFA_HCI_CONNECTIVITY_GATE,
+            NFA_HCI_CONNECTIVITY_GATE, conn_pipe, prop_host);
+      } else {
+        conn_pipe_status = NFA_HCI_PIPE_CLOSED;
+      }
     }
     /*If pipes are already available*/
     if (apdu_pipe_status == NFA_HCI_PIPE_OPENED &&
@@ -2525,20 +2542,19 @@ static void nfa_hci_get_pipe_state_cb(__attribute__((unused))uint8_t event, __at
     } else {
       DLOG_IF(INFO, nfc_debug_enabled)
         << StringPrintf("nfa_hci_get_pipe_state_cb APDU pipe not available");
-      if ((nfa_hci_check_nfcee_init_complete(prop_host) || conn_pipe_status ||
-           (prop_host == NFA_HCI_EUICC_HOST &&
-            apdu_pipe_status == NFA_HCI_PIPE_CLOSED)) &&
+      if ((nfa_hci_check_nfcee_init_complete(prop_host) || conn_pipe_status) &&
           nfa_hci_cb.se_apdu_gate_support) {
         nfa_hciu_send_create_pipe_cmd(NFA_HCI_APDU_APP_GATE, prop_host,
                                       NFA_HCI_APDU_GATE);
       } else {
         DLOG_IF(INFO, nfc_debug_enabled)
-          << StringPrintf("nfa_hci_get_pipe_state_cb APDU pipe not available wait for status NFCEE_INIT_COMPLETED");
-        if ((nfa_hci_cb.hci_state == NFA_HCI_STATE_STARTUP)
-          || (nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_NETWK_ENABLE))
+          << StringPrintf("nfa_hci_get_pipe_state_cb APDU pipe not available"
+          "wait for status NFCEE_INIT_COMPLETED");
+        if ((nfa_hci_cb.hci_state == NFA_HCI_STATE_STARTUP) ||
+          (nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_NETWK_ENABLE))
         {
-          if (!nfa_hci_enable_one_nfcee ())
-            nfa_hci_startup_complete (NFA_STATUS_OK);
+          if (!nfa_hci_enable_one_nfcee())
+            nfa_hci_startup_complete(NFA_STATUS_OK);
         }
       }
     }
@@ -2664,8 +2680,7 @@ static bool nfa_hci_set_apdu_pipe_ready_for_host (uint8_t host_id)
                 {
                     /* APDU Gate exist with no APDU Pipe on it, create now*/
                     nfa_hci_cb.app_in_use = NFA_HCI_APP_HANDLE_NONE;
-                    if (host_id == NFA_HCI_FIRST_PROP_HOST ||
-                        host_id == NFA_HCI_EUICC_HOST) {
+                    if (IS_PROP_HOST(host_id)) {
                       nfa_hci_getApduAndConnectivity_PipeStatus(host_id);
                     } else {
                       if (nfa_hci_check_nfcee_init_complete(host_id))
@@ -2767,12 +2782,13 @@ bool nfa_hci_check_set_apdu_pipe_ready_for_next_host ()
 
     for(xx = 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++) {
         p_host = &nfa_hci_cb.cfg.host[xx];
-        uint8_t nfcee = nfa_hciu_get_hci_host_id(nfa_hci_cb.curr_nfcee);
+        uint8_t nfcee = 0;
+        if (IS_VALID_HOST(nfa_hci_cb.curr_nfcee))
+            nfcee = nfa_hci_cb.curr_nfcee;
         LOG(ERROR) << StringPrintf("after updating NFCEE id %x", nfcee);
         if (nfcee == p_host->host_id) {
             nfa_hciu_clear_host_resetting(p_host->host_id, NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED);
-            if (p_host->host_id == NFA_HCI_FIRST_PROP_HOST ||
-                p_host->host_id == NFA_HCI_EUICC_HOST) {
+            if (IS_PROP_HOST(p_host->host_id)) {
               nfa_hci_api_add_prop_host_info(p_host->host_id);
               done = nfa_hci_set_apdu_pipe_ready_for_host(p_host->host_id);
             } else if (nfa_hci_cb.uicc_etsi_support) {
@@ -3385,8 +3401,7 @@ static bool nfa_hci_api_abort_apdu (tNFA_HCI_EVENT_DATA *p_evt_data)
     else
     {
       LOG(ERROR) << StringPrintf ("nfa_hci_api_abort_apdu (): APDU pipe not available start creation");
-      if (p_abort_apdu->host_id == NFA_HCI_FIRST_PROP_HOST ||
-          p_abort_apdu->host_id == NFA_HCI_EUICC_HOST) {
+      if (IS_PROP_HOST(p_abort_apdu->host_id)) {
         nfa_hci_notify_w4_atr_timeout();
         return true;
       }
@@ -3604,8 +3619,7 @@ static void nfa_hci_handle_clear_all_pipe_cmd(uint8_t source_host) {
         }
     }
     else {
-      if (source_host == NFA_HCI_FIRST_PROP_HOST ||
-          source_host == NFA_HCI_EUICC_HOST) {
+      if (IS_PROP_HOST(source_host)) {
         if ((p_pipe = nfa_hciu_find_dyn_apdu_pipe_for_host (source_host)) != nullptr) {
           if(nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD)
             NFC_NfceePLConfig(source_host, 0x03);

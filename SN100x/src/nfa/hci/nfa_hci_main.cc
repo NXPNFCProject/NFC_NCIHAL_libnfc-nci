@@ -390,10 +390,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                 if (nfa_hciu_find_dyn_apdu_pipe_for_host (nfa_ee_cb.ecb[ee_entry_index].nfcee_id) == nullptr)
                 {
                   nfa_hci_cb.curr_nfcee = nfa_ee_cb.ecb[ee_entry_index].nfcee_id;
-                  if ((nfa_ee_cb.ecb[ee_entry_index].nfcee_id ==
-                           NFA_HCI_FIRST_PROP_HOST ||
-                       nfa_ee_cb.ecb[ee_entry_index].nfcee_id ==
-                           NFA_HCI_EUICC_HOST) &&
+                  if (IS_PROP_HOST(nfa_ee_cb.ecb[ee_entry_index].nfcee_id) &&
                       nfa_hci_cb.se_apdu_gate_support) {
                     NFC_NfceePLConfig(nfa_ee_cb.ecb[ee_entry_index].nfcee_id, 0x03);
                     nfa_hciu_add_host_resetting(nfa_ee_cb.ecb[ee_entry_index].nfcee_id, NFCEE_INIT_COMPLETED);
@@ -416,11 +413,8 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
             {
               if (nfa_hciu_find_dyn_apdu_pipe_for_host(
                       nfa_ee_cb.ecb[ee_entry_index].nfcee_id) == nullptr &&
-                  (nfa_ee_cb.ecb[ee_entry_index].nfcee_id ==
-                       NFA_HCI_FIRST_PROP_HOST ||
-                   nfa_ee_cb.ecb[ee_entry_index].nfcee_id ==
-                       NFA_HCI_EUICC_HOST) &&
-                  nfa_hci_cb.se_apdu_gate_support) {
+                      IS_PROP_HOST(nfa_ee_cb.ecb[ee_entry_index].nfcee_id) &&
+                      nfa_hci_cb.se_apdu_gate_support) {
                 DLOG_IF(INFO, nfc_debug_enabled)
                   << StringPrintf("NFA_EE_STATUS_NTF received during INIT %x",nfa_ee_cb.ecb[ee_entry_index].nfcee_id);
                 nfa_hciu_add_host_resetting(nfa_ee_cb.ecb[ee_entry_index].nfcee_id, NFCEE_INIT_COMPLETED);
@@ -468,9 +462,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
         for (int ee_entry_index = 0; ee_entry_index < NFA_HCI_MAX_HOST_IN_NETWORK; ee_entry_index++) {
             uint8_t nfceeid = nfa_hci_cb.ee_info[ee_entry_index].ee_handle & ~NFA_HANDLE_GROUP_EE;
             if (nfa_hci_cb.ee_info[ee_entry_index].ee_status ==
-                    NFA_EE_STATUS_REMOVED &&
-                (nfceeid == NFA_HCI_FIRST_PROP_HOST ||
-                 nfceeid == NFA_HCI_EUICC_HOST)) {
+                    NFA_EE_STATUS_REMOVED && (IS_PROP_HOST(nfceeid))) {
               if (!(nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_NETWK_ENABLE ||
                     nfa_hci_cb.hci_state ==
                         NFA_HCI_STATE_RESTORE_NETWK_ENABLE ||
@@ -970,12 +962,13 @@ bool nfa_hci_enable_one_nfcee(void) {
             if (nfa_hci_cb.ee_info[xx].ee_status == NFA_EE_STATUS_INACTIVE ||
                     nfa_hci_cb.ee_info[xx].ee_status == NFA_EE_STATUS_ACTIVE ||
                     nfa_hci_cb.ee_info[xx].ee_status == NFA_EE_STATUS_REMOVED) {
-              if ((nfceeid != NFA_HCI_FIRST_PROP_HOST &&
-                   nfceeid != NFA_HCI_EUICC_HOST) &&
-                  nfa_hci_cb.ee_info[xx].ee_status == NFA_EE_STATUS_REMOVED) {
-                nfa_hci_cb.next_nfcee_idx = xx + 1;
-                continue;
-              }
+                if (nfceeid != NFA_HCI_FIRST_PROP_HOST) {
+                  tNFA_EE_ECB *p_cb = nfa_ee_find_ecb(nfceeid);
+                  if (p_cb != nullptr && p_cb->ee_status == NFA_EE_STATUS_REMOVED) {
+                    nfa_hci_cb.next_nfcee_idx = xx + 1;
+                    continue;
+                  }
+                }
                 if(nfa_hci_cb.ee_info[xx].hci_enable_state == NFA_HCI_FL_EE_ENABLED) {
                   if(nfa_hci_check_set_apdu_pipe_ready_for_next_host ()) {
                     nfa_hci_cb.next_nfcee_idx = xx + 1;
@@ -1007,8 +1000,7 @@ bool nfa_hci_enable_one_nfcee(void) {
                     {
                       if(nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD)
                       {
-                        if (nfceeid == NFA_HCI_FIRST_PROP_HOST ||
-                            nfceeid == NFA_HCI_EUICC_HOST) {
+                        if (IS_PROP_HOST(nfceeid)) {
                           status = NFC_NfceePLConfig(nfceeid, 0x03);
                           if (status != NFA_STATUS_OK) {
                             LOG(ERROR) << StringPrintf(

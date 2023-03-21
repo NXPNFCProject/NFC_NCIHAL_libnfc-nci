@@ -181,6 +181,8 @@ typedef uint8_t tNFC_STATUS;
 #define NXP_NFC_ESE_CONN_PIPE_STATUS  ((unsigned char)0x22)
 #define NXP_NFC_ESE_APDU_PIPE_STATUS  ((unsigned char)0x23)
 #define NXP_NFC_EUICC_APDU_PIPE_STATUS ((unsigned char)0x12)
+#define NXP_NFC_EUICC1_CONN_PIPE_STATUS ((unsigned char)0x76)
+#define NXP_NFC_EUICC2_CONN_PIPE_STATUS ((unsigned char)0x77)
 /**********************************************
  * NFC Config Parameter IDs defined by NXP NFC
  **********************************************/
