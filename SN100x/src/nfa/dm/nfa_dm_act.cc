@@ -1654,6 +1654,11 @@ static void nfa_dm_excl_disc_cback(tNFA_DM_RF_DISC_EVT event,
 
         nfa_dm_conn_cback_event_notify(NFA_ACTIVATED_EVT, &evt_data);
       } else {
+        //Free bufffer if it has not yet been done to avoid buffer leak
+        if (nfa_dm_cb.p_activate_ntf) {
+          GKI_freebuf(nfa_dm_cb.p_activate_ntf);
+          nfa_dm_cb.p_activate_ntf = nullptr;
+        }
         /* holding activation notification until sub-module is ready */
         nfa_dm_cb.p_activate_ntf =
             (uint8_t*)GKI_getbuf(sizeof(tNFC_ACTIVATE_DEVT));
@@ -1744,6 +1749,12 @@ static void nfa_dm_poll_disc_cback(tNFA_DM_RF_DISC_EVT event,
         /* store SEL_RES response */
         nfa_dm_cb.disc_cb.activated_sel_res =
             p_data->activate.rf_tech_param.param.pa.sel_rsp;
+      }
+
+      //Free bufffer if it has not yet been done to avoid buffer leak
+      if (nfa_dm_cb.p_activate_ntf) {
+        GKI_freebuf(nfa_dm_cb.p_activate_ntf);
+        nfa_dm_cb.p_activate_ntf = nullptr;
       }
 
       /* holding activation notification until sub-module is ready */
