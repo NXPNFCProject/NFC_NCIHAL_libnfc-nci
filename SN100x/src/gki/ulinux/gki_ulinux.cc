@@ -316,12 +316,10 @@ void GKI_shutdown(void) {
           ~(TASK_MBOX_0_EVT_MASK | TASK_MBOX_1_EVT_MASK | TASK_MBOX_2_EVT_MASK |
             TASK_MBOX_3_EVT_MASK);
       GKI_send_event(task_id - 1, EVENT_MASK(GKI_SHUTDOWN_EVT));
-#if (NXP_EXTNS == TRUE)
       if (((task_id - 1) == BTU_TASK)) {
         gki_cb.com.system_tick_running = false;
         *p_run_cond = GKI_TIMER_TICK_EXIT_COND; /* stop system tick */
       }
-#endif
 #if (FALSE == GKI_PTHREAD_JOINABLE)
       i = 0;
 
@@ -360,7 +358,8 @@ void GKI_shutdown(void) {
 #endif
   oldCOnd = *p_run_cond;
   *p_run_cond = GKI_TIMER_TICK_EXIT_COND;
-  if (oldCOnd == GKI_TIMER_TICK_STOP_COND)
+  if (oldCOnd == GKI_TIMER_TICK_STOP_COND ||
+      oldCOnd == GKI_TIMER_TICK_EXIT_COND)
     pthread_cond_signal(&gki_cb.os.gki_timer_cond);
 }
 
@@ -521,6 +520,7 @@ void GKI_run(__attribute__((unused)) void* p_task_id) {
 #if(NXP_EXTNS == TRUE)
   gki_cb.com.OSWaitEvt[BTU_TASK] = 0;
 #endif
+  gki_cb.com.OSWaitEvt[BTU_TASK] = 0;
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s exit", __func__);
 }
 
