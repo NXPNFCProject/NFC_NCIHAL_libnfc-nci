@@ -807,5 +807,6 @@ extern void nfa_hciu_clear_host_resetting(uint8_t host_id, uint8_t reset_cfg);
 extern void nfa_hci_handle_pending_host_reset();
 extern void nfa_hci_handle_control_evt(tNFC_CONN_EVT event,tNFC_CONN* p_data);
 extern bool nfa_hciu_check_host_resetting(uint8_t host_id, uint8_t reset_type);
+extern void nfa_hciu_check_n_clear_host_resetting(uint8_t host_id, uint8_t reset_type);
 #endif
 #endif /* NFA_HCI_INT_H */

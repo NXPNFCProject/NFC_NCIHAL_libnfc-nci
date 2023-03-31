@@ -2146,6 +2146,16 @@ void nfa_hciu_add_host_resetting(uint8_t host_id, uint8_t reset_type) {
   uint8_t xx;
 
   for (xx = 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++) {
+    if (host_id == (nfa_hci_cb.ee_info[xx].ee_handle & ~NFA_HANDLE_GROUP_EE) &&
+        NFA_HCI_FL_EE_ENABLED != nfa_hci_cb.ee_info[xx].hci_enable_state &&
+        reset_type == NFCEE_UNRECOVERABLE_ERRROR) {
+      DLOG_IF(INFO, nfc_debug_enabled)
+          << StringPrintf("%s: %d host is disabled", __func__, host_id);
+      return;
+    }
+  }
+
+  for (xx = 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++) {
     if (nfa_hci_cb.reset_host[xx].host_id == host_id) {
         nfa_hci_cb.reset_host[xx].reset_cfg |= reset_type;
         DLOG_IF(INFO, nfc_debug_enabled)
@@ -2192,5 +2202,20 @@ bool nfa_hciu_check_host_resetting(uint8_t host_id, uint8_t reset_type) {
     }
   }
   return isResetting;
+}
+
+/*******************************************************************************
+**
+** Function         nfa_hciu_check_n_clear_host_resetting
+**
+** Description      Clear the resetting host if the recovery for reset_type is
+**                  not in progress
+** Returns          void
+**
+*******************************************************************************/
+void nfa_hciu_check_n_clear_host_resetting(uint8_t host_id, uint8_t reset_type) {
+  if (nfa_hciu_check_host_resetting(host_id, reset_type)) {
+    nfa_hciu_clear_host_resetting(host_id, reset_type);
+  }
 }
 #endif
