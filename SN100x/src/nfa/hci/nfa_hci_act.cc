@@ -2493,12 +2493,12 @@ static void nfa_hci_get_pipe_state_cb(__attribute__((unused))uint8_t event, __at
     if (num_param_id == 0x02) {
       STREAM_TO_UINT8(param_id11, p_param);
       STREAM_TO_UINT8(param_id12, p_param);
-      STREAM_TO_UINT8(apdu_pipe_status, p_param);
       p_param++;
+      STREAM_TO_UINT8(apdu_pipe_status, p_param);
       STREAM_TO_UINT8(param_id21, p_param);
       STREAM_TO_UINT8(param_id22, p_param);
-      STREAM_TO_UINT8(conn_pipe_status, p_param);
       p_param++;
+      STREAM_TO_UINT8(conn_pipe_status, p_param);
 
       // Code to indentify the hostId and PipeIds
       if (param_id11 == param_id21 == NXP_NFC_SET_CONFIG_PARAM_EXT &&
