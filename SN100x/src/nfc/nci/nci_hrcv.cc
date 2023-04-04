@@ -56,6 +56,7 @@
 #include "nfc_int.h"
 #if (NXP_EXTNS == TRUE)
 #include "nfa_ee_int.h"
+#include "nfa_hci_int.h"
 #if(NXP_SRD == TRUE)
 #include "nfa_srd_int.h"
 #endif
