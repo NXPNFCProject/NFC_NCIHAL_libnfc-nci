@@ -134,6 +134,7 @@ typedef uint8_t tNFA_HCI_EVT;
 #define NFA_HCI_PIPE_OPENED 0x01 /* Pipe is opened */
 #if (NXP_EXTNS == TRUE)
  /* HCI Recovery status*/
+ #define NXP_NFA_HCI_PIPE_OPENED 0x02 /* NXP Prop pipe opened status */
  #define NFA_HCI_EE_RECOVERY_STARTED 0x01
  #define NFA_HCI_EE_RECOVERY_COMPLETED 0x02
 #define NFA_HCI_SESSION_ID_LEN 8 /* HCI Session ID length */

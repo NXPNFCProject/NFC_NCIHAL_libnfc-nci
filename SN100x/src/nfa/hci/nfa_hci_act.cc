@@ -2520,6 +2520,14 @@ static void nfa_hci_get_pipe_state_cb(__attribute__((unused))uint8_t event, __at
           prop_host = NFA_HCI_EUICC2_HOST;
         }
       }
+      /* The status can be 0x02, observed for eUICC2.
+         NXP prop pipe status mapped to NFA pipe status */
+      if (apdu_pipe_status == NXP_NFA_HCI_PIPE_OPENED) {
+        apdu_pipe_status = NFA_HCI_PIPE_OPENED;
+      }
+      if (conn_pipe_status == NXP_NFA_HCI_PIPE_OPENED) {
+        conn_pipe_status = NFA_HCI_PIPE_OPENED;
+      }
       /*Update eSE APDU pipe status*/
       if (apdu_pipe_status == NFA_HCI_PIPE_OPENED) {
         nfa_hci_update_pipe_status(NFA_HCI_APDU_APP_GATE,
