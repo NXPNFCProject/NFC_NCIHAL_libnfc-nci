@@ -2501,7 +2501,8 @@ static void nfa_hci_get_pipe_state_cb(__attribute__((unused))uint8_t event, __at
       STREAM_TO_UINT8(conn_pipe_status, p_param);
 
       // Code to indentify the hostId and PipeIds
-      if (param_id11 == param_id21 == NXP_NFC_SET_CONFIG_PARAM_EXT &&
+      if (param_id11 == NXP_NFC_SET_CONFIG_PARAM_EXT &&
+          param_id21 == NXP_NFC_SET_CONFIG_PARAM_EXT &&
           param_id12 == NXP_NFC_ESE_APDU_PIPE_STATUS &&
           param_id22 == NXP_NFC_ESE_CONN_PIPE_STATUS) {
         //eSE, use default set values
