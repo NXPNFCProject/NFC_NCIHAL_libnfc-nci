@@ -3307,6 +3307,7 @@ static bool nfa_hci_api_send_apdu (tNFA_HCI_EVENT_DATA *p_evt_data)
                 /* Response APDU is expected */
                 p_pipe_cmdrsp_info->w4_rsp_apdu_evt = true;
                 nfa_hci_cb.hci_state = NFA_HCI_STATE_WAIT_RSP;
+                nfa_hci_cb.pipe_in_use = pipe_id;
 
                 /* Remember the app that is sending Command APDU on
                 ** the pipe for routing the response APDU later to it

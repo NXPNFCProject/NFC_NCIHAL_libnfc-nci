@@ -2542,6 +2542,31 @@ tNFC_FW_VERSION nfc_ncif_getFWVersion() { return nfc_fw_version; }
 
 /*******************************************************************************
 **
+** Function         set_default_power_state_for_active_ee()
+**
+** Description      It is called from nfc_ncif_credit_ntf_timeout to perform
+**                  set EE power link to POWER_ALWAYS_ON (for eSE & eUICCs).
+**
+** Returns          void
+**
+*******************************************************************************/
+void set_default_power_state_for_active_ee() {
+  uint8_t nfcee_id = 0xFF;
+  switch(nfa_hci_cb.pipe_in_use) {
+    case NFA_HCI_APDUESE_PIPE:
+      nfcee_id = NFA_HCI_HOST_ID_PROP_HOST0;
+    break;
+    case NFA_HCI_APDU_EUICC_PIPE:
+      if (nfa_hciu_is_active_host(NFA_HCI_EUICC1_HOST)) {
+        nfcee_id = NFA_HCI_EUICC1_HOST;
+      } else { nfcee_id = NFA_HCI_EUICC2_HOST; }
+    break;
+  }
+  if (nfcee_id != 0xFF)
+    nci_snd_nfcee_power_link_control(nfcee_id, 0x01);
+}
+/*******************************************************************************
+**
 ** Function         nfc_ncif_credit_ntf_timeout
 **
 ** Description      Handle a credit ntf  timeout
@@ -2566,7 +2591,7 @@ void nfc_ncif_credit_ntf_timeout() {
   p_cb = nfc_find_conn_cb_by_conn_id(NFC_RF_CONN_ID);
   if (p_cb && (p_cb->num_buff != NFC_CONN_NO_FC) && (p_cb->num_buff == 0))
     p_cb->num_buff++;
-  nci_snd_nfcee_power_link_control(NFA_HCI_HOST_ID_PROP_HOST0, 0x01);
+  set_default_power_state_for_active_ee();
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("cmd timeout sending core reset!!!");
   nfc_ncif_cmd_timeout();
