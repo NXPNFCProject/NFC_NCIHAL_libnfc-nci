@@ -2785,16 +2785,18 @@ bool nfa_hci_check_set_apdu_pipe_ready_for_next_host ()
 {
     tNFA_HCI_HOST_INFO *p_host;
     bool done = false;
-    LOG(ERROR) << StringPrintf("nfa_hci_check_set_apdu_pipe_ready_for_next_host %d",
-            nfa_hci_cb.curr_nfcee);
+    LOG(INFO) << StringPrintf("%s: %d", __func__, nfa_hci_cb.curr_nfcee);
     uint8_t xx;
 
     for(xx = 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++) {
         p_host = &nfa_hci_cb.cfg.host[xx];
         uint8_t nfcee = 0;
-        if (IS_VALID_HOST(nfa_hci_cb.curr_nfcee))
-            nfcee = nfa_hci_cb.curr_nfcee;
-        LOG(ERROR) << StringPrintf("after updating NFCEE id %x", nfcee);
+        if (IS_VALID_HOST(nfa_hci_cb.curr_nfcee)) {
+          nfcee = nfa_hci_cb.curr_nfcee;
+          /* Mapping UICC Host ID as per specification */
+          if (nfcee == NFA_HCI_FIRST_DYNAMIC_HOST) nfcee = NFA_HCI_UICC_HOST;
+        }
+        LOG(INFO) << StringPrintf("after updating NFCEE id %x", nfcee);
         if (nfcee == p_host->host_id) {
             nfa_hciu_clear_host_resetting(p_host->host_id, NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED);
             if (IS_PROP_HOST(p_host->host_id)) {
