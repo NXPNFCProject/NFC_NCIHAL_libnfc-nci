@@ -321,7 +321,7 @@ void rw_t2t_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
           rw_t2t_handle_presence_check_rsp(NFC_STATUS_REJECTED);
         } else {
           /* Move back to idle state */
-          rw_t2t_handle_presence_check_rsp(NFC_STATUS_FAILED);
+          rw_t2t_handle_presence_check_rsp(NFC_STATUS_RF_FRAME_CORRUPTED);
         }
       } else {
         rw_t2t_process_error();
@@ -418,7 +418,7 @@ void rw_t2t_process_timeout() {
       rw_t2t_handle_presence_check_rsp(NFC_STATUS_REJECTED);
     } else {
       /* Move back to idle state */
-      rw_t2t_handle_presence_check_rsp(NFC_STATUS_FAILED);
+      rw_t2t_handle_presence_check_rsp(NFC_STATUS_RF_FRAME_CORRUPTED);
     }
     return;
   }

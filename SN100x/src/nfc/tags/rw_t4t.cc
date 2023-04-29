@@ -2380,6 +2380,23 @@ void rw_t4t_handle_isodep_nak_rsp(uint8_t status, bool is_ntf) {
 
 /*******************************************************************************
 **
+** Function         rw_t4t_handle_isodep_nak_fallback
+**
+** Description      This function resets the state in case of fallback mechanism
+**                  encountering a timeout.
+**
+** Returns          none
+**
+*******************************************************************************/
+void rw_t4t_handle_isodep_nak_fallback() {
+  tRW_T4T_CB* p_t4t = &rw_cb.tcb.t4t;
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("rw_t4t_handle_isodep_nak_fallback");
+  p_t4t->state = RW_T4T_STATE_IDLE;
+}
+
+/*******************************************************************************
+**
 ** Function         rw_t4t_data_cback
 **
 ** Description      This callback function receives the data from NFCC.

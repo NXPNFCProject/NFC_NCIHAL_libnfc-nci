@@ -832,6 +832,7 @@ typedef struct {
   uint8_t* p_update_data; /* pointer of data to update        */
   uint16_t rw_length;     /* bytes to read/write              */
   uint16_t rw_offset;     /* offset to read/write             */
+  bool in_pres_check;
 } tRW_I93_CB;
 
 /* RW memory control blocks */

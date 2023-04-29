@@ -298,7 +298,7 @@ void rw_t1t_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
 #endif /* RW_STATS_INCLUDED */
 
       if (p_t1t->state == RW_T1T_STATE_CHECK_PRESENCE) {
-        rw_t1t_handle_presence_check_rsp(NFC_STATUS_FAILED);
+        rw_t1t_handle_presence_check_rsp(NFC_STATUS_RF_FRAME_CORRUPTED);
       } else {
         rw_t1t_process_error();
       }
@@ -533,7 +533,7 @@ void rw_t1t_process_timeout(__attribute__((unused)) TIMER_LIST_ENT* p_tle) {
 
   if (p_t1t->state == RW_T1T_STATE_CHECK_PRESENCE) {
     /* Tag has moved from range */
-    rw_t1t_handle_presence_check_rsp(NFC_STATUS_FAILED);
+    rw_t1t_handle_presence_check_rsp(NFC_STATUS_RF_FRAME_CORRUPTED);
   } else if (p_t1t->state != RW_T1T_STATE_IDLE) {
     rw_t1t_process_error();
   }
@@ -661,6 +661,8 @@ void rw_t1t_handle_presence_check_rsp(tNFC_STATUS status) {
 
   /* Notify, Tag is present or not */
   rw_data.data.status = status;
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("%s - T1T rsp status = %d ", __func__, status);
   rw_t1t_handle_op_complete();
 
   (*(rw_cb.p_cback))(RW_T1T_PRESENCE_CHECK_EVT, &rw_data);
