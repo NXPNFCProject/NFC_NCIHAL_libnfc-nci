@@ -76,9 +76,6 @@ static tNFC_STATUS rw_t2t_read_ndef_last_block(void);
 static void rw_t2t_update_attributes(void);
 static void rw_t2t_update_lock_attributes(void);
 static bool rw_t2t_is_lock_res_byte(uint16_t index);
-#if (NXP_EXTNS != TRUE)
-static bool rw_t2t_is_read_only_byte(uint16_t index);
-#endif
 static tNFC_STATUS rw_t2t_write_ndef_first_block(uint16_t msg_len,
                                                  bool b_update_len);
 static tNFC_STATUS rw_t2t_write_ndef_next_block(uint16_t block,
@@ -787,22 +784,8 @@ static void rw_t2t_handle_tlv_detect_rsp(uint8_t* p_data) {
     } else if (tlvtype == TAG_NDEF_TLV) {
       rw_t2t_extract_default_locks_info();
 
-#if (NXP_EXTNS == TRUE)
       status = failed ? NFC_STATUS_FAILED : NFC_STATUS_OK;
       rw_t2t_ntf_tlv_detect_complete(status);
-#else
-      if (failed) {
-        rw_t2t_ntf_tlv_detect_complete(NFC_STATUS_FAILED);
-      } else {
-        /* NDEF present,Send command to read the dynamic lock bytes */
-        status = rw_t2t_read_locks();
-        if (status != NFC_STATUS_CONTINUE) {
-          /* If unable to read a lock/all locks read, notify upper layer */
-          rw_t2t_update_lock_attributes();
-          rw_t2t_ntf_tlv_detect_complete(status);
-        }
-      }
-#endif
     } else {
       /* Notify Memory/ Proprietary tlv detect result */
       status = failed ? NFC_STATUS_FAILED : NFC_STATUS_OK;
@@ -1436,9 +1419,6 @@ static uint16_t rw_t2t_get_ndef_max_size(void) {
   /* Starting from NDEF Message offset find the first locked data byte */
   while (offset < tag_size) {
     if (rw_t2t_is_lock_res_byte((uint16_t)offset) == false) {
-#if (NXP_EXTNS != TRUE)
-      if (rw_t2t_is_read_only_byte((uint16_t)offset) == true) break;
-#endif
       p_t2t->max_ndef_msg_len++;
     }
     offset++;
@@ -2407,50 +2387,6 @@ static bool rw_t2t_is_lock_res_byte(uint16_t index) {
   return ((p_t2t->attr[index / 8] & rw_t2t_mask_bits[index % 8]) == 0) ? false
                                                                        : true;
 }
-
-#if (NXP_EXTNS != TRUE)
-/*******************************************************************************
-**
-** Function         rw_t2t_is_read_only_byte
-**
-** Description      This function will check if the tag index passed as
-**                  argument is a locked and return
-**                  TRUE or FALSE
-**
-** Parameters:      index, the index of the byte in the tag
-**
-**
-** Returns          TRUE, if the specified index in the tag is a locked or
-**                        reserved or otp byte
-**                  FALSE, otherwise
-**
-*******************************************************************************/
-static bool rw_t2t_is_read_only_byte(uint16_t index) {
-  tRW_T2T_CB* p_t2t = &rw_cb.tcb.t2t;
-
-  p_t2t->segment = (uint8_t)(index / RW_T2T_SEGMENT_BYTES);
-
-  if (p_t2t->lock_attr_seg != p_t2t->segment) {
-    /* Update lock attributes for the current segment */
-    rw_t2t_update_lock_attributes();
-    p_t2t->lock_attr_seg = p_t2t->segment;
-  }
-
-  index = index % RW_T2T_SEGMENT_BYTES;
-  /* Every bit in p_t2t->lock_attr indicates one specific byte of the tag is a
-   * read only byte or read write byte
-   * So, each array element in p_t2t->lock_attr covers two blocks of the tag as
-   * T2 block size is 4 and array element size is 8
-   * Find the block and offset for the index (passed as argument) and Check if
-   * the offset bit in
-   * p_t2t->lock_attr[block/2] is set or not. If the bit is set then it is a
-   * read only byte, otherwise read write byte */
-
-  return ((p_t2t->lock_attr[index / 8] & rw_t2t_mask_bits[index % 8]) == 0)
-             ? false
-             : true;
-}
-#endif
 
 /*******************************************************************************
 **
