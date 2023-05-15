@@ -741,6 +741,10 @@ uint8_t nci_snd_set_routing_cmd(bool more, uint8_t num_tlv, uint8_t tlv_size,
   uint8_t* pp;
   uint8_t size = tlv_size + 2;
 
+  if (size < tlv_size) {
+    return (NCI_STATUS_FAILED);
+  }
+
   if (tlv_size == 0) {
     /* just to terminate routing table
      * 2 bytes (more=FALSE and num routing entries=0) */
