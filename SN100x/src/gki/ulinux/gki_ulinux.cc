@@ -141,7 +141,9 @@ void GKI_init(void) {
 
   gki_buffer_init();
   gki_timers_init();
-  gki_cb.com.OSTicks = (uint32_t)times(nullptr);
+
+  /* Start ticks from 0 */
+  gki_cb.com.OSTicks = 0;
 
   pthread_mutexattr_init(&attr);
 
@@ -958,8 +960,7 @@ int8_t* GKI_get_time_stamp(int8_t* tbuf) {
   uint32_t h_time;
   int8_t* p_out = tbuf;
 
-  gki_cb.com.OSTicks = times(nullptr);
-  ms_time = GKI_TICKS_TO_MS(gki_cb.com.OSTicks);
+  ms_time = GKI_TICKS_TO_MS(times(nullptr));
   s_time = ms_time / 100; /* 100 Ticks per second */
   m_time = s_time / 60;
   h_time = m_time / 60;
