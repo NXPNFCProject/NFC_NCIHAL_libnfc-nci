@@ -3111,10 +3111,6 @@ void rw_i93_handle_error(tNFC_STATUS status) {
 
   if (rw_cb.p_cback) {
     rw_data.status = status;
-    if ((NFC_STATUS_TIMEOUT == rw_data.status) &&
-        (p_i93->sent_cmd != I93_CMD_STAY_QUIET)) {
-      p_i93->state = RW_I93_STATE_IDLE;
-    }
     switch (p_i93->state) {
       case RW_I93_STATE_IDLE: /* in case of RawFrame */
         event = RW_I93_INTF_ERROR_EVT;
