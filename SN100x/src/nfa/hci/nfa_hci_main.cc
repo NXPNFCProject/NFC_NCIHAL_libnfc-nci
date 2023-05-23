@@ -427,6 +427,10 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
               }
               nfa_hci_release_transceive(nfa_ee_cb.ecb[ee_entry_index].nfcee_id,
                                          NFA_STATUS_HCI_UNRECOVERABLE_ERROR);
+              if (IS_PROP_EUICC_HOST(nfa_ee_cb.ecb[ee_entry_index].nfcee_id)) {
+                nfa_hciu_remove_all_pipes_from_host(
+                    nfa_ee_cb.ecb[ee_entry_index].nfcee_id);
+              }
               if (nfa_hciu_is_no_host_resetting()) {
                 nfa_hciu_add_host_resetting(
                     nfa_ee_cb.ecb[ee_entry_index].nfcee_id,

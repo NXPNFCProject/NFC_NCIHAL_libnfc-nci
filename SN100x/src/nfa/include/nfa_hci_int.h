@@ -81,6 +81,9 @@ extern uint8_t HCI_LOOPBACK_DEBUG;
 /* Host ID for eUICC2 */
 #define NFA_HCI_EUICC2_HOST (NFA_HCI_FIRST_PROP_HOST + 2)
 
+#define IS_PROP_EUICC_HOST(host_id) \
+  ((NFA_HCI_FIRST_PROP_HOST < host_id) && (NFA_HCI_LAST_PROP_HOST >= host_id))
+
 #define IS_PROP_HOST(host_id) \
   ((NFA_HCI_FIRST_PROP_HOST <= host_id) && (NFA_HCI_LAST_PROP_HOST >= host_id))
 #define IS_DYNAMIC_HOST(host_id)              \

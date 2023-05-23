@@ -2057,8 +2057,7 @@ tNFA_HCI_DYN_PIPE  *nfa_hciu_find_dyn_apdu_pipe_for_host (uint8_t host_id)
         if ((pp->pipe_id != 0) && (pp->dest_host == host_id))
         {
             gate_id = pp->local_gate;
-            pg   = nfa_hciu_find_gate_by_gid (gate_id);
-
+            pg = nfa_hciu_find_gate_by_gid(gate_id);
             if (  (pg != nullptr)
                 &&((gate_id == NFA_HCI_APDU_APP_GATE) || (gate_id == NFA_HCI_GEN_PURPOSE_APDU_APP_GATE))  )
                 return (pp);
@@ -2095,8 +2094,7 @@ tNFA_HCI_DYN_PIPE  *nfa_hciu_find_dyn_conn_pipe_for_host (uint8_t host_id)
         if ((pp->pipe_id != 0) && (pp->dest_host == host_id))
         {
             gate_id = pp->local_gate;
-            pg   = nfa_hciu_find_gate_by_gid (gate_id);
-
+            pg = nfa_hciu_find_gate_by_gid(gate_id);
             if (  (pg != nullptr)
                 &&(gate_id == NFA_HCI_CONNECTIVITY_GATE)  )
                 return (pp);
