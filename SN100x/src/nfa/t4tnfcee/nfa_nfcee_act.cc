@@ -606,6 +606,11 @@ bool isWritePermitted(void) {
  **
  *******************************************************************************/
 bool isDataLenBelowMaxFileCapacity(void) {
+  if (ccFileInfo.find(nfa_t4tnfcee_cb.cur_fileId) == ccFileInfo.end()) {
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("%s FileId Not found", __func__);
+    return false;
+  }
   return (nfa_t4tnfcee_cb.dataLen <=
           (ccFileInfo.find(nfa_t4tnfcee_cb.cur_fileId)->second.capacity -
            T4TNFCEE_SIZEOF_LEN_BYTES));
