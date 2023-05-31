@@ -398,8 +398,10 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                      * LMRT & Restart RF Discovery.  */
                     tNFA_HCI_EVT_DATA evt_data;
                     evt_data.init_completed.status = NFA_STATUS_OK;
-                    nfa_hciu_send_to_all_apps(NFA_HCI_INIT_COMPLETED,
+                    if ((nfa_ee_cb.ee_flags & NFA_EE_FLAG_RECOVERY) == NFA_EE_FLAG_RECOVERY) {
+                        nfa_hciu_send_to_all_apps(NFA_HCI_INIT_COMPLETED,
                                               &evt_data);
+                    }
                   }
               }
             }
