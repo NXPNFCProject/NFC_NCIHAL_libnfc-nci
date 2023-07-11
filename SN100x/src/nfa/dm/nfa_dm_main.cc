@@ -129,7 +129,6 @@ void nfa_dm_init(void) {
   /* register message handler on NFA SYS */
   nfa_sys_register(NFA_ID_DM, &nfa_dm_sys_reg);
 #if (NXP_EXTNS == TRUE)
-  nfa_dm_p2p_prio_logic_cleanup();
   nfa_dm_cb.selected_uicc_id = UICC1_HOST;
 #endif
 }

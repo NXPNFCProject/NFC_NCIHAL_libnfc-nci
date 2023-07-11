@@ -80,10 +80,6 @@
 #define NFC_TTYPE_RW_T4T_RESPONSE 107
 #define NFC_TTYPE_RW_I93_RESPONSE 108
 #define NFC_TTYPE_CE_T4T_UPDATE 109
-/* added for p2p prio logic timer */
-#define NFC_TTYPE_P2P_PRIO_RESPONSE 110
-/* added for p2p prio logic clenaup */
-#define NFC_TTYPE_P2P_PRIO_LOGIC_CLEANUP 111
 #define NFC_TTYPE_RW_MFC_RESPONSE 112
 /* time out for mode set notification */
 #define NFC_MODE_SET_NTF_TIMEOUT 2
@@ -339,10 +335,7 @@ extern void nfc_ncif_proc_reset_rsp(uint8_t* p, bool is_ntf);
 extern void nfc_ncif_proc_init_rsp(NFC_HDR* p_msg);
 extern void nfc_ncif_proc_get_config_rsp(NFC_HDR* p_msg);
 extern void nfc_ncif_proc_data(NFC_HDR* p_msg);
-extern bool nfa_dm_p2p_prio_logic(uint8_t event, uint8_t* p, uint8_t ntf_rsp);
-extern void nfa_dm_p2p_timer_event();
 extern bool nfc_ncif_proc_proprietary_rsp(uint8_t mt, uint8_t gid, uint8_t oid);
-extern void nfa_dm_p2p_prio_logic_cleanup();
 extern void nfc_ncif_proc_isodep_nak_presence_check_status(uint8_t status,
                                                            bool is_ntf);
 extern void nfc_ncif_update_window(void);
