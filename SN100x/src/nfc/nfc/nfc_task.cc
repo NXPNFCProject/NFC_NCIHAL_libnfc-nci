@@ -41,26 +41,18 @@
  *  Entry point for NFC_TASK
  *
  ******************************************************************************/
-#include <string.h>
-
 #include <android-base/stringprintf.h>
 #include <base/logging.h>
-
-#include "nfc_target.h"
+#include <string.h>
 
 #include "bt_types.h"
 #include "ce_int.h"
 #include "gki.h"
 #include "nci_hmsgs.h"
-#include "nfc_int.h"
-#include "rw_int.h"
-#if (NFC_RW_ONLY == FALSE)
-#include "llcp_int.h"
-#else
-#define llcp_cleanup()
-#endif
-
 #include "nfa_dm_int.h"
+#include "nfc_int.h"
+#include "nfc_target.h"
+#include "rw_int.h"
 
 using android::base::StringPrintf;
 
@@ -282,14 +274,6 @@ void nfc_process_quick_timer_evt(void) {
     GKI_remove_from_timer_list(&nfc_cb.quick_timer_queue, p_tle);
 
     switch (p_tle->event) {
-#if (NFC_RW_ONLY == FALSE)
-      case NFC_TTYPE_LLCP_LINK_MANAGER:
-      case NFC_TTYPE_LLCP_LINK_INACT:
-      case NFC_TTYPE_LLCP_DATA_LINK:
-      case NFC_TTYPE_LLCP_DELAY_FIRST_PDU:
-        llcp_process_timeout(p_tle);
-        break;
-#endif
       case NFC_TTYPE_RW_T1T_RESPONSE:
         rw_t1t_process_timeout(p_tle);
         break;
@@ -304,12 +288,6 @@ void nfc_process_quick_timer_evt(void) {
         break;
       case NFC_TTYPE_RW_I93_RESPONSE:
         rw_i93_process_timeout(p_tle);
-        break;
-      case NFC_TTYPE_P2P_PRIO_RESPONSE:
-        nfa_dm_p2p_timer_event();
-        break;
-      case NFC_TTYPE_P2P_PRIO_LOGIC_CLEANUP:
-        nfa_dm_p2p_prio_logic_cleanup();
         break;
       case NFC_TTYPE_RW_MFC_RESPONSE:
         rw_mfc_process_timeout(p_tle);
@@ -364,7 +342,6 @@ void nfc_task_shutdown_nfcc(void) {
     nfc_cb.p_hal->close();
 
     /* Perform final clean up */
-    llcp_cleanup();
 
     /* Stop the timers */
     GKI_stop_timer(NFC_TIMER_ID);

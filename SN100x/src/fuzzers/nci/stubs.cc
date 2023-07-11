@@ -1,12 +1,7 @@
 #include "fuzz.h"
 
-bool nfa_dm_p2p_prio_logic(unsigned char, unsigned char*, unsigned char) {
-  return true;
-}
-
 void rw_init() {}
 void ce_init() {}
-void llcp_init() {}
 
 tNFA_PROPRIETARY_CFG nfa_proprietary_cfg = {
     0x80, /* NCI_PROTOCOL_18092_ACTIVE */
@@ -34,16 +29,12 @@ void rw_t3t_handle_nci_poll_ntf(uint8_t nci_status, uint8_t num_responses,
           BytesToHex(p_sensf_res_buf, sensf_res_buf_size).c_str());
 }
 
-void llcp_process_timeout(TIMER_LIST_ENT*) { abort(); }
 void rw_t1t_process_timeout(TIMER_LIST_ENT*) { abort(); }
 void rw_t2t_process_timeout() { abort(); }
 void rw_t3t_process_timeout(TIMER_LIST_ENT*) { abort(); }
 void rw_t4t_process_timeout(TIMER_LIST_ENT*) { abort(); }
 void rw_i93_process_timeout(TIMER_LIST_ENT*) { abort(); }
-void nfa_dm_p2p_timer_event() { abort(); }
-void nfa_dm_p2p_prio_logic_cleanup() { abort(); }
 void rw_mfc_process_timeout(TIMER_LIST_ENT*) { abort(); }
 void ce_t4t_process_timeout(TIMER_LIST_ENT*) { abort(); }
-void llcp_cleanup() {}
 void nfa_sys_event(NFC_HDR*) { abort(); }
 void nfa_sys_timer_update() { abort(); }

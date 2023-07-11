@@ -65,8 +65,6 @@
 #endif
 #if (NFC_RW_ONLY == FALSE)
 
-#include "llcp_int.h"
-
 /* NFC mandates support for at least one logical connection;
  * Update max_conn to the NFCC capability on InitRsp */
 #if (NXP_EXTNS == TRUE)
@@ -81,7 +79,6 @@
 
 #else /* NFC_RW_ONLY */
 #define ce_init()
-#define llcp_init()
 
 #define NFC_SET_MAX_CONN_DEFAULT()
 
@@ -923,7 +920,6 @@ void NFC_Init(tHAL_NFC_ENTRY* p_hal_entry_tbl) {
   GKI_init_timer_list(&nfc_cb.quick_timer_queue);
   rw_init();
   ce_init();
-  llcp_init();
 #if(NXP_EXTNS == TRUE)
   }
 #endif

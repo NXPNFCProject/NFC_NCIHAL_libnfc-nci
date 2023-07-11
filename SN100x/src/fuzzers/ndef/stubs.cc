@@ -19,5 +19,4 @@ tNFC_STATUS NFC_Enable(tNFC_RESPONSE_CBACK*) { return NFC_STATUS_OK; }
 
 void nfa_sys_deregister(uint8_t) {}
 void nfa_rw_stop_presence_check_timer() {}
-void nfa_p2p_deactivate_llcp() {}
 void nfa_rw_proc_disc_evt(int, tNFC_DISCOVER*, bool) {}

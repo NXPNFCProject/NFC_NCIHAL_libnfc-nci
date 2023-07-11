@@ -92,13 +92,11 @@ void NFA_Init(tHAL_NFC_ENTRY* p_hal_entry_tbl) {
 #if (NXP_EXTNS == TRUE)
   if (NfcAdaptation::GetInstance().NFA_GetBootMode() == NFA_NORMAL_BOOT_MODE) {
 #endif
-  nfa_p2p_init();
-  nfa_snep_init(false);
-  nfa_rw_init();
-  nfa_ce_init();
-  nfa_ee_init();
-  if (nfa_ee_max_ee_cfg != 0) {
-    nfa_dm_cb.get_max_ee = p_hal_entry_tbl->get_max_ee;
+    nfa_rw_init();
+    nfa_ce_init();
+    nfa_ee_init();
+    if (nfa_ee_max_ee_cfg != 0) {
+      nfa_dm_cb.get_max_ee = p_hal_entry_tbl->get_max_ee;
 #if (NXP_EXTNS == TRUE)
     nfa_t4tnfcee_init();
     nfa_scr_init();
@@ -772,114 +770,6 @@ tNFA_STATUS NFA_ChangeDiscoveryTech (tNFA_TECHNOLOGY_MASK pollTech, tNFA_TECHNOL
     return (NFA_STATUS_FAILED);
 }
 #endif
-/*******************************************************************************
-**
-** Function         NFA_PauseP2p
-**
-** Description      Pause P2P services.
-**                  NFA_P2P_PAUSED_EVT will be returned after P2P services are
-**                  disabled.
-**
-**                  The P2P services enabled by NFA_P2p* API functions are not
-**                  available. NFA_ResumeP2p() is called to resume the P2P
-**                  services.
-**
-** Note:            If RF discovery is started,
-**                  NFA_StopRfDiscovery()/NFA_RF_DISCOVERY_STOPPED_EVT should
-**                  happen before calling this function
-**
-** Returns          NFA_STATUS_OK if successfully initiated
-**                  NFA_STATUS_FAILED otherwise
-**
-*******************************************************************************/
-tNFA_STATUS NFA_PauseP2p(void) {
-  NFC_HDR* p_msg;
-
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
-
-  p_msg = (NFC_HDR*)GKI_getbuf(sizeof(NFC_HDR));
-  if (p_msg != nullptr) {
-    p_msg->event = NFA_DM_API_PAUSE_P2P_EVT;
-
-    nfa_sys_sendmsg(p_msg);
-
-    return (NFA_STATUS_OK);
-  }
-
-  return (NFA_STATUS_FAILED);
-}
-
-/*******************************************************************************
-**
-** Function         NFA_ResumeP2p
-**
-** Description      Resume P2P services.
-**                  NFA_P2P_RESUMED_EVT will be returned after P2P services are.
-**                  enables again.
-**
-** Note:            If RF discovery is started,
-**                  NFA_StopRfDiscovery()/NFA_RF_DISCOVERY_STOPPED_EVT should
-**                  happen before calling this function
-**
-** Returns          NFA_STATUS_OK if successfully initiated
-**                  NFA_STATUS_FAILED otherwise
-**
-*******************************************************************************/
-tNFA_STATUS NFA_ResumeP2p(void) {
-  NFC_HDR* p_msg;
-
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
-
-  p_msg = (NFC_HDR*)GKI_getbuf(sizeof(NFC_HDR));
-  if (p_msg != nullptr) {
-    p_msg->event = NFA_DM_API_RESUME_P2P_EVT;
-
-    nfa_sys_sendmsg(p_msg);
-
-    return (NFA_STATUS_OK);
-  }
-
-  return (NFA_STATUS_FAILED);
-}
-
-/*******************************************************************************
-**
-** Function         NFA_SetP2pListenTech
-**
-** Description      This function is called to set listen technology for
-**                  NFC-DEP. This funtion may be called before or after starting
-**                  any server on NFA P2P/CHO/SNEP.
-**                  If there is no technology for NFC-DEP, P2P listening will be
-**                  stopped.
-**
-**                  NFA_SET_P2P_LISTEN_TECH_EVT without data will be returned.
-**
-** Note:            If RF discovery is started,
-**                  NFA_StopRfDiscovery()/NFA_RF_DISCOVERY_STOPPED_EVT should
-**                  happen before calling this function
-**
-** Returns          NFA_STATUS_OK if successfully initiated
-**                  NFA_STATUS_FAILED otherwise
-**
-*******************************************************************************/
-tNFA_STATUS NFA_SetP2pListenTech(tNFA_TECHNOLOGY_MASK tech_mask) {
-  tNFA_DM_API_SET_P2P_LISTEN_TECH* p_msg;
-
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("tech_mask:0x%X", tech_mask);
-
-  p_msg = (tNFA_DM_API_SET_P2P_LISTEN_TECH*)GKI_getbuf(
-      sizeof(tNFA_DM_API_SET_P2P_LISTEN_TECH));
-  if (p_msg != nullptr) {
-    p_msg->hdr.event = NFA_DM_API_SET_P2P_LISTEN_TECH_EVT;
-    p_msg->tech_mask = tech_mask;
-
-    nfa_sys_sendmsg(p_msg);
-
-    return (NFA_STATUS_OK);
-  }
-
-  return (NFA_STATUS_FAILED);
-}
 
 /*******************************************************************************
 **

@@ -213,7 +213,6 @@ void nci_proc_rf_management_rsp(NFC_HDR* p_msg) {
 
   switch (op_code) {
     case NCI_MSG_RF_DISCOVER:
-      nfa_dm_p2p_prio_logic(op_code, pp, NFA_DM_P2P_PRIO_RSP);
       nfc_ncif_rf_management_status(NFC_START_DEVT, *pp);
       break;
 
@@ -230,9 +229,6 @@ void nci_proc_rf_management_rsp(NFC_HDR* p_msg) {
       break;
 
     case NCI_MSG_RF_DEACTIVATE:
-      if (nfa_dm_p2p_prio_logic(op_code, pp, NFA_DM_P2P_PRIO_RSP) == false) {
-        return;
-      }
       nfc_ncif_proc_deactivate(*pp, *p_old, false);
       break;
 
@@ -301,9 +297,6 @@ void nci_proc_rf_management_ntf(NFC_HDR* p_msg) {
         android_errorWriteLog(0x534e4554, "164440989");
         return;
       }
-      if (nfa_dm_p2p_prio_logic(op_code, pp, NFA_DM_P2P_PRIO_NTF) == false) {
-        return;
-      }
       if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
         nfc_cb.deact_reason = *(pp + 1);
       }
@@ -311,9 +304,6 @@ void nci_proc_rf_management_ntf(NFC_HDR* p_msg) {
       break;
 
     case NCI_MSG_RF_INTF_ACTIVATED:
-      if (nfa_dm_p2p_prio_logic(op_code, pp, NFA_DM_P2P_PRIO_NTF) == false) {
-        return;
-      }
       nfc_ncif_proc_activate(pp, len);
       break;
 

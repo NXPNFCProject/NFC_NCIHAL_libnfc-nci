@@ -64,10 +64,7 @@ enum {
   NFA_DM_API_DISABLE_POLLING_EVT,
   NFA_DM_API_ENABLE_LISTENING_EVT,
   NFA_DM_API_DISABLE_LISTENING_EVT,
-  NFA_DM_API_PAUSE_P2P_EVT,
-  NFA_DM_API_RESUME_P2P_EVT,
   NFA_DM_API_RAW_FRAME_EVT,
-  NFA_DM_API_SET_P2P_LISTEN_TECH_EVT,
   NFA_DM_API_START_RF_DISCOVERY_EVT,
   NFA_DM_API_STOP_RF_DISCOVERY_EVT,
   NFA_DM_API_SET_RF_DISC_DURATION_EVT,
@@ -249,8 +246,6 @@ typedef union {
   tNFA_DM_API_REQ_EXCL_RF_CTRL
       req_excl_rf_ctrl; /* NFA_DM_API_REQUEST_EXCL_RF_CTRL      */
   tNFA_DM_API_ENABLE_POLL enable_poll; /* NFA_DM_API_ENABLE_POLLING_EVT */
-  tNFA_DM_API_SET_P2P_LISTEN_TECH
-      set_p2p_listen_tech;   /* NFA_DM_API_SET_P2P_LISTEN_TECH_EVT   */
   tNFA_DM_API_SELECT select; /* NFA_DM_API_SELECT_EVT                */
   tNFA_DM_API_UPDATE_RF_PARAMS
       update_rf_params;              /* NFA_DM_API_UPDATE_RF_PARAMS_EVT      */
@@ -494,8 +489,6 @@ typedef struct {
 #define NFA_DM_FLAGS_RAW_FRAME 0x00000800
 /* NFA_DisableListening() is called and engaged                         */
 #define NFA_DM_FLAGS_LISTEN_DISABLED 0x00001000
-/* NFA_PauseP2p() is called and engaged                         */
-#define NFA_DM_FLAGS_P2P_PAUSED 0x00002000
 /* Power Off Sleep                                                      */
 #define NFA_DM_FLAGS_POWER_OFF_SLEEP 0x00008000
 #if (NXP_EXTNS == TRUE)
@@ -667,12 +660,6 @@ extern unsigned char appl_dta_mode_flag;
 extern tNFA_DM_CB nfa_dm_cb;
 
 void nfa_dm_init(void);
-void nfa_p2p_init(void);
-#if (NFA_SNEP_INCLUDED == TRUE)
-void nfa_snep_init(bool is_dta_mode);
-#else
-#define nfa_snep_init(is_dta_mode)
-#endif
 
 #if (NFC_NFCEE_INCLUDED == TRUE)
 void nfa_ee_init(void);
@@ -700,10 +687,7 @@ bool nfa_dm_act_enable_polling(tNFA_DM_MSG* p_data);
 bool nfa_dm_act_disable_polling(tNFA_DM_MSG* p_data);
 bool nfa_dm_act_enable_listening(tNFA_DM_MSG* p_data);
 bool nfa_dm_act_disable_listening(tNFA_DM_MSG* p_data);
-bool nfa_dm_act_pause_p2p(tNFA_DM_MSG* p_data);
-bool nfa_dm_act_resume_p2p(tNFA_DM_MSG* p_data);
 bool nfa_dm_act_send_raw_frame(tNFA_DM_MSG* p_data);
-bool nfa_dm_set_p2p_listen_tech(tNFA_DM_MSG* p_data);
 bool nfa_dm_act_start_rf_discovery(tNFA_DM_MSG* p_data);
 bool nfa_dm_act_stop_rf_discovery(tNFA_DM_MSG* p_data);
 bool nfa_dm_act_set_rf_disc_duration(tNFA_DM_MSG* p_data);
@@ -757,7 +741,6 @@ bool nfa_dm_is_active(void);
 tNFC_STATUS nfa_dm_disc_sleep_wakeup(void);
 tNFC_STATUS nfa_dm_disc_start_kovio_presence_check(void);
 bool nfa_dm_is_raw_frame_session(void);
-bool nfa_dm_is_p2p_paused(void);
 
 #if (NFC_NFCEE_INCLUDED == FALSE)
 #define nfa_ee_get_tech_route(ps, ha) \

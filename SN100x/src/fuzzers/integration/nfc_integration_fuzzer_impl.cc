@@ -6,7 +6,6 @@
 
 #include "nfa_ce_api.h"
 #include "nfa_ee_api.h"
-#include "nfa_p2p_api.h"
 #include "nfa_rw_api.h"
 #include "nfa_sys.h"
 #include "nfc_api.h"
@@ -54,7 +53,6 @@ static void nfa_ee_callback(tNFA_EE_EVT event, tNFA_EE_CBACK_DATA* p_data) {
 #define LLCP_DATA_LINK_TIMEOUT 2000
 
 void nfc_process_timer_evt(void);
-void nfa_p2p_callback(tNFA_P2P_EVT, tNFA_P2P_EVT_DATA*) {}
 
 static tNFC_PROTOCOL GetProtocol(const Protocol& protocol) {
   switch (protocol.value()) {
@@ -413,84 +411,6 @@ void NfcIntegrationFuzzer::DoOneCommand(
       bytes_container.emplace_back(command.write_ndef().size() % 1024);
       NFA_RwWriteNDef(bytes_container.back().data(),
                       bytes_container.back().size());
-      break;
-    }
-    case Command::kP2PRegisterServer: {
-      NFA_P2pSetLLCPConfig(LLCP_MAX_MIU, LLCP_OPT_VALUE, LLCP_WAITING_TIME,
-                           LLCP_LTO_VALUE, 0, 0, LLCP_DELAY_RESP_TIME,
-                           LLCP_DATA_LINK_TIMEOUT,
-                           LLCP_DELAY_TIME_TO_SEND_FIRST_PDU);
-      NFA_P2pRegisterServer(
-          command.p2p_register_server().server_sap() & 0xFF, NFA_P2P_DLINK_TYPE,
-          (char*)command.p2p_register_server().service_name().c_str(),
-          nfa_p2p_callback);
-      break;
-    }
-    case Command::kP2PAcceptConn: {
-      NFA_P2pAcceptConn(command.p2p_accept_conn().handle() & 0xFF,
-                        command.p2p_accept_conn().miu() & 0xFFFF,
-                        command.p2p_accept_conn().rw() & 0xFF);
-      break;
-    }
-    case Command::kP2PRegisterClient: {
-      NFA_P2pRegisterClient(NFA_P2P_DLINK_TYPE, nfa_p2p_callback);
-      break;
-    }
-    case Command::kP2PDeregister: {
-      NFA_P2pDeregister(command.p2p_deregister());
-      break;
-    }
-    case Command::kP2PConnectBySap: {
-      NFA_P2pConnectBySap(command.p2p_connect_by_sap().handle(),
-                          command.p2p_connect_by_sap().dsap(),
-                          command.p2p_connect_by_sap().miu(),
-                          command.p2p_connect_by_sap().rw());
-      break;
-    }
-    case Command::kP2PConnectByName: {
-      NFA_P2pConnectByName(
-          command.p2p_connect_by_name().client_handle(),
-          (char*)command.p2p_connect_by_name().service_name().c_str(),
-          command.p2p_connect_by_name().miu(),
-          command.p2p_connect_by_name().rw());
-      break;
-    }
-    case Command::kP2PSendUi: {
-      std::vector<uint8_t> buffer(command.p2p_send_ui().data().data(),
-                                  command.p2p_send_ui().data().data() +
-                                      command.p2p_send_ui().data().size());
-      NFA_P2pSendUI(command.p2p_send_ui().handle(),
-                    command.p2p_send_ui().dsap(), buffer.size(), buffer.data());
-      break;
-    }
-    case Command::kP2PDisconnect: {
-      NFA_P2pDisconnect(command.p2p_disconnect().handle(),
-                        command.p2p_disconnect().flush());
-      break;
-    }
-    case Command::kPauseP2P: {
-      NFA_PauseP2p();
-      break;
-    }
-    case Command::kResumeP2P: {
-      NFA_ResumeP2p();
-      break;
-    }
-    case Command::kP2PReadData: {
-      std::vector<uint8_t> buffer((size_t)command.p2p_read_data().length() %
-                                  1024);
-      bool is_more_data = false;
-      unsigned int actual_size = 0;
-      NFA_P2pReadData(command.p2p_read_data().handle(), buffer.size(),
-                      &actual_size, buffer.data(), &is_more_data);
-      break;
-    }
-    case Command::kP2PSendData: {
-      std::vector<uint8_t> buffer(command.p2p_send_data().data().data(),
-                                  command.p2p_send_data().data().data() +
-                                      command.p2p_send_data().data().size());
-      NFA_P2pSendData(command.p2p_send_data().handle(), buffer.size(),
-                      buffer.data());
       break;
     }
     case Command::COMMAND_NOT_SET: {

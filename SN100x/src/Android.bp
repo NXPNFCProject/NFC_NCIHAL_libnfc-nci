@@ -56,14 +56,12 @@ cc_library_shared {
         "nfa/dm/*.cc",
         "nfa/ee/*.cc",
         "nfa/hci/*.cc",
-        "nfa/p2p/*.cc",
         "nfa/rw/*.cc",
         "nfa/scr/*.cc",
         "nfa/sys/*.cc",
         "nfa/t4tnfcee/*.cc",
         "nfa/wlc/*.cc",
         "nfa/srd/*.cc",
-        "nfc/llcp/*.cc",
         "nfc/nci/*.cc",
         "nfc/ndef/*.cc",
         "nfc/nfc/*.cc",
@@ -254,21 +252,6 @@ cc_fuzz {
     ],
 }
 
-cc_fuzz {
-    name: "nfc_llcp_fuzzer",
-    defaults: ["nfc_fuzzer_defaults"],
-    fuzzing_frameworks: {
-      afl: false,
-    },
-    srcs: [
-        "nfc/llcp/*.cc",
-        "gki/common/*.cc",
-        "gki/ulinux/*.cc",
-        "fuzzers/*.cc",
-        "fuzzers/llcp/*.cc",
-    ],
-}
-
 cc_library_static {
     name: "nfc_integration_fuzzer_proto",
     owner: "google",
@@ -297,10 +280,8 @@ cc_fuzz {
         "nfa/dm/*.cc",
         "nfa/ee/*.cc",
         "nfa/hci/*.cc",
-        "nfa/p2p/*.cc",
         "nfa/rw/*.cc",
         "nfa/sys/*.cc",
-        "nfc/llcp/*.cc",
         "nfc/nci/*.cc",
         "nfc/ndef/*.cc",
         "nfc/nfc/*.cc",
