@@ -297,16 +297,17 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                     nfa_hciu_check_n_clear_host_resetting(
                         nfa_hci_cb.curr_nfcee, NFCEE_UNRECOVERABLE_ERRROR);
 
-                     nfa_hci_cb.ee_info[nfa_hci_cb.next_nfcee_idx].hci_enable_state = NFA_HCI_FL_EE_ENABLED;
-
                      if(nfa_hci_cb.next_nfcee_idx < nfa_hci_cb.num_nfcee) {
-                       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-                           "NFCEE_UNRECOVERABLE_ERRROR reset handling "
-                           "nfa_hci_cb.next_nfcee_idx %d  nfa_hci_cb.num_nfcee "
-                           "%d",
-                           nfa_hci_cb.next_nfcee_idx, nfa_hci_cb.num_nfcee);
-                       if (nfa_hci_enable_one_nfcee() == false) {
-                        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hci_enable_one_nfcee() failed");
+                      nfa_hci_cb.ee_info[nfa_hci_cb.next_nfcee_idx]
+                          .hci_enable_state = NFA_HCI_FL_EE_ENABLED;
+                      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+                          "NFCEE_UNRECOVERABLE_ERRROR reset handling "
+                          "nfa_hci_cb.next_nfcee_idx %d  nfa_hci_cb.num_nfcee "
+                          "%d",
+                          nfa_hci_cb.next_nfcee_idx, nfa_hci_cb.num_nfcee);
+                      if (nfa_hci_enable_one_nfcee() == false) {
+                      DLOG_IF(INFO, nfc_debug_enabled)
+                          << StringPrintf("nfa_hci_enable_one_nfcee() failed");
                        }
                      }
                      if(nfa_hci_cb.next_nfcee_idx == nfa_hci_cb.num_nfcee) {
