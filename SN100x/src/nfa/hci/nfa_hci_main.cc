@@ -293,6 +293,8 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                     break;
                  } else if (nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_REINIT) {
                     nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_REINIT);
+                    nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee,
+                                                  NFCEE_RECOVERY_IN_PROGRESS);
                     nfa_hciu_check_n_clear_host_resetting(
                         nfa_hci_cb.curr_nfcee, NFCEE_UNRECOVERABLE_ERRROR);
 
@@ -436,7 +438,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
               if (nfa_hciu_is_no_host_resetting()) {
                 nfa_hciu_add_host_resetting(
                     nfa_ee_cb.ecb[ee_entry_index].nfcee_id,
-                    NFCEE_UNRECOVERABLE_ERRROR);
+                    NFCEE_UNRECOVERABLE_ERRROR | NFCEE_RECOVERY_IN_PROGRESS);
                 nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
                 nfa_hci_cb.curr_nfcee = nfa_ee_cb.ecb[ee_entry_index].nfcee_id;
                 nfa_hci_cb.next_nfcee_idx = 0x00;

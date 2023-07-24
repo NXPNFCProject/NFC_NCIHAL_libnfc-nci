@@ -2753,14 +2753,14 @@ void nfa_hci_handle_pending_host_reset() {
           nfa_hci_cb.curr_nfcee = nfa_hci_cb.reset_host[xx].host_id;
           nfa_hci_cb.next_nfcee_idx = 0x00;
           if (!nfa_hciu_check_host_resetting(nfa_hci_cb.reset_host[xx].host_id,
-                                             NFCEE_UNRECOVERABLE_ERRROR)) {
-            if (NFC_NfceeDiscover(true) == NFC_STATUS_FAILED) {
-              DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-                  "NFCEE_UNRECOVERABLE_ERRROR unable to handle");
-            }
+                                             NFCEE_RECOVERY_IN_PROGRESS)) {
+                if (NFC_NfceeDiscover(true) == NFC_STATUS_FAILED) {
+                    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+                        "NFCEE_UNRECOVERABLE_ERRROR unable to handle");
+                }
           } else {
-            DLOG_IF(INFO, nfc_debug_enabled)
-                << StringPrintf("NFCEE re-initialization ongoing..........");
+                DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+                    "NFCEE re-initialization ongoing..........");
           }
           break;
         }

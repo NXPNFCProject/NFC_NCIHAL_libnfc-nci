@@ -558,7 +558,7 @@ void nci_proc_ee_management_ntf(NFC_HDR* p_msg) {
       event = NFC_NFCEE_STATUS_REVT;
       if (nfc_response.mode_set.status == NCI_STATUS_FAILED) {
         nfc_response.nfcee_status.status = NCI_STATUS_OK;
-        nfc_response.nfcee_status.nfcee_id = nfa_ee_cb.nfcee_id;
+        nfc_response.nfcee_status.nfcee_id = nfc_response.mode_set.nfcee_id;
         if(nfa_ee_cb.recovery_cnt < MAX_NFCEE_REMOVED_RECOVERY_CNT) {
           nfc_response.nfcee_status.nfcee_status = NFC_NFCEE_STS_UNRECOVERABLE_ERROR;
           if (p_cback) (*p_cback)(event, &nfc_response);
