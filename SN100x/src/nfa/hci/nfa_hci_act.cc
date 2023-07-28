@@ -2798,16 +2798,29 @@ bool nfa_hci_check_set_apdu_pipe_ready_for_next_host ()
         }
         LOG(INFO) << StringPrintf("after updating NFCEE id %x", nfcee);
         if (nfcee == p_host->host_id) {
-            nfa_hciu_clear_host_resetting(p_host->host_id, NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED);
-            if (IS_PROP_HOST(p_host->host_id)) {
-              nfa_hci_api_add_prop_host_info(p_host->host_id);
-              done = nfa_hci_set_apdu_pipe_ready_for_host(p_host->host_id);
-            } else if (nfa_hci_cb.uicc_etsi_support) {
-              done = nfa_hci_set_apdu_pipe_ready_for_host(p_host->host_id);
-            } else {
-              done = false;
-            }
-            break;
+          // if apdu_gatee_support set to 0x00 no apdu pipe will be created
+          // if value set to 0x01, create apdu gate for eSE
+          // if value set to 0x02, create apdu gate for eUICC
+          if (((nfa_hci_cb.se_apdu_gate_support == 0x00) &&
+            (IS_PROP_HOST(p_host->host_id))) ||
+            ((nfa_hci_cb.se_apdu_gate_support == 0x01) &&
+            (IS_PROP_EUICC_HOST(p_host->host_id))) ||
+            (nfa_hci_cb.se_apdu_gate_support == 0x02 &&
+            p_host->host_id == NFA_HCI_FIRST_PROP_HOST)) {
+            LOG(INFO) << StringPrintf("APDU pipe for SE-%x is skipped",
+                          p_host->host_id);
+            continue;
+          }
+          nfa_hciu_clear_host_resetting(p_host->host_id, NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED);
+          if (IS_PROP_HOST(p_host->host_id)) {
+            nfa_hci_api_add_prop_host_info(p_host->host_id);
+            done = nfa_hci_set_apdu_pipe_ready_for_host(p_host->host_id);
+          } else if (nfa_hci_cb.uicc_etsi_support) {
+            done = nfa_hci_set_apdu_pipe_ready_for_host(p_host->host_id);
+          } else {
+            done = false;
+          }
+          break;
         }
     }
     return done;

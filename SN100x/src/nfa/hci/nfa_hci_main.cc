@@ -279,7 +279,6 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                     {
                       DLOG_IF(INFO, nfc_debug_enabled)
                           << StringPrintf("NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED () handling pending NFCEE_UNRECOVERABLE_ERRROR");
-                      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("resetting 11");
                       nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_REINIT);
                       nfa_hciu_check_n_clear_host_resetting(
                           nfa_hci_cb.curr_nfcee, NFCEE_UNRECOVERABLE_ERRROR);
@@ -1113,8 +1112,15 @@ static void nfa_hci_sys_enable(void) {
   nfa_sys_start_timer(&nfa_hci_cb.timer, NFA_HCI_RSP_TIMEOUT_EVT,
                       NFA_HCI_NV_READ_TIMEOUT_VAL);
 #if(NXP_EXTNS == TRUE)
-  nfa_hci_cb.se_apdu_gate_support =
-      NfcConfig::getUnsigned(NAME_NXP_SE_APDU_GATE_SUPPORT, 0x00);
+  /* se apdu gate support will be enabled only if terminal type
+     set to eSE/eUICC */
+  if (NfcConfig::hasKey(NAME_NXP_SE_APDU_GATE_SUPPORT)) {
+    nfa_hci_cb.se_apdu_gate_support = NfcConfig::getUnsigned(NAME_NXP_SE_SMB_TERMINAL_TYPE, 0x01);
+  } else {
+    nfa_hci_cb.se_apdu_gate_support = 0x00;
+  }
+  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+      "%s SE terminal type for APDU gate: %d", __func__, nfa_hci_cb.se_apdu_gate_support);
   nfa_hci_cb.uicc_etsi_support =
       NfcConfig::getUnsigned(NAME_NXP_UICC_ETSI_SUPPORT, 0x00);
 #endif
