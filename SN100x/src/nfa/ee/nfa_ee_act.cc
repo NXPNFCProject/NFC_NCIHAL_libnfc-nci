@@ -672,20 +672,10 @@ static void nfa_ee_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
 *******************************************************************************/
 int nfa_ee_find_max_aid_cfg_len(void) {
   int max_lmrt_size = NFC_GetLmrtSize();
-  if (max_lmrt_size) {
-#if (NXP_EXTNS == TRUE)
-    /* In NCI2.0 Protocol 7816 routing is replaced with empty AID, size for Empty
-     * AID is considered to be handled dynamically during AID registration */
-    return max_lmrt_size - NFA_EE_MAX_PROTO_TECH_EXT_ROUTE_LEN - NFA_EE_EMPTY_AID_ROUTE_LEN;
-#else
+  if (max_lmrt_size > NFA_EE_MAX_PROTO_TECH_EXT_ROUTE_LEN) {
     return max_lmrt_size - NFA_EE_MAX_PROTO_TECH_EXT_ROUTE_LEN;
-#endif
   } else {
-#if (NXP_EXTNS == TRUE)
-    return NFA_EE_MAX_AID_CFG_LEN - 4;
-#else
-    return NFA_EE_MAX_AID_CFG_LEN;
-#endif
+    return 0;
   }
 }
 

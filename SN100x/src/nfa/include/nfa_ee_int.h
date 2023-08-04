@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2022 NXP
+ *  Copyright 2018-2023 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -160,16 +160,16 @@ enum {
   NFA_EE_CONN_ST_DISC  /* disconnecting; waiting for ack */
 };
 typedef uint8_t tNFA_EE_CONN_ST;
-#if (NXP_EXTNS != TRUE)
-#define NFA_EE_MAX_AID_CFG_LEN (510)
 // Technology A/B/F reserved: 5*3 = 15
 // Protocol ISODEP/NFCDEP/T3T reserved: 5*3 = 15
 // Extends (APDU pattern/SC)reserved: 30
 #define NFA_EE_MAX_PROTO_TECH_EXT_ROUTE_LEN 60
+#if (NXP_EXTNS != TRUE)
+#define NFA_EE_MAX_AID_CFG_LEN (510)
 #else
-/* Four bytes are reserved for empty AID routing */
-#define NFA_EE_MAX_PROTO_TECH_EXT_ROUTE_LEN 56
-#define NFA_EE_EMPTY_AID_ROUTE_LEN 0x04
+// Tech + Protocol + APDU pattern + SC route entry = 60 bytes
+// Empty AID Entry = 4 bytes
+// Total = 60 + 4 = 64 bytes
 #define NFA_EE_MAX_AID_CFG_LEN (1030-64)
 #define NFA_EE_TOTAL_APDU_PATTERN_SIZE 250
 #define NFA_EE_APDU_ROUTE_MASK 8 /* APDU route location mask*/
