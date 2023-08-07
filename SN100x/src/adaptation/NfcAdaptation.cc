@@ -872,7 +872,7 @@ void NfcAdaptation::InitializeHalDeviceContext() {
       mHal = mHal_1_1 = mHal_1_2 = nullptr;
       LOG(INFO) << StringPrintf("%s: INfcAidl::fromBinder returned", func);
     }
-    LOG_FATAL_IF(mAidlHal == nullptr, "Failed to retrieve the NFC AIDL!");
+    LOG_ALWAYS_FATAL_IF(mAidlHal == nullptr, "Failed to retrieve the NFC AIDL!");
   } else {
     LOG(INFO) << StringPrintf("%s: INfc::getService() returned %p (%s)", func,
                               mHal.get(),
