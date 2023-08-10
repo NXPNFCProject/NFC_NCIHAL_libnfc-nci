@@ -187,7 +187,7 @@
 #ifndef NCI_VERSION
 #define NCI_VERSION NCI_VERSION_2_0
 #endif
-#define NCI_CORE_RESET_RSP_LEN(X) (((X) == NCI_VERSION_2_0) ? (0x01) : (0x03))
+#define NCI_CORE_RESET_RSP_LEN(X) (((X) >= NCI_VERSION_2_0) ? (0x01) : (0x03))
 
 /* TRUE I2C patch is needed */
 #ifndef NFC_I2C_PATCH_INCLUDED

@@ -106,9 +106,9 @@ uint8_t nci_snd_core_init(uint8_t nci_version) {
   NCI_MSG_BLD_HDR0(pp, NCI_MT_CMD, NCI_GID_CORE);
   NCI_MSG_BLD_HDR1(pp, NCI_MSG_CORE_INIT);
   UINT8_TO_STREAM(pp, NCI_CORE_PARAM_SIZE_INIT(nci_version));
-  if (nfc_cb.nci_version == NCI_VERSION_2_0) {
-    UINT8_TO_STREAM(pp, NCI2_0_CORE_INIT_CMD_BYTE_0);
-    UINT8_TO_STREAM(pp, NCI2_0_CORE_INIT_CMD_BYTE_1);
+  if (nfc_cb.nci_version >= NCI_VERSION_2_0) {
+    UINT8_TO_STREAM(pp, NCI2_X_CORE_INIT_CMD_BYTE_0);
+    UINT8_TO_STREAM(pp, NCI2_X_CORE_INIT_CMD_BYTE_1);
   }
 
   nfc_ncif_send_cmd(p);
@@ -384,7 +384,7 @@ uint8_t nci_snd_nfcee_discover(uint8_t discover_action) {
   NCI_MSG_BLD_HDR0(pp, NCI_MT_CMD, NCI_GID_EE_MANAGE);
   NCI_MSG_BLD_HDR1(pp, NCI_MSG_NFCEE_DISCOVER);
   UINT8_TO_STREAM(pp, NCI_PARAM_SIZE_DISCOVER_NFCEE(NFC_GetNCIVersion()));
-  if (NFC_GetNCIVersion() != NCI_VERSION_2_0) {
+  if (NFC_GetNCIVersion() < NCI_VERSION_2_0) {
     UINT8_TO_STREAM(pp, discover_action);
   }
   nfc_ncif_send_cmd(p);

@@ -160,8 +160,8 @@
 /* Logical target ID 0x01-0xFE */
 
 /* CORE_RESET_NTF reset trigger type*/
-#define NCI2_0_RESET_TRIGGER_TYPE_POWERED_ON 0x01
-#define NCI2_0_RESET_TRIGGER_TYPE_CORE_RESET_CMD_RECEIVED 0x02
+#define NCI2_X_RESET_TRIGGER_TYPE_POWERED_ON 0x01
+#define NCI2_X_RESET_TRIGGER_TYPE_CORE_RESET_CMD_RECEIVED 0x02
 
 /* Status Codes */
 #define NCI_STATUS_OK 0x00
@@ -264,9 +264,9 @@
  **********************************************/
 #define NCI_FEAT_HCI_NETWORK 0x00000008
 
-#define NCI_CORE_PARAM_SIZE_INIT(X) (((X) == NCI_VERSION_2_0) ? (0x02) : (0x00))
-#define NCI2_0_CORE_INIT_CMD_BYTE_0 0x00
-#define NCI2_0_CORE_INIT_CMD_BYTE_1 0x00
+#define NCI_CORE_PARAM_SIZE_INIT(X) (((X) >= NCI_VERSION_2_0) ? (0x02) : (0x00))
+#define NCI2_X_CORE_INIT_CMD_BYTE_0 0x00
+#define NCI2_X_CORE_INIT_CMD_BYTE_1 0x00
 
 /* Status (1 octet) and number of params */
 #define NCI_CORE_PARAM_SIZE_SET_POWER_SUB_STATE 0x01
@@ -290,7 +290,7 @@
 
 /* Discovery Action (1 octet) */
 #define NCI_PARAM_SIZE_DISCOVER_NFCEE(X) \
-  (((X) == NCI_VERSION_2_0) ? 0X00 : 0X01)
+  (((X) >= NCI_VERSION_2_0) ? 0X00 : 0X01)
 
 #define NCI_DISCOVER_ACTION_DISABLE 0
 #define NCI_DISCOVER_ACTION_ENABLE 1
@@ -497,13 +497,13 @@ typedef uint8_t tNCI_DISCOVERY_TYPE;
 #define NCI_ROUTE_PWR_STATE_BATT_OFF 0x04
 /* The device is screen off Unlock mode */
 #define NCI_ROUTE_PWR_STATE_SCREEN_OFF_UNLOCK() \
-  ((NFC_GetNCIVersion() == NCI_VERSION_2_0) ? 0x08 : 0x80)
+  ((NFC_GetNCIVersion() >= NCI_VERSION_2_0) ? 0x08 : 0x80)
 /* The device is screen on lock mode */
 #define NCI_ROUTE_PWR_STATE_SCREEN_ON_LOCK() \
-  ((NFC_GetNCIVersion() == NCI_VERSION_2_0) ? 0x10 : 0x40)
+  ((NFC_GetNCIVersion() >= NCI_VERSION_2_0) ? 0x10 : 0x40)
 /* The device is screen off lock mode */
 #define NCI_ROUTE_PWR_STATE_SCREEN_OFF_LOCK() \
-  ((NFC_GetNCIVersion() == NCI_VERSION_2_0) ? 0x20 : 0x00)
+  ((NFC_GetNCIVersion() >= NCI_VERSION_2_0) ? 0x20 : 0x00)
 
 /* Hardware / Registration Identification  */
 #define NCI_NFCEE_TAG_HW_ID 0x00
@@ -621,7 +621,7 @@ typedef uint8_t tNCI_DISCOVERY_TYPE;
 #define NCI_PARAM_LEN_LF_PROTOCOL 1
 #define NCI_PARAM_LEN_LF_T3T_FLAGS2 2
 #define NCI_PARAM_LEN_LF_T3T_PMM 8
-#define NCI_PARAM_LEN_LF_T3T_ID(X) (((X) == NCI_VERSION_2_0) ? (0x12) : (0x0A))
+#define NCI_PARAM_LEN_LF_T3T_ID(X) (((X) >= NCI_VERSION_2_0) ? (0x12) : (0x0A))
 #define NCI_PARAM_LEN_LF_CON_ADV_FEAT 1
 
 #define NCI_PARAM_LEN_LF_T3T_RD_ALLOWED 1  // Listen F NCI2.0 Parameter

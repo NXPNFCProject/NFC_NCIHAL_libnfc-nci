@@ -307,7 +307,7 @@ void nfc_enabled(tNFC_STATUS nfc_status, NFC_HDR* p_init_rsp_msg) {
     nfc_cb.nci_ctrl_size = *p++; /* Max Control Packet Payload Length */
     p_cb->init_credits = p_cb->num_buff = 0;
     nfc_set_conn_id(p_cb, NFC_RF_CONN_ID);
-    if (nfc_cb.nci_version == NCI_VERSION_2_0) {
+    if (nfc_cb.nci_version >= NCI_VERSION_2_0) {
       /* one byte is consumed in the top expression and
        * 3 bytes from uit16+uint8 below */
       lremain -= 4;

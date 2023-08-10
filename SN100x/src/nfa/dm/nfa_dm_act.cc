@@ -159,7 +159,7 @@ static void nfa_dm_set_init_nci_params(void) {
 
   /* set NCI default value if other than zero */
 
-  if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+  if (NFC_GetNCIVersion() >= NCI_VERSION_2_0) {
     /* Default Values: For each identifier
      * Octet 0-1   = OxFF
      * Octet 2     = Ox02
@@ -206,7 +206,7 @@ static void nfa_dm_set_init_nci_params(void) {
   nfa_dm_cb.params.wt[0] = 14;
 
   /* Set CE default configuration */
-  if (p_nfa_dm_ce_cfg[0] && NFC_GetNCIVersion() != NCI_VERSION_2_0) {
+  if (p_nfa_dm_ce_cfg[0] && NFC_GetNCIVersion() < NCI_VERSION_2_0) {
     nfa_dm_check_set_config(p_nfa_dm_ce_cfg[0], &p_nfa_dm_ce_cfg[1], false);
   }
 
@@ -989,7 +989,7 @@ tNFA_STATUS nfa_dm_start_polling(void) {
       poll_disc_mask |= NFA_DM_DISC_MASK_P_LEGACY;
       poll_disc_mask |= NFA_DM_DISC_MASK_PA_MIFARE;
     }
-    if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+    if (NFC_GetNCIVersion() >= NCI_VERSION_2_0) {
       if (poll_tech_mask & NFA_TECHNOLOGY_MASK_ACTIVE) {
         poll_disc_mask |= NFA_DM_DISC_MASK_PACM_NFC_DEP;
       }

@@ -653,9 +653,9 @@ tNFA_STATUS NFA_EeAddAidRouting(tNFA_HANDLE ee_handle, uint8_t aid_len,
 
   /* validate parameters - make sure the AID is in valid length range */
   if ((p_cb == nullptr) ||
-      ((NFA_GetNCIVersion() == NCI_VERSION_2_0) && (aid_len != 0) &&
+      ((NFA_GetNCIVersion() >= NCI_VERSION_2_0) && (aid_len != 0) &&
        (p_aid == nullptr)) ||
-      ((NFA_GetNCIVersion() != NCI_VERSION_2_0) &&
+      ((NFA_GetNCIVersion() < NCI_VERSION_2_0) &&
        ((aid_len == 0) || (p_aid == nullptr) || (aid_len < NFA_MIN_AID_LEN))) ||
       (aid_len > NFA_MAX_AID_LEN)) {
     LOG(ERROR) << StringPrintf("Bad ee_handle or AID (len=%d)", aid_len);
@@ -716,9 +716,9 @@ tNFA_STATUS NFA_EeRemoveAidRouting(uint8_t aid_len, uint8_t* p_aid) {
   uint16_t size = sizeof(tNFA_EE_API_REMOVE_AID) + aid_len;
 
   DLOG_IF(INFO, nfc_debug_enabled) << __func__;
-  if (((NFA_GetNCIVersion() == NCI_VERSION_2_0) && (aid_len != 0) &&
+  if (((NFA_GetNCIVersion() >= NCI_VERSION_2_0) && (aid_len != 0) &&
        (p_aid == nullptr)) ||
-      ((NFA_GetNCIVersion() != NCI_VERSION_2_0) &&
+      ((NFA_GetNCIVersion() < NCI_VERSION_2_0) &&
        ((aid_len == 0) || (p_aid == nullptr) || (aid_len < NFA_MIN_AID_LEN))) ||
       (aid_len > NFA_MAX_AID_LEN)) {
     LOG(ERROR) << StringPrintf("Bad AID");
@@ -772,7 +772,7 @@ tNFA_STATUS NFA_EeAddSystemCodeRouting(uint16_t systemcode,
   if (p_cb == nullptr || systemcode == 0) {
     LOG(ERROR) << StringPrintf("Bad ee_handle or System Code");
     status = NFA_STATUS_INVALID_PARAM;
-  } else if ((NFA_GetNCIVersion() != NCI_VERSION_2_0) &&
+  } else if ((NFA_GetNCIVersion() < NCI_VERSION_2_0) &&
              (nfc_cb.isScbrSupported == false)) {
     LOG(ERROR) << StringPrintf("Invalid NCI Version/SCBR not supported");
     status = NFA_STATUS_NOT_SUPPORTED;
@@ -820,7 +820,7 @@ tNFA_STATUS NFA_EeRemoveSystemCodeRouting(uint16_t systemcode) {
   if (systemcode == 0) {
     LOG(ERROR) << "Bad ee_handle or System Code";
     status = NFA_STATUS_INVALID_PARAM;
-  } else if ((NFA_GetNCIVersion() != NCI_VERSION_2_0) &&
+  } else if ((NFA_GetNCIVersion() < NCI_VERSION_2_0) &&
              (nfc_cb.isScbrSupported == false)) {
     LOG(ERROR) << "Invalid NCI Version/SCBR Not supported";
     status = NFA_STATUS_NOT_SUPPORTED;

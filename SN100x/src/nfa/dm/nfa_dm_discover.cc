@@ -223,7 +223,7 @@ static uint8_t nfa_dm_get_rf_discover_config(
 
     if (num_params >= max_params) return num_params;
   }
-  if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+  if (NFC_GetNCIVersion() >= NCI_VERSION_2_0) {
     /* Check polling Active mode  */
     if (dm_disc_mask & NFA_DM_DISC_MASK_PACM_NFC_DEP) {
       disc_params[num_params].type = NFC_DISCOVERY_TYPE_POLL_ACTIVE;
@@ -300,7 +300,7 @@ static uint8_t nfa_dm_get_rf_discover_config(
 #if (NXP_EXTNS == TRUE)
   }
 #endif
-  if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+  if (NFC_GetNCIVersion() >= NCI_VERSION_2_0) {
     /* Check polling Active mode  */
     if (dm_disc_mask & NFA_DM_DISC_MASK_LACM_NFC_DEP) {
       disc_params[num_params].type = NFC_DISCOVERY_TYPE_LISTEN_ACTIVE;
@@ -779,7 +779,7 @@ static tNFA_DM_DISC_TECH_PROTO_MASK nfa_dm_disc_get_disc_mask(
   } else if (NFC_DISCOVERY_TYPE_LISTEN_B_PRIME == tech_n_mode) {
     disc_mask = NFA_DM_DISC_MASK_L_B_PRIME;
   }
-  if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+  if (NFC_GetNCIVersion() >= NCI_VERSION_2_0) {
     if (NFC_DISCOVERY_TYPE_POLL_ACTIVE == tech_n_mode) {
       disc_mask = NFA_DM_DISC_MASK_PACM_NFC_DEP;
     } else if (NFC_DISCOVERY_TYPE_LISTEN_ACTIVE == tech_n_mode) {
@@ -1092,7 +1092,7 @@ void nfa_dm_start_rf_discover(void) {
               nfa_dm_cb.disc_cb.entry[xx].requested_disc_mask &
               (NFA_DM_DISC_MASK_LA_T1T | NFA_DM_DISC_MASK_LA_T2T |
                NFA_DM_DISC_MASK_LA_ISO_DEP | NFA_DM_DISC_MASK_LA_NFC_DEP);
-          if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+          if (NFC_GetNCIVersion() >= NCI_VERSION_2_0) {
             listen_mask |= nfa_dm_cb.disc_cb.entry[xx].requested_disc_mask &
                            NFA_DM_DISC_MASK_LACM_NFC_DEP;
           } else {
@@ -1106,7 +1106,7 @@ void nfa_dm_start_rf_discover(void) {
           /* host can listen NFC-DEP based on protocol routing */
            listen_mask |= (nfa_dm_cb.disc_cb.entry[xx].requested_disc_mask &
                             NFA_DM_DISC_MASK_LA_NFC_DEP);
-          if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+          if (NFC_GetNCIVersion() >= NCI_VERSION_2_0) {
 #if (NXP_EXTNS == TRUE)
             listen_mask |= (nfa_dm_cb.disc_cb.entry[xx].requested_disc_mask &
                             NFA_DM_DISC_MASK_LA_NFC_DEP);
@@ -1130,7 +1130,7 @@ void nfa_dm_start_rf_discover(void) {
          * regardless of NFC-F tech routing */
         listen_mask |= nfa_dm_cb.disc_cb.entry[xx].requested_disc_mask &
                        (NFA_DM_DISC_MASK_LF_T3T | NFA_DM_DISC_MASK_LF_NFC_DEP);
-        if (NFC_GetNCIVersion() != NCI_VERSION_2_0) {
+        if (NFC_GetNCIVersion() < NCI_VERSION_2_0) {
           listen_mask |= nfa_dm_cb.disc_cb.entry[xx].requested_disc_mask &
                          NFA_DM_DISC_MASK_LFA_NFC_DEP;
         }
@@ -1167,7 +1167,7 @@ void nfa_dm_start_rf_discover(void) {
          * on AID routing */
 
         /* Check if other modules are listening NFC-DEP */
-        if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+        if (NFC_GetNCIVersion() >= NCI_VERSION_2_0) {
           if (dm_disc_mask &
               (NFA_DM_DISC_MASK_LA_NFC_DEP | NFA_DM_DISC_MASK_LACM_NFC_DEP)) {
             listen_mask &=
@@ -2940,7 +2940,7 @@ void nfa_dm_start_excl_discovery(tNFA_TECHNOLOGY_MASK poll_tech_mask,
     poll_disc_mask |= NFA_DM_DISC_MASK_PA_NFC_DEP;
     poll_disc_mask |= NFA_DM_DISC_MASK_P_LEGACY;
   }
-  if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+  if (NFC_GetNCIVersion() >= NCI_VERSION_2_0) {
     if (poll_tech_mask & NFA_TECHNOLOGY_MASK_ACTIVE) {
       poll_disc_mask |= NFA_DM_DISC_MASK_PACM_NFC_DEP;
     }

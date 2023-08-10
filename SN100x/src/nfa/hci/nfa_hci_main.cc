@@ -211,7 +211,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
           /* Received DISC REQ Ntf while waiting for other Host in the network
            * to bootup after DH host bootup is complete */
           if ((nfa_hci_cb.num_ee_dis_req_ntf == (nfa_hci_cb.num_nfcee - 1)) &&
-              NFC_GetNCIVersion() != NCI_VERSION_2_0) {
+              NFC_GetNCIVersion() < NCI_VERSION_2_0) {
             /* Received expected number of EE DISC REQ Ntf(s) */
             nfa_sys_stop_timer(&nfa_hci_cb.timer);
             nfa_hci_cb.w4_hci_netwk_init = false;
@@ -1048,7 +1048,7 @@ void nfa_hci_startup(void) {
   /* We can only start up if NV Ram is read and EE discovery is complete */
   if (nfa_hci_cb.nv_read_cmplt && nfa_hci_cb.ee_disc_cmplt &&
       (nfa_hci_cb.conn_id == 0)) {
-    if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+    if (NFC_GetNCIVersion() >= NCI_VERSION_2_0) {
       NFC_SetStaticHciCback(nfa_hci_conn_cback);
     } else {
       NFA_EeGetInfo(&nfa_hci_cb.num_nfcee, nfa_hci_cb.ee_info);

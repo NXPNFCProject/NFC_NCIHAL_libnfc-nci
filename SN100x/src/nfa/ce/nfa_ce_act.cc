@@ -365,7 +365,7 @@ void nfc_ce_t3t_set_listen_params(void) {
       UINT16_TO_BE_STREAM(p_params, p_cb->listen_info[i].t3t_system_code);
       ARRAY_TO_BE_STREAM(p_params, p_cb->listen_info[i].t3t_nfcid2,
                          NCI_RF_F_UID_LEN);
-      if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+      if (NFC_GetNCIVersion() >= NCI_VERSION_2_0) {
         ARRAY_TO_BE_STREAM(p_params, p_cb->listen_info[i].t3t_pmm,
                            NCI_T3T_PMM_LEN);
       }
@@ -383,7 +383,7 @@ void nfc_ce_t3t_set_listen_params(void) {
   /* Mask of IDs to disable listening */
   UINT16_TO_STREAM(p_params, t3t_flags2_mask);
 
-  if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+  if (NFC_GetNCIVersion() >= NCI_VERSION_2_0) {
     /*Name changed in NCI2.0*/
     UINT8_TO_STREAM(p_params, NCI_PARAM_ID_LF_T3T_RD_ALLOWED);  /* type */
     UINT8_TO_STREAM(p_params, NCI_PARAM_LEN_LF_T3T_RD_ALLOWED); /* length */
@@ -393,7 +393,7 @@ void nfc_ce_t3t_set_listen_params(void) {
   }
   UINT8_TO_STREAM(p_params, adv_Feat);
 
-  if (NFC_GetNCIVersion() != NCI_VERSION_2_0) {
+  if (NFC_GetNCIVersion() < NCI_VERSION_2_0) {
     UINT8_TO_STREAM(p_params, NCI_PARAM_ID_LF_T3T_PMM);  /* type */
     UINT8_TO_STREAM(p_params, NCI_PARAM_LEN_LF_T3T_PMM); /* length */
     ARRAY_TO_BE_STREAM(p_params, t3tPMM, NCI_T3T_PMM_LEN);

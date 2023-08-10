@@ -297,7 +297,7 @@ void nci_proc_rf_management_ntf(NFC_HDR* p_msg) {
         android_errorWriteLog(0x534e4554, "164440989");
         return;
       }
-      if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+      if (NFC_GetNCIVersion() >= NCI_VERSION_2_0) {
         nfc_cb.deact_reason = *(pp + 1);
       }
       nfc_ncif_proc_deactivate(NFC_STATUS_OK, *pp, true);
@@ -402,7 +402,7 @@ void nci_proc_ee_management_rsp(NFC_HDR* p_msg) {
       }
       nfc_response.mode_set.nfcee_id = *p_old++;
       nfc_response.mode_set.mode = *p_old++;
-      if (nfc_cb.nci_version != NCI_VERSION_2_0 || *pp != NCI_STATUS_OK) {
+      if (nfc_cb.nci_version < NCI_VERSION_2_0 || *pp != NCI_STATUS_OK) {
         nfc_cb.flags &= ~NFC_FL_WAIT_MODE_SET_NTF;
         event = NFC_NFCEE_MODE_SET_REVT;
       } else {

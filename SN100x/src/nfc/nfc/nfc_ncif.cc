@@ -870,7 +870,7 @@ uint8_t* nfc_ncif_decode_rf_params(tNFC_RF_TECH_PARAMS* p_param, uint8_t* p) {
 
   if (NCI_DISCOVERY_TYPE_POLL_A == p_param->mode ||
       (NCI_DISCOVERY_TYPE_POLL_A_ACTIVE == p_param->mode &&
-       NFC_GetNCIVersion() != NCI_VERSION_2_0)) {
+       NFC_GetNCIVersion() < NCI_VERSION_2_0)) {
     p_pa = &p_param->param.pa;
     /*
 SENS_RES Response   2 bytes Defined in [DIGPROT] Available after Technology
@@ -1000,7 +1000,7 @@ Available after Technology Detection
     memcpy(p_pb->nfcid0, p_pb->sensb_res, NFC_NFCID0_MAX_LEN);
   } else if (NCI_DISCOVERY_TYPE_POLL_F == p_param->mode ||
              (NCI_DISCOVERY_TYPE_POLL_F_ACTIVE == p_param->mode &&
-              NFC_GetNCIVersion() != NCI_VERSION_2_0)) {
+              NFC_GetNCIVersion() < NCI_VERSION_2_0)) {
     /*
 Bit Rate    1 byte  1   212 kbps/2   424 kbps/0 and 3 to 255  RFU
 SENSF_RES Response length.(n) 1 byte  Length of SENSF_RES (Byte 2 - Byte 17 or
@@ -1033,7 +1033,7 @@ Available after Technology Detection
     p_pf->mrti_update = p_pf->sensf_res[NCI_MRTI_UPDATE_INDEX];
   } else if (NCI_DISCOVERY_TYPE_LISTEN_F == p_param->mode ||
              (NCI_DISCOVERY_TYPE_LISTEN_F_ACTIVE == p_param->mode &&
-              NFC_GetNCIVersion() != NCI_VERSION_2_0)) {
+              NFC_GetNCIVersion() < NCI_VERSION_2_0)) {
     p_lf = &p_param->param.lf;
 
     if (plen < 1) {
@@ -1556,7 +1556,7 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
     p_pa_nfc = &p_intf->intf_param.pa_nfc;
 
     /* Active mode, no info in activation parameters (NCI 2.0) */
-    if ((NFC_GetNCIVersion() == NCI_VERSION_2_0) &&
+    if ((NFC_GetNCIVersion() >= NCI_VERSION_2_0) &&
         ((mode == NCI_DISCOVERY_TYPE_POLL_ACTIVE) ||
          (mode == NCI_DISCOVERY_TYPE_LISTEN_ACTIVE))) {
         p_pa_nfc->atr_res_len =
@@ -1574,7 +1574,7 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
       if (p_pa_nfc->atr_res_len > NFC_MAX_ATS_LEN)
         p_pa_nfc->atr_res_len = NFC_MAX_ATS_LEN;
 
-      if ((NFC_GetNCIVersion() == NCI_VERSION_2_0) &&
+      if ((NFC_GetNCIVersion() >= NCI_VERSION_2_0) &&
           ((mode == NCI_DISCOVERY_TYPE_POLL_ACTIVE) ||
            (mode == NCI_DISCOVERY_TYPE_LISTEN_ACTIVE))) {
          /* NCI 2.0 : ATR_RES is included in RF technology parameters in active mode */
@@ -1594,8 +1594,8 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
           (mode == NCI_DISCOVERY_TYPE_POLL_F) ||
           ((mode == NCI_DISCOVERY_TYPE_POLL_A_ACTIVE ||
             mode == NCI_DISCOVERY_TYPE_POLL_F_ACTIVE) &&
-           NFC_GetNCIVersion() != NCI_VERSION_2_0) ||
-          (NFC_GetNCIVersion() == NCI_VERSION_2_0 &&
+           NFC_GetNCIVersion() < NCI_VERSION_2_0) ||
+          (NFC_GetNCIVersion() >= NCI_VERSION_2_0 &&
            mode == NCI_DISCOVERY_TYPE_POLL_ACTIVE)) {
         /* ATR_RES
         Byte 3~12 Byte 13 Byte 14 Byte 15 Byte 16 Byte 17 Byte 18~18+n
@@ -1611,10 +1611,10 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
             p_pa_nfc->atr_res[NCI_L_NFC_DEP_TO_INDEX] & 0x0F;
       } else if ((mode == NCI_DISCOVERY_TYPE_LISTEN_A) ||
                  (mode == NCI_DISCOVERY_TYPE_LISTEN_F) ||
-                 (NFC_GetNCIVersion() != NCI_VERSION_2_0 &&
+                 (NFC_GetNCIVersion() < NCI_VERSION_2_0 &&
                   (mode == NCI_DISCOVERY_TYPE_LISTEN_A_ACTIVE ||
                    mode == NCI_DISCOVERY_TYPE_LISTEN_F_ACTIVE)) ||
-                 (NFC_GetNCIVersion() == NCI_VERSION_2_0 &&
+                 (NFC_GetNCIVersion() >= NCI_VERSION_2_0 &&
                   mode == NCI_DISCOVERY_TYPE_LISTEN_ACTIVE)) {
         /* ATR_REQ
         Byte 3~12 Byte 13 Byte 14 Byte 15 Byte 16 Byte 17~17+n
@@ -1709,7 +1709,7 @@ void nfc_ncif_proc_deactivate(uint8_t status, uint8_t deact_type, bool is_ntf) {
   evt_data.deactivate.status = status;
   evt_data.deactivate.type = deact_type;
   evt_data.deactivate.is_ntf = is_ntf;
-  if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+  if (NFC_GetNCIVersion() >= NCI_VERSION_2_0) {
     evt_data.deactivate.reason = nfc_cb.deact_reason;
   }
 
@@ -2033,9 +2033,9 @@ void nfc_ncif_proc_reset_rsp(uint8_t* p, bool is_ntf) {
     LOG(WARNING) << StringPrintf("reset notification!!:0x%x ", status);
     /* clean up, if the state is OPEN
      * FW does not report reset ntf right now */
-    if (status == NCI2_0_RESET_TRIGGER_TYPE_CORE_RESET_CMD_RECEIVED
+    if (status == NCI2_X_RESET_TRIGGER_TYPE_CORE_RESET_CMD_RECEIVED
 #if(NXP_EXTNS != TRUE)
-            || status == NCI2_0_RESET_TRIGGER_TYPE_POWERED_ON
+            || status == NCI2_X_RESET_TRIGGER_TYPE_POWERED_ON
 #endif
     ) {
       DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
@@ -2276,7 +2276,7 @@ void nfc_data_event(tNFC_CONN_CB* p_cb) {
           p_evt->len--;
           p = (uint8_t*)(p_evt + 1);
           data_cevt.status = *(p + p_evt->offset + p_evt->len);
-          if ((NFC_GetNCIVersion() == NCI_VERSION_2_0) &&
+          if ((NFC_GetNCIVersion() >= NCI_VERSION_2_0) &&
               (p_cb->act_protocol == NCI_PROTOCOL_T2T) &&
               (p_cb->act_interface == NCI_INTERFACE_FRAME)) {
             if ((data_cevt.status != NFC_STATUS_OK) &&
@@ -2288,7 +2288,7 @@ void nfc_data_event(tNFC_CONN_CB* p_cb) {
             }
           }
         }
-        if ((NFC_GetNCIVersion() == NCI_VERSION_2_0) &&
+        if ((NFC_GetNCIVersion() >= NCI_VERSION_2_0) &&
             (p_cb->act_protocol == NCI_PROTOCOL_T5T)) {
           p_evt->len--;
           p = (uint8_t*)(p_evt + 1);

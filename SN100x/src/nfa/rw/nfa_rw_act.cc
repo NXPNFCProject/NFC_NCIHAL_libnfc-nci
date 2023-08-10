@@ -2000,7 +2000,7 @@ void nfa_rw_presence_check(tNFA_RW_MSG* p_data) {
         break;
 
       case NFA_RW_PRES_CHK_ISO_DEP_NAK:
-        if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+        if (NFC_GetNCIVersion() >= NCI_VERSION_2_0) {
           nfa_rw_cb.pres_check_iso_dep_nak = true;
           nfa_rw_cb.pres_check_iso_dep_nak_count++;
           option = RW_T4T_CHK_ISO_DEP_NAK_PRES_CHK;
@@ -2822,7 +2822,7 @@ bool nfa_rw_activate_ntf(tNFA_RW_MSG* p_data) {
     memcpy(tag_params.t1t.uid, p_activate_params->rf_tech_param.param.pa.nfcid1,
            p_activate_params->rf_tech_param.param.pa.nfcid1_len);
 
-    if (NFC_GetNCIVersion() == NCI_VERSION_2_0) {
+    if (NFC_GetNCIVersion() >= NCI_VERSION_2_0) {
       memcpy(tag_params.t1t.hr, p_activate_params->rf_tech_param.param.pa.hr,
              NFA_T1T_HR_LEN);
     } else {
