@@ -1887,7 +1887,7 @@ void nfa_ee_report_disc_done(bool notify_enable_done) {
     if (notify_enable_done) {
       if (nfa_ee_cb.em_state == NFA_EE_EM_STATE_INIT_DONE) {
 #if (NXP_EXTNS == TRUE)
-        if (nfa_ee_cb.discv_timer.in_use && NFA_GetNCIVersion() == NCI_VERSION_2_0) {
+        if (nfa_ee_cb.discv_timer.in_use && NFA_GetNCIVersion() >= NCI_VERSION_2_0) {
           nfa_sys_stop_timer(&nfa_ee_cb.discv_timer);
         }
 #endif
@@ -2566,7 +2566,7 @@ void nfa_ee_nci_mode_set_rsp(tNFA_EE_MSG* p_data) {
       nfa_ee_report_discover_req_evt();
     }
   }
-  if(NFA_GetNCIVersion() == NCI_VERSION_2_0
+  if(NFA_GetNCIVersion() >= NCI_VERSION_2_0
 #if (NXP_EXTNS == TRUE)
           || (p_rsp->nfcee_id == ESE_HOST)
 #endif

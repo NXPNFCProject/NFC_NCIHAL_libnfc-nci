@@ -1543,7 +1543,7 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
 #if (NFC_RW_ONLY == FALSE)
   else if (evt_data.activate.intf_param.type == NCI_INTERFACE_NFC_DEP) {
 #if (NXP_EXTNS == TRUE)
-    if ((NFC_GetNCIVersion() == NCI_VERSION_2_0)) {
+    if ((NFC_GetNCIVersion() >= NCI_VERSION_2_0)) {
       tNFC_RF_ACM_P_PARAMS* acm_p =
           &evt_data.activate.rf_tech_param.param.acm_p;
       NCI_MAX_BUFFER_SIZE(acm_p->max_payload_size, buff_size);
@@ -1630,7 +1630,7 @@ void nfc_ncif_proc_activate(uint8_t* p, uint8_t len) {
       mpl = ((p_pa_nfc->atr_res[mpl_idx]) >> 4) & 0x03;
       p_pa_nfc->max_payload_size = nfc_mpl_code_to_size[mpl];
 #if (NXP_EXTNS == TRUE)
-      if ((NFC_GetNCIVersion() == NCI_VERSION_2_0)) {
+      if ((NFC_GetNCIVersion() >= NCI_VERSION_2_0)) {
         NCI_MAX_BUFFER_SIZE(p_pa_nfc->max_payload_size, buff_size);
       }
 #endif

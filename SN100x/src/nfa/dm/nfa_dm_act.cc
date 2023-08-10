@@ -1999,7 +1999,7 @@ bool nfa_dm_is_hci_supported (void)
     bool hci_is_supported = FALSE;
 
 #if (NFC_NFCEE_INCLUDED == TRUE)
-    if (nfa_ee_max_ee_cfg && (NFC_GetNCIVersion() == NCI_VERSION_2_0))
+    if (nfa_ee_max_ee_cfg && (NFC_GetNCIVersion() >= NCI_VERSION_2_0))
         hci_is_supported = TRUE;
 #endif
     return hci_is_supported;
