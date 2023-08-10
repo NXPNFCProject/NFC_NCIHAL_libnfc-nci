@@ -146,9 +146,6 @@ cc_library {
     generated_sources: ["statslog_nfc.cpp"],
     generated_headers: ["statslog_nfc.h"],
     export_generated_headers: ["statslog_nfc.h"],
-    shared_libs: [
-        "libcutils",
-    ],
     target: {
         android: {
             shared_libs: [
@@ -157,6 +154,7 @@ cc_library {
         },
         host: {
             static_libs: [
+                "libbase",
                 "libstatssocket",
             ],
         },
