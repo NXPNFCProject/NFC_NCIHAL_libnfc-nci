@@ -756,15 +756,23 @@ tNFA_STATUS NFA_ChangeDiscoveryTech (tNFA_TECHNOLOGY_MASK pollTech, tNFA_TECHNOL
 
     DLOG_IF(INFO, nfc_debug_enabled)
         << StringPrintf ("NFA_ChangeDiscoveryTech () 0x%X 0x%X", pollTech, listenTech);
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("Current DiscoveryTech () 0x%X 0x%X",
+                        nfa_dm_cb.pollTech, nfa_dm_cb.listenTech);
 
-    if ((p_msg = (tNFA_DM_API_CHANGE_DISCOVERY_TECH *) GKI_getbuf (sizeof (tNFA_DM_API_CHANGE_DISCOVERY_TECH))) != nullptr)
-    {
-        p_msg->hdr.event = NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT;
-        p_msg->pollTech = pollTech;
-        p_msg->listenTech = listenTech;
-        nfa_sys_sendmsg (p_msg);
+    if (nfa_dm_cb.pollTech == pollTech && nfa_dm_cb.listenTech == listenTech) {
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+          "Current DiscoveryTech same as ChangeDiscoveryTech request, rejecting "
+          "request");
+      return (NFA_STATUS_REJECTED);
+    } else if ((p_msg = (tNFA_DM_API_CHANGE_DISCOVERY_TECH*)GKI_getbuf(
+                    sizeof(tNFA_DM_API_CHANGE_DISCOVERY_TECH))) != nullptr) {
+      p_msg->hdr.event = NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT;
+      p_msg->pollTech = pollTech;
+      p_msg->listenTech = listenTech;
+      nfa_sys_sendmsg(p_msg);
 
-        return (NFA_STATUS_OK);
+      return (NFA_STATUS_OK);
     }
 
     return (NFA_STATUS_FAILED);
