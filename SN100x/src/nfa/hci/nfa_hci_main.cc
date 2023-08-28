@@ -280,6 +280,8 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                       DLOG_IF(INFO, nfc_debug_enabled)
                           << StringPrintf("NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED () handling pending NFCEE_UNRECOVERABLE_ERRROR");
                       nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_REINIT);
+                      nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee,
+                                                    NFCEE_RECOVERY_IN_PROGRESS);
                       nfa_hci_cb.ee_info[nfa_hci_cb.next_nfcee_idx].hci_enable_state = NFA_HCI_FL_EE_ENABLED;
                       nfa_hciu_check_n_clear_host_resetting(
                           nfa_hci_cb.curr_nfcee, NFCEE_UNRECOVERABLE_ERRROR);
@@ -988,6 +990,8 @@ bool nfa_hci_enable_one_nfcee(void) {
                         if(nfa_dm_is_hci_supported()) {
                           nfa_hci_cb.ee_info[xx].hci_enable_state = NFA_HCI_FL_EE_ENABLED;
                           nfa_hciu_clear_host_resetting(nfceeid, NFCEE_REINIT);
+                          nfa_hciu_clear_host_resetting(
+                              nfceeid, NFCEE_RECOVERY_IN_PROGRESS);
                           nfa_hciu_check_n_clear_host_resetting(
                               nfa_hci_cb.curr_nfcee, NFCEE_UNRECOVERABLE_ERRROR);
                           nfa_hci_cb.next_nfcee_idx = xx + 1;
