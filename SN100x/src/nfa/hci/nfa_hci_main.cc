@@ -391,7 +391,10 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                   nfa_hci_cb.curr_nfcee = nfa_ee_cb.ecb[ee_entry_index].nfcee_id;
                   if (IS_PROP_HOST(nfa_ee_cb.ecb[ee_entry_index].nfcee_id) &&
                       nfa_hci_cb.se_apdu_gate_support) {
-                    NFC_NfceePLConfig(nfa_ee_cb.ecb[ee_entry_index].nfcee_id, 0x03);
+                    if (nfa_ee_cb.ecb[ee_entry_index].nfcee_id ==
+                        NFA_HCI_FIRST_PROP_HOST)
+                      NFC_NfceePLConfig(nfa_ee_cb.ecb[ee_entry_index].nfcee_id,
+                                        0x03);
                     nfa_hciu_add_host_resetting(nfa_ee_cb.ecb[ee_entry_index].nfcee_id, NFCEE_INIT_COMPLETED);
                     status = NFC_NfceeModeSet(nfa_ee_cb.ecb[ee_entry_index].nfcee_id, NFC_MODE_ACTIVATE);
                     if(status == NFA_STATUS_OK) {
@@ -998,19 +1001,18 @@ bool nfa_hci_enable_one_nfcee(void) {
                           continue;
                         }
                     }
-                    if ((nfa_hciu_find_dyn_conn_pipe_for_host(nfceeid) == nullptr) ||
-                      (nfa_hciu_find_dyn_apdu_pipe_for_host (nfceeid) == nullptr &&
-                      (nfa_hci_cb.se_apdu_gate_support)))
-                    {
-                      if(nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD)
-                      {
-                        if (IS_PROP_HOST(nfceeid)) {
-                          status = NFC_NfceePLConfig(nfceeid, 0x03);
-                          if (status != NFA_STATUS_OK) {
-                            LOG(ERROR) << StringPrintf(
-                                "%s: Power link configuration is unsuccessfull",
-                                __func__);
-                          }
+                    if (nfceeid == NFA_HCI_FIRST_PROP_HOST &&
+                        ((nfa_hciu_find_dyn_conn_pipe_for_host(nfceeid) ==
+                          nullptr) ||
+                         (nfa_hciu_find_dyn_apdu_pipe_for_host(nfceeid) ==
+                          nullptr &&
+                          (nfa_hci_cb.se_apdu_gate_support)))) {
+                      if (nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD) {
+                        status = NFC_NfceePLConfig(nfceeid, 0x03);
+                        if (status != NFA_STATUS_OK) {
+                          LOG(ERROR) << StringPrintf(
+                            "%s: Power link configuration is unsuccessfull",
+                            __func__);
                         }
                       }
                     }

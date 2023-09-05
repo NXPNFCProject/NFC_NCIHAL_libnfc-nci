@@ -3644,13 +3644,14 @@ static void nfa_hci_handle_clear_all_pipe_cmd(uint8_t source_host) {
         }
     }
     else {
-      if (IS_PROP_HOST(source_host)) {
-        if ((p_pipe = nfa_hciu_find_dyn_apdu_pipe_for_host (source_host)) != nullptr) {
-          if(nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD)
+      if (source_host == NFA_HCI_FIRST_PROP_HOST) {
+        if ((p_pipe = nfa_hciu_find_dyn_apdu_pipe_for_host(source_host)) !=
+            nullptr) {
+          if (nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD)
             NFC_NfceePLConfig(source_host, 0x03);
         }
       }
-        nfa_hciu_remove_all_pipes_from_host(source_host);
+      nfa_hciu_remove_all_pipes_from_host(source_host);
     }
 }
 
