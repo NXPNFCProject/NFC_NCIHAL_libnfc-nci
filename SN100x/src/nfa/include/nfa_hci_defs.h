@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2019 NXP
+ *  Copyright 2018-2019,2023 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -159,7 +159,7 @@
 #define NFA_HCI_EVT_C_APDU                  0x10
 #define NFA_HCI_EVT_ABORT                   0x11
 #define NFA_HCI_EVT_END_OF_APDU_TRANSACTION 0x21
-
+#define NFA_HCI_EVT_DPD_MONITOR 0x30
 /* ETSI HCI APDU gate Registry identifiers */
 #define NFA_HCI_MAX_C_APDU_SIZE_INDEX       0x01
 #define NFA_HCI_MAX_WAIT_TIME_INDEX         0x02

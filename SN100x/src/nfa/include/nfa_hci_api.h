@@ -110,6 +110,7 @@
 #define NFA_HCI_INIT_COMPLETED     0x20
 #define NFA_SRD_EVT_TIMEOUT 0x21
 #define NFA_SRD_FEATURE_NOT_SUPPORT_EVT 0x22
+#define NFA_HCI_DPD_MONITOR_EVT 0x23
 #endif
 typedef uint8_t tNFA_HCI_EVT;
 

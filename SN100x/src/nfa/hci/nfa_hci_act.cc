@@ -2281,10 +2281,10 @@ static void nfa_hci_handle_connectivity_gate_pkt(uint8_t* p_data,
       /* If its a valid Connectivity gate event then pass it on
       ** to all apps registered for connectivity gate events
       */
-      if (  (nfa_hci_cb.inst == NFA_HCI_EVT_CONNECTIVITY)
-              ||(nfa_hci_cb.inst == NFA_HCI_EVT_TRANSACTION)
-              ||(nfa_hci_cb.inst == NFA_HCI_EVT_OPERATION_ENDED)  )
-      {
+    if ((nfa_hci_cb.inst == NFA_HCI_EVT_CONNECTIVITY) ||
+        (nfa_hci_cb.inst == NFA_HCI_EVT_TRANSACTION) ||
+        (nfa_hci_cb.inst == NFA_HCI_EVT_DPD_MONITOR) ||
+        (nfa_hci_cb.inst == NFA_HCI_EVT_OPERATION_ENDED)) {
 #endif
         evt_data.rcvd_evt.pipe = p_pipe->pipe_id;
         evt_data.rcvd_evt.evt_code = nfa_hci_cb.inst;
