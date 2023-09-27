@@ -15,7 +15,7 @@
  */
 /******************************************************************************
  *
- *  Copyright 2018-2020 NXP
+ *  Copyright 2018-2020,2023 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -148,8 +148,7 @@ bool ConfigFile::updateConfig(const std::string& key, ConfigValue& value) {
 }
 
 bool ConfigFile::isUpdateAllowed(const std::string& key) {
-  if ((key.compare("P2P_LISTEN_TECH_MASK") == 0) ||
-      (key.compare("HOST_LISTEN_TECH_MASK") == 0) ||
+  if ((key.compare("HOST_LISTEN_TECH_MASK") == 0) ||
       (key.compare("UICC_LISTEN_TECH_MASK") == 0) ||
       (key.compare("POLLING_TECH_MASK") == 0))
     return true;
