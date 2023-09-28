@@ -427,6 +427,14 @@ typedef struct {
 #define NFC_NFCEE_STS_INIT_COMPLETED             NCI_NFCEE_STS_INIT_COMPLETED
 #define NFC_NFCEE_STS_PMUVCC_OFF                 NCI_NFCEE_STS_PMUVCC_OFF
 #define NFC_NFCEE_STS_PROP_UNRECOVERABLE_ERROR   NCI_NFCEE_STS_PROP_NONE
+
+/*EE TYPE*/
+typedef enum {
+  NFC_EE_TYPE_NONE = 0,
+  NFC_EE_TYPE_ESE,
+  NFC_EE_TYPE_EUICC,
+  NFC_EE_TYPE_EUICC_WITH_APDUPIPE19,
+} nfc_ee_type_t;
 #endif
 
 /* NFCEE connected and inactive */

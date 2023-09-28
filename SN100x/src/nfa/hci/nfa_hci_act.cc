@@ -2511,12 +2511,16 @@ static void nfa_hci_get_pipe_state_cb(__attribute__((unused))uint8_t event, __at
           param_id21 == NXP_NFC_SET_CONFIG_PARAM_EXT_ID1) {
         if (param_id22 == NXP_NFC_EUICC1_CONN_PIPE_STATUS) {
           //eUICC1
-          apdu_pipe = NFA_HCI_APDU_EUICC_PIPE;
+          if(nfa_hci_cb.se_apdu_gate_support != NFC_EE_TYPE_EUICC_WITH_APDUPIPE19)
+            apdu_pipe = NFA_HCI_APDU_EUICC_PIPE;
+
           conn_pipe = NFA_HCI_CONN_EUICC1_PIPE;
           prop_host = NFA_HCI_EUICC1_HOST;
         } else {
           //eUICC2
-          apdu_pipe = NFA_HCI_APDU_EUICC_PIPE;
+          if(nfa_hci_cb.se_apdu_gate_support != NFC_EE_TYPE_EUICC_WITH_APDUPIPE19)
+            apdu_pipe = NFA_HCI_APDU_EUICC_PIPE;
+
           conn_pipe = NFA_HCI_CONN_EUICC2_PIPE;
           prop_host = NFA_HCI_EUICC2_HOST;
         }
@@ -2798,14 +2802,17 @@ bool nfa_hci_check_set_apdu_pipe_ready_for_next_host ()
         }
         LOG(INFO) << StringPrintf("after updating NFCEE id %x", nfcee);
         if (nfcee == p_host->host_id) {
-          // if apdu_gatee_support set to 0x00 no apdu pipe will be created
-          // if value set to 0x01, create apdu gate for eSE
-          // if value set to 0x02, create apdu gate for eUICC
-          if (((nfa_hci_cb.se_apdu_gate_support == 0x00) &&
+          /* if apdu_gatee_support set to NFC_EE_TYPE_NONE no apdu pipe will be created
+             if value set to NFC_EE_TYPE_ESE, create apdu gate for eSE
+             if value set to NFC_EE_TYPE_EUICC, create apdu gate for eUICC
+             if value set to NFC_EE_TYPE_EUICC_WITH_APDUPIPE19
+                Create the apdu gate for eUICC with APDU pipe 0x19 */
+          if (((nfa_hci_cb.se_apdu_gate_support == NFC_EE_TYPE_NONE) &&
             (IS_PROP_HOST(p_host->host_id))) ||
-            ((nfa_hci_cb.se_apdu_gate_support == 0x01) &&
+            ((nfa_hci_cb.se_apdu_gate_support == NFC_EE_TYPE_ESE) &&
             (IS_PROP_EUICC_HOST(p_host->host_id))) ||
-            (nfa_hci_cb.se_apdu_gate_support == 0x02 &&
+            ((nfa_hci_cb.se_apdu_gate_support == NFC_EE_TYPE_EUICC ||
+              nfa_hci_cb.se_apdu_gate_support == NFC_EE_TYPE_EUICC_WITH_APDUPIPE19) &&
             p_host->host_id == NFA_HCI_FIRST_PROP_HOST)) {
             LOG(INFO) << StringPrintf("APDU pipe for SE-%x is skipped",
                           p_host->host_id);
