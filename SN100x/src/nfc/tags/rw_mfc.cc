@@ -15,7 +15,7 @@
  *******************************************************************************/
 /******************************************************************************
  *
- *  Copyright 2019-2022 NXP
+ *  Copyright 2019-2023 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -1404,6 +1404,13 @@ static void rw_mfc_process_error() {
 
   /* Retry sending command if retry-count < max */
   if (rw_cb.cur_retry < RW_MAX_RETRIES) {
+#if (NXP_EXTNS == TRUE)
+    /* check if buffer is NULL due to NFC Off request in parellel */
+    if (!p_mfc->p_cur_cmd_buf) {
+      LOG(ERROR) << StringPrintf("%s: p_mfc->p_cur_cmd_buf null", __func__);
+      return;
+    }
+#endif
     /* retry sending the command */
     rw_cb.cur_retry++;
 
