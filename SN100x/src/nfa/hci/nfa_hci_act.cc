@@ -3598,6 +3598,40 @@ void nfa_hci_handle_control_evt(tNFC_CONN_EVT event,
 
 /*******************************************************************************
  **
+ ** Function         nfa_hci_is_power_link_required
+ **
+ ** Description      Checks if power link command is required to send as per
+ **                  enabled/available NFCEEs.
+ **
+ ** Returns          TRUE, if eSE is enabled or  if eSE is disabled &
+ **                  eUICC is enabled otherwise false
+ **
+ *******************************************************************************/
+bool nfa_hci_is_power_link_required(uint8_t source_host) {
+  uint8_t nfceeid = 0x00;
+  uint8_t mNumEe = NFA_HCI_MAX_HOST_IN_NETWORK;
+  tNFA_EE_INFO eeInfo[NFA_HCI_MAX_HOST_IN_NETWORK] = {};
+  memset(&eeInfo, 0, mNumEe * sizeof(tNFA_EE_INFO));
+
+  if(!IS_PROP_HOST(source_host))
+    return false;
+
+  NFA_EeGetInfo(&mNumEe, eeInfo);
+  for (int yy = 0; yy < mNumEe; yy++) {
+    nfceeid = eeInfo[yy].ee_handle & ~NFA_HANDLE_GROUP_EE;
+    if(nfceeid == NFA_HCI_FIRST_PROP_HOST){
+      break;
+    }
+    if(IS_PROP_EUICC_HOST(nfceeid))
+      return true;
+  }
+  if (source_host == NFA_HCI_FIRST_PROP_HOST)
+     return true;
+
+  return false;
+}
+/*******************************************************************************
+ **
  ** Function         nfa_hci_handle_clear_all_pipe_cmd
  **
  ** Description      handle clear all pipe cmd from host
@@ -3633,8 +3667,7 @@ static void nfa_hci_handle_clear_all_pipe_cmd(uint8_t source_host) {
         nfa_hci_cb.nv_write_needed = false;
         /*Trigger pipe creation*/
         nfa_hci_cb.curr_nfcee = source_host;
-        if(source_host == 0xC0)
-        {
+        if(nfa_hci_is_power_link_required(source_host)) {
           if(nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD)
             NFC_NfceePLConfig(source_host, 0x03);
         }
@@ -3651,7 +3684,8 @@ static void nfa_hci_handle_clear_all_pipe_cmd(uint8_t source_host) {
         }
     }
     else {
-      if (source_host == NFA_HCI_FIRST_PROP_HOST) {
+
+      if (nfa_hci_is_power_link_required(source_host)) {
         if ((p_pipe = nfa_hciu_find_dyn_apdu_pipe_for_host(source_host)) !=
             nullptr) {
           if (nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD)

@@ -391,8 +391,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                   nfa_hci_cb.curr_nfcee = nfa_ee_cb.ecb[ee_entry_index].nfcee_id;
                   if (IS_PROP_HOST(nfa_ee_cb.ecb[ee_entry_index].nfcee_id) &&
                       nfa_hci_cb.se_apdu_gate_support) {
-                    if (nfa_ee_cb.ecb[ee_entry_index].nfcee_id ==
-                        NFA_HCI_FIRST_PROP_HOST)
+                    if (nfa_hci_is_power_link_required(nfa_ee_cb.ecb[ee_entry_index].nfcee_id))
                       NFC_NfceePLConfig(nfa_ee_cb.ecb[ee_entry_index].nfcee_id,
                                         0x03);
                     nfa_hciu_add_host_resetting(nfa_ee_cb.ecb[ee_entry_index].nfcee_id, NFCEE_INIT_COMPLETED);
@@ -1001,7 +1000,7 @@ bool nfa_hci_enable_one_nfcee(void) {
                           continue;
                         }
                     }
-                    if (nfceeid == NFA_HCI_FIRST_PROP_HOST &&
+                    if (nfa_hci_is_power_link_required(nfceeid) &&
                         ((nfa_hciu_find_dyn_conn_pipe_for_host(nfceeid) ==
                           nullptr) ||
                          (nfa_hciu_find_dyn_apdu_pipe_for_host(nfceeid) ==
