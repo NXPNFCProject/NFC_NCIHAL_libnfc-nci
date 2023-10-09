@@ -32,7 +32,7 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 *
-*  Copyright 2018-2021 NXP
+*  Copyright 2018-2021, 2023 NXP
 *
 ******************************************************************************/
 
@@ -815,23 +815,23 @@ typedef struct {
   uint8_t addr_mode;
   uint8_t i93_t5t_mode;
   uint8_t t5t_area_start_block;  /* offset of first block of T5T_Area  */
-  uint16_t t5t_area_last_offset; /* offset of last byte of T5T_Area  */
+  uint32_t t5t_area_last_offset; /* offset of last byte of T5T_Area  */
 
   /* Greedy collection with NDEF Detection data */
   uint8_t gre_validity;
   uint8_t gre_cc_content[8];
-  uint16_t gre_ndef_tlv_pos;
-  uint16_t gre_ndef_tlv_length;
-  uint16_t tlv_length;      /* currently detected length        */
+  uint32_t gre_ndef_tlv_pos;
+  uint32_t gre_ndef_tlv_length;
+  uint32_t tlv_length;      /* currently detected length        */
 
-  uint16_t ndef_tlv_start_offset; /* offset of first byte of NDEF TLV */
-  uint16_t ndef_tlv_last_offset;  /* offset of last byte of NDEF TLV  */
-  uint16_t max_ndef_length;       /* max NDEF length the tag contains */
-  uint16_t ndef_length;           /* length of NDEF data              */
+  uint32_t ndef_tlv_start_offset; /* offset of first byte of NDEF TLV */
+  uint32_t ndef_tlv_last_offset;  /* offset of last byte of NDEF TLV  */
+  uint32_t max_ndef_length;       /* max NDEF length the tag contains */
+  uint32_t ndef_length;           /* length of NDEF data              */
 
   uint8_t* p_update_data; /* pointer of data to update        */
-  uint16_t rw_length;     /* bytes to read/write              */
-  uint16_t rw_offset;     /* offset to read/write             */
+  uint32_t rw_length;     /* bytes to read/write              */
+  uint32_t rw_offset;     /* offset to read/write             */
   bool in_pres_check;
 } tRW_I93_CB;
 

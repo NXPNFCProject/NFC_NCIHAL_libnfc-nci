@@ -31,7 +31,7 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 *
-*  Copyright 2018-2020 NXP
+*  Copyright 2018-2020, 2023 NXP
 *
 ******************************************************************************/
 
@@ -1307,7 +1307,7 @@ extern tNFC_STATUS RW_I93ReadNDef(void);
 **                  NFC_STATUS_FAILED if I93 is busy or other error
 **
 *******************************************************************************/
-extern tNFC_STATUS RW_I93UpdateNDef(uint16_t length, uint8_t* p_data);
+extern tNFC_STATUS RW_I93UpdateNDef(uint32_t length, uint8_t* p_data);
 
 /*******************************************************************************
 **

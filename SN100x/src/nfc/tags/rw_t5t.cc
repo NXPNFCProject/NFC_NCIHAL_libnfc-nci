@@ -18,6 +18,26 @@
 
 /******************************************************************************
  *
+ *  The original Work has been changed by NXP.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  Copyright 2023 NXP
+ *
+ ******************************************************************************/
+
+/******************************************************************************
+ *
  *  This file contains the implementation for specific NFC Forum T5T operations
  *  in Reader/Writer mode.
  *
@@ -38,7 +58,7 @@
 using android::base::StringPrintf;
 
 extern void rw_i93_handle_error(tNFC_STATUS);
-extern tNFC_STATUS rw_i93_get_next_blocks(uint16_t);
+extern tNFC_STATUS rw_i93_get_next_blocks(uint32_t);
 extern tNFC_STATUS rw_i93_send_cmd_read_single_block(uint16_t, bool);
 extern tNFC_STATUS rw_i93_send_cmd_write_single_block(uint16_t, uint8_t*);
 extern tNFC_STATUS rw_i93_send_cmd_lock_block(uint16_t);

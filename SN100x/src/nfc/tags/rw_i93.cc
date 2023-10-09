@@ -1698,17 +1698,16 @@ tNFC_STATUS rw_i93_send_cmd_get_multi_block_sec(uint16_t first_block_number,
 ** Returns          tNFC_STATUS
 **
 *******************************************************************************/
-tNFC_STATUS rw_i93_get_next_blocks(uint16_t offset) {
+tNFC_STATUS rw_i93_get_next_blocks(uint32_t offset) {
   tRW_I93_CB* p_i93 = &rw_cb.tcb.i93;
-  uint16_t first_block;
-  uint16_t num_block;
+  uint32_t first_block;
+  uint32_t num_block;
 
   DLOG_IF(INFO, nfc_debug_enabled) << __func__;
 
   first_block = offset / p_i93->block_size;
 
   /* more blocks, more efficent but more error rate */
-
   if (p_i93->intl_flags & RW_I93_FLAG_READ_MULTI_BLOCK) {
     num_block = RW_I93_READ_MULTI_BLOCK_SIZE / p_i93->block_size;
 
@@ -1771,7 +1770,6 @@ tNFC_STATUS rw_i93_get_next_blocks(uint16_t offset) {
         }
       }
     }
-
     if (num_block == 0) {
       /* only one remaining block to read */
       return rw_i93_send_cmd_read_single_block(first_block, false);
@@ -2248,7 +2246,7 @@ void rw_i93_sm_detect_ndef(NFC_HDR* p_resp) {
 void rw_i93_sm_read_ndef(NFC_HDR* p_resp) {
   uint8_t* p = (uint8_t*)(p_resp + 1) + p_resp->offset;
   uint8_t flags;
-  uint16_t offset, length = p_resp->len;
+  uint32_t offset, length = p_resp->len;
   tRW_I93_CB* p_i93 = &rw_cb.tcb.i93;
   tRW_DATA rw_data;
 
@@ -2302,7 +2300,6 @@ void rw_i93_sm_read_ndef(NFC_HDR* p_resp) {
     /* in case of no Ndef data included */
     p_resp->len = 0;
   }
-
   /* if read all of NDEF data */
   if (p_i93->rw_length >= p_i93->ndef_length) {
     /* remove extra btyes in the last block */
@@ -2327,7 +2324,6 @@ void rw_i93_sm_read_ndef(NFC_HDR* p_resp) {
       // free buffer, if len == 0
       GKI_freebuf(p_resp);
     }
-
     /* this will make read data from next block */
     p_i93->rw_offset += length;
 
@@ -4124,7 +4120,7 @@ tNFC_STATUS RW_I93ReadNDef(void) {
 **                  NFC_STATUS_FAILED if I93 is busy or other error
 **
 *******************************************************************************/
-tNFC_STATUS RW_I93UpdateNDef(uint16_t length, uint8_t* p_data) {
+tNFC_STATUS RW_I93UpdateNDef(uint32_t length, uint8_t* p_data) {
   uint16_t block_number;
 
   DLOG_IF(INFO, nfc_debug_enabled)
