@@ -3618,6 +3618,42 @@ void nfa_hci_handle_control_evt(tNFC_CONN_EVT event,
 
 /*******************************************************************************
  **
+ ** Function         is_ese_apdu_pipe_required
+ **
+ ** Description      Checks if eSE APDU pipe needs to be created or not.
+ **
+ ** Returns          TRUE, if given nfcee_id is eSE & APDU pipe shall be created
+ **                  for eSE otherwise false
+ **
+ *******************************************************************************/
+inline bool is_ese_apdu_pipe_required(uint8_t nfcee_id) {
+  if (nfcee_id == NFA_HCI_FIRST_PROP_HOST &&
+      nfa_hci_cb.se_apdu_gate_support == NFC_EE_TYPE_ESE) {
+    return true;
+  }
+  return false;
+}
+
+/*******************************************************************************
+ **
+ ** Function         is_euicc_apdu_pipe_required
+ **
+ ** Description      Checks if eUICC APDU pipe needs to be created or not.
+ **
+ ** Returns          TRUE, if given nfcee_id is eUICC & APDU pipe shall be
+ **                  created for eUICC otherwise false
+ **
+ *******************************************************************************/
+inline bool is_euicc_apdu_pipe_required(uint8_t nfcee_id) {
+  if (IS_PROP_EUICC_HOST(nfcee_id) &&
+      (nfa_hci_cb.se_apdu_gate_support == NFC_EE_TYPE_EUICC_WITH_APDUPIPE19 ||
+       nfa_hci_cb.se_apdu_gate_support == NFC_EE_TYPE_EUICC)) {
+    return true;
+  }
+  return false;
+}
+/*******************************************************************************
+ **
  ** Function         nfa_hci_is_power_link_required
  **
  ** Description      Checks if power link command is required to send as per
@@ -3629,26 +3665,25 @@ void nfa_hci_handle_control_evt(tNFC_CONN_EVT event,
  *******************************************************************************/
 bool nfa_hci_is_power_link_required(uint8_t source_host) {
   uint8_t nfceeid = 0x00;
+  bool required = false;
   uint8_t mNumEe = NFA_HCI_MAX_HOST_IN_NETWORK;
   tNFA_EE_INFO eeInfo[NFA_HCI_MAX_HOST_IN_NETWORK] = {};
   memset(&eeInfo, 0, mNumEe * sizeof(tNFA_EE_INFO));
 
-  if(!IS_PROP_HOST(source_host))
-    return false;
-
+  if (!IS_PROP_HOST(source_host)) return false;
   NFA_EeGetInfo(&mNumEe, eeInfo);
   for (int yy = 0; yy < mNumEe; yy++) {
     nfceeid = eeInfo[yy].ee_handle & ~NFA_HANDLE_GROUP_EE;
-    if(nfceeid == NFA_HCI_FIRST_PROP_HOST){
-      break;
+    if (nfceeid == NFA_HCI_FIRST_PROP_HOST &&
+        is_ese_apdu_pipe_required(source_host)) {
+        required = true;
+        break;
     }
-    if(IS_PROP_EUICC_HOST(nfceeid))
-      return true;
+    if (is_euicc_apdu_pipe_required(nfceeid)) {
+        required = true;
+    }
   }
-  if (source_host == NFA_HCI_FIRST_PROP_HOST)
-     return true;
-
-  return false;
+  return required;
 }
 /*******************************************************************************
  **
