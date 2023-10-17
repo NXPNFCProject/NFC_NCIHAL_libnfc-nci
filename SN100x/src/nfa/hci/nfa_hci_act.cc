@@ -1240,7 +1240,7 @@ static void nfa_hci_api_add_static_pipe(tNFA_HCI_EVENT_DATA* p_evt_data) {
 ** Returns          none
 **
 *******************************************************************************/
-void nfa_hci_handle_link_mgm_gate_cmd(uint8_t* p_data) {
+void nfa_hci_handle_link_mgm_gate_cmd(uint8_t* p_data, uint16_t data_len) {
   uint8_t index;
   uint8_t data[2];
   uint8_t rsp_len = 0;
@@ -1255,15 +1255,23 @@ void nfa_hci_handle_link_mgm_gate_cmd(uint8_t* p_data) {
 
   switch (nfa_hci_cb.inst) {
     case NFA_HCI_ANY_SET_PARAMETER:
+      if (data_len < 1) {
+        response = NFA_HCI_ANY_E_CMD_NOT_SUPPORTED;
+        break;
+      }
       STREAM_TO_UINT8(index, p_data);
 
-      if (index == 1) {
+      if (index == 1 && data_len > 2) {
         STREAM_TO_UINT16(nfa_hci_cb.cfg.link_mgmt_gate.rec_errors, p_data);
       } else
         response = NFA_HCI_ANY_E_REG_PAR_UNKNOWN;
       break;
 
     case NFA_HCI_ANY_GET_PARAMETER:
+      if (data_len < 1) {
+        response = NFA_HCI_ANY_E_CMD_NOT_SUPPORTED;
+        break;
+      }
       STREAM_TO_UINT8(index, p_data);
       if (index == 1) {
         data[0] =
@@ -1334,7 +1342,7 @@ void nfa_hci_handle_pipe_open_close_cmd(tNFA_HCI_DYN_PIPE* p_pipe) {
 ** Returns          none
 **
 *******************************************************************************/
-void nfa_hci_handle_admin_gate_cmd(uint8_t* p_data) {
+void nfa_hci_handle_admin_gate_cmd(uint8_t* p_data, uint16_t data_len) {
   uint8_t source_host, source_gate, dest_host, dest_gate, pipe;
   uint8_t data = 0;
   uint8_t rsp_len = 0;
@@ -1360,6 +1368,10 @@ void nfa_hci_handle_admin_gate_cmd(uint8_t* p_data) {
       break;
 
     case NFA_HCI_ADM_NOTIFY_PIPE_CREATED:
+      if (data_len < 5) {
+        response = NFA_HCI_ANY_E_CMD_NOT_SUPPORTED;
+        break;
+      }
       STREAM_TO_UINT8(source_host, p_data);
       STREAM_TO_UINT8(source_gate, p_data);
       STREAM_TO_UINT8(dest_host, p_data);
@@ -1407,11 +1419,19 @@ void nfa_hci_handle_admin_gate_cmd(uint8_t* p_data) {
       break;
 
     case NFA_HCI_ADM_NOTIFY_PIPE_DELETED:
+      if (data_len < 1) {
+        response = NFA_HCI_ANY_E_CMD_NOT_SUPPORTED;
+        break;
+      }
       STREAM_TO_UINT8(pipe, p_data);
       response = nfa_hciu_release_pipe(pipe);
       break;
 
     case NFA_HCI_ADM_NOTIFY_ALL_PIPE_CLEARED:
+      if (data_len < 1) {
+        response = NFA_HCI_ANY_E_CMD_NOT_SUPPORTED;
+        break;
+      }
       STREAM_TO_UINT8(source_host, p_data);
 #if(NXP_EXTNS != TRUE)
       nfa_hciu_remove_all_pipes_from_host(source_host);

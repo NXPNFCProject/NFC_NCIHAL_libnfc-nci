@@ -42,6 +42,7 @@
 #ifndef NFA_HCI_INT_H
 #define NFA_HCI_INT_H
 
+#include <cstdint>
 #include <string>
 #include "nfa_ee_api.h"
 #include "nfa_hci_api.h"
@@ -710,10 +711,11 @@ extern void nfa_hci_enable_one_nfcee(void);
 */
 extern void nfa_hci_check_pending_api_requests(void);
 extern void nfa_hci_check_api_requests(void);
-extern void nfa_hci_handle_admin_gate_cmd(uint8_t* p_data);
+extern void nfa_hci_handle_admin_gate_cmd(uint8_t* p_data, uint16_t data_len);
 extern void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len);
 extern void nfa_hci_handle_admin_gate_evt();
-extern void nfa_hci_handle_link_mgm_gate_cmd(uint8_t* p_data);
+extern void nfa_hci_handle_link_mgm_gate_cmd(uint8_t* p_data,
+                                             uint16_t data_len);
 extern void nfa_hci_handle_dyn_pipe_pkt(uint8_t pipe, uint8_t* p_data,
                                         uint16_t data_len);
 extern void nfa_hci_handle_pipe_open_close_cmd(tNFA_HCI_DYN_PIPE* p_pipe);
