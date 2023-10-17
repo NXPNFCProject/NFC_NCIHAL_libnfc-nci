@@ -572,6 +572,18 @@ extern tNFA_STATUS NFA_HciGetRegistry(tNFA_HANDLE hci_handle, uint8_t pipe,
  *******************************************************************************/
 bool nfa_hci_is_power_link_required(uint8_t source_host);
 /*******************************************************************************
+ **
+ ** Function         nfa_hci_is_apdu_pipe_required
+ **
+ ** Description      Inline function to check APDU pipe creation is needed for
+ **                  given NFCEEs.
+ **
+ ** Returns          TRUE, if APDU pipe creation is needed for give nfcee
+ **                  otherwise false.
+ **
+ *******************************************************************************/
+bool nfa_hci_is_apdu_pipe_required(uint8_t nfcee_id);
+/*******************************************************************************
 **
 ** Function         NFA_HciSetRegistry
 **

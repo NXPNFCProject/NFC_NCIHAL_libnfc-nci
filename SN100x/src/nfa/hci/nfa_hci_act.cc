@@ -2822,30 +2822,27 @@ bool nfa_hci_check_set_apdu_pipe_ready_for_next_host ()
         }
         LOG(INFO) << StringPrintf("after updating NFCEE id %x", nfcee);
         if (nfcee == p_host->host_id) {
-          /* if apdu_gatee_support set to NFC_EE_TYPE_NONE no apdu pipe will be created
-             if value set to NFC_EE_TYPE_ESE, create apdu gate for eSE
-             if value set to NFC_EE_TYPE_EUICC, create apdu gate for eUICC
-             if value set to NFC_EE_TYPE_EUICC_WITH_APDUPIPE19
-                Create the apdu gate for eUICC with APDU pipe 0x19 */
-          if (((nfa_hci_cb.se_apdu_gate_support == NFC_EE_TYPE_NONE) &&
-            (IS_PROP_HOST(p_host->host_id))) ||
-            ((nfa_hci_cb.se_apdu_gate_support == NFC_EE_TYPE_ESE) &&
-            (IS_PROP_EUICC_HOST(p_host->host_id))) ||
-            ((nfa_hci_cb.se_apdu_gate_support == NFC_EE_TYPE_EUICC ||
-              nfa_hci_cb.se_apdu_gate_support == NFC_EE_TYPE_EUICC_WITH_APDUPIPE19) &&
-            p_host->host_id == NFA_HCI_FIRST_PROP_HOST)) {
-            LOG(INFO) << StringPrintf("APDU pipe for SE-%x is skipped",
-                          p_host->host_id);
-            continue;
-          }
-          nfa_hciu_clear_host_resetting(p_host->host_id, NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED);
+          nfa_hciu_clear_host_resetting(p_host->host_id,
+                                        NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED);
           if (IS_PROP_HOST(p_host->host_id)) {
-            nfa_hci_api_add_prop_host_info(p_host->host_id);
-            done = nfa_hci_set_apdu_pipe_ready_for_host(p_host->host_id);
+                /* if apdu_gatee_support set to NFC_EE_TYPE_NONE no apdu pipe
+                   will be created if value set to NFC_EE_TYPE_ESE, create apdu
+                   gate for eSE if value set to NFC_EE_TYPE_EUICC, create apdu
+                   gate for eUICC if value set to
+                   NFC_EE_TYPE_EUICC_WITH_APDUPIPE19 Create the apdu gate for
+                   eUICC with APDU pipe 0x19 */
+                if (!nfa_hci_is_apdu_pipe_required(p_host->host_id)) {
+                    nfa_hci_check_nfcee_init_complete(p_host->host_id);
+                    LOG(INFO) << StringPrintf("APDU pipe for SE-%x is skipped",
+                                              p_host->host_id);
+                    continue;
+                }
+                nfa_hci_api_add_prop_host_info(p_host->host_id);
+                done = nfa_hci_set_apdu_pipe_ready_for_host(p_host->host_id);
           } else if (nfa_hci_cb.uicc_etsi_support) {
-            done = nfa_hci_set_apdu_pipe_ready_for_host(p_host->host_id);
+                done = nfa_hci_set_apdu_pipe_ready_for_host(p_host->host_id);
           } else {
-            done = false;
+                done = false;
           }
           break;
         }
@@ -3651,6 +3648,25 @@ inline bool is_euicc_apdu_pipe_required(uint8_t nfcee_id) {
     return true;
   }
   return false;
+}
+/*******************************************************************************
+ **
+ ** Function         nfa_hci_is_apdu_pipe_required
+ **
+ ** Description      It checks APDU pipe creation is needed for
+ **                  given NFCEEs.
+ **
+ ** Returns          TRUE, if APDU pipe creation is needed for give nfcee
+ **                  otherwise false.
+ **
+ *******************************************************************************/
+bool nfa_hci_is_apdu_pipe_required(uint8_t nfcee_id) {
+    if ((nfa_hci_cb.se_apdu_gate_support != NFC_EE_TYPE_NONE) &&
+        (is_ese_apdu_pipe_required(nfcee_id) ||
+         is_euicc_apdu_pipe_required(nfcee_id))) {
+      return true;
+    }
+    return false;
 }
 /*******************************************************************************
  **

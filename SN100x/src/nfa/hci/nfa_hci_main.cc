@@ -386,7 +386,8 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
               (nfa_hci_cb.hci_state == NFA_HCI_STATE_RESTORE_NETWK_ENABLE))) {
                              DLOG_IF(INFO, nfc_debug_enabled)
                 << StringPrintf("NFA_EE_STATUS_NTF received during IDLE %x",nfa_ee_cb.ecb[ee_entry_index].nfcee_id);
-                if (nfa_hciu_find_dyn_apdu_pipe_for_host (nfa_ee_cb.ecb[ee_entry_index].nfcee_id) == nullptr)
+                if (nfa_hciu_find_dyn_apdu_pipe_for_host (nfa_ee_cb.ecb[ee_entry_index].nfcee_id) == nullptr &&
+                    nfa_hci_is_apdu_pipe_required(nfa_ee_cb.ecb[ee_entry_index].nfcee_id))
                 {
                   nfa_hci_cb.curr_nfcee = nfa_ee_cb.ecb[ee_entry_index].nfcee_id;
                   if (IS_PROP_HOST(nfa_ee_cb.ecb[ee_entry_index].nfcee_id) &&
