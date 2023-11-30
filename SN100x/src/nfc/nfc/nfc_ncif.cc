@@ -276,6 +276,7 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
   uint8_t buffer_size = p_cb->buff_size;
   uint8_t hdr0 = p_cb->conn_id;
   bool fragmented = false;
+  bool empty_p_data = p_data == nullptr;
 
   DLOG_IF(INFO, nfc_debug_enabled)
       << StringPrintf("nfc_ncif_send_data :%d, num_buff:%d qc:%d",
@@ -372,7 +373,7 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
   }
 
   // log duration for the first hce data response
-  if (timer_start.tv_sec != 0 || timer_start.tv_usec != 0) {
+  if (!empty_p_data && (timer_start.tv_sec != 0 || timer_start.tv_usec != 0)) {
     gettimeofday(&timer_end, nullptr);
     uint32_t delta_time_ms = (timer_end.tv_sec - timer_start.tv_sec) * 1000 +
                              (timer_end.tv_usec - timer_start.tv_usec) / 1000;
@@ -380,6 +381,8 @@ uint8_t nfc_ncif_send_data(tNFC_CONN_CB* p_cb, NFC_HDR* p_data) {
     memset(&timer_end, 0, sizeof(timer_end));
     nfc::stats::stats_write(nfc::stats::NFC_HCE_TRANSACTION_OCCURRED,
                             (int32_t)delta_time_ms);
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("nfc_ncif_send_data delta_time:%d", delta_time_ms);
   }
   return (NCI_STATUS_OK);
 }
