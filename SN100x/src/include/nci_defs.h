@@ -253,7 +253,18 @@
 /**********************************************
  * NCI Proprietary  Group       - F
  **********************************************/
+#define NCI_MSG_PROP_ANDROID 0x0C
 
+#define NCI_ANDROID_SIGNAL_STRENGTH_NTF 0x01
+#define NCI_ANDROID_FIELD_CHANGE_NTF 0x02
+#define NCI_ANDROID_POLLING_FRAME_NTF 0x03
+
+#define NCI_ANDROID_PASSIVE_OBSERVER 0x2
+
+/* Android Passive Observer Settings */
+#define NCI_ANDROID_PASSIVE_OBSERVER_PARAM_SIZE 0x2
+#define NCI_ANDROID_PASSIVE_OBSERVER_PARAM_DISABLE 0x0
+#define NCI_ANDROID_PASSIVE_OBSERVER_PARAM_ENABLE 0x1
 /**********************************************
  * NCI Core Group Params
  **********************************************/
