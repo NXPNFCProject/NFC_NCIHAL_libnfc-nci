@@ -1,4 +1,4 @@
-cc_library_shared {
+cc_library {
     arch: {
         arm: {
             instruction_set: "arm",
@@ -12,13 +12,16 @@ cc_library_shared {
         "libz",
         "libchrome",
         "libbase",
-        "libstatslog_nfc",
 
         // Treble configuration
         "libhidlbase",
         "libutils",
         "libbinder",
         "libbinder_ndk",
+        "libstatssocket",
+	"libmemunreachable",
+    ],
+    static_libs: [
         "android.hardware.nfc@1.0",
         "android.hardware.nfc@1.1",
         "android.hardware.nfc@1.2",
@@ -26,12 +29,9 @@ cc_library_shared {
         "vendor.nxp.nxpnfc_aidl-V1-ndk",
         // Add for AIDL
         "android.hardware.nfc-V1-ndk",
-        "libbinder_ndk",
         // Added for Memory leak trace
-        "libmemunreachable",
-    ],
-    static_libs: [
         "libnfcutils",
+	"libstatslog_nfc",
     ],
     cflags: [
         "-DDYN_ALLOC=1",
@@ -87,7 +87,11 @@ cc_library_shared {
             no_recover: ["bounds", "integer"],
         },
     },
-
+    stl: "libc++_static",
+    apex_available: [
+         "//apex_available:platform",
+	 "com.android.nfcservices"
+    ],
 }
 cc_defaults {
     name: "nfc_fuzzer_defaults",
@@ -162,6 +166,10 @@ cc_library {
             enabled: false,
         },
     },
+    apex_available: [
+         "//apex_available:platform",
+	 "com.android.nfcservices"
+    ],
 }
 
 genrule {

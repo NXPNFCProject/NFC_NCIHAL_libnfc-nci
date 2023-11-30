@@ -40,7 +40,10 @@ cc_library_static {
     shared_libs: [
         "libbase",
     ],
-
+    apex_available: [
+         "//apex_available:platform",
+         "com.android.nfcservices"
+    ],
 }
 
 cc_test {
