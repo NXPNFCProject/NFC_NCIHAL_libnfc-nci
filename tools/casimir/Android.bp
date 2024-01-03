@@ -1,0 +1,74 @@
+// Copyright 2023, The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+genrule {
+    name: "casimir_nci_packets_rust_gen",
+    defaults: ["pdl_rust_generator_defaults"],
+    srcs: ["src/nci_packets.pdl"],
+    out: ["nci_packets.rs"],
+}
+
+genrule {
+    name: "casimir_rf_packets_rust_gen",
+    defaults: ["pdl_rust_generator_defaults"],
+    srcs: ["src/rf_packets.pdl"],
+    out: ["rf_packets.rs"],
+}
+
+rust_binary_host {
+    name: "casimir",
+    crate_name: "casimir",
+    edition: "2021",
+    srcs: [
+        "src/main.rs",
+        ":casimir_nci_packets_rust_gen",
+        ":casimir_rf_packets_rust_gen",
+    ],
+    rustlibs: [
+        "libanyhow",
+        "libargh",
+        "libtokio",
+        "libbytes",
+        "libfutures",
+        "libpdl_runtime",
+    ],
+}
+
+genrule {
+    name: "casimir_rf_packets_cxx_gen",
+    tools: [
+        ":pdl_cxx_generator",
+        ":pdlc",
+    ],
+    cmd: "set -o pipefail;" +
+        " $(location :pdlc) $(in) |" +
+        " $(location :pdl_cxx_generator)" +
+        " --namespace casimir::rf" +
+        " --output $(out)",
+    srcs: [
+        "src/rf_packets.pdl",
+    ],
+    out: [
+        "rf_packets.h",
+    ],
+}
+
+cc_library_headers {
+    name: "casimir_rf_packets_cxx",
+    generated_headers: ["casimir_rf_packets_cxx_gen"],
+    header_libs: ["pdl_cxx_packet_runtime"],
+    export_generated_headers: ["casimir_rf_packets_cxx_gen"],
+    export_header_lib_headers: ["pdl_cxx_packet_runtime"],
+    host_supported: true,
+}

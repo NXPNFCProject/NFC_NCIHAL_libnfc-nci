@@ -1,0 +1,754 @@
+little_endian_packets
+
+/// Packet specification for [NCI] NFC Controller Interface Technical
+/// Specification Version 2.2
+
+enum PacketBoundaryFlag : 1 {
+  COMPLETE_OR_FINAL = 0,
+  INCOMPLETE = 1,
+}
+
+enum MessageType : 3 {
+  DATA = 0,
+  COMMAND = 1,
+  RESPONSE = 2,
+  NOTIFICATION = 3,
+}
+
+enum GroupId : 4 {
+  CORE = 0x0,
+  RF_MANAGEMENT = 0x1,
+  NFCEE_MANAGEMENT = 0x2,
+  NFCC_MANAGEMENT = 0x3,
+  TEST_MANAGEMENT = 0x4,
+  PROPRIETARY = 0xF,
+}
+
+enum CoreOpcodeId : 6 {
+  RESET = 0x0,
+  INIT = 0x1,
+  SET_CONFIG = 0x2,
+  GET_CONFIG = 0x3,
+  CONN_CREATE = 0x4,
+  CONN_CLOSE = 0x5,
+  CONN_CREDITS = 0x6,
+  GENERIC_ERROR = 0x7,
+  INTERFACE_ERROR = 0x8,
+  SET_POWER_SUB_STATE = 0x9,
+  RFU = 0xa..0x3f,
+}
+
+enum RfOpcodeId : 6 {
+  DISCOVER_MAP = 0x0,
+  SET_LISTEN_MODE_ROUTING = 0x1,
+  GET_LISTEN_MODE_ROUTING = 0x2,
+  DISCOVER = 0x3,
+  DISCOVER_SELECT = 0x4,
+  INTF_ACTIVATED = 0x5,
+  DEACTIVATE = 0x6,
+  FIELD_INFO = 0x7,
+  T3T_POLLING = 0x8,
+  NFCEE_ACTION = 0x9,
+  NFCEE_DISCOVERY_REQ = 0xa,
+  PARAMETER_UPDATE = 0xb,
+  INTF_EXT_START = 0xc,
+  INTF_EXT_STOP = 0xd,
+  EXT_AGG_ABORT = 0xe,
+  NDEF_ABORT = 0xf,
+  ISO_DEP_NAK_PRESENCE = 0x10,
+  SET_FORCED_NFCEE_ROUTING_CMD = 0x11,
+  RFU = 0x12..0x3f,
+}
+
+enum NfceeOpcodeId : 6 {
+  DISCOVER = 0x0,
+  MODE_SET = 0x1,
+  STATUS = 0x2,
+  POWER_AND_LINK_CNTRL = 0x3,
+  RFU = 0x4..0x3f,
+}
+
+enum ProprietaryOpcodeId : 6 {
+  ANDROID = 0xC,
+}
+
+enum AndroidSubOpcodeId : 8 {
+  OBSERVE_MODE = 0x2,
+}
+
+enum Status : 8 {
+  OK = 0x00,
+  REJECTED = 0x01,
+  FAILED = 0x03,
+  NOT_INITIALIZED = 0x04,
+  SYNTAX_ERROR = 0x05,
+  SEMANTIC_ERROR = 0x06,
+  INVALID_PARAM = 0x09,
+  MESSAGE_SIZE_EXCEEDED = 0x0A,
+  OK_1_BIT = 0x11,
+  OK_2_BIT = 0x12,
+  OK_3_BIT = 0x13,
+  OK_4_BIT = 0x14,
+  OK_5_BIT = 0x15,
+  OK_6_BIT = 0x16,
+  OK_7_BIT = 0x17,
+  DISCOVERY_ALREADY_STARTED = 0xA0,
+  DISCOVERY_TARGET_ACTIVATION_FAILED = 0xA1,
+  DISCOVERY_TEAR_DOWN = 0xA2,
+  RF_FRAME_CORRUPTED = 0x02,
+  RF_TRANSMISSION_EXCEPTION = 0xB0,
+  RF_PROTOCOL_EXCEPTION = 0xB1,
+  RF_TIMEOUT_EXCEPTION = 0xB2,
+  RF_UNEXPECTED_DATA = 0xB3,
+  NFCEE_INTERFACE_ACTIVATION_FAILED = 0xC0,
+  NFCEE_TRANSMISSION_ERROR = 0xC1,
+  NFCEE_PROTOCOL_ERROR = 0xC2,
+  NFCEE_TIMEOUT_ERROR = 0xC3,
+}
+
+// [NCI] Table 4: Conn ID
+enum ConnId : 4 {
+  STATIC_RF = 0x0,
+  STATIC_HCI = 0x1,
+  DYNAMIC = 0x2 .. 0xf,
+}
+
+// [NCI] Table 67: RF Discovery ID
+enum RfDiscoveryId : 8 {
+  ID = 0x01 .. 0xfe,
+  RFU = ..,
+}
+
+// Generic format for NCI packet headers.
+// The Control and Data packets differ in the reserved fields
+// but the framing information is the same.
+packet PacketHeader {
+  _reserved_ : 4,
+  pbf : PacketBoundaryFlag,
+  mt : MessageType,
+  _reserved_ : 8,
+  payload_length : 8,
+}
+
+// Pre-framed NCI control packet. The framing information is ignored
+// including the payload length.
+packet ControlPacket {
+  gid : GroupId,
+  _reserved_ : 1,
+  mt : MessageType,
+  _payload_,
+}
+
+// Pre-framed NCI data packet. The framing information is ignored
+// including the payload length.
+packet DataPacket {
+  conn_id : ConnId,
+  _reserved_ : 1,
+  mt : MessageType,
+  cr : 2,
+  _reserved_ : 6,
+  _reserved_ : 8,
+  _payload_,
+}
+
+packet CorePacket : ControlPacket (gid = CORE) {
+  oid : CoreOpcodeId,
+  _reserved_ : 2,
+  _reserved_ : 8,
+  _payload_,
+}
+
+enum ResetType : 8 {
+  KEEP_CONFIG = 0,
+  RESET_CONFIG = 1,
+}
+
+packet CoreResetCommand : CorePacket (mt = COMMAND, oid = RESET) {
+  reset_type : ResetType
+}
+
+packet CoreResetResponse : CorePacket (mt = RESPONSE, oid = RESET) {
+  status : Status
+}
+
+enum ResetTrigger : 8 {
+  UNRECOVERABLE_ERROR = 0,
+  POWER_ON = 1,
+  RESET_COMMAND = 2,
+}
+
+enum ConfigStatus : 8 {
+  CONFIG_KEPT = 0x00,
+  CONFIG_RESET = 0x01,
+}
+
+enum NciVersion : 8 {
+  VERSION_1_0 = 0x10,
+  VERSION_1_1 = 0x11,
+  VERSION_2_0 = 0x20,
+  VERSION_2_1 = 0x21,
+  VERSION_2_2 = 0x22,
+}
+
+packet CoreResetNotification : CorePacket (mt = NOTIFICATION, oid = RESET) {
+  trigger : ResetTrigger,
+  config_status : ConfigStatus,
+  nci_version : NciVersion,
+  manufacturer_id: 8,
+  _size_(manufacturer_specific_information) : 8,
+  manufacturer_specific_information : 8[],
+}
+
+struct FeatureEnable {
+  _reserved_ : 16,
+}
+
+packet CoreInitCommand : CorePacket (mt = COMMAND, oid = INIT) {
+  feature_enable : FeatureEnable,
+}
+
+enum FeatureFlag : 1 {
+  Enabled = 0,
+  Disabled = 1,
+}
+
+enum DiscoveryConfigurationMode : 2 {
+  DH_ONLY = 0x0,
+  DH_AND_NFCEE = 0x1,
+}
+
+struct NfccFeatures {
+  discovery_frequency_configuration : FeatureFlag,
+  discovery_configuration_mode : DiscoveryConfigurationMode,
+  hci_network_support : FeatureFlag,
+  active_communication_mode : FeatureFlag,
+  _reserved_ : 3,
+  _reserved_: 1,
+  technology_based_routing : FeatureFlag,
+  protocol_based_routing : FeatureFlag,
+  aid_based_routing : FeatureFlag,
+  system_code_based_routing : FeatureFlag,
+  apdu_pattern_based_routing : FeatureFlag,
+  forced_nfcee_routing : FeatureFlag,
+  _reserved_ : 1,
+  battery_off_state : FeatureFlag,
+  switched_off_state : FeatureFlag,
+  switched_on_substates : FeatureFlag,
+  rf_configuration_in_switched_off_state: FeatureFlag,
+  _reserved_ : 4,
+  proprietary_capabilities: 8,
+}
+
+enum RfInterfaceType : 8 {
+  NFCEE_DIRECT = 0x00,
+  FRAME = 0x01,
+  ISO_DEP = 0x02,
+  NFC_DEP = 0x03,
+  NDEF = 0x06,
+}
+
+enum RfInterfaceExtensionType : 8 {
+  FRAME_AGGREGATED = 0x00,
+  LLCP_SYMMETRY = 0x01,
+}
+
+struct RfInterface {
+  interface : RfInterfaceType,
+  _count_(extensions) : 8,
+  extensions : RfInterfaceExtensionType[],
+}
+
+packet CoreInitResponse : CorePacket (mt = RESPONSE, oid = INIT) {
+  status : Status,
+  nfcc_features : NfccFeatures,
+  max_logical_connections : 8,
+  max_routing_table_size : 16,
+  max_control_packet_payload_size : 8,
+  max_data_packet_payload_size : 8,
+  number_of_credits : 8,
+  max_nfcv_rf_frame_size : 16,
+  _count_(supported_rf_interfaces) : 8,
+  supported_rf_interfaces: RfInterface[],
+}
+
+enum ConfigParameterId : 8 {
+  TOTAL_DURATION = 0x00,
+  CON_DISCOVERY_PARAM = 0x02,
+  POWER_STATE = 0x03,
+  PA_BAIL_OUT = 0x08,
+  PA_DEVICES_LIMIT = 0x09,
+  PB_AFI = 0x10,
+  PB_BAIL_OUT = 0x11,
+  PB_ATTRIB_PARAM1 = 0x12,
+  PB_SENSB_REQ_PARAM = 0x13,
+  PB_DEVICES_LIMIT = 0x14,
+  PF_BIT_RATE = 0x18,
+  PF_BAIL_OUT = 0x19,
+  PF_DEVICES_LIMIT = 0x1A,
+  PI_B_H_INFO = 0x20,
+  PI_BIT_RATE = 0x21,
+  PN_NFC_DEP_PSL = 0x28,
+  PN_ATR_REQ_GEN_BYTES = 0x29,
+  PN_ATR_REQ_CONFIG = 0x2A,
+  PV_DEVICES_LIMIT = 0x2F,
+  LA_BIT_FRAME_SDD = 0x30,
+  LA_PLATFORM_CONFIG = 0x31,
+  LA_SEL_INFO = 0x32,
+  LA_NFCID1 = 0x33,
+  LB_SENSB_INFO = 0x38,
+  LB_NFCID0 = 0x39,
+  LB_APPLICATION_DATA = 0x3A,
+  LB_SFGI = 0x3B,
+  LB_FWI_ADC_FO = 0x3C,
+  LB_BIT_RATE = 0x3E,
+  LF_T3T_IDENTIFIERS_1 = 0x40,
+  LF_T3T_IDENTIFIERS_2 = 0x41,
+  LF_T3T_IDENTIFIERS_3 = 0x42,
+  LF_T3T_IDENTIFIERS_4 = 0x43,
+  LF_T3T_IDENTIFIERS_5 = 0x44,
+  LF_T3T_IDENTIFIERS_6 = 0x45,
+  LF_T3T_IDENTIFIERS_7 = 0x46,
+  LF_T3T_IDENTIFIERS_8 = 0x47,
+  LF_T3T_IDENTIFIERS_9 = 0x48,
+  LF_T3T_IDENTIFIERS_10 = 0x49,
+  LF_T3T_IDENTIFIERS_11 = 0x4A,
+  LF_T3T_IDENTIFIERS_12 = 0x4B,
+  LF_T3T_IDENTIFIERS_13 = 0x4C,
+  LF_T3T_IDENTIFIERS_14 = 0x4D,
+  LF_T3T_IDENTIFIERS_15 = 0x4E,
+  LF_T3T_IDENTIFIERS_16 = 0x4F,
+  LF_T3T_MAX = 0x52,
+  LF_T3T_FLAGS = 0x53,
+  LF_T3T_RD_ALLOWED = 0x55,
+  LF_PROTOCOL_TYPE = 0x50,
+  LI_A_RATS_TB1 = 0x58,
+  LI_A_HIST_BY = 0x59,
+  LI_B_H_INFO_RESP = 0x5A,
+  LI_A_BIT_RATE = 0x5B,
+  LI_A_RATS_TC1 = 0x5C,
+  LN_WT = 0x60,
+  LN_ATR_RES_GEN_BYTES = 0x61,
+  LN_ATR_RES_CONFIG = 0x62,
+  PACM_BIT_RATE = 0x68,
+  RF_FIELD_INFO = 0x80,
+  RF_NFCEE_ACTION = 0x81,
+  NFCDEP_OP = 0x82,
+  LLCP_VERSION = 0x83,
+  NFCC_CONFIG_CONTROL = 0x85,
+  PROP0 = 0xa0,
+  PROP1 = 0xa1,
+  PROP2 = 0xa2,
+  PROP3 = 0xa3,
+  PROP4 = 0xa4,
+  PROP5 = 0xa5,
+  RFU = ..,
+}
+
+struct ConfigParameter {
+  id : ConfigParameterId,
+  _size_(value) : 8,
+  value : 8[],
+}
+
+packet CoreSetConfigCommand : CorePacket (mt = COMMAND, oid = SET_CONFIG) {
+  _count_(parameters) : 8,
+  parameters : ConfigParameter[],
+}
+
+packet CoreSetConfigResponse : CorePacket (mt = RESPONSE, oid = SET_CONFIG) {
+  status : Status,
+  _count_(parameters) : 8,
+  parameters : ConfigParameterId[],
+}
+
+packet CoreGetConfigCommand : CorePacket (mt = COMMAND, oid = GET_CONFIG) {
+  _count_(parameters) : 8,
+  parameters : ConfigParameterId[],
+}
+
+packet CoreGetConfigResponse : CorePacket (mt = RESPONSE, oid = GET_CONFIG) {
+  status : Status,
+  _count_(parameters) : 8,
+  parameters : ConfigParameter[],
+}
+
+enum RfProtocolType : 8 {
+  UNDETERMINED = 0x00,
+  T1T = 0x01,
+  T2T = 0x02,
+  T3T = 0x03,
+  ISO_DEP = 0x04,
+  NFC_DEP = 0x05,
+  T5T = 0x06,
+  NDEF = 0x07,
+}
+
+enum NfceeProtocolType : 8 {
+  APDU = 0x00,
+  RFU = 0x01,
+  T3CS = 0x02,
+  TRANSPARENT = 0x04,
+}
+
+enum DestinationType : 8 {
+  NFCC_LOOPBACK = 0x01,
+  REMOTE_NFC_ENDPOINT = 0x02,
+  NFCEE = 0x03,
+}
+
+enum DestinationSpecificParameterId : 8 {
+  RF_DISCOVERY = 0x00,
+  NFCEE = 0x01,
+}
+
+struct DestinationSpecificParameter {
+  id : DestinationSpecificParameterId,
+  _size_(value) : 8,
+  value : 8[],
+}
+
+packet CoreConnCreateCommand : CorePacket (mt = COMMAND, oid = CONN_CREATE) {
+  destination_type : DestinationType,
+  _count_(parameters) : 8,
+  parameters : DestinationSpecificParameter[],
+}
+
+packet CoreConnCreateResponse : CorePacket (mt = RESPONSE, oid = CONN_CREATE) {
+  status : Status,
+  max_data_packet_payload_size : 8,
+  initial_number_of_credits : 8,
+  conn_id : ConnId,
+  _reserved_ : 4,
+}
+
+packet CoreConnCloseCommand : CorePacket (mt = COMMAND, oid = CONN_CLOSE) {
+  conn_id : ConnId,
+  _reserved_ : 4,
+}
+
+packet CoreConnCloseResponse : CorePacket (mt = RESPONSE, oid = CONN_CLOSE) {
+  status : Status,
+}
+
+struct ConnectionCredits {
+  conn_id : ConnId,
+  _reserved_ : 4,
+  credits : 8,
+}
+
+packet CoreConnCreditsNotification : CorePacket (mt = NOTIFICATION, oid = CONN_CREDITS) {
+  _count_(connections) : 8,
+  connections : ConnectionCredits[]
+}
+
+enum PowerState : 8 {
+  SWITCHED_ON_STATE = 0x00,
+  SWITCHED_ON_SUBSTATE_1 = 0x01,
+  SWITCHED_ON_SUBSTATE_2 = 0x02,
+  SWITCHED_ON_SUBSTATE_3 = 0x03,
+}
+
+packet CoreSetPowerSubStateCommand : CorePacket (mt = COMMAND, oid = SET_POWER_SUB_STATE) {
+  power_state : PowerState,
+}
+
+packet CoreSetPowerSubStateResponse : CorePacket (mt = RESPONSE, oid = SET_POWER_SUB_STATE) {
+  status : Status,
+}
+
+packet RfPacket : ControlPacket (gid = RF_MANAGEMENT) {
+  oid : RfOpcodeId,
+  _reserved_ : 2,
+  _reserved_ : 8,
+  _payload_,
+}
+
+struct MappingConfigurationMode {
+  listen_mode : FeatureFlag,
+  poll_mode : FeatureFlag,
+  _reserved_ : 6,
+}
+
+struct MappingConfiguration {
+  rf_protocol : RfProtocolType,
+  mode : MappingConfigurationMode,
+  rf_interface : RfInterfaceType,
+}
+
+packet RfDiscoverMapCommand : RfPacket (mt = COMMAND, oid = DISCOVER_MAP) {
+  _count_(mapping_configurations) : 8,
+  mapping_configurations : MappingConfiguration[],
+}
+
+packet RfDiscoverMapResponse : RfPacket (mt = RESPONSE, oid = DISCOVER_MAP) {
+  status : Status,
+}
+
+enum ListenModeRoutingEntryType : 4 {
+  TECHNOLOGY_BASED_ROUTING = 0x0,
+  PROTOCOL_BASED_ROUTING = 0x1,
+  AID_BASED_ROUTING = 0x2,
+  SYSTEM_CODE_BASED_ROUTING = 0x3,
+  APDU_PATTERN_BASED_ROUTING = 0x4,
+}
+
+struct ListenModeRoutingEntry {
+  type : ListenModeRoutingEntryType,
+  match_longer_aids : FeatureFlag,
+  match_shorter_aids : FeatureFlag,
+  routing_blocked_for_unsupported_power_modes : FeatureFlag,
+  _reserved_ : 1,
+  _size_(value) : 8,
+  value : 8[],
+}
+
+packet RfSetListenModeRoutingCommand : RfPacket (mt = COMMAND, oid = SET_LISTEN_MODE_ROUTING) {
+  more_to_follow : 8,
+  _count_(routing_entries) : 8,
+  routing_entries : ListenModeRoutingEntry[],
+}
+
+packet RfSetListenModeRoutingResponse : RfPacket (mt = RESPONSE, oid = SET_LISTEN_MODE_ROUTING) {
+  status : Status,
+}
+
+packet RfGetListenModeRoutingCommand : RfPacket (mt = COMMAND, oid = GET_LISTEN_MODE_ROUTING) {
+}
+
+packet RfGetListenModeRoutingResponse : RfPacket (mt = RESPONSE, oid = GET_LISTEN_MODE_ROUTING) {
+  status : Status,
+  more_to_follow : 8,
+  _count_(routing_entries) : 8,
+  routing_entries : ListenModeRoutingEntry[],
+}
+
+enum RfTechnologyAndMode : 8 {
+  NFC_A_PASSIVE_POLL_MODE = 0x00,
+  NFC_B_PASSIVE_POLL_MODE = 0x01,
+  NFC_F_PASSIVE_POLL_MODE = 0x02,
+  NFC_ACTIVE_POLL_MODE = 0x03,
+  NFC_V_PASSIVE_POLL_MODE = 0x06,
+  NFC_A_PASSIVE_LISTEN_MODE = 0x80,
+  NFC_B_PASSIVE_LISTEN_MODE = 0x81,
+  NFC_F_PASSIVE_LISTEN_MODE = 0x82,
+  NFC_ACTIVE_LISTEN_MODE = 0x83,
+  PROPRIETARY = 0xf0 .. 0xff,
+}
+
+struct DiscoverConfiguration {
+  technology_and_mode : RfTechnologyAndMode,
+  discovery_frequency : 8,
+}
+
+packet RfDiscoverCommand : RfPacket (mt = COMMAND, oid = DISCOVER) {
+  _count_(configurations) : 8,
+  configurations : DiscoverConfiguration[],
+}
+
+packet RfDiscoverResponse : RfPacket (mt = RESPONSE, oid = DISCOVER) {
+  status : Status,
+}
+
+enum DiscoverNotificationType : 8 {
+  LAST_NOTIFICATION = 0x0,
+  OUT_OF_RESOURCES = 0x1,
+  MORE_NOTIFICATIONS = 0x2,
+}
+
+packet RfDiscoverNotification : RfPacket (mt = NOTIFICATION, oid = DISCOVER) {
+  rf_discovery_id : RfDiscoveryId,
+  rf_protocol : RfProtocolType,
+  rf_technology_and_mode : RfTechnologyAndMode,
+  _size_(rf_technology_specific_parameters) : 8,
+  rf_technology_specific_parameters : 8[],
+  notification_type : DiscoverNotificationType,
+}
+
+/// [NCI] Table 68: Specific Parameters for NFC-A Poll Mode
+packet NfcAPollModeTechnologySpecificParameters {
+  sens_res : 16,
+  _size_(nfcid1) : 8,
+  nfcid1 : 8[],
+  _fixed_ = 1 : 8,
+  sel_res : 8,
+  _fixed_ = 0 : 8,
+}
+
+/// [NCI] Table 69: Specific Parameters for NFC-A Listen Mode
+packet NfcAListenModeTechnologySpecificParameters {
+}
+
+/// [NCI] Table 70: Specific Parameters for NFC-B Poll Mode
+packet NfcBPollModeTechnologySpecificParameters {
+  _size_(sensb_res) : 8,
+  sensb_res : 8[],
+}
+
+/// [NCI] Table 71: Specific Parameters for NFC-B Listen Mode
+packet NfcBListenModeTechnologySpecificParameters {
+  sensb_cmd : 8,
+}
+
+/// [NCI] Table 72: Specific Parameters for NFC-F Poll Mode
+packet NfcFPollModeTechnologySpecificParameters {
+  bit_rate : 8,
+  _size_(sensf_res) : 8,
+  sensf_res : 8[],
+}
+
+/// [NCI] Table 73: Specific Parameters for NFC-F Listen Mode
+packet NfcFListenModeTechnologySpecificParameters {
+  _size_(local_nfcid2) : 8,
+  local_nfcid2 : 8[],
+}
+
+/// [NCI] Table 74: Specific Parameters for NFC-V Poll Mode
+packet NfcVPollModeTechnologySpecificParameters {
+  res_flag : 8,
+  dsfid : 8,
+  uid : 8[8],
+}
+
+/// [NCI] Table 77: Control Messages to select a Discovered Target
+packet RfDiscoverSelectCommand : RfPacket (mt = COMMAND, oid = DISCOVER_SELECT) {
+  rf_discovery_id : RfDiscoveryId,
+  rf_protocol : RfProtocolType,
+  rf_interface : RfInterfaceType,
+}
+
+/// [NCI] Table 77: Control Messages to select a Discovered Target
+packet RfDiscoverSelectResponse : RfPacket (mt = RESPONSE, oid = DISCOVER_SELECT) {
+  status : Status,
+}
+
+enum BitRate : 8 {
+  BIT_RATE_106_KBIT_S = 0x00,
+  BIT_RATE_212_KBIT_S = 0x01,
+  BIT_RATE_424_KBIT_S = 0x02,
+  BIT_RATE_848_KBIT_S = 0x03,
+  BIT_RATE_1695_KBIT_S = 0x04,
+  BIT_RATE_3390_KBIT_S = 0x05,
+  BIT_RATE_6780_KBIT_S = 0x06,
+  BIT_RATE_26_KBIT_S = 0x20,
+}
+
+packet RfIntfActivatedNotification : RfPacket (mt = NOTIFICATION, oid = INTF_ACTIVATED) {
+  rf_discovery_id : RfDiscoveryId,
+  rf_interface : RfInterfaceType,
+  rf_protocol : RfProtocolType,
+  activation_rf_technology_and_mode : RfTechnologyAndMode,
+  max_data_packet_payload_size : 8,
+  initial_number_of_credits : 8,
+  _size_(rf_technology_specific_parameters) : 8,
+  rf_technology_specific_parameters : 8[],
+  data_exchange_rf_technology_and_mode : RfTechnologyAndMode,
+  data_exchange_transmit_bit_rate : BitRate,
+  data_exchange_receive_bit_rate : BitRate,
+  _size_(activation_parameters) : 8,
+  activation_parameters : 8[],
+}
+
+/// [NCI] Table 95: Activation Parameters for NFC-A/ISO-DEP Poll Mode
+packet NfcAIsoDepPollModeActivationParameters {
+  _size_(rats_response) : 8,
+  rats_response : 8[],
+}
+
+/// [NCI] Table 96: Activation Parameters for NFC-B/ISO-DEP Poll Mode
+packet NfcBIsoDepPollModeActivationParameters {
+  _size_(attrib_response) : 8,
+  attrib_response : 8[],
+}
+
+/// [NCI] Table 98: Activation Parameters for NFC-A/ISO-DEP Listen Mode
+packet NfcAIsoDepListenModeActivationParameters {
+  param : 8,
+}
+
+/// [NCI] Table 99: Activation Parameters for NFC-B/ISO-DEP Listen Mode
+packet NfcBIsoDepListenModeActivationParameters {
+  _size_(attrib_command) : 8,
+  attrib_command : 8[],
+}
+
+/// [NCI] Table 102: Activation Parameters for NFC-DEP Poll Mode
+packet NfcDepPollModeActivationParameters {
+  _size_(atr_res) : 8,
+  atr_res : 8[],
+  data_exchange_length_reduction : 8,
+}
+
+/// [NCI] Table 103: Activation Parameters for NFC-DEP Listen Mode
+packet NfcDepListenModeActivationParameters {
+  _size_(atr_req) : 8,
+  atr_req : 8[],
+  data_exchange_length_reduction : 8,
+}
+
+enum DeactivationType : 8 {
+  IDLE_MODE = 0x00,
+  SLEEP_MODE = 0x01,
+  SLEEP_AF_MODE = 0x02,
+  DISCOVER = 0x03,
+}
+
+enum DeactivationReason : 8 {
+  DH_REQUEST = 0x00,
+  ENDPOINT_REQUEST = 0x01,
+  RF_LINK_LOSS = 0x02,
+  NFC_B_BAD_AFI = 0x03,
+  DH_REQUEST_FAILED = 0x04,
+}
+
+packet RfDeactivateCommand : RfPacket (mt = COMMAND, oid = DEACTIVATE) {
+  deactivation_type : DeactivationType,
+}
+
+packet RfDeactivateResponse : RfPacket (mt = RESPONSE, oid = DEACTIVATE) {
+  status : Status,
+}
+
+packet RfDeactivateNotification : RfPacket (mt = NOTIFICATION, oid = DEACTIVATE) {
+  deactivation_type : DeactivationType,
+  deactivation_reason : DeactivationReason,
+}
+
+packet NfceePacket : ControlPacket (gid = NFCEE_MANAGEMENT) {
+  oid : NfceeOpcodeId,
+  _reserved_ : 2,
+  _reserved_ : 8,
+  _payload_,
+}
+
+packet NfceeDiscoverCommand : NfceePacket (mt = COMMAND, oid = DISCOVER) {
+}
+
+packet NfceeDiscoverResponse : NfceePacket (mt = RESPONSE, oid = DISCOVER) {
+  status : Status,
+  number_of_nfcees : 8,
+}
+
+packet ProprietaryPacket : ControlPacket (gid = PROPRIETARY) {
+  oid : ProprietaryOpcodeId,
+  _reserved_ : 2,
+  _reserved_ : 8,
+  _payload_,
+}
+
+packet AndroidPacket : ProprietaryPacket (oid = ANDROID) {
+  android_sub_oid: AndroidSubOpcodeId,
+  _payload_,
+}
+
+enum ObserveModeEnable : 8 {
+  DISABLE = 0x0,
+  ENABLE = 0x1,
+}
+
+packet AndroidObserveModeCmd : AndroidPacket(mt = COMMAND, android_sub_oid = OBSERVE_MODE) {
+  observe_mode_enable: ObserveModeEnable,
+}
+
+packet AndroidObserveModeRsp : AndroidPacket(mt = RESPONSE, android_sub_oid = OBSERVE_MODE) {
+  status: Status,
+}
