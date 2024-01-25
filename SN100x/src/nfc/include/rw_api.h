@@ -1359,6 +1359,20 @@ extern tNFC_STATUS RW_I93PresenceCheck(void);
 
 /*****************************************************************************
 **
+** Function         RW_I93CheckLegacyProduct
+**
+** Description      Returns if the product is part of the legacy product list,
+**                  requiring (Extended)GetSystemInfo ISO commands to provide
+**                  memory information (number and size of blocks).
+**
+** Returns          true, if product is a legacy one
+**                  false, if full NFC forum T5T compliant
+**
+*****************************************************************************/
+extern bool RW_I93CheckLegacyProduct(uint8_t ic_manuf, uint8_t pdt_code);
+
+/*****************************************************************************
+**
 ** Function         RW_I93SetAddressingMode
 **
 ** Description      Set if the tag must be addressed with UID or not.
