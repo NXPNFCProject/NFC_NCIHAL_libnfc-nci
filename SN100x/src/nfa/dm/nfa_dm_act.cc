@@ -1187,35 +1187,6 @@ bool nfa_dm_act_disable_listening(__attribute__((unused)) tNFA_DM_MSG* p_data) {
 #if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
-** Function         nfa_dm_act_change_discovery_tech
-**
-** Description      Process change listening command
-**
-** Returns          true (message buffer to be freed by caller)
-**
-*******************************************************************************/
-bool nfa_dm_act_change_discovery_tech (tNFA_DM_MSG *p_data)
-{
-    tNFA_CONN_EVT_DATA evt_data;
-
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf ("nfa_dm_act_change_discovery_tech ()");
-
-    if(p_data->change_discovery_tech.listenTech == 0xFF && p_data->change_discovery_tech.pollTech == 0xFF)
-        nfa_dm_cb.flags &= ~NFA_DM_FLAGS_DISCOVERY_TECH_CHANGED;
-    else
-        nfa_dm_cb.flags |= NFA_DM_FLAGS_DISCOVERY_TECH_CHANGED;
-
-    nfa_dm_cb.pollTech = p_data->change_discovery_tech.pollTech;
-    nfa_dm_cb.listenTech = p_data->change_discovery_tech.listenTech;
-    evt_data.status = NFA_STATUS_OK;
-    nfa_dm_conn_cback_event_notify (NFA_LISTEN_ENABLED_EVT, &evt_data);
-
-    return (true);
-}
-
-/*******************************************************************************
-**
 ** Function         nfa_dm_set_transit_config
 **
 ** Description      Sends transit configuration NFC Hal
@@ -1923,6 +1894,40 @@ void nfa_dm_notify_activation_status(tNFA_STATUS status,
 
   GKI_freebuf(nfa_dm_cb.p_activate_ntf);
   nfa_dm_cb.p_activate_ntf = nullptr;
+}
+
+/*******************************************************************************
+**
+** Function         nfa_dm_act_change_discovery_tech
+**
+** Description      Process change listening command
+**
+** Returns          TRUE (message buffer to be freed by caller)
+**
+*******************************************************************************/
+bool nfa_dm_act_change_discovery_tech(tNFA_DM_MSG* p_data) {
+  tNFA_CONN_EVT_DATA evt_data;
+
+  DLOG_IF(INFO, nfc_debug_enabled)
+      << StringPrintf("nfa_dm_act_change_discovery_tech ()");
+
+  if (p_data->change_discovery_tech.is_revert_poll)
+    nfa_dm_cb.flags &= ~NFA_DM_FLAGS_POLL_TECH_CHANGED;
+  else
+    nfa_dm_cb.flags |= NFA_DM_FLAGS_POLL_TECH_CHANGED;
+
+  if (p_data->change_discovery_tech.is_revert_listen)
+    nfa_dm_cb.flags &= ~NFA_DM_FLAGS_LISTEN_TECH_CHANGED;
+  else
+    nfa_dm_cb.flags |= NFA_DM_FLAGS_LISTEN_TECH_CHANGED;
+
+  nfa_dm_cb.change_poll_mask = p_data->change_discovery_tech.change_poll_mask;
+  nfa_dm_cb.change_listen_mask =
+      p_data->change_discovery_tech.change_listen_mask;
+  evt_data.status = NFA_STATUS_OK;
+  nfa_dm_conn_cback_event_notify(NFA_LISTEN_ENABLED_EVT, &evt_data);
+
+  return true;
 }
 
 /*******************************************************************************

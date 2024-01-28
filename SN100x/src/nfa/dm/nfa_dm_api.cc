@@ -728,56 +728,6 @@ tNFA_STATUS NFA_DisableListening(void) {
 
   return (NFA_STATUS_FAILED);
 }
-#if (NXP_EXTNS == TRUE)
-/*******************************************************************************
-**
-** Function         NFA_ChangeDiscoveryTech
-**
-** Description      Enable listening.
-**                  NFA_LISTEN_ENABLED_EVT will be returned after listening is allowed.
-**
-**                  The actual listening technologies are specified by other NFA
-**                  API functions. Such functions include (but not limited to)
-**                  NFA_CeConfigureUiccListenTech.
-**                  If NFA_DisableListening () is called to ignore the listening technologies,
-**                  NFA_EnableListening () is called to restore the listening technologies
-**                  set by these functions.
-**
-** Note:            If RF discovery is started, NFA_StopRfDiscovery()/NFA_RF_DISCOVERY_STOPPED_EVT
-**                  should happen before calling this function
-**
-** Returns          NFA_STATUS_OK if successfully initiated
-**                  NFA_STATUS_FAILED otherwise
-**
-*******************************************************************************/
-tNFA_STATUS NFA_ChangeDiscoveryTech (tNFA_TECHNOLOGY_MASK pollTech, tNFA_TECHNOLOGY_MASK listenTech)
-{
-    tNFA_DM_API_CHANGE_DISCOVERY_TECH *p_msg;
-
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf ("NFA_ChangeDiscoveryTech () 0x%X 0x%X", pollTech, listenTech);
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf("Current DiscoveryTech () 0x%X 0x%X",
-                        nfa_dm_cb.pollTech, nfa_dm_cb.listenTech);
-
-    if (nfa_dm_cb.pollTech == pollTech && nfa_dm_cb.listenTech == listenTech) {
-      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-          "Current DiscoveryTech same as ChangeDiscoveryTech request, rejecting "
-          "request");
-      return (NFA_STATUS_REJECTED);
-    } else if ((p_msg = (tNFA_DM_API_CHANGE_DISCOVERY_TECH*)GKI_getbuf(
-                    sizeof(tNFA_DM_API_CHANGE_DISCOVERY_TECH))) != nullptr) {
-      p_msg->hdr.event = NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT;
-      p_msg->pollTech = pollTech;
-      p_msg->listenTech = listenTech;
-      nfa_sys_sendmsg(p_msg);
-
-      return (NFA_STATUS_OK);
-    }
-
-    return (NFA_STATUS_FAILED);
-}
-#endif
 
 /*******************************************************************************
 **
@@ -1426,6 +1376,66 @@ void NFA_EnableDtamode(tNFA_eDtaModes eDtaMode) {
   appl_dta_mode_flag = 0x01;
   nfa_dm_cb.eDtaMode = eDtaMode;
 }
+
+/*******************************************************************************
+**
+** Function         NFA_ChangeDiscoveryTech
+**
+** Description      Enable listening.
+**                  NFA_LISTEN_ENABLED_EVT will be returned after listening is allowed.
+**
+**                  The actual listening technologies are specified by other NFA
+**                  API functions. Such functions include (but not limited to)
+**                  NFA_CeConfigureUiccListenTech.
+**                  If NFA_DisableListening () is called to ignore the listening technologies,
+**                  NFA_EnableListening () is called to restore the listening technologies
+**                  set by these functions.
+**
+** Note:            If RF discovery is started, NFA_StopRfDiscovery()/NFA_RF_DISCOVERY_STOPPED_EVT
+**                  should happen before calling this function
+**
+** Returns          NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_FAILED otherwise
+**
+*******************************************************************************/
+tNFA_STATUS NFA_ChangeDiscoveryTech(tNFA_TECHNOLOGY_MASK pollTech,
+                                    tNFA_TECHNOLOGY_MASK listenTech,
+                                    bool is_revert_poll,
+                                    bool is_revert_listen) {
+    tNFA_DM_API_CHANGE_DISCOVERY_TECH *p_msg;
+#if (NXP_EXTNS == TRUE)
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf ("NFA_ChangeDiscoveryTech () 0x%X 0x%X", pollTech, listenTech);
+    DLOG_IF(INFO, nfc_debug_enabled)
+        << StringPrintf("Current DiscoveryTech () 0x%X 0x%X",
+                        nfa_dm_cb.change_poll_mask, nfa_dm_cb.change_listen_mask);
+
+    if (nfa_dm_cb.change_poll_mask == pollTech && nfa_dm_cb.change_listen_mask == listenTech
+        && !is_revert_listen && !is_revert_poll) {
+      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+          "Current DiscoveryTech same as ChangeDiscoveryTech request, rejecting "
+          "request");
+      return (NFA_STATUS_REJECTED);
+    } else {
+#endif
+    if ((p_msg = (tNFA_DM_API_CHANGE_DISCOVERY_TECH*)GKI_getbuf(
+                    sizeof(tNFA_DM_API_CHANGE_DISCOVERY_TECH))) != nullptr) {
+      p_msg->hdr.event = NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT;
+      p_msg->is_revert_poll = is_revert_poll;
+      p_msg->is_revert_listen = is_revert_listen;
+      p_msg->change_poll_mask = pollTech;
+      p_msg->change_listen_mask = listenTech;
+      nfa_sys_sendmsg(p_msg);
+
+      return (NFA_STATUS_OK);
+    }
+#if (NXP_EXTNS == TRUE)
+    }
+#endif
+
+    return (NFA_STATUS_FAILED);
+}
+
 #if (NXP_EXTNS == TRUE)
 /*******************************************************************************
 **
