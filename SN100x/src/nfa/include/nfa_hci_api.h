@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018, 2023 NXP
+ *  Copyright 2018, 2023-2024 NXP
  *
  ******************************************************************************/
 
@@ -559,6 +559,17 @@ extern tNFA_STATUS NFA_HciOpenPipe(tNFA_HANDLE hci_handle, uint8_t pipe);
 extern tNFA_STATUS NFA_HciGetRegistry(tNFA_HANDLE hci_handle, uint8_t pipe,
                                       uint8_t reg_inx);
 #if (NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         nfa_hci_get_apdu_enabled_host
+**
+** Description      Find NFCEE ID for which power link control state to be reset
+**
+** Returns          NFCEE ID for which apdu pipe is created
+**
+*******************************************************************************/
+uint8_t nfa_hci_get_apdu_enabled_host(void);
+
 /*******************************************************************************
  **
  ** Function         nfa_hci_is_power_link_required
