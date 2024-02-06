@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2023 NXP
+ *  Copyright 2018-2024 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -2533,6 +2533,10 @@ void nfa_ee_nci_mode_set_rsp(tNFA_EE_MSG* p_data) {
 #endif
       p_cb->ee_status = NFC_NFCEE_STATUS_INACTIVE;
     }
+#if (NXP_EXTNS == TRUE)
+  } else if (p_rsp->status == NCI_STATUS_EE_TRANSMISSION_ERR) {
+    p_cb->ee_status = p_rsp->status;
+#endif
   } else if (p_rsp->mode == NFA_EE_MD_ACTIVATE) {
     p_cb->ee_status = NFC_NFCEE_STATUS_REMOVED;
   }

@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2023 NXP
+ *  Copyright 2018-2024 NXP
  *
  ******************************************************************************/
 
@@ -262,7 +262,15 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                     nfa_hci_cb.ee_info[nfa_hci_cb.next_nfcee_idx].hci_enable_state = NFA_HCI_FL_EE_ENABLED;
                     DLOG_IF(INFO, nfc_debug_enabled)
                         << StringPrintf("NFA_EE_MODE_SET_COMPLETE handling 3");
-
+                    if (nfa_ee_cb.ecb[nfa_hci_cb.next_nfcee_idx].ee_status ==
+                        NCI_NFCEE_STS_TRANSMISSION_ERROR) {
+                        nfa_hciu_clear_host_resetting(
+                            nfa_ee_cb.ecb[nfa_hci_cb.next_nfcee_idx].nfcee_id,
+                            NFCEE_INIT_COMPLETED);
+                        nfa_hciu_add_host_resetting(
+                            nfa_ee_cb.ecb[nfa_hci_cb.next_nfcee_idx].nfcee_id,
+                            NFCEE_UNRECOVERABLE_ERRROR);
+                    }
                 }
                 else if (!nfa_hci_enable_one_nfcee ())
                     nfa_hci_startup_complete (NFA_STATUS_OK);
@@ -996,7 +1004,7 @@ bool nfa_hci_enable_one_nfcee(void) {
                           nfa_hciu_clear_host_resetting(
                               nfceeid, NFCEE_RECOVERY_IN_PROGRESS);
                           nfa_hciu_check_n_clear_host_resetting(
-                              nfa_hci_cb.curr_nfcee, NFCEE_UNRECOVERABLE_ERRROR);
+                              nfceeid, NFCEE_UNRECOVERABLE_ERRROR);
                           nfa_hci_cb.next_nfcee_idx = xx + 1;
                           continue;
                         }
