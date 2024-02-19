@@ -52,4 +52,7 @@ void nfcsnoop_capture(const NFC_HDR* packet, bool is_received);
 
 // store NCI log to file
 bool storeNfcSnoopLogs(std::string filepath, off_t maxFileSize);
+
+// check whether either buffer is under memory threshold
+bool buffers_under_threshold();
 #endif /* _DEBUG_NFCSNOOP_ */
