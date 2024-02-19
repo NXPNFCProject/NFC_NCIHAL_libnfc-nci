@@ -49,11 +49,11 @@
 #include "nfa_dm_int.h"
 #include "nfa_mem_co.h"
 #include "nfa_rw_int.h"
+#include "nfc_config.h"
 #if (NXP_EXTNS == TRUE)
 #include <config.h>
 
 #include "nci_defs_extns.h"
-#include "nfc_config.h"
 #endif
 
 using android::base::StringPrintf;
@@ -554,27 +554,17 @@ void nfa_rw_handle_presence_check_rsp(tNFC_STATUS status) {
   }
   /* Handle presence check due to NFA_RwPresenceCheck API call */
   else {
-#if (NXP_EXTNS == TRUE)
     int retryCount = NfcConfig::getUnsigned(NAME_PRESENCE_CHECK_RETRY_COUNT,
                                             DEFAULT_PRESENCE_CHECK_RETRY_COUNT);
-#endif
     if (status != NFA_STATUS_OK) {
       nfa_rw_cb.pres_check_iso_dep_nak_err_cnt++;
 
       if ((nfa_rw_cb.pres_check_iso_dep_nak == true) &&
-#if (NXP_EXTNS == TRUE)
           (nfa_rw_cb.pres_check_iso_dep_nak_err_cnt <= retryCount)) {
         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
             "%s - ISO_DEP_NAK presence check failed, try up to %d times "
             "(attempt nb #%d)",
             __func__, retryCount, nfa_rw_cb.pres_check_iso_dep_nak_err_cnt);
-#else
-          (nfa_rw_cb.pres_check_iso_dep_nak_err_cnt <= 3)) {
-        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-            "%s - ISO_DEP_NAK presence check failed, try up to 3 times "
-            "(attempt nb #%d)",
-            __func__, nfa_rw_cb.pres_check_iso_dep_nak_err_cnt);
-#endif
         if (nfa_rw_cb.pres_check_iso_dep_nak_count == 1) {
           // If status failed on 3 first attempts, then switch to alternative
           // method
@@ -598,11 +588,7 @@ void nfa_rw_handle_presence_check_rsp(tNFC_STATUS status) {
       // Return tag to IDLE state, new command will come from JNI
       if ((nfa_rw_cb.pres_check_iso_dep_nak == true) &&
           ((nfa_rw_cb.pres_check_iso_dep_nak_count == 1) ||
-#if (NXP_EXTNS == TRUE)
            (nfa_rw_cb.pres_check_iso_dep_nak_err_cnt <= retryCount))) {
-#else
-           (nfa_rw_cb.pres_check_iso_dep_nak_err_cnt <= 3))) {
-#endif
         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
             "%s - ISO_DEP_NAK presence check retry nb #%d failed, do not "
             "deactivate",
@@ -610,17 +596,10 @@ void nfa_rw_handle_presence_check_rsp(tNFC_STATUS status) {
         rw_t4t_handle_isodep_nak_fallback();
         return;
       } else if ((nfa_rw_cb.pres_check_tag == true) &&
-#if (NXP_EXTNS == TRUE)
                  ((++nfa_rw_cb.pres_check_tag_err_count) <= retryCount)) {
         DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
             "%s - presence check failed, try up to %d times (attempt nb #%d)",
             __func__, retryCount, nfa_rw_cb.pres_check_tag_err_count);
-#else
-                 ((++nfa_rw_cb.pres_check_tag_err_count) <= 3)) {
-        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-            "%s - presence check failed, try up to 3 times (attempt nb #%d)",
-            __func__, nfa_rw_cb.pres_check_tag_err_count);
-#endif
 
         return;
       }
