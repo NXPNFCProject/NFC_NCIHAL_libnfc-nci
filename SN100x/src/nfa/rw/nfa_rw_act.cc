@@ -2928,8 +2928,7 @@ bool nfa_rw_activate_ntf(tNFA_RW_MSG* p_data) {
       /* Tag-it HF-I Plus Chip/Inlay supports Get System Information Command */
       /* just try for others */
 
-      if (!appl_dta_mode_flag &&
-          RW_I93CheckLegacyProduct(nfa_rw_cb.i93_uid[1],
+      if (RW_I93CheckLegacyProduct(nfa_rw_cb.i93_uid[1],
                                    nfa_rw_cb.i93_uid[2])) {
         if (RW_I93GetSysInfo(nfa_rw_cb.i93_uid) != NFC_STATUS_OK) {
           /* notify activation without AFI/MEM size/IC-Ref */
