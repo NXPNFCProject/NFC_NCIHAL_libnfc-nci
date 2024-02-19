@@ -1,0 +1,8 @@
+package: "com.android.nfc.nci.flags"
+
+flag {
+    name: "t5t_no_getsysinfo"
+    namespace: "nfc"
+    description: "Support for a pure NFC Forum T5T tag"
+    bug: "293959530"
+}
