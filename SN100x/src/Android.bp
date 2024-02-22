@@ -10,9 +10,7 @@ cc_library {
         "liblog",
         "libdl",
         "libz",
-        "libchrome",
         "libbase",
-
         // Treble configuration
         "libhidlbase",
         "libutils",
@@ -103,7 +101,6 @@ cc_defaults {
         "libcutils",
         "liblog",
         "libbase",
-        "libchrome",
     ],
     shared_libs: [
 	"libnfc-nci_flags",
