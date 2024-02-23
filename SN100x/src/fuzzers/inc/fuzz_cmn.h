@@ -1,26 +1,19 @@
 #ifndef __FUZZ_CMN_H__
 #define __FUZZ_CMN_H__
 
-#include <base/command_line.h>
-#include <base/logging.h>
+#include <android-base/logging.h>
+#include <android-base/stringprintf.h>
 #include <errno.h>
-#include <semaphore.h>
-
 #include <nfc_api.h>
 #include <nfc_int.h>
+#include <semaphore.h>
 
 #include <map>
 #include <vector>
-
-#include <android-base/stringprintf.h>
 using android::base::StringAppendF;
 using android::base::StringPrintf;
 
-#define FUZZLOG(...)               \
-  DLOG_IF(INFO, nfc_debug_enabled) \
-      << __func__ << ":" << StringPrintf(__VA_ARGS__);
-
-extern bool nfc_debug_enabled;
+#define FUZZLOG(...) LOG(DEBUG) << __func__ << ":" << StringPrintf(__VA_ARGS__);
 
 typedef std::vector<uint8_t> bytes_t;
 

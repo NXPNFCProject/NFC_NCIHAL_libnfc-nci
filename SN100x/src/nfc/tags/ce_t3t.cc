@@ -16,32 +16,32 @@
  *
  ******************************************************************************/
 /******************************************************************************
-*
-*  The original Work has been changed by NXP.
-*
-*  Licensed under the Apache License, Version 2.0 (the "License");
-*  you may not use this file except in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*  http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing, software
-*  distributed under the License is distributed on an "AS IS" BASIS,
-*  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*  See the License for the specific language governing permissions and
-*  limitations under the License.
-*
-*  Copyright 2020 NXP
-*
-******************************************************************************/
+ *
+ *  The original Work has been changed by NXP.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  Copyright 2020 NXP
+ *
+ ******************************************************************************/
 /******************************************************************************
  *
  *  This file contains the implementation for Type 3 tag in Card Emulation
  *  mode.
  *
  ******************************************************************************/
+#include <android-base/logging.h>
 #include <android-base/stringprintf.h>
-#include <base/logging.h>
 #include <log/log.h>
 #include <string.h>
 
@@ -51,8 +51,6 @@
 #include "nfc_target.h"
 
 using android::base::StringPrintf;
-
-extern bool nfc_debug_enabled;
 
 enum {
   CE_T3T_COMMAND_INVALID,
@@ -265,8 +263,8 @@ void ce_t3t_handle_update_cmd(tCE_CB* p_ce_cb, NFC_HDR* p_cmd_msg) {
         nfc_status = NFC_STATUS_FAILED;
         break;
       } else if (block_number == 0) {
-        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-            "CE: Update sc 0x%04x block %i.", service_code, block_number);
+        LOG(DEBUG) << StringPrintf("CE: Update sc 0x%04x block %i.",
+                                   service_code, block_number);
 
         /* Special caes: NDEF block0 is the ndef attribute block */
         p_temp = p_block_data;
@@ -307,8 +305,8 @@ void ce_t3t_handle_update_cmd(tCE_CB* p_ce_cb, NFC_HDR* p_cmd_msg) {
           }
         }
       } else {
-        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-            "CE: Udpate sc 0x%04x block %i.", service_code, block_number);
+        LOG(DEBUG) << StringPrintf("CE: Udpate sc 0x%04x block %i.",
+                                   service_code, block_number);
 
         /* Verify that block_number is within NDEF memory */
         if (block_number > p_cb->ndef_info.nmaxb) {
@@ -808,8 +806,8 @@ void ce_t3t_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
                        tNFC_CONN* p_data) {
   tCE_T3T_MEM* p_cb = &ce_cb.mem.t3t;
 
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("ce_t3t_conn_cback: conn_id=%i, evt=%i", conn_id, event);
+  LOG(DEBUG) << StringPrintf("ce_t3t_conn_cback: conn_id=%i, evt=%i", conn_id,
+                             event);
 
   switch (event) {
     case NFC_CONN_CREATE_CEVT:
@@ -848,7 +846,7 @@ tNFC_STATUS ce_select_t3t(uint16_t system_code,
                           uint8_t nfcid2[NCI_RF_F_UID_LEN]) {
   tCE_T3T_MEM* p_cb = &ce_cb.mem.t3t;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
+  LOG(DEBUG) << __func__;
 
   p_cb->state = CE_T3T_STATE_IDLE;
   p_cb->system_code = system_code;
@@ -872,9 +870,9 @@ tNFC_STATUS CE_T3tSetLocalNDEFMsg(bool read_only, uint32_t size_max,
                                   uint8_t* p_scratch_buf) {
   tCE_T3T_MEM* p_cb = &ce_cb.mem.t3t;
 
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("CE_T3tSetContent: ro=%i, size_max=%i, size_current=%i",
-                      read_only, size_max, size_current);
+  LOG(DEBUG) << StringPrintf(
+      "CE_T3tSetContent: ro=%i, size_max=%i, size_current=%i", read_only,
+      size_max, size_current);
 
   /* Verify scratch buffer was provided if NDEF message is read/write */
   if ((!read_only) && (!p_scratch_buf)) {
@@ -926,8 +924,8 @@ tNFC_STATUS CE_T3tSetLocalNDEFMsg(bool read_only, uint32_t size_max,
 tNFC_STATUS CE_T3tSetLocalNDefParams(uint8_t nbr, uint8_t nbw) {
   tCE_T3T_MEM* p_cb = &ce_cb.mem.t3t;
 
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("CE_T3tSetLocalNDefParams: nbr=%i, nbw=%i", nbr, nbw);
+  LOG(DEBUG) << StringPrintf("CE_T3tSetLocalNDefParams: nbr=%i, nbw=%i", nbr,
+                             nbw);
 
   /* Validate */
   if ((nbr > T3T_MSG_NUM_BLOCKS_CHECK_MAX) ||
@@ -958,7 +956,7 @@ tNFC_STATUS CE_T3tSendCheckRsp(uint8_t status1, uint8_t status2,
   NFC_HDR* p_rsp_msg;
   uint8_t *p_dst, *p_rsp_start;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+  LOG(DEBUG) << StringPrintf(
       "CE_T3tCheckRsp: status1=0x%02X, status2=0x%02X, num_blocks=%i", status1,
       status2, num_blocks);
 
@@ -1012,8 +1010,8 @@ tNFC_STATUS CE_T3tSendUpdateRsp(uint8_t status1, uint8_t status2) {
   tNFC_STATUS retval = NFC_STATUS_OK;
   tCE_CB* p_ce_cb = &ce_cb;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-      "CE_T3tUpdateRsp: status1=0x%02X, status2=0x%02X", status1, status2);
+  LOG(DEBUG) << StringPrintf("CE_T3tUpdateRsp: status1=0x%02X, status2=0x%02X",
+                             status1, status2);
   ce_t3t_send_rsp(p_ce_cb, nullptr, T3T_MSG_OPC_UPDATE_RSP, status1, status2);
 
   return (retval);

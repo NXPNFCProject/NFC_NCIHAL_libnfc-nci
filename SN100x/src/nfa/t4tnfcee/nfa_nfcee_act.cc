@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright 2019-2020, 2023 NXP
+ *  Copyright 2019-2020, 2023-2024 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,20 +16,21 @@
  *
  ******************************************************************************/
 #if (NXP_EXTNS == TRUE)
+#include <android-base/logging.h>
 #include <android-base/stringprintf.h>
-#include <base/logging.h>
 #include <string.h>
+
 #include <iomanip>
 #include <unordered_map>
+
+#include "nci_defs_extns.h"
 #include "ndef_utils.h"
 #include "nfa_dm_int.h"
 #include "nfa_mem_co.h"
 #include "nfa_nfcee_int.h"
-#include "nci_defs_extns.h"
 
 using android::base::StringPrintf;
 
-extern bool nfc_debug_enabled;
 extern tNFC_STATUS nfa_t4tnfcee_proc_disc_evt(tNFA_T4TNFCEE_OP event);
 
 void nfa_t4tnfcee_handle_t4t_evt(tRW_EVENT event, tRW_DATA* p_data);
@@ -81,18 +82,16 @@ void nfa_t4tnfcee_free_rx_buf(void) {
  *******************************************************************************/
 tNFA_STATUS nfa_t4tnfcee_exec_file_operation() {
   tNFA_STATUS status = NFA_STATUS_FAILED;
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s Enter", __func__);
+  LOG(DEBUG) << StringPrintf("%s Enter", __func__);
   status = RW_SetT4tNfceeInfo((tRW_CBACK*)nfa_t4tnfcee_handle_t4t_evt,
                               NCI_DEST_TYPE_T4T_NFCEE);
   if (status != NFA_STATUS_OK) {
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf("%s T4T info not able to set. Return", __func__);
+    LOG(DEBUG) << StringPrintf("%s T4T info not able to set. Return", __func__);
     return status;
   }
   status = RW_T4tNfceeSelectApplication();
   if (status != NFA_STATUS_OK) {
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf("%s T4T Select application failed", __func__);
+    LOG(DEBUG) << StringPrintf("%s T4T Select application failed", __func__);
     return status;
   } else {
     nfa_t4tnfcee_cb.prop_rw_state = WAIT_SELECT_APPLICATION;
@@ -111,8 +110,8 @@ tNFA_STATUS nfa_t4tnfcee_exec_file_operation() {
  **
  *******************************************************************************/
 bool nfa_t4tnfcee_handle_op_req(tNFA_T4TNFCEE_MSG* p_data) {
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-      "nfa_t4tnfcee_handle_op_req: op=0x%02x", p_data->op_req.op);
+  LOG(DEBUG) << StringPrintf("nfa_t4tnfcee_handle_op_req: op=0x%02x",
+                             p_data->op_req.op);
   nfa_t4tnfcee_cb.cur_op = p_data->op_req.op;
 
   /* Call appropriate handler for requested operation */
@@ -122,7 +121,7 @@ bool nfa_t4tnfcee_handle_op_req(tNFA_T4TNFCEE_MSG* p_data) {
     } break;
     case NFA_T4TNFCEE_OP_READ: {
       if (!is_read_precondition_valid(p_data)) {
-        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s Failed", __func__);
+        LOG(DEBUG) << StringPrintf("%s Failed", __func__);
         nfa_t4tnfcee_cb.status = NFA_STATUS_INVALID_PARAM;
         nfa_t4tnfcee_notify_rx_evt();
         break;
@@ -136,7 +135,7 @@ bool nfa_t4tnfcee_handle_op_req(tNFA_T4TNFCEE_MSG* p_data) {
     } break;
     case NFA_T4TNFCEE_OP_WRITE: {
       if (!is_write_precondition_valid(p_data)) {
-        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s Failed", __func__);
+        LOG(DEBUG) << StringPrintf("%s Failed", __func__);
         nfa_t4tnfcee_cb.status = NFA_STATUS_INVALID_PARAM;
         nfa_t4tnfcee_notify_rx_evt();
         break;
@@ -188,7 +187,7 @@ static void nfa_t4tnfcee_check_sw(tRW_DATA* p_rwData) {
   if ((status_words != T4T_RSP_CMD_CMPLTED) &&
       (!T4T_RSP_WARNING_PARAMS_CHECK(status_words >> 8))) {
     p_rwData->raw_frame.status = NFC_STATUS_FAILED;
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("status 0x%X",status_words);
+    LOG(DEBUG) << StringPrintf("status 0x%X", status_words);
   }
 }
 /*******************************************************************************
@@ -201,23 +200,20 @@ static void nfa_t4tnfcee_check_sw(tRW_DATA* p_rwData) {
  **
  *******************************************************************************/
 void nfa_t4tnfcee_handle_t4t_evt(tRW_EVENT event, tRW_DATA* p_rwData) {
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-      "%s: Enter event=0x%02x 0x%02x", __func__, event, p_rwData->status);
+  LOG(DEBUG) << StringPrintf("%s: Enter event=0x%02x 0x%02x", __func__, event,
+                             p_rwData->status);
   switch (event) {
     case RW_T4T_RAW_FRAME_EVT:
       nfa_t4tnfcee_check_sw(p_rwData);
-      DLOG_IF(INFO, nfc_debug_enabled)
-          << StringPrintf("%s RW_T4T_RAW_FRAME_EVT", __func__);
+      LOG(DEBUG) << StringPrintf("%s RW_T4T_RAW_FRAME_EVT", __func__);
       nfa_t4tnfcee_handle_file_operations(p_rwData);
       break;
     case RW_T4T_INTF_ERROR_EVT:
-      DLOG_IF(INFO, nfc_debug_enabled)
-              << StringPrintf("%s RW_T4T_INTF_ERROR_EVT", __func__);
+      LOG(DEBUG) << StringPrintf("%s RW_T4T_INTF_ERROR_EVT", __func__);
       nfa_t4tnfcee_handle_file_operations(p_rwData);
       break;
     default:
-      DLOG_IF(INFO, nfc_debug_enabled)
-          << StringPrintf("%s UNKNOWN EVENT", __func__);
+      LOG(DEBUG) << StringPrintf("%s UNKNOWN EVENT", __func__);
       break;
   }
   return;
@@ -233,7 +229,7 @@ void nfa_t4tnfcee_handle_t4t_evt(tRW_EVENT event, tRW_DATA* p_rwData) {
  **
  *******************************************************************************/
 void nfa_t4tnfcee_store_cc_info(NFC_HDR* p_data) {
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s Enter", __func__);
+  LOG(DEBUG) << StringPrintf("%s Enter", __func__);
 
   uint16_t keyFileId;
   string valueFileLength;
@@ -245,8 +241,7 @@ void nfa_t4tnfcee_store_cc_info(NFC_HDR* p_data) {
   if (NULL != p_data) {
     ccInfo = (uint8_t*)(p_data + 1) + p_data->offset + jumpToFirstTLV;
   } else {
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf("%s empty cc info", __func__);
+    LOG(DEBUG) << StringPrintf("%s empty cc info", __func__);
     return;
   }
   RW_T4tNfceeUpdateCC(ccInfo);
@@ -281,17 +276,15 @@ void nfa_t4tnfcee_store_cc_info(NFC_HDR* p_data) {
  *******************************************************************************/
 void nfa_t4tnfcee_store_rx_buf(NFC_HDR* p_data) {
   uint8_t* p;
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("%s copying data len %d  rd_offset: %d", __func__,
-                      p_data->len, nfa_t4tnfcee_cb.rd_offset);
+  LOG(DEBUG) << StringPrintf("%s copying data len %d  rd_offset: %d", __func__,
+                             p_data->len, nfa_t4tnfcee_cb.rd_offset);
   if (NULL != p_data) {
     p = (uint8_t*)(p_data + 1) + p_data->offset;
     memcpy(&nfa_t4tnfcee_cb.p_dataBuf[nfa_t4tnfcee_cb.rd_offset], p,
            p_data->len);
     nfa_t4tnfcee_cb.rd_offset += p_data->len;
   } else {
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf("%s Data is NULL", __func__);
+    LOG(DEBUG) << StringPrintf("%s Data is NULL", __func__);
   }
 }
 
@@ -326,8 +319,8 @@ void nfa_t4tnfcee_handle_file_operations(tRW_DATA* p_rwData) {
     nfa_t4tnfcee_notify_rx_evt();
     return;
   }
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-      "%s currState : 0x%02x", __func__, nfa_t4tnfcee_cb.prop_rw_state);
+  LOG(DEBUG) << StringPrintf("%s currState : 0x%02x", __func__,
+                             nfa_t4tnfcee_cb.prop_rw_state);
   switch (nfa_t4tnfcee_cb.prop_rw_state) {
     case WAIT_SELECT_APPLICATION:
       if (isError(p_rwData->raw_frame.status)) break;
@@ -358,8 +351,7 @@ void nfa_t4tnfcee_handle_file_operations(tRW_DATA* p_rwData) {
       if (isError(p_rwData->raw_frame.status)) break;
       nfa_t4tnfcee_store_cc_info(p_rwData->raw_frame.p_data);
       if (ccFileInfo.find(nfa_t4tnfcee_cb.cur_fileId) == ccFileInfo.end()) {
-        DLOG_IF(INFO, nfc_debug_enabled)
-            << StringPrintf("%s FileId Not found in CC", __func__);
+        LOG(DEBUG) << StringPrintf("%s FileId Not found in CC", __func__);
         nfa_t4tnfcee_cb.status = NFA_T4T_STATUS_INVALID_FILE_ID;
         nfa_t4tnfcee_notify_rx_evt();
         break;
@@ -565,8 +557,7 @@ bool is_write_precondition_valid(tNFA_T4TNFCEE_MSG* p_data) {
  *******************************************************************************/
 bool isReadPermitted(void) {
   if (ccFileInfo.find(nfa_t4tnfcee_cb.cur_fileId) == ccFileInfo.end()) {
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf("%s FileId Not found", __func__);
+    LOG(DEBUG) << StringPrintf("%s FileId Not found", __func__);
     return false;
   }
   return (ccFileInfo.find(nfa_t4tnfcee_cb.cur_fileId)->second.read_access ==
@@ -584,11 +575,10 @@ bool isReadPermitted(void) {
  *******************************************************************************/
 bool isWritePermitted(void) {
   if (ccFileInfo.find(nfa_t4tnfcee_cb.cur_fileId) == ccFileInfo.end()) {
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf("%s FileId Not found", __func__);
+    LOG(DEBUG) << StringPrintf("%s FileId Not found", __func__);
     return false;
   }
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+  LOG(DEBUG) << StringPrintf(
       "%s : 0x%2x", __func__,
       ccFileInfo.find(nfa_t4tnfcee_cb.cur_fileId)->second.write_access);
   return ((ccFileInfo.find(nfa_t4tnfcee_cb.cur_fileId)->second.write_access !=
@@ -607,8 +597,7 @@ bool isWritePermitted(void) {
  *******************************************************************************/
 bool isDataLenBelowMaxFileCapacity(void) {
   if (ccFileInfo.find(nfa_t4tnfcee_cb.cur_fileId) == ccFileInfo.end()) {
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf("%s FileId Not found", __func__);
+    LOG(DEBUG) << StringPrintf("%s FileId Not found", __func__);
     return false;
   }
   return (nfa_t4tnfcee_cb.dataLen <=
@@ -628,7 +617,7 @@ bool isDataLenBelowMaxFileCapacity(void) {
 tNFC_STATUS getWritePreconditionStatus() {
   if (!isWritePermitted()) return NFA_STATUS_READ_ONLY;
   if (!isDataLenBelowMaxFileCapacity()) {
-    DLOG_IF(ERROR, nfc_debug_enabled) << StringPrintf("Data Len exceeds max file size");
+    LOG(ERROR) << StringPrintf("Data Len exceeds max file size");
     return NFA_STATUS_FAILED;
   }
   if (nfa_t4tnfcee_cb.cur_fileId == NDEF_FILE_ID) {
@@ -636,7 +625,7 @@ tNFC_STATUS getWritePreconditionStatus() {
     if ((ndef_status = NDEF_MsgValidate(nfa_t4tnfcee_cb.p_dataBuf,
                                         nfa_t4tnfcee_cb.dataLen, true)) !=
         NDEF_OK) {
-      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+      LOG(DEBUG) << StringPrintf(
           "Invalid NDEF message. NDEF_MsgValidate returned %i", ndef_status);
       return NFA_STATUS_REJECTED;
     }
@@ -665,11 +654,9 @@ uint16_t nfa_t4tnfcee_get_len(tRW_DATA* p_rwData) {
   }
   if (p != nullptr) BE_STREAM_TO_UINT16(readLen, p);
   if (readLen > 0x00) {
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf("%s readLen  0x%x", __func__, readLen);
+    LOG(DEBUG) << StringPrintf("%s readLen  0x%x", __func__, readLen);
   } else {
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf("%s No Data to Read", __func__);
+    LOG(DEBUG) << StringPrintf("%s No Data to Read", __func__);
   }
   return readLen;
 }

@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright 2020 NXP
+ *  Copyright 2020, 2024 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,13 +16,12 @@
  *
  ******************************************************************************/
 #if (NXP_EXTNS == TRUE)
+#include <android-base/logging.h>
 #include <android-base/stringprintf.h>
-#include <base/logging.h>
 #include <nfa_wlc_api.h>
 
 using android::base::StringPrintf;
 
-extern bool nfc_debug_enabled;
 wlc_t wlc_cb;
 
 /*******************************************************************************
@@ -78,7 +77,7 @@ void NFA_WlcDeInitSubsystem() {
 **
 *******************************************************************************/
 tNFA_STATUS NFA_WlcUpdateDiscovery(tNFA_WLC_DISC_REQ requestOperation) {
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s", __func__);
+  LOG(DEBUG) << StringPrintf("%s", __func__);
   tNFA_WLC_OPERATION* p_msg;
   if ((p_msg = (tNFA_WLC_OPERATION*)GKI_getbuf(
            (uint16_t)(sizeof(tNFA_WLC_OPERATION)))) != NULL) {
@@ -107,7 +106,7 @@ tNFA_STATUS NFA_WlcUpdateDiscovery(tNFA_WLC_DISC_REQ requestOperation) {
 **
 *******************************************************************************/
 extern tNFA_STATUS NFA_WlcRfIntfExtStart(tNFA_RF_INTF_EXT_PARAMS* p_params) {
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
+  LOG(DEBUG) << __func__;
   if ((nfa_dm_cb.disc_cb.disc_state != NFA_DM_RFST_POLL_ACTIVE) &&
       (nfa_dm_cb.disc_cb.disc_state != NFA_DM_RFST_LISTEN_ACTIVE))
     return NFA_STATUS_FAILED;
@@ -144,7 +143,7 @@ extern tNFA_STATUS NFA_WlcRfIntfExtStart(tNFA_RF_INTF_EXT_PARAMS* p_params) {
 **
 *******************************************************************************/
 extern tNFA_STATUS NFA_WlcRfIntfExtStop(tNFA_RF_INTF_EXT_PARAMS* p_params) {
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
+  LOG(DEBUG) << __func__;
   if (!wlc_cb.isRfIntfExtStarted) return NFA_STATUS_FAILED;
   if (p_params == nullptr) return NFA_STATUS_FAILED;
   tNFA_WLC_OPERATION* p_msg;

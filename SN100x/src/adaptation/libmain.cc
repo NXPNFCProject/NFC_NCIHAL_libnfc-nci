@@ -15,7 +15,7 @@
  *  limitations under the License.
  *
  ******************************************************************************/
- /******************************************************************************
+/******************************************************************************
  *
  *  The original Work has been changed by NXP.
  *
@@ -34,8 +34,8 @@
  *  Copyright 2019 NXP
  *
  ******************************************************************************/
+#include <android-base/logging.h>
 #include <android-base/stringprintf.h>
-#include <base/logging.h>
 #include <fcntl.h>
 
 #include <vector>
@@ -47,7 +47,6 @@
 using android::base::StringPrintf;
 
 extern std::string nfc_storage_path;
-extern bool nfc_debug_enabled;
 
 namespace {
 std::string getFilenameForBlock(const unsigned block) {
@@ -104,8 +103,8 @@ extern void nfa_mem_co_free(void* pBuffer) { free(pBuffer); }
 extern void nfa_nv_co_read(uint8_t* pBuffer, uint16_t nbytes, uint8_t block) {
   std::string filename = getFilenameForBlock(block);
 
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-      "%s: buffer len=%u; file=%s", __func__, nbytes, filename.c_str());
+  LOG(DEBUG) << StringPrintf("%s: buffer len=%u; file=%s", __func__, nbytes,
+                             filename.c_str());
   int fileStream = open(filename.c_str(), O_RDONLY);
   if (fileStream >= 0) {
     uint16_t checksum = 0;
@@ -117,16 +116,14 @@ extern void nfa_nv_co_read(uint8_t* pBuffer, uint16_t nbytes, uint8_t block) {
     size_t actualReadData = read(fileStream, pBuffer, nbytes);
     close(fileStream);
     if (actualReadData > 0) {
-      DLOG_IF(INFO, nfc_debug_enabled)
-          << StringPrintf("%s: data size=%zu", __func__, actualReadData);
+      LOG(DEBUG) << StringPrintf("%s: data size=%zu", __func__, actualReadData);
       nfa_nv_ci_read(actualReadData, NFA_NV_CO_OK, block);
     } else {
       LOG(ERROR) << StringPrintf("%s: fail to read", __func__);
       nfa_nv_ci_read(0, NFA_NV_CO_FAIL, block);
     }
   } else {
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf("%s: fail to open", __func__);
+    LOG(DEBUG) << StringPrintf("%s: fail to open", __func__);
     nfa_nv_ci_read(0, NFA_NV_CO_FAIL, block);
   }
 }
@@ -154,8 +151,8 @@ extern void nfa_nv_co_write(const uint8_t* pBuffer, uint16_t nbytes,
                             uint8_t block) {
   std::string filename = getFilenameForBlock(block);
 
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-      "%s: bytes=%u; file=%s", __func__, nbytes, filename.c_str());
+  LOG(DEBUG) << StringPrintf("%s: bytes=%u; file=%s", __func__, nbytes,
+                             filename.c_str());
 
   int fileStream =
       open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
@@ -163,8 +160,8 @@ extern void nfa_nv_co_write(const uint8_t* pBuffer, uint16_t nbytes,
     uint16_t checksum = crcChecksumCompute(pBuffer, nbytes);
     size_t actualWrittenCrc = write(fileStream, &checksum, sizeof(checksum));
     size_t actualWrittenData = write(fileStream, pBuffer, nbytes);
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf("%s: %zu bytes written", __func__, actualWrittenData);
+    LOG(DEBUG) << StringPrintf("%s: %zu bytes written", __func__,
+                               actualWrittenData);
     if ((actualWrittenData == nbytes) &&
         (actualWrittenCrc == sizeof(checksum))) {
       nfa_nv_ci_write(NFA_NV_CO_OK);
@@ -196,7 +193,7 @@ void delete_stack_non_volatile_store(bool forceDelete) {
   if ((firstTime == false) && (forceDelete == false)) return;
   firstTime = false;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s", __func__);
+  LOG(DEBUG) << StringPrintf("%s", __func__);
 
   if (remove(getFilenameForBlock(DH_NV_BLOCK).c_str())) {
     LOG(ERROR) << StringPrintf(
@@ -236,7 +233,7 @@ void delete_stack_non_volatile_store(bool forceDelete) {
 **
 *******************************************************************************/
 void verify_stack_non_volatile_store() {
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s", __func__);
+  LOG(DEBUG) << StringPrintf("%s", __func__);
 
   const std::vector<unsigned> verify_blocks = {DH_NV_BLOCK, HC_F2_NV_BLOCK,
                                                HC_F3_NV_BLOCK, HC_F4_NV_BLOCK,

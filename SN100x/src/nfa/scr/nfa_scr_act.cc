@@ -23,19 +23,18 @@
  *
  ******************************************************************************/
 
+#include <android-base/logging.h>
 #include <android-base/stringprintf.h>
-#include <base/logging.h>
 #include <string.h>
-#include "nfa_hci_defs.h"
-#include "nfa_scr_int.h"
-#include "nfa_ee_int.h"
+
 #include "nfa_dm_int.h"
+#include "nfa_ee_int.h"
+#include "nfa_hci_defs.h"
 #include "nfa_nfcee_int.h"
+#include "nfa_scr_int.h"
 using android::base::StringPrintf;
 
 #define NFA_SCR_INVALID_EVT 0xFF
-
-extern bool nfc_debug_enabled;
 
 /******************************************************************************
 **
@@ -81,7 +80,7 @@ void nfa_scr_notify_evt(uint8_t event, uint8_t status) {
   if (nfa_scr_cb.scr_cback != nullptr) {
     nfa_scr_cb.scr_cback(event, status);
   } else {
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: scr_cback is null", __func__);
+    LOG(DEBUG) << StringPrintf("%s: scr_cback is null", __func__);
   }
 }
 
@@ -105,17 +104,17 @@ bool nfa_scr_proc_rdr_req_ntf(tNFC_EE_DISCOVER_REQ_REVT* p_cbk) {
   tNFA_EE_ECB* p_cb = nullptr;
   bool is_scr_requested = false;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: Enter", __func__);
+  LOG(DEBUG) << StringPrintf("%s: Enter", __func__);
   if(nfa_scr_cb.scr_evt_cback == nullptr) {
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("SCR module isn't requested by APP.");
+    LOG(DEBUG) << StringPrintf("SCR module isn't requested by APP.");
     return is_scr_requested;
   }
 
   for (xx = 0; xx < p_cbk->num_info; xx++) {
     p_cb = nfa_ee_find_ecb(p_cbk->info[xx].nfcee_id);
     if (!p_cb) {
-      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-          "Cannot find cb for NFCEE: 0x%x", p_cbk->info[xx].nfcee_id);
+      LOG(DEBUG) << StringPrintf("Cannot find cb for NFCEE: 0x%x",
+                                 p_cbk->info[xx].nfcee_id);
       p_cb = nfa_ee_find_ecb(NFA_EE_INVALID);
       if (p_cb) {
         p_cb->nfcee_id = p_cbk->info[xx].nfcee_id;

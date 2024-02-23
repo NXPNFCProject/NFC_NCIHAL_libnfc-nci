@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright 2019 NXP
+ *  Copyright 2019, 2024 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,9 +15,10 @@
  *  limitations under the License.
  *
  ******************************************************************************/
+#include <android-base/logging.h>
 #include <android-base/stringprintf.h>
-#include <base/logging.h>
 #include <string.h>
+
 #include "nfa_dm_int.h"
 #include "nfa_ee_int.h"
 #include "nfa_nfcee_int.h"
@@ -25,8 +26,6 @@
 #include "nfc_config.h"
 #if (NXP_EXTNS == TRUE)
 using android::base::StringPrintf;
-
-extern bool nfc_debug_enabled;
 
 tNFA_T4TNFCEE_CB nfa_t4tnfcee_cb;
 void nfa_t4tnfcee_info_cback(tNFA_EE_EVT event, tNFA_EE_CBACK_DATA* p_data);
@@ -58,7 +57,7 @@ const tNFA_T4TNFCEE_ACTION nfa_t4tnfcee_action_tbl[] = {
 void nfa_t4tnfcee_init(void) {
   if (NfcConfig::hasKey(NAME_NXP_T4T_NFCEE_ENABLE)) {
     if (NFA_T4T_NFCEE_ENANLE_BIT_POS & NfcConfig::getUnsigned(NAME_NXP_T4T_NFCEE_ENABLE)) {
-      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_t4tnfcee_init ()");
+      LOG(DEBUG) << StringPrintf("nfa_t4tnfcee_init ()");
       /* initialize control block */
       memset(&nfa_t4tnfcee_cb, 0, sizeof(tNFA_T4TNFCEE_CB));
       nfa_t4tnfcee_cb.t4tnfcee_state = NFA_T4TNFCEE_STATE_DISABLED;
@@ -78,7 +77,7 @@ void nfa_t4tnfcee_init(void) {
 **
 *******************************************************************************/
 void nfa_t4tnfcee_deinit(void) {
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_t4tnfcee_deinit ()");
+  LOG(DEBUG) << StringPrintf("nfa_t4tnfcee_deinit ()");
 
   /* reset state */
   nfa_t4tnfcee_cb.t4tnfcee_state = NFA_T4TNFCEE_STATE_DISABLED;
@@ -97,8 +96,8 @@ void nfa_t4tnfcee_deinit(void) {
 static void nfa_t4tnfcee_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
                                     tNFC_CONN* p_data) {
   tNFA_CONN_EVT_DATA conn_evt_data;
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-      "%s : Enter, conn_id = %d, event = 0x%x", __func__, conn_id, event);
+  LOG(DEBUG) << StringPrintf("%s : Enter, conn_id = %d, event = 0x%x", __func__,
+                             conn_id, event);
   switch (event) {
     case NFC_CONN_CREATE_CEVT: {
       if (conn_id == NCI_DEST_TYPE_T4T_NFCEE) {
@@ -142,8 +141,7 @@ static void nfa_t4tnfcee_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
  **
  *******************************************************************************/
 void nfa_t4tnfcee_info_cback(tNFA_EE_EVT event, tNFA_EE_CBACK_DATA* p_data) {
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("%s event: %x", __func__, event);
+  LOG(DEBUG) << StringPrintf("%s event: %x", __func__, event);
   switch (event) {
     case NFA_EE_DISCOVER_EVT:
       if (nfa_t4tnfcee_cb.t4tnfcee_state == NFA_T4TNFCEE_STATE_DISABLED) {
@@ -233,8 +231,7 @@ static std::string nfa_t4tnfcee_evt_2_str(uint16_t event) {
 **
 *******************************************************************************/
 void nfa_t4tnfcee_sys_enable(void) {
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("nfa_t4tnfcee_sys_enable ()");
+  LOG(DEBUG) << StringPrintf("nfa_t4tnfcee_sys_enable ()");
 }
 
 /*******************************************************************************
@@ -270,8 +267,7 @@ void nfa_t4tnfcee_sys_disable(void) {
 **
 *******************************************************************************/
 tNFC_STATUS nfa_t4tnfcee_proc_disc_evt(tNFA_T4TNFCEE_OP event) {
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("%s Enter. Event = %d ", __func__, (int)event);
+  LOG(DEBUG) << StringPrintf("%s Enter. Event = %d ", __func__, (int)event);
   tNFC_STATUS status = NFC_STATUS_FAILED;
 
   switch (event) {
@@ -305,15 +301,15 @@ tNFC_STATUS nfa_t4tnfcee_proc_disc_evt(tNFA_T4TNFCEE_OP event) {
 bool nfa_t4tnfcee_handle_event(NFC_HDR* p_msg) {
   uint16_t act_idx;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-      "nfa_t4tnfcee_handle_event event: %s (0x%02x)",
-      nfa_t4tnfcee_evt_2_str(p_msg->event).c_str(), p_msg->event);
+  LOG(DEBUG) << StringPrintf("nfa_t4tnfcee_handle_event event: %s (0x%02x)",
+                             nfa_t4tnfcee_evt_2_str(p_msg->event).c_str(),
+                             p_msg->event);
 
   /* Get NFA_T4TNFCEE sub-event */
   if ((act_idx = (p_msg->event & 0x00FF)) < (NFA_T4TNFCEE_MAX_EVT & 0xFF)) {
     return (*nfa_t4tnfcee_action_tbl[act_idx])((tNFA_T4TNFCEE_MSG*)p_msg);
   } else {
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+    LOG(DEBUG) << StringPrintf(
         "nfa_t4tnfcee_handle_event: unhandled event 0x%02X", p_msg->event);
     return true;
   }

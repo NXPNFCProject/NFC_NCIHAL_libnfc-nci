@@ -33,8 +33,8 @@
  *
  *
  ******************************************************************************/
+#include <android-base/logging.h>
 #include <android-base/stringprintf.h>
-#include <base/logging.h>
 
 #include "gki_int.h"
 
@@ -50,8 +50,6 @@
 #define GKI_MAX_INT32 (0x7fffffffL)
 
 using android::base::StringPrintf;
-
-extern bool nfc_debug_enabled;
 
 /*******************************************************************************
 **
@@ -789,7 +787,7 @@ void GKI_add_to_timer_list(TIMER_LIST_Q* p_timer_listq, TIMER_LIST_ENT* p_tle) {
   uint8_t tt;
   TIMER_LIST_ENT* p_temp;
   if (p_tle == nullptr || p_timer_listq == nullptr) {
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+    LOG(DEBUG) << StringPrintf(
         "%s: invalid argument %p, %p****************************<<", __func__,
         p_timer_listq, p_tle);
     return;

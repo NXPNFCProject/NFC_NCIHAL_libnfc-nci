@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2021, 2023 NXP
+ *  Copyright 2018-2021, 2023-2024 NXP
  *
  ******************************************************************************/
 
@@ -42,22 +42,20 @@
  *  (callback). On the transmit side, it manages the command transmission.
  *
  ******************************************************************************/
-#include <string.h>
-
+#include <android-base/logging.h>
 #include <android-base/stringprintf.h>
 #include <android/hardware/nfc/1.1/types.h>
-#include <base/logging.h>
+#include <fcntl.h>
+#include <string.h>
 
-#include "nfc_target.h"
-
+#include "NfcAdaptation.h"
 #include "bt_types.h"
 #include "ce_int.h"
 #include "gki.h"
 #include "nci_hmsgs.h"
 #include "nfc_int.h"
+#include "nfc_target.h"
 #include "rw_int.h"
-#include "NfcAdaptation.h"
-#include <fcntl.h>
 #if (NXP_EXTNS == TRUE)
 #include <config.h>
 #include "nfc_config.h"
@@ -87,7 +85,6 @@
 using android::base::StringPrintf;
 using android::hardware::nfc::V1_1::NfcEvent;
 
-extern bool nfc_debug_enabled;
 extern void delete_stack_non_volatile_store(bool forceDelete);
 
 /****************************************************************************
@@ -324,8 +321,8 @@ void nfc_enabled(tNFC_STATUS nfc_status, NFC_HDR* p_init_rsp_msg) {
         p_cb->init_credits = p_cb->num_buff;
         evt_data.enable.hci_packet_size = p_cb->buff_size;
         evt_data.enable.hci_conn_credits = p_cb->init_credits;
-        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-            "hci num_buf=%d buf_size=%d", p_cb->num_buff, p_cb->buff_size);
+        LOG(DEBUG) << StringPrintf("hci num_buf=%d buf_size=%d", p_cb->num_buff,
+                                   p_cb->buff_size);
       } else {
         /*HCI n/w not enabled skip data buff size and data credit HCI conn */
         p += 2;
@@ -424,10 +421,9 @@ void nfc_enabled(tNFC_STATUS nfc_status, NFC_HDR* p_init_rsp_msg) {
 **
 *******************************************************************************/
 void nfc_set_state(tNFC_STATE nfc_state) {
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("nfc_set_state %d (%s)->%d (%s)", nfc_cb.nfc_state,
-                      nfc_state_name(nfc_cb.nfc_state).c_str(), nfc_state,
-                      nfc_state_name(nfc_state).c_str());
+  LOG(DEBUG) << StringPrintf("nfc_set_state %d (%s)->%d (%s)", nfc_cb.nfc_state,
+                             nfc_state_name(nfc_cb.nfc_state).c_str(),
+                             nfc_state, nfc_state_name(nfc_state).c_str());
   nfc_cb.nfc_state = nfc_state;
 }
 
@@ -477,8 +473,7 @@ void nfc_gen_cleanup(void) {
 void nfc_main_handle_hal_evt(tNFC_HAL_EVT_MSG* p_msg) {
   uint8_t* ps;
 
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("HAL event=0x%x", p_msg->hal_evt);
+  LOG(DEBUG) << StringPrintf("HAL event=0x%x", p_msg->hal_evt);
 
   switch (p_msg->hal_evt) {
     case HAL_NFC_OPEN_CPLT_EVT: /* only for failure case */
@@ -627,7 +622,7 @@ void nfc_main_handle_hal_evt(tNFC_HAL_EVT_MSG* p_msg) {
 void nfc_main_flush_cmd_queue(void) {
   NFC_HDR* p_msg;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
+  LOG(DEBUG) << __func__;
 
   /* initialize command window */
   nfc_cb.nci_cmd_window = NCI_MAX_CMD_WINDOW;
@@ -684,8 +679,8 @@ void  check_nfcee_session_and_reset()
   filename.append(sConfigFile);
   int fileStream = open(filename.c_str(), O_RDONLY);
   if(fileStream < 0) {
-    DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("%s: file not found %s", __func__, filename.c_str());
+    LOG(DEBUG) << StringPrintf("%s: file not found %s", __func__,
+                               filename.c_str());
     NfcAdaptation& theInstance = NfcAdaptation::GetInstance();
     theInstance.FactoryReset();
   } else {
@@ -703,9 +698,8 @@ void  check_nfcee_session_and_reset()
 **
 *******************************************************************************/
 static void nfc_main_hal_cback(uint8_t event, tHAL_NFC_STATUS status) {
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("nfc_main_hal_cback event: %s(0x%x), status=%d",
-                      nfc_hal_event_name(event).c_str(), event, status);
+  LOG(DEBUG) << StringPrintf("nfc_main_hal_cback event: %s(0x%x), status=%d",
+                             nfc_hal_event_name(event).c_str(), event, status);
 
   switch (event) {
     case HAL_NFC_OPEN_CPLT_EVT:
@@ -724,8 +718,7 @@ static void nfc_main_hal_cback(uint8_t event, tHAL_NFC_STATUS status) {
 #if (NXP_EXTNS == TRUE)
       /* Updates completed, restart NFC service */
       else if (status == HAL_NFC_STATUS_RESTART) {
-        DLOG_IF(INFO, nfc_debug_enabled)
-            << StringPrintf("Restart NFC service");
+        LOG(DEBUG) << StringPrintf("Restart NFC service");
         abort();
       }
 #endif
@@ -749,8 +742,8 @@ static void nfc_main_hal_cback(uint8_t event, tHAL_NFC_STATUS status) {
       break;
 #endif
     default:
-      DLOG_IF(INFO, nfc_debug_enabled)
-          << StringPrintf("nfc_main_hal_cback unhandled event %x", event);
+      LOG(DEBUG) << StringPrintf("nfc_main_hal_cback unhandled event %x",
+                                 event);
       break;
   }
 }
@@ -825,7 +818,7 @@ static void nfc_main_hal_data_cback(uint16_t data_len, uint8_t* p_data) {
 **
 *******************************************************************************/
 tNFC_STATUS NFC_Enable(tNFC_RESPONSE_CBACK* p_cback) {
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
+  LOG(DEBUG) << __func__;
 
   /* Validate callback */
   if (!p_cback) {
@@ -856,8 +849,7 @@ tNFC_STATUS NFC_Enable(tNFC_RESPONSE_CBACK* p_cback) {
 **
 *******************************************************************************/
 void NFC_Disable(void) {
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("nfc_state = %d", nfc_cb.nfc_state);
+  LOG(DEBUG) << StringPrintf("nfc_state = %d", nfc_cb.nfc_state);
 
   if ((nfc_cb.nfc_state == NFC_STATE_NONE) ||
       (nfc_cb.nfc_state == NFC_STATE_NFCC_POWER_OFF_SLEEP)) {
@@ -906,9 +898,9 @@ void NFC_Init(tHAL_NFC_ENTRY* p_hal_entry_tbl) {
 #if(NXP_EXTNS == TRUE)
   if (NfcConfig::hasKey(NAME_NXP_NCI_CREDIT_NTF_TIMEOUT)) {
     nfc_cb.nci_credit_ntf_timeout = NfcConfig::getUnsigned(NAME_NXP_NCI_CREDIT_NTF_TIMEOUT);
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf("NAME_NXP_NCI_CREDIT_NTF_TIMEOUT to wait for credit ntf %d"
-            , nfc_cb.nci_credit_ntf_timeout);
+    LOG(DEBUG) << StringPrintf(
+        "NAME_NXP_NCI_CREDIT_NTF_TIMEOUT to wait for credit ntf %d",
+        nfc_cb.nci_credit_ntf_timeout);
   }
   else
   {
@@ -1049,8 +1041,8 @@ tNFC_STATUS NFC_DiscoveryMap(uint8_t num, tNFC_DISCOVER_MAPS* p_maps,
 #endif
   nfc_cb.p_discv_cback = p_cback;
   num_intf = 0;
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-      "nci_interfaces supported by NFCC: 0x%x", nfc_cb.nci_interfaces);
+  LOG(DEBUG) << StringPrintf("nci_interfaces supported by NFCC: 0x%x",
+                             nfc_cb.nci_interfaces);
 
   for (xx = 0; xx < NFC_NFCC_MAX_NUM_VS_INTERFACE + NCI_INTERFACE_MAX; xx++) {
     memset(&max_maps[xx], 0x00, sizeof(tNFC_DISCOVER_MAPS));
@@ -1063,17 +1055,16 @@ tNFC_STATUS NFC_DiscoveryMap(uint8_t num, tNFC_DISCOVER_MAPS* p_maps,
         if (nfc_cb.vs_interface[yy] == p_maps[xx].intf_type)
           is_supported = true;
       }
-      DLOG_IF(INFO, nfc_debug_enabled)
-          << StringPrintf("[%d]: vs intf_type:0x%x is_supported:%d", xx,
-                          p_maps[xx].intf_type, is_supported);
+      LOG(DEBUG) << StringPrintf("[%d]: vs intf_type:0x%x is_supported:%d", xx,
+                                 p_maps[xx].intf_type, is_supported);
     } else {
       intf_mask = (1 << (p_maps[xx].intf_type));
       if (intf_mask & nfc_cb.nci_interfaces) {
         is_supported = true;
       }
-      DLOG_IF(INFO, nfc_debug_enabled)
-          << StringPrintf("[%d]: intf_type:%d intf_mask: 0x%x is_supported:%d",
-                          xx, p_maps[xx].intf_type, intf_mask, is_supported);
+      LOG(DEBUG) << StringPrintf(
+          "[%d]: intf_type:%d intf_mask: 0x%x is_supported:%d", xx,
+          p_maps[xx].intf_type, intf_mask, is_supported);
     }
     if (is_supported)
       memcpy(&max_maps[num_intf++], &p_maps[xx], sizeof(tNFC_DISCOVER_MAPS));
@@ -1110,7 +1101,7 @@ tNFC_STATUS NFC_DiscoveryStart(uint8_t num_params,
   int params_size;
   tNFC_STATUS status = NFC_STATUS_NO_BUFFERS;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
+  LOG(DEBUG) << __func__;
   if (nfc_cb.p_disc_pending) {
     LOG(ERROR) << StringPrintf("There's pending NFC_DiscoveryStart");
     status = NFC_STATUS_BUSY;
@@ -1130,8 +1121,7 @@ tNFC_STATUS NFC_DiscoveryStart(uint8_t num_params,
     }
   }
 
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("NFC_DiscoveryStart status: 0x%x", status);
+  LOG(DEBUG) << StringPrintf("NFC_DiscoveryStart status: 0x%x", status);
   return status;
 }
 
@@ -1271,8 +1261,8 @@ void NFC_SetStaticT4tNfceeCback(tNFC_CONN_CBACK* p_cback) {
     /* just in case DH has received NCI data before the data callback is set
      * check if there's any data event to report on this connection id */
     nfc_data_event(p_cb);
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-        "%s = %p, p_cb->p_cback = %p", __func__, p_cb, p_cb->p_cback);
+    LOG(DEBUG) << StringPrintf("%s = %p, p_cb->p_cback = %p", __func__, p_cb,
+                               p_cb->p_cback);
   }
 }
 #endif
@@ -1376,7 +1366,7 @@ tNFC_STATUS NFC_Deactivate(tNFC_DEACT_TYPE deactivate_type) {
   tNFC_CONN_CB* p_cb = &nfc_cb.conn_cb[NFC_RF_CONN_ID];
   tNFC_STATUS status = NFC_STATUS_OK;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+  LOG(DEBUG) << StringPrintf(
       "NFC_Deactivate %d (%s) deactivate_type:%d", nfc_cb.nfc_state,
       nfc_state_name(nfc_cb.nfc_state).c_str(), deactivate_type);
 
@@ -1394,9 +1384,9 @@ tNFC_STATUS NFC_Deactivate(tNFC_DEACT_TYPE deactivate_type) {
 
   if (nfc_cb.nfc_state == NFC_STATE_OPEN) {
     nfc_set_state(NFC_STATE_CLOSING);
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf("act_protocol %d credits:%d/%d", p_cb->act_protocol,
-                        p_cb->init_credits, p_cb->num_buff);
+    LOG(DEBUG) << StringPrintf("act_protocol %d credits:%d/%d",
+                               p_cb->act_protocol, p_cb->init_credits,
+                               p_cb->num_buff);
     if ((p_cb->act_protocol == NCI_PROTOCOL_NFC_DEP) &&
         (p_cb->init_credits != p_cb->num_buff)) {
       nfc_cb.flags |= NFC_FL_DEACTIVATING;
@@ -1496,7 +1486,7 @@ tNFC_STATUS NFC_UpdateRFCommParams(tNFC_RF_COMM_PARAMS* p_params) {
 **
 *******************************************************************************/
 tNFC_STATUS NFC_SetPowerOffSleep(bool enable) {
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("enable = %d", enable);
+  LOG(DEBUG) << StringPrintf("enable = %d", enable);
 
   if ((enable == false) &&
       (nfc_cb.nfc_state == NFC_STATE_NFCC_POWER_OFF_SLEEP)) {
@@ -1529,7 +1519,7 @@ tNFC_STATUS NFC_SetPowerOffSleep(bool enable) {
 **
 *******************************************************************************/
 tNFC_STATUS NFC_PowerCycleNFCC(void) {
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
+  LOG(DEBUG) << __func__;
 
   if (nfc_cb.nfc_state == NFC_STATE_IDLE) {
     /* power cycle NFCC */
@@ -1586,15 +1576,13 @@ tNFC_STATUS NFC_ISODEPNakPresCheck() {
 **
 *******************************************************************************/
 void NFC_SetStaticHciCback(tNFC_CONN_CBACK* p_cback) {
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("%s dest: %d", __func__, NCI_DEST_TYPE_NFCEE);
+  LOG(DEBUG) << StringPrintf("%s dest: %d", __func__, NCI_DEST_TYPE_NFCEE);
   tNFC_CONN_CB* p_cb = &nfc_cb.conn_cb[NFC_HCI_CONN_ID];
   tNFC_CONN evt_data;
 
   p_cb->p_cback = p_cback;
   if (p_cback && p_cb->buff_size && p_cb->num_buff) {
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf("%s dest: %d", __func__, NCI_DEST_TYPE_NFCEE);
+    LOG(DEBUG) << StringPrintf("%s dest: %d", __func__, NCI_DEST_TYPE_NFCEE);
     evt_data.conn_create.status = NFC_STATUS_OK;
     evt_data.conn_create.dest_type = NCI_DEST_TYPE_NFCEE;
     evt_data.conn_create.id = p_cb->id;
@@ -1731,11 +1719,10 @@ tNFC_chipType NFC_ProcessChipType(tNFC_FW_VERSION nfc_fw_version) {
  ** Returns          Nothing
  *******************************************************************************/
 void NFC_SetFeatureList(tNFC_FW_VERSION nfc_fw_version) {
-  LOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: Enter", __func__);
+  LOG(DEBUG) << StringPrintf("%s: Enter", __func__);
   chipType = NFC_ProcessChipType(nfc_fw_version);
   CONFIGURE_FEATURELIST(chipType);
-  LOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("%s: chipType = %d", __func__, chipType);
+  LOG(DEBUG) << StringPrintf("%s: chipType = %d", __func__, chipType);
 #if(NXP_EXTNS == TRUE)
   if (!(((nfcFL.chipType == sn220u) && NXP_EN_SN220U) || ((nfcFL.chipType == sn300u) && NXP_EN_SN300U) ||
         ((nfcFL.chipType == sn100u) && (NXP_EN_SN110U || NXP_EN_SN100U)) ||

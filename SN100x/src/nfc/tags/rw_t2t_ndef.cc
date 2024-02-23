@@ -16,32 +16,32 @@
  *
  ******************************************************************************/
 /******************************************************************************
-*
-*  The original Work has been changed by NXP.
-*
-*  Licensed under the Apache License, Version 2.0 (the "License");
-*  you may not use this file except in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*  http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing, software
-*  distributed under the License is distributed on an "AS IS" BASIS,
-*  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*  See the License for the specific language governing permissions and
-*  limitations under the License.
-*
-*  Copyright 2020-2022 NXP
-*
-******************************************************************************/
+ *
+ *  The original Work has been changed by NXP.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  Copyright 2020-2022 NXP
+ *
+ ******************************************************************************/
 /******************************************************************************
  *
  *  This file contains the implementation for Type 2 tag NDEF operation in
  *  Reader/Writer mode.
  *
  ******************************************************************************/
+#include <android-base/logging.h>
 #include <android-base/stringprintf.h>
-#include <base/logging.h>
 #include <log/log.h>
 #include <string.h>
 
@@ -52,8 +52,6 @@
 #include "rw_int.h"
 
 using android::base::StringPrintf;
-
-extern bool nfc_debug_enabled;
 
 #if (RW_NDEF_INCLUDED == TRUE)
 
@@ -1395,8 +1393,7 @@ static uint16_t rw_t2t_get_ndef_max_size(void) {
   tRW_T2T_CB* p_t2t = &rw_cb.tcb.t2t;
   uint16_t tag_size = (p_t2t->tag_hdr[T2T_CC2_TMS_BYTE] * T2T_TMS_TAG_FACTOR);
 
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("%s - T2T_Area size: %d", __func__, tag_size);
+  LOG(DEBUG) << StringPrintf("%s - T2T_Area size: %d", __func__, tag_size);
 
   /* Add header to compute max T2T NDEF data offset */
   tag_size += (T2T_FIRST_DATA_BLOCK * T2T_BLOCK_LEN);
@@ -1410,9 +1407,8 @@ static uint16_t rw_t2t_get_ndef_max_size(void) {
     /* Tag not formated, assume static tag */
     p_t2t->max_ndef_msg_len = T2T_STATIC_SIZE - T2T_HEADER_SIZE -
                               T2T_TLV_TYPE_LEN - T2T_SHORT_NDEF_LEN_FIELD_LEN;
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf("%s - Tag assumed static : max_ndef_msg_len=%d",
-                        __func__, p_t2t->max_ndef_msg_len);
+    LOG(DEBUG) << StringPrintf("%s - Tag assumed static : max_ndef_msg_len=%d",
+                               __func__, p_t2t->max_ndef_msg_len);
     return p_t2t->max_ndef_msg_len;
   }
 
@@ -1432,9 +1428,8 @@ static uint16_t rw_t2t_get_ndef_max_size(void) {
         (T2T_LONG_NDEF_LEN_FIELD_LEN - T2T_SHORT_NDEF_LEN_FIELD_LEN);
   }
 
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("%s - Max NDEF data storage: max_ndef_msg_len=%d",
-                      __func__, p_t2t->max_ndef_msg_len);
+  LOG(DEBUG) << StringPrintf("%s - Max NDEF data storage: max_ndef_msg_len=%d",
+                             __func__, p_t2t->max_ndef_msg_len);
 
   return p_t2t->max_ndef_msg_len;
 }
@@ -1459,7 +1454,7 @@ tNFC_STATUS rw_t2t_add_terminator_tlv(void) {
   block = p_t2t->terminator_byte_index / T2T_BLOCK_LEN;
 
   if (block == p_t2t->ndef_last_block_num) {
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+    LOG(DEBUG) << StringPrintf(
         "%s - Terminator TLV in same block %d as last NDEF"
         " bytes",
         __func__, block);
@@ -1481,7 +1476,7 @@ tNFC_STATUS rw_t2t_add_terminator_tlv(void) {
   } else if (p_t2t->terminator_byte_index != 0) {
     /* If there is space for Terminator TLV and if it will reside outside
      * NDEF Final block */
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+    LOG(DEBUG) << StringPrintf(
         "%s - Terminator TLV in block %d following the last NDEF block",
         __func__, block);
     p_t2t->terminator_tlv_block[0] = TAG_TERMINATOR_TLV;
@@ -2802,15 +2797,15 @@ tNFC_STATUS RW_T2tLocateTlv(uint8_t tlv_type) {
 
   if ((tlv_type != TAG_LOCK_CTRL_TLV) && (tlv_type != TAG_MEM_CTRL_TLV) &&
       (tlv_type != TAG_NDEF_TLV) && (tlv_type != TAG_PROPRIETARY_TLV)) {
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-        "RW_T2tLocateTlv - Cannot search TLV: 0x%02x", tlv_type);
+    LOG(DEBUG) << StringPrintf("RW_T2tLocateTlv - Cannot search TLV: 0x%02x",
+                               tlv_type);
     return (NFC_STATUS_FAILED);
   }
 
   if ((tlv_type == TAG_LOCK_CTRL_TLV) && (p_t2t->b_read_hdr) &&
       (p_t2t->tag_hdr[T2T_CC2_TMS_BYTE] == T2T_CC2_TMS_STATIC)) {
     p_t2t->b_read_hdr = false;
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+    LOG(DEBUG) << StringPrintf(
         "RW_T2tLocateTlv - No Lock tlv in static structure tag, CC[0]: 0x%02x",
         p_t2t->tag_hdr[T2T_CC2_TMS_BYTE]);
     return (NFC_STATUS_FAILED);

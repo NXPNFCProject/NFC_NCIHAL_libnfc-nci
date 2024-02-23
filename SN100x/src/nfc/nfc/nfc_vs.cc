@@ -23,15 +23,13 @@
  *  (callback). On the transmit side, it manages the command transmission.
  *
  ******************************************************************************/
-#include <string.h>
-
+#include <android-base/logging.h>
 #include <android-base/stringprintf.h>
-#include <base/logging.h>
-
-#include "nfc_target.h"
+#include <string.h>
 
 #include "gki.h"
 #include "nfc_int.h"
+#include "nfc_target.h"
 
 using android::base::StringPrintf;
 

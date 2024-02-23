@@ -103,9 +103,7 @@ extern "C" size_t LLVMFuzzerCustomMutator(uint8_t* Data, size_t Size,
 }
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* Data, size_t Size) {
-  const char* argv[] = {fuzzer_name};
-  base::CommandLine::Init(1, argv);
-  logging::SetLogItems(false, false, false, false);
+  android::base::SetDefaultTag(fuzzer_name);
 
   if (Size > 0) {
     auto Packets = UnpackPackets(Data, Size);
@@ -119,14 +117,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* Data, size_t Size) {
   return 0;
 }
 
-extern "C" int LLVMFuzzerInitialize(int* argc, char*** argv) {
-  base::CommandLine args(*argc, *argv);
-  if (args.HasSwitch("v") || args.HasSwitch("verbose")) {
-    nfc_debug_enabled = true;
-    FUZZLOG("Debugging output enabled");
-  } else {
-    nfc_debug_enabled = false;
-  }
-
+extern "C" int LLVMFuzzerInitialize(int* /*argc*/, char*** /*argv*/) {
+  android::base::SetMinimumLogSeverity(android::base::DEBUG);
+  FUZZLOG("Debugging output enabled");
   return 0;
 }

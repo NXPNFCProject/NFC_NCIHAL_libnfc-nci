@@ -39,8 +39,8 @@
  *  This is the main implementation file for the NFA EE.
  *
  ******************************************************************************/
+#include <android-base/logging.h>
 #include <android-base/stringprintf.h>
-#include <base/logging.h>
 
 #include <string>
 
@@ -49,8 +49,6 @@
 #include "nfc_config.h"
 
 using android::base::StringPrintf;
-
-extern bool nfc_debug_enabled;
 
 /*****************************************************************************
 **  Global Variables
@@ -118,7 +116,7 @@ const tNFA_EE_SM_ACT nfa_ee_actions[] = {
 void nfa_ee_init(void) {
   int xx;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
+  LOG(DEBUG) << __func__;
 
   /* initialize control block */
   memset(&nfa_ee_cb, 0, sizeof(tNFA_EE_CB));
@@ -150,7 +148,7 @@ void nfa_ee_init(void) {
 **
 *******************************************************************************/
 void nfa_ee_sys_enable(void) {
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s", __func__);
+  LOG(DEBUG) << StringPrintf("%s", __func__);
 
   nfa_ee_cb.route_block_control = 0x00;
 #if (NXP_EXTNS == TRUE)
@@ -164,8 +162,8 @@ void nfa_ee_sys_enable(void) {
     unsigned retlen = NfcConfig::getUnsigned(NAME_NFA_AID_BLOCK_ROUTE);
     if ((retlen == 0x01) && (NFC_GetNCIVersion() >= NCI_VERSION_2_0)) {
       nfa_ee_cb.route_block_control = NCI_ROUTE_QUAL_BLOCK_ROUTE;
-      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-          "nfa_ee_cb.route_block_control=0x%x", nfa_ee_cb.route_block_control);
+      LOG(DEBUG) << StringPrintf("nfa_ee_cb.route_block_control=0x%x",
+                                 nfa_ee_cb.route_block_control);
     }
   }
 
@@ -198,7 +196,7 @@ void nfa_ee_restore_one_ecb(tNFA_EE_ECB* p_cb) {
 #if (NXP_EXTNS == TRUE)
   memset(&ee_msg, 0, sizeof(tNFA_EE_NCI_MODE_SET));
 #endif
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+  LOG(DEBUG) << StringPrintf(
       "nfcee_id:0x%x, ecb_flags:0x%x ee_status:0x%x "
       "ee_old_status: 0x%x",
       p_cb->nfcee_id, p_cb->ecb_flags, p_cb->ee_status, p_cb->ee_old_status);
@@ -259,8 +257,7 @@ void nfa_ee_proc_nfcc_power_mode(uint8_t nfcc_power_mode) {
   tNFA_EE_ECB* p_cb;
   bool proc_complete = true;
 
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("nfcc_power_mode=%d", nfcc_power_mode);
+  LOG(DEBUG) << StringPrintf("nfcc_power_mode=%d", nfcc_power_mode);
   /* if NFCC power state is change to full power */
   if (nfcc_power_mode == NFA_DM_PWR_MODE_FULL) {
     if (nfa_ee_max_ee_cfg) {
@@ -320,7 +317,7 @@ void nfa_ee_proc_hci_info_cback(void) {
   tNFA_EE_ECB* p_cb;
   tNFA_EE_MSG data;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
+  LOG(DEBUG) << __func__;
   /* if NFCC power state is change to full power */
   nfa_ee_cb.ee_flags &= ~NFA_EE_FLAG_WAIT_HCI;
 
@@ -399,8 +396,8 @@ void nfa_ee_proc_evt(tNFC_RESPONSE_EVT event, void* p_data) {
 #endif
   }
 
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-      "nfa_ee_proc_evt: event=0x%02x int_event:0x%x", event, int_event);
+  LOG(DEBUG) << StringPrintf("nfa_ee_proc_evt: event=0x%02x int_event:0x%x",
+                             event, int_event);
   if (int_event) {
     cbk.hdr.event = int_event;
     cbk.p_data = p_data;
@@ -443,7 +440,7 @@ uint8_t nfa_ee_ecb_to_mask(tNFA_EE_ECB* p_cb) {
 tNFA_EE_ECB* nfa_ee_find_ecb(uint8_t nfcee_id) {
   uint32_t xx;
   tNFA_EE_ECB *p_ret = nullptr, *p_cb;
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
+  LOG(DEBUG) << __func__;
 
   if (nfcee_id == NFC_DH_ID) {
     p_ret = &nfa_ee_cb.ecb[NFA_EE_CB_4_DH];
@@ -472,7 +469,7 @@ tNFA_EE_ECB* nfa_ee_find_ecb(uint8_t nfcee_id) {
 tNFA_EE_ECB* nfa_ee_find_ecb_by_conn_id(uint8_t conn_id) {
   uint32_t xx;
   tNFA_EE_ECB *p_ret = nullptr, *p_cb;
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
+  LOG(DEBUG) << __func__;
 
   p_cb = nfa_ee_cb.ecb;
   for (xx = 0; xx < nfa_ee_cb.cur_ee; xx++, p_cb++) {
@@ -500,7 +497,7 @@ void nfa_ee_sys_disable(void) {
   tNFA_EE_ECB* p_cb;
   tNFA_EE_MSG msg;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
+  LOG(DEBUG) << __func__;
 
   nfa_ee_cb.em_state = NFA_EE_EM_STATE_DISABLED;
   /* report NFA_EE_DEREGISTER_EVT to all registered to EE */
@@ -685,7 +682,7 @@ static std::string nfa_ee_sm_evt_2_str(uint16_t event) {
 bool nfa_ee_evt_hdlr(NFC_HDR* p_msg) {
   bool act = false;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+  LOG(DEBUG) << StringPrintf(
       "Event %s(0x%02x), State: %s(%d)",
       nfa_ee_sm_evt_2_str(p_msg->event).c_str(), p_msg->event,
       nfa_ee_sm_st_2_str(nfa_ee_cb.em_state).c_str(), nfa_ee_cb.em_state);

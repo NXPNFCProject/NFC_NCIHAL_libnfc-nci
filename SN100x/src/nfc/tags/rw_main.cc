@@ -16,24 +16,24 @@
  *
  ******************************************************************************/
 /******************************************************************************
-*
-*  The original Work has been changed by NXP.
-*
-*  Licensed under the Apache License, Version 2.0 (the "License");
-*  you may not use this file except in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*  http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing, software
-*  distributed under the License is distributed on an "AS IS" BASIS,
-*  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*  See the License for the specific language governing permissions and
-*  limitations under the License.
-*
-*  Copyright 2018-2021 NXP
-*
-******************************************************************************/
+ *
+ *  The original Work has been changed by NXP.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  Copyright 2018-2021 NXP
+ *
+ ******************************************************************************/
 
 /******************************************************************************
  *
@@ -42,8 +42,8 @@
  *  (callback). On the transmit side, it manages the command transmission.
  *
  ******************************************************************************/
+#include <android-base/logging.h>
 #include <android-base/stringprintf.h>
-#include <base/logging.h>
 #include <log/log.h>
 #include <string.h>
 
@@ -56,8 +56,6 @@
 #include "rw_int.h"
 
 using android::base::StringPrintf;
-
-extern bool nfc_debug_enabled;
 
 tRW_CB rw_cb;
 
@@ -162,16 +160,15 @@ void rw_main_log_stats(void) {
   ticks = GKI_get_tick_count() - rw_cb.stats.start_tick;
   elapsed_ms = GKI_TICKS_TO_MS(ticks);
 
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+  LOG(DEBUG) << StringPrintf(
       "NFC tx stats: cmds:%i, retries:%i, aborted: %i, tx_errs: %i, bytes "
       "sent:%i",
       rw_cb.stats.num_ops, rw_cb.stats.num_retries, rw_cb.stats.num_fail,
       rw_cb.stats.num_trans_err, rw_cb.stats.bytes_sent);
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("    rx stats: rx-crc errors %i, bytes received: %i",
-                      rw_cb.stats.num_crc, rw_cb.stats.bytes_received);
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("    time activated %i ms", elapsed_ms);
+  LOG(DEBUG) << StringPrintf(
+      "    rx stats: rx-crc errors %i, bytes received: %i", rw_cb.stats.num_crc,
+      rw_cb.stats.bytes_received);
+  LOG(DEBUG) << StringPrintf("    time activated %i ms", elapsed_ms);
 }
 #endif /* RW_STATS_INCLUDED */
 
@@ -203,8 +200,7 @@ tNFC_STATUS RW_SendRawFrame(uint8_t* p_raw_data, uint16_t data_len) {
       memcpy(p, p_raw_data, data_len);
       p_data->len = data_len;
 
-      DLOG_IF(INFO, nfc_debug_enabled)
-          << StringPrintf("RW SENT raw frame (0x%x)", data_len);
+      LOG(DEBUG) << StringPrintf("RW SENT raw frame (0x%x)", data_len);
       status = NFC_SendData(NFC_RF_CONN_ID, p_data);
     }
   }
@@ -225,7 +221,7 @@ tNFC_STATUS RW_SetActivatedTagType(tNFC_ACTIVATE_DEVT* p_activate_params,
   tNFC_STATUS status = NFC_STATUS_FAILED;
 
   /* check for null cback here / remove checks from rw_t?t */
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+  LOG(DEBUG) << StringPrintf(
       "RW_SetActivatedTagType protocol:%d, technology:%d, SAK:%d",
       p_activate_params->protocol, p_activate_params->rf_tech_param.mode,
       p_activate_params->rf_tech_param.param.pa.sel_rsp);
@@ -312,7 +308,7 @@ tNFC_STATUS RW_SetActivatedTagType(tNFC_ACTIVATE_DEVT* p_activate_params,
 #if (NXP_EXTNS == TRUE)
              || NFC_PROTOCOL_T3BT == p_activate_params->protocol
 #endif
-    ) {
+  ) {
     /* ISODEP/4A,4B- NFC-A or NFC-B */
     if ((p_activate_params->rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_B) ||
         (p_activate_params->rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A)
@@ -364,7 +360,7 @@ tNFC_STATUS RW_SetActivatedTagType(tNFC_ACTIVATE_DEVT* p_activate_params,
 tNFC_STATUS RW_SetT4tNfceeInfo(tRW_CBACK* p_cback, uint8_t conn_id) {
   tNFC_STATUS status = NFC_STATUS_FAILED;
   /* Reset tag-specific area of control block */
-      LOG(ERROR) << StringPrintf("RW_SetActivatedTagType %d ",conn_id);
+  LOG(ERROR) << StringPrintf("RW_SetActivatedTagType %d ", conn_id);
 
   memset(&rw_cb.tcb, 0, sizeof(tRW_TCB));
 

@@ -81,12 +81,11 @@ typedef uint8_t tNFC_HAL_POWER_MODE;
 #endif
 
 #if (NFC_HAL_DEBUG == TRUE)
-extern bool nfc_debug_enabled;
 extern const char* const nfc_hal_init_state_str[];
-#define NFC_HAL_SET_INIT_STATE(state)                                        \
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(                          \
-      "init state: %d->%d(%s)", nfc_hal_cb.dev_cb.initializing_state, state, \
-      nfc_hal_init_state_str[state]);                                        \
+#define NFC_HAL_SET_INIT_STATE(state)                                     \
+  LOG(DEBUG) << StringPrintf("init state: %d->%d(%s)",                    \
+                             nfc_hal_cb.dev_cb.initializing_state, state, \
+                             nfc_hal_init_state_str[state]);              \
   nfc_hal_cb.dev_cb.initializing_state = state;
 #else
 #define NFC_HAL_SET_INIT_STATE(state) \

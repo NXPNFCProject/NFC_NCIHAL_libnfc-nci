@@ -22,13 +22,13 @@
  ******************************************************************************/
 
 #include "nfa_scr_api.h"
+
+#include <android-base/logging.h>
 #include <android-base/stringprintf.h>
-#include <base/logging.h>
 #include <string.h>
 
 using android::base::StringPrintf;
 
-extern bool nfc_debug_enabled;
 /*****************************************************************************
 **  APIs
 *****************************************************************************/
@@ -53,8 +53,8 @@ extern bool nfc_debug_enabled;
 tNFA_STATUS NFA_ScrSetReaderMode(bool mode, tNFA_SCR_CBACK* scr_cback, uint8_t type) {
   tNFA_SCR_API_SET_READER_MODE* p_msg;
 
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("%s: Enter, Mode=%s", __func__, (mode ? "On" : "Off"));
+  LOG(DEBUG) << StringPrintf("%s: Enter, Mode=%s", __func__,
+                             (mode ? "On" : "Off"));
 
   p_msg = (tNFA_SCR_API_SET_READER_MODE*)GKI_getbuf(
       sizeof(tNFA_SCR_API_SET_READER_MODE));
@@ -82,11 +82,11 @@ tNFA_STATUS NFA_ScrSetReaderMode(bool mode, tNFA_SCR_CBACK* scr_cback, uint8_t t
 ******************************************************************************/
 bool NFA_ScrGetReaderMode() {
   bool isEnabled = true;
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s: Enter", __func__);
+  LOG(DEBUG) << StringPrintf("%s: Enter", __func__);
   if ((nfa_scr_cb.state == NFA_SCR_STATE_STOPPED) ||
           (nfa_scr_cb.state == NFA_SCR_STATE_START_CONFIG)) {
    isEnabled = false;
   }
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("isEnabled =%x", isEnabled);
+  LOG(DEBUG) << StringPrintf("isEnabled =%x", isEnabled);
   return isEnabled;
 }

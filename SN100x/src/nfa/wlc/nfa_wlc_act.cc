@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright 2020 NXP
+ *  Copyright 2020, 2024 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,15 +16,15 @@
  *
  ******************************************************************************/
 #if (NXP_EXTNS == TRUE)
+#include <android-base/logging.h>
 #include <android-base/stringprintf.h>
-#include <base/logging.h>
 #include <nfa_wlc_int.h>
 #include <nfc_int.h>
+
 #include <iostream>
 #include <vector>
 using android::base::StringPrintf;
 
-extern bool nfc_debug_enabled;
 tNFA_STATUS nfa_wlc_init(tNFA_WLC_EVENT_CBACK* p_cback);
 tNFA_STATUS nfa_wlc_deInit();
 tNFA_STATUS nfa_wlc_update_discovery_param(tNFA_WLC_DISC_REQ requestOperation);
@@ -41,8 +41,7 @@ tNFA_STATUS nfa_wlc_rf_intf_ext_stop(tNFA_RF_INTF_EXT_PARAMS* stopParam);
 **
 *******************************************************************************/
 bool WlcHandleOpReq(tNFA_WLC_MSG* p_data) {
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("%s Request:%d", __func__, p_data->op_req.op);
+  LOG(DEBUG) << StringPrintf("%s Request:%d", __func__, p_data->op_req.op);
   tNFA_STATUS status = NFA_STATUS_FAILED;
   switch (p_data->op_req.op) {
     case NFA_WLC_OP_INIT:
@@ -88,7 +87,7 @@ tNFA_STATUS nfa_wlc_init(tNFA_WLC_EVENT_CBACK* p_cback) {
 **
 *******************************************************************************/
 tNFA_STATUS nfa_wlc_update_discovery_param(tNFA_WLC_DISC_REQ requestOperation) {
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("%s ", __func__);
+  LOG(DEBUG) << StringPrintf("%s ", __func__);
   nfc_cb.isWlcPollEnabled = (requestOperation == SET);
   return NFA_STATUS_OK;
 }

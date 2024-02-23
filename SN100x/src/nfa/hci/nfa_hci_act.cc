@@ -39,8 +39,8 @@
  *  This file contains the action functions for the NFA HCI.
  *
  ******************************************************************************/
+#include <android-base/logging.h>
 #include <android-base/stringprintf.h>
-#include <base/logging.h>
 #include <log/log.h>
 #include <string.h>
 
@@ -57,8 +57,6 @@
 #include "nfa_scr_int.h"
 #endif
 using android::base::StringPrintf;
-
-extern bool nfc_debug_enabled;
 
 /* Static local functions       */
 static void nfa_hci_api_register(tNFA_HCI_EVENT_DATA* p_evt_data);
@@ -296,8 +294,8 @@ static void nfa_hci_api_register(tNFA_HCI_EVENT_DATA* p_evt_data) {
     if ((nfa_hci_cb.cfg.reg_app_names[xx][0] != 0) &&
         !strncmp(p_app_name, &nfa_hci_cb.cfg.reg_app_names[xx][0],
                  strlen(p_app_name))) {
-      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-          "nfa_hci_api_register (%s)  Reusing: %u", p_app_name, xx);
+      LOG(DEBUG) << StringPrintf("nfa_hci_api_register (%s)  Reusing: %u",
+                                 p_app_name, xx);
       break;
     }
   }
@@ -322,8 +320,8 @@ static void nfa_hci_api_register(tNFA_HCI_EVENT_DATA* p_evt_data) {
         strlcpy(&nfa_hci_cb.cfg.reg_app_names[xx][0], p_app_name,
                 NFA_MAX_HCI_APP_NAME_LEN);
         nfa_hci_cb.nv_write_needed = true;
-        DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-            "nfa_hci_api_register (%s)  Allocated: %u", p_app_name, xx);
+        LOG(DEBUG) << StringPrintf("nfa_hci_api_register (%s)  Allocated: %u",
+                                   p_app_name, xx);
         break;
       }
     }
@@ -375,9 +373,8 @@ void nfa_hci_api_deregister(tNFA_HCI_EVENT_DATA* p_evt_data) {
           !strncmp(p_evt_data->app_info.app_name,
                    &nfa_hci_cb.cfg.reg_app_names[xx][0],
                    strlen(p_evt_data->app_info.app_name))) {
-        DLOG_IF(INFO, nfc_debug_enabled)
-            << StringPrintf("nfa_hci_api_deregister (%s) inx: %u",
-                            p_evt_data->app_info.app_name, xx);
+        LOG(DEBUG) << StringPrintf("nfa_hci_api_deregister (%s) inx: %u",
+                                   p_evt_data->app_info.app_name, xx);
         break;
       }
     }
@@ -1459,8 +1456,8 @@ void nfa_hci_handle_admin_gate_cmd(uint8_t* p_data, uint16_t data_len) {
           nfa_hciu_send_msg(NFA_HCI_ADMIN_PIPE, NFA_HCI_RESPONSE_TYPE, response,
               rsp_len, &data);
           /* If starting up, handle events here */
-          DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-                 "nfa_hci_handle_admin_gate_cmd %d",source_host);
+          LOG(DEBUG) << StringPrintf("nfa_hci_handle_admin_gate_cmd %d",
+                                     source_host);
           nfa_hci_handle_clear_all_pipe_cmd(source_host);
           return;
 #else
@@ -1513,7 +1510,7 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
 #endif
   uint32_t os_tick;
 
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+  LOG(DEBUG) << StringPrintf(
       "nfa_hci_handle_admin_gate_rsp - LastCmdSent: %s  App: 0x%04x  Gate: "
       "0x%02x  Pipe: 0x%02x",
       nfa_hciu_instr_2_str(nfa_hci_cb.cmd_sent).c_str(), nfa_hci_cb.app_in_use,
@@ -1555,7 +1552,7 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
               p_nfa_hci_cfg->num_allowlist_host, p_nfa_hci_cfg->p_allowlist);
         } else if (nfa_hci_cb.param_in_use == NFA_HCI_WHITELIST_INDEX) {
 #if (NXP_EXTNS == TRUE)
-          DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+          LOG(DEBUG) << StringPrintf(
               "nfa_hci_handle_admin_gate_rsp - Set the HOST_TYPE as per ETSI "
               "12 !!!");
           /* Set the HOST_TYPE as per ETSI 12 */
@@ -1573,7 +1570,7 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
             NFA_EeGetInfo(&nfa_hci_cb.num_nfcee, nfa_hci_cb.ee_info);
 #if (NXP_EXTNS == TRUE)
             if (nfa_hci_enable_one_nfcee() == false) {
-              DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hci_enable_one_nfcee() failed");
+              LOG(DEBUG) << StringPrintf("nfa_hci_enable_one_nfcee() failed");
               nfa_hciu_send_get_param_cmd(NFA_HCI_ADMIN_PIPE,
                                           NFA_HCI_HOST_LIST_INDEX);
             }
@@ -1689,12 +1686,14 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
               ||(dest_gate != nfa_hci_cb.remote_gate_in_use)
               ||(dest_host != nfa_hci_cb.remote_host_in_use)  )
           {
-              DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hci_handle_admin_gate_rsp sent create pipe with gate: %u got back: %u",
-                                  nfa_hci_cb.local_gate_in_use, source_gate);
+          LOG(DEBUG) << StringPrintf(
+              "nfa_hci_handle_admin_gate_rsp sent create pipe with gate: %u "
+              "got back: %u",
+              nfa_hci_cb.local_gate_in_use, source_gate);
 
-              if (!nfa_hci_enable_one_nfcee ())
-                  nfa_hci_startup_complete (NFA_STATUS_OK);
-              break;
+          if (!nfa_hci_enable_one_nfcee())
+            nfa_hci_startup_complete(NFA_STATUS_OK);
+          break;
           }
 
           nfa_hciu_add_pipe_to_gate(pipe, source_gate, dest_host, dest_gate);
@@ -1890,7 +1889,7 @@ void nfa_hci_handle_admin_gate_evt() {
     return;
   }
 
-  DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+  LOG(DEBUG) << StringPrintf(
       "nfa_hci_handle_admin_gate_evt - HOT PLUG EVT event on ADMIN Pipe");
   nfa_hci_cb.num_hot_plug_evts++;
 
@@ -2477,8 +2476,8 @@ tNFA_STATUS nfa_hci_getApduAndConnectivity_PipeStatus(uint8_t host_id) {
     status =
         nfa_hciu_send_raw_cmd(p - p_data, p_data, nfa_hci_get_pipe_state_cb);
   }
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("nfa_hci_getApduConnectivity_PipeStatus %x", *num_param);
+  LOG(DEBUG) << StringPrintf("nfa_hci_getApduConnectivity_PipeStatus %x",
+                             *num_param);
 
   return status;
 }
@@ -2573,16 +2572,16 @@ static void nfa_hci_get_pipe_state_cb(__attribute__((unused))uint8_t event, __at
         nfa_hci_cb.se_apdu_gate_support) {
       nfa_hciu_send_get_param_cmd(apdu_pipe, NFA_HCI_MAX_C_APDU_SIZE_INDEX);
     } else {
-      DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf("nfa_hci_get_pipe_state_cb APDU pipe not available");
+      LOG(DEBUG) << StringPrintf(
+          "nfa_hci_get_pipe_state_cb APDU pipe not available");
       if ((nfa_hci_check_nfcee_init_complete(prop_host) || conn_pipe_status) &&
           nfa_hci_cb.se_apdu_gate_support) {
         nfa_hciu_send_create_pipe_cmd(NFA_HCI_APDU_APP_GATE, prop_host,
                                       NFA_HCI_APDU_GATE);
       } else {
-        DLOG_IF(INFO, nfc_debug_enabled)
-          << StringPrintf("nfa_hci_get_pipe_state_cb APDU pipe not available"
-          "wait for status NFCEE_INIT_COMPLETED");
+        LOG(DEBUG) << StringPrintf(
+            "nfa_hci_get_pipe_state_cb APDU pipe not available"
+            "wait for status NFCEE_INIT_COMPLETED");
         if ((nfa_hci_cb.hci_state == NFA_HCI_STATE_STARTUP) ||
           (nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_NETWK_ENABLE))
         {
@@ -2614,11 +2613,10 @@ static void nfa_hci_update_pipe_status(uint8_t local_gateId,
     if (((nfa_hci_cb.cfg.dyn_pipes[count].dest_host) == hostId) &&
         ((nfa_hci_cb.cfg.dyn_pipes[count].dest_gate) == dest_gateId) &&
         ((nfa_hci_cb.cfg.dyn_pipes[count].local_gate) == local_gateId)) {
-      DLOG_IF(INFO, nfc_debug_enabled)
-          << StringPrintf("Set the pipe state to open  -- %d !!!",
-                          nfa_hci_cb.cfg.dyn_pipes[count].pipe_id);
-      nfa_hci_cb.cfg.dyn_pipes[count].pipe_state = NFA_HCI_PIPE_OPENED;
-      break;
+        LOG(DEBUG) << StringPrintf("Set the pipe state to open  -- %d !!!",
+                                   nfa_hci_cb.cfg.dyn_pipes[count].pipe_id);
+        nfa_hci_cb.cfg.dyn_pipes[count].pipe_state = NFA_HCI_PIPE_OPENED;
+        break;
     }
   }
 }
@@ -2640,8 +2638,8 @@ static bool nfa_hci_check_nfcee_init_complete(uint8_t host_id)
       if((nfa_hci_cb.reset_host[yy].reset_cfg & NFCEE_INIT_COMPLETED) &&
         (nfa_hci_cb.reset_host[yy].host_id == host_id)) {
         recreate_pipe = true;
-        DLOG_IF(INFO, nfc_debug_enabled)
-             << StringPrintf("nfa_hci_enable_one_nfcee reset_cfg NFCEE_INIT_COMPLETED()");
+        LOG(DEBUG) << StringPrintf(
+            "nfa_hci_enable_one_nfcee reset_cfg NFCEE_INIT_COMPLETED()");
         nfa_hciu_clear_host_resetting(host_id, NFCEE_INIT_COMPLETED);
         break;
       }
@@ -2737,8 +2735,8 @@ static bool nfa_hci_set_apdu_pipe_ready_for_host (uint8_t host_id)
                 }
                 else
                 {
-                    DLOG_IF(INFO, nfc_debug_enabled)
-                            << StringPrintf("%s : APDU gate info not available", __func__);
+                    LOG(DEBUG) << StringPrintf(
+                        "%s : APDU gate info not available", __func__);
                     return false;
                 }
             }
@@ -2759,7 +2757,7 @@ static bool nfa_hci_set_apdu_pipe_ready_for_host (uint8_t host_id)
  *******************************************************************************/
 void nfa_hci_handle_pending_host_reset() {
     uint8_t xx;
-    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("nfa_hci_handle_pending_host_reset");
+    LOG(DEBUG) << StringPrintf("nfa_hci_handle_pending_host_reset");
     for(xx = 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++) {
       if(nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_INIT_COMPLETED) {
         //nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_INIT_COMPLETED);
@@ -2779,11 +2777,11 @@ void nfa_hci_handle_pending_host_reset() {
           if (!nfa_hciu_check_host_resetting(nfa_hci_cb.reset_host[xx].host_id,
                                              NFCEE_RECOVERY_IN_PROGRESS)) {
                 if (NFC_NfceeDiscover(true) == NFC_STATUS_FAILED) {
-                    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+                    LOG(DEBUG) << StringPrintf(
                         "NFCEE_UNRECOVERABLE_ERRROR unable to handle");
                 }
           } else {
-                DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+                LOG(DEBUG) << StringPrintf(
                     "NFCEE re-initialization ongoing..........");
           }
           break;
@@ -3163,18 +3161,21 @@ static void nfa_hci_handle_apdu_app_gate_hcp_msg_data (uint8_t *p_data, uint16_t
             {
                 if(p_nfa_hci_cfg->max_wtx_count) {
                   if(nfa_hci_cb.m_wtx_count >= p_nfa_hci_cfg->max_wtx_count) {
-                    DLOG_IF(INFO, nfc_debug_enabled)
-                       << StringPrintf ("%s:  Max WTX count reached",__func__);
-                    nfa_hci_cb.m_wtx_count = 0;
-                    if(p_pipe_cmdrsp_info->w4_rsp_apdu_evt) {
-                        DLOG_IF(INFO, nfc_debug_enabled)
-                           << StringPrintf ("%s:  Max WTX count w4_rsp_apdu_evt",__func__);
+                                LOG(DEBUG) << StringPrintf(
+                                    "%s:  Max WTX count reached", __func__);
+                                nfa_hci_cb.m_wtx_count = 0;
+                                if (p_pipe_cmdrsp_info->w4_rsp_apdu_evt) {
+                                    LOG(DEBUG) << StringPrintf(
+                                        "%s:  Max WTX count w4_rsp_apdu_evt",
+                                        __func__);
 
-                        evt_data.apdu_rcvd.apdu_len = 0;
-                        evt_data.apdu_rcvd.p_apdu = nullptr;
-                        evt_data.apdu_rcvd.status = NFA_STATUS_HCI_WTX_TIMEOUT;
-                        nfa_hciu_send_to_app (NFA_HCI_RSP_APDU_RCVD_EVT, &evt_data,
-                                      p_pipe_cmdrsp_info->pipe_user);
+                                    evt_data.apdu_rcvd.apdu_len = 0;
+                                    evt_data.apdu_rcvd.p_apdu = nullptr;
+                                    evt_data.apdu_rcvd.status =
+                                        NFA_STATUS_HCI_WTX_TIMEOUT;
+                                    nfa_hciu_send_to_app(
+                                        NFA_HCI_RSP_APDU_RCVD_EVT, &evt_data,
+                                        p_pipe_cmdrsp_info->pipe_user);
                     } else if(p_pipe_cmdrsp_info->w4_atr_evt) {
                         evt_data.apdu_aborted.atr_len = 0;
                         evt_data.apdu_aborted.status  = NFA_STATUS_HCI_WTX_TIMEOUT;
@@ -3194,35 +3195,42 @@ static void nfa_hci_handle_apdu_app_gate_hcp_msg_data (uint8_t *p_data, uint16_t
                 /* More processing time needed for APDU sent to UICC */
                 nfa_sys_start_timer (&(p_pipe_cmdrsp_info->rsp_timer),
                           NFA_HCI_RSP_TIMEOUT_EVT, p_pipe_cmdrsp_info->rsp_timeout);
-                DLOG_IF(INFO, nfc_debug_enabled)
-                        << StringPrintf ("nfa_hci_handle_apdu_app_gate_hcp_msg_data ()p_pipe_cmdrsp_info->rsp_timeout %x",p_pipe_cmdrsp_info->rsp_timeout);//debug
-
+                LOG(DEBUG) << StringPrintf(
+                    "nfa_hci_handle_apdu_app_gate_hcp_msg_data "
+                    "()p_pipe_cmdrsp_info->rsp_timeout %x",
+                    p_pipe_cmdrsp_info->rsp_timeout);  // debug
             }
             break;
 
         case NFA_HCI_EVT_ATR:
-             DLOG_IF(INFO, nfc_debug_enabled)
-                 << StringPrintf ("nfa_hci_handle_apdu_app_gate_hcp_msg_data (): EVT_ATR_RSP recived w4_atr_evt: %x p_pipe_cmdrsp_info->w4_rsp_apdu_evt: %x",p_pipe_cmdrsp_info->w4_atr_evt, p_pipe_cmdrsp_info->w4_rsp_apdu_evt);//debug
+            LOG(DEBUG) << StringPrintf(
+                "nfa_hci_handle_apdu_app_gate_hcp_msg_data (): EVT_ATR_RSP "
+                "recived w4_atr_evt: %x p_pipe_cmdrsp_info->w4_rsp_apdu_evt: "
+                "%x",
+                p_pipe_cmdrsp_info->w4_atr_evt,
+                p_pipe_cmdrsp_info->w4_rsp_apdu_evt);  // debug
 
-            if (p_pipe_cmdrsp_info->w4_rsp_apdu_evt || p_pipe_cmdrsp_info->w4_atr_evt)
-            {
+            if (p_pipe_cmdrsp_info->w4_rsp_apdu_evt ||
+                p_pipe_cmdrsp_info->w4_atr_evt) {
                 p_pipe_cmdrsp_info->w4_rsp_apdu_evt = false;
                 evt_data.apdu_aborted.atr_len = data_len;
                 evt_data.apdu_aborted.p_atr = p_data;
-                evt_data.apdu_aborted.status  = NFA_STATUS_OK;
+                evt_data.apdu_aborted.status = NFA_STATUS_OK;
                 evt_data.apdu_aborted.host_id = p_pipe->dest_host;
 
-                /* notify NFA_HCI_APDU_ABORTED_EVT to app that requested to ABORT command APDU */
-                nfa_hciu_send_to_all_apps (NFA_HCI_APDU_ABORTED_EVT, &evt_data);
-                if(nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_RSP)
+                /* notify NFA_HCI_APDU_ABORTED_EVT to app that requested to
+                 * ABORT command APDU */
+                nfa_hciu_send_to_all_apps(NFA_HCI_APDU_ABORTED_EVT, &evt_data);
+                if (nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_RSP)
                   nfa_hci_cb.hci_state = NFA_HCI_STATE_IDLE;
-                nfa_hciu_clear_host_resetting(p_pipe->dest_host, NFCEE_INIT_COMPLETED);
-                if (p_pipe_cmdrsp_info->rsp_buf_size)
-                {
-                    p_pipe_cmdrsp_info->rsp_buf_size = 0;
-                    p_pipe_cmdrsp_info->p_rsp_buf    = nullptr;
+                nfa_hciu_clear_host_resetting(p_pipe->dest_host,
+                                              NFCEE_INIT_COMPLETED);
+                if (p_pipe_cmdrsp_info->rsp_buf_size) {
+                  p_pipe_cmdrsp_info->rsp_buf_size = 0;
+                  p_pipe_cmdrsp_info->p_rsp_buf = nullptr;
                 }
-                /* Release the temporary ownership for APDU Pipe given to the App */
+                /* Release the temporary ownership for APDU Pipe given to the
+                 * App */
                 p_pipe_cmdrsp_info->pipe_user = NFA_HCI_APP_HANDLE_NONE;
             }
             p_pipe_cmdrsp_info->w4_atr_evt = false;
@@ -3310,21 +3318,23 @@ static bool nfa_hci_api_send_apdu (tNFA_HCI_EVENT_DATA *p_evt_data)
         }
         else if (p_pipe_cmdrsp_info->w4_atr_evt)
         {
-            DLOG_IF(INFO, nfc_debug_enabled)
-                << StringPrintf ("nfa_hci_api_send_apdu (): APDU Server is not initialized yet! sending failed to upper layer");
-            evt_data.apdu_rcvd.host_id  = p_send_apdu->host_id;
+            LOG(DEBUG) << StringPrintf(
+                "nfa_hci_api_send_apdu (): APDU Server is not initialized yet! "
+                "sending failed to upper layer");
+            evt_data.apdu_rcvd.host_id = p_send_apdu->host_id;
             evt_data.apdu_rcvd.apdu_len = 0;
 
             evt_data.apdu_rcvd.status = NFA_STATUS_FAILED;
 
             evt_data.apdu_rcvd.p_apdu = nullptr;
-            nfa_hciu_send_to_app (NFA_HCI_RSP_APDU_RCVD_EVT, &evt_data,
-                                      p_send_apdu->hci_handle);
+            nfa_hciu_send_to_app(NFA_HCI_RSP_APDU_RCVD_EVT, &evt_data,
+                                 p_send_apdu->hci_handle);
         }
         else if (p_pipe_cmdrsp_info->w4_rsp_apdu_evt)
         {
-            DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf ("nfa_hci_api_send_apdu (): APDU Pipe[0x%02x] is busy!", pipe_id);
+            LOG(DEBUG) << StringPrintf(
+                "nfa_hci_api_send_apdu (): APDU Pipe[0x%02x] is busy!",
+                pipe_id);
         }
         // else if (  (p_apdu_pipe_reg_info->reg_info_valid)
         //          &&(p_send_apdu->cmd_apdu_len > p_apdu_pipe_reg_info->max_cmd_apdu_size)  )
@@ -3372,8 +3382,9 @@ static bool nfa_hci_api_send_apdu (tNFA_HCI_EVENT_DATA *p_evt_data)
     }
     else
     {
-        DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf ("nfa_hci_api_send_apdu (): Host[0x%02x] inactive", p_send_apdu->host_id);
+        LOG(DEBUG) << StringPrintf(
+            "nfa_hci_api_send_apdu (): Host[0x%02x] inactive",
+            p_send_apdu->host_id);
     }
     return true;
 }
@@ -3463,18 +3474,19 @@ static bool nfa_hci_api_abort_apdu (tNFA_HCI_EVENT_DATA *p_evt_data)
     }
 
     if (p_apdu_pipe_reg_info == nullptr) {
-      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-          "nfa_hci_api_abort_apdu (): Pipe [0x%02x] Info not available",
-          pipe_id);
+        LOG(DEBUG) << StringPrintf(
+            "nfa_hci_api_abort_apdu (): Pipe [0x%02x] Info not available",
+            pipe_id);
     }
     if ((p_pipe_cmdrsp_info == nullptr) || (pipe_state != NFA_HCI_PIPE_OPENED)) {
-      DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
-          "nfa_hci_api_abort_apdu (): APDU Pipe [0x%02x] is closed or Info not "
-          "available",
-          pipe_id);
+        LOG(DEBUG) << StringPrintf(
+            "nfa_hci_api_abort_apdu (): APDU Pipe [0x%02x] is closed or Info "
+            "not "
+            "available",
+            pipe_id);
 
-      nfa_hci_notify_w4_atr_timeout();
-      return true;
+        nfa_hci_notify_w4_atr_timeout();
+        return true;
     }
 #if 0
     else if (  (!apdu_dropped)
@@ -3491,8 +3503,9 @@ static bool nfa_hci_api_abort_apdu (tNFA_HCI_EVENT_DATA *p_evt_data)
         ** received. NFA_HCI_RSP_APDU_RCVD_EVT will be reported after all fragments of response
         ** APDU is received or on timeout. Now, report Abort operation failed
         */
-        DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf ("nfa_hci_api_abort_apdu(): Too late to Abort as C-APDU is processed");
+        LOG(DEBUG) << StringPrintf(
+            "nfa_hci_api_abort_apdu(): Too late to Abort as C-APDU is "
+            "processed");
     }
     else
     {
@@ -3559,19 +3572,18 @@ static void nfa_hci_api_add_prop_host_info(uint8_t propHostIndx) {
   if ((!nfa_hciu_check_pipe_between_gates(NFA_HCI_ID_MNGMNT_APP_GATE,
                                           propHostIndx,
                                           NFA_HCI_IDENTITY_MANAGEMENT_GATE))) {
-    DLOG_IF(INFO, nfc_debug_enabled)
-        << StringPrintf("nfa_hci_api_add_prop_host_info");
-    nfa_hciu_add_pipe_to_gate(NFA_HCI_DEFAULT_ID_MANAGEMENT_PIPE,
-                              NFA_HCI_ID_MNGMNT_APP_GATE, propHostIndx,
-                              NFA_HCI_IDENTITY_MANAGEMENT_GATE);
-    tNFA_HCI_DYN_PIPE* p_pipe =
-        nfa_hciu_find_pipe_by_pid(NFA_HCI_DEFAULT_ID_MANAGEMENT_PIPE);
-    if (p_pipe) {
-      p_pipe->pipe_state = NFA_HCI_PIPE_OPENED;
-      nfa_hciu_reset_apdu_pipe_registry_info_of_host(p_pipe->dest_host);
-      nfa_hciu_update_gate_list_of_host(p_pipe->dest_host,
-                                        sizeof(NFA_HCI_PROP_HOST_GATE_LIST),
-                                        NFA_HCI_PROP_HOST_GATE_LIST);
+        LOG(DEBUG) << StringPrintf("nfa_hci_api_add_prop_host_info");
+        nfa_hciu_add_pipe_to_gate(NFA_HCI_DEFAULT_ID_MANAGEMENT_PIPE,
+                                  NFA_HCI_ID_MNGMNT_APP_GATE, propHostIndx,
+                                  NFA_HCI_IDENTITY_MANAGEMENT_GATE);
+        tNFA_HCI_DYN_PIPE* p_pipe =
+            nfa_hciu_find_pipe_by_pid(NFA_HCI_DEFAULT_ID_MANAGEMENT_PIPE);
+        if (p_pipe) {
+            p_pipe->pipe_state = NFA_HCI_PIPE_OPENED;
+            nfa_hciu_reset_apdu_pipe_registry_info_of_host(p_pipe->dest_host);
+            nfa_hciu_update_gate_list_of_host(
+                p_pipe->dest_host, sizeof(NFA_HCI_PROP_HOST_GATE_LIST),
+                NFA_HCI_PROP_HOST_GATE_LIST);
     }
   }
 }
@@ -3689,8 +3701,7 @@ uint8_t nfa_hci_get_apdu_enabled_host(void) {
       if ((is_ese_apdu_pipe_required(nfceeid) ||
            is_euicc_apdu_pipe_required(nfceeid)) &&
           eeInfo[xx].ee_status == NFA_EE_STATUS_ACTIVE) {
-        DLOG_IF(INFO, nfc_debug_enabled)
-            << StringPrintf("%s Nfcee %d is active", __func__, nfceeid);
+        LOG(DEBUG) << StringPrintf("%s Nfcee %d is active", __func__, nfceeid);
         return nfceeid;
       }
     }
@@ -3737,51 +3748,51 @@ bool nfa_hci_is_power_link_required(uint8_t source_host) {
  **
  *******************************************************************************/
 static void nfa_hci_handle_clear_all_pipe_cmd(uint8_t source_host) {
-    DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("nfa_hci_handle_clear_all_pipe_cmd pipe:%d source host",source_host);
-    tNFA_HCI_DYN_PIPE           *p_pipe = nullptr;
-    tNFA_HCI_PIPE_CMDRSP_INFO   *p_pipe_cmdrsp_info = nullptr;
-    tNFA_STATUS status = NFA_STATUS_FAILED;
-    nfa_hciu_add_host_resetting(source_host, NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED);
-    if(nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_RSP ||
-            nfa_hci_cb.hci_state == NFA_HCI_STATE_IDLE) {
-        if(nfa_hci_cb.w4_rsp_evt == true)
-            nfa_sys_stop_timer(&nfa_hci_cb.timer);
-        if ((p_pipe = nfa_hciu_find_dyn_apdu_pipe_for_host (source_host)) != nullptr) {
-            p_pipe_cmdrsp_info = nfa_hciu_get_pipe_cmdrsp_info (p_pipe->pipe_id);
-            if(p_pipe_cmdrsp_info != nullptr) {
-                if (p_pipe_cmdrsp_info->w4_atr_evt)
+  LOG(DEBUG) << StringPrintf(
+      "nfa_hci_handle_clear_all_pipe_cmd pipe:%d source host", source_host);
+  tNFA_HCI_DYN_PIPE* p_pipe = nullptr;
+  tNFA_HCI_PIPE_CMDRSP_INFO* p_pipe_cmdrsp_info = nullptr;
+  tNFA_STATUS status = NFA_STATUS_FAILED;
+  nfa_hciu_add_host_resetting(source_host, NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED);
+  if (nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_RSP ||
+      nfa_hci_cb.hci_state == NFA_HCI_STATE_IDLE) {
+      if (nfa_hci_cb.w4_rsp_evt == true) nfa_sys_stop_timer(&nfa_hci_cb.timer);
+      if ((p_pipe = nfa_hciu_find_dyn_apdu_pipe_for_host(source_host)) !=
+          nullptr) {
+        p_pipe_cmdrsp_info = nfa_hciu_get_pipe_cmdrsp_info(p_pipe->pipe_id);
+        if (p_pipe_cmdrsp_info != nullptr) {
+            if (p_pipe_cmdrsp_info->w4_atr_evt)
                     nfa_sys_stop_timer(&p_pipe_cmdrsp_info->rsp_timer);
-                else if (p_pipe_cmdrsp_info->w4_rsp_apdu_evt || p_pipe_cmdrsp_info->w4_cmd_rsp)
+            else if (p_pipe_cmdrsp_info->w4_rsp_apdu_evt ||
+                     p_pipe_cmdrsp_info->w4_cmd_rsp)
                     nfa_sys_stop_timer(&p_pipe_cmdrsp_info->rsp_timer);
-            }
         }
-        /*nfa_hci_cb.hci_state = NFA_HCI_STATE_WAIT_NETWK_ENABLE;*/
-        nfa_hciu_remove_all_pipes_from_host(source_host);
+      }
+      /*nfa_hci_cb.hci_state = NFA_HCI_STATE_WAIT_NETWK_ENABLE;*/
+      nfa_hciu_remove_all_pipes_from_host(source_host);
 
-        nfa_nv_co_write((uint8_t*)&nfa_hci_cb.cfg, sizeof(nfa_hci_cb.cfg),
-                        DH_NV_BLOCK);
-        nfa_hci_cb.nv_write_needed = false;
-        /*Trigger pipe creation*/
-        nfa_hci_cb.curr_nfcee = source_host;
-        if(nfa_hci_is_power_link_required(source_host)) {
-          if(nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD)
+      nfa_nv_co_write((uint8_t*)&nfa_hci_cb.cfg, sizeof(nfa_hci_cb.cfg),
+                      DH_NV_BLOCK);
+      nfa_hci_cb.nv_write_needed = false;
+      /*Trigger pipe creation*/
+      nfa_hci_cb.curr_nfcee = source_host;
+      if (nfa_hci_is_power_link_required(source_host)) {
+        if (nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD)
             NFC_NfceePLConfig(source_host, 0x03);
+      }
+      status = NFC_NfceeModeSet(source_host, NFC_MODE_ACTIVATE);
+      LOG(DEBUG) << StringPrintf(
+          "nfa_hci_handle_clear_all_pipe_cmd pipe:%d source host", status);
+      if (status == NFA_STATUS_REFUSED) {
+        /*Mode set ntf pending , pipe will be created on recieving ntf*/
+      } else if (status != NFA_STATUS_OK) {
+        nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee,
+                                      NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED);
+        if (!nfa_hci_check_set_apdu_pipe_ready_for_next_host()) {
+            nfa_hci_handle_pending_host_reset();
         }
-        status = NFC_NfceeModeSet(source_host, NFC_MODE_ACTIVATE);
-        DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("nfa_hci_handle_clear_all_pipe_cmd pipe:%d source host",status);
-        if(status == NFA_STATUS_REFUSED) {
-           /*Mode set ntf pending , pipe will be created on recieving ntf*/
-        } else if (status != NFA_STATUS_OK) {
-            nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED);
-            if(!nfa_hci_check_set_apdu_pipe_ready_for_next_host ()) {
-               nfa_hci_handle_pending_host_reset();
-            }
-        }
-    }
-    else {
-
+      }
+  } else {
       if (nfa_hci_is_power_link_required(source_host)) {
         if ((p_pipe = nfa_hciu_find_dyn_apdu_pipe_for_host(source_host)) !=
             nullptr) {
@@ -3790,7 +3801,7 @@ static void nfa_hci_handle_clear_all_pipe_cmd(uint8_t source_host) {
         }
       }
       nfa_hciu_remove_all_pipes_from_host(source_host);
-    }
+  }
 }
 
 #endif

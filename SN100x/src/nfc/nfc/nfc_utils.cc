@@ -42,16 +42,14 @@
  *  (callback). On the transmit side, it manages the command transmission.
  *
  ******************************************************************************/
+#include <android-base/logging.h>
 #include <android-base/stringprintf.h>
-#include <base/logging.h>
 
 #include "bt_types.h"
 #include "nfc_api.h"
 #include "nfc_int.h"
 
 using android::base::StringPrintf;
-
-extern bool nfc_debug_enabled;
 
 /*******************************************************************************
 **
@@ -104,8 +102,8 @@ void nfc_set_conn_id(tNFC_CONN_CB* p_cb, uint8_t conn_id) {
   p_cb->conn_id = conn_id;
   handle = (uint8_t)(p_cb - nfc_cb.conn_cb + 1);
   nfc_cb.conn_id[conn_id] = handle;
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("nfc_set_conn_id conn_id:%d, handle:%d", conn_id, handle);
+  LOG(DEBUG) << StringPrintf("nfc_set_conn_id conn_id:%d, handle:%d", conn_id,
+                             handle);
 }
 
 /*******************************************************************************

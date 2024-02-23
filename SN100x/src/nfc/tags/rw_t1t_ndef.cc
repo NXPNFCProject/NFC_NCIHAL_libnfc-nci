@@ -22,8 +22,8 @@
  *  Reader/Writer mode.
  *
  ******************************************************************************/
+#include <android-base/logging.h>
 #include <android-base/stringprintf.h>
-#include <base/logging.h>
 
 #include <string>
 
@@ -34,8 +34,6 @@
 #include "rw_int.h"
 
 using android::base::StringPrintf;
-
-extern bool nfc_debug_enabled;
 
 #if (RW_NDEF_INCLUDED == TRUE)
 
@@ -818,7 +816,7 @@ static tNFC_STATUS rw_t1t_handle_rall_rsp(bool* p_notify, uint8_t* p_data) {
   p_data +=
       T1T_UID_LEN + T1T_RES_BYTE_LEN; /* skip Block 0, UID and Reserved byte */
 
-  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
+  LOG(DEBUG) << __func__;
 
   rw_t1t_update_tag_state();
   rw_t1t_update_attributes();

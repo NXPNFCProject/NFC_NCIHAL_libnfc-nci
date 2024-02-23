@@ -23,8 +23,8 @@
  *  (callback). On the transmit side, it manages the command transmission.
  *
  ******************************************************************************/
+#include <android-base/logging.h>
 #include <android-base/stringprintf.h>
-#include <base/logging.h>
 #include <log/log.h>
 #include <string.h>
 
@@ -34,8 +34,6 @@
 #include "nfc_target.h"
 
 using android::base::StringPrintf;
-
-extern bool nfc_debug_enabled;
 
 tCE_CB ce_cb;
 
@@ -76,8 +74,7 @@ tNFC_STATUS CE_SendRawFrame(uint8_t* p_raw_data, uint16_t data_len) {
       p = (uint8_t*)(p_data + 1) + p_data->offset;
       memcpy(p, p_raw_data, data_len);
       p_data->len = data_len;
-      DLOG_IF(INFO, nfc_debug_enabled)
-          << StringPrintf("CE SENT raw frame (0x%x)", data_len);
+      LOG(DEBUG) << StringPrintf("CE SENT raw frame (0x%x)", data_len);
       status = NFC_SendData(NFC_RF_CONN_ID, p_data);
     }
   }
@@ -99,8 +96,7 @@ tNFC_STATUS CE_SetActivatedTagType(tNFC_ACTIVATE_DEVT* p_activate_params,
   tNFC_STATUS status = NFC_STATUS_FAILED;
   tNFC_PROTOCOL protocol = p_activate_params->protocol;
 
-  DLOG_IF(INFO, nfc_debug_enabled)
-      << StringPrintf("CE_SetActivatedTagType protocol:%d", protocol);
+  LOG(DEBUG) << StringPrintf("CE_SetActivatedTagType protocol:%d", protocol);
 
   switch (protocol) {
     case NFC_PROTOCOL_T1T:
