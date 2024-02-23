@@ -44,10 +44,10 @@
 #include <string.h>
 
 #include "gki.h"
+#include "nfc_target.h"
 #include "nci_hmsgs.h"
 #include "nfc_api.h"
 #include "nfc_int.h"
-#include "nfc_target.h"
 #if (NXP_EXTNS == TRUE)
 #include "nfa_ee_int.h"
 #endif
