@@ -4345,10 +4345,11 @@ tNFC_STATUS RW_I93PresenceCheck(void) {
 **
 *****************************************************************************/
 bool RW_I93CheckLegacyProduct(uint8_t ic_manuf, uint8_t pdt_code) {
-  if (appl_dta_mode_flag) return false;
-  if (!t5t_no_getsysinfo()) return true;
   LOG(DEBUG) << StringPrintf("%s - IC manufacturer:0x%x, Product code:0x%x",
                              __func__, ic_manuf, pdt_code);
+#if (NXP_EXTNS == FALSE)
+  if (appl_dta_mode_flag) return false;
+  if (!t5t_no_getsysinfo()) return true;
   uint8_t pdt_code_family = 0;
   if (ic_manuf == I93_UID_IC_MFG_CODE_NXP) {
     LOG(DEBUG) << StringPrintf("%s - No I93 legacy product detected", __func__);
@@ -4380,6 +4381,7 @@ bool RW_I93CheckLegacyProduct(uint8_t ic_manuf, uint8_t pdt_code) {
     return true;
   }
   LOG(DEBUG) << StringPrintf("%s - T5T NFC Forum product detected", __func__);
+#endif
   return false;
 }
 
