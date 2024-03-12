@@ -699,11 +699,11 @@ void NfcAdaptation::DeviceShutdown() {
 *******************************************************************************/
 void NfcAdaptation::Dump(int fd) {
   debug_nfcsnoop_dump(fd);
-#if (NXP_EXTNS == TRUE)
+/*#if (NXP_EXTNS == TRUE)
   LOG(DEBUG) << StringPrintf(
       "\n LibNfc MemoryLeak Info =  %s \n",
       android::GetUnreachableMemoryString(true, 10000).c_str());
-#endif
+#endif*/
 }
 
 /*******************************************************************************
