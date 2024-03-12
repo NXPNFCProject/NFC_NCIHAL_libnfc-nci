@@ -17,7 +17,7 @@ cc_library {
         "libbinder",
         "libbinder_ndk",
         "libstatssocket",
-	"libmemunreachable",
+        "libmemunreachable",
         "server_configurable_flags",
     ],
     static_libs: [
@@ -90,7 +90,7 @@ cc_library {
     stl: "libc++_static",
     apex_available: [
          "//apex_available:platform",
-	 "com.android.nfcservices"
+         "com.android.nfcservices",
     ],
 }
 cc_defaults {
@@ -170,7 +170,7 @@ cc_library {
     },
     apex_available: [
          "//apex_available:platform",
-	 "com.android.nfcservices"
+         "com.android.nfcservices"
     ],
 }
 
