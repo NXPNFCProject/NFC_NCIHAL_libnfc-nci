@@ -59,9 +59,9 @@ using android::base::StringPrintf;
 
 extern void rw_i93_handle_error(tNFC_STATUS);
 extern tNFC_STATUS rw_i93_get_next_blocks(uint32_t);
-extern tNFC_STATUS rw_i93_send_cmd_read_single_block(uint16_t, bool);
-extern tNFC_STATUS rw_i93_send_cmd_write_single_block(uint16_t, uint8_t*);
-extern tNFC_STATUS rw_i93_send_cmd_lock_block(uint16_t);
+extern tNFC_STATUS rw_i93_send_cmd_read_single_block(uint32_t, bool);
+extern tNFC_STATUS rw_i93_send_cmd_write_single_block(uint32_t, uint8_t*);
+extern tNFC_STATUS rw_i93_send_cmd_lock_block(uint32_t);
 
 /*******************************************************************************
 **

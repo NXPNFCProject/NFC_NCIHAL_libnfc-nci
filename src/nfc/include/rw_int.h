@@ -804,7 +804,7 @@ typedef struct {
   uint8_t dsfid;                 /* DSFID if I93_INFO_FLAG_DSFID     */
   uint8_t afi;                   /* AFI if I93_INFO_FLAG_AFI         */
   uint8_t block_size;            /* block size of tag, in bytes      */
-  uint16_t num_block;            /* number of blocks in tag          */
+  uint32_t num_block;            /* number of blocks in tag          */
   uint8_t ic_reference;          /* IC Reference of tag              */
   uint8_t product_version;       /* tag product version              */
 

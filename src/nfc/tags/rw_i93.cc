@@ -838,7 +838,7 @@ tNFC_STATUS rw_i93_send_cmd_stay_quiet(uint8_t* p_uid) {
 ** Returns          tNFC_STATUS
 **
 *******************************************************************************/
-tNFC_STATUS rw_i93_send_cmd_read_single_block(uint16_t block_number,
+tNFC_STATUS rw_i93_send_cmd_read_single_block(uint32_t block_number,
                                               bool read_security) {
   NFC_HDR* p_cmd;
   uint8_t *p, flags;
@@ -916,7 +916,7 @@ tNFC_STATUS rw_i93_send_cmd_read_single_block(uint16_t block_number,
 ** Returns          tNFC_STATUS
 **
 *******************************************************************************/
-tNFC_STATUS rw_i93_send_cmd_write_single_block(uint16_t block_number,
+tNFC_STATUS rw_i93_send_cmd_write_single_block(uint32_t block_number,
                                                uint8_t* p_data) {
   NFC_HDR* p_cmd;
   uint8_t *p, flags;
@@ -1012,7 +1012,7 @@ tNFC_STATUS rw_i93_send_cmd_write_single_block(uint16_t block_number,
 ** Returns          tNFC_STATUS
 **
 *******************************************************************************/
-tNFC_STATUS rw_i93_send_cmd_lock_block(uint16_t block_number) {
+tNFC_STATUS rw_i93_send_cmd_lock_block(uint32_t block_number) {
   NFC_HDR* p_cmd;
   uint8_t* p;
   tRW_I93_CB* p_i93 = &rw_cb.tcb.i93;
@@ -1098,8 +1098,8 @@ tNFC_STATUS rw_i93_send_cmd_lock_block(uint16_t block_number) {
 ** Returns          tNFC_STATUS
 **
 *******************************************************************************/
-tNFC_STATUS rw_i93_send_cmd_read_multi_blocks(uint16_t first_block_number,
-                                              uint16_t number_blocks) {
+tNFC_STATUS rw_i93_send_cmd_read_multi_blocks(uint32_t first_block_number,
+                                              uint32_t number_blocks) {
   NFC_HDR* p_cmd;
   uint8_t *p, flags;
   tRW_I93_CB* p_i93 = &rw_cb.tcb.i93;
@@ -1185,8 +1185,8 @@ tNFC_STATUS rw_i93_send_cmd_read_multi_blocks(uint16_t first_block_number,
 ** Returns          tNFC_STATUS
 **
 *******************************************************************************/
-tNFC_STATUS rw_i93_send_cmd_write_multi_blocks(uint16_t first_block_number,
-                                               uint16_t number_blocks,
+tNFC_STATUS rw_i93_send_cmd_write_multi_blocks(uint32_t first_block_number,
+                                               uint32_t number_blocks,
                                                uint8_t* p_data) {
   NFC_HDR* p_cmd;
   uint8_t* p;
@@ -1627,8 +1627,8 @@ tNFC_STATUS rw_i93_send_cmd_get_sys_info(uint8_t* p_uid, uint8_t extra_flags) {
 ** Returns          tNFC_STATUS
 **
 *******************************************************************************/
-tNFC_STATUS rw_i93_send_cmd_get_multi_block_sec(uint16_t first_block_number,
-                                                uint16_t number_blocks) {
+tNFC_STATUS rw_i93_send_cmd_get_multi_block_sec(uint32_t first_block_number,
+                                                uint32_t number_blocks) {
   NFC_HDR* p_cmd;
   uint8_t *p, flags;
 
@@ -1792,7 +1792,7 @@ tNFC_STATUS rw_i93_get_next_blocks(uint32_t offset) {
 *******************************************************************************/
 tNFC_STATUS rw_i93_get_next_block_sec(void) {
   tRW_I93_CB* p_i93 = &rw_cb.tcb.i93;
-  uint16_t num_blocks;
+  uint32_t num_blocks;
 
   LOG(DEBUG) << __func__;
 
@@ -1832,7 +1832,8 @@ tNFC_STATUS rw_i93_get_next_block_sec(void) {
 void rw_i93_sm_detect_ndef(NFC_HDR* p_resp) {
   uint8_t *p = (uint8_t*)(p_resp + 1) + p_resp->offset, *p_uid;
   uint8_t flags, u8 = 0, cc[4];
-  uint16_t length = p_resp->len, xx, block, first_block, last_block, num_blocks;
+  uint16_t length = p_resp->len, xx;
+  uint32_t block, first_block, last_block, num_blocks;
   tRW_I93_CB* p_i93 = &rw_cb.tcb.i93;
   tRW_DATA rw_data;
   tNFC_STATUS status = NFC_STATUS_FAILED;
@@ -2138,7 +2139,7 @@ void rw_i93_sm_detect_ndef(NFC_HDR* p_resp) {
 
             /* read block to get lock status */
             rw_i93_send_cmd_read_single_block(
-                (uint16_t)(p_i93->rw_offset / p_i93->block_size), true);
+                (uint32_t)(p_i93->rw_offset / p_i93->block_size), true);
             break;
           }
         }
@@ -2243,7 +2244,8 @@ void rw_i93_sm_detect_ndef(NFC_HDR* p_resp) {
 void rw_i93_sm_read_ndef(NFC_HDR* p_resp) {
   uint8_t* p = (uint8_t*)(p_resp + 1) + p_resp->offset;
   uint8_t flags;
-  uint32_t offset, length = p_resp->len;
+  uint32_t offset;
+  uint16_t length = p_resp->len;
   tRW_I93_CB* p_i93 = &rw_cb.tcb.i93;
   tRW_DATA rw_data;
 
@@ -2343,8 +2345,10 @@ void rw_i93_sm_read_ndef(NFC_HDR* p_resp) {
 *******************************************************************************/
 void rw_i93_sm_update_ndef(NFC_HDR* p_resp) {
   uint8_t* p = (uint8_t*)(p_resp + 1) + p_resp->offset;
-  uint8_t flags, xx, length_offset, buff[I93_MAX_BLOCK_LENGH];
-  uint16_t length = p_resp->len, block_number;
+  uint8_t flags, buff[I93_MAX_BLOCK_LENGH];
+  uint16_t length = p_resp->len, xx;
+  uint32_t length_offset, block_number;
+
   tRW_I93_CB* p_i93 = &rw_cb.tcb.i93;
   tRW_DATA rw_data;
 
@@ -2623,7 +2627,8 @@ void rw_i93_sm_update_ndef(NFC_HDR* p_resp) {
 void rw_i93_sm_format(NFC_HDR* p_resp) {
   uint8_t *p = (uint8_t*)(p_resp + 1) + p_resp->offset, *p_uid;
   uint8_t flags;
-  uint16_t length = p_resp->len, xx, block_number;
+  uint16_t length = p_resp->len, xx;
+  uint32_t block_number;
   tRW_I93_CB* p_i93 = &rw_cb.tcb.i93;
   tRW_DATA rw_data;
   tNFC_STATUS status = NFC_STATUS_FAILED;
@@ -2811,7 +2816,7 @@ void rw_i93_sm_format(NFC_HDR* p_resp) {
             /* read the block which has AFI */
             p_i93->rw_offset = I93_TAG_IT_HF_I_STD_PRO_CHIP_INLAY_AFI_LOCATION;
             rw_i93_send_cmd_read_single_block(
-                (uint16_t)(p_i93->rw_offset / p_i93->block_size), true);
+                (uint32_t)(p_i93->rw_offset / p_i93->block_size), true);
             break;
           }
         } else if (p_i93->rw_offset ==
@@ -2820,7 +2825,7 @@ void rw_i93_sm_format(NFC_HDR* p_resp) {
         } else {
           p_i93->rw_offset += p_i93->block_size;
           rw_i93_send_cmd_read_single_block(
-              (uint16_t)(p_i93->rw_offset / p_i93->block_size), true);
+              (uint32_t)(p_i93->rw_offset / p_i93->block_size), true);
           break;
         }
       } else {
@@ -4117,7 +4122,7 @@ tNFC_STATUS RW_I93ReadNDef(void) {
 **
 *******************************************************************************/
 tNFC_STATUS RW_I93UpdateNDef(uint32_t length, uint8_t* p_data) {
-  uint16_t block_number;
+  uint32_t block_number;
 
   LOG(DEBUG) << StringPrintf("%s - length:%d", __func__, length);
 
