@@ -1,4 +1,5 @@
 package: "com.android.nfc.nci.flags"
+container: "system"
 
 flag {
     name: "t5t_no_getsysinfo"
