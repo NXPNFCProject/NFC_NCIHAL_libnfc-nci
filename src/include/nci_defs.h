@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2022 NXP
+ *  Copyright 2018-2022, 2024 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -349,6 +349,7 @@
 #define NCI_STATUS_PMU_TXLDO_OVERCURRENT 0xE3
 #define NCI_STATUS_GPADC_ERROR 0xE7
 #define NCI_NFCEE_STS_COLD_TEMP_THRESOLD_REACHED 0xEB
+#define NCI_DISCOVERY_TARGET_ACTIVATION_FAILED 0xA1
 
 #define NCI_NFCEE_STS_CONN_ACTIVE 0x00
 #define NCI_NFCEE_STS_CONN_INACTIVE 0x01

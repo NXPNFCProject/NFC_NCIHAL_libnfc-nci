@@ -2122,6 +2122,9 @@ static void nfa_dm_disc_sm_idle(tNFA_DM_RF_DISC_SM_EVENT event,
 *******************************************************************************/
 static void nfa_dm_disc_sm_discovery(tNFA_DM_RF_DISC_SM_EVENT event,
                                      tNFA_DM_RF_DISC_DATA* p_data) {
+#if (NXP_EXTNS == TRUE)
+  tNFA_CONN_EVT_DATA evt_data;
+#endif
   switch (event) {
     case NFA_DM_RF_DEACTIVATE_CMD:
       /* if deactivate CMD was not sent to NFCC */
@@ -2213,6 +2216,13 @@ static void nfa_dm_disc_sm_discovery(tNFA_DM_RF_DISC_SM_EVENT event,
     case NFA_DM_LP_LISTEN_CMD:
       break;
     case NFA_DM_CORE_INTF_ERROR_NTF:
+#if (NXP_EXTNS == TRUE)
+      if (p_data->nfc_discover.status ==
+          NCI_DISCOVERY_TARGET_ACTIVATION_FAILED) {
+        evt_data.status = p_data->nfc_discover.status;
+        nfa_dm_conn_cback_event_notify(NFA_CORE_GENERIC_ERROR_EVT, &evt_data);
+      }
+#endif
       break;
     default:
       LOG(ERROR) << StringPrintf("Unexpected discovery event");
