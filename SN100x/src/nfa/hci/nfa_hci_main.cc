@@ -976,6 +976,10 @@ bool nfa_hci_enable_one_nfcee(void) {
       << StringPrintf("nfa_hci_enable_one_nfcee () %d",xx);
         if (nfa_hci_cb.ee_info[xx].ee_interface[0] != NFA_EE_INTERFACE_HCI_ACCESS) {
             nfceeid = nfa_hci_cb.ee_info[xx].ee_handle & ~NFA_HANDLE_GROUP_EE;
+            DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+                "nfa_hci_enable_one_nfcee () xx= %d nfcee_id = %d "
+                "nfa_hci_cb.ee_info[xx].ee_status = %d ",
+                xx, nfceeid, nfa_hci_cb.ee_info[xx].ee_status);
             if (nfa_hci_cb.ee_info[xx].ee_status == NFA_EE_STATUS_INACTIVE ||
                     nfa_hci_cb.ee_info[xx].ee_status == NFA_EE_STATUS_ACTIVE ||
                     nfa_hci_cb.ee_info[xx].ee_status == NFA_EE_STATUS_REMOVED) {
@@ -1025,6 +1029,9 @@ bool nfa_hci_enable_one_nfcee(void) {
                         }
                       }
                     }
+                    DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
+                        "nfa_hci_enable_one_nfcee: %d Perform ModeSet for %d ",
+                        xx, nfceeid);
                     status = NFC_NfceeModeSet(nfceeid, NFC_MODE_ACTIVATE);
                     if(status == NFA_STATUS_OK) {
                         nfa_hci_cb.curr_nfcee = nfceeid;
