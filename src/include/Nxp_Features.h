@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  Copyright 2018-2023 NXP
+ *  Copyright 2018-2024 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,10 +24,7 @@
 #include <string>
 #ifndef NXP_FEATURES_H
 #define NXP_FEATURES_H
-
-/*Including T4T NFCEE by incrementing 1*/
-#define NFA_EE_MAX_EE_SUPPORTED 6
-
+#include "nfc_target.h"
 using namespace std;
 typedef enum {
     NFCC_DWNLD_WITH_VEN_RESET,
@@ -47,7 +44,6 @@ typedef struct {
     /*Flags common to all chip types*/
     uint8_t _NFCEE_REMOVED_NTF_RECOVERY                     : 1;
     uint8_t _NFCC_FORCE_FW_DOWNLOAD                         : 1;
-    uint8_t _NFA_EE_MAX_EE_SUPPORTED                        : 3;
     uint8_t _NFCC_DWNLD_MODE                                : 1;
 }tNfc_nfccFeatureList;
 
@@ -108,13 +104,11 @@ extern tNfc_featureList nfcFL;
       nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD = true;                     \
       nfcFL.eseFL._ESE_JCOP_DWNLD_PROTECTION = true;                  \
       nfcFL.eseFL._ESE_ETSI_READER_ENABLE = true;                     \
-      nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED = NFA_EE_MAX_EE_SUPPORTED;\
       break;                                                          \
      case pn81T:                                                      \
       CONFIGURE_FEATURELIST_NFCC(pn557)                               \
       nfcFL.eseFL._ESE_JCOP_DWNLD_PROTECTION = true;                  \
       nfcFL.eseFL._ESE_ETSI_READER_ENABLE = true;                     \
-      nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED = 4;                      \
      break;                                                           \
      default:                                                         \
      break;                                                           \
@@ -125,8 +119,6 @@ extern tNfc_featureList nfcFL;
   {                                                                          \
     nfcFL.eseFL._ESE_ETSI_READER_ENABLE = false;                             \
     nfcFL.eseFL._ESE_JCOP_DWNLD_PROTECTION = false;                          \
-                                                                             \
-    nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED = 3;                               \
     nfcFL.nfccFL._NFCC_FORCE_FW_DOWNLOAD = true;                             \
     nfcFL.nfccFL._NFCEE_REMOVED_NTF_RECOVERY = true;                         \
                                                                              \

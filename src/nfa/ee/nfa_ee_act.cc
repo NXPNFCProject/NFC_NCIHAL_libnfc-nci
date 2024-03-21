@@ -1479,7 +1479,7 @@ void nfa_ee_api_remove_aid(tNFA_EE_MSG* p_data) {
     tNFA_EE_ECB* p_cb = nfa_ee_cb.ecb;
     int max_aid_cfg_length = nfa_ee_find_max_aid_cfg_len();
     int max_aid_entries = max_aid_cfg_length / NFA_MIN_AID_LEN + 1;
-    for (xx = 0; xx < nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED; xx++, p_cb++) {
+    for (xx = 0; xx < nfa_ee_max_ee_cfg; xx++, p_cb++) {
         memset(p_cb->aid_cfg, 0, max_aid_cfg_length);
         memset(p_cb->aid_len, 0, max_aid_entries);
         memset(p_cb->aid_pwr_cfg, 0, max_aid_entries);
@@ -1902,7 +1902,7 @@ void nfa_ee_report_disc_done(bool notify_enable_done) {
 #if (NXP_EXTNS == TRUE)
     else if(nfcFL.nfccFL._NFCEE_REMOVED_NTF_RECOVERY == true) {
       evt_data.status = NFA_STATUS_OK;
-      evt_data.ee_discover.num_ee = nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED;
+      evt_data.ee_discover.num_ee = nfa_ee_max_ee_cfg;
       NFA_AllEeGetInfo(&evt_data.ee_discover.num_ee,
                        evt_data.ee_discover.ee_info);
       if (nfa_ee_cb.p_enable_cback)
@@ -2248,7 +2248,7 @@ void nfa_ee_nci_disc_ntf(tNFA_EE_MSG* p_data) {
 #if (NXP_EXTNS == TRUE)
       if (nfa_dm_is_active()) {
         evt_data.status = p_cb->ee_status;
-        evt_data.ee_discover.num_ee = nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED;
+        evt_data.ee_discover.num_ee = nfa_ee_max_ee_cfg;
         NFA_EeGetInfo(&evt_data.ee_discover.num_ee,
                       evt_data.ee_discover.ee_info);
         nfa_ee_report_event(nullptr, NFA_EE_DISCOVER_EVT, &evt_data);

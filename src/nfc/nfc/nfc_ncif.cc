@@ -2049,7 +2049,6 @@ void nfc_ncif_proc_reset_rsp(uint8_t* p, bool is_ntf) {
       }
       if (nfc_cb.nfc_state == NFC_STATE_CORE_INIT) {
         NFC_SetFeatureList(nfc_fw_version);
-        nfa_ee_max_ee_cfg = nfcFL.nfccFL._NFA_EE_MAX_EE_SUPPORTED;
         LOG(DEBUG) << StringPrintf("NFA_EE_MAX_EE_SUPPORTED to use %d",
                                    nfa_ee_max_ee_cfg);
       }
