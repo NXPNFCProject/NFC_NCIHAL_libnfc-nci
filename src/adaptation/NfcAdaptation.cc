@@ -506,6 +506,7 @@ void NfcAdaptation::GetVendorConfigs(
 void NfcAdaptation::Initialize() {
   const char* func = "NfcAdaptation::Initialize";
   // Init log tag
+  android::base::InitLogging(nullptr);
   android::base::SetDefaultTag("libnfc_nci");
 
   initializeGlobalDebugEnabledFlag();

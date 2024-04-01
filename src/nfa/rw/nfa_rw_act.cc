@@ -594,7 +594,6 @@ void nfa_rw_handle_presence_check_rsp(tNFC_STATUS status) {
         LOG(DEBUG) << StringPrintf(
             "%s - presence check failed, try up to %d times (attempt nb #%d)",
             __func__, retryCount, nfa_rw_cb.pres_check_tag_err_count);
-
         return;
       }
       LOG(DEBUG) << StringPrintf("Presence check failed. Deactivating...");
