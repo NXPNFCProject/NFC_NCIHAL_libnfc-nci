@@ -1481,4 +1481,47 @@ void NFA_SetPreferredUiccId(uint8_t uicc_id) {
   LOG(DEBUG) << __func__;
   nfa_dm_cb.selected_uicc_id = uicc_id;
 }
+
+/*******************************************************************************
+**
+** Function         NFA_IsRfRemovalDetectionSupported
+**
+** Description      Indicates if RF Removal Detection mode is upported by NFCC
+**                  and by activated RF Interface.
+**
+** Returns          true if supported else false.
+**
+*******************************************************************************/
+bool NFA_IsRfRemovalDetectionSupported() {
+  return NFC_IsRfRemovalDetectionSupported();
+}
+/*******************************************************************************
+**
+** Function         NFA_SendRemovalDetectionCmd
+**
+** Description      This function is called to start the procedure of Removal
+**                  Deteciton in Poll Mode
+**
+**                  wait_timeout - Time duration for which NFCC shall execute
+**                                Removal Detection Procedure.
+**
+** Returns          NFA_STATUS_OK if successfully initiated
+**                  NFA_STATUS_FAILED otherwise
+**
+*******************************************************************************/
+tNFA_STATUS NFA_SendRemovalDetectionCmd(uint8_t wait_timeout) {
+  uint16_t size = sizeof(tNFA_DM_API_ENABLE_RF_REMOVAL_DETECTION);
+  tNFA_DM_API_ENABLE_RF_REMOVAL_DETECTION* p_msg =
+      (tNFA_DM_API_ENABLE_RF_REMOVAL_DETECTION*)GKI_getbuf(size);
+
+  if (p_msg != nullptr) {
+    p_msg->hdr.event = NFA_DM_API_ENABLE_RF_REMOVAL_DETECTION_EVT;
+    p_msg->wait_time = wait_timeout;
+
+    nfa_sys_sendmsg(p_msg);
+    return NFA_STATUS_OK;
+  }
+
+  return NFA_STATUS_FAILED;
+}
 #endif

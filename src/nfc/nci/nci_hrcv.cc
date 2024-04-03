@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2019-2023 NXP
+ *  Copyright 2019-2024 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -251,6 +251,9 @@ void nci_proc_rf_management_rsp(NFC_HDR* p_msg) {
     case NCI_MSG_RF_INTF_EXT_STOP:
       nfc_ncif_event_status(NFC_RF_INTF_EXT_STOP_REVT, *pp);
       break;
+    case NCI_MSG_RF_REMOVAL_DETECTION:
+      nfc_ncif_proc_removal_detection(*pp, false);
+      break;
 #endif
     case NCI_MSG_RF_ISO_DEP_NAK_PRESENCE:
       nfc_ncif_proc_isodep_nak_presence_check_status(*pp, false);
@@ -328,6 +331,15 @@ void nci_proc_rf_management_ntf(NFC_HDR* p_msg) {
       nfc_ncif_proc_ee_discover_req(pp, len);
       break;
 #endif
+#endif
+#if (NXP_EXTNS == TRUE)
+    case NCI_MSG_RF_REMOVAL_DETECTION:
+      if (p_msg->len < 4) {
+        android_errorWriteLog(0x534e4554, "176582502");
+        return;
+      }
+      nfc_ncif_proc_removal_detection(*pp, true);
+      break;
 #endif
     case NCI_MSG_RF_ISO_DEP_NAK_PRESENCE:
       if (p_msg->len < 4) {

@@ -240,6 +240,7 @@
 #if (NXP_EXTNS == TRUE)
 #define NCI_MSG_RF_INTF_EXT_START 12
 #define NCI_MSG_RF_INTF_EXT_STOP 13
+#define NCI_MSG_RF_REMOVAL_DETECTION 18
 #endif
 #define NCI_MSG_RF_ISO_DEP_NAK_PRESENCE 16
 
@@ -381,7 +382,14 @@
 #define NCI_DEACTIVATE_REASON_NFCB_BAD_AFI 3 /* NFC-B Bad AFI    */
 /* DH Request Failed due to error */
 #define NCI_DEACTIVATE_REASON_DH_REQ_FAILED 4
-
+#if (NXP_EXTNS == TRUE)
+/* Low Power Removal mode: Tag is removed from field */
+#define NCI_DEACTIVATE_REASON_RF_REMOTE_ENDPOINT_REMOVED 0x05
+/* Low Power Removal mode: Wait Time is over, Tag is stil in field */
+#define NCI_DEACTIVATE_REASON_RF_TIMEOUT_EXCEPTION 0x06
+#define NCI_DEACTIVATE_REASON_RF_PROTOCOL_EXCEPTION 0x07
+#define NCI_DEACTIVATE_REASON_RF_FO_DETECTED 0x08
+#endif
 /* The NFCEE status in NFCEE Status Notification */
 typedef uint8_t tNCI_EE_NTF_STATUS;
 
@@ -454,6 +462,7 @@ typedef uint8_t tNCI_INTF_TYPE;
 #define NCI_DISCOVERY_TYPE_POLL_F 0x02
 #define NCI_DISCOVERY_TYPE_POLL_V 0x06
 #if (NXP_EXTNS == TRUE)
+#define NCI_REMOVE_DETECTION_PARAM_SIZE 0x01 /* Wait Time */
 #define NCI_DISCOVERY_TYPE_POLL_WLC 0x73
 #if (NXP_QTAG == TRUE)
 #define NCI_DISCOVERY_TYPE_POLL_Q 0x71
@@ -667,7 +676,10 @@ typedef uint8_t tNCI_DISCOVERY_TYPE;
 #define NCI_POLLING_DH_ENABLE_MASK 0x01
 /* SCBR support check with Core Init resp OCT1 byte */
 #define NCI_SCBR_MASK 0x10
-
+#if (NXP_EXTNS == TRUE)
+/* RF RemovalDetection support check with Core Init resp OCT0 byte */
+#define NCI_REMOVAL_DETECTION_MODE_MASK 0x20
+#endif
 /* AID matching is allowed when the SELECT AID is longer */
 #define NCI_ROUTE_QUAL_LONG_SELECT 0x10
 /* AID matching is allowed when the SELECT AID is shorter */

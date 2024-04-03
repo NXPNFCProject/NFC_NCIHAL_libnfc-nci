@@ -269,6 +269,12 @@ void nfc_enabled(tNFC_STATUS nfc_status, NFC_HDR* p_init_rsp_msg) {
     * We may need to change this, when we support multiple version of NFCC */
 
     evt_data.enable.nci_version = nfc_cb.nci_version;
+#if(NXP_EXTNS == TRUE)
+    /* check Removal Detection mode support bit as per NCI 2.3 spec */
+    nfc_cb.isRemovalDetectSupported = p[0] & NCI_REMOVAL_DETECTION_MODE_MASK;
+    LOG(DEBUG) << StringPrintf("Removal Detection in Poll MOde support: 0x%x",
+                               nfc_cb.isRemovalDetectSupported);
+#endif
     STREAM_TO_UINT32(evt_data.enable.nci_features, p);
     if (nfc_cb.nci_version == NCI_VERSION_1_0) {
       /* this byte is consumed in the top expression */
@@ -1742,5 +1748,18 @@ void NFC_SetFeatureList(tNFC_FW_VERSION nfc_fw_version) {
  *******************************************************************************/
 tNFC_chipType NFC_GetChipType() {
     return chipType;
+}
+
+/*******************************************************************************
+**
+** Function         NFC_IsRfRemovalDetectionSupported
+**
+** Description      Indicates if RF Removal Detection mode is upported by NFCC
+**
+** Returns          true if supported else false.
+**
+*******************************************************************************/
+bool NFC_IsRfRemovalDetectionSupported() {
+  return nfc_cb.isRemovalDetectSupported ? true : false;
 }
 #endif

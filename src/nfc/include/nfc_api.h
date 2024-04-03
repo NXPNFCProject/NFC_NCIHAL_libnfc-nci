@@ -527,6 +527,7 @@ typedef uint8_t tNFC_RF_STS;
 typedef uint8_t tNFC_RF_TECH;
 
 extern uint8_t NFC_GetNCIVersion();
+extern bool NFC_IsRfRemovalDetectionSupported();
 
 /* Supported Protocols */
 #define NFC_PROTOCOL_UNKNOWN NCI_PROTOCOL_UNKNOWN /* Unknown */
@@ -740,6 +741,10 @@ enum {
   NFC_SELECT_DEVT,                 /* Status of NFC_DiscoverySelect    */
   NFC_ACTIVATE_DEVT,               /* RF interface is activated        */
   NFC_DEACTIVATE_DEVT              /* Status of RF deactivation        */
+#if (NXP_EXTNS == TRUE)
+  ,
+  NFC_REMOVAL_DETECTION_DEVT /* Status of RF Removal Detection   */
+#endif
 };
 typedef uint16_t tNFC_DISCOVER_EVT;
 
@@ -954,6 +959,13 @@ typedef struct {
   tNFC_DEACT_REASON reason; /* De-activate reason    */
 } tNFC_DEACTIVATE_DEVT;
 
+#if (NXP_EXTNS == TRUE)
+/* the data type associated with NFC_REMOVAL_DETECTION_DEVT   */
+typedef struct {
+  tNFC_STATUS status; /* The event status.        */
+  bool is_ntf;        /* TRUE, if deactivate notif*/
+} tNFC_REMOVAL_DETECTION_DEVT;
+#endif
 typedef union {
   tNFC_STATUS status; /* The event status.        */
   tNFC_START_DEVT start;
@@ -962,6 +974,9 @@ typedef union {
   tNFC_STOP_DEVT stop;
   tNFC_ACTIVATE_DEVT activate;
   tNFC_DEACTIVATE_DEVT deactivate;
+#if (NXP_EXTNS == TRUE)
+  tNFC_REMOVAL_DETECTION_DEVT removal_detection;
+#endif
 } tNFC_DISCOVER;
 
 typedef struct {

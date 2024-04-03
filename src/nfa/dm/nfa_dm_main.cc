@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2020,2023 NXP
+ *  Copyright 2018-2020, 2023-2024 NXP
  *
  ******************************************************************************/
 
@@ -99,7 +99,9 @@ const tNFA_DM_ACTION nfa_dm_action[] = {
     nfa_dm_act_change_discovery_tech /* NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT */
 #if (NXP_EXTNS == TRUE)
     ,
-    nfa_dm_set_transit_config /* NFA_DM_API_SET_TRANSIT_CONFIG_EVT    */
+    nfa_dm_set_transit_config,        /* NFA_DM_API_SET_TRANSIT_CONFIG_EVT    */
+    /* NFA_DM_API_ENABLE_RF_REMOVAL_DETECTION_EVT */
+    nfa_dm_act_send_rf_removal_detection_cmd
 #endif
 };
 
@@ -559,6 +561,8 @@ static std::string nfa_dm_evt_2_str(uint16_t event) {
       return "NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT";
     case NFA_DM_API_SET_TRANSIT_CONFIG_EVT:
       return "NFA_DM_API_SET_TRANSIT_CONFIG_EVT";
+    case NFA_DM_API_ENABLE_RF_REMOVAL_DETECTION_EVT:
+      return "NFA_DM_API_ENABLE_RF_REMOVAL_DETECTION_EVT";
 #endif
   }
 

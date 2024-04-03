@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2020 NXP
+ *  Copyright 2018-2020, 2024 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -642,7 +642,41 @@ uint8_t nci_snd_t3t_polling(uint16_t system_code, uint8_t rc, uint8_t tsn) {
   nfc_ncif_send_cmd(p);
   return (NCI_STATUS_OK);
 }
+#if (NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         nci_snd_removal_detection_cmd
+**
+** Description      compose and send RF Removal Detection command to command
+**                  queue
+**
+** Returns          status
+**
+*******************************************************************************/
+uint8_t nci_snd_removal_detection_cmd(uint8_t wait_time) {
+  NFC_HDR* p;
+  uint8_t* pp;
 
+  nfc_cb.reassembly = true;
+
+  p = NCI_GET_CMD_BUF(NCI_REMOVE_DETECTION_PARAM_SIZE);
+  if (p == nullptr) return (NCI_STATUS_FAILED);
+
+  p->event = BT_EVT_TO_NFC_NCI;
+  p->len = NCI_MSG_HDR_SIZE + NCI_REMOVE_DETECTION_PARAM_SIZE;
+  p->offset = NCI_MSG_OFFSET_SIZE;
+  p->layer_specific = 0;
+  pp = (uint8_t*)(p + 1) + p->offset;
+
+  NCI_MSG_BLD_HDR0(pp, NCI_MT_CMD, NCI_GID_RF_MANAGE);
+  NCI_MSG_BLD_HDR1(pp, NCI_MSG_RF_REMOVAL_DETECTION);
+  UINT8_TO_STREAM(pp, NCI_REMOVE_DETECTION_PARAM_SIZE);
+  UINT8_TO_STREAM(pp, wait_time);
+
+  nfc_ncif_send_cmd(p);
+  return (NCI_STATUS_OK);
+}
+#endif
 /*******************************************************************************
 **
 ** Function         nci_snd_parameter_update_cmd

@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2020-2021 NXP
+ *  Copyright 2020-2021, 2024 NXP
  *
  ******************************************************************************/
 
@@ -1029,6 +1029,10 @@ bool nfa_ce_deactivate_ntf(tNFA_CE_MSG* p_ce_msg) {
 
   LOG(DEBUG) << StringPrintf("deact_type=%d", deact_type);
 
+#if (NXP_EXTNS == TRUE)
+  /* We don't really care in CE case, need to check for future use */
+  conn_evt.deactivated.reason = NCI_DEACTIVATE_REASON_ENDPOINT_REQ;
+#endif
   /* Check if deactivating to SLEEP mode */
   if ((deact_type == NFC_DEACTIVATE_TYPE_SLEEP) ||
       (deact_type == NFC_DEACTIVATE_TYPE_SLEEP_AF)) {

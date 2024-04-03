@@ -860,6 +860,15 @@ static void nfa_dm_disc_discovery_cback(tNFC_DISCOVER_EVT event,
       } else
         dm_disc_event = NFA_DM_RF_DEACTIVATE_RSP;
       break;
+#if (NXP_EXTNS == TRUE)
+    case NFC_REMOVAL_DETECTION_DEVT:
+      if (p_data->removal_detection.is_ntf) {
+        dm_disc_event = NFA_DM_RF_REMOVAL_DETECTION_NTF;
+      } else {
+        dm_disc_event = NFA_DM_RF_REMOVAL_DETECTION_RSP;
+      }
+      break;
+#endif
     default:
       LOG(ERROR) << StringPrintf("Unexpected event");
       return;
@@ -1314,6 +1323,29 @@ static tNFA_DM_DISC_TECH_PROTO_MASK nfa_dm_config_ee_discover_tech_mask(uint8_t
 
       return dm_disc_mask;
 }
+/*******************************************************************************
+**
+** Function         nfa_dm_send_removal_detection_cmd
+**
+** Description      Starts the Removal Detection procedure at NFCC END
+**
+** Returns
+**
+*******************************************************************************/
+tNFC_STATUS nfa_dm_send_removal_detection_cmd(uint8_t wait_time) {
+      tNFC_STATUS status = NFC_STATUS_OK;
+
+      if (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_POLL_ACTIVE) {
+        tNFA_DM_RF_DISC_DATA rf_disc_data;
+        rf_disc_data.wait_time = wait_time;
+        nfa_dm_disc_sm_execute(NFA_DM_RF_REMOVAL_DETECTION_CMD, &rf_disc_data);
+      } else {
+        LOG(ERROR) << StringPrintf("%s: Operation not allowed", __func__);
+        status = NFC_STATUS_REJECTED;
+      }
+
+      return (status);
+}
 #endif
 /*******************************************************************************
 **
@@ -1673,6 +1705,9 @@ static void nfa_dm_disc_notify_deactivation(tNFA_DM_RF_DISC_SM_EVENT sm_event,
       } else {
         /* notify deactivation to application if there is no activated module */
         evt_data.deactivated.type = NFA_DEACTIVATE_TYPE_IDLE;
+#if (NXP_EXTNS == TRUE)
+        evt_data.deactivated.reason = NCI_DEACTIVATE_REASON_DH_REQ;
+#endif
         nfa_dm_conn_cback_event_notify(NFA_DEACTIVATED_EVT, &evt_data);
       }
     }
@@ -1960,6 +1995,9 @@ void nfa_dm_disc_new_state(tNFA_DM_RF_DISC_STATE new_state) {
         if (old_state > NFA_DM_RFST_DISCOVERY) {
           /* notify deactivation to application */
           evt_data.deactivated.type = NFA_DEACTIVATE_TYPE_IDLE;
+#if (NXP_EXTNS == TRUE)
+          evt_data.deactivated.reason = NCI_DEACTIVATE_REASON_DH_REQ;
+#endif
           nfa_dm_conn_cback_event_notify(NFA_DEACTIVATED_EVT, &evt_data);
         }
 
@@ -2605,7 +2643,33 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
       nfa_dm_act_conn_cback_notify(NFA_RW_INTF_ERROR_EVT, &conn_evt_data);
 #endif
       break;
+#if (NXP_EXTNS == TRUE)
+    case NFA_DM_RF_REMOVAL_DETECTION_CMD:
+      nci_snd_removal_detection_cmd(p_data->wait_time);
+      break;
+    case NFA_DM_RF_REMOVAL_DETECTION_RSP:
+    case NFA_DM_RF_REMOVAL_DETECTION_NTF:
+      if (p_data->nfc_discover.removal_detection.status == NFA_STATUS_OK) {
+        if (!p_data->nfc_discover.removal_detection.is_ntf) {
+          /*  Success,
+              1. Don't allow any comm'n to RF endpoint
+              2. wait for notification
+          */
+        } else {
+          // Success, State RF_STATE to POLL_REMOVAL
+          nfa_dm_disc_new_state(NFA_DM_RFST_POLL_REMOVAL_DETECTION);
+          // upon RF_DEACTIVATE with endpoint removal or TImeout, it shall fall
+          // back to existing behavior
+        }
 
+      } else {
+        // Failed, notify upper layer & no change in the RF_STATE
+        conn_evt_data.status = p_data->nfc_discover.removal_detection.status;
+        nfa_dm_act_conn_cback_notify(NFA_RF_REMOVAL_DETECTION_FAIL_EVT,
+                                     &conn_evt_data);
+      }
+      break;
+#endif
     default:
       LOG(ERROR) << StringPrintf("Unexpected discovery event");
       break;
@@ -2831,7 +2895,47 @@ static void nfa_dm_disc_sm_lp_active(tNFA_DM_RF_DISC_SM_EVENT event,
       break;
   }
 }
-
+#if (NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         nfa_dm_disc_sm_poll_removal_detection
+**
+** Description      Processing discovery events in
+**                  NFA_DM_RFST_POLL_REMOVAL_DETECTION state
+**
+** Returns          void
+**
+*******************************************************************************/
+static void nfa_dm_disc_sm_poll_removal_detection(
+    tNFA_DM_RF_DISC_SM_EVENT event, tNFA_DM_RF_DISC_DATA* p_data) {
+  LOG(DEBUG) << StringPrintf(
+      "state: %s (%d), event: %s(%d)",
+      nfa_dm_disc_state_2_str(nfa_dm_cb.disc_cb.disc_state).c_str(),
+      nfa_dm_cb.disc_cb.disc_state, nfa_dm_disc_event_2_str(event).c_str(),
+      event);
+  switch (event) {
+    /* comds are allowed during NfcOff, Reader App request */
+    case NFA_DM_RF_DEACTIVATE_CMD:
+    case NFA_DM_RF_DEACTIVATE_RSP:
+    case NFA_DM_RF_DEACTIVATE_NTF:
+      /* Reasons to be handled
+       1. DH_REQ, by sending DEACTIVE CMD at any time to stop REmoval detection
+       2. 0x05 RF_REMOTE_ENDPOINT_REMOVED
+       3. 0x06 RF_TIMEOUT_EXCEPTION
+       All other may be error & MW shall come out of REmoval detection mode
+       */
+      (void)p_data;
+      // nfa_dm_disc_new_state(NFA_DM_RFST_LP_LISTEN);
+      // nfa_dm_disc_notify_deactivation(NFA_DM_RF_DEACTIVATE_NTF,
+      //                                 &(p_data->nfc_discover));
+      nfa_dm_disc_sm_poll_active(event, p_data);
+      break;
+    default:
+      LOG(ERROR) << StringPrintf("Unexpected discovery event");
+      break;
+  }
+}
+#endif
 /*******************************************************************************
 **
 ** Function         nfa_dm_disc_sm_execute
@@ -2895,6 +2999,12 @@ void nfa_dm_disc_sm_execute(tNFA_DM_RF_DISC_SM_EVENT event,
     case NFA_DM_RFST_LP_ACTIVE:
       nfa_dm_disc_sm_lp_active(event, p_data);
       break;
+#if (NXP_EXTNS == TRUE)
+    /* Activated Removal Detection mode */
+    case NFA_DM_RFST_POLL_REMOVAL_DETECTION:
+      nfa_dm_disc_sm_poll_removal_detection(event, p_data);
+      break;
+#endif
   }
   LOG(DEBUG) << StringPrintf(
       "new state: %s (%d), disc_flags: 0x%x",
@@ -3154,6 +3264,10 @@ static std::string nfa_dm_disc_state_2_str(uint8_t state) {
 
     case NFA_DM_RFST_LP_ACTIVE:
       return "LP_ACTIVE";
+#if (NXP_EXTNS == TRUE)
+    case NFA_DM_RFST_POLL_REMOVAL_DETECTION:
+      return "POLL_REMOVAL_DETECTION";
+#endif
   }
   return "Unknown";
 }
@@ -3189,6 +3303,14 @@ static std::string nfa_dm_disc_event_2_str(uint8_t event) {
       return "NFA_DM_LP_LISTEN_CMD";
     case NFA_DM_CORE_INTF_ERROR_NTF:
       return "INTF_ERROR_NTF";
+#if (NXP_EXTNS == TRUE)
+    case NFA_DM_RF_REMOVAL_DETECTION_CMD:
+      return "REMOVAL_DETECTION_CMD";
+    case NFA_DM_RF_REMOVAL_DETECTION_RSP:
+      return "REMOVAL_DETECTION_RSP";
+    case NFA_DM_RF_REMOVAL_DETECTION_NTF:
+      return "REMOVAL_DETECTION_NTF";
+#endif
     default:
       return "Unknown";
   }
