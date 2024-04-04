@@ -1036,9 +1036,15 @@ void nfa_ee_api_deregister(tNFA_EE_MSG* p_data) {
 void nfa_ee_api_mode_set(tNFA_EE_MSG* p_data) {
   tNFA_EE_ECB* p_cb = p_data->cfg_hdr.p_cb;
   tNFA_EE_MODE_SET mode_set;
-  LOG(DEBUG) << StringPrintf("handle:0x%02x mode:%d", p_cb->nfcee_id,
-                             p_data->mode_set.mode);
-  mode_set.status = NFC_NfceeModeSet(p_cb->nfcee_id, p_data->mode_set.mode);
+  LOG(INFO) << StringPrintf("handle:0x%02x mode:%d", p_cb->nfcee_id,
+                            p_data->mode_set.mode);
+  if (!nfa_hciu_is_no_host_resetting()) {
+    LOG(DEBUG) << StringPrintf(
+        "Some NFCEE pending for reset. Returning failure for modeset");
+    mode_set.status = NFC_STATUS_REFUSED;
+  } else {
+    mode_set.status = NFC_NfceeModeSet(p_cb->nfcee_id, p_data->mode_set.mode);
+  }
   if (mode_set.status != NFC_STATUS_OK) {
     /* the api is rejected at NFC layer, report the failure status right away */
     mode_set.ee_handle = (tNFA_HANDLE)p_cb->nfcee_id | NFA_HANDLE_GROUP_EE;

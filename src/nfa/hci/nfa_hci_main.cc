@@ -982,6 +982,10 @@ bool nfa_hci_enable_one_nfcee(void) {
     LOG(DEBUG) << StringPrintf("nfa_hci_enable_one_nfcee () %d", xx);
     if (nfa_hci_cb.ee_info[xx].ee_interface[0] != NFA_EE_INTERFACE_HCI_ACCESS) {
       nfceeid = nfa_hci_cb.ee_info[xx].ee_handle & ~NFA_HANDLE_GROUP_EE;
+      LOG(DEBUG) << StringPrintf(
+          "nfa_hci_enable_one_nfcee () xx= %d nfcee_id = %d "
+          "nfa_hci_cb.ee_info[xx].ee_status = %d ",
+          xx, nfceeid, nfa_hci_cb.ee_info[xx].ee_status);
       if (nfa_hci_cb.ee_info[xx].ee_status == NFA_EE_STATUS_INACTIVE ||
           nfa_hci_cb.ee_info[xx].ee_status == NFA_EE_STATUS_ACTIVE ||
           nfa_hci_cb.ee_info[xx].ee_status == NFA_EE_STATUS_REMOVED) {

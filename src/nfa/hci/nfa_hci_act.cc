@@ -2772,6 +2772,8 @@ void nfa_hci_handle_pending_host_reset() {
       } else if (nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_UNRECOVERABLE_ERRROR) {
           nfa_hci_release_transceive(nfa_hci_cb.reset_host[xx].host_id,
                                      NFA_STATUS_HCI_UNRECOVERABLE_ERROR);
+          LOG(INFO) << StringPrintf("Handle NFCEE_UNRECOVERABLE_ERROR for %d",
+                                    nfa_hci_cb.reset_host[xx].host_id);
           nfa_hci_cb.curr_nfcee = nfa_hci_cb.reset_host[xx].host_id;
           nfa_hci_cb.next_nfcee_idx = 0x00;
           if (!nfa_hciu_check_host_resetting(nfa_hci_cb.reset_host[xx].host_id,
@@ -2779,6 +2781,11 @@ void nfa_hci_handle_pending_host_reset() {
                 if (NFC_NfceeDiscover(true) == NFC_STATUS_FAILED) {
                     LOG(DEBUG) << StringPrintf(
                         "NFCEE_UNRECOVERABLE_ERRROR unable to handle");
+                } else {
+                  LOG(INFO) << StringPrintf("NFCEE_discovery cmd sent for %d",
+                                            nfa_hci_cb.reset_host[xx].host_id);
+                  nfa_hciu_add_host_resetting(nfa_hci_cb.reset_host[xx].host_id,
+                                              NFCEE_RECOVERY_IN_PROGRESS);
                 }
           } else {
                 LOG(DEBUG) << StringPrintf(
