@@ -3710,26 +3710,22 @@ uint8_t nfa_hci_get_apdu_enabled_host(void) {
  **
  *******************************************************************************/
 bool nfa_hci_is_power_link_required(uint8_t source_host) {
-  uint8_t nfceeid = 0x00;
-  bool required = false;
-  uint8_t mNumEe = NFA_HCI_MAX_HOST_IN_NETWORK;
-  tNFA_EE_INFO eeInfo[NFA_HCI_MAX_HOST_IN_NETWORK] = {};
-  memset(&eeInfo, 0, mNumEe * sizeof(tNFA_EE_INFO));
-
   if (!IS_PROP_HOST(source_host)) return false;
-  NFA_EeGetInfo(&mNumEe, eeInfo);
-  for (int yy = 0; yy < mNumEe; yy++) {
-    nfceeid = eeInfo[yy].ee_handle & ~NFA_HANDLE_GROUP_EE;
-    if (nfceeid == NFA_HCI_FIRST_PROP_HOST &&
-        is_ese_apdu_pipe_required(source_host)) {
-        required = true;
-        break;
-    }
-    if (is_euicc_apdu_pipe_required(nfceeid)) {
-        required = true;
-    }
+    uint8_t mNumEe = NFA_HCI_MAX_HOST_IN_NETWORK;
+    tNFA_EE_INFO eeInfo[NFA_HCI_MAX_HOST_IN_NETWORK] = {};
+    memset(&eeInfo, 0, mNumEe * sizeof(tNFA_EE_INFO));
+
+    NFA_EeGetInfo(&mNumEe, eeInfo);
+    for (int yy = 0; yy < mNumEe; yy++) {
+      uint8_t nfceeid = eeInfo[yy].ee_handle & ~NFA_HANDLE_GROUP_EE;
+      if (nfceeid == source_host) {
+        if (is_ese_apdu_pipe_required(source_host) ||
+            is_euicc_apdu_pipe_required(source_host)) {
+            return true;
+        }
+      }
   }
-  return required;
+  return false;
 }
 /*******************************************************************************
  **
