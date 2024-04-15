@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2022 NXP
+ *  Copyright 2018-2022, 2024 NXP
  *
  ******************************************************************************/
 
@@ -435,6 +435,8 @@ typedef struct {
 #define NFA_P2P_RESUMED_EVT 39
 /* T2T command completed */
 #define NFA_T2T_CMD_CPLT_EVT 40
+/* Core Generic Error */
+#define NFA_CORE_GENERIC_ERROR_EVT 44
 /* NFC deactivation type */
 #define NFA_DEACTIVATE_TYPE_IDLE NFC_DEACTIVATE_TYPE_IDLE
 #define NFA_DEACTIVATE_TYPE_SLEEP NFC_DEACTIVATE_TYPE_SLEEP
