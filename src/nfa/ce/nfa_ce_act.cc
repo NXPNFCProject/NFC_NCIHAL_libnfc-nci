@@ -313,8 +313,14 @@ void nfa_ce_discovery_cback(tNFA_DM_RF_DISC_EVT event, tNFC_DISCOVER* p_data) {
       /* DM broadcasts deactivaiton event in listen sleep state, so check before
        * processing */
       if (nfa_ce_cb.flags & NFA_CE_FLAGS_LISTEN_ACTIVE_SLEEP) {
+#if (NXP_EXTNS != TRUE)
         ce_msg.hdr.event = NFA_CE_DEACTIVATE_NTF_EVT;
         ce_msg.hdr.layer_specific = p_data->deactivate.type;
+#else
+        ce_msg.deactivate_ntf.hdr.event = NFA_CE_DEACTIVATE_NTF_EVT;
+        ce_msg.deactivate_ntf.params.type = p_data->deactivate.type;
+        ce_msg.deactivate_ntf.params.reason = p_data->deactivate.reason;
+#endif
         nfa_ce_hdl_event((NFC_HDR*)&ce_msg);
       }
       break;
@@ -1022,7 +1028,11 @@ bool nfa_ce_activate_ntf(tNFA_CE_MSG* p_ce_msg) {
 **
 *******************************************************************************/
 bool nfa_ce_deactivate_ntf(tNFA_CE_MSG* p_ce_msg) {
+#if (NXP_EXTNS == TRUE)
+  tNFC_DEACT_TYPE deact_type = (tNFC_DEACT_TYPE)p_ce_msg->deactivate_ntf.params.type;
+#else
   tNFC_DEACT_TYPE deact_type = (tNFC_DEACT_TYPE)p_ce_msg->hdr.layer_specific;
+#endif
   tNFA_CE_CB* p_cb = &nfa_ce_cb;
   tNFA_CONN_EVT_DATA conn_evt;
   uint8_t i;
@@ -1031,7 +1041,7 @@ bool nfa_ce_deactivate_ntf(tNFA_CE_MSG* p_ce_msg) {
 
 #if (NXP_EXTNS == TRUE)
   /* We don't really care in CE case, need to check for future use */
-  conn_evt.deactivated.reason = NCI_DEACTIVATE_REASON_ENDPOINT_REQ;
+  conn_evt.deactivated.reason = p_ce_msg->deactivate_ntf.params.reason;
 #endif
   /* Check if deactivating to SLEEP mode */
   if ((deact_type == NFC_DEACTIVATE_TYPE_SLEEP) ||

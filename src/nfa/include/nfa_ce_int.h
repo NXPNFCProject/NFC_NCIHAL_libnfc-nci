@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2020 NXP
+ *  Copyright 2020, 2024 NXP
  *
  ******************************************************************************/
 
@@ -86,7 +86,13 @@ typedef struct {
   NFC_HDR hdr;
   tNFC_ACTIVATE_DEVT* p_activation_params;
 } tNFA_CE_ACTIVATE_NTF;
-
+#if (NXP_EXTNS == TRUE)
+/* data type for NFA_CE_DEACTIVATE_NTF_EVT */
+typedef struct {
+  NFC_HDR hdr;
+  tNFC_DEACTIVATE_DEVT params;
+} tNFA_CE_DEACTIVATE_NTF;
+#endif
 /* data type for NFA_CE_API_REG_LISTEN_EVT */
 typedef struct {
   NFC_HDR hdr;
@@ -123,6 +129,9 @@ typedef union {
   tNFA_CE_API_REG_LISTEN reg_listen;
   tNFA_CE_API_DEREG_LISTEN dereg_listen;
   tNFA_CE_ACTIVATE_NTF activate_ntf;
+#if (NXP_EXTNS == TRUE)
+  tNFA_CE_DEACTIVATE_NTF deactivate_ntf;
+#endif
 } tNFA_CE_MSG;
 
 /****************************************************************************

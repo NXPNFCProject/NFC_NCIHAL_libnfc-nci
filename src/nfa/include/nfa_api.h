@@ -439,7 +439,7 @@ typedef struct {
 #define NFA_CORE_GENERIC_ERROR_EVT 44
 #if (NXP_EXTNS == TRUE)
 /* Removal Detection mode req failed event*/
-#define NFA_RF_REMOVAL_DETECTION_FAIL_EVT 45
+#define NFA_RF_REMOVAL_DETECTION_EVT 45
 #endif
 /* NFC deactivation type */
 #define NFA_DEACTIVATE_TYPE_IDLE NFC_DEACTIVATE_TYPE_IDLE
@@ -1664,8 +1664,8 @@ bool NFA_IsRfRemovalDetectionSupported();
 ** Description      This function is called to start the procedure of Removal
 **                  Deteciton in Poll Mode
 **
-**                  wait_timeout - Time duration for which NFCC shall execute
-**                                Removal Detection Procedure.
+**                  wait_timeout(ms) - Time duration in milliseconds for which
+**                  NFCC shall execute Removal Detection Procedure.
 **
 ** Returns          NFA_STATUS_OK if successfully initiated
 **                  NFA_STATUS_FAILED otherwise

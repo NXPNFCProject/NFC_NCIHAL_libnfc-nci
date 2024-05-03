@@ -659,18 +659,18 @@ uint8_t nci_snd_removal_detection_cmd(uint8_t wait_time) {
 
   nfc_cb.reassembly = true;
 
-  p = NCI_GET_CMD_BUF(NCI_REMOVE_DETECTION_PARAM_SIZE);
+  p = NCI_GET_CMD_BUF(NCI_PARAM_LEN_REMOVE_DETECTION);
   if (p == nullptr) return (NCI_STATUS_FAILED);
 
   p->event = BT_EVT_TO_NFC_NCI;
-  p->len = NCI_MSG_HDR_SIZE + NCI_REMOVE_DETECTION_PARAM_SIZE;
+  p->len = NCI_MSG_HDR_SIZE + NCI_PARAM_LEN_REMOVE_DETECTION;
   p->offset = NCI_MSG_OFFSET_SIZE;
   p->layer_specific = 0;
   pp = (uint8_t*)(p + 1) + p->offset;
 
   NCI_MSG_BLD_HDR0(pp, NCI_MT_CMD, NCI_GID_RF_MANAGE);
   NCI_MSG_BLD_HDR1(pp, NCI_MSG_RF_REMOVAL_DETECTION);
-  UINT8_TO_STREAM(pp, NCI_REMOVE_DETECTION_PARAM_SIZE);
+  UINT8_TO_STREAM(pp, NCI_PARAM_LEN_REMOVE_DETECTION);
   UINT8_TO_STREAM(pp, wait_time);
 
   nfc_ncif_send_cmd(p);

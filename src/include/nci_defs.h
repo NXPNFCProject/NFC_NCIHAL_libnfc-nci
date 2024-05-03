@@ -462,7 +462,6 @@ typedef uint8_t tNCI_INTF_TYPE;
 #define NCI_DISCOVERY_TYPE_POLL_F 0x02
 #define NCI_DISCOVERY_TYPE_POLL_V 0x06
 #if (NXP_EXTNS == TRUE)
-#define NCI_REMOVE_DETECTION_PARAM_SIZE 0x01 /* Wait Time */
 #define NCI_DISCOVERY_TYPE_POLL_WLC 0x73
 #if (NXP_QTAG == TRUE)
 #define NCI_DISCOVERY_TYPE_POLL_Q 0x71
@@ -651,7 +650,9 @@ typedef uint8_t tNCI_DISCOVERY_TYPE;
 #define NCI_PARAM_LEN_LF_T3T_PMM 8
 #define NCI_PARAM_LEN_LF_T3T_ID(X) (((X) >= NCI_VERSION_2_0) ? (0x12) : (0x0A))
 #define NCI_PARAM_LEN_LF_CON_ADV_FEAT 1
-
+#if (NXP_EXTNS == TRUE)
+#define NCI_PARAM_LEN_REMOVE_DETECTION 0x01 /* Param: Wait Time */
+#endif
 #define NCI_PARAM_LEN_LF_T3T_RD_ALLOWED 1  // Listen F NCI2.0 Parameter
 
 #define NCI_PARAM_LEN_FWI 1
@@ -678,7 +679,7 @@ typedef uint8_t tNCI_DISCOVERY_TYPE;
 #define NCI_SCBR_MASK 0x10
 #if (NXP_EXTNS == TRUE)
 /* RF RemovalDetection support check with Core Init resp OCT0 byte */
-#define NCI_REMOVAL_DETECTION_MODE_MASK 0x20
+#define NCI_REMOVAL_DETECTION_ENABLE_MASK 0x20
 #endif
 /* AID matching is allowed when the SELECT AID is longer */
 #define NCI_ROUTE_QUAL_LONG_SELECT 0x10

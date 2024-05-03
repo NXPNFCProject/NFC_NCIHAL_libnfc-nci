@@ -1706,7 +1706,7 @@ static void nfa_dm_disc_notify_deactivation(tNFA_DM_RF_DISC_SM_EVENT sm_event,
         /* notify deactivation to application if there is no activated module */
         evt_data.deactivated.type = NFA_DEACTIVATE_TYPE_IDLE;
 #if (NXP_EXTNS == TRUE)
-        evt_data.deactivated.reason = NCI_DEACTIVATE_REASON_DH_REQ;
+        evt_data.deactivated.reason = p_data->deactivate.reason;
 #endif
         nfa_dm_conn_cback_event_notify(NFA_DEACTIVATED_EVT, &evt_data);
       }
@@ -2584,7 +2584,7 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
              RF_DEACTIVATE_NTF with DH Req failed due to error.
              MW shall send deactivation cmd again for 3 three times. if
              deactivation is not successfull 3 times also,
-             then MW shall send deacivate cmd with deactivate type is
+             then MW shall send deactivate cmd with deactivate type is
              discovery */
           if (nfa_dm_cb.deactivate_cmd_retry_count == 3) {
             if ((!old_sleep_wakeup_flag) ||
@@ -2665,8 +2665,7 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
       } else {
         // Failed, notify upper layer & no change in the RF_STATE
         conn_evt_data.status = p_data->nfc_discover.removal_detection.status;
-        nfa_dm_act_conn_cback_notify(NFA_RF_REMOVAL_DETECTION_FAIL_EVT,
-                                     &conn_evt_data);
+        nfa_dm_act_conn_cback_notify(NFA_RF_REMOVAL_DETECTION_EVT, &conn_evt_data);
       }
       break;
 #endif

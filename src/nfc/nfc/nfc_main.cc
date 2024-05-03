@@ -271,8 +271,8 @@ void nfc_enabled(tNFC_STATUS nfc_status, NFC_HDR* p_init_rsp_msg) {
     evt_data.enable.nci_version = nfc_cb.nci_version;
 #if(NXP_EXTNS == TRUE)
     /* check Removal Detection mode support bit as per NCI 2.3 spec */
-    nfc_cb.isRemovalDetectSupported = p[0] & NCI_REMOVAL_DETECTION_MODE_MASK;
-    LOG(DEBUG) << StringPrintf("Removal Detection in Poll MOde support: 0x%x",
+    nfc_cb.isRemovalDetectSupported = p[0] & NCI_REMOVAL_DETECTION_ENABLE_MASK;
+    LOG(DEBUG) << StringPrintf("Removal Detection in Poll Mode support: 0x%x",
                                nfc_cb.isRemovalDetectSupported);
 #endif
     STREAM_TO_UINT32(evt_data.enable.nci_features, p);

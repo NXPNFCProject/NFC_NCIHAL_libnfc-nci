@@ -1502,8 +1502,8 @@ bool NFA_IsRfRemovalDetectionSupported() {
 ** Description      This function is called to start the procedure of Removal
 **                  Deteciton in Poll Mode
 **
-**                  wait_timeout - Time duration for which NFCC shall execute
-**                                Removal Detection Procedure.
+**                  wait_timeout(ms) - Time duration in milliseconds for which
+**                  NFCC shall execute Removal Detection Procedure.
 **
 ** Returns          NFA_STATUS_OK if successfully initiated
 **                  NFA_STATUS_FAILED otherwise
