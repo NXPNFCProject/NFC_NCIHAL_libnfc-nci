@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2023 NXP
+ *  Copyright 2018-2024 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -3668,6 +3668,36 @@ bool nfa_hci_is_apdu_pipe_required(uint8_t nfcee_id) {
     }
     return false;
 }
+
+/*******************************************************************************
+**
+** Function         nfa_hci_get_apdu_enabled_host
+**
+** Description      Find NFCEE ID for which power link control state to be reset
+**
+** Returns          NFCEE ID for which apdu pipe is created
+**
+*******************************************************************************/
+uint8_t nfa_hci_get_apdu_enabled_host(void) {
+    uint8_t mNumEe = NFA_HCI_MAX_HOST_IN_NETWORK;
+    tNFA_EE_INFO eeInfo[NFA_HCI_MAX_HOST_IN_NETWORK] = {};
+    memset(&eeInfo, 0, mNumEe * sizeof(tNFA_EE_INFO));
+    NFA_EeGetInfo(&mNumEe, eeInfo);
+
+    for (uint8_t xx = 0; xx < mNumEe; xx++) {
+      uint8_t nfceeid = eeInfo[xx].ee_handle & ~NFA_HANDLE_GROUP_EE;
+      if ((is_ese_apdu_pipe_required(nfceeid) ||
+           is_euicc_apdu_pipe_required(nfceeid)) &&
+          eeInfo[xx].ee_status == NFA_EE_STATUS_ACTIVE) {
+        DLOG_IF(INFO, nfc_debug_enabled)
+            << StringPrintf("%s Nfcee %d is active", __func__, nfceeid);
+        return nfceeid;
+      }
+    }
+
+    return NFA_HCI_FIRST_PROP_HOST;
+}
+
 /*******************************************************************************
  **
  ** Function         nfa_hci_is_power_link_required
