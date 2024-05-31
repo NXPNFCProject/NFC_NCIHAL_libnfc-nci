@@ -1240,7 +1240,8 @@ bool nfa_dm_set_transit_config(tNFA_DM_MSG* p_data) {
 ** Function         nfa_dm_act_send_rf_removal_detection_cmd
 **
 ** Description      Sends Removal Detection Command to NFCC. This API shall
-**                  only be invoked after NFA_IsRfRemovalDetectionSupported().
+**                  only be invoked after successful execution of
+**                  NFA_IsRfRemovalDetectionSupported().
 **                  It notifies failure to upper layer if requested in RF state
 **                  other than NFA_DM_RFST_POLL_ACTIVE.
 **
@@ -1249,17 +1250,10 @@ bool nfa_dm_set_transit_config(tNFA_DM_MSG* p_data) {
 *******************************************************************************/
 bool nfa_dm_act_send_rf_removal_detection_cmd(tNFA_DM_MSG* p_data) {
   DLOG_IF(INFO, nfc_debug_enabled) << __func__;
-
-  tNFC_STATUS status;
   tNFA_CONN_EVT_DATA evt_data;
-
-    status = nfa_dm_send_removal_detection_cmd(p_data->removal_detection.wait_time);
-
-  if (status != NFC_STATUS_OK) {
-    evt_data.status = status;
-    nfa_dm_conn_cback_event_notify(NFA_RF_REMOVAL_DETECTION_FAIL_EVT,
-                                   &evt_data);
-  }
+  tNFC_STATUS status = nfa_dm_send_removal_detection_cmd(p_data->removal_detection.wait_time);
+  evt_data.status = status;
+  nfa_dm_conn_cback_event_notify(NFA_RF_REMOVAL_DETECTION_EVT, &evt_data);
   return true;
 }
 #endif
