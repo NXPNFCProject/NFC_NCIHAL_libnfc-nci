@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2021 NXP
+ *  Copyright 2018-2021, 2024 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -82,6 +82,7 @@ enum {
 #if (NXP_EXTNS == TRUE)
   NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT,
   NFA_DM_API_SET_TRANSIT_CONFIG_EVT,
+  NFA_DM_API_ENABLE_RF_REMOVAL_DETECTION_EVT,
 #endif
   NFA_DM_MAX_EVT
 };
@@ -224,7 +225,13 @@ typedef struct {
   NFC_HDR hdr;
   uint8_t screen_state;
 } tNFA_DM_API_SET_POWER_SUB_STATE;
-
+#if (NXP_EXTNS == TRUE)
+/* data type for NFA_DM_API_ENABLE_RF_REMOVAL_DETECTION_EVT */
+typedef struct {
+  NFC_HDR hdr;
+  uint8_t wait_time;
+} tNFA_DM_API_ENABLE_RF_REMOVAL_DETECTION;
+#endif
 /* union of all data types */
 typedef union {
   /* GKI event buffer header */
@@ -257,6 +264,8 @@ typedef union {
 #if (NXP_EXTNS == TRUE)
   tNFA_DM_API_CHANGE_DISCOVERY_TECH       change_discovery_tech;      /* NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT        */
   tNFA_DM_API_SET_TRANSIT_CONFIG transit_config; /* NFA_DM_SET_TRANSIT_CONFIG */
+  /* NFA_DM_API_ENABLE_RF_REMOVAL_DETECTION */
+  tNFA_DM_API_ENABLE_RF_REMOVAL_DETECTION removal_detection;
 #endif
 } tNFA_DM_MSG;
 
@@ -271,6 +280,10 @@ enum {
   NFA_DM_RFST_LISTEN_SLEEP,       /* listen mode sleep state        */
   NFA_DM_RFST_LP_LISTEN,          /* Listening in Low Power mode    */
   NFA_DM_RFST_LP_ACTIVE           /* Activated in Low Power mode    */
+#if (NXP_EXTNS == TRUE)
+  ,
+  NFA_DM_RFST_POLL_REMOVAL_DETECTION /* Activated Removal Detection mode */
+#endif
 };
 typedef uint8_t tNFA_DM_RF_DISC_STATE;
 
@@ -288,6 +301,12 @@ enum {
   NFA_DM_LP_LISTEN_CMD,          /* NFCC is listening in low power mode   */
   NFA_DM_CORE_INTF_ERROR_NTF,    /* RF interface error NTF from NFCC      */
   NFA_DM_DISC_SM_MAX_EVENT
+#if (NXP_EXTNS == TRUE)
+  ,
+  NFA_DM_RF_REMOVAL_DETECTION_CMD,
+  NFA_DM_RF_REMOVAL_DETECTION_RSP,
+  NFA_DM_RF_REMOVAL_DETECTION_NTF
+#endif
 };
 typedef uint8_t tNFA_DM_RF_DISC_SM_EVENT;
 
@@ -302,6 +321,7 @@ typedef union {
   tNFC_DISCOVER nfc_discover;        /* discovery data from NFCC    */
   tNFC_DEACT_TYPE deactivate_type;   /* deactivation type           */
   tNFA_DM_DISC_SELECT_PARAMS select; /* selected target information */
+  uint8_t wait_time;
 } tNFA_DM_RF_DISC_DATA;
 
 /* Callback event from NFA DM RF Discovery to other NFA sub-modules */
@@ -708,6 +728,7 @@ bool nfa_dm_set_power_sub_state(tNFA_DM_MSG* p_data);
 void nfa_dm_proc_nfcc_power_mode(uint8_t nfcc_power_mode);
 #if (NXP_EXTNS == TRUE)
 bool nfa_dm_set_transit_config(tNFA_DM_MSG* p_data);
+bool nfa_dm_act_send_rf_removal_detection_cmd(tNFA_DM_MSG* p_data);
 #endif
 /* Main function prototypes */
 bool nfa_dm_evt_hdlr(NFC_HDR* p_msg);
@@ -751,6 +772,7 @@ std::string nfa_dm_nfc_revt_2_str(tNFC_RESPONSE_EVT event);
 #if (NXP_EXTNS == TRUE)
 tNFC_STATUS nfc_ncif_reset_nfcc();
 bool nfa_dm_is_hci_supported();
+tNFC_STATUS nfa_dm_send_removal_detection_cmd(uint8_t wait_time);
 #endif
 
 #endif /* NFA_DM_INT_H */

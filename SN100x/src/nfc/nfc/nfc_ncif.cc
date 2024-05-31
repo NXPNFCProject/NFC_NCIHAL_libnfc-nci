@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2023 NXP
+ *  Copyright 2018-2024 NXP
  *
  ******************************************************************************/
 
@@ -1684,7 +1684,33 @@ invalid_packet:
     (*nfc_cb.p_discv_cback)(NFC_ACTIVATE_DEVT, &evt_data);
   }
 }
-
+#if (NXP_EXTNS == TRUE)
+/*******************************************************************************
+**
+** Function         nfc_ncif_proc_removal_detection
+**
+** Description      This function is called to process Poll Removal Detection
+**                  response and notification
+**
+** Returns          void
+**
+*******************************************************************************/
+void nfc_ncif_proc_removal_detection(uint8_t status, bool is_ntf) {
+  /*If Hal close is running in nfc HAL, return.
+  Else it will cause abnormal nfc_state update*/
+  if (nfc_cb.nfc_state == NFC_STATE_W4_HAL_CLOSE) return;
+  tNFC_DISCOVER evt_data;
+  evt_data.removal_detection.status = status;
+  evt_data.removal_detection.is_ntf = is_ntf;
+  if (nfc_cb.p_discv_cback) {
+    (*nfc_cb.p_discv_cback)(NFC_REMOVAL_DETECTION_DEVT, &evt_data);
+  } else {
+    LOG(ERROR) << __func__
+               << "nfc_cb.p_discv_cback is null, Unable to handle Removal "
+                  "Detection rsp/ntf";
+  }
+}
+#endif
 /*******************************************************************************
 **
 ** Function         nfc_ncif_proc_deactivate

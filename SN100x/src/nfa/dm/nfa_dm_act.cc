@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2023 NXP
+ *  Copyright 2018-2024 NXP
  *
  ******************************************************************************/
 /******************************************************************************
@@ -1234,6 +1234,34 @@ bool nfa_dm_set_transit_config(tNFA_DM_MSG* p_data) {
 
   return true;
 }
+
+/*******************************************************************************
+**
+** Function         nfa_dm_act_send_rf_removal_detection_cmd
+**
+** Description      Sends Removal Detection Command to NFCC. This API shall
+**                  only be invoked after NFA_IsRfRemovalDetectionSupported().
+**                  It notifies failure to upper layer if requested in RF state
+**                  other than NFA_DM_RFST_POLL_ACTIVE.
+**
+** Returns          true (message buffer to be freed by caller)
+**
+*******************************************************************************/
+bool nfa_dm_act_send_rf_removal_detection_cmd(tNFA_DM_MSG* p_data) {
+  DLOG_IF(INFO, nfc_debug_enabled) << __func__;
+
+  tNFC_STATUS status;
+  tNFA_CONN_EVT_DATA evt_data;
+
+    status = nfa_dm_send_removal_detection_cmd(p_data->removal_detection.wait_time);
+
+  if (status != NFC_STATUS_OK) {
+    evt_data.status = status;
+    nfa_dm_conn_cback_event_notify(NFA_RF_REMOVAL_DETECTION_FAIL_EVT,
+                                   &evt_data);
+  }
+  return true;
+}
 #endif
 
 /*******************************************************************************
@@ -1630,7 +1658,9 @@ static void nfa_dm_excl_disc_cback(tNFA_DM_RF_DISC_EVT event,
       } else {
         evt_data.deactivated.type = NFA_DEACTIVATE_TYPE_IDLE;
       }
-
+#if (NXP_EXTNS == TRUE)
+      evt_data.deactivated.reason = p_data->deactivate.reason;
+#endif
       /* notify deactivation to upper layer */
       nfa_dm_conn_cback_event_notify(NFA_DEACTIVATED_EVT, &evt_data);
 
@@ -1732,6 +1762,7 @@ static void nfa_dm_poll_disc_cback(tNFA_DM_RF_DISC_EVT event,
         } else {
 #if (NXP_EXTNS == TRUE)
           evt_data.deactivated.type = p_data->deactivate.type;
+          evt_data.deactivated.reason = p_data->deactivate.reason;
 #else
           evt_data.deactivated.type = NFA_DEACTIVATE_TYPE_IDLE;
 #endif
