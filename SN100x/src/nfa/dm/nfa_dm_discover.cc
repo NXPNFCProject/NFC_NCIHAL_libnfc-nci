@@ -846,7 +846,7 @@ static void nfa_dm_disc_discovery_cback(tNFC_DISCOVER_EVT event,
       } else
         dm_disc_event = NFA_DM_RF_DEACTIVATE_RSP;
       break;
-      #if (NXP_EXTNS == TRUE)
+#if (NXP_EXTNS == TRUE)
     case NFC_REMOVAL_DETECTION_DEVT:
       if (p_data->removal_detection.is_ntf) {
         dm_disc_event = NFA_DM_RF_REMOVAL_DETECTION_NTF;
@@ -1326,6 +1326,7 @@ static tNFA_DM_DISC_TECH_PROTO_MASK nfa_dm_config_ee_discover_tech_mask(uint8_t
 *******************************************************************************/
 tNFC_STATUS nfa_dm_send_removal_detection_cmd(uint8_t wait_time) {
       tNFC_STATUS status = NFC_STATUS_OK;
+
       if (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_POLL_ACTIVE) {
         tNFA_DM_RF_DISC_DATA rf_disc_data;
         rf_disc_data.wait_time = wait_time;
@@ -1334,6 +1335,7 @@ tNFC_STATUS nfa_dm_send_removal_detection_cmd(uint8_t wait_time) {
         LOG(ERROR) << StringPrintf("%s: Operation not allowed", __func__);
         status = NFC_STATUS_REJECTED;
       }
+
       return (status);
 }
 #endif
@@ -1696,10 +1698,10 @@ static void nfa_dm_disc_notify_deactivation(tNFA_DM_RF_DISC_SM_EVENT sm_event,
       } else {
         /* notify deactivation to application if there is no activated module */
         evt_data.deactivated.type = NFA_DEACTIVATE_TYPE_IDLE;
-    #if (NXP_EXTNS == TRUE)
-   	evt_data.deactivated.reason = p_data->deactivate.reason; 
-    #endif
-    	nfa_dm_conn_cback_event_notify(NFA_DEACTIVATED_EVT, &evt_data);
+#if (NXP_EXTNS == TRUE)
+        evt_data.deactivated.reason = p_data->deactivate.reason;
+#endif
+        nfa_dm_conn_cback_event_notify(NFA_DEACTIVATED_EVT, &evt_data);
       }
     }
   } else {
@@ -1986,10 +1988,10 @@ void nfa_dm_disc_new_state(tNFA_DM_RF_DISC_STATE new_state) {
         if (old_state > NFA_DM_RFST_DISCOVERY) {
           /* notify deactivation to application */
           evt_data.deactivated.type = NFA_DEACTIVATE_TYPE_IDLE;
-	  #if (NXP_EXTNS == TRUE)
+#if (NXP_EXTNS == TRUE)
           evt_data.deactivated.reason = NCI_DEACTIVATE_REASON_DH_REQ;
-	  #endif
-	  nfa_dm_conn_cback_event_notify(NFA_DEACTIVATED_EVT, &evt_data);
+#endif
+          nfa_dm_conn_cback_event_notify(NFA_DEACTIVATED_EVT, &evt_data);
         }
 
         nfa_dm_rel_excl_rf_control_and_notify();
@@ -2635,7 +2637,7 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
       nfa_dm_act_conn_cback_notify(NFA_RW_INTF_ERROR_EVT, &conn_evt_data);
 #endif
       break;
-    #if (NXP_EXTNS == TRUE)
+#if (NXP_EXTNS == TRUE)
     case NFA_DM_RF_REMOVAL_DETECTION_CMD:
       nci_snd_removal_detection_cmd(p_data->wait_time);
       break;
@@ -2659,7 +2661,7 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
         nfa_dm_act_conn_cback_notify(NFA_RF_REMOVAL_DETECTION_EVT, &conn_evt_data);
       }
       break;
-   #endif
+#endif
     default:
       LOG(ERROR) << StringPrintf("Unexpected discovery event");
       break;
@@ -2927,7 +2929,6 @@ static void nfa_dm_disc_sm_poll_removal_detection(
   }
 }
 #endif
-
 /*******************************************************************************
 **
 ** Function         nfa_dm_disc_sm_execute
@@ -2991,12 +2992,12 @@ void nfa_dm_disc_sm_execute(tNFA_DM_RF_DISC_SM_EVENT event,
     case NFA_DM_RFST_LP_ACTIVE:
       nfa_dm_disc_sm_lp_active(event, p_data);
       break;
-   #if (NXP_EXTNS == TRUE)
+#if (NXP_EXTNS == TRUE)
     /* Activated Removal Detection mode */
     case NFA_DM_RFST_POLL_REMOVAL_DETECTION:
       nfa_dm_disc_sm_poll_removal_detection(event, p_data);
       break;
-   #endif
+#endif
   }
   DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf(
       "new state: %s (%d), disc_flags: 0x%x",

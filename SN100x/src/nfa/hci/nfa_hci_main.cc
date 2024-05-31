@@ -902,11 +902,11 @@ void nfa_hci_startup_complete(tNFA_STATUS status) {
   if (nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD) {
         if (nfa_hci_cb.next_nfcee_idx == nfa_hci_cb.num_nfcee) {
             DLOG_IF(INFO, nfc_debug_enabled) << StringPrintf("All NFCEEs OK update power link status");
-	     uint8_t active_nfcee_id = nfa_hci_get_apdu_enabled_host();
+            uint8_t active_nfcee_id = nfa_hci_get_apdu_enabled_host();
             switch (nfa_ee_cb.ese_prv_pwr_cfg) {
             case 0xFF:
-                 NFC_NfceePLConfig(active_nfcee_id, 0x01);
-		break;
+                NFC_NfceePLConfig(active_nfcee_id, 0x01);
+                break;
             case 0x03:
                 /*Already sent as part of recovery*/
                 break;
@@ -914,7 +914,7 @@ void nfa_hci_startup_complete(tNFA_STATUS status) {
             case 0x01:
             case 0x00:
                 NFC_NfceePLConfig(active_nfcee_id, nfa_ee_cb.ese_prv_pwr_cfg);
-		break;
+                break;
             default:
                 /*Should never be here*/
                 LOG(ERROR) << StringPrintf("%s: Invalid Value received!!",__func__);
