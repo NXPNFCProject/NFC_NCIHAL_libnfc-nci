@@ -62,6 +62,7 @@ extern tNFC_STATUS rw_i93_get_next_blocks(uint32_t);
 extern tNFC_STATUS rw_i93_send_cmd_read_single_block(uint32_t, bool);
 extern tNFC_STATUS rw_i93_send_cmd_write_single_block(uint32_t, uint8_t*);
 extern tNFC_STATUS rw_i93_send_cmd_lock_block(uint32_t);
+extern bool rw_i93_process_sys_info(uint8_t* p_data, uint16_t length);
 
 /*******************************************************************************
 **
@@ -159,6 +160,30 @@ void rw_t5t_sm_detect_ndef(NFC_HDR* p_resp) {
         p_i93->tlv_detect_state = RW_I93_TLV_DETECT_STATE_TYPE;
       } else {
         rw_i93_handle_error(NFC_STATUS_FAILED);
+      }
+      break;
+
+    case RW_I93_SUBSTATE_WAIT_SYS_INFO:
+
+      p_i93->block_size = 0;
+      p_i93->num_block = 0;
+
+      if (!rw_i93_process_sys_info(p, length)) {
+        /* retrying with protocol extension flag */
+        break;
+      }
+
+      if ((p_i93->block_size == 0) || (p_i93->num_block == 0)) {
+        LOG(DEBUG) << StringPrintf("%s; Unable to get tag memory size",
+                                   __func__);
+        rw_i93_handle_error(status);
+      } else {
+        /* read CC in the first block */
+        if (rw_i93_send_cmd_read_single_block(0x0000, false) == NFC_STATUS_OK) {
+          p_i93->sub_state = RW_I93_SUBSTATE_WAIT_CC;
+        } else {
+          rw_i93_handle_error(NFC_STATUS_FAILED);
+        }
       }
       break;
 
