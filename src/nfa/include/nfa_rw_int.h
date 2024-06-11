@@ -314,11 +314,6 @@ typedef struct {
   tNFC_INTF_TYPE intf_type;
   uint8_t pa_sel_res;
   tNFC_RF_TECH_N_MODE activated_tech_mode; /* activated technology and mode */
-  int pres_check_iso_dep_nak_count;
-  bool pres_check_iso_dep_nak;
-  int pres_check_iso_dep_nak_err_cnt;
-  int pres_check_tag_err_count;
-  bool pres_check_tag;
 
   bool b_hard_lock;
 
