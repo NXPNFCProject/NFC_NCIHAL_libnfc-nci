@@ -991,6 +991,37 @@ Available after Technology Detection
     STREAM_TO_ARRAY(p_pb->sensb_res, p, p_pb->sensb_res_len);
     memcpy(p_pb->nfcid0, p_pb->sensb_res, NFC_NFCID0_MAX_LEN);
     p_pb->fwi = p_pb->sensb_res[10] >> 4;
+  } else if (NCI_DISCOVERY_TYPE_POLL_F == p_param->mode) {
+    /*
+Bit Rate    1 byte  1   212 kbps/2   424 kbps/0 and 3 to 255  RFU
+SENSF_RES Response length.(n) 1 byte  Length of SENSF_RES (Byte 2 - Byte 17 or
+19).Available after Technology Detection
+SENSF_RES Response Byte 2 - Byte 17 or 19  n bytes Defined in [DIGPROT]
+Available after Technology Detection
+    */
+    p_pf = &p_param->param.pf;
+
+    if (plen < 2) {
+      goto invalid_packet;
+    }
+    plen -= 2;
+    p_pf->bit_rate = *p++;
+    p_pf->sensf_res_len = *p++;
+    if (p_pf->sensf_res_len > NCI_MAX_SENSF_RES_LEN)
+      p_pf->sensf_res_len = NCI_MAX_SENSF_RES_LEN;
+
+    if (plen < p_pf->sensf_res_len) {
+      goto invalid_packet;
+    }
+    plen -= p_pf->sensf_res_len;
+    STREAM_TO_ARRAY(p_pf->sensf_res, p, p_pf->sensf_res_len);
+
+    if (p_pf->sensf_res_len < NCI_MRTI_UPDATE_INDEX + 1) {
+      goto invalid_packet;
+    }
+    memcpy(p_pf->nfcid2, p_pf->sensf_res, NCI_NFCID2_LEN);
+    p_pf->mrti_check = p_pf->sensf_res[NCI_MRTI_CHECK_INDEX];
+    p_pf->mrti_update = p_pf->sensf_res[NCI_MRTI_UPDATE_INDEX];
   } else if (NCI_DISCOVERY_TYPE_LISTEN_F == p_param->mode) {
     p_lf = &p_param->param.lf;
 
