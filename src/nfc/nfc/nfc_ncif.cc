@@ -990,6 +990,7 @@ Available after Technology Detection
     plen -= p_pb->sensb_res_len;
     STREAM_TO_ARRAY(p_pb->sensb_res, p, p_pb->sensb_res_len);
     memcpy(p_pb->nfcid0, p_pb->sensb_res, NFC_NFCID0_MAX_LEN);
+    p_pb->fwi = p_pb->sensb_res[10] >> 4;
   } else if (NCI_DISCOVERY_TYPE_LISTEN_F == p_param->mode) {
     p_lf = &p_param->param.lf;
 

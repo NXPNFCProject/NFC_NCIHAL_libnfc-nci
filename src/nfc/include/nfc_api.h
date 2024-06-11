@@ -761,6 +761,7 @@ typedef struct {
                             13) Available after Technology Detection */
   uint8_t sensb_res[NFC_MAX_SENSB_RES_LEN]; /* SENSB_RES Response (ATQ) */
   uint8_t nfcid0[NFC_NFCID0_MAX_LEN];
+  uint8_t fwi;
 #if (NXP_EXTNS == TRUE)
   uint8_t pupiid_len;
   uint8_t pupiid[NFC_PUPIID_MAX_LEN];
