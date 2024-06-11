@@ -483,10 +483,6 @@ bool NFA_IsRssiEnabled() {
 **                  send commands to the tag. Incoming NDEF messages are sent to
 **                  the NDEF callback.
 **
-**                  Once exclusive RF control has started, NFA will not activate
-**                  LLCP internally. The application has exclusive control of
-**                  the link.
-**
 ** Note:            If RF discovery is started,
 **                  NFA_StopRfDiscovery()/NFA_RF_DISCOVERY_STOPPED_EVT should
 **                  happen before calling this function
@@ -584,8 +580,6 @@ tNFA_STATUS NFA_ReleaseExclusiveRfControl(void) {
 **                  - NFA_ACTIVATED_EVT is generated when an NFC link is
 **                    activated.
 **                  - NFA_NDEF_DETECT_EVT is generated if tag is activated
-**                  - NFA_LLCP_ACTIVATED_EVT/NFA_LLCP_DEACTIVATED_EVT is
-**                    generated if NFC-DEP is activated
 **                  - NFA_DEACTIVATED_EVT will be returned after deactivating
 **                    NFC link.
 **

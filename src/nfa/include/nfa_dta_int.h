@@ -198,41 +198,6 @@ typedef struct {
       t4t_prop_aid_hdl; /* T4T registration handle for proprietary aid */
   uint8_t nfc_dep_wt;
 
-  bool llcp_cl_more_to_read; /* TRUE if there is more to read in llcp cl link*/
-  bool llcp_co_more_to_read; /* TRUE if there is more to read in llcp recieve
-                                window*/
-  bool llcp_is_initiator;    /* TURE if IUT is LLCP initiator */
-  uint16_t llcp_local_link_miu;  /* link MIU of IUT               */
-  uint16_t llcp_remote_link_miu; /* link MIU of LT                */
-
-  uint8_t llcp_pattern_num_sap; /* SAP of pattern number exchange */
-
-  uint8_t llcp_cl_in_local_sap;   /* SAP of IUT-CL-IN-DEST */
-  uint8_t llcp_cl_out_local_sap;  /* SAP of IUT-CL-OUT-SRC */
-  uint8_t llcp_cl_out_remote_sap; /* SAP of LT-CL-OUT-DEST */
-
-  uint8_t llcp_co_in_local_sap;   /* SAP of IUT-CO-IN-DEST */
-  uint8_t llcp_co_in_remote_sap;  /* SAP of LT-CO-IN-SRC   */
-  uint8_t llcp_co_out_local_sap;  /* SAP of IUT-CO-OUT-SRC */
-  uint8_t llcp_co_out_remote_sap; /* SAP of LT-CO-OUT-DEST */
-
-  uint16_t llcp_co_out_remote_miu; /* MIU of LT-CO-OUT-DEST */
-  uint8_t llcp_co_out_remote_rw;   /* RW of LT-CO-OUT-DEST  */
-
-  uint8_t llcp_flags;      /* internal flags for LLCP echo test */
-  uint8_t llcp_sdp_tid_cl; /* SDP transaction ID for outbound connectionless */
-  uint8_t
-      llcp_sdp_tid_co; /* SDP transaction ID for outbound connection-oriented */
-
-  TIMER_LIST_ENT llcp_cl_echo_timer; /* timer for the connectionless echo test
-                                        application      */
-  TIMER_LIST_ENT llcp_co_echo_timer; /* timer for the connection-oriented echo
-                                        test application */
-  BUFFER_Q
-  llcp_cl_buffer; /* buffer for the connectionless echo test application */
-  BUFFER_Q llcp_co_buffer; /* buffer for the connection-oriented echo test
-                              application*/
-
   tNFA_HANDLE snep_server_handle;
   tNFA_HANDLE snep_server_conn_handle;
   tNFA_HANDLE snep_client_handle;
