@@ -130,12 +130,6 @@ typedef struct {
   tNFA_TECHNOLOGY_MASK poll_mask;
 } tNFA_DM_API_ENABLE_POLL;
 
-/* data type for NFA_DM_API_SET_P2P_LISTEN_TECH_EVT */
-typedef struct {
-  NFC_HDR hdr;
-  tNFA_TECHNOLOGY_MASK tech_mask;
-} tNFA_DM_API_SET_P2P_LISTEN_TECH;
-
 /* data type for NFA_DM_API_CHANGE_DISCOVERY_TECH_EVT*/
 typedef struct {
   NFC_HDR hdr;

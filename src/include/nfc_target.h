@@ -387,10 +387,6 @@
 #endif
 #endif
 
-#ifndef NFA_P2P_INCLUDED
-#define NFA_P2P_INCLUDED TRUE
-#endif
-
 /* Maximum Idle time (no hcp) to wait for EE DISC REQ Ntf(s) */
 #ifndef NFA_HCI_NETWK_INIT_IDLE_TIMEOUT
 #define NFA_HCI_NETWK_INIT_IDLE_TIMEOUT 1000

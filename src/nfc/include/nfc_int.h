@@ -94,12 +94,6 @@ enum {
 };
 typedef uint8_t tNFC_STATE;
 
-/* DM P2P Priority event type */
-enum {
-  NFA_DM_P2P_PRIO_RSP = 0x01, /* P2P priority event from RSP   */
-  NFA_DM_P2P_PRIO_NTF         /* P2P priority event from NTF   */
-};
-
 /* NFC control block flags */
 /* NFC_Deactivate () is called and the NCI cmd is not sent   */
 #define NFC_FL_DEACTIVATING 0x0001
