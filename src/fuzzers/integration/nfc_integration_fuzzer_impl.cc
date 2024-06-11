@@ -106,12 +106,6 @@ static tNFC_DISCOVERY_TYPE GetDiscovery(const DiscoveryType& type) {
     case DiscoveryType::FUZZER_DISCOVERY_TYPE_POLL_V: {
       return NFC_DISCOVERY_TYPE_POLL_V;
     }
-    case DiscoveryType::FUZZER_DISCOVERY_TYPE_POLL_A_ACTIVE: {
-      return NFC_DISCOVERY_TYPE_POLL_A_ACTIVE;
-    }
-    case DiscoveryType::FUZZER_DISCOVERY_TYPE_POLL_F_ACTIVE: {
-      return NFC_DISCOVERY_TYPE_POLL_F_ACTIVE;
-    }
     case DiscoveryType::FUZZER_DISCOVERY_TYPE_LISTEN_A: {
       return NFC_DISCOVERY_TYPE_LISTEN_A;
     }
@@ -120,12 +114,6 @@ static tNFC_DISCOVERY_TYPE GetDiscovery(const DiscoveryType& type) {
     }
     case DiscoveryType::FUZZER_DISCOVERY_TYPE_LISTEN_F: {
       return NFC_DISCOVERY_TYPE_LISTEN_F;
-    }
-    case DiscoveryType::FUZZER_DISCOVERY_TYPE_LISTEN_A_ACTIVE: {
-      return NFC_DISCOVERY_TYPE_LISTEN_A_ACTIVE;
-    }
-    case DiscoveryType::FUZZER_DISCOVERY_TYPE_LISTEN_F_ACTIVE: {
-      return NFC_DISCOVERY_TYPE_LISTEN_F_ACTIVE;
     }
     case DiscoveryType::FUZZER_DISCOVERY_TYPE_LISTEN_ISO15693: {
       return NFC_DISCOVERY_TYPE_LISTEN_ISO15693;

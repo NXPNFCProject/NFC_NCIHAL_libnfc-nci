@@ -240,34 +240,7 @@ static uint8_t nfa_dm_get_rf_discover_config(
 
     if (num_params >= max_params) return num_params;
   }
-  if (NFC_GetNCIVersion() >= NCI_VERSION_2_0) {
-    /* Check polling Active mode  */
-    if (dm_disc_mask & NFA_DM_DISC_MASK_PACM_NFC_DEP) {
-      disc_params[num_params].type = NFC_DISCOVERY_TYPE_POLL_ACTIVE;
-      disc_params[num_params].frequency = p_nfa_dm_rf_disc_freq_cfg->pacm;
-      num_params++;
 
-      if (num_params >= max_params) return num_params;
-    }
-  } else {
-    /* Check polling A Active mode  */
-    if (dm_disc_mask & NFA_DM_DISC_MASK_PAA_NFC_DEP) {
-      disc_params[num_params].type = NFC_DISCOVERY_TYPE_POLL_A_ACTIVE;
-      disc_params[num_params].frequency = p_nfa_dm_rf_disc_freq_cfg->paa;
-      num_params++;
-
-      if (num_params >= max_params) return num_params;
-    }
-
-    /* Check polling F Active mode  */
-    if (dm_disc_mask & NFA_DM_DISC_MASK_PFA_NFC_DEP) {
-      disc_params[num_params].type = NFC_DISCOVERY_TYPE_POLL_F_ACTIVE;
-      disc_params[num_params].frequency = p_nfa_dm_rf_disc_freq_cfg->pfa;
-      num_params++;
-
-      if (num_params >= max_params) return num_params;
-    }
-  }
 #if (NXP_EXTNS == TRUE)
   if (nfc_cb.isWlcPollEnabled) {
     LOG(DEBUG) << StringPrintf("Adding WLC in discovery loop");
@@ -316,33 +289,6 @@ static uint8_t nfa_dm_get_rf_discover_config(
 #if (NXP_EXTNS == TRUE)
   }
 #endif
-  if (NFC_GetNCIVersion() >= NCI_VERSION_2_0) {
-    /* Check polling Active mode  */
-    if (dm_disc_mask & NFA_DM_DISC_MASK_LACM_NFC_DEP) {
-      disc_params[num_params].type = NFC_DISCOVERY_TYPE_LISTEN_ACTIVE;
-      disc_params[num_params].frequency = p_nfa_dm_rf_disc_freq_cfg->pacm;
-      num_params++;
-      if (num_params >= max_params) return num_params;
-    }
-  } else {
-    /* Check listening A Active mode */
-    if (dm_disc_mask & NFA_DM_DISC_MASK_LAA_NFC_DEP) {
-      disc_params[num_params].type = NFC_DISCOVERY_TYPE_LISTEN_A_ACTIVE;
-      disc_params[num_params].frequency = 1;
-      num_params++;
-
-      if (num_params >= max_params) return num_params;
-    }
-
-    /* Check listening F Active mode */
-    if (dm_disc_mask & NFA_DM_DISC_MASK_LFA_NFC_DEP) {
-      disc_params[num_params].type = NFC_DISCOVERY_TYPE_LISTEN_F_ACTIVE;
-      disc_params[num_params].frequency = 1;
-      num_params++;
-
-      if (num_params >= max_params) return num_params;
-    }
-  }
 
   /* Check polling ISO 15693 */
   if (dm_disc_mask & NFA_DM_DISC_MASK_P_T5T) {
@@ -792,23 +738,6 @@ static tNFA_DM_DISC_TECH_PROTO_MASK nfa_dm_disc_get_disc_mask(
     disc_mask = NFA_DM_DISC_MASK_L_ISO15693;
   } else if (NFC_DISCOVERY_TYPE_LISTEN_B_PRIME == tech_n_mode) {
     disc_mask = NFA_DM_DISC_MASK_L_B_PRIME;
-  }
-  if (NFC_GetNCIVersion() >= NCI_VERSION_2_0) {
-    if (NFC_DISCOVERY_TYPE_POLL_ACTIVE == tech_n_mode) {
-      disc_mask = NFA_DM_DISC_MASK_PACM_NFC_DEP;
-    } else if (NFC_DISCOVERY_TYPE_LISTEN_ACTIVE == tech_n_mode) {
-      disc_mask = NFA_DM_DISC_MASK_LACM_NFC_DEP;
-    }
-  } else {
-    if (NFC_DISCOVERY_TYPE_POLL_A_ACTIVE == tech_n_mode) {
-      disc_mask = NFA_DM_DISC_MASK_PAA_NFC_DEP;
-    } else if (NFC_DISCOVERY_TYPE_POLL_F_ACTIVE == tech_n_mode) {
-      disc_mask = NFA_DM_DISC_MASK_PFA_NFC_DEP;
-    } else if (NFC_DISCOVERY_TYPE_LISTEN_A_ACTIVE == tech_n_mode) {
-      disc_mask = NFA_DM_DISC_MASK_LAA_NFC_DEP;
-    } else if (NFC_DISCOVERY_TYPE_LISTEN_F_ACTIVE == tech_n_mode) {
-      disc_mask = NFA_DM_DISC_MASK_LFA_NFC_DEP;
-    }
   }
 
   LOG(DEBUG) << StringPrintf(
@@ -1593,9 +1522,7 @@ static tNFA_STATUS nfa_dm_disc_notify_activation(tNFC_DISCOVER* p_data) {
     xx = iso_dep_t3t__listen;
   }
   if (protocol == NFC_PROTOCOL_NFC_DEP &&
-      (tech_n_mode == NFC_DISCOVERY_TYPE_LISTEN_F_ACTIVE ||
-       tech_n_mode == NFC_DISCOVERY_TYPE_LISTEN_A_ACTIVE ||
-       tech_n_mode == NFC_DISCOVERY_TYPE_LISTEN_A)) {
+      (tech_n_mode == NFC_DISCOVERY_TYPE_LISTEN_A)) {
     if (appl_dta_mode_flag == 1 && tech_n_mode == NFC_DISCOVERY_TYPE_LISTEN_A) {
       LOG(DEBUG) << StringPrintf(
           "DTA Mode Enabled : NFC-A Passive Listen Mode");
