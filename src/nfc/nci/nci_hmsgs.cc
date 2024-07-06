@@ -679,6 +679,38 @@ uint8_t nci_snd_removal_detection_cmd(uint8_t wait_time) {
 #endif
 /*******************************************************************************
 **
+** Function         nci_snd_android_get_caps_cmd
+**
+** Description      compose and send android GET_CAPS_COMMAND
+**                  command to command queue
+**
+** Returns          status
+**
+*******************************************************************************/
+uint8_t nci_snd_android_get_caps_cmd(void) {
+  NFC_HDR* p;
+  uint8_t* pp;
+  uint8_t param_size = 1;
+
+  p = NCI_GET_CMD_BUF(param_size);
+  if (p == nullptr) return (NCI_STATUS_FAILED);
+
+  p->event = BT_EVT_TO_NFC_NCI;
+  p->len = NCI_MSG_HDR_SIZE + param_size;
+  p->offset = NCI_MSG_OFFSET_SIZE;
+  p->layer_specific = 0;
+  pp = (uint8_t*)(p + 1) + p->offset;
+
+  NCI_MSG_BLD_HDR0(pp, NCI_MT_CMD, NCI_GID_PROP);
+  NCI_MSG_BLD_HDR1(pp, NCI_MSG_PROP_ANDROID);
+  UINT8_TO_STREAM(pp, param_size);
+  UINT8_TO_STREAM(pp, NCI_ANDROID_GET_CAPS);
+
+  nfc_ncif_send_cmd(p);
+  return (NCI_STATUS_OK);
+}
+/*******************************************************************************
+**
 ** Function         nci_snd_parameter_update_cmd
 **
 ** Description      compose and send RF Management RF Communication Parameter

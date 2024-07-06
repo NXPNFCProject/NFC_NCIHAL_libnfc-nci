@@ -92,8 +92,6 @@ using ::aidl::android::hardware::nfc::NfcCloseType;
 using Status = ::ndk::ScopedAStatus;
 
 #define VERBOSE_VENDOR_LOG_PROPERTY "persist.nfc.vendor_debug_enabled"
-#define VERBOSE_VENDOR_LOG_ENABLED "true"
-#define VERBOSE_VENDOR_LOG_DISABLED "false"
 
 std::string NFC_AIDL_HAL_SERVICE_NAME = "android.hardware.nfc.INfc/default";
 #if (NXP_EXTNS == TRUE)
@@ -924,10 +922,7 @@ void NfcAdaptation::HalOpen(tHAL_NFC_CBACK* p_hal_cback,
                             status.getServiceSpecificError()));
     } else {
       bool verbose_vendor_log =
-          android::base::GetProperty(VERBOSE_VENDOR_LOG_PROPERTY, "")
-                  .compare(VERBOSE_VENDOR_LOG_ENABLED)
-              ? false
-              : true;
+          android::base::GetBoolProperty(VERBOSE_VENDOR_LOG_PROPERTY, false);
       mAidlHal->setEnableVerboseLogging(verbose_vendor_log);
       LOG(DEBUG) << StringPrintf("%s: verbose_vendor_log=%u", __func__,
                                  verbose_vendor_log);
