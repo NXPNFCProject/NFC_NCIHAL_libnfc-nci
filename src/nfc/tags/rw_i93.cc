@@ -4361,6 +4361,15 @@ bool RW_I93CheckLegacyProduct(uint8_t ic_manuf, uint8_t pdt_code) {
     return false;
   }
   if (ic_manuf == I93_UID_IC_MFG_CODE_STM) {
+
+    switch (pdt_code) {
+      case I93_IC_REF_STM_ST25TV16K_64K:
+      case I93_IC_REF_STM_ST25TV04K_E:
+        LOG(DEBUG) << StringPrintf("%s - ISO 15693 legacy product detected",
+                                   __func__);
+        return true;
+    }
+
     pdt_code_family = pdt_code & I93_IC_REF_STM_MASK;
     switch (pdt_code_family) {
       case I93_IC_REF_STM_LRI1K:
@@ -4371,6 +4380,7 @@ bool RW_I93CheckLegacyProduct(uint8_t ic_manuf, uint8_t pdt_code) {
       case I93_PROD_CODE_STM_M24LR16E_R_MASK:
       case I93_PROD_CODE_STM_M24LR64_R_MASK:
       case I93_PROD_CODE_STM_M24LR64E_R_MASK:
+      case I93_PROD_CODE_STM_ST25DV_K_MASK:
         LOG(DEBUG) << StringPrintf("%s - ISO 15693 legacy product detected",
                                    __func__);
         return true;
