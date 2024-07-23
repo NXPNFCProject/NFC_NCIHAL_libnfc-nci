@@ -62,7 +62,7 @@
 #define NXP_EN_SN330U    1
 #define NXP_ANDROID_VER (15U)        /* NXP android version */
 #define NFC_NXP_MW_VERSION_MAJ (0x09) /* MW Major Version */
-#define NFC_NXP_MW_VERSION_MIN (0x00) /* MW Minor Version */
+#define NFC_NXP_MW_VERSION_MIN (0x01) /* MW Minor Version */
 #define NFC_NXP_MW_CUSTOMER_ID (0x00) /* MW Customer Id */
 #define NFC_NXP_MW_RC_VERSION  (0x00) /* MW RC Version */
 #define NFC_EE_DISC_OP_REMOVE 1
