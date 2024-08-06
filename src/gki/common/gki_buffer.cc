@@ -321,7 +321,7 @@ void* GKI_getbuf(uint16_t size) {
   if (++Q->cur_cnt > Q->max_cnt) Q->max_cnt = Q->cur_cnt;
   GKI_enable();
 
-  LOG(DEBUG) << StringPrintf("%s %p %d:%d", __func__,
+  LOG(VERBOSE) << StringPrintf("%s %p %d:%d", __func__,
                              ((uint8_t*)p_hdr + BUFFER_HDR_SIZE), Q->cur_cnt,
                              Q->max_cnt);
   UNUSED(gki_alloc_free_queue);

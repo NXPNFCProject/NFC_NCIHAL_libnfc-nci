@@ -49,7 +49,7 @@ void nfa_srd_discovermap_cb(tNFC_DISCOVER_EVT event, tNFC_DISCOVER* p_data);
 **
 *******************************************************************************/
 void nfa_srd_snd_discover_map(tNFA_SRD_EVT event) {
-  LOG(DEBUG) << StringPrintf(" %s: Enter : %d", __func__, event);
+  LOG(VERBOSE) << StringPrintf(" %s: Enter : %d", __func__, event);
   tNCI_DISCOVER_MAPS* p_intf_mapping = nullptr;
   uint8_t p_params;
 
@@ -88,7 +88,7 @@ void nfa_srd_snd_discover_map(tNFA_SRD_EVT event) {
       (void)NFC_DiscoveryMap(p_params, p_intf_mapping,
                              nfa_srd_discovermap_cb);
   }
-  LOG(DEBUG) << StringPrintf(" %s: Exit", __func__);
+  LOG(VERBOSE) << StringPrintf(" %s: Exit", __func__);
 }
 
 /*******************************************************************************
@@ -101,7 +101,7 @@ void nfa_srd_snd_discover_map(tNFA_SRD_EVT event) {
  **
  *******************************************************************************/
 void nfa_srd_discovermap_cb(tNFC_DISCOVER_EVT event, tNFC_DISCOVER* p_data) {
-  LOG(DEBUG) << StringPrintf(" %s: Exit status 0x%2x", __func__,
+  LOG(VERBOSE) << StringPrintf(" %s: Exit status 0x%2x", __func__,
                              p_data->status);
 
   switch (event) {
@@ -132,7 +132,7 @@ void nfa_srd_discovermap_cb(tNFC_DISCOVER_EVT event, tNFC_DISCOVER* p_data) {
 **
 *******************************************************************************/
 void nfa_srd_process_evt(tNFA_SRD_EVT event, tNFA_HCI_EVT_DATA* evt_data) {
-  LOG(DEBUG) << StringPrintf("%s Enter: event:%d", __func__, event);
+  LOG(VERBOSE) << StringPrintf("%s Enter: event:%d", __func__, event);
 
   if (evt_data) {
     if (p_evtdata.rcvd_evt.p_evt_buf != nullptr) {
@@ -146,7 +146,7 @@ void nfa_srd_process_evt(tNFA_SRD_EVT event, tNFA_HCI_EVT_DATA* evt_data) {
       memcpy(p_evtdata.rcvd_evt.p_evt_buf, evt_data->rcvd_evt.p_evt_buf,
              p_evtdata.rcvd_evt.evt_len);
     } else {
-      LOG(DEBUG) << StringPrintf(
+      LOG(VERBOSE) << StringPrintf(
           "%s Error allocating memory (p_evtdata.rcvd_evt.p_evt_buf)",
           __func__);
     }
@@ -174,7 +174,7 @@ void nfa_srd_process_evt(tNFA_SRD_EVT event, tNFA_HCI_EVT_DATA* evt_data) {
     case NFA_SRD_STOP_EVT:
       if (!(nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_IDLE)) {
         if (NFA_STATUS_OK != NFA_StopRfDiscovery()) {
-          LOG(DEBUG) << StringPrintf("%s Failed Stop Rf!!", __func__);
+          LOG(VERBOSE) << StringPrintf("%s Failed Stop Rf!!", __func__);
         } else {
           srd_t.isStopping = true;
         }
@@ -191,7 +191,7 @@ void nfa_srd_process_evt(tNFA_SRD_EVT event, tNFA_HCI_EVT_DATA* evt_data) {
           NFA_SRD_FEATURE_NOT_SUPPORT_EVT, &p_evtdata);
       break;
     default:
-      LOG(DEBUG) << StringPrintf("%s Unknown Event!!", __func__);
+      LOG(VERBOSE) << StringPrintf("%s Unknown Event!!", __func__);
       break;
   }
 }
@@ -206,7 +206,7 @@ void nfa_srd_process_evt(tNFA_SRD_EVT event, tNFA_HCI_EVT_DATA* evt_data) {
 *******************************************************************************/
 void nfa_srd_dm_process_evt(tNFC_DISCOVER_EVT event,
         tNFC_DISCOVER* disc_evtdata) {
-  LOG(DEBUG) << StringPrintf("%s Enter: event:%d", __func__, event);
+  LOG(VERBOSE) << StringPrintf("%s Enter: event:%d", __func__, event);
 
   switch (event) {
       case NFA_DM_RF_DEACTIVATE_RSP:
@@ -228,7 +228,7 @@ void nfa_srd_dm_process_evt(tNFC_DISCOVER_EVT event,
         }
         break;
       default:
-        LOG(DEBUG) << StringPrintf("%s Unknown Event!!", __func__);
+        LOG(VERBOSE) << StringPrintf("%s Unknown Event!!", __func__);
         break;
   }
 }
@@ -255,7 +255,7 @@ bool nfa_srd_check_hci_evt(tNFA_HCI_EVT_DATA* evt_data) {
                                   0x80, 0x00, 0x00, 0x01};
   uint8_t len_aid = 0;
 
-  LOG(DEBUG) << StringPrintf("%s :Enter ", __func__);
+  LOG(VERBOSE) << StringPrintf("%s :Enter ", __func__);
   if (inst == NFA_HCI_EVT_TRANSACTION && *p_data++ == TAG_SRD_AID) {
     len_aid = *p_data++;
     if (memcmp(p_data, aid, len_aid) == 0) {
@@ -268,14 +268,14 @@ bool nfa_srd_check_hci_evt(tNFA_HCI_EVT_DATA* evt_data) {
             is_require = true;
           } else if (*(p_data + 6) == 0x01) {
             if (srd_t.srd_state == ENABLE) {
-              LOG(DEBUG) << StringPrintf("%s :SRD Enabled ", __func__);
+              LOG(VERBOSE) << StringPrintf("%s :SRD Enabled ", __func__);
             } else {
               nfa_srd_process_evt(NFA_SRD_START_EVT, evt_data);
               is_require = true;
             }
           } else if (*(p_data + 6) == 0x00) {
             if (srd_t.srd_state == DISABLE) {
-              LOG(DEBUG) << StringPrintf("%s :SRD Disabled ", __func__);
+              LOG(VERBOSE) << StringPrintf("%s :SRD Disabled ", __func__);
             } else {
               is_require = true;
               nfa_srd_process_evt(NFA_SRD_STOP_EVT, evt_data);
@@ -285,7 +285,7 @@ bool nfa_srd_check_hci_evt(tNFA_HCI_EVT_DATA* evt_data) {
       }
     }
   }
-  LOG(DEBUG) << StringPrintf("%s :Exit %d", __func__, is_require);
+  LOG(VERBOSE) << StringPrintf("%s :Exit %d", __func__, is_require);
   return is_require;
 }
 
@@ -308,7 +308,7 @@ void nfa_srd_init() {
   uint16_t SRD_DISABLE_MASK = 0xFFFF;
   uint16_t isFeatureDisable = 0x0000;
   std::vector<uint8_t> srd_config;
-  LOG(DEBUG) << StringPrintf(" %s Enter : srd_state 0x%2x", __func__,
+  LOG(VERBOSE) << StringPrintf(" %s Enter : srd_state 0x%2x", __func__,
                              srd_t.srd_state);
 
   if ((NfcConfig::hasKey(NAME_NXP_SRD_TIMEOUT))) {
@@ -322,7 +322,7 @@ void nfa_srd_init() {
     /* NXP_SRD_TIMEOUT value not found in config file. */
     srd_t.srd_state = FEATURE_NOT_SUPPORTED;
   }
-  LOG(DEBUG) << StringPrintf(" %s Exit : srd_state 0x%2x", __func__,
+  LOG(VERBOSE) << StringPrintf(" %s Exit : srd_state 0x%2x", __func__,
                              srd_t.srd_state);
 }
 

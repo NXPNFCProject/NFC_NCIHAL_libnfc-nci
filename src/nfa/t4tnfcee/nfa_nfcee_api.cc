@@ -36,7 +36,7 @@ using android::base::StringPrintf;
 tNFA_STATUS NFA_T4tNfcEeOpenConnection() {
   tNFA_T4TNFCEE_OPERATION* p_msg;
 
-  LOG(DEBUG) << StringPrintf("%s : Enter", __func__);
+  LOG(VERBOSE) << StringPrintf("%s : Enter", __func__);
 
   if ((p_msg = (tNFA_T4TNFCEE_OPERATION*)GKI_getbuf(
            (uint16_t)(sizeof(tNFA_T4TNFCEE_OPERATION)))) != NULL) {
@@ -63,7 +63,7 @@ tNFA_STATUS NFA_T4tNfcEeOpenConnection() {
 *******************************************************************************/
 tNFA_STATUS NFA_T4tNfcEeClear(uint8_t* p_fileId) {
   tNFA_T4TNFCEE_OPERATION* p_msg;
-  LOG(DEBUG) << StringPrintf("%s : Enter ", __func__);
+  LOG(VERBOSE) << StringPrintf("%s : Enter ", __func__);
 
   if ((p_msg = (tNFA_T4TNFCEE_OPERATION*)GKI_getbuf(
            (uint16_t)(sizeof(tNFA_T4TNFCEE_OPERATION)))) != NULL) {
@@ -94,7 +94,7 @@ tNFA_STATUS NFA_T4tNfcEeWrite(uint8_t* p_fileId, uint8_t* p_data,
                               uint32_t len) {
   tNFA_T4TNFCEE_OPERATION* p_msg;
 
-  LOG(DEBUG) << StringPrintf("%s : Enter p_data=%s, len: %i", __func__, p_data,
+  LOG(VERBOSE) << StringPrintf("%s : Enter p_data=%s, len: %i", __func__, p_data,
                              len);
 
   if ((p_msg = (tNFA_T4TNFCEE_OPERATION*)GKI_getbuf(
@@ -130,7 +130,7 @@ tNFA_STATUS NFA_T4tNfcEeWrite(uint8_t* p_fileId, uint8_t* p_data,
 tNFA_STATUS NFA_T4tNfcEeRead(uint8_t* p_fileId) {
   tNFA_T4TNFCEE_OPERATION* p_msg;
 
-  LOG(DEBUG) << StringPrintf("%s : Enter ", __func__);
+  LOG(VERBOSE) << StringPrintf("%s : Enter ", __func__);
 
   if ((p_msg = (tNFA_T4TNFCEE_OPERATION*)GKI_getbuf(
            (uint16_t)(sizeof(tNFA_T4TNFCEE_OPERATION)))) != NULL) {
@@ -159,7 +159,7 @@ tNFA_STATUS NFA_T4tNfcEeRead(uint8_t* p_fileId) {
 tNFA_STATUS NFA_T4tNfcEeCloseConnection() {
   tNFA_T4TNFCEE_OPERATION* p_msg;
 
-  LOG(DEBUG) << StringPrintf("%s : Enter", __func__);
+  LOG(VERBOSE) << StringPrintf("%s : Enter", __func__);
 
   if ((p_msg = (tNFA_T4TNFCEE_OPERATION*)GKI_getbuf(
            (uint16_t)(sizeof(tNFA_T4TNFCEE_OPERATION)))) != NULL) {

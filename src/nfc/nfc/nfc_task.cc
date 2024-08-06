@@ -158,10 +158,10 @@ void nfc_process_timer_evt(void) {
 #endif
 
       default:
-        LOG(DEBUG) << StringPrintf(
+        LOG(VERBOSE) << StringPrintf(
             "nfc_process_timer_evt: timer:0x%p event (0x%04x)", p_tle,
             p_tle->event);
-        LOG(DEBUG) << StringPrintf(
+        LOG(VERBOSE) << StringPrintf(
             "nfc_process_timer_evt: unhandled timer event (0x%04x)",
             p_tle->event);
     }
@@ -298,7 +298,7 @@ void nfc_process_quick_timer_evt(void) {
         break;
 #endif
       default:
-        LOG(DEBUG) << StringPrintf(
+        LOG(VERBOSE) << StringPrintf(
             "nfc_process_quick_timer_evt: unhandled timer event (0x%04x)",
             p_tle->event);
         break;
@@ -366,7 +366,7 @@ uint32_t nfc_task(__attribute__((unused)) uint32_t arg) {
   /* Initialize the nfc control block */
   memset(&nfc_cb, 0, sizeof(tNFC_CB));
 
-  LOG(DEBUG) << StringPrintf("NFC_TASK started.");
+  LOG(VERBOSE) << StringPrintf("NFC_TASK started.");
 
   /* main loop */
   while (true) {
@@ -376,7 +376,7 @@ uint32_t nfc_task(__attribute__((unused)) uint32_t arg) {
     }
     /* Handle NFC_TASK_EVT_TRANSPORT_READY from NFC HAL */
     if (event & NFC_TASK_EVT_TRANSPORT_READY) {
-      LOG(DEBUG) << StringPrintf("NFC_TASK got NFC_TASK_EVT_TRANSPORT_READY.");
+      LOG(VERBOSE) << StringPrintf("NFC_TASK got NFC_TASK_EVT_TRANSPORT_READY.");
 
       /* Reset the NFC controller. */
       nfc_set_state(NFC_STATE_CORE_INIT);
@@ -428,7 +428,7 @@ uint32_t nfc_task(__attribute__((unused)) uint32_t arg) {
             break;
 
           default:
-            LOG(DEBUG) << StringPrintf(
+            LOG(VERBOSE) << StringPrintf(
                 "nfc_task: unhandle mbox message, event=%04x", p_msg->event);
             break;
         }
@@ -460,7 +460,7 @@ uint32_t nfc_task(__attribute__((unused)) uint32_t arg) {
     }
   }
 
-  LOG(DEBUG) << StringPrintf("nfc_task terminated");
+  LOG(VERBOSE) << StringPrintf("nfc_task terminated");
   GKI_exit_task(GKI_get_taskid());
   return 0;
 }

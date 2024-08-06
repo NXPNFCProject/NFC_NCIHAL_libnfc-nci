@@ -295,7 +295,7 @@ tNFA_HCI_DYN_GATE* nfa_hciu_alloc_gate(uint8_t gate_id,
       pg->gate_owner = app_handle;
       pg->pipe_inx_mask = 0;
 
-      LOG(DEBUG) << StringPrintf(
+      LOG(VERBOSE) << StringPrintf(
           "nfa_hciu_alloc_gate id:%d  app_handle: 0x%04x", gate_id, app_handle);
 
       nfa_hci_cb.nv_write_needed = true;
@@ -342,7 +342,7 @@ tNFA_STATUS nfa_hciu_send_msg(uint8_t pipe_id, uint8_t type,
   const uint8_t MAX_BUFF_SIZE = 100;
   char buff[MAX_BUFF_SIZE];
 
-  LOG(DEBUG) << StringPrintf(
+  LOG(VERBOSE) << StringPrintf(
       "nfa_hciu_send_msg pipe_id:%d   %s  len:%d", pipe_id,
       nfa_hciu_get_type_inst_names(pipe_id, type, instruction, buff,
                                    MAX_BUFF_SIZE),
@@ -472,7 +472,7 @@ uint8_t nfa_hciu_get_allocated_gate_list(uint8_t* p_gate_list) {
     }
   }
 
-  LOG(DEBUG) << StringPrintf("returns: %u", count);
+  LOG(VERBOSE) << StringPrintf("returns: %u", count);
 
   return (count);
 }
@@ -502,7 +502,7 @@ tNFA_HCI_DYN_PIPE* nfa_hciu_alloc_pipe(uint8_t pipe_id) {
   for (xx = 0, pp = nfa_hci_cb.cfg.dyn_pipes; xx < NFA_HCI_MAX_PIPE_CB;
        xx++, pp++) {
     if (pp->pipe_id == 0) {
-      LOG(DEBUG) << StringPrintf("nfa_hciu_alloc_pipe:%d, index:%d", pipe_id,
+      LOG(VERBOSE) << StringPrintf("nfa_hciu_alloc_pipe:%d, index:%d", pipe_id,
                                  xx);
       pp->pipe_id = pipe_id;
 
@@ -511,7 +511,7 @@ tNFA_HCI_DYN_PIPE* nfa_hciu_alloc_pipe(uint8_t pipe_id) {
     }
   }
 
-  LOG(DEBUG) << StringPrintf("nfa_hciu_alloc_pipe:%d, NO free entries !!",
+  LOG(VERBOSE) << StringPrintf("nfa_hciu_alloc_pipe:%d, NO free entries !!",
                              pipe_id);
   return (nullptr);
 }
@@ -529,7 +529,7 @@ void nfa_hciu_release_gate(uint8_t gate_id) {
   tNFA_HCI_DYN_GATE* p_gate = nfa_hciu_find_gate_by_gid(gate_id);
 
   if (p_gate != nullptr) {
-    LOG(DEBUG) << StringPrintf("ID: %d  owner: 0x%04x  pipe_inx_mask: 0x%04x",
+    LOG(VERBOSE) << StringPrintf("ID: %d  owner: 0x%04x  pipe_inx_mask: 0x%04x",
                                gate_id, p_gate->gate_owner,
                                p_gate->pipe_inx_mask);
 
@@ -576,7 +576,7 @@ tNFA_HCI_RESPONSE nfa_hciu_add_pipe_to_gate(uint8_t pipe_id, uint8_t local_gate,
       pipe_index = (uint8_t)(p_pipe - nfa_hci_cb.cfg.dyn_pipes);
       p_gate->pipe_inx_mask |= (uint32_t)(1 << pipe_index);
 
-      LOG(DEBUG) << StringPrintf(
+      LOG(VERBOSE) << StringPrintf(
           "nfa_hciu_add_pipe_to_gate  Gate ID: 0x%02x  Pipe ID: 0x%02x  "
           "pipe_index: %u  App Handle: 0x%08x",
           local_gate, pipe_id, pipe_index, p_gate->gate_owner);
@@ -584,7 +584,7 @@ tNFA_HCI_RESPONSE nfa_hciu_add_pipe_to_gate(uint8_t pipe_id, uint8_t local_gate,
     }
   }
 
-  LOG(DEBUG) << StringPrintf("nfa_hciu_add_pipe_to_gate: 0x%02x  NOT FOUND",
+  LOG(VERBOSE) << StringPrintf("nfa_hciu_add_pipe_to_gate: 0x%02x  NOT FOUND",
                              local_gate);
 
   return (NFA_HCI_ADM_E_NO_PIPES_AVAILABLE);
@@ -607,7 +607,7 @@ tNFA_HCI_RESPONSE nfa_hciu_add_pipe_to_static_gate(uint8_t local_gate,
   tNFA_HCI_DYN_PIPE* p_pipe;
   uint8_t pipe_index;
 
-  LOG(DEBUG) << StringPrintf(
+  LOG(VERBOSE) << StringPrintf(
       "nfa_hciu_add_pipe_to_static_gate (%u)  Pipe: 0x%02x  Dest Host: 0x%02x  "
       "Dest Gate: 0x%02x)",
       local_gate, pipe_id, dest_host, dest_gate);
@@ -647,7 +647,7 @@ tNFA_HCI_DYN_PIPE* nfa_hciu_find_active_pipe_by_owner(tNFA_HANDLE app_handle) {
   tNFA_HCI_DYN_PIPE* pp;
   int xx;
 
-  LOG(DEBUG) << StringPrintf("app_handle:0x%x", app_handle);
+  LOG(VERBOSE) << StringPrintf("app_handle:0x%x", app_handle);
 
   /* Loop through all pipes looking for the owner */
   for (xx = 0, pp = nfa_hci_cb.cfg.dyn_pipes; xx < NFA_HCI_MAX_PIPE_CB;
@@ -681,7 +681,7 @@ bool nfa_hciu_check_pipe_between_gates(uint8_t local_gate, uint8_t dest_host,
   tNFA_HCI_DYN_PIPE* pp;
   int xx;
 
-  LOG(DEBUG) << StringPrintf(
+  LOG(VERBOSE) << StringPrintf(
       "Local gate: 0x%02X, Host[0x%02X] "
       "gate: 0x%02X",
       local_gate, dest_host, dest_gate);
@@ -715,7 +715,7 @@ tNFA_HCI_DYN_PIPE* nfa_hciu_find_pipe_by_owner(tNFA_HANDLE app_handle) {
   tNFA_HCI_DYN_PIPE* pp;
   int xx;
 
-  LOG(DEBUG) << StringPrintf("app_handle:0x%x", app_handle);
+  LOG(VERBOSE) << StringPrintf("app_handle:0x%x", app_handle);
 
   /* Loop through all pipes looking for the owner */
   for (xx = 0, pp = nfa_hci_cb.cfg.dyn_pipes; xx < NFA_HCI_MAX_PIPE_CB;
@@ -745,7 +745,7 @@ tNFA_HCI_DYN_PIPE* nfa_hciu_find_pipe_on_gate(uint8_t gate_id) {
   tNFA_HCI_DYN_PIPE* pp;
   int xx;
 
-  LOG(DEBUG) << StringPrintf("Gate:0x%x", gate_id);
+  LOG(VERBOSE) << StringPrintf("Gate:0x%x", gate_id);
 
   /* Loop through all pipes looking for the owner */
   for (xx = 0, pp = nfa_hci_cb.cfg.dyn_pipes; xx < NFA_HCI_MAX_PIPE_CB;
@@ -849,7 +849,7 @@ tNFA_HCI_DYN_PIPE* nfa_hciu_find_active_pipe_on_gate(uint8_t gate_id) {
   tNFA_HCI_DYN_PIPE* pp;
   int xx;
 
-  LOG(DEBUG) << StringPrintf("Gate:0x%x", gate_id);
+  LOG(VERBOSE) << StringPrintf("Gate:0x%x", gate_id);
 
   /* Loop through all pipes looking for the owner */
   for (xx = 0, pp = nfa_hci_cb.cfg.dyn_pipes; xx < NFA_HCI_MAX_PIPE_CB;
@@ -882,13 +882,13 @@ tNFA_HCI_RESPONSE nfa_hciu_release_pipe(uint8_t pipe_id) {
   tNFA_HCI_DYN_PIPE* p_pipe;
   uint8_t pipe_index;
 
-  LOG(DEBUG) << StringPrintf("nfa_hciu_release_pipe: %u", pipe_id);
+  LOG(VERBOSE) << StringPrintf("nfa_hciu_release_pipe: %u", pipe_id);
 
   p_pipe = nfa_hciu_find_pipe_by_pid(pipe_id);
   if (p_pipe == nullptr) return (NFA_HCI_ANY_E_NOK);
 
   if (pipe_id > NFA_HCI_LAST_DYNAMIC_PIPE) {
-    LOG(DEBUG) << StringPrintf("ignore pipe: %d", pipe_id);
+    LOG(VERBOSE) << StringPrintf("ignore pipe: %d", pipe_id);
     return (NFA_HCI_ANY_E_NOK);
   }
 
@@ -930,7 +930,7 @@ void nfa_hciu_remove_all_pipes_from_host(uint8_t host) {
   int xx;
   tNFA_HCI_EVT_DATA evt_data;
 
-  LOG(DEBUG) << StringPrintf("nfa_hciu_remove_all_pipes_from_host (0x%02x)",
+  LOG(VERBOSE) << StringPrintf("nfa_hciu_remove_all_pipes_from_host (0x%02x)",
                              host);
 
   /* Remove all pipes from the specified host connected to all generic gates */
@@ -971,7 +971,7 @@ tNFA_STATUS nfa_hciu_send_create_pipe_cmd(uint8_t source_gate,
   data[1] = dest_host;
   data[2] = dest_gate;
 
-  LOG(DEBUG) << StringPrintf(
+  LOG(VERBOSE) << StringPrintf(
       "nfa_hciu_send_create_pipe_cmd source_gate:%d, dest_host:%d, "
       "dest_gate:%d",
       source_gate, dest_host, dest_gate);
@@ -1001,10 +1001,10 @@ tNFA_STATUS nfa_hciu_send_create_pipe_cmd(uint8_t source_gate,
 tNFA_STATUS nfa_hciu_send_delete_pipe_cmd(uint8_t pipe) {
   tNFA_STATUS status;
 
-  LOG(DEBUG) << StringPrintf("nfa_hciu_send_delete_pipe_cmd: %d", pipe);
+  LOG(VERBOSE) << StringPrintf("nfa_hciu_send_delete_pipe_cmd: %d", pipe);
 
   if (pipe > NFA_HCI_LAST_DYNAMIC_PIPE) {
-      LOG(DEBUG) << StringPrintf("ignore pipe: %d", pipe);
+      LOG(VERBOSE) << StringPrintf("ignore pipe: %d", pipe);
       return (NFA_HCI_ANY_E_NOK);
   }
   nfa_hci_cb.pipe_in_use = pipe;
@@ -1036,7 +1036,7 @@ tNFA_STATUS nfa_hciu_send_clear_all_pipe_cmd(void) {
   tNFA_STATUS status;
   uint16_t id_ref_data = 0x0102;
 
-  LOG(DEBUG) << StringPrintf("nfa_hciu_send_clear_all_pipe_cmd");
+  LOG(VERBOSE) << StringPrintf("nfa_hciu_send_clear_all_pipe_cmd");
 
   status =
       nfa_hciu_send_msg(NFA_HCI_ADMIN_PIPE, NFA_HCI_COMMAND_TYPE,
@@ -1637,7 +1637,7 @@ tNFA_STATUS nfa_hciu_reset_session_id(tNFA_VSC_CBACK* p_cback) {
   tNFA_DM_API_SEND_VSC* p_data;
   NFC_HDR* p_cmd;
   uint8_t id_buf[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-  LOG(DEBUG) << StringPrintf("%s: enter", __func__);
+  LOG(VERBOSE) << StringPrintf("%s: enter", __func__);
 
   p_data = (tNFA_DM_API_SEND_VSC*)GKI_getbuf(sizeof(tNFA_DM_API_SEND_VSC) +
                                              NXP_NFC_PROP_MAX_CMD_BUF_SIZE);
@@ -1679,12 +1679,12 @@ void nfa_hciu_set_server_apdu_host_not_ready (tNFA_HCI_DYN_GATE *p_gate)
     uint8_t             xx    = 0;
     uint32_t            mask  = 1;
     tNFA_HCI_DYN_PIPE *pp   = nfa_hci_cb.cfg.dyn_pipes;
-    LOG(DEBUG) << StringPrintf("nfa_hciu_set_server_apdu_host_not_ready enter");
+    LOG(VERBOSE) << StringPrintf("nfa_hciu_set_server_apdu_host_not_ready enter");
 
     if(p_gate != nullptr) {
         for ( ; xx < NFA_HCI_MAX_PIPE_CB; xx++, pp++)
         {
-      LOG(DEBUG) << StringPrintf("nfa_hciu_reset_gate_list_of_host  xx:0x%x",
+      LOG(VERBOSE) << StringPrintf("nfa_hciu_reset_gate_list_of_host  xx:0x%x",
                                  xx);
       /* For each pipe on this gate, check if it is open */
       if ((p_gate->pipe_inx_mask & mask) &&
@@ -1710,7 +1710,7 @@ void nfa_hciu_reset_gate_list_of_host (uint8_t host_id)
     uint8_t xx;
     tNFA_HCI_HOST_INFO *p_host;
 
-    LOG(DEBUG) << StringPrintf("nfa_hciu_reset_gate_list_of_host () Host:0x%x",
+    LOG(VERBOSE) << StringPrintf("nfa_hciu_reset_gate_list_of_host () Host:0x%x",
                                host_id);
     for(xx = 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++) {
         p_host = &nfa_hci_cb.cfg.host[xx];
@@ -1736,7 +1736,7 @@ void nfa_hciu_update_gate_list_of_host (uint8_t host_id, uint8_t num_gates, uint
     uint8_t xx;
     tNFA_HCI_HOST_INFO *p_host;
 
-    LOG(DEBUG) << StringPrintf(
+    LOG(VERBOSE) << StringPrintf(
         "nfa_hciu_update_gate_list_of_host () Host:0x%x Num Gates:0x%x",
         host_id, num_gates);
     for(xx = 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++) {
@@ -1770,7 +1770,7 @@ void nfa_hciu_reset_apdu_pipe_registry_info_of_host (uint8_t host_id)
     tNFA_HCI_HOST_INFO *p_host;
     for(xx = 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++) {
         p_host = &nfa_hci_cb.cfg.host[xx];
-        LOG(DEBUG) << StringPrintf(
+        LOG(VERBOSE) << StringPrintf(
             "nfa_hciu_reset_apdu_pipe_registry_info_of_host () Host:0x%x",
             host_id);
         if(host_id == p_host->host_id) {
@@ -1819,7 +1819,7 @@ tNFA_HCI_DYN_PIPE  *nfa_hciu_find_id_pipe_for_host (uint8_t host_id)
     tNFA_HCI_DYN_GATE   *pg;
     tNFA_HCI_DYN_PIPE   *pp;
 
-    LOG(DEBUG) << StringPrintf("nfa_hciu_find_id_pipe_for_host () Host:0x%x",
+    LOG(VERBOSE) << StringPrintf("nfa_hciu_find_id_pipe_for_host () Host:0x%x",
                                host_id);
 
     /* Loop through all pipes looking for the owner */
@@ -1857,7 +1857,7 @@ tNFA_HCI_APDU_PIPE_REG_INFO *nfa_hciu_find_apdu_pipe_registry_info_for_host (uin
     tNFA_HCI_APDU_PIPE_REG_INFO *p_apdu_pipe_reg_info = nullptr;
     for(xx = 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++) {
         p_host = &nfa_hci_cb.cfg.host[xx];
-        LOG(DEBUG) << StringPrintf(
+        LOG(VERBOSE) << StringPrintf(
             "nfa_hciu_find_apdu_pipe_registry_info_for_host () Host:0x%x",
             host_id);
 
@@ -1888,7 +1888,7 @@ uint8_t  nfa_hciu_find_server_apdu_gate_for_host (uint8_t host_id)
     uint8_t             gate_id = 0;
     bool                gen_purp_apdu_gate_found = false;
 
-    LOG(DEBUG) << StringPrintf(
+    LOG(VERBOSE) << StringPrintf(
         "nfa_hciu_find_server_apdu_gate_for_host () Host:0x%x", host_id);
     for(xx = 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++) {
         p_host = &nfa_hci_cb.cfg.host[xx];
@@ -1933,7 +1933,7 @@ void nfa_hciu_update_host_list (uint8_t data_len, uint8_t *p_host_list)
 {
     uint8_t   host_id       = 0;
     uint8_t   host_count = 0, xx;
-    LOG(DEBUG) << StringPrintf(
+    LOG(VERBOSE) << StringPrintf(
         "nfa_hciu_update_host_list () reistry entry Host");
     /* Reset the array with default value*/
     while (host_count < NFA_HCI_MAX_HOST_IN_NETWORK) {
@@ -1947,13 +1947,13 @@ void nfa_hciu_update_host_list (uint8_t data_len, uint8_t *p_host_list)
     /* Collect active host in the Host Network */
     while (host_count < data_len) {
         host_id = (uint8_t)*p_host_list++;
-        LOG(DEBUG) << StringPrintf(
+        LOG(VERBOSE) << StringPrintf(
             "nfa_hciu_update_host_list ()  checking :0x%x ", host_id);
         nfa_hci_cb.active_host[host_count] = host_id;
         for(xx= 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++)
         {
             if(nfa_hci_cb.cfg.host[xx].host_id == host_id) {
-                LOG(DEBUG) << StringPrintf(
+                LOG(VERBOSE) << StringPrintf(
                     "nfa_hciu_update_host_list () already exist in reistry "
                     "entry "
                     "Host:0x%x ",
@@ -1969,7 +1969,7 @@ void nfa_hciu_update_host_list (uint8_t data_len, uint8_t *p_host_list)
                     xx++;
                 else  {
                     nfa_hci_cb.cfg.host[xx].host_id = host_id;
-                    LOG(DEBUG) << StringPrintf(
+                    LOG(VERBOSE) << StringPrintf(
                         "nfa_hciu_update_host_list () found free reistry entry "
                         " adding Host:0x%x ",
                         host_id);
@@ -1979,7 +1979,7 @@ void nfa_hciu_update_host_list (uint8_t data_len, uint8_t *p_host_list)
         }
         host_count++;
     }
-    LOG(DEBUG) << StringPrintf("nfa_hciu_update_host_list () exit entry Host");
+    LOG(VERBOSE) << StringPrintf("nfa_hciu_update_host_list () exit entry Host");
 }
 /*******************************************************************************
 **
@@ -2044,7 +2044,7 @@ tNFA_HCI_DYN_PIPE  *nfa_hciu_find_dyn_apdu_pipe_for_host (uint8_t host_id)
     int                 xx;
     uint8_t             gate_id;
 
-    LOG(DEBUG) << StringPrintf(
+    LOG(VERBOSE) << StringPrintf(
         "nfa_hciu_find_dyn_apdu_pipe_for_host () Host:0x%x", host_id);
 
     /* Loop through all pipes looking for the destination host */
@@ -2081,7 +2081,7 @@ tNFA_HCI_DYN_PIPE  *nfa_hciu_find_dyn_conn_pipe_for_host (uint8_t host_id)
     int                 xx;
     uint8_t             gate_id;
 
-    LOG(DEBUG) << StringPrintf(
+    LOG(VERBOSE) << StringPrintf(
         "nfa_hciu_find_dyn_conn_pipe_for_host () Host:0x%x", host_id);
 
     /* Loop through all pipes looking for the destination host */
@@ -2117,7 +2117,7 @@ void nfa_hciu_clear_host_resetting(uint8_t host_id, uint8_t reset_type) {
     for (xx = 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++) {
       if (nfa_hci_cb.reset_host[xx].host_id == host_id) {
           nfa_hci_cb.reset_host[xx].reset_cfg &= ~reset_type;
-          LOG(DEBUG) << StringPrintf(
+          LOG(VERBOSE) << StringPrintf(
               "nfa_hciu_clear_host_resetting () adding host %d %d ", host_id,
               reset_type);
           if(!nfa_hci_cb.reset_host[xx].reset_cfg)
@@ -2143,7 +2143,7 @@ void nfa_hciu_add_host_resetting(uint8_t host_id, uint8_t reset_type) {
     if (host_id == (nfa_hci_cb.ee_info[xx].ee_handle & ~NFA_HANDLE_GROUP_EE) &&
         NFA_HCI_FL_EE_ENABLED != nfa_hci_cb.ee_info[xx].hci_enable_state &&
         reset_type == NFCEE_UNRECOVERABLE_ERRROR) {
-          LOG(DEBUG) << StringPrintf("%s: %d host is disabled", __func__,
+          LOG(VERBOSE) << StringPrintf("%s: %d host is disabled", __func__,
                                      host_id);
           return;
     }
@@ -2152,7 +2152,7 @@ void nfa_hciu_add_host_resetting(uint8_t host_id, uint8_t reset_type) {
   for (xx = 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++) {
     if (nfa_hci_cb.reset_host[xx].host_id == host_id) {
         nfa_hci_cb.reset_host[xx].reset_cfg |= reset_type;
-        LOG(DEBUG) << StringPrintf(
+        LOG(VERBOSE) << StringPrintf(
             "nfa_hciu_add_host_resetting () adding host %d %d ", host_id,
             reset_type);
         break;
@@ -2161,7 +2161,7 @@ void nfa_hciu_add_host_resetting(uint8_t host_id, uint8_t reset_type) {
   if(xx == NFA_HCI_MAX_HOST_IN_NETWORK) {
       for (xx = 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++) {
           if (nfa_hci_cb.reset_host[xx].host_id == 0x00) {
-              LOG(DEBUG) << StringPrintf(
+              LOG(VERBOSE) << StringPrintf(
                   "nfa_hciu_add_host_resetting () adding host %d %d ", host_id,
                   reset_type);
               nfa_hci_cb.reset_host[xx].host_id = host_id;
@@ -2189,7 +2189,7 @@ bool nfa_hciu_check_host_resetting(uint8_t host_id, uint8_t reset_type) {
     if (nfa_hci_cb.reset_host[xx].host_id == host_id &&
         (nfa_hci_cb.reset_host[xx].reset_cfg & reset_type) == reset_type) {
       isResetting = true;
-      LOG(DEBUG) << StringPrintf("nfa_hciu_check_host_resetting () host %d %d ",
+      LOG(VERBOSE) << StringPrintf("nfa_hciu_check_host_resetting () host %d %d ",
                                  host_id, reset_type);
       break;
     }

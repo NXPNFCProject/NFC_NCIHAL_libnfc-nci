@@ -119,7 +119,7 @@ static std::string nfa_dm_evt_2_str(uint16_t event);
 **
 *******************************************************************************/
 void nfa_dm_init(void) {
-  LOG(DEBUG) << __func__;
+  LOG(VERBOSE) << __func__;
   memset(&nfa_dm_cb, 0, sizeof(tNFA_DM_CB));
   nfa_dm_cb.poll_disc_handle = NFA_HANDLE_INVALID;
   nfa_dm_cb.disc_cb.disc_duration = NFA_DM_DISC_DURATION_POLL;
@@ -147,7 +147,7 @@ bool nfa_dm_evt_hdlr(NFC_HDR* p_msg) {
   bool freebuf = true;
   uint16_t event = p_msg->event & 0x00ff;
 
-  LOG(DEBUG) << StringPrintf("event: %s (0x%02x)",
+  LOG(VERBOSE) << StringPrintf("event: %s (0x%02x)",
                              nfa_dm_evt_2_str(event).c_str(), event);
 
   /* execute action functions */
@@ -223,7 +223,7 @@ bool nfa_dm_is_protocol_supported(tNFC_PROTOCOL protocol, uint8_t sel_res) {
 **
 *******************************************************************************/
 bool nfa_dm_is_active(void) {
-  LOG(DEBUG) << StringPrintf("flags:0x%x", nfa_dm_cb.flags);
+  LOG(VERBOSE) << StringPrintf("flags:0x%x", nfa_dm_cb.flags);
   if ((nfa_dm_cb.flags & NFA_DM_FLAGS_DM_IS_ACTIVE) &&
       ((nfa_dm_cb.flags &
         (NFA_DM_FLAGS_ENABLE_EVT_PEND | NFA_DM_FLAGS_NFCC_IS_RESTORING |
@@ -250,7 +250,7 @@ tNFA_STATUS nfa_dm_check_set_config(uint8_t tlv_list_len, uint8_t* p_tlv_list,
   tNFC_STATUS nfc_status;
   uint32_t cur_bit;
 
-  LOG(DEBUG) << __func__;
+  LOG(VERBOSE) << __func__;
 
   /* We only allow 32 pending SET_CONFIGs */
   if (nfa_dm_cb.setcfg_pending_num >= NFA_DM_SETCONFIG_PENDING_MAX) {

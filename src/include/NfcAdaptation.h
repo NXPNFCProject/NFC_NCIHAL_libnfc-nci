@@ -211,9 +211,4 @@ class NfcAdaptation {
                                           nfc_status_t event_status);
   static void HalDownloadFirmwareDataCallback(uint16_t data_len,
                                               uint8_t* p_data);
-
-  // Death recipient callback that is called when INfcAidl dies.
-  // The cookie is a pointer to a NfcAdaptation object.
-  static void HalAidlBinderDied(void* cookie);
-  void HalAidlBinderDiedImpl();
 };

@@ -263,7 +263,7 @@ void ce_t3t_handle_update_cmd(tCE_CB* p_ce_cb, NFC_HDR* p_cmd_msg) {
         nfc_status = NFC_STATUS_FAILED;
         break;
       } else if (block_number == 0) {
-        LOG(DEBUG) << StringPrintf("CE: Update sc 0x%04x block %i.",
+        LOG(VERBOSE) << StringPrintf("CE: Update sc 0x%04x block %i.",
                                    service_code, block_number);
 
         /* Special caes: NDEF block0 is the ndef attribute block */
@@ -305,7 +305,7 @@ void ce_t3t_handle_update_cmd(tCE_CB* p_ce_cb, NFC_HDR* p_cmd_msg) {
           }
         }
       } else {
-        LOG(DEBUG) << StringPrintf("CE: Udpate sc 0x%04x block %i.",
+        LOG(VERBOSE) << StringPrintf("CE: Udpate sc 0x%04x block %i.",
                                    service_code, block_number);
 
         /* Verify that block_number is within NDEF memory */
@@ -806,7 +806,7 @@ void ce_t3t_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
                        tNFC_CONN* p_data) {
   tCE_T3T_MEM* p_cb = &ce_cb.mem.t3t;
 
-  LOG(DEBUG) << StringPrintf("ce_t3t_conn_cback: conn_id=%i, evt=%i", conn_id,
+  LOG(VERBOSE) << StringPrintf("ce_t3t_conn_cback: conn_id=%i, evt=%i", conn_id,
                              event);
 
   switch (event) {
@@ -846,7 +846,7 @@ tNFC_STATUS ce_select_t3t(uint16_t system_code,
                           uint8_t nfcid2[NCI_RF_F_UID_LEN]) {
   tCE_T3T_MEM* p_cb = &ce_cb.mem.t3t;
 
-  LOG(DEBUG) << __func__;
+  LOG(VERBOSE) << __func__;
 
   p_cb->state = CE_T3T_STATE_IDLE;
   p_cb->system_code = system_code;
@@ -870,7 +870,7 @@ tNFC_STATUS CE_T3tSetLocalNDEFMsg(bool read_only, uint32_t size_max,
                                   uint8_t* p_scratch_buf) {
   tCE_T3T_MEM* p_cb = &ce_cb.mem.t3t;
 
-  LOG(DEBUG) << StringPrintf(
+  LOG(VERBOSE) << StringPrintf(
       "CE_T3tSetContent: ro=%i, size_max=%i, size_current=%i", read_only,
       size_max, size_current);
 
@@ -924,7 +924,7 @@ tNFC_STATUS CE_T3tSetLocalNDEFMsg(bool read_only, uint32_t size_max,
 tNFC_STATUS CE_T3tSetLocalNDefParams(uint8_t nbr, uint8_t nbw) {
   tCE_T3T_MEM* p_cb = &ce_cb.mem.t3t;
 
-  LOG(DEBUG) << StringPrintf("CE_T3tSetLocalNDefParams: nbr=%i, nbw=%i", nbr,
+  LOG(VERBOSE) << StringPrintf("CE_T3tSetLocalNDefParams: nbr=%i, nbw=%i", nbr,
                              nbw);
 
   /* Validate */
@@ -956,7 +956,7 @@ tNFC_STATUS CE_T3tSendCheckRsp(uint8_t status1, uint8_t status2,
   NFC_HDR* p_rsp_msg;
   uint8_t *p_dst, *p_rsp_start;
 
-  LOG(DEBUG) << StringPrintf(
+  LOG(VERBOSE) << StringPrintf(
       "CE_T3tCheckRsp: status1=0x%02X, status2=0x%02X, num_blocks=%i", status1,
       status2, num_blocks);
 
@@ -1010,7 +1010,7 @@ tNFC_STATUS CE_T3tSendUpdateRsp(uint8_t status1, uint8_t status2) {
   tNFC_STATUS retval = NFC_STATUS_OK;
   tCE_CB* p_ce_cb = &ce_cb;
 
-  LOG(DEBUG) << StringPrintf("CE_T3tUpdateRsp: status1=0x%02X, status2=0x%02X",
+  LOG(VERBOSE) << StringPrintf("CE_T3tUpdateRsp: status1=0x%02X, status2=0x%02X",
                              status1, status2);
   ce_t3t_send_rsp(p_ce_cb, nullptr, T3T_MSG_OPC_UPDATE_RSP, status1, status2);
 

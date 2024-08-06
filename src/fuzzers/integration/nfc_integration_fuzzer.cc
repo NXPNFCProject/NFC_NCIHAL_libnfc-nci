@@ -10,6 +10,7 @@
 #include "src/libfuzzer/libfuzzer_macro.h"
 
 extern bool nfa_poll_bail_out_mode;
+uint8_t mute_tech_route_option;
 
 DEFINE_BINARY_PROTO_FUZZER(const Session& session) {
   static bool init = false;
@@ -24,6 +25,7 @@ DEFINE_BINARY_PROTO_FUZZER(const Session& session) {
     gki_cb.com.OSRdyTbl[MMI_TASK] = TASK_READY;
     gki_cb.com.OSRdyTbl[NFC_TASK] = TASK_READY;
     init = true;
+    mute_tech_route_option = false;
   }
 
   // Print the testcase in debug mode

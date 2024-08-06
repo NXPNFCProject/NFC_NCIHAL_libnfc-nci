@@ -41,7 +41,7 @@ tNFA_STATUS nfa_wlc_rf_intf_ext_stop(tNFA_RF_INTF_EXT_PARAMS* stopParam);
 **
 *******************************************************************************/
 bool WlcHandleOpReq(tNFA_WLC_MSG* p_data) {
-  LOG(DEBUG) << StringPrintf("%s Request:%d", __func__, p_data->op_req.op);
+  LOG(VERBOSE) << StringPrintf("%s Request:%d", __func__, p_data->op_req.op);
   tNFA_STATUS status = NFA_STATUS_FAILED;
   switch (p_data->op_req.op) {
     case NFA_WLC_OP_INIT:
@@ -87,7 +87,7 @@ tNFA_STATUS nfa_wlc_init(tNFA_WLC_EVENT_CBACK* p_cback) {
 **
 *******************************************************************************/
 tNFA_STATUS nfa_wlc_update_discovery_param(tNFA_WLC_DISC_REQ requestOperation) {
-  LOG(DEBUG) << StringPrintf("%s ", __func__);
+  LOG(VERBOSE) << StringPrintf("%s ", __func__);
   nfc_cb.isWlcPollEnabled = (requestOperation == SET);
   return NFA_STATUS_OK;
 }

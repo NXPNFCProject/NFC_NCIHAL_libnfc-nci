@@ -816,7 +816,7 @@ static tNFC_STATUS rw_t1t_handle_rall_rsp(bool* p_notify, uint8_t* p_data) {
   p_data +=
       T1T_UID_LEN + T1T_RES_BYTE_LEN; /* skip Block 0, UID and Reserved byte */
 
-  LOG(DEBUG) << __func__;
+  LOG(VERBOSE) << __func__;
 
   rw_t1t_update_tag_state();
   rw_t1t_update_attributes();

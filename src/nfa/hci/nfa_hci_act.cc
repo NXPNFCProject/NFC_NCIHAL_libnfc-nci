@@ -294,7 +294,7 @@ static void nfa_hci_api_register(tNFA_HCI_EVENT_DATA* p_evt_data) {
     if ((nfa_hci_cb.cfg.reg_app_names[xx][0] != 0) &&
         !strncmp(p_app_name, &nfa_hci_cb.cfg.reg_app_names[xx][0],
                  strlen(p_app_name))) {
-      LOG(DEBUG) << StringPrintf("nfa_hci_api_register (%s)  Reusing: %u",
+      LOG(VERBOSE) << StringPrintf("nfa_hci_api_register (%s)  Reusing: %u",
                                  p_app_name, xx);
       break;
     }
@@ -320,7 +320,7 @@ static void nfa_hci_api_register(tNFA_HCI_EVENT_DATA* p_evt_data) {
         strlcpy(&nfa_hci_cb.cfg.reg_app_names[xx][0], p_app_name,
                 NFA_MAX_HCI_APP_NAME_LEN);
         nfa_hci_cb.nv_write_needed = true;
-        LOG(DEBUG) << StringPrintf("nfa_hci_api_register (%s)  Allocated: %u",
+        LOG(VERBOSE) << StringPrintf("nfa_hci_api_register (%s)  Allocated: %u",
                                    p_app_name, xx);
         break;
       }
@@ -373,7 +373,7 @@ void nfa_hci_api_deregister(tNFA_HCI_EVENT_DATA* p_evt_data) {
           !strncmp(p_evt_data->app_info.app_name,
                    &nfa_hci_cb.cfg.reg_app_names[xx][0],
                    strlen(p_evt_data->app_info.app_name))) {
-        LOG(DEBUG) << StringPrintf("nfa_hci_api_deregister (%s) inx: %u",
+        LOG(VERBOSE) << StringPrintf("nfa_hci_api_deregister (%s) inx: %u",
                                    p_evt_data->app_info.app_name, xx);
         break;
       }
@@ -1456,7 +1456,7 @@ void nfa_hci_handle_admin_gate_cmd(uint8_t* p_data, uint16_t data_len) {
           nfa_hciu_send_msg(NFA_HCI_ADMIN_PIPE, NFA_HCI_RESPONSE_TYPE, response,
               rsp_len, &data);
           /* If starting up, handle events here */
-          LOG(DEBUG) << StringPrintf("nfa_hci_handle_admin_gate_cmd %d",
+          LOG(VERBOSE) << StringPrintf("nfa_hci_handle_admin_gate_cmd %d",
                                      source_host);
           nfa_hci_handle_clear_all_pipe_cmd(source_host);
           return;
@@ -1510,7 +1510,7 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
 #endif
   uint32_t os_tick;
 
-  LOG(DEBUG) << StringPrintf(
+  LOG(VERBOSE) << StringPrintf(
       "nfa_hci_handle_admin_gate_rsp - LastCmdSent: %s  App: 0x%04x  Gate: "
       "0x%02x  Pipe: 0x%02x",
       nfa_hciu_instr_2_str(nfa_hci_cb.cmd_sent).c_str(), nfa_hci_cb.app_in_use,
@@ -1552,7 +1552,7 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
               p_nfa_hci_cfg->num_allowlist_host, p_nfa_hci_cfg->p_allowlist);
         } else if (nfa_hci_cb.param_in_use == NFA_HCI_WHITELIST_INDEX) {
 #if (NXP_EXTNS == TRUE)
-          LOG(DEBUG) << StringPrintf(
+          LOG(VERBOSE) << StringPrintf(
               "nfa_hci_handle_admin_gate_rsp - Set the HOST_TYPE as per ETSI "
               "12 !!!");
           /* Set the HOST_TYPE as per ETSI 12 */
@@ -1570,7 +1570,7 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
             NFA_EeGetInfo(&nfa_hci_cb.num_nfcee, nfa_hci_cb.ee_info);
 #if (NXP_EXTNS == TRUE)
             if (nfa_hci_enable_one_nfcee() == false) {
-              LOG(DEBUG) << StringPrintf("nfa_hci_enable_one_nfcee() failed");
+              LOG(VERBOSE) << StringPrintf("nfa_hci_enable_one_nfcee() failed");
               nfa_hciu_send_get_param_cmd(NFA_HCI_ADMIN_PIPE,
                                           NFA_HCI_HOST_LIST_INDEX);
             }
@@ -1686,7 +1686,7 @@ void nfa_hci_handle_admin_gate_rsp(uint8_t* p_data, uint8_t data_len) {
               ||(dest_gate != nfa_hci_cb.remote_gate_in_use)
               ||(dest_host != nfa_hci_cb.remote_host_in_use)  )
           {
-          LOG(DEBUG) << StringPrintf(
+          LOG(VERBOSE) << StringPrintf(
               "nfa_hci_handle_admin_gate_rsp sent create pipe with gate: %u "
               "got back: %u",
               nfa_hci_cb.local_gate_in_use, source_gate);
@@ -1889,7 +1889,7 @@ void nfa_hci_handle_admin_gate_evt() {
     return;
   }
 
-  LOG(DEBUG) << StringPrintf(
+  LOG(VERBOSE) << StringPrintf(
       "nfa_hci_handle_admin_gate_evt - HOT PLUG EVT event on ADMIN Pipe");
   nfa_hci_cb.num_hot_plug_evts++;
 
@@ -2476,7 +2476,7 @@ tNFA_STATUS nfa_hci_getApduAndConnectivity_PipeStatus(uint8_t host_id) {
     status =
         nfa_hciu_send_raw_cmd(p - p_data, p_data, nfa_hci_get_pipe_state_cb);
   }
-  LOG(DEBUG) << StringPrintf("nfa_hci_getApduConnectivity_PipeStatus %x",
+  LOG(VERBOSE) << StringPrintf("nfa_hci_getApduConnectivity_PipeStatus %x",
                              *num_param);
 
   return status;
@@ -2572,14 +2572,14 @@ static void nfa_hci_get_pipe_state_cb(__attribute__((unused))uint8_t event, __at
         nfa_hci_cb.se_apdu_gate_support) {
       nfa_hciu_send_get_param_cmd(apdu_pipe, NFA_HCI_MAX_C_APDU_SIZE_INDEX);
     } else {
-      LOG(DEBUG) << StringPrintf(
+      LOG(VERBOSE) << StringPrintf(
           "nfa_hci_get_pipe_state_cb APDU pipe not available");
       if ((nfa_hci_check_nfcee_init_complete(prop_host) || conn_pipe_status) &&
           nfa_hci_cb.se_apdu_gate_support) {
         nfa_hciu_send_create_pipe_cmd(NFA_HCI_APDU_APP_GATE, prop_host,
                                       NFA_HCI_APDU_GATE);
       } else {
-        LOG(DEBUG) << StringPrintf(
+        LOG(VERBOSE) << StringPrintf(
             "nfa_hci_get_pipe_state_cb APDU pipe not available"
             "wait for status NFCEE_INIT_COMPLETED");
         if ((nfa_hci_cb.hci_state == NFA_HCI_STATE_STARTUP) ||
@@ -2613,7 +2613,7 @@ static void nfa_hci_update_pipe_status(uint8_t local_gateId,
     if (((nfa_hci_cb.cfg.dyn_pipes[count].dest_host) == hostId) &&
         ((nfa_hci_cb.cfg.dyn_pipes[count].dest_gate) == dest_gateId) &&
         ((nfa_hci_cb.cfg.dyn_pipes[count].local_gate) == local_gateId)) {
-        LOG(DEBUG) << StringPrintf("Set the pipe state to open  -- %d !!!",
+        LOG(VERBOSE) << StringPrintf("Set the pipe state to open  -- %d !!!",
                                    nfa_hci_cb.cfg.dyn_pipes[count].pipe_id);
         nfa_hci_cb.cfg.dyn_pipes[count].pipe_state = NFA_HCI_PIPE_OPENED;
         break;
@@ -2638,7 +2638,7 @@ static bool nfa_hci_check_nfcee_init_complete(uint8_t host_id)
       if((nfa_hci_cb.reset_host[yy].reset_cfg & NFCEE_INIT_COMPLETED) &&
         (nfa_hci_cb.reset_host[yy].host_id == host_id)) {
         recreate_pipe = true;
-        LOG(DEBUG) << StringPrintf(
+        LOG(VERBOSE) << StringPrintf(
             "nfa_hci_enable_one_nfcee reset_cfg NFCEE_INIT_COMPLETED()");
         nfa_hciu_clear_host_resetting(host_id, NFCEE_INIT_COMPLETED);
         break;
@@ -2735,7 +2735,7 @@ static bool nfa_hci_set_apdu_pipe_ready_for_host (uint8_t host_id)
                 }
                 else
                 {
-                    LOG(DEBUG) << StringPrintf(
+                    LOG(VERBOSE) << StringPrintf(
                         "%s : APDU gate info not available", __func__);
                     return false;
                 }
@@ -2757,7 +2757,7 @@ static bool nfa_hci_set_apdu_pipe_ready_for_host (uint8_t host_id)
  *******************************************************************************/
 void nfa_hci_handle_pending_host_reset() {
     uint8_t xx;
-    LOG(DEBUG) << StringPrintf("nfa_hci_handle_pending_host_reset");
+    LOG(VERBOSE) << StringPrintf("nfa_hci_handle_pending_host_reset");
     for(xx = 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++) {
       if(nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_INIT_COMPLETED) {
         //nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_INIT_COMPLETED);
@@ -2779,7 +2779,7 @@ void nfa_hci_handle_pending_host_reset() {
           if (!nfa_hciu_check_host_resetting(nfa_hci_cb.reset_host[xx].host_id,
                                              NFCEE_RECOVERY_IN_PROGRESS)) {
                 if (NFC_NfceeDiscover(true) == NFC_STATUS_FAILED) {
-                    LOG(DEBUG) << StringPrintf(
+                    LOG(VERBOSE) << StringPrintf(
                         "NFCEE_UNRECOVERABLE_ERRROR unable to handle");
                 } else {
                   LOG(INFO) << StringPrintf("NFCEE_discovery cmd sent for %d",
@@ -2788,7 +2788,7 @@ void nfa_hci_handle_pending_host_reset() {
                                               NFCEE_RECOVERY_IN_PROGRESS);
                 }
           } else {
-                LOG(DEBUG) << StringPrintf(
+                LOG(VERBOSE) << StringPrintf(
                     "NFCEE re-initialization ongoing..........");
           }
           break;
@@ -3168,11 +3168,11 @@ static void nfa_hci_handle_apdu_app_gate_hcp_msg_data (uint8_t *p_data, uint16_t
             {
                 if(p_nfa_hci_cfg->max_wtx_count) {
                   if(nfa_hci_cb.m_wtx_count >= p_nfa_hci_cfg->max_wtx_count) {
-                                LOG(DEBUG) << StringPrintf(
+                                LOG(VERBOSE) << StringPrintf(
                                     "%s:  Max WTX count reached", __func__);
                                 nfa_hci_cb.m_wtx_count = 0;
                                 if (p_pipe_cmdrsp_info->w4_rsp_apdu_evt) {
-                                    LOG(DEBUG) << StringPrintf(
+                                    LOG(VERBOSE) << StringPrintf(
                                         "%s:  Max WTX count w4_rsp_apdu_evt",
                                         __func__);
 
@@ -3202,7 +3202,7 @@ static void nfa_hci_handle_apdu_app_gate_hcp_msg_data (uint8_t *p_data, uint16_t
                 /* More processing time needed for APDU sent to UICC */
                 nfa_sys_start_timer (&(p_pipe_cmdrsp_info->rsp_timer),
                           NFA_HCI_RSP_TIMEOUT_EVT, p_pipe_cmdrsp_info->rsp_timeout);
-                LOG(DEBUG) << StringPrintf(
+                LOG(VERBOSE) << StringPrintf(
                     "nfa_hci_handle_apdu_app_gate_hcp_msg_data "
                     "()p_pipe_cmdrsp_info->rsp_timeout %x",
                     p_pipe_cmdrsp_info->rsp_timeout);  // debug
@@ -3210,7 +3210,7 @@ static void nfa_hci_handle_apdu_app_gate_hcp_msg_data (uint8_t *p_data, uint16_t
             break;
 
         case NFA_HCI_EVT_ATR:
-            LOG(DEBUG) << StringPrintf(
+            LOG(VERBOSE) << StringPrintf(
                 "nfa_hci_handle_apdu_app_gate_hcp_msg_data (): EVT_ATR_RSP "
                 "recived w4_atr_evt: %x p_pipe_cmdrsp_info->w4_rsp_apdu_evt: "
                 "%x",
@@ -3325,7 +3325,7 @@ static bool nfa_hci_api_send_apdu (tNFA_HCI_EVENT_DATA *p_evt_data)
         }
         else if (p_pipe_cmdrsp_info->w4_atr_evt)
         {
-            LOG(DEBUG) << StringPrintf(
+            LOG(VERBOSE) << StringPrintf(
                 "nfa_hci_api_send_apdu (): APDU Server is not initialized yet! "
                 "sending failed to upper layer");
             evt_data.apdu_rcvd.host_id = p_send_apdu->host_id;
@@ -3339,7 +3339,7 @@ static bool nfa_hci_api_send_apdu (tNFA_HCI_EVENT_DATA *p_evt_data)
         }
         else if (p_pipe_cmdrsp_info->w4_rsp_apdu_evt)
         {
-            LOG(DEBUG) << StringPrintf(
+            LOG(VERBOSE) << StringPrintf(
                 "nfa_hci_api_send_apdu (): APDU Pipe[0x%02x] is busy!",
                 pipe_id);
         }
@@ -3389,7 +3389,7 @@ static bool nfa_hci_api_send_apdu (tNFA_HCI_EVENT_DATA *p_evt_data)
     }
     else
     {
-        LOG(DEBUG) << StringPrintf(
+        LOG(VERBOSE) << StringPrintf(
             "nfa_hci_api_send_apdu (): Host[0x%02x] inactive",
             p_send_apdu->host_id);
     }
@@ -3481,12 +3481,12 @@ static bool nfa_hci_api_abort_apdu (tNFA_HCI_EVENT_DATA *p_evt_data)
     }
 
     if (p_apdu_pipe_reg_info == nullptr) {
-        LOG(DEBUG) << StringPrintf(
+        LOG(VERBOSE) << StringPrintf(
             "nfa_hci_api_abort_apdu (): Pipe [0x%02x] Info not available",
             pipe_id);
     }
     if ((p_pipe_cmdrsp_info == nullptr) || (pipe_state != NFA_HCI_PIPE_OPENED)) {
-        LOG(DEBUG) << StringPrintf(
+        LOG(VERBOSE) << StringPrintf(
             "nfa_hci_api_abort_apdu (): APDU Pipe [0x%02x] is closed or Info "
             "not "
             "available",
@@ -3510,7 +3510,7 @@ static bool nfa_hci_api_abort_apdu (tNFA_HCI_EVENT_DATA *p_evt_data)
         ** received. NFA_HCI_RSP_APDU_RCVD_EVT will be reported after all fragments of response
         ** APDU is received or on timeout. Now, report Abort operation failed
         */
-        LOG(DEBUG) << StringPrintf(
+        LOG(VERBOSE) << StringPrintf(
             "nfa_hci_api_abort_apdu(): Too late to Abort as C-APDU is "
             "processed");
     }
@@ -3579,7 +3579,7 @@ static void nfa_hci_api_add_prop_host_info(uint8_t propHostIndx) {
   if ((!nfa_hciu_check_pipe_between_gates(NFA_HCI_ID_MNGMNT_APP_GATE,
                                           propHostIndx,
                                           NFA_HCI_IDENTITY_MANAGEMENT_GATE))) {
-        LOG(DEBUG) << StringPrintf("nfa_hci_api_add_prop_host_info");
+        LOG(VERBOSE) << StringPrintf("nfa_hci_api_add_prop_host_info");
         nfa_hciu_add_pipe_to_gate(NFA_HCI_DEFAULT_ID_MANAGEMENT_PIPE,
                                   NFA_HCI_ID_MNGMNT_APP_GATE, propHostIndx,
                                   NFA_HCI_IDENTITY_MANAGEMENT_GATE);
@@ -3708,7 +3708,7 @@ uint8_t nfa_hci_get_apdu_enabled_host(void) {
       if ((is_ese_apdu_pipe_required(nfceeid) ||
            is_euicc_apdu_pipe_required(nfceeid)) &&
           eeInfo[xx].ee_status == NFA_EE_STATUS_ACTIVE) {
-        LOG(DEBUG) << StringPrintf("%s Nfcee %d is active", __func__, nfceeid);
+        LOG(VERBOSE) << StringPrintf("%s Nfcee %d is active", __func__, nfceeid);
         return nfceeid;
       }
     }
@@ -3755,7 +3755,7 @@ bool nfa_hci_is_power_link_required(uint8_t source_host) {
  **
  *******************************************************************************/
 static void nfa_hci_handle_clear_all_pipe_cmd(uint8_t source_host) {
-  LOG(DEBUG) << StringPrintf(
+  LOG(VERBOSE) << StringPrintf(
       "nfa_hci_handle_clear_all_pipe_cmd pipe:%d source host", source_host);
   tNFA_HCI_DYN_PIPE* p_pipe = nullptr;
   tNFA_HCI_PIPE_CMDRSP_INFO* p_pipe_cmdrsp_info = nullptr;
@@ -3788,7 +3788,7 @@ static void nfa_hci_handle_clear_all_pipe_cmd(uint8_t source_host) {
             NFC_NfceePLConfig(source_host, 0x03);
       }
       status = NFC_NfceeModeSet(source_host, NFC_MODE_ACTIVATE);
-      LOG(DEBUG) << StringPrintf(
+      LOG(VERBOSE) << StringPrintf(
           "nfa_hci_handle_clear_all_pipe_cmd pipe:%d source host", status);
       if (status == NFA_STATUS_REFUSED) {
         /*Mode set ntf pending , pipe will be created on recieving ntf*/

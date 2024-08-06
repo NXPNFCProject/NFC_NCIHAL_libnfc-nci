@@ -53,7 +53,7 @@ using android::base::StringPrintf;
 tNFA_STATUS NFA_ScrSetReaderMode(bool mode, tNFA_SCR_CBACK* scr_cback, uint8_t type) {
   tNFA_SCR_API_SET_READER_MODE* p_msg;
 
-  LOG(DEBUG) << StringPrintf("%s: Enter, Mode=%s", __func__,
+  LOG(VERBOSE) << StringPrintf("%s: Enter, Mode=%s", __func__,
                              (mode ? "On" : "Off"));
 
   p_msg = (tNFA_SCR_API_SET_READER_MODE*)GKI_getbuf(
@@ -82,11 +82,11 @@ tNFA_STATUS NFA_ScrSetReaderMode(bool mode, tNFA_SCR_CBACK* scr_cback, uint8_t t
 ******************************************************************************/
 bool NFA_ScrGetReaderMode() {
   bool isEnabled = true;
-  LOG(DEBUG) << StringPrintf("%s: Enter", __func__);
+  LOG(VERBOSE) << StringPrintf("%s: Enter", __func__);
   if ((nfa_scr_cb.state == NFA_SCR_STATE_STOPPED) ||
           (nfa_scr_cb.state == NFA_SCR_STATE_START_CONFIG)) {
    isEnabled = false;
   }
-  LOG(DEBUG) << StringPrintf("isEnabled =%x", isEnabled);
+  LOG(VERBOSE) << StringPrintf("isEnabled =%x", isEnabled);
   return isEnabled;
 }

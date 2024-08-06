@@ -56,7 +56,7 @@ void debug_lmrt_init(void) {
 **
 *******************************************************************************/
 void lmrt_log(void) {
-  if (!WOULD_LOG(DEBUG)) return;
+  if (!WOULD_LOG(VERBOSE)) return;
 
   static const char hexmap[] = {'0', '1', '2', '3', '4', '5', '6', '7',
                                 '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
@@ -68,13 +68,13 @@ void lmrt_log(void) {
       tlvs_str.push_back(hexmap[byte & 0x0F]);
     }
 
-    LOG(DEBUG) << StringPrintf("lmrt_log: Packet %d/%d, %d more packet", i + 1,
+    LOG(VERBOSE) << StringPrintf("lmrt_log: Packet %d/%d, %d more packet", i + 1,
                                (int)lmrt_payloads.more.size(),
                                lmrt_payloads.more[i]);
-    LOG(DEBUG) << StringPrintf("lmrt_log: %d entries in this packet",
+    LOG(VERBOSE) << StringPrintf("lmrt_log: %d entries in this packet",
                                lmrt_payloads.entry_count[i]);
 
-    LOG(DEBUG) << StringPrintf("lmrt_log: tlv: %s", tlvs_str.c_str());
+    LOG(VERBOSE) << StringPrintf("lmrt_log: tlv: %s", tlvs_str.c_str());
   }
 }
 

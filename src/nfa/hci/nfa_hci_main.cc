@@ -118,7 +118,7 @@ static const tNFA_SYS_REG nfa_hci_sys_reg = {
 **
 *******************************************************************************/
 void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
-  LOG(DEBUG) << StringPrintf("%d", status);
+  LOG(VERBOSE) << StringPrintf("%d", status);
 
   switch (status) {
     case NFA_EE_DISC_STS_ON:
@@ -145,10 +145,10 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                       (nfa_hci_cb.ee_info[yy].ee_handle & ~NFA_HANDLE_GROUP_EE),
                       NFCEE_REINIT);
                   }
-                  LOG(DEBUG) << StringPrintf(
+                  LOG(VERBOSE) << StringPrintf(
                       " NFCEE_UNRECOVERABLE_ERRROR  reset handling");
                   if (nfa_hci_enable_one_nfcee() == false) {
-                  LOG(DEBUG)
+                  LOG(VERBOSE)
                       << StringPrintf("nfa_hci_enable_one_nfcee() failed");
                   }
                   break;
@@ -245,7 +245,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
 
             if(nfa_hci_cb.next_nfcee_idx < nfa_hci_cb.num_nfcee)
             {
-          LOG(DEBUG) << StringPrintf("NFA_EE_MODE_SET_COMPLETE handling 2");
+          LOG(VERBOSE) << StringPrintf("NFA_EE_MODE_SET_COMPLETE handling 2");
           if (nfa_hci_cb.ee_info[nfa_hci_cb.next_nfcee_idx].hci_enable_state ==
               NFA_HCI_FL_EE_ENABLING) {
             for (uint8_t xx = 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++) {
@@ -253,7 +253,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                    NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED) &&
                   (nfa_hci_cb.reset_host[xx].host_id ==
                    nfa_hci_cb.curr_nfcee)) {
-                LOG(DEBUG) << StringPrintf(
+                LOG(VERBOSE) << StringPrintf(
                     "NFA_EE_MODE_SET_COMPLETE  handling here");
                 nfa_hciu_clear_host_resetting(
                     nfa_hci_cb.curr_nfcee, NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED);
@@ -264,7 +264,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                                         NFA_HCI_HOST_LIST_INDEX);
             nfa_hci_cb.ee_info[nfa_hci_cb.next_nfcee_idx].hci_enable_state =
                 NFA_HCI_FL_EE_ENABLED;
-            LOG(DEBUG) << StringPrintf("NFA_EE_MODE_SET_COMPLETE handling 3");
+            LOG(VERBOSE) << StringPrintf("NFA_EE_MODE_SET_COMPLETE handling 3");
             if (nfa_ee_cb.ecb[nfa_hci_cb.next_nfcee_idx].ee_status ==
                 NCI_NFCEE_STS_TRANSMISSION_ERROR) {
               nfa_hciu_clear_host_resetting(
@@ -279,14 +279,14 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
             }
         } else {
             int xx;
-            LOG(DEBUG) << StringPrintf("NFA_EE_MODE_SET_COMPLETE else case");
+            LOG(VERBOSE) << StringPrintf("NFA_EE_MODE_SET_COMPLETE else case");
             for (xx = 0; xx < NFA_HCI_MAX_HOST_IN_NETWORK; xx++) {
                  if(nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED &&
                    (nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_INIT_COMPLETED)) {
                      nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED);
                     if(nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_REINIT)
                     {
-                      LOG(DEBUG) << StringPrintf(
+                      LOG(VERBOSE) << StringPrintf(
                           "NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED () handling "
                           "pending NFCEE_UNRECOVERABLE_ERRROR");
                       nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee, NFCEE_REINIT);
@@ -299,7 +299,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                     }
                     nfa_hciu_send_get_param_cmd(NFA_HCI_ADMIN_PIPE, NFA_HCI_HOST_LIST_INDEX);
                     if(!nfa_hci_check_set_apdu_pipe_ready_for_next_host ()) {
-                      LOG(DEBUG) << StringPrintf(
+                      LOG(VERBOSE) << StringPrintf(
                           "NFCEE_HCI_NOTIFY_ALL_PIPE_CLEARED () reset "
                           "handling");
                       nfa_hci_handle_pending_host_reset();
@@ -315,13 +315,13 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                      if(nfa_hci_cb.next_nfcee_idx < nfa_hci_cb.num_nfcee) {
                       nfa_hci_cb.ee_info[nfa_hci_cb.next_nfcee_idx]
                           .hci_enable_state = NFA_HCI_FL_EE_ENABLED;
-                      LOG(DEBUG) << StringPrintf(
+                      LOG(VERBOSE) << StringPrintf(
                           "NFCEE_UNRECOVERABLE_ERRROR reset handling "
                           "nfa_hci_cb.next_nfcee_idx %d  nfa_hci_cb.num_nfcee "
                           "%d",
                           nfa_hci_cb.next_nfcee_idx, nfa_hci_cb.num_nfcee);
                       if (nfa_hci_enable_one_nfcee() == false) {
-                        LOG(DEBUG) << StringPrintf(
+                        LOG(VERBOSE) << StringPrintf(
                             "nfa_hci_enable_one_nfcee() failed");
                        }
                      }
@@ -332,7 +332,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
 
                        tNFA_HCI_EVT_DATA evt_data;
                        evt_data.init_completed.status = NFA_STATUS_OK;
-                       LOG(DEBUG) << StringPrintf("All NFCEE's Initialized");
+                       LOG(VERBOSE) << StringPrintf("All NFCEE's Initialized");
                        if ((nfa_ee_cb.ee_flags & NFA_EE_FLAG_RECOVERY) == NFA_EE_FLAG_RECOVERY) {
                          nfa_ee_cb.ee_flags &= ~NFA_EE_FLAG_RECOVERY;
                        }
@@ -359,7 +359,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                  } else if (nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_INIT_COMPLETED) {
                      if(nfa_hciu_find_dyn_apdu_pipe_for_host (nfa_hci_cb.reset_host[xx].host_id) == nullptr)
                      {
-                     LOG(DEBUG) << StringPrintf(
+                     LOG(VERBOSE) << StringPrintf(
                          "delayed NFCEE_INIT_COMPLETED handling");
                      if (!nfa_hci_check_set_apdu_pipe_ready_for_next_host()) {
                          nfa_hci_handle_pending_host_reset();
@@ -371,7 +371,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                      }
                      break;
                  } else if (nfa_hci_cb.reset_host[xx].reset_cfg & NFCEE_REMOVED_NTF) {
-                     LOG(DEBUG) << StringPrintf("NFCEE_REMOVED_NTF handling");
+                     LOG(VERBOSE) << StringPrintf("NFCEE_REMOVED_NTF handling");
                      nfa_hciu_clear_host_resetting(nfa_hci_cb.curr_nfcee,
                                                    NFCEE_REMOVED_NTF);
                      nfa_hci_handle_pending_host_reset();
@@ -390,11 +390,11 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
         int ee_entry_index = 0;
         while (ee_entry_index < nfa_ee_max_ee_cfg) {
           if (nfa_ee_cb.ecb[ee_entry_index].nfcee_status == NFC_NFCEE_STS_INIT_COMPLETED) {
-            LOG(DEBUG) << StringPrintf("NFA_EE_STATUS_NTF received  %x",
+            LOG(VERBOSE) << StringPrintf("NFA_EE_STATUS_NTF received  %x",
                                        nfa_ee_cb.ecb[ee_entry_index].nfcee_id);
             if (!((nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_NETWK_ENABLE) ||
               (nfa_hci_cb.hci_state == NFA_HCI_STATE_RESTORE_NETWK_ENABLE))) {
-                  LOG(DEBUG) << StringPrintf(
+                  LOG(VERBOSE) << StringPrintf(
                       "NFA_EE_STATUS_NTF received during IDLE %x",
                       nfa_ee_cb.ecb[ee_entry_index].nfcee_id);
                   if (nfa_hciu_find_dyn_apdu_pipe_for_host(
@@ -438,7 +438,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                       nfa_ee_cb.ecb[ee_entry_index].nfcee_id) == nullptr &&
                       IS_PROP_HOST(nfa_ee_cb.ecb[ee_entry_index].nfcee_id) &&
                       nfa_hci_cb.se_apdu_gate_support) {
-                LOG(DEBUG) << StringPrintf(
+                LOG(VERBOSE) << StringPrintf(
                     "NFA_EE_STATUS_NTF received during INIT %x",
                     nfa_ee_cb.ecb[ee_entry_index].nfcee_id);
                 nfa_hciu_add_host_resetting(nfa_ee_cb.ecb[ee_entry_index].nfcee_id, NFCEE_INIT_COMPLETED);
@@ -449,7 +449,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
             nfa_ee_cb.ecb[ee_entry_index].nfcee_status = NFC_NFCEE_STS_INIT_STARTED;
             if (!((nfa_hci_cb.hci_state == NFA_HCI_STATE_WAIT_NETWK_ENABLE) ||
               (nfa_hci_cb.hci_state == NFA_HCI_STATE_RESTORE_NETWK_ENABLE))) {
-              LOG(DEBUG) << StringPrintf(
+              LOG(VERBOSE) << StringPrintf(
                   "NFA_EE_RECOVERY %x", nfa_ee_cb.ecb[ee_entry_index].nfcee_id);
               if (nfa_ee_cb.ecb[ee_entry_index].nfcee_id ==
                   NFA_HCI_FIRST_PROP_HOST) {
@@ -470,7 +470,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
                 nfa_hci_cb.next_nfcee_idx = 0x00;
                 NFC_NfceeClearWaitModeSetNtf();
                 if(NFC_NfceeDiscover(true) == NFC_STATUS_FAILED) {
-                  LOG(DEBUG)
+                  LOG(VERBOSE)
                       << StringPrintf("NFA_EE_RECOVERY unable to perform");
                 }
               }
@@ -527,7 +527,7 @@ void nfa_hci_ee_info_cback(tNFA_EE_DISC_STS status) {
 **
 *******************************************************************************/
 void nfa_hci_init(void) {
-  LOG(DEBUG) << __func__;
+  LOG(VERBOSE) << __func__;
 #if(NXP_EXTNS == TRUE)
   uint8_t xx;
 #endif
@@ -596,7 +596,7 @@ bool nfa_hci_is_valid_cfg(void) {
                       &nfa_hci_cb.cfg.reg_app_names[yy][0],
                       strlen(nfa_hci_cb.cfg.reg_app_names[xx])))) {
           /* Two app cannot have the same name , NVRAM is corrupted */
-              LOG(DEBUG) << StringPrintf(
+              LOG(VERBOSE) << StringPrintf(
                   "nfa_hci_is_valid_cfg (%s)  Reusing: %u",
                   &nfa_hci_cb.cfg.reg_app_names[xx][0], xx);
               return false;
@@ -624,14 +624,14 @@ bool nfa_hci_is_valid_cfg(void) {
         if ((nfa_hci_cb.cfg.dyn_gates[yy].gate_id != 0) &&
             (nfa_hci_cb.cfg.dyn_gates[xx].gate_id ==
              nfa_hci_cb.cfg.dyn_gates[yy].gate_id)) {
-              LOG(DEBUG) << StringPrintf("nfa_hci_is_valid_cfg  Reusing: %u",
+              LOG(VERBOSE) << StringPrintf("nfa_hci_is_valid_cfg  Reusing: %u",
                                          nfa_hci_cb.cfg.dyn_gates[xx].gate_id);
               return false;
         }
       }
       if ((nfa_hci_cb.cfg.dyn_gates[xx].gate_owner & (~NFA_HANDLE_GROUP_HCI)) >=
           NFA_HCI_MAX_APP_CB) {
-        LOG(DEBUG) << StringPrintf(
+        LOG(VERBOSE) << StringPrintf(
             "nfa_hci_is_valid_cfg  Invalid Gate owner: %u",
             nfa_hci_cb.cfg.dyn_gates[xx].gate_owner);
         return false;
@@ -647,7 +647,7 @@ bool nfa_hci_is_valid_cfg(void) {
           if (nfa_hci_cb.cfg.dyn_gates[xx].gate_owner == reg_app[zz]) break;
         }
         if (zz == app_count) {
-          LOG(DEBUG) << StringPrintf(
+          LOG(VERBOSE) << StringPrintf(
               "nfa_hci_is_valid_cfg  Invalid Gate owner: %u",
               nfa_hci_cb.cfg.dyn_gates[xx].gate_owner);
           return false;
@@ -714,7 +714,7 @@ bool nfa_hci_is_valid_cfg(void) {
         if ((nfa_hci_cb.cfg.dyn_pipes[yy].pipe_id != 0) &&
             (nfa_hci_cb.cfg.dyn_pipes[xx].pipe_id ==
              nfa_hci_cb.cfg.dyn_pipes[yy].pipe_id)) {
-          LOG(DEBUG) << StringPrintf("nfa_hci_is_valid_cfg  Reusing: %u",
+          LOG(VERBOSE) << StringPrintf("nfa_hci_is_valid_cfg  Reusing: %u",
                                      nfa_hci_cb.cfg.dyn_pipes[xx].pipe_id);
           return false;
         }
@@ -724,7 +724,7 @@ bool nfa_hci_is_valid_cfg(void) {
         if (nfa_hci_cb.cfg.dyn_pipes[xx].local_gate == valid_gate[zz]) break;
       }
       if (zz == gate_count) {
-        LOG(DEBUG) << StringPrintf("nfa_hci_is_valid_cfg  Invalid Gate: %u",
+        LOG(VERBOSE) << StringPrintf("nfa_hci_is_valid_cfg  Invalid Gate: %u",
                                    nfa_hci_cb.cfg.dyn_pipes[xx].local_gate);
         return false;
       }
@@ -786,7 +786,7 @@ void nfa_hci_restore_default_config(uint8_t* p_session_id) {
 **
 *******************************************************************************/
 void nfa_hci_proc_nfcc_power_mode(uint8_t nfcc_power_mode) {
-  LOG(DEBUG) << StringPrintf("nfcc_power_mode=%d", nfcc_power_mode);
+  LOG(VERBOSE) << StringPrintf("nfcc_power_mode=%d", nfcc_power_mode);
 
   /* if NFCC power mode is change to full power */
   if (nfcc_power_mode == NFA_DM_PWR_MODE_FULL) {
@@ -877,7 +877,7 @@ void nfa_hci_dh_startup_complete(void) {
 void nfa_hci_startup_complete(tNFA_STATUS status) {
   tNFA_HCI_EVT_DATA evt_data;
 
-  LOG(DEBUG) << StringPrintf("Status: %u", status);
+  LOG(VERBOSE) << StringPrintf("Status: %u", status);
 
   nfa_sys_stop_timer(&nfa_hci_cb.timer);
 
@@ -909,7 +909,7 @@ void nfa_hci_startup_complete(tNFA_STATUS status) {
   }
   if (nfcFL.eseFL._NCI_NFCEE_PWR_LINK_CMD) {
     if (nfa_hci_cb.next_nfcee_idx == nfa_hci_cb.num_nfcee) {
-      LOG(DEBUG) << StringPrintf("All NFCEEs OK update power link status");
+      LOG(VERBOSE) << StringPrintf("All NFCEEs OK update power link status");
       uint8_t active_nfcee_id = nfa_hci_get_apdu_enabled_host();
       switch (nfa_ee_cb.ese_prv_pwr_cfg) {
         case 0xFF:
@@ -947,7 +947,7 @@ void nfa_hci_enable_one_nfcee(void) {
   uint8_t xx;
   uint8_t nfceeid = 0;
 
-  LOG(DEBUG) << StringPrintf("%d", nfa_hci_cb.num_nfcee);
+  LOG(VERBOSE) << StringPrintf("%d", nfa_hci_cb.num_nfcee);
 
   for (xx = 0; xx < nfa_hci_cb.num_nfcee; xx++) {
     nfceeid = nfa_hci_cb.ee_info[xx].ee_handle & ~NFA_HANDLE_GROUP_EE;
@@ -975,14 +975,14 @@ bool nfa_hci_enable_one_nfcee(void) {
     uint8_t xx;
     uint8_t nfceeid = 0;
     bool enable_cmplt = false;
-    LOG(DEBUG) << StringPrintf("nfa_hci_enable_one_nfcee () enter");
+    LOG(VERBOSE) << StringPrintf("nfa_hci_enable_one_nfcee () enter");
 
     tNFA_STATUS status = NFA_STATUS_FAILED;
     for (xx = nfa_hci_cb.next_nfcee_idx; xx < nfa_hci_cb.num_nfcee; xx++) {
-    LOG(DEBUG) << StringPrintf("nfa_hci_enable_one_nfcee () %d", xx);
+    LOG(VERBOSE) << StringPrintf("nfa_hci_enable_one_nfcee () %d", xx);
     if (nfa_hci_cb.ee_info[xx].ee_interface[0] != NFA_EE_INTERFACE_HCI_ACCESS) {
       nfceeid = nfa_hci_cb.ee_info[xx].ee_handle & ~NFA_HANDLE_GROUP_EE;
-      LOG(DEBUG) << StringPrintf(
+      LOG(VERBOSE) << StringPrintf(
           "nfa_hci_enable_one_nfcee () xx= %d nfcee_id = %d "
           "nfa_hci_cb.ee_info[xx].ee_status = %d ",
           xx, nfceeid, nfa_hci_cb.ee_info[xx].ee_status);
@@ -1131,7 +1131,7 @@ void nfa_hci_startup(void) {
 **
 *******************************************************************************/
 static void nfa_hci_sys_enable(void) {
-  LOG(DEBUG) << __func__;
+  LOG(VERBOSE) << __func__;
   nfa_ee_reg_cback_enable_done(&nfa_hci_ee_info_cback);
 
   nfa_nv_co_read((uint8_t*)&nfa_hci_cb.cfg, sizeof(nfa_hci_cb.cfg),
@@ -1146,7 +1146,7 @@ static void nfa_hci_sys_enable(void) {
   } else {
     nfa_hci_cb.se_apdu_gate_support = 0x00;
   }
-  LOG(DEBUG) << StringPrintf("%s SE terminal type for APDU gate: %d", __func__,
+  LOG(VERBOSE) << StringPrintf("%s SE terminal type for APDU gate: %d", __func__,
                              nfa_hci_cb.se_apdu_gate_support);
   nfa_hci_cb.uicc_etsi_support =
       NfcConfig::getUnsigned(NAME_NXP_UICC_ETSI_SUPPORT, 0x00);
@@ -1232,7 +1232,7 @@ static void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
   uint16_t pkt_len;
   const uint8_t MAX_BUFF_SIZE = 100;
   char buff[MAX_BUFF_SIZE];
-  LOG(DEBUG) << StringPrintf("%s State: %u  Cmd: %u", __func__,
+  LOG(VERBOSE) << StringPrintf("%s State: %u  Cmd: %u", __func__,
                              nfa_hci_cb.hci_state, event);
 #if(NXP_EXTNS == TRUE)
   tNFA_HCI_PIPE_CMDRSP_INFO *p_pipe_cmdrsp_info = nullptr;
@@ -1315,7 +1315,7 @@ static void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
       GKI_freebuf (p_pkt);
       return;
   }
-  LOG(DEBUG) << StringPrintf("nfa_hci_conn_cback () nfa_hci_cb 1");
+  LOG(VERBOSE) << StringPrintf("nfa_hci_conn_cback () nfa_hci_cb 1");
   if (p_pipe_cmdrsp_info->reassembling == false) {
 #else
   if (nfa_hci_cb.assembling == false) {
@@ -1417,7 +1417,7 @@ static void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
     }
   }
 
-  LOG(DEBUG) << StringPrintf(
+  LOG(VERBOSE) << StringPrintf(
       "nfa_hci_conn_cback Recvd data pipe:%d  %s  chain:%d  assmbl:%d  len:%d",
       (uint8_t)pipe,
       nfa_hciu_get_type_inst_names(pipe, nfa_hci_cb.type, nfa_hci_cb.inst, buff,
@@ -1469,7 +1469,7 @@ static void nfa_hci_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
       /* Response received to command sent on generic gate pipe */
       nfa_sys_stop_timer (&(p_pipe_cmdrsp_info->rsp_timer));
   }
-  LOG(DEBUG) << StringPrintf(
+  LOG(VERBOSE) << StringPrintf(
       "nfa_hci_conn_cback Recvd data pipe:%d  Type: %u  Inst: %u  chain:%d ",
       pipe, nfa_hci_cb.type, nfa_hci_cb.inst, chaining_bit);
 #endif
@@ -1563,7 +1563,7 @@ void nfa_hci_rsp_timeout() {
 #if(NXP_EXTNS == TRUE)
   uint8_t ee_entry_index = 0;
 #endif
-  LOG(DEBUG) << StringPrintf("State: %u  Cmd: %u", nfa_hci_cb.hci_state,
+  LOG(VERBOSE) << StringPrintf("State: %u  Cmd: %u", nfa_hci_cb.hci_state,
                              nfa_hci_cb.cmd_sent);
 
   evt_data.status = NFA_STATUS_FAILED;
@@ -1742,7 +1742,7 @@ void nfa_hci_rsp_timeout() {
       break;
     case NFA_HCI_STATE_DISABLED:
     default:
-    LOG(DEBUG) << StringPrintf("Timeout in DISABLED/ Invalid state");
+    LOG(VERBOSE) << StringPrintf("Timeout in DISABLED/ Invalid state");
     break;
   }
   if (evt != 0) nfa_hciu_send_to_app(evt, &evt_data, nfa_hci_cb.app_in_use);
@@ -1865,7 +1865,7 @@ static void nfa_hci_assemble_msg(uint8_t* p_data, uint16_t data_len) {
 **
 *******************************************************************************/
 static bool nfa_hci_evt_hdlr(NFC_HDR* p_msg) {
-    LOG(DEBUG) << StringPrintf(
+    LOG(VERBOSE) << StringPrintf(
         "nfa_hci_evt_hdlr state: %s (%d) event: %s (0x%04x)",
         nfa_hciu_get_state_name(nfa_hci_cb.hci_state).c_str(),
         nfa_hci_cb.hci_state, nfa_hciu_get_event_name(p_msg->event).c_str(),
@@ -1922,7 +1922,7 @@ static bool nfa_hci_evt_hdlr(NFC_HDR* p_msg) {
 
 #if(NXP_EXTNS == TRUE)
 void nfa_hci_release_transceive(uint8_t host_id, uint8_t status) {
-  LOG(DEBUG) << StringPrintf("nfa_hci_release_transcieve ()");
+  LOG(VERBOSE) << StringPrintf("nfa_hci_release_transcieve ()");
   tNFA_HCI_DYN_PIPE           *p_pipe;
   tNFA_HCI_PIPE_CMDRSP_INFO   *p_pipe_cmdrsp_info = nullptr;
   tNFA_HCI_EVT_DATA           evt_data;
@@ -2002,7 +2002,7 @@ void nfa_hci_release_transceive(uint8_t host_id, uint8_t status) {
   else
   {
       /* Timeout in APDU Pipe */
-      LOG(DEBUG) << StringPrintf(
+      LOG(VERBOSE) << StringPrintf(
           "nfa_hci_release_transceive () pending requests");
 
       p_pipe_cmdrsp_info->p_rsp_buf    = nullptr;
@@ -2064,7 +2064,7 @@ static void nfa_hci_timer_cback (TIMER_LIST_ENT *p_tle)
     tNFA_HCI_EVT_DATA         evt_data;
     tNFA_HCI_PIPE_CMDRSP_INFO *p_pipe_cmdrsp_info = nullptr;
 
-    LOG(DEBUG) << StringPrintf("nfa_hci_timer_cback() state = %d",
+    LOG(VERBOSE) << StringPrintf("nfa_hci_timer_cback() state = %d",
                                nfa_hci_cb.hci_state);
 
     if ((nfa_hci_cb.hci_state == NFA_HCI_STATE_STARTUP)
@@ -2155,7 +2155,7 @@ static void nfa_hci_timer_cback (TIMER_LIST_ENT *p_tle)
         else
         {
             /* Timeout in APDU Pipe */
-            LOG(DEBUG) << StringPrintf(
+            LOG(VERBOSE) << StringPrintf(
                 "nfa_hci_timer_cback () Timeout on APDU Pipe");
 
             p_pipe_cmdrsp_info->p_rsp_buf    = nullptr;

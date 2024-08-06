@@ -84,7 +84,7 @@ static std::string nfa_rw_evt_2_str(uint16_t event);
 **
 *******************************************************************************/
 void nfa_rw_init(void) {
-  LOG(DEBUG) << __func__;
+  LOG(VERBOSE) << __func__;
 
   /* initialize control block */
   memset(&nfa_rw_cb, 0, sizeof(tNFA_RW_CB));
@@ -110,7 +110,7 @@ void nfa_rw_sys_disable(void) {
   tRW_I93_CB* p_i93;
   tRW_MFC_CB* p_mfc;
 
-  LOG(DEBUG) << __func__;
+  LOG(VERBOSE) << __func__;
 
   switch (rw_cb.tcb_type) {
     case RW_CB_TYPE_T1T:
@@ -248,7 +248,7 @@ tNFA_STATUS nfa_rw_send_raw_frame(NFC_HDR* p_data) {
 bool nfa_rw_handle_event(NFC_HDR* p_msg) {
   uint16_t act_idx;
 
-  LOG(DEBUG) << StringPrintf(
+  LOG(VERBOSE) << StringPrintf(
       "nfa_rw_handle_event event: %s (0x%02x), flags: %08x",
       nfa_rw_evt_2_str(p_msg->event).c_str(), p_msg->event, nfa_rw_cb.flags);
 

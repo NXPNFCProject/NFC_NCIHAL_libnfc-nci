@@ -13,7 +13,7 @@
 using android::base::StringAppendF;
 using android::base::StringPrintf;
 
-#define FUZZLOG(...) LOG(DEBUG) << __func__ << ":" << StringPrintf(__VA_ARGS__);
+#define FUZZLOG(...) LOG(VERBOSE) << __func__ << ":" << StringPrintf(__VA_ARGS__);
 
 typedef std::vector<uint8_t> bytes_t;
 

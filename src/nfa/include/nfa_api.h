@@ -1422,6 +1422,9 @@ extern tNFA_STATUS NFA_SetPowerSubStateForScreenState(uint8_t ScreenState);
 **                               before calling NFA_StopRfDiscovery
 **                               FALSE if changing RF listening tech according
 **                               to listenTech
+**                  change_default_tech : TRUE if the default technolofy mask
+**                               has to be changed according to listenTech
+**                               and pollTech settings
 **
 ** Note:            If RF discovery is started,
 **                  NFA_StopRfDiscovery()/NFA_RF_DISCOVERY_STOPPED_EVT
@@ -1433,7 +1436,8 @@ extern tNFA_STATUS NFA_SetPowerSubStateForScreenState(uint8_t ScreenState);
 *******************************************************************************/
 tNFA_STATUS NFA_ChangeDiscoveryTech(tNFA_TECHNOLOGY_MASK pollTech,
                                     tNFA_TECHNOLOGY_MASK listenTech,
-                                    bool is_revert_poll, bool is_revert_listen);
+                                    bool is_revert_poll, bool is_revert_listen,
+                                    bool change_default_tech = false);
 
 #if (NXP_EXTNS == TRUE)
 /*******************************************************************************

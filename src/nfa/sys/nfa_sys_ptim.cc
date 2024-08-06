@@ -88,7 +88,7 @@ void nfa_sys_ptim_timer_update(tPTIM_CB* p_cb) {
          (GKI_timer_list_first(&p_cb->timer_queue)->ticks <= 0)) {
     /* removed expired timer from list */
     p_tle = GKI_timer_list_first(&p_cb->timer_queue);
-    LOG(DEBUG) << StringPrintf("nfa_sys_ptim_timer_update expired: %p", p_tle);
+    LOG(VERBOSE) << StringPrintf("nfa_sys_ptim_timer_update expired: %p", p_tle);
     GKI_remove_from_timer_list(&p_cb->timer_queue, p_tle);
 
     /* call timer callback */
@@ -106,7 +106,7 @@ void nfa_sys_ptim_timer_update(tPTIM_CB* p_cb) {
 
   /* if timer list is empty stop periodic GKI timer */
   if (GKI_timer_list_empty(&p_cb->timer_queue)) {
-    LOG(DEBUG) << StringPrintf("ptim timer stop");
+    LOG(VERBOSE) << StringPrintf("ptim timer stop");
     GKI_stop_timer(p_cb->timer_id);
   }
 }
@@ -123,11 +123,11 @@ void nfa_sys_ptim_timer_update(tPTIM_CB* p_cb) {
 *******************************************************************************/
 void nfa_sys_ptim_start_timer(tPTIM_CB* p_cb, TIMER_LIST_ENT* p_tle,
                               uint16_t type, int32_t timeout) {
-  LOG(DEBUG) << StringPrintf("nfa_sys_ptim_start_timer %p", p_tle);
+  LOG(VERBOSE) << StringPrintf("nfa_sys_ptim_start_timer %p", p_tle);
 
   /* if timer list is currently empty, start periodic GKI timer */
   if (GKI_timer_list_empty(&p_cb->timer_queue)) {
-    LOG(DEBUG) << StringPrintf("ptim timer start");
+    LOG(VERBOSE) << StringPrintf("ptim timer start");
     p_cb->last_gki_ticks = GKI_get_tick_count();
     GKI_start_timer(p_cb->timer_id, GKI_MS_TO_TICKS(p_cb->period), true);
   }
@@ -150,13 +150,13 @@ void nfa_sys_ptim_start_timer(tPTIM_CB* p_cb, TIMER_LIST_ENT* p_tle,
 **
 *******************************************************************************/
 void nfa_sys_ptim_stop_timer(tPTIM_CB* p_cb, TIMER_LIST_ENT* p_tle) {
-  LOG(DEBUG) << StringPrintf("nfa_sys_ptim_stop_timer %p", p_tle);
+  LOG(VERBOSE) << StringPrintf("nfa_sys_ptim_stop_timer %p", p_tle);
 
   GKI_remove_from_timer_list(&p_cb->timer_queue, p_tle);
 
   /* if timer list is empty stop periodic GKI timer */
   if (GKI_timer_list_empty(&p_cb->timer_queue)) {
-    LOG(DEBUG) << StringPrintf("ptim timer stop");
+    LOG(VERBOSE) << StringPrintf("ptim timer stop");
     GKI_stop_timer(p_cb->timer_id);
   }
 }

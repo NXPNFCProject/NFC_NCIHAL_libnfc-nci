@@ -65,7 +65,7 @@ void FuzzedCoreInitialized(uint16_t, uint8_t*) {}
 
 void FuzzedWrite(uint16_t size, uint8_t*) {
   // Note: compromised firmware can observe writes to the HAL
-  LOG(DEBUG) << android::base::StringPrintf("Got a write of %d bytes", size);
+  LOG(VERBOSE) << android::base::StringPrintf("Got a write of %d bytes", size);
 }
 
 bool FuzzedPrediscover() { return false; }

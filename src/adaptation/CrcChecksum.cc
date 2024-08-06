@@ -91,7 +91,7 @@ uint16_t crcChecksumCompute(const unsigned char* buffer, int bufferLen) {
 **
 *******************************************************************************/
 bool crcChecksumVerifyIntegrity(const char* filename) {
-  LOG(DEBUG) << StringPrintf("%s: filename=%s", __func__, filename);
+  LOG(VERBOSE) << StringPrintf("%s: filename=%s", __func__, filename);
   bool isGood = false;
   int fileStream = open(filename, O_RDONLY);
   if (fileStream >= 0) {
@@ -108,7 +108,7 @@ bool crcChecksumVerifyIntegrity(const char* filename) {
     }
     close(fileStream);
     if ((actualReadCrc == sizeof(checksum)) && (data.size() > 0)) {
-      LOG(DEBUG) << StringPrintf("%s: data size=%zu", __func__, data.size());
+      LOG(VERBOSE) << StringPrintf("%s: data size=%zu", __func__, data.size());
       if (checksum ==
           crcChecksumCompute((const unsigned char*)data.data(), data.size()))
         isGood = true;

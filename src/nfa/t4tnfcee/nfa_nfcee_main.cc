@@ -57,7 +57,7 @@ const tNFA_T4TNFCEE_ACTION nfa_t4tnfcee_action_tbl[] = {
 void nfa_t4tnfcee_init(void) {
   if (NfcConfig::hasKey(NAME_NXP_T4T_NFCEE_ENABLE)) {
     if (NFA_T4T_NFCEE_ENANLE_BIT_POS & NfcConfig::getUnsigned(NAME_NXP_T4T_NFCEE_ENABLE)) {
-      LOG(DEBUG) << StringPrintf("nfa_t4tnfcee_init ()");
+      LOG(VERBOSE) << StringPrintf("nfa_t4tnfcee_init ()");
       /* initialize control block */
       memset(&nfa_t4tnfcee_cb, 0, sizeof(tNFA_T4TNFCEE_CB));
       nfa_t4tnfcee_cb.t4tnfcee_state = NFA_T4TNFCEE_STATE_DISABLED;
@@ -77,7 +77,7 @@ void nfa_t4tnfcee_init(void) {
 **
 *******************************************************************************/
 void nfa_t4tnfcee_deinit(void) {
-  LOG(DEBUG) << StringPrintf("nfa_t4tnfcee_deinit ()");
+  LOG(VERBOSE) << StringPrintf("nfa_t4tnfcee_deinit ()");
 
   /* reset state */
   nfa_t4tnfcee_cb.t4tnfcee_state = NFA_T4TNFCEE_STATE_DISABLED;
@@ -96,7 +96,7 @@ void nfa_t4tnfcee_deinit(void) {
 static void nfa_t4tnfcee_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
                                     tNFC_CONN* p_data) {
   tNFA_CONN_EVT_DATA conn_evt_data;
-  LOG(DEBUG) << StringPrintf("%s : Enter, conn_id = %d, event = 0x%x", __func__,
+  LOG(VERBOSE) << StringPrintf("%s : Enter, conn_id = %d, event = 0x%x", __func__,
                              conn_id, event);
   switch (event) {
     case NFC_CONN_CREATE_CEVT: {
@@ -141,7 +141,7 @@ static void nfa_t4tnfcee_conn_cback(uint8_t conn_id, tNFC_CONN_EVT event,
  **
  *******************************************************************************/
 void nfa_t4tnfcee_info_cback(tNFA_EE_EVT event, tNFA_EE_CBACK_DATA* p_data) {
-  LOG(DEBUG) << StringPrintf("%s event: %x", __func__, event);
+  LOG(VERBOSE) << StringPrintf("%s event: %x", __func__, event);
   switch (event) {
     case NFA_EE_DISCOVER_EVT:
       if (nfa_t4tnfcee_cb.t4tnfcee_state == NFA_T4TNFCEE_STATE_DISABLED) {
@@ -231,7 +231,7 @@ static std::string nfa_t4tnfcee_evt_2_str(uint16_t event) {
 **
 *******************************************************************************/
 void nfa_t4tnfcee_sys_enable(void) {
-  LOG(DEBUG) << StringPrintf("nfa_t4tnfcee_sys_enable ()");
+  LOG(VERBOSE) << StringPrintf("nfa_t4tnfcee_sys_enable ()");
 }
 
 /*******************************************************************************
@@ -267,7 +267,7 @@ void nfa_t4tnfcee_sys_disable(void) {
 **
 *******************************************************************************/
 tNFC_STATUS nfa_t4tnfcee_proc_disc_evt(tNFA_T4TNFCEE_OP event) {
-  LOG(DEBUG) << StringPrintf("%s Enter. Event = %d ", __func__, (int)event);
+  LOG(VERBOSE) << StringPrintf("%s Enter. Event = %d ", __func__, (int)event);
   tNFC_STATUS status = NFC_STATUS_FAILED;
 
   switch (event) {
@@ -301,7 +301,7 @@ tNFC_STATUS nfa_t4tnfcee_proc_disc_evt(tNFA_T4TNFCEE_OP event) {
 bool nfa_t4tnfcee_handle_event(NFC_HDR* p_msg) {
   uint16_t act_idx;
 
-  LOG(DEBUG) << StringPrintf("nfa_t4tnfcee_handle_event event: %s (0x%02x)",
+  LOG(VERBOSE) << StringPrintf("nfa_t4tnfcee_handle_event event: %s (0x%02x)",
                              nfa_t4tnfcee_evt_2_str(p_msg->event).c_str(),
                              p_msg->event);
 
@@ -309,7 +309,7 @@ bool nfa_t4tnfcee_handle_event(NFC_HDR* p_msg) {
   if ((act_idx = (p_msg->event & 0x00FF)) < (NFA_T4TNFCEE_MAX_EVT & 0xFF)) {
     return (*nfa_t4tnfcee_action_tbl[act_idx])((tNFA_T4TNFCEE_MSG*)p_msg);
   } else {
-    LOG(DEBUG) << StringPrintf(
+    LOG(VERBOSE) << StringPrintf(
         "nfa_t4tnfcee_handle_event: unhandled event 0x%02X", p_msg->event);
     return true;
   }
