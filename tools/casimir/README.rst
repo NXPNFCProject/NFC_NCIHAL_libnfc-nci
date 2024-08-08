@@ -153,7 +153,8 @@ RF management
 | RF_T3T_POLLING_NTF              |              |                                                 |
 +---------------------------------+--------------+-------------------------------------------------+
 | RF_NFCEE_ACTION_NTF             | Not started  |                                                 |
-| RF_NFCEE_DISCOVERY_REQ_NTF      |              |                                                 |
++---------------------------------+--------------+-------------------------------------------------+
+| RF_NFCEE_DISCOVERY_REQ_NTF      | Completed    |                                                 |
 +---------------------------------+--------------+-------------------------------------------------+
 | RF_PARAMETER_UPDATE_CMD         | Not started  |                                                 |
 | RF_PARAMETER_UPDATE_RSP         |              |                                                 |
@@ -181,11 +182,11 @@ RF management
 NFCEE management
 """"""""""""""""
 +---------------------------------+--------------+-------------------------------------------------+
-| NFCEE_DISCOVER_CMD              | In progress  | Implemented as stub. To be defined: number and  |
-| NFCEE_DISCOVER_RSP              |              | type of NFCEE interfaces.                       |
-| NFCEE_DISCOVER_NTF              |              |                                                 |
+| NFCEE_DISCOVER_CMD              | In progress  | Implemented discovery for one NFCEE (eSE (ST))  |
+| NFCEE_DISCOVER_RSP              |              | reproducing the configuration found on Pixel7   |
+| NFCEE_DISCOVER_NTF              |              | devices.                                        |
 +---------------------------------+--------------+-------------------------------------------------+
-| NFCEE_MODE_SET_CMD              | Not started  | Implemented as stub                             |
+| NFCEE_MODE_SET_CMD              | Completed    |                                                 |
 | NFCEE_MODE_SET_RSP              |              |                                                 |
 | NFCEE_MODE_SET_NTF              |              |                                                 |
 +---------------------------------+--------------+-------------------------------------------------+

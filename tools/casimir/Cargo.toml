@@ -2,15 +2,30 @@
 name = "casimir"
 version = "0.1.0"
 edition = "2021"
+default-run = "casimir"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name = "casimir"
+path = "src/main.rs"
+
+[[bin]]
+name = "casimir-grpc"
+path = "src/main-grpc.rs"
 
 [dependencies]
 anyhow = "1.0.71"
 argh = "0.1.10"
 bytes = "1.4.0"
+log = "0.4.17"
+env_logger = "0.10.0"
 futures = "0.3.28"
-pdl-runtime = "0.2.2"
+pdl-runtime = "0.3.0"
 thiserror = "1.0.40"
 tokio = { version = "1.22", features = ["full", "io-util"] }
 tokio-stream = { version = "0.1", features = ["sync"] }
+grpcio = "0.13"
+protobuf = "2.8.0"
+
+[build-dependencies]
+pdl-compiler = "0.3.0"
+protoc-grpcio = "3.0.0"

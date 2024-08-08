@@ -1,0 +1,67 @@
+syntax = "proto2";
+
+package casimir;
+
+/// Description of the Casimir gRPC service.
+service Casimir {
+    /// Returns the list of devices currently connected to,
+    /// or existing within Casimir. Listed devices may be of three
+    /// different types:
+    ///   - NCI device (Host connected through the NCI port)
+    ///   - RF device (device emulated through the RF port)
+    ///   - Tag device (device fully emulated by Casimir)
+    rpc ListDevices(ListDevicesRequest) returns (ListDevicesResponse);
+
+    /// Query information about a created device.
+    rpc GetDevice(GetDeviceRequest) returns (GetDeviceResponse);
+
+    /// Change the relative position of the selected device.
+    rpc MoveDevice(MoveDeviceRequest) returns (MoveDeviceResponse);
+}
+
+/// Information about a connected device that can be queried
+/// from ListDevices or GetDevice.
+message Device {
+    message Nci {}
+    message Rf {}
+
+    optional uint32 device_id = 1;
+    optional uint32 position = 2;
+
+    oneof type {
+        Nci nci = 3;
+        Rf rf = 4;
+    }
+}
+
+/// Parameters for the ListDevices command.
+message ListDevicesRequest {
+}
+
+/// Result of the ListDevices command.
+message ListDevicesResponse {
+    repeated Device device = 1;
+}
+
+/// Parameters for the GetDevice command.
+message GetDeviceRequest {
+    optional uint32 device_id = 1;
+}
+
+/// Result of the GetDevice command.
+message GetDeviceResponse {
+    optional Device device = 1;
+}
+
+/// Parameters for the MoveDevice command.
+/// The device ID uniquely identifies the device; the position
+/// is interpreted on a linear range (the only information pertinent for
+/// NFC is contact / no-contact).
+message MoveDeviceRequest {
+    optional uint32 device_id = 1;
+    optional uint32 position = 2;
+}
+
+/// Result of the MoveDevice command.
+message MoveDeviceResponse {
+}

@@ -12,16 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+package {
+    default_team: "trendy_team_fwk_nfc",
+}
+
 genrule {
     name: "casimir_nci_packets_rust_gen",
-    defaults: ["pdl_rust_generator_defaults"],
+    defaults: ["pdl_rust_legacy_generator_defaults"],
     srcs: ["src/nci_packets.pdl"],
     out: ["nci_packets.rs"],
 }
 
 genrule {
     name: "casimir_rf_packets_rust_gen",
-    defaults: ["pdl_rust_generator_defaults"],
+    defaults: ["pdl_rust_legacy_generator_defaults"],
     srcs: ["src/rf_packets.pdl"],
     out: ["rf_packets.rs"],
 }
@@ -36,11 +40,13 @@ rust_binary_host {
         ":casimir_rf_packets_rust_gen",
     ],
     rustlibs: [
+        "libenv_logger",
         "libanyhow",
         "libargh",
         "libtokio",
         "libbytes",
         "libfutures",
+        "liblog_rust",
         "libpdl_runtime",
     ],
 }

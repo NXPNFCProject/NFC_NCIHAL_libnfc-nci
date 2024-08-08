@@ -89,6 +89,7 @@ class T4AT:
                         await self.active(response.sender)
                     case _:
                         pass
+                time.sleep(0.150);
             except TimeoutError:
                 pass
 

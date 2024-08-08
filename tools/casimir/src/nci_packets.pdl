@@ -73,7 +73,10 @@ enum ProprietaryOpcodeId : 6 {
 }
 
 enum AndroidSubOpcodeId : 8 {
-  OBSERVE_MODE = 0x2,
+  GET_CAPS = 0x0,
+  PASSIVE_OBSERVE_MODE = 0x2,
+  POLLING_FRAME = 0x3,
+  QUERY_PASSIVE_OBSERVE_MODE = 0x4,
 }
 
 enum Status : 8 {
@@ -117,6 +120,14 @@ enum ConnId : 4 {
 enum RfDiscoveryId : 8 {
   ID = 0x01 .. 0xfe,
   RFU = ..,
+}
+
+// [NCI] Table 116: NFCEE IDs
+enum NfceeId : 8 {
+  DH = 0x00,
+  HCI_NETWORK = 0x01,
+  NFCEE = 0x10 .. 0x7f,
+  HCI_NFCEE = 0x80 .. 0xfe,
 }
 
 // Generic format for NCI packet headers.
@@ -208,8 +219,8 @@ packet CoreInitCommand : CorePacket (mt = COMMAND, oid = INIT) {
 }
 
 enum FeatureFlag : 1 {
-  Enabled = 0,
-  Disabled = 1,
+  DISABLED = 0,
+  ENABLED = 1,
 }
 
 enum DiscoveryConfigurationMode : 2 {
@@ -245,6 +256,7 @@ enum RfInterfaceType : 8 {
   ISO_DEP = 0x02,
   NFC_DEP = 0x03,
   NDEF = 0x06,
+  PROPRIETARY = 0x80..0xfe,
 }
 
 enum RfInterfaceExtensionType : 8 {
@@ -317,6 +329,7 @@ enum ConfigParameterId : 8 {
   LF_T3T_IDENTIFIERS_14 = 0x4D,
   LF_T3T_IDENTIFIERS_15 = 0x4E,
   LF_T3T_IDENTIFIERS_16 = 0x4F,
+  LF_T3T_PMM_DEFAULT = 0x51, // deprecated in 2.2
   LF_T3T_MAX = 0x52,
   LF_T3T_FLAGS = 0x53,
   LF_T3T_RD_ALLOWED = 0x55,
@@ -372,6 +385,7 @@ packet CoreGetConfigResponse : CorePacket (mt = RESPONSE, oid = GET_CONFIG) {
   parameters : ConfigParameter[],
 }
 
+// [NCI] Table 133: RF Protocols
 enum RfProtocolType : 8 {
   UNDETERMINED = 0x00,
   T1T = 0x01,
@@ -528,11 +542,12 @@ enum RfTechnologyAndMode : 8 {
   NFC_F_PASSIVE_POLL_MODE = 0x02,
   NFC_ACTIVE_POLL_MODE = 0x03,
   NFC_V_PASSIVE_POLL_MODE = 0x06,
+  PROPRIETARY_POLL_MODE = 0x70 .. 0x7f,
   NFC_A_PASSIVE_LISTEN_MODE = 0x80,
   NFC_B_PASSIVE_LISTEN_MODE = 0x81,
   NFC_F_PASSIVE_LISTEN_MODE = 0x82,
   NFC_ACTIVE_LISTEN_MODE = 0x83,
-  PROPRIETARY = 0xf0 .. 0xff,
+  PROPRIETARY_LISTEN_MODE = 0xf0 .. 0xff,
 }
 
 struct DiscoverConfiguration {
@@ -689,7 +704,7 @@ enum DeactivationType : 8 {
   IDLE_MODE = 0x00,
   SLEEP_MODE = 0x01,
   SLEEP_AF_MODE = 0x02,
-  DISCOVER = 0x03,
+  DISCOVERY = 0x03,
 }
 
 enum DeactivationReason : 8 {
@@ -713,6 +728,26 @@ packet RfDeactivateNotification : RfPacket (mt = NOTIFICATION, oid = DEACTIVATE)
   deactivation_reason : DeactivationReason,
 }
 
+// [NCI] Table 85: TLV Coding for RF Discovery Request from NFCEE
+enum InformationEntryType : 8 {
+  ADD_DISCOVERY_REQUEST = 0x00,
+  REMOVE_DISCOVERY_REQUEST = 0x01,
+}
+
+struct InformationEntry {
+  type : InformationEntryType,
+  _fixed_ = 3 : 8,
+  nfcee_id : NfceeId,
+  rf_technology_and_mode : RfTechnologyAndMode,
+  rf_protocol : RfProtocolType,
+}
+
+// [NCI] Table 84: Notification for RF Discovery Request from NFCEE
+packet RfNfceeDiscoveryReqNotification : RfPacket (mt = NOTIFICATION, oid = NFCEE_DISCOVERY_REQ) {
+  _count_ (information_entries) : 8,
+  information_entries : InformationEntry[],
+}
+
 packet NfceePacket : ControlPacket (gid = NFCEE_MANAGEMENT) {
   oid : NfceeOpcodeId,
   _reserved_ : 2,
@@ -728,6 +763,60 @@ packet NfceeDiscoverResponse : NfceePacket (mt = RESPONSE, oid = DISCOVER) {
   number_of_nfcees : 8,
 }
 
+enum NfceeStatus : 8 {
+  ENABLED = 0x00,
+  DISABLED = 0x01,
+  UNRESPONSIVE = 0x02,
+}
+
+// [NCI] Table 118: TLV Coding for NFCEE Discovery
+enum NfceeInformationType : 8 {
+  HARDWARE_IDENTIFICATION = 0x00,
+  ATR_BYTES = 0x01,
+  T3T_COMMAND_SET_INTERFACE_SUPPLEMENTARY_INFORMATION = 0x02,
+  HOST_ID = 0x03,
+  NDEF_STORAGE = 0x04,
+}
+
+struct NfceeInformation {
+  type : NfceeInformationType,
+  _size_(value) : 8,
+  value : 8[],
+}
+
+enum NfceeSupplyPower : 8 {
+  NFCC_HAS_NO_CONTROL = 0x00,
+  NFCC_HAS_CONTROL = 0x01,
+}
+
+packet NfceeDiscoverNotification : NfceePacket (mt = NOTIFICATION, oid = DISCOVER) {
+  nfcee_id : NfceeId,
+  nfcee_status : NfceeStatus,
+  _count_(supported_nfcee_protocols) : 8,
+  supported_nfcee_protocols : NfceeProtocolType[],
+  _count_(nfcee_information) : 8,
+  nfcee_information : NfceeInformation[],
+  nfcee_supply_power : NfceeSupplyPower,
+}
+
+enum NfceeMode : 8 {
+  DISABLE = 0x00,
+  ENABLE = 0x01,
+}
+
+packet NfceeModeSetCommand : NfceePacket (mt = COMMAND, oid = MODE_SET) {
+  nfcee_id : NfceeId,
+  nfcee_mode : NfceeMode,
+}
+
+packet NfceeModeSetResponse : NfceePacket (mt = RESPONSE, oid = MODE_SET) {
+  status : Status,
+}
+
+packet NfceeModeSetNotification : NfceePacket (mt = NOTIFICATION, oid = MODE_SET) {
+  status : Status,
+}
+
 packet ProprietaryPacket : ControlPacket (gid = PROPRIETARY) {
   oid : ProprietaryOpcodeId,
   _reserved_ : 2,
@@ -740,15 +829,73 @@ packet AndroidPacket : ProprietaryPacket (oid = ANDROID) {
   _payload_,
 }
 
-enum ObserveModeEnable : 8 {
+packet AndroidGetCapsCommand : AndroidPacket (mt = COMMAND, android_sub_oid = GET_CAPS) {
+}
+
+enum CapTlvType: 8 {
+  PASSIVE_OBSERVER_MODE = 0x00,
+  POLLING_FRAME_NOTIFICATION = 0x01,
+  POWER_SAVING_MODE = 0x02,
+}
+
+struct CapTlv {
+  t: CapTlvType,
+  _count_(v): 8,
+  v: 8[],
+}
+
+packet AndroidGetCapsResponse : AndroidPacket (mt = RESPONSE, android_sub_oid = GET_CAPS) {
+  status: Status,
+  android_version: 16,
+  _count_(tlvs): 8,
+  tlvs: CapTlv[],
+}
+
+enum PassiveObserveMode : 8 {
   DISABLE = 0x0,
   ENABLE = 0x1,
 }
 
-packet AndroidObserveModeCmd : AndroidPacket(mt = COMMAND, android_sub_oid = OBSERVE_MODE) {
-  observe_mode_enable: ObserveModeEnable,
+packet AndroidPassiveObserveModeCommand : AndroidPacket(mt = COMMAND, android_sub_oid = PASSIVE_OBSERVE_MODE) {
+  passive_observe_mode: PassiveObserveMode,
 }
 
-packet AndroidObserveModeRsp : AndroidPacket(mt = RESPONSE, android_sub_oid = OBSERVE_MODE) {
+packet AndroidPassiveObserveModeResponse : AndroidPacket(mt = RESPONSE, android_sub_oid = PASSIVE_OBSERVE_MODE) {
   status: Status,
+}
+
+packet AndroidQueryPassiveObserveModeCommand : AndroidPacket(mt = COMMAND, android_sub_oid = QUERY_PASSIVE_OBSERVE_MODE) {
+}
+
+packet AndroidQueryPassiveObserveModeResponse : AndroidPacket(mt = RESPONSE, android_sub_oid = QUERY_PASSIVE_OBSERVE_MODE) {
+  status: Status,
+  passive_observe_mode: PassiveObserveMode,
+}
+
+enum PollingFrameType : 8 {
+  REMOTE_FIELD = 0x0,
+  REQA = 0x1,
+  REQB = 0x2,
+  REQF = 0x3,
+  WUPA = 0x4,
+  WUPB = 0x5,
+  WUPF = 0x6,
+  UNKNOWN = 0x7,
+  REQV = 0x8,
+  WUPV = 0x9,
+}
+
+struct PollingFrame {
+  type: PollingFrameType,
+  flags: 8,
+  _size_(data): 8,
+  // The timestamp is encoded in big-endian byte order,
+  // whereas other NCI definitions are little-endian.
+  timestamp: 8[4],
+  gain: 8,
+  data: 8[],
+}
+
+packet AndroidPollingLoopNotification : AndroidPacket(mt = NOTIFICATION, android_sub_oid = POLLING_FRAME) {
+  polling_frames: PollingFrame[],
 }

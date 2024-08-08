@@ -1,10 +1,8 @@
-# File generated from src/rf_packets.pdl, with the command:
-#  pdlc src/rf_packets.pdl | pdl-compiler/scripts/generate_python_backend.py --output scripts/rf_packets.py
+# File generated from <stdin>, with the command:
+#  /home/henrichataing/Projects/github/google/pdl/pdl-compiler/scripts/generate_python_backend.py
 # /!\ Do not edit by hand.
-#
-# TODO(henrichataing): add build rules to auto-generate this file instead.
 from dataclasses import dataclass, field, fields
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Union
 import enum
 import inspect
 import math
@@ -90,6 +88,14 @@ class Technology(enum.IntEnum):
     NFC_F = 0x2
     NFC_V = 0x3
 
+    @staticmethod
+    def from_int(v: int) -> Union[int, 'Technology']:
+        try:
+            return Technology(v)
+        except ValueError as exn:
+            raise exn
+
+
 class Protocol(enum.IntEnum):
     UNDETERMINED = 0x0
     T1T = 0x1
@@ -100,6 +106,14 @@ class Protocol(enum.IntEnum):
     T5T = 0x6
     NDEF = 0x7
 
+    @staticmethod
+    def from_int(v: int) -> Union[int, 'Protocol']:
+        try:
+            return Protocol(v)
+        except ValueError as exn:
+            raise exn
+
+
 class RfPacketType(enum.IntEnum):
     DATA = 0x0
     POLL_COMMAND = 0x1
@@ -108,13 +122,21 @@ class RfPacketType(enum.IntEnum):
     SELECT_RESPONSE = 0x4
     DEACTIVATE_NOTIFICATION = 0x5
 
+    @staticmethod
+    def from_int(v: int) -> Union[int, 'RfPacketType']:
+        try:
+            return RfPacketType(v)
+        except ValueError as exn:
+            raise exn
+
+
 @dataclass
 class RfPacket(Packet):
     sender: int = field(kw_only=True, default=0)
     receiver: int = field(kw_only=True, default=0)
     technology: Technology = field(kw_only=True, default=Technology.NFC_A)
     protocol: Protocol = field(kw_only=True, default=Protocol.UNDETERMINED)
-    type: RfPacketType = field(kw_only=True, default=RfPacketType.DATA)
+    packet_type: RfPacketType = field(kw_only=True, default=RfPacketType.DATA)
 
     def __post_init__(self):
         pass
@@ -128,9 +150,9 @@ class RfPacket(Packet):
         fields['sender'] = value_
         value_ = int.from_bytes(span[2:4], byteorder='little')
         fields['receiver'] = value_
-        fields['technology'] = Technology(span[4])
-        fields['protocol'] = Protocol(span[5])
-        fields['type'] = RfPacketType(span[6])
+        fields['technology'] = Technology.from_int(span[4])
+        fields['protocol'] = Protocol.from_int(span[5])
+        fields['packet_type'] = RfPacketType.from_int(span[6])
         span = span[7:]
         payload = span
         span = bytes([])
@@ -185,7 +207,7 @@ class RfPacket(Packet):
         _span.extend(int.to_bytes((self.receiver << 0), length=2, byteorder='little'))
         _span.append((self.technology << 0))
         _span.append((self.protocol << 0))
-        _span.append((self.type << 0))
+        _span.append((self.packet_type << 0))
         _span.extend(payload or self.payload or [])
         return bytes(_span)
 
@@ -198,11 +220,11 @@ class PollCommand(RfPacket):
 
 
     def __post_init__(self):
-        self.type = RfPacketType.POLL_COMMAND
+        self.packet_type = RfPacketType.POLL_COMMAND
 
     @staticmethod
     def parse(fields: dict, span: bytes) -> Tuple['PollCommand', bytes]:
-        if fields['type'] != RfPacketType.POLL_COMMAND:
+        if fields['packet_type'] != RfPacketType.POLL_COMMAND:
             raise Exception("Invalid constraint field values")
         return PollCommand(**fields), span
 
@@ -218,14 +240,15 @@ class PollCommand(RfPacket):
 class NfcAPollResponse(RfPacket):
     nfcid1: bytearray = field(kw_only=True, default_factory=bytearray)
     int_protocol: int = field(kw_only=True, default=0)
+    bit_frame_sdd: int = field(kw_only=True, default=0)
 
     def __post_init__(self):
         self.technology = Technology.NFC_A
-        self.type = RfPacketType.POLL_RESPONSE
+        self.packet_type = RfPacketType.POLL_RESPONSE
 
     @staticmethod
     def parse(fields: dict, span: bytes) -> Tuple['NfcAPollResponse', bytes]:
-        if fields['technology'] != Technology.NFC_A or fields['type'] != RfPacketType.POLL_RESPONSE:
+        if fields['technology'] != Technology.NFC_A or fields['packet_type'] != RfPacketType.POLL_RESPONSE:
             raise Exception("Invalid constraint field values")
         if len(span) < 1:
             raise Exception('Invalid packet size')
@@ -235,10 +258,11 @@ class NfcAPollResponse(RfPacket):
             raise Exception('Invalid packet size')
         fields['nfcid1'] = list(span[:nfcid1_size])
         span = span[nfcid1_size:]
-        if len(span) < 1:
+        if len(span) < 2:
             raise Exception('Invalid packet size')
         fields['int_protocol'] = (span[0] >> 0) & 0x3
-        span = span[1:]
+        fields['bit_frame_sdd'] = span[1]
+        span = span[2:]
         return NfcAPollResponse(**fields), span
 
     def serialize(self, payload: bytes = None) -> bytes:
@@ -249,11 +273,15 @@ class NfcAPollResponse(RfPacket):
             print(f"Invalid value for field NfcAPollResponse::int_protocol: {self.int_protocol} > 3; the value will be truncated")
             self.int_protocol &= 3
         _span.append((self.int_protocol << 0))
+        if self.bit_frame_sdd > 255:
+            print(f"Invalid value for field NfcAPollResponse::bit_frame_sdd: {self.bit_frame_sdd} > 255; the value will be truncated")
+            self.bit_frame_sdd &= 255
+        _span.append((self.bit_frame_sdd << 0))
         return RfPacket.serialize(self, payload = bytes(_span))
 
     @property
     def size(self) -> int:
-        return len(self.nfcid1) * 1 + 2
+        return len(self.nfcid1) * 1 + 3
 
 @dataclass
 class T4ATSelectCommand(RfPacket):
@@ -262,11 +290,11 @@ class T4ATSelectCommand(RfPacket):
     def __post_init__(self):
         self.technology = Technology.NFC_A
         self.protocol = Protocol.ISO_DEP
-        self.type = RfPacketType.SELECT_COMMAND
+        self.packet_type = RfPacketType.SELECT_COMMAND
 
     @staticmethod
     def parse(fields: dict, span: bytes) -> Tuple['T4ATSelectCommand', bytes]:
-        if fields['technology'] != Technology.NFC_A or fields['protocol'] != Protocol.ISO_DEP or fields['type'] != RfPacketType.SELECT_COMMAND:
+        if fields['technology'] != Technology.NFC_A or fields['protocol'] != Protocol.ISO_DEP or fields['packet_type'] != RfPacketType.SELECT_COMMAND:
             raise Exception("Invalid constraint field values")
         if len(span) < 1:
             raise Exception('Invalid packet size')
@@ -293,11 +321,11 @@ class T4ATSelectResponse(RfPacket):
     def __post_init__(self):
         self.technology = Technology.NFC_A
         self.protocol = Protocol.ISO_DEP
-        self.type = RfPacketType.SELECT_RESPONSE
+        self.packet_type = RfPacketType.SELECT_RESPONSE
 
     @staticmethod
     def parse(fields: dict, span: bytes) -> Tuple['T4ATSelectResponse', bytes]:
-        if fields['technology'] != Technology.NFC_A or fields['protocol'] != Protocol.ISO_DEP or fields['type'] != RfPacketType.SELECT_RESPONSE:
+        if fields['technology'] != Technology.NFC_A or fields['protocol'] != Protocol.ISO_DEP or fields['packet_type'] != RfPacketType.SELECT_RESPONSE:
             raise Exception("Invalid constraint field values")
         if len(span) < 1:
             raise Exception('Invalid packet size')
@@ -325,11 +353,11 @@ class NfcDepSelectCommand(RfPacket):
 
     def __post_init__(self):
         self.protocol = Protocol.NFC_DEP
-        self.type = RfPacketType.SELECT_COMMAND
+        self.packet_type = RfPacketType.SELECT_COMMAND
 
     @staticmethod
     def parse(fields: dict, span: bytes) -> Tuple['NfcDepSelectCommand', bytes]:
-        if fields['protocol'] != Protocol.NFC_DEP or fields['type'] != RfPacketType.SELECT_COMMAND:
+        if fields['protocol'] != Protocol.NFC_DEP or fields['packet_type'] != RfPacketType.SELECT_COMMAND:
             raise Exception("Invalid constraint field values")
         if len(span) < 1:
             raise Exception('Invalid packet size')
@@ -355,11 +383,11 @@ class NfcDepSelectResponse(RfPacket):
 
     def __post_init__(self):
         self.protocol = Protocol.NFC_DEP
-        self.type = RfPacketType.SELECT_RESPONSE
+        self.packet_type = RfPacketType.SELECT_RESPONSE
 
     @staticmethod
     def parse(fields: dict, span: bytes) -> Tuple['NfcDepSelectResponse', bytes]:
-        if fields['protocol'] != Protocol.NFC_DEP or fields['type'] != RfPacketType.SELECT_RESPONSE:
+        if fields['protocol'] != Protocol.NFC_DEP or fields['packet_type'] != RfPacketType.SELECT_RESPONSE:
             raise Exception("Invalid constraint field values")
         if len(span) < 1:
             raise Exception('Invalid packet size')
@@ -386,11 +414,11 @@ class SelectCommand(RfPacket):
 
 
     def __post_init__(self):
-        self.type = RfPacketType.SELECT_COMMAND
+        self.packet_type = RfPacketType.SELECT_COMMAND
 
     @staticmethod
     def parse(fields: dict, span: bytes) -> Tuple['SelectCommand', bytes]:
-        if fields['type'] != RfPacketType.SELECT_COMMAND:
+        if fields['packet_type'] != RfPacketType.SELECT_COMMAND:
             raise Exception("Invalid constraint field values")
         return SelectCommand(**fields), span
 
@@ -402,6 +430,20 @@ class SelectCommand(RfPacket):
     def size(self) -> int:
         return 0
 
+class DeactivateType(enum.IntEnum):
+    IDLE_MODE = 0x0
+    SLEEP_MODE = 0x1
+    SLEEP_AF_MODE = 0x2
+    DISCOVERY = 0x3
+
+    @staticmethod
+    def from_int(v: int) -> Union[int, 'DeactivateType']:
+        try:
+            return DeactivateType(v)
+        except ValueError as exn:
+            raise exn
+
+
 class DeactivateReason(enum.IntEnum):
     DH_REQUEST = 0x0
     ENDPOINT_REQUEST = 0x1
@@ -409,42 +451,53 @@ class DeactivateReason(enum.IntEnum):
     NFC_B_BAD_AFI = 0x3
     DH_REQUEST_FAILED = 0x4
 
+    @staticmethod
+    def from_int(v: int) -> Union[int, 'DeactivateReason']:
+        try:
+            return DeactivateReason(v)
+        except ValueError as exn:
+            raise exn
+
+
 @dataclass
 class DeactivateNotification(RfPacket):
+    type_: DeactivateType = field(kw_only=True, default=DeactivateType.IDLE_MODE)
     reason: DeactivateReason = field(kw_only=True, default=DeactivateReason.DH_REQUEST)
 
     def __post_init__(self):
-        self.type = RfPacketType.DEACTIVATE_NOTIFICATION
+        self.packet_type = RfPacketType.DEACTIVATE_NOTIFICATION
 
     @staticmethod
     def parse(fields: dict, span: bytes) -> Tuple['DeactivateNotification', bytes]:
-        if fields['type'] != RfPacketType.DEACTIVATE_NOTIFICATION:
+        if fields['packet_type'] != RfPacketType.DEACTIVATE_NOTIFICATION:
             raise Exception("Invalid constraint field values")
-        if len(span) < 1:
+        if len(span) < 2:
             raise Exception('Invalid packet size')
-        fields['reason'] = DeactivateReason(span[0])
-        span = span[1:]
+        fields['type_'] = DeactivateType.from_int(span[0])
+        fields['reason'] = DeactivateReason.from_int(span[1])
+        span = span[2:]
         return DeactivateNotification(**fields), span
 
     def serialize(self, payload: bytes = None) -> bytes:
         _span = bytearray()
+        _span.append((self.type_ << 0))
         _span.append((self.reason << 0))
         return RfPacket.serialize(self, payload = bytes(_span))
 
     @property
     def size(self) -> int:
-        return 1
+        return 2
 
 @dataclass
 class Data(RfPacket):
     data: bytearray = field(kw_only=True, default_factory=bytearray)
 
     def __post_init__(self):
-        self.type = RfPacketType.DATA
+        self.packet_type = RfPacketType.DATA
 
     @staticmethod
     def parse(fields: dict, span: bytes) -> Tuple['Data', bytes]:
-        if fields['type'] != RfPacketType.DATA:
+        if fields['packet_type'] != RfPacketType.DATA:
             raise Exception("Invalid constraint field values")
         fields['data'] = list(span)
         span = bytes()
