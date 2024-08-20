@@ -1,0 +1,11 @@
+NXP Software Content Register
+
+--------------------------------------------
+Outgoing License:          Apache Version 2.0
+License Files:             COPYING
+Package Category:          Generic Extension library
+Type of content:           Source
+Description and comments:  Generic Extension library to support generic extension feature
+Release Location:          collabnet.nxp.com
+Origin:                    NXP (Apache-2.0)
+--------------------------------------------
