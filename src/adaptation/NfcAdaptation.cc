@@ -171,11 +171,11 @@ void initializeNciResetTypeFlag() {
 
 // initialize MuteTechRouteOption Flag
 // MUTE_TECH_ROUTE_OPTION
-// 0x00: Default. Route mute techs to DH, enable block bit and set power state
-// to 0x00 0x01: Remove mute techs from rf discover cmd
+// 0x00: Route mute techs to DH, enable block bit and set power state
+// to 0x00 0x01: Default. Remove mute techs from rf discover cmd
 void initializeNfcMuteTechRouteOptionFlag() {
   mute_tech_route_option =
-      NfcConfig::getUnsigned(NAME_MUTE_TECH_ROUTE_OPTION, 0);
+      NfcConfig::getUnsigned(NAME_MUTE_TECH_ROUTE_OPTION, 1);
   LOG(VERBOSE) << StringPrintf("%s: mute_tech_route_option=%u", __func__,
                                mute_tech_route_option);
 }
