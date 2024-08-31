@@ -23,6 +23,7 @@
 #include <phNfcStatus.h>
 #include <phNxpLog.h>
 #include <phOsalNfc_Timer.h>
+#include <thread>
 
 /** \addtogroup PAL_API_INTERFACE
  *  @brief  interface to perform the platform independent functionality.
@@ -177,10 +178,17 @@ public:
    *
    */
   void palSendNfcDataCallback(uint16_t dataLen, const uint8_t *pData);
+  /**
+   * @brief executes the provided function in another thread
+   * @return true if thread creation is success else false
+   *
+   */
+  bool palRunInThread(void* func(void*));
 
 private:
   static PlatformAbstractionLayer
       *sPlatformAbstractionLayer; // singleton object
+  pthread_t sThread;
   /**
    * @brief Initialize member variables.
    * @return None
@@ -194,6 +202,13 @@ private:
    *
    */
   ~PlatformAbstractionLayer();
+  /**
+   * @brief threadStartRoutine for palRunInAThread.
+   * @return None
+   *
+   */
+  static void* threadStartRoutine(void* arg);
+
 };
 /** @}*/
 #endif // PLATFORM_ABSTRACTION_LAYER_H

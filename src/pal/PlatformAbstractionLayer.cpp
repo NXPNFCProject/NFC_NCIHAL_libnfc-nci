@@ -90,3 +90,28 @@ void PlatformAbstractionLayer::palSendNfcDataCallback(uint16_t dataLen,
                                                       const uint8_t *pData) {
   phNxpHal_NfcDataCallback(dataLen, pData);
 }
+
+bool PlatformAbstractionLayer::palRunInThread(void* func(void*)) {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s:enter", __func__);
+  pthread_attr_t sPThreadAttr;
+  pthread_attr_init(&sPThreadAttr);
+  pthread_attr_setdetachstate(&sPThreadAttr, PTHREAD_CREATE_DETACHED);
+  int creation_result = pthread_create(&sThread, &sPThreadAttr,
+                        threadStartRoutine, reinterpret_cast<void*>(func));
+  if (creation_result >= 0) {
+    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "PalThread creation success!");
+  } else {
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "PalThread creation failed!");
+  }
+  pthread_attr_destroy(&sPThreadAttr);
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s:exit", __func__);
+  return creation_result >= 0;
+}
+
+void* PlatformAbstractionLayer::threadStartRoutine(void* arg) {
+  auto funcPtr = reinterpret_cast<void*(*)(void*)>(arg);
+  void* result = funcPtr(nullptr);
+  pthread_exit(result);
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s : pthread_exit done", __func__);
+  return nullptr;
+}
