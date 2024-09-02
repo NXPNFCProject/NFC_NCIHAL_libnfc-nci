@@ -49,6 +49,7 @@
 
 #include "bt_types.h"
 #include "nfc_api.h"
+#include "nfc_config.h"
 #include "nfc_int.h"
 #include "nfc_target.h"
 #include "rw_api.h"
@@ -4352,7 +4353,12 @@ tNFC_STATUS RW_I93PresenceCheck(void) {
 bool RW_I93CheckLegacyProduct(uint8_t ic_manuf, uint8_t pdt_code) {
   LOG(VERBOSE) << StringPrintf("%s - IC manufacturer:0x%x, Product code:0x%x",
                              __func__, ic_manuf, pdt_code);
-#if (NXP_EXTNS == FALSE)
+#if (NXP_EXTNS == TRUE)
+  if (NfcConfig::hasKey(NAME_ISO15693_SKIP_GET_SYS_INFO_CMD)) {
+    int mute_legacy = NfcConfig::getUnsigned(NAME_ISO15693_SKIP_GET_SYS_INFO_CMD);
+    if (mute_legacy) return false;
+  }
+#endif
   if (appl_dta_mode_flag) return false;
   if (!t5t_no_getsysinfo()) return true;
   uint8_t pdt_code_family = 0;
@@ -4396,7 +4402,7 @@ bool RW_I93CheckLegacyProduct(uint8_t ic_manuf, uint8_t pdt_code) {
     return true;
   }
   LOG(VERBOSE) << StringPrintf("%s - T5T NFC Forum product detected", __func__);
-#endif
+
   return false;
 }
 

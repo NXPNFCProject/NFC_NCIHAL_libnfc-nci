@@ -30,7 +30,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  Copyright 2018-2021, 2023 NXP
+ *  Copyright 2018-2021, 2023-2024 NXP
  *
  ******************************************************************************/
 #pragma once
@@ -149,6 +149,7 @@
 #define NAME_OFF_HOST_ESIM_PIPE_ID "OFF_HOST_ESIM_PIPE_ID"
 #define NAME_OFF_HOST_ESIM2_PIPE_ID "OFF_HOST_ESIM2_PIPE_ID"
 #define NAME_NXP_SE_SMB_TERMINAL_TYPE "NXP_SE_SMB_TERMINAL_TYPE"
+#define NAME_ISO15693_SKIP_GET_SYS_INFO_CMD "ISO15693_SKIP_GET_SYS_INFO_CMD"
 #endif
 
 class NfcConfig {
