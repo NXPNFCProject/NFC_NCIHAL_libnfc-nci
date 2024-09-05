@@ -46,6 +46,7 @@ void PlatformAbstractionLayer::palMemcpy(void *pDest, size_t destSize,
   }
   memcpy(pDest, pSrc, srcSize);
 }
+
 NFCSTATUS PlatformAbstractionLayer::palenQueueWrite(const uint8_t *pBuffer,
                                                     uint16_t wLength) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter wLength:%d", __func__,
@@ -53,6 +54,15 @@ NFCSTATUS PlatformAbstractionLayer::palenQueueWrite(const uint8_t *pBuffer,
   uint8_t pBufferCpy[wLength];
   palMemcpy(pBufferCpy, wLength, pBuffer, wLength);
   return phNxpHal_EnqueueWrite(pBufferCpy, wLength);
+}
+
+NFCSTATUS PlatformAbstractionLayer::palenQueueRspNtf(const uint8_t *pBuffer,
+                                                     uint16_t wLength) {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter wLength:%d", __func__,
+                 wLength);
+  uint8_t pBufferCpy[wLength];
+  palMemcpy(pBufferCpy, wLength, pBuffer, wLength);
+  return phNxpHal_EnqueueRsp(pBufferCpy, wLength);
 }
 
 uint32_t PlatformAbstractionLayer::palTimerCreate(void) {
@@ -114,4 +124,21 @@ void* PlatformAbstractionLayer::threadStartRoutine(void* arg) {
   pthread_exit(result);
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s : pthread_exit done", __func__);
   return nullptr;
+}
+
+uint8_t PlatformAbstractionLayer::palGetNxpByteArrayValue(const char *name,
+                                                          char *pValue,
+                                                          long bufflen,
+                                                          long *len) {
+  return phNxpHal_GetNxpByteArrayValue(name, pValue, bufflen, len);
+}
+
+uint8_t PlatformAbstractionLayer::palGetNxpNumValue(const char *name,
+                                                    void *pValue,
+                                                    unsigned long len) {
+  return phNxpHal_GetNxpNumValue(name, pValue, len);
+}
+
+uint8_t PlatformAbstractionLayer::palEnableDisableDebugLog(uint8_t enable) {
+  return phNxpLog_EnableDisableLogLevel(enable);
 }

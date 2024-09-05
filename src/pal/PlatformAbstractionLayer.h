@@ -20,7 +20,6 @@
 #define PLATFORM_ABSTRACTION_LAYER_H
 
 #include <cstdint>
-#include <phNfcStatus.h>
 #include <phNxpLog.h>
 #include <phOsalNfc_Timer.h>
 #include <thread>
@@ -66,6 +65,19 @@ public:
    *
    */
   uint16_t palenQueueWrite(const uint8_t *pBuffer, uint16_t wLength);
+
+  /**
+   *
+   * @brief           This function helps to send the response and notification
+   *                  asynchronously to upper layer
+   *
+   * @param[in]       data_len length of the data to be written
+   * @param[in]       p_data actual data to be written
+   *
+   * @return          uint16_t - SUCCESS or FAILURE
+   *
+   */
+  uint16_t palenQueueRspNtf(const uint8_t *pBuffer, uint16_t wLength);
 
   /**
    *
@@ -178,12 +190,42 @@ public:
    *
    */
   void palSendNfcDataCallback(uint16_t dataLen, const uint8_t *pData);
+
   /**
    * @brief executes the provided function in another thread
    * @return true if thread creation is success else false
    *
    */
   bool palRunInThread(void* func(void*));
+
+  /**
+   * @brief Read byte array value from the config file.
+   * @param name - name of the config param to read.
+   * @param pValue - pointer to input buffer.
+   * @param bufflen - input buffer length.
+   * @param len - out parameter to return the number of bytes read from
+   *                      config file, return -1 in case bufflen is not enough.
+   * @return 1 if config param name is found in the config file, else 0
+   *
+   */
+  uint8_t palGetNxpByteArrayValue(const char *name, char *pValue, long bufflen,
+                                  long *len);
+
+  /**
+   * @brief API function for getting a numerical value of a setting
+   * @param name - name of the config param to read.
+   * @param pValue - pointer to input buffer.
+   * @param len - sizeof required pValue
+   * @return 1 if config param name is found in the config file, else 0
+   */
+  uint8_t palGetNxpNumValue(const char *name, void *pValue, unsigned long len);
+
+  /**
+   * @brief This function can be called to enable/disable the log levels
+   * @param enable 0x01 to enable for 0x00 to disable
+   * @return NFASTATUS_SUCCESS if success else NFCSTATUS_FAILED
+   */
+  uint8_t palEnableDisableDebugLog(uint8_t enable);
 
 private:
   static PlatformAbstractionLayer

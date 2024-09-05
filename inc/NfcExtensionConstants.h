@@ -62,6 +62,24 @@ constexpr uint8_t ERROR = 1;
  *
  */
 constexpr uint8_t WRITE_RSP_TIMED_OUT = 2;
+/**
+ * @brief NCI 2.0 Response Status Codes
+ *
+ */
+constexpr uint8_t RESPONSE_STATUS_OK = 0x00;
+constexpr uint8_t RESPONSE_STATUS_FAILED = 0x03;
+
+constexpr uint8_t STATUS_REJECTED = 0x01;
+constexpr uint8_t STATUS_INDEX = 0x03;
+constexpr uint8_t STATUS_OK = 0x00;
+constexpr uint8_t STATUS_SEMANTIC_ERROR = 0x06;
+
+constexpr uint8_t MT_CMD = 0x00;
+constexpr uint8_t MT_RSP = 0x01;
+constexpr uint8_t MT_NTF = 0x02;
+
+constexpr uint8_t DEFAULT_RESP = 0xFF;
+constexpr uint8_t ZERO_PAYLOAD = 0x00;
 
 constexpr uint8_t SUB_GID_OID_INDEX = 3;
 constexpr uint8_t SUB_GID_MASK = 0xF0;
@@ -72,10 +90,25 @@ constexpr uint8_t NCI_OID_INDEX = 1;
 constexpr uint8_t NCI_GID_MASK = 0x0F;
 constexpr uint8_t NCI_OID_MASK = 0xFF;
 
-constexpr uint8_t NCI_PAYLOAD_LEN_INDEX = 3;
+constexpr uint8_t NCI_PROP_CMD_VAL = 0x2F;
 constexpr uint8_t NCI_PROP_RSP_VAL = 0x4F;
 constexpr uint8_t NCI_PROP_NTF_VAL = 0x6F;
+constexpr uint8_t NCI_PROP_OID_VAL = 0x3E;
+constexpr uint8_t NXP_FLUSH_SRAM_AO_TO_FLASH_OID = 0x21;
 
+constexpr uint8_t NCI_PAYLOAD_LEN_INDEX = 2;
+constexpr uint8_t MIN_PCK_MSG_LEN = 0x03;
+
+constexpr uint8_t DISABLE_LOG = 0x00;
+constexpr uint8_t ENABLE_LOG = 0x01;
+
+/**
+ * @brief MAINLINE related constants
+ *
+ */
+constexpr uint8_t MAINLINE_MIN_CMD_LEN = 0x04;
+
+constexpr uint8_t RF_BLK_RAW_CMD_TIMEOUT_SEC = 2;
 static const int NXP_EXTNS_WRITE_RSP_TIMEOUT_IN_MS = 2000;
 static const int NXP_EXTNS_HAL_REQUEST_CTRL_TIMEOUT_IN_MS = 1000;
 

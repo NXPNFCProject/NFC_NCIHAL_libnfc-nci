@@ -86,12 +86,13 @@ static void writeRspTimeoutCbk(uint32_t timerId, void *pContext) {
   return;
 }
 
-NFCSTATUS NfcExtensionWriter::write(const uint8_t *pBuffer, uint16_t wLength) {
+NFCSTATUS NfcExtensionWriter::write(const uint8_t *pBuffer, uint16_t wLength,
+                                    int timeout) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter wLength:%d", __func__,
                  wLength);
   NFCSTATUS wStatus = NFCSTATUS_FAILED;
   wStatus = PlatformAbstractionLayer::getInstance()->palTimerStart(
-      writeRspTimeoutTimerId, NXP_EXTNS_WRITE_RSP_TIMEOUT_IN_MS,
+      writeRspTimeoutTimerId, timeout,
       (PlatformAbstractionLayer::pPal_TimerCallbck_t)writeRspTimeoutCbk, NULL);
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter wStatus:%d", __func__,
                  wStatus);

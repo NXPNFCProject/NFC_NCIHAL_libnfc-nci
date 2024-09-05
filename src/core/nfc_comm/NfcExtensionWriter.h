@@ -19,6 +19,7 @@
 #ifndef NFC_EXTENSION_WRITER_H
 #define NFC_EXTENSION_WRITER_H
 
+#include "NfcExtensionConstants.h"
 #include "PlatformAbstractionLayer.h"
 #include <cstdint>
 /** \addtogroup NFC_EXTENSION_WRITER_API_INTERFACE
@@ -54,10 +55,19 @@ public:
   /**
    * @brief This function write the data to NFCC through physical
    *        interface (e.g. I2C) using the NFCC driver interface.
+   * @param wLength length of the data to be written
+   * @param pBuffer actual data to be written
+   * @param timeout this api starts the timer with timeout provided
+   *                by caller otherwise default timeout is used.
+   *                Within timeout response is expected otherwise
+   *                error handling will be done as per feature
+   *                defined timeout function. default parameter
+   *                value will be used
    * @return It returns number of bytes successfully written to NFCC.
    *
    */
-  NFCSTATUS write(const uint8_t *pBuffer, uint16_t wLength);
+  NFCSTATUS write(const uint8_t *pBuffer, uint16_t wLength,
+                  int timeout = NXP_EXTNS_WRITE_RSP_TIMEOUT_IN_MS);
   /**
    * @brief updates the write completeion callback status
    * @param status specifies status of write written to controller
