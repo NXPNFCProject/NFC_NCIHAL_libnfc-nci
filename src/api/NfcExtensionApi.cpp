@@ -175,11 +175,11 @@ NFCSTATUS phNxpExtn_HandleVendorNciMsg(uint16_t dataLen, const uint8_t *pData) {
   }
   NFCSTATUS status =
       ProprietaryExtn::getInstance()->handleVendorNciMsg(dataLen, pData);
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s handleVendorNciMsg status:%d",
+                 __func__, static_cast<int>(status));
   if (status == NFCSTATUS_EXTN_FEATURE_SUCCESS) {
     return status;
   } else {
-    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter dataLen:%d", __func__,
-                   dataLen);
     return NfcExtensionController::getInstance()->handleVendorNciMessage(
         dataLen, pData);
   }
@@ -194,11 +194,10 @@ NFCSTATUS phNxpExtn_HandleVendorNciRspNtf(uint16_t dataLen,
   }
   NFCSTATUS status =
       ProprietaryExtn::getInstance()->handleVendorNciRspNtf(dataLen, pData);
-  if (status) {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s status:%d", __func__, status);
+  if (status == NFCSTATUS_EXTN_FEATURE_SUCCESS) {
     return status;
   } else {
-    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter dataLen:%d", __func__,
-                   dataLen);
     return NfcExtensionController::getInstance()->handleVendorNciRspNtf(dataLen,
                                                                         pData);
   }

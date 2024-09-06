@@ -67,6 +67,11 @@ constexpr uint8_t SUB_GID_OID_INDEX = 3;
 constexpr uint8_t SUB_GID_MASK = 0xF0;
 constexpr uint8_t SUB_OID_MASK = 0x0F;
 
+constexpr uint8_t NCI_GID_INDEX = 0;
+constexpr uint8_t NCI_OID_INDEX = 1;
+constexpr uint8_t NCI_GID_MASK = 0x0F;
+constexpr uint8_t NCI_OID_MASK = 0xFF;
+
 constexpr uint8_t NCI_PAYLOAD_LEN_INDEX = 3;
 constexpr uint8_t NCI_PROP_RSP_VAL = 0x4F;
 constexpr uint8_t NCI_PROP_NTF_VAL = 0x6F;
@@ -132,11 +137,11 @@ enum class RfState {
   /**
    * @brief indicates RF is in interface activated state
    */
-  INTERFACE_ACTIVIATED,
+  INTERFACE_ACTIVATED,
   /**
    * @brief indicates RF is in interface deactivated state
    */
-  INTERFACE_DEACTIVIATED
+  INTERFACE_DEACTIVATED
 };
 // TODO: Define the error code to send to upper layer, if vendor commands are
 // not able to process because of another high priority feature

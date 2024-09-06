@@ -51,18 +51,7 @@ public:
    *
    */
   virtual NFCSTATUS handleVendorNciRspNtf(uint16_t dataLen,
-                                          const uint8_t *pData) {
-    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "IEventHandler::%s Enter",
-                   __func__);
-    if (dataLen >= NCI_PAYLOAD_LEN_INDEX &&
-        (pData[0] == NCI_PROP_RSP_VAL || pData[0] == NCI_PROP_NTF_VAL)) {
-      NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
-                     "IEventHandler %s called stopWriteRspTimer", __func__);
-      NfcExtensionWriter::getInstance().stopWriteRspTimer();
-      return NFCSTATUS_EXTN_FEATURE_SUCCESS;
-    }
-    return NFCSTATUS_EXTN_FEATURE_FAILURE;
-  }
+                                          const uint8_t *pData) = 0;
 
   /**
    * @brief this callback will be invoked by controller when it

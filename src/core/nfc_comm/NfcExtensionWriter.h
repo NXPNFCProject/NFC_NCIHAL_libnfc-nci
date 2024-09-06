@@ -78,7 +78,8 @@ public:
    * @return returns void
    *
    */
-  void stopWriteRspTimer();
+  void stopWriteRspTimer(const uint8_t *pCmdBuffer, uint16_t cmdLength,
+                         const uint8_t *pRspBuffer, uint16_t rspLength);
 
 private:
   NfcExtensionWriter();

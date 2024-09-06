@@ -20,6 +20,7 @@
 #define PROP_EXTENSION_H
 
 #include <cstdint>
+#include <phNfcStatus.h>
 class ProprietaryExtn {
 public:
   ProprietaryExtn(const ProprietaryExtn &) = delete;
@@ -47,25 +48,25 @@ public:
    * @brief handles the vendor NCI message
    * @param dataLen length of the NCI packet
    * @param pData pointer of the NCI packet
-   * @return returns true, if it is vendor specific feature
-   *         and it have to be handled by extension library.
-   *         returns false, if it have to be handled by NFC HAL.
+   * @return returns NFCSTATUS_EXTN_FEATURE_SUCCESS, if it is vendor specific
+   * feature and handled by extension library otherwise
+   * NFCSTATUS_EXTN_FEATURE_FAILURE.
    *
    */
-  bool handleVendorNciMsg(uint16_t dataLen, const uint8_t *pData);
+  NFCSTATUS handleVendorNciMsg(uint16_t dataLen, const uint8_t *pData);
 
   /**
    * @brief handles the vendor NCI response and notification
    * @param dataLen length of the NCI packet
    * @param pData pointer of the NCI packet
-   * @return returns true, if it is vendor specific feature
-   *         and it have to be handled by extension library.
-   *         returns false, if it have to be handled by NFC HAL.
-   * \Note Handler implements this function is responsible to call
-   * base class handleVendorNciRspNtf to stop the response timer.
+   * @return returns NFCSTATUS_EXTN_FEATURE_SUCCESS, if it is vendor specific
+   * feature and handled by extension library otherwise
+   * NFCSTATUS_EXTN_FEATURE_FAILURE.
+   * \Note Handler implements this function is responsible to
+   * stop the response timer.
    *
    */
-  bool handleVendorNciRspNtf(uint16_t dataLen, const uint8_t *pData);
+  NFCSTATUS handleVendorNciRspNtf(uint16_t dataLen, const uint8_t *pData);
 
   /**
    * @brief onExtWriteComplete
@@ -123,8 +124,9 @@ private:
    */
   ~ProprietaryExtn();
   typedef void (*fp_prop_extn_init_t)();
-  typedef bool (*fp_prop_extn_snd_vnd_msg_t)(uint16_t, const uint8_t *);
-  typedef bool (*fp_prop_extn_snd_vnd_rsp_ntf_t)(uint16_t, const uint8_t *);
+  typedef NFCSTATUS (*fp_prop_extn_snd_vnd_msg_t)(uint16_t, const uint8_t *);
+  typedef NFCSTATUS (*fp_prop_extn_snd_vnd_rsp_ntf_t)(uint16_t,
+                                                      const uint8_t *);
   typedef void (*fp_prop_extn_deinit_t)();
   typedef void (*fp_prop_extn_update_nfc_hal_state_t)(uint16_t);
   typedef void (*fp_prop_extn_update_rf_state_t)(uint16_t);

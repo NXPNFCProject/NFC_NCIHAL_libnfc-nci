@@ -113,10 +113,23 @@ void NfcExtensionWriter::onWriteComplete(uint8_t status) {
                  status);
 }
 
-void NfcExtensionWriter::stopWriteRspTimer() {
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
-  NFCSTATUS status = PlatformAbstractionLayer::getInstance()->palTimerStop(
-      writeRspTimeoutTimerId);
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter status:%d", __func__,
-                 status);
+void NfcExtensionWriter::stopWriteRspTimer(const uint8_t *pCmdBuffer,
+                                           uint16_t cmdLength,
+                                           const uint8_t *pRspBuffer,
+                                           uint16_t rspLength) {
+  if (cmdLength >= NCI_PAYLOAD_LEN_INDEX &&
+      rspLength >= NCI_PAYLOAD_LEN_INDEX) {
+    uint8_t cmdGid = (pCmdBuffer[NCI_GID_INDEX] & NCI_GID_MASK);
+    uint8_t cmdOid = (pCmdBuffer[NCI_OID_INDEX] & NCI_OID_MASK);
+    uint8_t rspGid = (pRspBuffer[NCI_GID_INDEX] & NCI_GID_MASK);
+    uint8_t rspOid = (pRspBuffer[NCI_OID_INDEX] & NCI_OID_MASK);
+
+    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+                   "%s Enter cmdGid:%d, cmdOid:%d, rspGid:%d, rspOid:%d,",
+                   __func__, cmdGid, cmdOid, rspGid, rspOid);
+    if (cmdGid == rspGid && cmdOid == rspOid) {
+      NFCSTATUS status = PlatformAbstractionLayer::getInstance()->palTimerStop(
+          writeRspTimeoutTimerId);
+    }
+  }
 }

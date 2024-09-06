@@ -69,14 +69,12 @@ NFCSTATUS MposHandler::handleVendorNciMessage(uint16_t dataLen,
 
 NFCSTATUS MposHandler::handleVendorNciRspNtf(uint16_t dataLen,
                                              const uint8_t *pData) {
-  // Must to call the super class handleVendorNciRspNtf to cancel the
-  // writeRspTimer and return failure, if it is not proprietary rsp/ntf
-  NFCSTATUS status = IEventHandler::handleVendorNciRspNtf(dataLen, pData);
-  if (status == NFCSTATUS_EXTN_FEATURE_FAILURE)
-    return status;
-
   NXPLOG_NCIHAL_D(NXPLOG_ITEM_NXP_GEN_EXTN, "MposHandler::%s Enter dataLen:%d",
                   __func__, dataLen);
+  // Must to call the stopWriteRspTimer to cancel the rsp timer
+  NfcExtensionWriter::getInstance().stopWriteRspTimer(
+      mPosNciPkt.data(), mPosNciPkt.size(), pData, dataLen);
+
   /* Currently sending the Rsp/Ntf to upper layer for testing purpose.
    To be updated as part of MPOS implementation */
   PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(dataLen,

@@ -59,20 +59,17 @@ void NfcExtensionController::revertToDefaultHandler() {
 void NfcExtensionController::switchEventHandler(HandlerType handlerType) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter handlerType:%d", __func__,
                  static_cast<int>(handlerType));
-  if (handlerType == mCurrentHandlerType) {
-    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
-                   "%s current handler and incoming handler are same. directly "
-                   "call feature start",
-                   __func__);
-    // TODO: After Nfc FW download, not able to give callback to concrete class
-    mIEventHandler->onFeatureStart();
-    return;
-  }
   auto it = mHandlers.find(handlerType);
   if (it != mHandlers.end()) {
-    if (mIEventHandler) {
-      mCurrentHandlerState = HandlerState::STOPPED;
-      mIEventHandler->onFeatureEnd();
+    /* When incoming handler is different than current handler then
+       current handler will be notified about feature end and
+       handleVendorNciMessage will be received only to incoming handler after
+       this switch */
+    if (handlerType != mCurrentHandlerType) {
+      if (mIEventHandler) {
+        mCurrentHandlerState = HandlerState::STOPPED;
+        mIEventHandler->onFeatureEnd();
+      }
     }
     mIEventHandler = it->second;
     if (mIEventHandler) {

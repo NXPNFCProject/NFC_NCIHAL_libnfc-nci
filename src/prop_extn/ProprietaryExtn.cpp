@@ -37,24 +37,24 @@ ProprietaryExtn *ProprietaryExtn::getInstance() {
   return sProprietaryExtn;
 }
 
-bool ProprietaryExtn::handleVendorNciMsg(uint16_t dataLen,
-                                         const uint8_t *pData) {
+NFCSTATUS ProprietaryExtn::handleVendorNciMsg(uint16_t dataLen,
+                                              const uint8_t *pData) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter dataLen:%d", __func__,
                  dataLen);
   if (fp_prop_extn_snd_vnd_msg != nullptr) {
     return fp_prop_extn_snd_vnd_msg(dataLen, pData);
   }
-  return false;
+  return NFCSTATUS_EXTN_FEATURE_FAILURE;
 }
 
-bool ProprietaryExtn::handleVendorNciRspNtf(uint16_t dataLen,
-                                            const uint8_t *pData) {
+NFCSTATUS ProprietaryExtn::handleVendorNciRspNtf(uint16_t dataLen,
+                                                 const uint8_t *pData) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter dataLen:%d", __func__,
                  dataLen);
   if (fp_prop_extn_snd_vnd_rsp_ntf != nullptr) {
     return fp_prop_extn_snd_vnd_rsp_ntf(dataLen, pData);
   }
-  return false;
+  return NFCSTATUS_EXTN_FEATURE_FAILURE;
 }
 
 void ProprietaryExtn::onExtWriteComplete(uint8_t status) {
