@@ -118,6 +118,9 @@ constexpr uint8_t NCI_RF_DISC_GID_VAL = 0x21;
 constexpr uint8_t NCI_RF_DISC_OID_VAL = 0x03;
 constexpr uint8_t NCI_SHIFT_BY_4 = 4;
 
+// TODO//
+constexpr uint8_t NCI_CORE_RESET_NTF_GID_VAL = 0x60;
+constexpr uint8_t NCI_CORE_RESET_NTF_OID_VAL = 0x00;
 constexpr uint8_t DISABLE_LOG = 0x00;
 constexpr uint8_t ENABLE_LOG = 0x01;
 
@@ -137,7 +140,7 @@ constexpr uint16_t NCI_DATA_PKT_RSP_GID_OID = 0x0100;
  */
 constexpr uint8_t MAINLINE_MIN_CMD_LEN = 0x04;
 
-constexpr uint8_t RF_BLK_RAW_CMD_TIMEOUT_SEC = 2;
+constexpr uint8_t NCI_CMD_TIMEOUT_IN_SEC = 2;
 static const int NXP_EXTNS_WRITE_RSP_TIMEOUT_IN_MS = 2000;
 static const int NXP_EXTNS_HAL_REQUEST_CTRL_TIMEOUT_IN_MS = 1000;
 

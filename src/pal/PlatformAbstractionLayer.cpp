@@ -126,3 +126,7 @@ uint8_t PlatformAbstractionLayer::palGetNxpNumValue(const char *name,
 uint8_t PlatformAbstractionLayer::palEnableDisableDebugLog(uint8_t enable) {
   return phNxpLog_EnableDisableLogLevel(enable);
 }
+
+tNFC_chipType PlatformAbstractionLayer::palGetChipType() {
+  return phNxpHal_GetChipType();
+}

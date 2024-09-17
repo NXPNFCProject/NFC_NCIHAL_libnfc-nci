@@ -172,6 +172,13 @@ public:
    * @return NFASTATUS_SUCCESS if success else NFCSTATUS_FAILED
    */
   uint8_t palEnableDisableDebugLog(uint8_t enable);
+  /**
+   * @brief this function returns the chip type
+   * @param  void
+   * @return return the chip type version
+   *
+   */
+  tNFC_chipType palGetChipType();
 
 private:
   static PlatformAbstractionLayer
