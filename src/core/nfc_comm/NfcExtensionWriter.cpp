@@ -23,13 +23,7 @@
 #include <phNxpLog.h>
 
 NfcExtensionWriter::NfcExtensionWriter() {
-  writeRspTimeoutTimerId =
-      PlatformAbstractionLayer::getInstance()->palTimerCreate();
-  halCtrlTimeoutTimerId =
-      PlatformAbstractionLayer::getInstance()->palTimerCreate();
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
-                 "%s Enter writeRspTimeoutTimerId:%d, halCtrlTimeoutTimerId:%d",
-                 __func__, writeRspTimeoutTimerId, halCtrlTimeoutTimerId);
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
 }
 
 NfcExtensionWriter::~NfcExtensionWriter() {}
@@ -46,16 +40,12 @@ void NfcExtensionWriter::onhalControlGrant() {
 
 void NfcExtensionWriter::stopHalCtrlTimer() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
-  NFCSTATUS status = PlatformAbstractionLayer::getInstance()->palTimerStop(
-      halCtrlTimeoutTimerId);
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter status:%d", __func__,
-                 status);
+  mHalCtrlTimer.kill();
 }
 
-static void halRequestControlTimeoutCbk(uint32_t timerId, void *pContext) {
-  UNUSED_PROP(pContext);
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter timerId:%d", __func__,
-                 timerId);
+static void halRequestControlTimeoutCbk(union sigval val) {
+  UNUSED_PROP(val);
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter ", __func__);
   NfcExtensionController::getInstance()->halRequestControlTimedout();
   return;
 }
@@ -65,22 +55,18 @@ void NfcExtensionWriter::releaseHALcontrol() {
   stopHalCtrlTimer();
   PlatformAbstractionLayer::getInstance()->palReleaseHALcontrol();
 }
+
 void NfcExtensionWriter::requestHALcontrol() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter ", __func__);
-  NFCSTATUS wStatus = NFCSTATUS_FAILED;
-  wStatus = PlatformAbstractionLayer::getInstance()->palTimerStart(
-      halCtrlTimeoutTimerId, NXP_EXTNS_HAL_REQUEST_CTRL_TIMEOUT_IN_MS,
-      (PlatformAbstractionLayer::pPal_TimerCallbck_t)
-          halRequestControlTimeoutCbk,
-      NULL);
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter wStatus:%d", __func__,
-                 wStatus);
+  bool status = mHalCtrlTimer.set(NXP_EXTNS_HAL_REQUEST_CTRL_TIMEOUT_IN_MS,
+                                  NULL, halRequestControlTimeoutCbk);
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter status:%d", __func__,
+                 status);
   PlatformAbstractionLayer::getInstance()->palRequestHALcontrol();
 }
 
-static void writeRspTimeoutCbk(uint32_t timerId, void *pContext) {
-  UNUSED_PROP(timerId);
-  UNUSED_PROP(pContext);
+static void writeRspTimeoutCbk(union sigval val) {
+  UNUSED_PROP(val);
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
   NfcExtensionController::getInstance()->writeRspTimedout();
   return;
@@ -91,12 +77,10 @@ NFCSTATUS NfcExtensionWriter::write(const uint8_t *pBuffer, uint16_t wLength,
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter wLength:%d", __func__,
                  wLength);
   NFCSTATUS wStatus = NFCSTATUS_FAILED;
-  wStatus = PlatformAbstractionLayer::getInstance()->palTimerStart(
-      writeRspTimeoutTimerId, timeout,
-      (PlatformAbstractionLayer::pPal_TimerCallbck_t)writeRspTimeoutCbk, NULL);
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter wStatus:%d", __func__,
-                 wStatus);
-  if (NFCSTATUS_SUCCESS == wStatus) {
+  bool status = mWriteRspTimer.set(timeout, NULL, writeRspTimeoutCbk);
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter status:%d", __func__,
+                 status);
+  if (status) {
     PlatformAbstractionLayer::getInstance()->palenQueueWrite(pBuffer, wLength);
   } else {
     NXPLOG_EXTNS_E(
@@ -129,8 +113,7 @@ void NfcExtensionWriter::stopWriteRspTimer(const uint8_t *pCmdBuffer,
                    "%s Enter cmdGid:%d, cmdOid:%d, rspGid:%d, rspOid:%d,",
                    __func__, cmdGid, cmdOid, rspGid, rspOid);
     if (cmdGid == rspGid && cmdOid == rspOid) {
-      NFCSTATUS status = PlatformAbstractionLayer::getInstance()->palTimerStop(
-          writeRspTimeoutTimerId);
+      mWriteRspTimer.kill();
     }
   }
 }

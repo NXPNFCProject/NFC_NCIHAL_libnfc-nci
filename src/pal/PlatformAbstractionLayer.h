@@ -21,7 +21,6 @@
 
 #include <cstdint>
 #include <phNxpLog.h>
-#include <phOsalNfc_Timer.h>
 #include <thread>
 
 /** \addtogroup PAL_API_INTERFACE
@@ -33,13 +32,6 @@ public:
   PlatformAbstractionLayer(const PlatformAbstractionLayer &) = delete;
   PlatformAbstractionLayer &
   operator=(const PlatformAbstractionLayer &) = delete;
-  /*
-   * Timer callback interface which will be called once registered timer
-   * time out expires.
-   *        TimerId  - Timer Id for which callback is called.
-   *        pContext - Parameter to be passed to the callback function
-   */
-  typedef void (*pPal_TimerCallbck_t)(uint32_t timerId, void *pContext);
 
   /**
    * @brief Get the singleton of this object.
@@ -104,66 +96,6 @@ public:
    */
   void palMemcpy(void *pDest, size_t destSize, const void *pSrc,
                  size_t srcSize);
-
-  /**
-   * @brief       Creates a timer which shall call back the specified function
-   *              when the timer expires. Fails if OSAL module is not
-   *              initialized or timers are already occupied
-   *
-   *
-   * @param void
-   *
-   * @return    TimerId value of PH_OSALNFC_TIMER_ID_INVALID indicates that
-   *            timer is not created
-   */
-  uint32_t palTimerCreate(void);
-
-  /**
-   * @brief           Starts the requested, already created, timer.
-   *                  If the timer is already running, timer stops and restarts
-   *                  with the new timeout value and new callback function in case
-   *                  any ??????
-   *                  Creates a timer which shall call back the specified function
-   *                  when the timer expires
-   *
-   * @param           dwTimerId - valid timer ID obtained during timer creation
-   *                  dwRegTimeCnt - requested timeout in milliseconds
-   *                  pApplication_callback - application callback interface to be
-   *                                          called when timer expires
-   *                  pContext - caller context, to be passed to the application
-   *                             callback function
-   *
-   * @return          NFC status:
-   *                  NFCSTATUS_SUCCESS - the operation was successful
-   *                  NFCSTATUS_NOT_INITIALISED - OSAL Module is not initialized
-   *                  NFCSTATUS_INVALID_PARAMETER - invalid parameter passed to
-   *                                                the function
-   *                  PH_OSALNFC_TIMER_START_ERROR - timer could not be created
-   *                                                 due to system error
-   *
-   **/
-  NFCSTATUS palTimerStart(uint32_t dwTimerId, uint32_t dwRegTimeCnt,
-                          pPal_TimerCallbck_t pApplication_callback,
-                          void *pContext);
-  /**
-   *
-   *
-   * @brief           Stops already started timer
-   *                  Allows to stop running timer. In case timer is stopped,
-   *                  timer callback will not be notified any more
-   *
-   * @param           dwTimerId - valid timer ID obtained during timer creation
-   *
-   * @return           NFC status:
-   *                  NFCSTATUS_SUCCESS - the operation was successful
-   *                  NFCSTATUS_NOT_INITIALISED - OSAL Module is not initialized
-   *                  NFCSTATUS_INVALID_PARAMETER - invalid parameter passed to
-   *                                                the function
-   *                  PH_OSALNFC_TIMER_STOP_ERROR - timer could not be stopped due
-   *                                                to system error
-   *
-   **/
-  NFCSTATUS palTimerStop(uint32_t dwTimerId);
 
   /**
    * @brief This function can be used by HAL to request control of

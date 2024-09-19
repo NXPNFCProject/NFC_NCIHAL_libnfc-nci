@@ -21,7 +21,9 @@
 
 #include "NfcExtensionConstants.h"
 #include "PlatformAbstractionLayer.h"
+#include <IntervalTimer.h>
 #include <cstdint>
+
 /** \addtogroup NFC_EXTENSION_WRITER_API_INTERFACE
  *  @brief  interface to perform the exclusive and non exclusive write to
  * controller.
@@ -94,8 +96,8 @@ public:
 private:
   NfcExtensionWriter();
   ~NfcExtensionWriter();
-  uint32_t writeRspTimeoutTimerId;
-  uint32_t halCtrlTimeoutTimerId;
+  IntervalTimer mWriteRspTimer;
+  IntervalTimer mHalCtrlTimer;
   void stopHalCtrlTimer();
 };
 

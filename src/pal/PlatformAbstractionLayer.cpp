@@ -65,27 +65,6 @@ NFCSTATUS PlatformAbstractionLayer::palenQueueRspNtf(const uint8_t *pBuffer,
   return phNxpHal_EnqueueRsp(pBufferCpy, wLength);
 }
 
-uint32_t PlatformAbstractionLayer::palTimerCreate(void) {
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
-  return phOsalNfc_Timer_Create();
-}
-
-NFCSTATUS PlatformAbstractionLayer::palTimerStart(
-    uint32_t dwTimerId, uint32_t dwRegTimeCnt,
-    pPal_TimerCallbck_t pApplication_callback, void *pContext) {
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter dwTimerId:%d", __func__,
-                 dwTimerId);
-  return phOsalNfc_Timer_Start(dwTimerId, dwRegTimeCnt,
-                               (pphOsalNfc_TimerCallbck_t)pApplication_callback,
-                               pContext);
-}
-
-NFCSTATUS PlatformAbstractionLayer::palTimerStop(uint32_t dwTimerId) {
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter dwTimerId:%d", __func__,
-                 dwTimerId);
-  return phOsalNfc_Timer_Stop(dwTimerId);
-}
-
 void PlatformAbstractionLayer::palRequestHALcontrol(void) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
   phNxpHal_RequestControl();

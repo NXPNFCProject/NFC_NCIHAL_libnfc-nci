@@ -51,6 +51,7 @@ cc_library_shared {
         "hardware/nxp/nfc/snxxx/halimpl_v2/log",
         "hardware/nxp/nfc/snxxx/halimpl_v2/nfc_extn",
         "hardware/nxp/nfc/snxxx/halimpl_v2/tml",
+        "hardware/nxp/nfc/snxxx/halimpl_v2/utils",
     ],
 
     shared_libs: [
