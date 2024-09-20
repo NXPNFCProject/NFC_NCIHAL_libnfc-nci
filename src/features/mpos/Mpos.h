@@ -31,7 +31,7 @@
  **  Macros
  **********************************************************************************/
 #define NAME_NXP_SWP_RD_TAG_OP_TIMEOUT "NXP_SWP_RD_TAG_OP_TIMEOUT"
-#define NAME_NFA_DM_DISC_NTF_TIMEOUT "NFA_DM_DISC_NTF_TIMEOUT"
+#define NAME_NXP_DM_DISC_NTF_TIMEOUT "NXP_DM_DISC_NTF_TIMEOUT"
 #define NAME_NXP_RDR_REQ_GUARD_TIME "NXP_RDR_REQ_GUARD_TIME"
 #define NAME_NXP_PROP_RESET_EMVCO_CMD "NXP_PROP_RESET_EMVCO_CMD"
 

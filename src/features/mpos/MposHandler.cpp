@@ -41,7 +41,7 @@ static void CreateAndReadTimerValFromConfig() {
 
   scrTimerVal = 0;
   if (PlatformAbstractionLayer::getInstance()->palGetNxpNumValue(
-          NAME_NFA_DM_DISC_NTF_TIMEOUT, &scrTimerVal, sizeof(scrTimerVal))) {
+          NAME_NXP_DM_DISC_NTF_TIMEOUT, &scrTimerVal, sizeof(scrTimerVal))) {
     mPosMngr->mTimeoutMaxCount = scrTimerVal;
   } else {
     mPosMngr->mTimeoutMaxCount = READER_MODE_DISC_NTF_DEFAULT_TIMEOUT_IN_MS;
