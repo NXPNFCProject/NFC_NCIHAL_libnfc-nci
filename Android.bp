@@ -30,6 +30,7 @@ cc_library_shared {
         "src/core/nci/NciCommandBuilder.cpp",
         "src/core/nfc_comm/NfcExtensionWriter.cpp",
         "src/core/handler/DefaultEventHandler.cpp",
+        "src/features/mpos/Mpos.cpp",
         "src/features/mpos/MposHandler.cpp",
         "src/prop_extn/ProprietaryExtn.cpp",
         "src/pal/PlatformAbstractionLayer.cpp",

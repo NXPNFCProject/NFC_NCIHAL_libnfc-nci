@@ -17,72 +17,120 @@
  **/
 
 #include "MposHandler.h"
+#include "Mpos.h"
 #include "NfcExtensionConstants.h"
 #include "NfcExtensionController.h"
 #include "NfcExtensionWriter.h"
 #include "PlatformAbstractionLayer.h"
 #include <phNxpLog.h>
 
+Mpos *mPosMngr = Mpos::getInstance();
+
 MposHandler::MposHandler() { NXPLOG_EXTNS_D("%s Enter", __func__); }
 
-void MposHandler::onFeatureStart() {
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter mPosNciPkt.size:%zu",
-                 __func__, mPosNciPkt.size());
-  if (mPosNciPkt.size() >= 3) {
-    NfcExtensionWriter::getInstance().requestHALcontrol();
+static void CreateAndReadTimerValFromConfig() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+  unsigned long scrTimerVal = 0;
+
+  if (PlatformAbstractionLayer::getInstance()->palGetNxpNumValue(
+          NAME_NXP_SWP_RD_TAG_OP_TIMEOUT, &scrTimerVal, sizeof(scrTimerVal))) {
+    mPosMngr->tagOperationTimeout = scrTimerVal;
   } else {
-    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter Invalid NCI packet");
+    mPosMngr->tagOperationTimeout = READER_MODE_TAG_OP_DEFAULT_TIMEOUT_IN_MS;
+  }
+
+  scrTimerVal = 0;
+  if (PlatformAbstractionLayer::getInstance()->palGetNxpNumValue(
+          NAME_NFA_DM_DISC_NTF_TIMEOUT, &scrTimerVal, sizeof(scrTimerVal))) {
+    mPosMngr->mTimeoutMaxCount = scrTimerVal;
+  } else {
+    mPosMngr->mTimeoutMaxCount = READER_MODE_DISC_NTF_DEFAULT_TIMEOUT_IN_MS;
+  }
+
+  scrTimerVal = 0;
+  if (PlatformAbstractionLayer::getInstance()->palGetNxpNumValue(
+          NAME_NXP_RDR_REQ_GUARD_TIME, &scrTimerVal, sizeof(scrTimerVal))) {
+    mPosMngr->RdrReqGuardTimer = scrTimerVal;
+  } else {
+    mPosMngr->RdrReqGuardTimer = 0x00;
   }
 }
+
+void MposHandler::onFeatureStart() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "MposHandler::%s Enter", __func__);
+  mPosMngr->updateState(MPOS_STATE_START_IN_PROGRESS);
+  CreateAndReadTimerValFromConfig();
+}
+
 void MposHandler::handleHalEvent(int errorCode) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter errorCode:%d", __func__,
                  errorCode);
 }
 
 void MposHandler::onFeatureEnd() {
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
-  mPosNciPkt.clear();
+  mPosMngr->isTimerStarted = false;
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "MposHandler::%s Enter", __func__);
+  mPosMngr->updateState(MPOS_STATE_IDLE);
   NfcExtensionWriter::getInstance().releaseHALcontrol();
-  NfcExtensionController::getInstance()->revertToDefaultHandler();
+  mPosMngr->tagOperationTimer.kill();
+  mPosMngr->tagRemovalTimer.kill();
+  mPosMngr->startStopGuardTimer.kill();
 }
 
 NFCSTATUS MposHandler::handleVendorNciMessage(uint16_t dataLen,
                                               const uint8_t *pData) {
-  // Return true, only you will handle it
-  NFCSTATUS status = NFCSTATUS_FAILED;
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "MposHandler::%s Enter dataLen:%d",
                  __func__, dataLen);
-  // Sample code to demonstrate the priority handling
-  /*if (HandlerType::T4T ==
-          NfcExtensionController::getInstance()->getEventHandlerType() &&
-      HandlerState::STARTED ==
-          NfcExtensionController::getInstance()->getEventHandlerState()) {
-    // TODO: Return error callback, if request can not be processed due to other
-  on going priority feature. return true; } else {*/
-  // TODO state diagram to be added
-  mPosNciPkt.clear();
-  mPosNciPkt.assign(pData, pData + dataLen);
-  NfcExtensionController::getInstance()->switchEventHandler(HandlerType::MPOS);
-  return NFCSTATUS_EXTN_FEATURE_SUCCESS;
-  /*}*/
+  uint8_t resp[] = {0x4F, 0x3E, 0x02, 0x51, 00};
+  HandlerType currentHandleType;
+  NFCSTATUS status = NFCSTATUS_EXTN_FEATURE_FAILURE;
+
+  if ((pData[SUB_GID_OID_INDEX] == SE_READER_DEDICATED_MODE_ID) &&
+      (pData[SUB_GID_OID_ACTION_INDEX] == SE_READER_DEDICATED_MODE_ON)) {
+    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "Start the SE Reader mode");
+    currentHandleType =
+        NfcExtensionController::getInstance()->getEventHandlerType();
+    if (currentHandleType != HandlerType::MPOS) {
+      NfcExtensionController::getInstance()->switchEventHandler(
+          HandlerType::MPOS);
+    }
+    PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
+        sizeof(resp), resp);
+    return NFCSTATUS_EXTN_FEATURE_SUCCESS;
+  } else if ((pData[SUB_GID_OID_INDEX] == SE_READER_DEDICATED_MODE_ID) &&
+             (pData[SUB_GID_OID_ACTION_INDEX] ==
+              SE_READER_DEDICATED_MODE_OFF)) {
+    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "Stop the SE Reader mode");
+    currentHandleType =
+        NfcExtensionController::getInstance()->getEventHandlerType();
+    if (currentHandleType == HandlerType::MPOS) {
+      mPosMngr->tagOperationTimer.kill();
+      mPosMngr->tagRemovalTimer.kill();
+      mPosMngr->startStopGuardTimer.kill();
+      mPosMngr->updateState(MPOS_STATE_SEND_PROFILE_DESELECT_CONFIG_CMD);
+      NfcExtensionWriter::getInstance().requestHALcontrol();
+    }
+    PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
+        sizeof(resp), resp);
+    return NFCSTATUS_EXTN_FEATURE_SUCCESS;
+  } else {
+    return NFCSTATUS_EXTN_FEATURE_FAILURE;
+  }
 }
 
 NFCSTATUS MposHandler::handleVendorNciRspNtf(uint16_t dataLen,
                                              const uint8_t *pData) {
-  NXPLOG_NCIHAL_D(NXPLOG_ITEM_NXP_GEN_EXTN, "MposHandler::%s Enter dataLen:%d",
-                  __func__, dataLen);
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+                 "MposHandler::%s "
+                 "Enter dataLen:%d",
+                 __func__, dataLen);
+  // Convert the raw pointer to a vector
+  std::vector<uint8_t> pDataVec(pData, pData + dataLen);
+
   // Must to call the stopWriteRspTimer to cancel the rsp timer
-  NfcExtensionWriter::getInstance().stopWriteRspTimer(
-      mPosNciPkt.data(), mPosNciPkt.size(), pData, dataLen);
+  NfcExtensionWriter::getInstance().stopWriteRspTimer(pData, dataLen);
 
-  /* Currently sending the Rsp/Ntf to upper layer for testing purpose.
-   To be updated as part of MPOS implementation */
-  PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(dataLen,
-                                                                  pData);
-
-  // At the end of mPOS processing call releaseHALcontrol.
-  NfcExtensionWriter::getInstance().releaseHALcontrol();
-  return NFCSTATUS_EXTN_FEATURE_SUCCESS;
+  return mPosMngr->processMposNciRspNtf(pDataVec);
 }
 
 void MposHandler::onWriteComplete(uint8_t status) {
@@ -92,21 +140,31 @@ void MposHandler::onWriteComplete(uint8_t status) {
 }
 
 void MposHandler::halControlGranted() {
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter nciPkt.size():%zu",
-                 __func__, mPosNciPkt.size());
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter ", __func__);
   NfcExtensionWriter::getInstance().onhalControlGrant();
-  if (mPosNciPkt.size() >= 3) {
-    NfcExtensionWriter::getInstance().write(mPosNciPkt.data(),
-                                            mPosNciPkt.size());
+
+  if (mPosMngr->getState() == MPOS_STATE_SEND_PROFILE_DESELECT_CONFIG_CMD) {
+    mPosMngr->processMposEvent(MPOS_STATE_SEND_PROFILE_DESELECT_CONFIG_CMD);
   } else {
-    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter Invalid NCI packet");
+    mPosMngr->updateState(MPOS_STATE_SEND_PROFILE_SELECT_CONFIG_CMD);
+    mPosMngr->processMposEvent(MPOS_STATE_SEND_PROFILE_SELECT_CONFIG_CMD);
   }
 }
 
 void MposHandler::onHalRequestControlTimeout() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter ", __func__);
+  NfcExtensionController::getInstance()
+      ->getCurrentEventHandler()
+      ->notifyGenericErrEvt(NCI_HAL_CONTROL_BUSY);
+  NfcExtensionController::getInstance()->switchEventHandler(
+      HandlerType::DEFAULT);
 }
 
 void MposHandler::onWriteRspTimeout() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter ", __func__);
+  NfcExtensionController::getInstance()
+      ->getCurrentEventHandler()
+      ->notifyGenericErrEvt(NCI_UN_RECOVERABLE_ERR);
+  NfcExtensionController::getInstance()->switchEventHandler(
+      HandlerType::DEFAULT);
 }

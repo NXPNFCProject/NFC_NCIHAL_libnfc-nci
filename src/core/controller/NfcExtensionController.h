@@ -112,6 +112,14 @@ public:
   RfState getRfState() { return mRfState; }
 
   /**
+   * @brief Gets the current event handler.
+   * @return returns a std::shared_ptr<IEventHandler>
+   */
+  std::shared_ptr<IEventHandler> getCurrentEventHandler() {
+    return mIEventHandler;
+  }
+
+  /**
    * @brief Updates the Nfc Hal state.
    * @return void
    *

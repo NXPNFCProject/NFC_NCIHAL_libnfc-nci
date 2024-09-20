@@ -58,11 +58,16 @@ void NfcExtensionWriter::releaseHALcontrol() {
 
 void NfcExtensionWriter::requestHALcontrol() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter ", __func__);
-  bool status = mHalCtrlTimer.set(NXP_EXTNS_HAL_REQUEST_CTRL_TIMEOUT_IN_MS,
-                                  NULL, halRequestControlTimeoutCbk);
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter status:%d", __func__,
-                 status);
-  PlatformAbstractionLayer::getInstance()->palRequestHALcontrol();
+  if (mHalCtrlTimer.set(NXP_EXTNS_HAL_REQUEST_CTRL_TIMEOUT_IN_MS, NULL,
+                        halRequestControlTimeoutCbk)) {
+    PlatformAbstractionLayer::getInstance()->palRequestHALcontrol();
+  } else {
+    NfcExtensionController::getInstance()
+        ->getCurrentEventHandler()
+        ->notifyGenericErrEvt(NCI_UN_RECOVERABLE_ERR);
+    NfcExtensionController::getInstance()->switchEventHandler(
+        HandlerType::DEFAULT);
+  }
 }
 
 static void writeRspTimeoutCbk(union sigval val) {
@@ -76,21 +81,19 @@ NFCSTATUS NfcExtensionWriter::write(const uint8_t *pBuffer, uint16_t wLength,
                                     int timeout) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter wLength:%d", __func__,
                  wLength);
-  NFCSTATUS wStatus = NFCSTATUS_FAILED;
-  bool status = mWriteRspTimer.set(timeout, NULL, writeRspTimeoutCbk);
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter status:%d", __func__,
-                 status);
-  if (status) {
+  if (mWriteRspTimer.set(timeout, NULL, writeRspTimeoutCbk)) {
+    cmdData.clear();
+    cmdData.assign(pBuffer, pBuffer + wLength);
     PlatformAbstractionLayer::getInstance()->palenQueueWrite(pBuffer, wLength);
+    return NFCSTATUS_SUCCESS;
   } else {
-    NXPLOG_EXTNS_E(
-        NXPLOG_ITEM_NXP_GEN_EXTN,
-        "Failed to write the NCI packet to controller. Response timer not "
-        "started!!!");
-    // TODO: Error handling should be added. caller must be notified for error
+    NfcExtensionController::getInstance()
+        ->getCurrentEventHandler()
+        ->notifyGenericErrEvt(NCI_UN_RECOVERABLE_ERR);
+    NfcExtensionController::getInstance()->switchEventHandler(
+        HandlerType::DEFAULT);
+    return NFCSTATUS_FAILED;
   }
-
-  return wStatus;
 }
 
 void NfcExtensionWriter::onWriteComplete(uint8_t status) {
@@ -98,14 +101,12 @@ void NfcExtensionWriter::onWriteComplete(uint8_t status) {
                  status);
 }
 
-void NfcExtensionWriter::stopWriteRspTimer(const uint8_t *pCmdBuffer,
-                                           uint16_t cmdLength,
-                                           const uint8_t *pRspBuffer,
+void NfcExtensionWriter::stopWriteRspTimer(const uint8_t *pRspBuffer,
                                            uint16_t rspLength) {
-  if (cmdLength >= NCI_PAYLOAD_LEN_INDEX &&
+  if (cmdData.size() >= NCI_PAYLOAD_LEN_INDEX &&
       rspLength >= NCI_PAYLOAD_LEN_INDEX) {
-    uint8_t cmdGid = (pCmdBuffer[NCI_GID_INDEX] & NCI_GID_MASK);
-    uint8_t cmdOid = (pCmdBuffer[NCI_OID_INDEX] & NCI_OID_MASK);
+    uint8_t cmdGid = (cmdData[NCI_GID_INDEX] & NCI_GID_MASK);
+    uint8_t cmdOid = (cmdData[NCI_OID_INDEX] & NCI_OID_MASK);
     uint8_t rspGid = (pRspBuffer[NCI_GID_INDEX] & NCI_GID_MASK);
     uint8_t rspOid = (pRspBuffer[NCI_OID_INDEX] & NCI_OID_MASK);
 

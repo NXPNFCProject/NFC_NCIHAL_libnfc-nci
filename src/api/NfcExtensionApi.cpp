@@ -125,6 +125,8 @@ void phNxpExtn_LibInit() {
 
 void phNxpExtn_LibDeInit() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+  NfcExtensionController::getInstance()->switchEventHandler(
+      HandlerType::DEFAULT);
 }
 
 NFCSTATUS phNxpExtn_HandleNfcEvent(NfcExtEvent_t eventCode,

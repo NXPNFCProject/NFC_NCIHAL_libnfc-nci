@@ -21,6 +21,7 @@
 
 #include "NfcExtensionConstants.h"
 #include "NfcExtensionWriter.h"
+#include "PlatformAbstractionLayer.h"
 #include <cstdint>
 
 /** \addtogroup EVENT_HANDLER_API_INTERFACE
@@ -134,6 +135,23 @@ public:
   virtual void onWriteRspTimeout() {
     NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "IEventHandler::%s Enter",
                    __func__);
+  }
+
+  /**
+   * @brief Send notification to upper layer about Generic error
+   *
+   * @return void
+   *
+   */
+  void notifyGenericErrEvt(uint8_t ntfType) {
+    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "Generic Error 0x%X", ntfType);
+    uint8_t rdrModeNtf[4] = {0x00};
+    rdrModeNtf[0] = NCI_PROP_NTF_VAL;
+    rdrModeNtf[1] = NCI_PROP_OID_VAL;
+    rdrModeNtf[2] = 0x01; // NCI Length filed
+    rdrModeNtf[3] = ntfType;
+    PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
+        sizeof(rdrModeNtf), rdrModeNtf);
   }
   virtual ~IEventHandler() = default; // virtual destructor
 };

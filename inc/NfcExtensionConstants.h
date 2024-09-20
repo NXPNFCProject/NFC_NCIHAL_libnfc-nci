@@ -82,6 +82,7 @@ constexpr uint8_t DEFAULT_RESP = 0xFF;
 constexpr uint8_t ZERO_PAYLOAD = 0x00;
 
 constexpr uint8_t SUB_GID_OID_INDEX = 3;
+constexpr uint8_t SUB_GID_OID_ACTION_INDEX = 4;
 constexpr uint8_t SUB_GID_MASK = 0xF0;
 constexpr uint8_t SUB_OID_MASK = 0x0F;
 
@@ -96,11 +97,26 @@ constexpr uint8_t NCI_PROP_NTF_VAL = 0x6F;
 constexpr uint8_t NCI_PROP_OID_VAL = 0x3E;
 constexpr uint8_t NXP_FLUSH_SRAM_AO_TO_FLASH_OID = 0x21;
 
+constexpr uint8_t NCI_UN_RECOVERABLE_ERR = 0x01;
+constexpr uint8_t NCI_HAL_CONTROL_BUSY = 0x02;
+constexpr uint8_t NCI_HAL_CONTROL_NOT_RELEASED = 0x03;
+constexpr uint8_t NCI_UN_SUPPORTED_FEATURE = 0x04;
+
 constexpr uint8_t NCI_PAYLOAD_LEN_INDEX = 2;
 constexpr uint8_t MIN_PCK_MSG_LEN = 0x03;
 
 constexpr uint8_t DISABLE_LOG = 0x00;
 constexpr uint8_t ENABLE_LOG = 0x01;
+
+constexpr uint16_t NCI_DISC_REQ_NTF_GID_OID = 0x610A;
+constexpr uint16_t NCI_SET_CONFIG_RSP_GID_OID = 0x4002;
+constexpr uint16_t NCI_DISC_MAP_RSP_GID_OID = 0x4100;
+constexpr uint16_t NCI_RF_DISC_RSP_GID_OID = 0x4103;
+constexpr uint16_t NCI_RF_INTF_ACTD_NTF_GID_OID = 0x6105;
+constexpr uint16_t NCI_RF_DEACTD_NTF_GID_OID = 0x6106;
+constexpr uint16_t NCI_RF_DEACTD_RSP_GID_OID = 0x4106;
+constexpr uint16_t NCI_GENERIC_ERR_NTF_GID_OID = 0x6007;
+constexpr uint16_t NCI_DATA_PKT_RSP_GID_OID = 0x0100;
 
 /**
  * @brief MAINLINE related constants

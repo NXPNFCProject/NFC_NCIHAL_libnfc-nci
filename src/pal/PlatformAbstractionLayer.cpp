@@ -47,6 +47,11 @@ void PlatformAbstractionLayer::palMemcpy(void *pDest, size_t destSize,
   memcpy(pDest, pSrc, srcSize);
 }
 
+int PlatformAbstractionLayer::palMemcmp(const void *pSrc1, const void *pSrc2,
+                                        size_t dataSize) {
+  return memcmp(pSrc1, pSrc2, dataSize);
+}
+
 NFCSTATUS PlatformAbstractionLayer::palenQueueWrite(const uint8_t *pBuffer,
                                                     uint16_t wLength) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter wLength:%d", __func__,

@@ -22,6 +22,14 @@
 #include "IEventHandler.h"
 #include <cstdint>
 #include <vector>
+
+/**********************************************************************************
+ **  Macros
+ **********************************************************************************/
+#define SE_READER_DEDICATED_MODE_ID 0x51
+#define SE_READER_DEDICATED_MODE_OFF 0x00
+#define SE_READER_DEDICATED_MODE_ON 0x01
+
 /** \addtogroup MPOS_EVENT_HANDLER_API_INTERFACE
  *  @brief  interface to perform the Mpos feature functionality.
  *  @{
@@ -133,9 +141,6 @@ public:
    *
    */
   void onWriteRspTimeout() override;
-
-private:
-  std::vector<uint8_t> mPosNciPkt;
 };
 /** @}*/
 #endif // MPOS_HANDLER_H

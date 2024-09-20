@@ -23,6 +23,7 @@
 #include "PlatformAbstractionLayer.h"
 #include <IntervalTimer.h>
 #include <cstdint>
+#include <vector>
 
 /** \addtogroup NFC_EXTENSION_WRITER_API_INTERFACE
  *  @brief  interface to perform the exclusive and non exclusive write to
@@ -90,8 +91,7 @@ public:
    * @return returns void
    *
    */
-  void stopWriteRspTimer(const uint8_t *pCmdBuffer, uint16_t cmdLength,
-                         const uint8_t *pRspBuffer, uint16_t rspLength);
+  void stopWriteRspTimer(const uint8_t *pRspBuffer, uint16_t rspLength);
 
 private:
   NfcExtensionWriter();
@@ -99,6 +99,7 @@ private:
   IntervalTimer mWriteRspTimer;
   IntervalTimer mHalCtrlTimer;
   void stopHalCtrlTimer();
+  std::vector<uint8_t> cmdData;
 };
 
 #endif // NFC_EXTENSION_WRITER_H

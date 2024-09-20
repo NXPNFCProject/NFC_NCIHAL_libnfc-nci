@@ -98,6 +98,20 @@ public:
                  size_t srcSize);
 
   /**
+   * @brief      Compares the values stored in two memory blocks.
+   *             This function compares the contents of two memory
+   *             regions, byte by byte,
+   *
+   * @param[in]  pSrc1 Pointer to the first memory block.
+   * @param[in]  pSrc2 Pointer to the second memory block.
+   * @param[in]  dataSize No of byte to be compared.
+   *
+   * @return int Result of the memory comparison: 0 for equal,
+   *         negative or positive for inequality.
+   */
+  int palMemcmp(const void *pSrc1, const void *pSrc2, size_t dataSize);
+
+  /**
    * @brief This function can be used by HAL to request control of
    *        NFCC to libnfc-nci. When control is provided to HAL it is
    *        notified through phNxpNciHal_control_granted.

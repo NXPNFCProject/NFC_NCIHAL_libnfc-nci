@@ -107,7 +107,8 @@ NFCSTATUS NfcExtensionController::handleVendorNciMessage(uint16_t dataLen,
 
 NFCSTATUS NfcExtensionController::handleVendorNciRspNtf(uint16_t dataLen,
                                                         const uint8_t *pData) {
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter dataLen:%d", __func__,
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+                 "NfcExtensionController::%s Enter dataLen:%d", __func__,
                  dataLen);
   return mIEventHandler->handleVendorNciRspNtf(dataLen, pData);
 }
