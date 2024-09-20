@@ -85,6 +85,7 @@ constexpr uint8_t SUB_GID_OID_INDEX = 3;
 constexpr uint8_t SUB_GID_OID_ACTION_INDEX = 4;
 constexpr uint8_t SUB_GID_MASK = 0xF0;
 constexpr uint8_t SUB_OID_MASK = 0x0F;
+constexpr uint8_t NCI_PROP_ACTION_INDEX = 0x04;
 
 constexpr uint8_t NCI_GID_INDEX = 0;
 constexpr uint8_t NCI_OID_INDEX = 1;
@@ -102,8 +103,20 @@ constexpr uint8_t NCI_HAL_CONTROL_BUSY = 0x02;
 constexpr uint8_t NCI_HAL_CONTROL_NOT_RELEASED = 0x03;
 constexpr uint8_t NCI_UN_SUPPORTED_FEATURE = 0x04;
 
+constexpr uint8_t DISABLE = 0x00;
+constexpr uint8_t ENABLE = 0x01;
 constexpr uint8_t NCI_PAYLOAD_LEN_INDEX = 2;
 constexpr uint8_t MIN_PCK_MSG_LEN = 0x03;
+constexpr uint8_t NCI_TECH_A_POLL_VAL = 0x00;
+constexpr uint8_t NCI_TECH_Q_POLL_VAL = 0x71;
+constexpr uint8_t NCI_RF_INTF_ACT_NTF_GID_VAL = 0x61;
+constexpr uint8_t NCI_RF_INTF_ACT_NTF_OID_VAL = 0x05;
+constexpr uint8_t NCI_RF_INTF_ACT_TECH_TYPE_INDEX = 6;
+constexpr uint8_t NCI_MSG_TYPE_INDEX = 0;
+constexpr uint8_t NCI_OID_TYPE_INDEX = 1;
+constexpr uint8_t NCI_RF_DISC_GID_VAL = 0x21;
+constexpr uint8_t NCI_RF_DISC_OID_VAL = 0x03;
+constexpr uint8_t NCI_SHIFT_BY_4 = 4;
 
 constexpr uint8_t DISABLE_LOG = 0x00;
 constexpr uint8_t ENABLE_LOG = 0x01;

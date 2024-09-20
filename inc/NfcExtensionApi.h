@@ -54,6 +54,18 @@ void phNxpExtn_LibDeInit();
  */
 NFCSTATUS phNxpExtn_HandleNfcEvent(NfcExtEvent_t eventCode,
                                    NfcExtEventData_t eventData);
+
+/**
+ * @brief Before sending the NCI packet to NFCC, phNxpExtn_Write is called
+ * to check if there is any extension processing is required for the NCI packet
+ * being sent out.
+ * @param dataLen length of NCI command
+ * @param pData NCI command
+ * @return returns NFCSTATUS_EXTN_FEATURE_SUCCESS, if it is vendor specific
+ * feature and handled by extension library otherwise
+ * NFCSTATUS_EXTN_FEATURE_FAILURE.
+ */
+NFCSTATUS phNxpExtn_Write(uint16_t *dataLen, uint8_t *pData);
 }
 /** @}*/
 #endif // NFC_EXTENSION_API_H

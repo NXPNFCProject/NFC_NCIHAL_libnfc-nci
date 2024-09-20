@@ -90,7 +90,8 @@ NFCSTATUS NfcExtensionController::handleVendorNciMessage(uint16_t dataLen,
                                                          const uint8_t *pData) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter dataLen:%d", __func__,
                  dataLen);
-  auto subGid = HandlerType((pData[SUB_GID_OID_INDEX] & SUB_GID_MASK) >> 4);
+  auto subGid =
+      HandlerType((pData[SUB_GID_OID_INDEX] & SUB_GID_MASK) >> NCI_SHIFT_BY_4);
   uint8_t subOid = (pData[SUB_GID_OID_INDEX] & SUB_OID_MASK);
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s subGid:%d subOid:%d", __func__,
                  static_cast<int>(subGid), subOid);
@@ -152,4 +153,11 @@ void NfcExtensionController::halRequestControlTimedout() {
 void NfcExtensionController::writeRspTimedout() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
   mIEventHandler->onWriteRspTimeout();
+}
+
+NFCSTATUS NfcExtensionController::processExtnWrite(uint16_t *dataLen,
+                                                   uint8_t *pData) {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "NfcExtensionController %s Enter",
+                 __func__);
+  return mIEventHandler->processExtnWrite(dataLen, pData);
 }

@@ -45,6 +45,11 @@ enum class HandlerType {
   MPOS = 5,
   // TODO: Align on ROW Sub GID and OID usage
   /**
+   * @brief indicates QTAG feature handler
+   */
+  QTAG = 6,
+  // TODO: Align on ROW Sub GID and OID usage
+  /**
    * @brief indicates t4t feature handler
    */
   T4T = 15
@@ -192,6 +197,17 @@ public:
    *
    */
   void writeRspTimedout();
+
+  /**
+   * @brief update RF_DISC_CMD, if specific poll/listen feature is enabled
+   * with required poll or listen technologies & send to upper layer.
+   * @param dataLen length RF_DISC_CMD
+   * @param pData
+   * @return returns NFCSTATUS_EXTN_FEATURE_SUCCESS, if it is vendor specific
+   * feature and handled by extension library otherwise
+   * NFCSTATUS_EXTN_FEATURE_FAILURE.
+   */
+  NFCSTATUS processExtnWrite(uint16_t *dataLen, uint8_t *pData);
 
 private:
   static NfcExtensionController *sNfcExtensionController; // singleton object

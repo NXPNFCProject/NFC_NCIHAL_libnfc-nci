@@ -19,6 +19,7 @@
 #ifndef IEVENTHANDLER_GEN_H
 #define IEVENTHANDLER_GEN_H
 
+#include "NfcExtension.h"
 #include "NfcExtensionConstants.h"
 #include "NfcExtensionWriter.h"
 #include "PlatformAbstractionLayer.h"
@@ -153,6 +154,22 @@ public:
     PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
         sizeof(rdrModeNtf), rdrModeNtf);
   }
+
+  /**
+   * @brief update RF_DISC_CMD, if specific poll/listen feature is enabled
+   * with required poll or listen technologies & send to upper layer.
+   * @param dataLen length RF_DISC_CMD
+   * @param pData
+   * @return returns NFCSTATUS_EXTN_FEATURE_SUCCESS, if it is vendor specific
+   * feature and handled by extension library otherwise
+   * NFCSTATUS_EXTN_FEATURE_FAILURE.
+   */
+  virtual NFCSTATUS processExtnWrite(uint16_t *dataLen, uint8_t *pData) {
+    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "IEventHandler::%s Enter",
+                   __func__);
+    return NFCSTATUS_EXTN_FEATURE_FAILURE;
+  }
+
   virtual ~IEventHandler() = default; // virtual destructor
 };
 /** @}*/
