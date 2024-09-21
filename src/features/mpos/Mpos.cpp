@@ -33,6 +33,12 @@ Mpos *Mpos::instance = nullptr;
 Mpos::Mpos() {
   mState = MPOS_STATE_IDLE;
   isActivatedNfcRcv = false;
+  isTimerStarted = false;
+  tagOperationTimeout = 0x00;
+  mTimeoutMaxCount = 0x00;
+  RdrReqGuardTimer = 0x00;
+  lastScrState = MPOS_STATE_UNKNOWN;
+  mCurrentTimeoutCount = 0x00;
 }
 
 Mpos::~Mpos() { mState = MPOS_STATE_UNKNOWN; }
@@ -264,6 +270,7 @@ ScrState_t Mpos::getScrState(const std::vector<uint8_t> &pData) {
         (mState == MPOS_STATE_GENERIC_ERR_NTF)) {
       return MPOS_STATE_GENERIC_ERR_NTF;
     }
+    break;
   case NCI_DATA_PKT_RSP_GID_OID: {
     if ((isSeReaderRestarted(pData) == true) && (mState != MPOS_STATE_IDLE)) {
       return MPOS_STATE_DISCOVERY_RESTARTED;
