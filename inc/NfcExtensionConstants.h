@@ -208,8 +208,6 @@ enum class RfState {
    */
   INTERFACE_DEACTIVATED
 };
-// TODO: Define the error code to send to upper layer, if vendor commands are
-// not able to process because of another high priority feature
 
 /** @}*/
 #endif // NFC_EXTENSION_CONSTANTS_H

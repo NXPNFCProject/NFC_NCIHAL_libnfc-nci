@@ -21,9 +21,6 @@
 #include <dlfcn.h>
 #include <phNxpLog.h>
 
-// TODO: Check the feasibility of removing or adding this code only for SSG
-// release
-//  and plan to delete for ROW.
 ProprietaryExtn *ProprietaryExtn::sProprietaryExtn;
 
 ProprietaryExtn::ProprietaryExtn() {}
