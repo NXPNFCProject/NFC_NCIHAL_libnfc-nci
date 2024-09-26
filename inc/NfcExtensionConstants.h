@@ -117,6 +117,7 @@ constexpr uint8_t NCI_OID_TYPE_INDEX = 1;
 constexpr uint8_t NCI_RF_DISC_GID_VAL = 0x21;
 constexpr uint8_t NCI_RF_DISC_OID_VAL = 0x03;
 constexpr uint8_t NCI_SHIFT_BY_4 = 4;
+constexpr uint8_t NCI_HEADER_LEN = 0x03;
 
 // TODO//
 constexpr uint8_t NCI_CORE_RESET_NTF_GID_VAL = 0x60;
@@ -133,6 +134,9 @@ constexpr uint16_t NCI_RF_DEACTD_NTF_GID_OID = 0x6106;
 constexpr uint16_t NCI_RF_DEACTD_RSP_GID_OID = 0x4106;
 constexpr uint16_t NCI_GENERIC_ERR_NTF_GID_OID = 0x6007;
 constexpr uint16_t NCI_DATA_PKT_RSP_GID_OID = 0x0100;
+
+/* Core generic error for TAG collision detected */
+constexpr uint8_t NCI_TAG_COLLISION_DETECTED = 0xE4;
 
 /**
  * @brief MAINLINE related constants

@@ -112,6 +112,8 @@ typedef enum {
   MPOS_STATE_NO_TAG_TIMEOUT,
   /* Generic error notification received */
   MPOS_STATE_GENERIC_ERR_NTF,
+  /* Generic mPOS NTF consume it */
+  MPOS_STATE_GENERIC_NTF,
   /* Unknown state */
   MPOS_STATE_UNKNOWN,
   /* Max State */

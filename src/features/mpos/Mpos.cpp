@@ -116,7 +116,7 @@ static void sendSelectProfileCmd() {
     NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - START_FAIL");
     Mpos::getInstance()->updateState(MPOS_STATE_IDLE);
     notifyReaderModeActionEvt(ACTION_SE_READER_TAG_DISCOVERY_START_FAILED);
-    switchToDefaultHandler();
+    NfcExtensionWriter::getInstance().releaseHALcontrol();
   }
 }
 
@@ -199,7 +199,7 @@ NFCSTATUS Mpos::processMposNciRspNtf(const std::vector<uint8_t> &pData) {
 
 ScrState_t Mpos::getScrState(const std::vector<uint8_t> &pData) {
 
-  if (pData.size() < 2) {
+  if (pData.size() < (NCI_HEADER_LEN - 1)) {
     return MPOS_STATE_UNKNOWN;
   }
 
@@ -215,6 +215,10 @@ ScrState_t Mpos::getScrState(const std::vector<uint8_t> &pData) {
       return MPOS_STATE_NOTIFY_STOP_RF_DISCOVERY;
     case MPOS_STATE_WAIT_FOR_RF_DEACTIVATION:
       return MPOS_STATE_SE_READER_STOPPED;
+    case MPOS_STATE_SE_READER_STOPPED:
+    case MPOS_STATE_IDLE:
+    case MPOS_STATE_GENERIC_NTF:
+      return MPOS_STATE_GENERIC_NTF;
     default:
       break;
     }
@@ -265,12 +269,15 @@ ScrState_t Mpos::getScrState(const std::vector<uint8_t> &pData) {
       return MPOS_STATE_SE_READER_STOPPED;
     }
     break;
-  case NCI_GENERIC_ERR_NTF_GID_OID:
-    if ((mState == MPOS_STATE_WAIT_FOR_INTERFACE_ACTIVATION) ||
-        (mState == MPOS_STATE_GENERIC_ERR_NTF)) {
+  case NCI_GENERIC_ERR_NTF_GID_OID:{
+    uint16_t status = pData[3];
+    if (((mState == MPOS_STATE_WAIT_FOR_INTERFACE_ACTIVATION) ||
+        (mState == MPOS_STATE_GENERIC_ERR_NTF)) &&
+        (status == NCI_TAG_COLLISION_DETECTED)) {
       return MPOS_STATE_GENERIC_ERR_NTF;
     }
     break;
+  }
   case NCI_DATA_PKT_RSP_GID_OID: {
     if ((isSeReaderRestarted(pData) == true) && (mState != MPOS_STATE_IDLE)) {
       return MPOS_STATE_DISCOVERY_RESTARTED;
@@ -497,6 +504,10 @@ NFCSTATUS Mpos::processMposEvent(ScrState_t state) {
     notifySeReaderRestarted();
     return NFCSTATUS_EXTN_FEATURE_FAILURE;
   }
+  case MPOS_STATE_GENERIC_NTF:{
+    return NFCSTATUS_EXTN_FEATURE_SUCCESS;
+  }
+  break;
   default: {
     return NFCSTATUS_EXTN_FEATURE_FAILURE;
   } break;
@@ -556,6 +567,8 @@ std::string Mpos::scrStateToString(ScrState_t state) {
     return "MPOS_STATE_NO_TAG_TIMEOUT";
   case MPOS_STATE_GENERIC_ERR_NTF:
     return "MPOS_STATE_GENERIC_ERR_NTF";
+  case MPOS_STATE_GENERIC_NTF:
+    return "MPOS_STATE_GENERIC_NTF";
   case MPOS_STATE_UNKNOWN:
     return "MPOS_STATE_UNKNOWN";
   default:
