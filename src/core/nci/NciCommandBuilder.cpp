@@ -17,7 +17,7 @@
  **/
 #include "NciCommandBuilder.h"
 
-struct NciDiscoverMaps;
+//struct NciDiscoverMaps;
 NciCommandBuilder *NciCommandBuilder::sNciCommandBuilder;
 
 NciCommandBuilder::NciCommandBuilder() {}
@@ -31,8 +31,8 @@ NciCommandBuilder *NciCommandBuilder::getInstance() {
   return sNciCommandBuilder;
 }
 
-uint8_t
+/*uint8_t
 NciCommandBuilder::sendDiscoverMapCmd(uint8_t num,
                                       struct NciDiscoverMaps *discMaps) {
   return 1;
-}
+}*/

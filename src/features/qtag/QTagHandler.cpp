@@ -78,7 +78,7 @@ NFCSTATUS QTagHandler::handleVendorNciRspNtf(uint16_t dataLen,
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "QTagHandler::%s Enter dataLen:%d",
                  __func__, dataLen);
   vector<uint8_t> rfIntfNtf(pData, pData + dataLen);
-  return QTag::getInstance()->processIntActivatedNtf(rfIntfNtf);
+  return QTag::getInstance()->processIntActivatedNtf(std::move(rfIntfNtf));
 }
 
 NFCSTATUS QTagHandler::processExtnWrite(uint16_t *dataLen, uint8_t *pData) {

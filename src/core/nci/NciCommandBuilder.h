@@ -33,11 +33,11 @@ public:
    * @brief Defines the data elements for NCI discover map command
    *
    */
-  struct {
+  /*struct {
     uint8_t protocol;
     uint8_t mode;
     uint8_t intf_type;
-  } NciDiscoverMaps;
+  } NciDiscoverMaps;*/
 
   /**
    * @brief Get the singleton of this object.
@@ -53,7 +53,7 @@ public:
    * @return     Reference to this object.
    *
    */
-  uint8_t sendDiscoverMapCmd(uint8_t num, struct NciDiscoverMaps *discMaps);
+  //uint8_t sendDiscoverMapCmd(uint8_t num, struct NciDiscoverMaps *discMaps);
 
 private:
   static NciCommandBuilder *sNciCommandBuilder; // singleton object

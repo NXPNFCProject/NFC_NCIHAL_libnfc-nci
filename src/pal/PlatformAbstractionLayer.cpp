@@ -24,7 +24,7 @@
 
 PlatformAbstractionLayer *PlatformAbstractionLayer::sPlatformAbstractionLayer;
 
-PlatformAbstractionLayer::PlatformAbstractionLayer() {}
+PlatformAbstractionLayer::PlatformAbstractionLayer() { sThread = 0; }
 
 PlatformAbstractionLayer::~PlatformAbstractionLayer() {}
 
