@@ -16,8 +16,8 @@
  *
  **/
 
-#include "NfcExtensionApi.h"
 #include "DefaultEventHandler.h"
+#include "NfcExtensionApi.h"
 #include "MposHandler.h"
 #include "NfcExtensionConstants.h"
 #include "NfcExtensionController.h"

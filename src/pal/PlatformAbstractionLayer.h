@@ -20,8 +20,8 @@
 #define PLATFORM_ABSTRACTION_LAYER_H
 
 #include <cstdint>
-#include <phNxpLog.h>
 #include <thread>
+#include <phNxpLog.h>
 
 /** \addtogroup PAL_API_INTERFACE
  *  @brief  interface to perform the platform independent functionality.

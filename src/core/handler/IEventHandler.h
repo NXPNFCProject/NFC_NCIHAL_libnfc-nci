@@ -19,9 +19,9 @@
 #ifndef IEVENTHANDLER_GEN_H
 #define IEVENTHANDLER_GEN_H
 
+#include "NfcExtensionWriter.h"
 #include "NfcExtension.h"
 #include "NfcExtensionConstants.h"
-#include "NfcExtensionWriter.h"
 #include "PlatformAbstractionLayer.h"
 #include <cstdint>
 

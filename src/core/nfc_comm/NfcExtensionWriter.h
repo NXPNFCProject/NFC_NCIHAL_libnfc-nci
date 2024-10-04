@@ -19,8 +19,8 @@
 #ifndef NFC_EXTENSION_WRITER_H
 #define NFC_EXTENSION_WRITER_H
 
-#include "NfcExtensionConstants.h"
 #include "PlatformAbstractionLayer.h"
+#include "NfcExtensionConstants.h"
 #include <IntervalTimer.h>
 #include <cstdint>
 #include <vector>
