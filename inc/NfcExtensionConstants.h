@@ -125,6 +125,7 @@ constexpr uint8_t NCI_CORE_RESET_NTF_GID_VAL = 0x60;
 constexpr uint8_t NCI_CORE_RESET_NTF_OID_VAL = 0x00;
 constexpr uint8_t NCI_TEST_RF_SPC_NTF_OID_VAL = 0x3D;
 constexpr uint8_t DEAFULT_NXP_SYS_CLK_FREQ_SEL_VALUE = 2; /*CLK_FREQ_19_2MHZ*/
+constexpr uint8_t DEAFULT_NXP_SYS_CLK_SRC_SEL = 2;
 
 constexpr uint8_t DISABLE_LOG = 0x00;
 constexpr uint8_t ENABLE_LOG = 0x01;
