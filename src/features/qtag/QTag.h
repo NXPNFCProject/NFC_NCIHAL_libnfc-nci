@@ -23,7 +23,6 @@
 #include <stdint.h>
 
 constexpr uint8_t NCI_LEN_RF_CMD = 0x06;
-constexpr uint8_t NCI_RF_DISC_TECH_TYPE_INDEX = 4;
 
 class QTag {
 public:
@@ -43,7 +42,7 @@ public:
    *
    * @return uint8_t
    */
-  uint8_t isQTagEnabled();
+  uint8_t getQTagStatus();
 
   /**
    * @brief check if QTag enabled & received RF_INTF_ACTIVATED_NTF

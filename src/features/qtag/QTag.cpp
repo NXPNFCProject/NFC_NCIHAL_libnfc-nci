@@ -40,14 +40,19 @@ void QTag::enableQTag(uint8_t flag) {
   mIsQTagEnabled = flag;
 }
 
-uint8_t QTag::isQTagEnabled() { return mIsQTagEnabled; }
+uint8_t QTag::getQTagStatus() { return mIsQTagEnabled; }
 
 bool QTag::isQTagRfIntfNtf(vector<uint8_t> rfIntfNtf) {
-  if ((rfIntfNtf.size() > NCI_LEN_RF_CMD) && isQTagEnabled() &&
-      rfIntfNtf[NCI_MSG_TYPE_INDEX] == NCI_RF_INTF_ACT_NTF_GID_VAL &&
-      rfIntfNtf[NCI_OID_TYPE_INDEX] == NCI_RF_INTF_ACT_NTF_OID_VAL &&
-      rfIntfNtf[NCI_RF_INTF_ACT_TECH_TYPE_INDEX] == NCI_TECH_Q_POLL_VAL)
-    return true;
+  uint16_t mGidOid = ((rfIntfNtf[0] << 8) | rfIntfNtf[1]);
+  if ((rfIntfNtf.size() > NCI_LEN_RF_CMD) &&
+      (mGidOid == NCI_RF_INTF_ACTD_NTF_GID_OID)) {
+    if ((getQTagStatus() != DISABLE_QTAG) &&
+        (rfIntfNtf[NCI_RF_INTF_ACT_TECH_TYPE_INDEX] == NCI_TECH_Q_POLL_VAL)) {
+      return true;
+    }
+    PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
+        sizeof(QTAG_DETECTION_NTF_FAILURE), QTAG_DETECTION_NTF_FAILURE);
+  }
   return false;
 }
 
@@ -56,24 +61,32 @@ NFCSTATUS QTag::processIntActivatedNtf(vector<uint8_t> rfIntfNtf) {
     return NFCSTATUS_EXTN_FEATURE_FAILURE;
   }
 
-  uint16_t ntfLen = rfIntfNtf.size();
-  uint8_t p_ntf[ntfLen];
-  copy(rfIntfNtf.begin(), rfIntfNtf.end(), p_ntf);
-  p_ntf[NCI_RF_INTF_ACT_TECH_TYPE_INDEX] = NCI_TECH_A_POLL_VAL;
-
-  PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(ntfLen,
-                                                                  p_ntf);
+  rfIntfNtf[NCI_RF_INTF_ACT_TECH_TYPE_INDEX] = NCI_TECH_A_POLL_VAL;
+  PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
+      sizeof(QTAG_DETECTION_NTF_SUCCESS), QTAG_DETECTION_NTF_SUCCESS);
+  PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
+      rfIntfNtf.size(), rfIntfNtf.data());
   return NFCSTATUS_EXTN_FEATURE_SUCCESS;
 }
 
 NFCSTATUS QTag::processRfDiscCmd(vector<uint8_t> &rfDiscCmd) {
-  if ((QTag::getInstance()->isQTagEnabled()) &&
-      (rfDiscCmd.size() == NCI_LEN_RF_CMD) &&
-      (rfDiscCmd[NCI_MSG_TYPE_INDEX] == NCI_RF_DISC_GID_VAL) &&
-      (rfDiscCmd[NCI_OID_TYPE_INDEX] == NCI_RF_DISC_OID_VAL) &&
-      (rfDiscCmd[NCI_RF_DISC_TECH_TYPE_INDEX] == NCI_TECH_A_POLL_VAL)) {
-    rfDiscCmd[NCI_RF_DISC_TECH_TYPE_INDEX] = NCI_TECH_Q_POLL_VAL;
-    return NFCSTATUS_EXTN_FEATURE_SUCCESS;
+  vector<uint8_t> QTAG_RF_DISC_CMD = {0x21, 0x03, 0x03, 0x01, 0x71, 0x01};
+  uint8_t NCI_QTAG_PAYLOAD_LEN = 2;
+  uint8_t NCI_RF_DISC_PAYLOAD_LEN_INDEX = 2;
+  uint8_t NCI_RF_DISC_NUM_OF_CONFIG_INDEX = 3;
+  uint16_t mGidOid = ((rfDiscCmd[0] << 8) | rfDiscCmd[1]);
+  if (mGidOid == NCI_RF_DISC_CMD_GID_OID) {
+    if (QTag::getInstance()->getQTagStatus() == ENABLE_QTAG_ONLY) {
+      rfDiscCmd.assign(QTAG_RF_DISC_CMD.begin(), QTAG_RF_DISC_CMD.end());
+      return NFCSTATUS_EXTN_FEATURE_SUCCESS;
+    } else if (QTag::getInstance()->getQTagStatus() == APPEND_QTAG_IN_RF_DISC) {
+      rfDiscCmd[NCI_RF_DISC_NUM_OF_CONFIG_INDEX]++;
+      rfDiscCmd[NCI_RF_DISC_PAYLOAD_LEN_INDEX] += NCI_QTAG_PAYLOAD_LEN;
+      rfDiscCmd.push_back(NCI_TECH_Q_POLL_VAL);
+      rfDiscCmd.push_back(ENABLE_QTAG_ONLY);
+      return NFCSTATUS_EXTN_FEATURE_SUCCESS;
+    }
+    return NFCSTATUS_EXTN_FEATURE_FAILURE;
   }
   return NFCSTATUS_EXTN_FEATURE_FAILURE;
 }
