@@ -20,6 +20,7 @@
 #include "NfcExtensionConstants.h"
 #include "NfcExtensionController.h"
 #include <NfcExtension.h>
+#include <cutils/properties.h>
 #include <phNxpLog.h>
 
 PlatformAbstractionLayer *PlatformAbstractionLayer::sPlatformAbstractionLayer;
@@ -129,4 +130,9 @@ uint8_t PlatformAbstractionLayer::palEnableDisableDebugLog(uint8_t enable) {
 
 tNFC_chipType PlatformAbstractionLayer::palGetChipType() {
   return phNxpHal_GetChipType();
+}
+
+int PlatformAbstractionLayer::palproperty_set(const char *key,
+                                              const char *value) {
+  return property_set(key, value);
 }

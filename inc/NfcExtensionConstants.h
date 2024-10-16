@@ -29,6 +29,8 @@
 #define NFC_NXP_GEN_EXT_VERSION_MAJ (0x01) /* MW Major Version */
 #define NFC_NXP_GEN_EXT_VERSION_MIN (0x00) /* MW Minor Version */
 
+#define NAME_NXP_RF_FILE_VERSION_INFO "NXP_RF_FILE_VERSION_INFO"
+
 /**
  * @brief Log name of the Gen extension library
  *
@@ -142,6 +144,12 @@ constexpr uint16_t NCI_DATA_PKT_RSP_GID_OID = 0x0100;
 constexpr uint16_t NCI_EE_DISC_NTF_GID_OID = 0x6200;
 constexpr uint16_t NCI_EE_ACTION_NTF_GID_OID = 0x6109;
 constexpr uint16_t NCI_EE_STATUS_NTF_GID_OID = 0x6202;
+constexpr uint16_t NCI_CORE_RESET_NTF_GID_OID = 0x6000;
+
+constexpr uint16_t NCI_FW_MAJOR_VER_INDEX = 0x0A;
+constexpr uint16_t NCI_FW_MINOR_VER_INDEX = 0x0B;
+constexpr uint16_t NCI_FW_PATCH_VER_INDEX = 0x0C;
+constexpr uint16_t NCI_MIN_CORE_RESET_NTF_LEN = 0x0D;
 
 /* Core generic error for TAG collision detected */
 constexpr uint8_t NCI_TAG_COLLISION_DETECTED = 0xE4;

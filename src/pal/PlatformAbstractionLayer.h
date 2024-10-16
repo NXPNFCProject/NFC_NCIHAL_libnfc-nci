@@ -180,6 +180,17 @@ public:
    */
   tNFC_chipType palGetChipType();
 
+  /**
+   * @brief this function is called to set the system properties
+   * @param  key - Represent the name of property max 32 characters.
+   * @param  value - Represent the value to set for the property max 92
+   * characters.
+   * @return return 0 : Success the property set successfully.
+   *               -1 : Failure There was an error setting the property.
+   *
+   */
+  int palproperty_set(const char *key, const char *value);
+
 private:
   static PlatformAbstractionLayer
       *sPlatformAbstractionLayer; // singleton object
