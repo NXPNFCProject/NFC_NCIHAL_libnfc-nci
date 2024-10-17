@@ -70,6 +70,14 @@ void ProprietaryExtn::handleHalEvent(uint8_t event) {
   }
 }
 
+void ProprietaryExtn::updateFwDnlsStatus(uint8_t status) {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter status:%d", __func__,
+                 status);
+  if (fp_prop_extn_update_fw_dnld_status != nullptr) {
+    return fp_prop_extn_update_fw_dnld_status(status);
+  }
+}
+
 void ProprietaryExtn::setupPropExtension() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
   p_prop_extn_handle =
@@ -139,6 +147,14 @@ void ProprietaryExtn::setupPropExtension() {
            p_prop_extn_handle, "phNxpProp_HandleHalEvent")) == NULL) {
     NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
                    "%s Failed to find phNxpProp_HandleHalEvent !!", __func__);
+  }
+
+  if ((fp_prop_extn_update_fw_dnld_status =
+           (fp_prop_extn_update_fw_dnld_status_t)dlsym(
+               p_prop_extn_handle, "phNxpProp_FwDnldStatusUpdate")) == NULL) {
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
+                   "%s Failed to find phNxpProp_FwDnldStatusUpdate !!",
+                   __func__);
   }
 
   if (fp_prop_extn_init != NULL) {

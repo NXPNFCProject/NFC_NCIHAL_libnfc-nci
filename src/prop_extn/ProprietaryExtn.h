@@ -99,6 +99,13 @@ public:
   void updateRfState(uint8_t rfState);
 
   /**
+   * @brief Updates FW dnld status to
+   *        extension library
+   * @return void
+   *
+   */
+  void updateFwDnlsStatus(uint8_t status);
+  /**
    * @brief HAL updates the failure and error
    *        events through this function
    * @param event specifies events
@@ -133,6 +140,7 @@ private:
   typedef void (*fp_prop_extn_on_write_complete_t)(uint16_t);
   typedef void (*fp_prop_extn_on_hal_control_granted_t)();
   typedef void (*fp_prop_extn_handle_hal_event_t)(uint8_t);
+  typedef void (*fp_prop_extn_update_fw_dnld_status_t)(uint8_t);
   fp_prop_extn_init_t fp_prop_extn_init = nullptr;
   fp_prop_extn_deinit_t fp_prop_extn_deinit = nullptr;
   fp_prop_extn_snd_vnd_msg_t fp_prop_extn_snd_vnd_msg = nullptr;
@@ -144,6 +152,8 @@ private:
   fp_prop_extn_on_hal_control_granted_t fp_prop_extn_on_hal_control_granted =
       nullptr;
   fp_prop_extn_handle_hal_event_t fp_prop_extn_handle_hal_event = nullptr;
+  fp_prop_extn_update_fw_dnld_status_t fp_prop_extn_update_fw_dnld_status =
+      nullptr;
   void *p_prop_extn_handle = nullptr;
 };
 #endif // PROP_EXTENSION_H

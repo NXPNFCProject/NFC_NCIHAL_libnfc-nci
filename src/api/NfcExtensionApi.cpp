@@ -86,6 +86,14 @@ static void phNxpExtn_OnNfcHalStateUpdate(uint8_t halState);
 static void phNxpExtn_OnRfStateUpdate(uint8_t rfState);
 
 /**
+ * @brief Updates the FW DNLD staus to
+ *        extension library
+ * @return void
+ *
+ */
+static void phNxpExtn_OnFwDnldStatusUpdate(uint8_t status);
+
+/**
  * @brief HAL updates the failure and error
  *        events through this function
  * @param event specifies events
@@ -162,6 +170,10 @@ NFCSTATUS phNxpExtn_HandleNfcEvent(NfcExtEvent_t eventCode,
   }
   case HANDLE_RF_HAL_STATE_UPDATE: {
     phNxpExtn_OnRfStateUpdate(eventData.rf_state);
+    break;
+  }
+  case HANDLE_FW_DNLD_STATUS_UPDATE: {
+    phNxpExtn_OnFwDnldStatusUpdate(eventData.fwDnldStatus);
     break;
   }
   case HANDLE_WRITE_EXTN_MSG: {
@@ -241,6 +253,12 @@ void phNxpExtn_OnRfStateUpdate(uint8_t rfState) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter rfState:%d", __func__,
                  rfState);
   NfcExtensionController::getInstance()->updateRfState(rfState);
+}
+
+void phNxpExtn_OnFwDnldStatusUpdate(uint8_t status) {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter status:%d", __func__,
+                 status);
+  ProprietaryExtn::getInstance()->updateFwDnlsStatus(status);
 }
 
 void phNxpExtn_OnHandleHalEvent(uint8_t event) {
