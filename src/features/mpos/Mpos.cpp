@@ -490,7 +490,7 @@ NFCSTATUS Mpos::processMposEvent(ScrState_t state) {
     return NFCSTATUS_EXTN_FEATURE_SUCCESS;
   }
   case MPOS_STATE_NO_TAG_TIMEOUT: {
-    updateState(MPOS_STATE_WAIT_FOR_RF_DEACTIVATION);
+    updateState(MPOS_STATE_RF_DISCOVERY_REQUEST_REMOVE);
     notifyReaderModeActionEvt(ACTION_SE_READER_TAG_TIMEOUT);
     return NFCSTATUS_EXTN_FEATURE_SUCCESS;
   }
