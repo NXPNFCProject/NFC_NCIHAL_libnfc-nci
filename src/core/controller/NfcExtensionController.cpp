@@ -23,7 +23,10 @@
 
 NfcExtensionController *NfcExtensionController::sNfcExtensionController;
 
-NfcExtensionController::NfcExtensionController() {mRfState = {0};}
+NfcExtensionController::NfcExtensionController() {
+  mRfState = {0};
+  mNfcHalState = {0};
+}
 
 NfcExtensionController::~NfcExtensionController() {}
 
