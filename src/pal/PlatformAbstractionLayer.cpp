@@ -20,6 +20,7 @@
 #include "NfcExtensionConstants.h"
 #include "NfcExtensionController.h"
 #include <NfcExtension.h>
+#include <ProprietaryExtn.h>
 #include <cutils/properties.h>
 #include <phNxpLog.h>
 
@@ -83,6 +84,9 @@ void PlatformAbstractionLayer::palReleaseHALcontrol(void) {
 
 void PlatformAbstractionLayer::palSendNfcDataCallback(uint16_t dataLen,
                                                       const uint8_t *pData) {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+  ProprietaryExtn::getInstance()->mapGidOidToPropRspNtf(dataLen,
+                                                        (uint8_t *)pData);
   phNxpHal_NfcDataCallback(dataLen, pData);
 }
 

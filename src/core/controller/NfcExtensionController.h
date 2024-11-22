@@ -42,12 +42,11 @@ enum class HandlerType {
   /**
    * @brief indicates mpos feature handler
    */
-  MPOS = 5,
-  // TODO: Align on ROW Sub GID and OID usage
+  MPOS = 0x0A,
   /**
    * @brief indicates QTAG feature handler
    */
-  QTAG = 6,
+  QTAG = 0x03,
   // TODO: Align on ROW Sub GID and OID usage
   /**
    * @brief indicates t4t feature handler

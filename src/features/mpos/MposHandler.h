@@ -26,7 +26,6 @@
 /**********************************************************************************
  **  Macros
  **********************************************************************************/
-#define SE_READER_DEDICATED_MODE_ID 0x51
 #define SE_READER_DEDICATED_MODE_OFF 0x00
 #define SE_READER_DEDICATED_MODE_ON 0x01
 

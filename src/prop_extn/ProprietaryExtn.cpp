@@ -54,6 +54,22 @@ NFCSTATUS ProprietaryExtn::handleVendorNciRspNtf(uint16_t dataLen,
   return NFCSTATUS_EXTN_FEATURE_FAILURE;
 }
 
+void ProprietaryExtn::mapGidOidToGenCmd(uint16_t dataLen, uint8_t *pData) {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter dataLen:%d", __func__,
+                 dataLen);
+  if (fp_map_gid_oid_to_gen_cmd != nullptr) {
+    fp_map_gid_oid_to_gen_cmd(dataLen, pData);
+  }
+}
+
+void ProprietaryExtn::mapGidOidToPropRspNtf(uint16_t dataLen, uint8_t *pData) {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter dataLen:%d", __func__,
+                 dataLen);
+  if (fp_map_gid_oid_to_prop_rsp_ntf != nullptr) {
+    fp_map_gid_oid_to_prop_rsp_ntf(dataLen, pData);
+  }
+}
+
 void ProprietaryExtn::onExtWriteComplete(uint8_t status) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter status:%d", __func__,
                  status);
@@ -113,6 +129,20 @@ void ProprietaryExtn::setupPropExtension() {
            p_prop_extn_handle, "phNxpProp_HandleVendorNciRspNtf")) == NULL) {
     NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
                    "%s Failed to find phNxpProp_HandleVendorNciRspNtf !!",
+                   __func__);
+  }
+
+  if ((fp_map_gid_oid_to_gen_cmd = (fp_map_gid_oid_to_gen_cmd_t)dlsym(
+           p_prop_extn_handle, "phNxpProp_MapGidOidToGenCmd")) == NULL) {
+    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+                   "%s Failed to find phNxpProp_MapGidOidToGenCmd !!",
+                   __func__);
+  }
+
+  if ((fp_map_gid_oid_to_prop_rsp_ntf = (fp_map_gid_oid_to_prop_rsp_ntf_t)dlsym(
+           p_prop_extn_handle, "phNxpProp_MapGidOidToPropRspNtf")) == NULL) {
+    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+                   "%s Failed to find phNxpProp_MapGidOidToPropRspNtf !!",
                    __func__);
   }
 

@@ -66,9 +66,9 @@ ScrState_t Mpos::getState() { return mState; }
 static void notifyReaderModeActionEvt(uint8_t ntfType) {
   uint8_t rdrModeNtf[5] = {0x00};
   rdrModeNtf[0] = NCI_PROP_NTF_VAL;
-  rdrModeNtf[1] = NCI_PROP_OID_VAL;
+  rdrModeNtf[1] = NCI_ROW_PROP_OID_VAL;
   rdrModeNtf[2] = NCI_RDR_MODE_NTF_PL_LEN;
-  rdrModeNtf[3] = NCI_PROP_MPOS_SUB_GIDOID_VAL;
+  rdrModeNtf[3] = MPOS_READER_MODE_NTF_SUB_GIDOID_VAL;
   rdrModeNtf[4] = ntfType;
   PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
       sizeof(rdrModeNtf), rdrModeNtf);

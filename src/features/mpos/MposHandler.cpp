@@ -81,11 +81,12 @@ NFCSTATUS MposHandler::handleVendorNciMessage(uint16_t dataLen,
                                               const uint8_t *pData) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "MposHandler::%s Enter dataLen:%d",
                  __func__, dataLen);
-  uint8_t resp[] = {0x4F, 0x3E, 0x02, 0x51, 00};
+  uint8_t resp[] = {NCI_PROP_RSP_VAL, NCI_ROW_PROP_OID_VAL, PAYLOAD_TWO_LEN,
+                    MPOS_READER_SET_DMODE_SUB_GIDOID_VAL, RESPONSE_STATUS_OK};
   HandlerType currentHandleType;
   NFCSTATUS status = NFCSTATUS_EXTN_FEATURE_FAILURE;
 
-  if ((pData[SUB_GID_OID_INDEX] == SE_READER_DEDICATED_MODE_ID) &&
+  if ((pData[SUB_GID_OID_INDEX] == MPOS_READER_SET_DMODE_SUB_GIDOID_VAL) &&
       (pData[SUB_GID_OID_ACTION_INDEX] == SE_READER_DEDICATED_MODE_ON)) {
     NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "Start the SE Reader mode");
     currentHandleType =
@@ -97,7 +98,8 @@ NFCSTATUS MposHandler::handleVendorNciMessage(uint16_t dataLen,
     PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
         sizeof(resp), resp);
     return NFCSTATUS_EXTN_FEATURE_SUCCESS;
-  } else if ((pData[SUB_GID_OID_INDEX] == SE_READER_DEDICATED_MODE_ID) &&
+  } else if ((pData[SUB_GID_OID_INDEX] ==
+              MPOS_READER_SET_DMODE_SUB_GIDOID_VAL) &&
              (pData[SUB_GID_OID_ACTION_INDEX] ==
               SE_READER_DEDICATED_MODE_OFF)) {
     NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "Stop the SE Reader mode");

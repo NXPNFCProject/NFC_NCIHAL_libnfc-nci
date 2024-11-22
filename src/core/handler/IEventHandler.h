@@ -148,7 +148,7 @@ public:
     NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "Generic Error 0x%X", ntfType);
     uint8_t rdrModeNtf[4] = {0x00};
     rdrModeNtf[0] = NCI_PROP_NTF_VAL;
-    rdrModeNtf[1] = NCI_PROP_OID_VAL;
+    rdrModeNtf[1] = NCI_ROW_PROP_OID_VAL;
     rdrModeNtf[2] = 0x01; // NCI Length filed
     rdrModeNtf[3] = ntfType;
     PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(

@@ -82,6 +82,7 @@ constexpr uint8_t MT_NTF = 0x02;
 
 constexpr uint8_t DEFAULT_RESP = 0xFF;
 constexpr uint8_t ZERO_PAYLOAD = 0x00;
+constexpr uint8_t PAYLOAD_TWO_LEN = 0x02;
 
 constexpr uint8_t SUB_GID_OID_INDEX = 3;
 constexpr uint8_t SUB_GID_OID_ACTION_INDEX = 4;
@@ -97,8 +98,13 @@ constexpr uint8_t NCI_OID_MASK = 0xFF;
 constexpr uint8_t NCI_PROP_CMD_VAL = 0x2F;
 constexpr uint8_t NCI_PROP_RSP_VAL = 0x4F;
 constexpr uint8_t NCI_PROP_NTF_VAL = 0x6F;
-constexpr uint8_t NCI_PROP_OID_VAL = 0x3E;
 constexpr uint8_t NXP_FLUSH_SRAM_AO_TO_FLASH_OID = 0x21;
+
+constexpr uint8_t NCI_ROW_PROP_OID_VAL = 0x70;
+constexpr uint8_t QTAG_FEATURE_SUB_GIDOID = 0x31;
+constexpr uint8_t QTAG_DETECT_NTF_SUB_GIDOID = 0x32;
+constexpr uint8_t MPOS_READER_SET_DMODE_SUB_GIDOID_VAL = 0xAE;
+constexpr uint8_t MPOS_READER_MODE_NTF_SUB_GIDOID_VAL = 0xA0;
 
 constexpr uint8_t NCI_UN_RECOVERABLE_ERR = 0x01;
 constexpr uint8_t NCI_HAL_CONTROL_BUSY = 0x02;

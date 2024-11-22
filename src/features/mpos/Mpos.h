@@ -51,7 +51,6 @@
   ((state) == MPOS_STATE_SEND_PROFILE_SELECT_CONFIG_CMD ||                     \
    (state) == MPOS_STATE_SEND_PROFILE_DESELECT_CONFIG_CMD)
 
-constexpr uint8_t NCI_PROP_MPOS_SUB_GIDOID_VAL = 0x5F;
 constexpr uint8_t NCI_RDR_MODE_NTF_PL_LEN = 0x02;
 constexpr uint8_t NCI_AID_VAL = 0x81;
 constexpr uint8_t NCI_AID_LEN = 0x10;

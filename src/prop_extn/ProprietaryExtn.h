@@ -69,6 +69,26 @@ public:
   NFCSTATUS handleVendorNciRspNtf(uint16_t dataLen, const uint8_t *pData);
 
   /**
+   * @brief map the vendor NCI command from PROP to ROW
+   * @param dataLen length of the NCI packet
+   * @param pData pointer of the NCI packet
+   * \Note This conversion needed only for SSG Sub GID & OID defined ROW
+   * feature. NXP defined Sub GID & OID ROW feature does not need conversion
+   *
+   */
+  void mapGidOidToGenCmd(uint16_t dataLen, uint8_t *pData);
+
+  /**
+   * @brief map the vendor NCI command from ROW to PROP
+   * @param dataLen length of the NCI packet
+   * @param pData pointer of the NCI packet
+   * \Note This conversion needed only for SSG Sub GID & OID defined ROW
+   * feature. NXP defined Sub GID & OID ROW feature does not need conversion
+   *
+   */
+  void mapGidOidToPropRspNtf(uint16_t dataLen, uint8_t *pData);
+
+  /**
    * @brief onExtWriteComplete
    * @return void
    *
@@ -134,6 +154,8 @@ private:
   typedef NFCSTATUS (*fp_prop_extn_snd_vnd_msg_t)(uint16_t, const uint8_t *);
   typedef NFCSTATUS (*fp_prop_extn_snd_vnd_rsp_ntf_t)(uint16_t,
                                                       const uint8_t *);
+  typedef void (*fp_map_gid_oid_to_gen_cmd_t)(uint16_t, uint8_t *);
+  typedef void (*fp_map_gid_oid_to_prop_rsp_ntf_t)(uint16_t, uint8_t *);
   typedef void (*fp_prop_extn_deinit_t)();
   typedef void (*fp_prop_extn_update_nfc_hal_state_t)(uint16_t);
   typedef void (*fp_prop_extn_update_rf_state_t)(uint16_t);
@@ -145,6 +167,8 @@ private:
   fp_prop_extn_deinit_t fp_prop_extn_deinit = nullptr;
   fp_prop_extn_snd_vnd_msg_t fp_prop_extn_snd_vnd_msg = nullptr;
   fp_prop_extn_snd_vnd_rsp_ntf_t fp_prop_extn_snd_vnd_rsp_ntf = nullptr;
+  fp_map_gid_oid_to_gen_cmd_t fp_map_gid_oid_to_gen_cmd = nullptr;
+  fp_map_gid_oid_to_prop_rsp_ntf_t fp_map_gid_oid_to_prop_rsp_ntf = nullptr;
   fp_prop_extn_update_nfc_hal_state_t fp_prop_extn_update_nfc_hal_state =
       nullptr;
   fp_prop_extn_update_rf_state_t fp_prop_extn_update_rf_state = nullptr;
