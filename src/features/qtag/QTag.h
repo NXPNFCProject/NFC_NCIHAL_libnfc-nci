@@ -72,6 +72,15 @@ public:
    */
   NFCSTATUS processRfDiscCmd(vector<uint8_t> &rfDiscCmd);
 
+  /**
+   * @brief Checking if Listen tech is present in RF_DISC_CMD. disabling QPoll
+   *        if listen tech present.
+   * @param rfDiscCmd RF_DISC_CMD
+   * @return true if listen tech is not present.
+   * @return false if listen tech is present.
+   */
+  bool checkDiscCmd(vector<uint8_t> rfDiscCmd);
+
 private:
   static QTag *instance;
 

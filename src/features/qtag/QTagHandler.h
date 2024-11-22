@@ -24,10 +24,14 @@
 #include <cstdint>
 #include <vector>
 
-constexpr uint8_t QTAG_NCI_VENDOR_RSP_SUCCESS[] = {0x4F, 0x3E, 0x01, 0x00};
-constexpr uint8_t QTAG_NCI_VENDOR_RSP_FAILURE[] = {0x4F, 0x3E, 0x01, 0x01};
-constexpr uint8_t QTAG_DETECTION_NTF_SUCCESS[] = {0x6F, 0x3E, 0x02, 0x61, 0x00};
-constexpr uint8_t QTAG_DETECTION_NTF_FAILURE[] = {0x6F, 0x3E, 0x02, 0x61, 0x01};
+constexpr uint8_t QTAG_NCI_VENDOR_RSP_SUCCESS[] = {0x4F, 0x3E, 0x02, 0x61,
+                                                   0x00};
+constexpr uint8_t QTAG_NCI_VENDOR_RSP_FAILURE[] = {0x4F, 0x3E, 0x02, 0x61,
+                                                   0x01};
+constexpr uint8_t QTAG_NCI_VENDOR_NTF_FAILURE[] = {0x6F, 0x3E, 0x02, 0x61,
+                                                   0x01};
+constexpr uint8_t QTAG_DETECTION_NTF_SUCCESS[] = {0x6F, 0x3E, 0x02, 0x62, 0x00};
+constexpr uint8_t QTAG_DETECTION_NTF_FAILURE[] = {0x6F, 0x3E, 0x02, 0x62, 0x01};
 
 constexpr uint8_t DISABLE_QTAG = 0x00;
 constexpr uint8_t ENABLE_QTAG_ONLY = 0x01;

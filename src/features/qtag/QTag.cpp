@@ -56,6 +56,17 @@ bool QTag::isQTagRfIntfNtf(vector<uint8_t> rfIntfNtf) {
   return false;
 }
 
+bool QTag::checkDiscCmd(vector<uint8_t> rfDiscCmd) {
+  for (size_t i = 0; i < rfDiscCmd.size(); i++) {
+    if ((rfDiscCmd[i] == NCI_TYPE_A_LISTEN) ||
+        (rfDiscCmd[i] == NCI_TYPE_B_LISTEN) ||
+        (rfDiscCmd[i] == NCI_TYPE_F_LISTEN)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 NFCSTATUS QTag::processIntActivatedNtf(vector<uint8_t> rfIntfNtf) {
   if (!QTag::getInstance()->isQTagRfIntfNtf(rfIntfNtf)) {
     return NFCSTATUS_EXTN_FEATURE_FAILURE;
@@ -75,16 +86,27 @@ NFCSTATUS QTag::processRfDiscCmd(vector<uint8_t> &rfDiscCmd) {
   uint8_t NCI_RF_DISC_PAYLOAD_LEN_INDEX = 2;
   uint8_t NCI_RF_DISC_NUM_OF_CONFIG_INDEX = 3;
   uint16_t mGidOid = ((rfDiscCmd[0] << 8) | rfDiscCmd[1]);
+
   if (mGidOid == NCI_RF_DISC_CMD_GID_OID) {
-    if (QTag::getInstance()->getQTagStatus() == ENABLE_QTAG_ONLY) {
-      rfDiscCmd.assign(QTAG_RF_DISC_CMD.begin(), QTAG_RF_DISC_CMD.end());
-      return NFCSTATUS_EXTN_FEATURE_SUCCESS;
-    } else if (QTag::getInstance()->getQTagStatus() == APPEND_QTAG_IN_RF_DISC) {
-      rfDiscCmd[NCI_RF_DISC_NUM_OF_CONFIG_INDEX]++;
-      rfDiscCmd[NCI_RF_DISC_PAYLOAD_LEN_INDEX] += NCI_QTAG_PAYLOAD_LEN;
-      rfDiscCmd.push_back(NCI_TECH_Q_POLL_VAL);
-      rfDiscCmd.push_back(ENABLE_QTAG_ONLY);
-      return NFCSTATUS_EXTN_FEATURE_SUCCESS;
+    if (checkDiscCmd(rfDiscCmd)) {
+      if (QTag::getInstance()->getQTagStatus() == ENABLE_QTAG_ONLY) {
+        rfDiscCmd.assign(QTAG_RF_DISC_CMD.begin(), QTAG_RF_DISC_CMD.end());
+        return NFCSTATUS_EXTN_FEATURE_SUCCESS;
+      } else if (QTag::getInstance()->getQTagStatus() ==
+                 APPEND_QTAG_IN_RF_DISC) {
+        rfDiscCmd[NCI_RF_DISC_NUM_OF_CONFIG_INDEX]++;
+        rfDiscCmd[NCI_RF_DISC_PAYLOAD_LEN_INDEX] += NCI_QTAG_PAYLOAD_LEN;
+        rfDiscCmd.push_back(NCI_TECH_Q_POLL_VAL);
+        rfDiscCmd.push_back(ENABLE_QTAG_ONLY);
+        return NFCSTATUS_EXTN_FEATURE_SUCCESS;
+      }
+    } else {
+      enableQTag(DISABLE_QTAG);
+      NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+                     "%s Listen tech also enabled, disabling QPoll", __func__);
+      PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
+          sizeof(QTAG_NCI_VENDOR_NTF_FAILURE), QTAG_NCI_VENDOR_NTF_FAILURE);
+      return NFCSTATUS_EXTN_FEATURE_FAILURE;
     }
     return NFCSTATUS_EXTN_FEATURE_FAILURE;
   }

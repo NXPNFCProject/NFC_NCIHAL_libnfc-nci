@@ -180,6 +180,13 @@ constexpr uint8_t MAINLINE_MIN_CMD_LEN = 0x04;
 constexpr uint8_t NCI_CMD_TIMEOUT_IN_SEC = 2;
 static const int NXP_EXTNS_WRITE_RSP_TIMEOUT_IN_MS = 2000;
 static const int NXP_EXTNS_HAL_REQUEST_CTRL_TIMEOUT_IN_MS = 1000;
+/**
+ * @brief NFC FORUM LISTEN TECH
+ *
+ */
+constexpr uint8_t NCI_TYPE_A_LISTEN = 0x80;
+constexpr uint8_t NCI_TYPE_B_LISTEN = 0x81;
+constexpr uint8_t NCI_TYPE_F_LISTEN = 0x82;
 
 /**
  * @brief Defines the state of the Handler
