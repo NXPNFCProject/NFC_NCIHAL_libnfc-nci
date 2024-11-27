@@ -2616,6 +2616,11 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
                    << StringPrintf("NFA_DM_RF_DEACTIVATE_NTF to discovery");
         if (p_data->nfc_discover.deactivate.reason ==
             NFC_DEACTIVATE_REASON_DH_REQ_FAILED) {
+          // If in pres check and at this point still errors
+          // Stop pres check, tag will be activated again if still present
+          if (old_sleep_wakeup_flag) {
+            nfa_dm_disc_end_sleep_wakeup(NFC_STATUS_FAILED);
+          }
           nfa_dm_disc_notify_deactivation(NFA_DM_RF_DEACTIVATE_NTF,
                                           &(p_data->nfc_discover));
         }
