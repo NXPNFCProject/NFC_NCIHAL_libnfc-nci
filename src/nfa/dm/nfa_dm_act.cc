@@ -371,12 +371,6 @@ static void nfa_dm_nfc_response_cback(tNFC_RESPONSE_EVT event,
       break;
 
     case NFC_EE_DISCOVER_REQ_REVT: /* EE Discover Req notification */
-#if(NXP_EXTNS != TRUE)
-      if (nfa_dm_is_active() &&
-          (nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_DISCOVERY)) {
-        nfa_dm_rf_deactivate(NFA_DEACTIVATE_TYPE_IDLE);
-      }
-#endif
       nfa_ee_proc_evt(event, p_data);
       break;
 
