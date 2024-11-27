@@ -283,7 +283,6 @@ static void nfa_dm_nfc_response_cback(tNFC_RESPONSE_EVT event,
   tNFA_DM_CBACK_DATA dm_cback_data;
   tNFA_CONN_EVT_DATA conn_evt;
   uint8_t dm_cback_evt;
-  uint8_t max_ee = 0;
 #if (NXP_EXTNS == TRUE)
   tNFA_GET_ROUTING* p_nfa_get_routing;
 #endif
@@ -295,14 +294,6 @@ static void nfa_dm_nfc_response_cback(tNFC_RESPONSE_EVT event,
 
       /* NFC stack enabled. Enable nfa sub-systems */
       if (p_data->enable.status == NFC_STATUS_OK) {
-        if (nfa_ee_max_ee_cfg != 0) {
-          if (nfa_dm_cb.get_max_ee) {
-            max_ee = nfa_dm_cb.get_max_ee();
-            if (max_ee) {
-              nfa_ee_max_ee_cfg = max_ee;
-            }
-          }
-        }
         /* Initialize NFA subsystems */
         nfa_sys_enable_subsystems();
       } else if (nfa_dm_cb.flags & NFA_DM_FLAGS_ENABLE_EVT_PEND) {
