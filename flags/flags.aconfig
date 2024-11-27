@@ -7,3 +7,10 @@ flag {
     description: "Support for a pure NFC Forum T5T tag"
     bug: "293959530"
 }
+
+flag {
+    name: "mfc_read_mad"
+    namespace: "nfc"
+    description: "Support for read MFC MAD sector"
+    bug: "340223581"
+}
