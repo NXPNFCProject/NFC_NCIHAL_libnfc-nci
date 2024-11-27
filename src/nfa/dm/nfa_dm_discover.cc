@@ -2463,6 +2463,7 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
       (nfa_dm_cb.disc_cb.disc_flags & NFA_DM_DISC_FLAGS_CHECKING);
   bool sleep_wakeup_event = false;
   bool sleep_wakeup_event_processed = false;
+  tNFA_STATUS status;
 #if (NXP_EXTNS == TRUE)
   tNFA_CONN_EVT_DATA conn_evt_data;
 #endif
@@ -2482,7 +2483,11 @@ static void nfa_dm_disc_sm_poll_active(tNFA_DM_RF_DISC_SM_EVENT event,
         nfa_dm_cb.disc_cb.deact_pending = true;
         nfa_dm_cb.disc_cb.pending_deact_type = p_data->deactivate_type;
       } else {
-        nfa_dm_send_deactivate_cmd(p_data->deactivate_type);
+        status = nfa_dm_send_deactivate_cmd(p_data->deactivate_type);
+        if (status != NFA_STATUS_OK) {
+          LOG(ERROR) << StringPrintf(
+              "%s; Error calling nfa_dm_send_deactivate_cmd()", __func__);
+        }
       }
 
       break;
