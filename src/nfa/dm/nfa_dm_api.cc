@@ -981,12 +981,6 @@ tNFA_STATUS NFA_SendRawFrame(uint8_t* p_raw_data, uint16_t data_len,
 
   LOG(VERBOSE) << StringPrintf("data_len:%d", data_len);
 
-  /* Validate parameters */
-  if (((data_len == 0) || (p_raw_data == nullptr)) &&
-      (!(nfa_dm_cb.disc_cb.disc_state == NFA_DM_RFST_LISTEN_ACTIVE &&
-         nfa_dm_cb.disc_cb.activated_protocol == NFA_PROTOCOL_T3T)))
-    return (NFA_STATUS_INVALID_PARAM);
-
   size = NFC_HDR_SIZE + NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE + data_len;
   /* Check for integer overflow */
   if (size < data_len) {
@@ -1001,7 +995,7 @@ tNFA_STATUS NFA_SendRawFrame(uint8_t* p_raw_data, uint16_t data_len,
     p_msg->len = data_len;
 
     p = (uint8_t*)(p_msg + 1) + p_msg->offset;
-    if (p_raw_data != nullptr) {
+    if ((data_len != 0) && (p_raw_data != nullptr)) {
       memcpy(p, p_raw_data, data_len);
     }
 
