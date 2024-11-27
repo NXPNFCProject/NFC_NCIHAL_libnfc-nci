@@ -29,6 +29,10 @@ cc_library {
         "libstatssocket",
         "libmemunreachable",
         "server_configurable_flags",
+        "libaconfig_storage_read_api_cc",
+    ],
+    defaults: [
+        "aconfig_lib_cc_shared_link.defaults",
     ],
     static_libs: [
         "android.hardware.nfc@1.0",
