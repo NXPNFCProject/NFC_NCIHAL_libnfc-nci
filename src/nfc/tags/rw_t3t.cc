@@ -365,6 +365,13 @@ void rw_t3t_handle_nci_poll_ntf(uint8_t nci_status, uint8_t num_responses,
   /* stop timer for poll response */
   nfc_stop_quick_timer(&p_cb->poll_timer);
 
+  if (p_cb->rw_state == RW_T3T_STATE_NOT_ACTIVATED) {
+    // Tag was deactivated
+    evt_data.status = nci_status;
+    (*(rw_cb.p_cback))(RW_T3T_INTF_ERROR_EVT, &evt_data);
+    return;
+  }
+
   /* Stop t3t timer (if started) */
   if (p_cb->flags & RW_T3T_FL_W4_PRESENCE_CHECK_POLL_RSP) {
     p_cb->flags &= ~RW_T3T_FL_W4_PRESENCE_CHECK_POLL_RSP;
