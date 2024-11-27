@@ -2432,7 +2432,7 @@ static tNFC_STATUS rw_t3t_unselect() {
 #endif /* RW_STATS_INCLUDED */
 
   /* Stop t3t timer (if started) */
-  nfc_stop_quick_timer(&p_cb->timer);
+  nfc_stop_quick_timer(&p_cb->poll_timer);
 
   /* Free cmd buf for retransmissions */
   if (p_cb->p_cur_cmd_buf) {
