@@ -1312,6 +1312,7 @@ bool nfa_dm_act_start_rf_discovery(__attribute__((unused))
 *******************************************************************************/
 bool nfa_dm_act_stop_rf_discovery(__attribute__((unused)) tNFA_DM_MSG* p_data) {
   tNFA_CONN_EVT_DATA evt_data;
+  tNFA_DM_DISC_FLAGS disc_flags = nfa_dm_cb.disc_cb.disc_flags;
 
   LOG(VERBOSE) << __func__;
 
@@ -1335,6 +1336,9 @@ bool nfa_dm_act_stop_rf_discovery(__attribute__((unused)) tNFA_DM_MSG* p_data) {
       if (nfa_dm_cb.disc_cb.kovio_tle.in_use)
         nfa_sys_stop_timer(&nfa_dm_cb.disc_cb.kovio_tle);
       nfa_rw_stop_presence_check_timer();
+    } else {
+      // Stop RF discovery failed, need to restore flags
+      nfa_dm_cb.disc_cb.disc_flags = disc_flags;
     }
   }
   return true;
