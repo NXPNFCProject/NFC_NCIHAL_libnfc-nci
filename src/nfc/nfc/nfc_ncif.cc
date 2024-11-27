@@ -2161,6 +2161,10 @@ void nfc_data_event(tNFC_CONN_CB* p_cb) {
       }
 
       p_evt = (NFC_HDR*)GKI_dequeue(&p_cb->rx_q);
+      if (p_evt == nullptr) {
+        LOG(ERROR) << StringPrintf("%s; p_evt is null", __func__);
+        return;
+      }
       /* report data event */
       p_evt->offset += NCI_MSG_HDR_SIZE;
       p_evt->len -= NCI_MSG_HDR_SIZE;
