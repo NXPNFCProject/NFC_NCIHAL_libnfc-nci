@@ -1355,6 +1355,21 @@ void NFA_EnableDtamode(tNFA_eDtaModes eDtaMode) {
 
 /*******************************************************************************
 **
+** Function:        NFA_DisableDtamode
+**
+** Description:     Disable DTA Mode
+**
+** Returns:         none:
+**
+*******************************************************************************/
+void NFA_DisableDtamode(void) {
+  LOG(VERBOSE) << StringPrintf("%s: enter", __func__);
+  appl_dta_mode_flag = 0x0;
+  nfa_dm_cb.eDtaMode = NFA_DTA_APPL_MODE;
+}
+
+/*******************************************************************************
+**
 ** Function         NFA_ChangeDiscoveryTech
 **
 ** Description      Enable listening.
