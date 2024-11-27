@@ -130,6 +130,9 @@ tNFA_STATUS NFA_EeGetInfo(uint8_t* p_num_nfcee, tNFA_EE_INFO* p_info) {
     return (NFA_STATUS_FAILED);
   }
 
+  // Reset the target array as we may have less elements than in previous call
+  // if some activations failed.
+  memset(p_info, 0, sizeof(tNFA_EE_INFO) * max_ret);
   /* compose output */
   for (xx = 0; (xx < ret) && (num_ret < max_ret); xx++, p_cb++) {
     LOG(VERBOSE) << StringPrintf("xx:%d max_ret:%d, num_ret:%d ee_status:0x%x",
