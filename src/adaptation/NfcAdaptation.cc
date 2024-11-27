@@ -125,6 +125,7 @@ INfcClientCallback* NfcAdaptation::mCallback;
 std::shared_ptr<INfcAidlClientCallback> mAidlCallback;
 ::ndk::ScopedAIBinder_DeathRecipient mDeathRecipient;
 std::shared_ptr<INfcAidl> mAidlHal;
+int32_t mAidlHalVer;
 
 bool nfc_nci_reset_keep_cfg_enabled = false;
 uint8_t nfc_nci_reset_type = 0x00;
@@ -289,6 +290,12 @@ class NfcAidlClientCallback
       case NfcAidlEvent::HCI_NETWORK_RESET:
         e_num = HAL_HCI_NETWORK_RESET;
         break;
+      case NfcAidlEvent::REQUEST_CONTROL:
+        e_num = HAL_NFC_REQUEST_CONTROL_EVT;
+        break;
+      case NfcAidlEvent::RELEASE_CONTROL:
+        e_num = HAL_NFC_RELEASE_CONTROL_EVT;
+        break;
       case NfcAidlEvent::ERROR:
       default:
 #if (NXP_EXTNS == TRUE)
@@ -442,6 +449,10 @@ void NfcAdaptation::GetVendorConfigs(
                       ConfigValue((uint8_t)aidlConfigValue.offHostSIMPipeId));
     configMap.emplace(NAME_OFF_HOST_ESE_PIPE_ID,
                       ConfigValue((uint8_t)aidlConfigValue.offHostESEPipeId));
+    if (aidlConfigValue.offHostSimPipeIds.size() != 0) {
+      configMap.emplace(NAME_OFF_HOST_SIM_PIPE_IDS,
+                        ConfigValue(aidlConfigValue.offHostSimPipeIds));
+    }
 
     configMap.emplace(NAME_ISO_DEP_MAX_TRANSCEIVE,
                       ConfigValue(aidlConfigValue.maxIsoDepTransceiveLength));
@@ -875,7 +886,9 @@ void NfcAdaptation::InitializeHalDeviceContext() {
       AIBinder_linkToDeath(mAidlHal->asBinder().get(), mDeathRecipient.get(),
                            nullptr /* cookie */);
       mHal = mHal_1_1 = mHal_1_2 = nullptr;
-      LOG(INFO) << StringPrintf("%s: INfcAidl::fromBinder returned", func);
+      mAidlHal->getInterfaceVersion(&mAidlHalVer);
+      LOG(INFO) << StringPrintf("%s: INfcAidl::fromBinder returned ver(%d)",
+                                func, mAidlHalVer);
     }
     LOG_ALWAYS_FATAL_IF(mAidlHal == nullptr, "Failed to retrieve the NFC AIDL!");
   } else {
@@ -1260,7 +1273,12 @@ void NfcAdaptation::HalControlGranted() {
   const char* func = "NfcAdaptation::HalControlGranted";
   LOG(VERBOSE) << StringPrintf("%s", func);
   if (mAidlHal != nullptr) {
-    LOG(ERROR) << StringPrintf("Unsupported function %s", func);
+    if (mAidlHalVer > 1) {
+      NfcAidlStatus aidl_status;
+      mAidlHal->controlGranted(&aidl_status);
+    } else {
+      LOG(ERROR) << StringPrintf("Unsupported function %s", func);
+    }
   } else if (mHal != nullptr) {
     mHal->controlGranted();
   }

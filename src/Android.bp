@@ -41,7 +41,7 @@ cc_library {
         "vendor.nxp.nxpnfc@2.0",
         "vendor.nxp.nxpnfc_aidl-V1-ndk",
         // Add for AIDL
-        "android.hardware.nfc-V1-ndk",
+        "android.hardware.nfc-V2-ndk",
         // Added for Memory leak trace
         "libnfcutils",
 	"libstatslog_nfc",
