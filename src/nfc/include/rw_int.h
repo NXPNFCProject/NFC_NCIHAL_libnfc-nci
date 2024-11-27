@@ -612,6 +612,7 @@ typedef struct {
   uint32_t rw_offset;     /* remaining offset to read/write   */
 
   NFC_HDR* p_data_to_free; /* GKI buffet to delete after done  */
+  NFC_HDR* p_retry_cmd;    /* buffer to store cmd sent last    */
 
   tRW_T4T_CC cc_file; /* Capability Container File        */
 

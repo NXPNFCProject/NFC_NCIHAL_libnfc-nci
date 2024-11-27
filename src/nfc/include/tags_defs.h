@@ -388,6 +388,8 @@ typedef uint8_t tT3T_POLL_RC;
  * with Lc and Le coded using Extended Field Coding */
 #define T4T_CMD_MAX_EXT_HDR_SIZE 15
 
+/* CLA, INS, P1, P2, Le on 3 bytes (Lc absent) using Extended Field Coding */
+#define T4T_CMD_MAX_EFC_NO_LC_HDR_SIZE 7
 #define T4T_VERSION_3_0 0x30 /* version 3.0 */
 #define T4T_VERSION_2_0 0x20 /* version 2.0 */
 #define T4T_VERSION_1_0 0x10 /* version 1.0 */

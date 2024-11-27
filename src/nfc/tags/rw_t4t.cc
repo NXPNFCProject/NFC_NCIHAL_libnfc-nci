@@ -166,6 +166,22 @@ static bool rw_t4t_send_to_lower(NFC_HDR* p_c_apdu) {
 #if (NXP_EXTNS == TRUE)
   if (nfa_t4tnfcee_is_processing()) conn_id = NFC_T4TNFCEE_CONN_ID;
 #endif
+  if (rw_cb.tcb.t4t.p_retry_cmd) {
+    GKI_freebuf(rw_cb.tcb.t4t.p_retry_cmd);
+    rw_cb.tcb.t4t.p_retry_cmd = nullptr;
+  }
+
+  uint16_t msg_size = sizeof(NFC_HDR) + p_c_apdu->offset + p_c_apdu->len;
+
+  rw_cb.tcb.t4t.p_retry_cmd = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID);
+
+  if (rw_cb.tcb.t4t.p_retry_cmd &&
+      GKI_get_pool_bufsize(NFC_RW_POOL_ID) >= msg_size) {
+    memcpy(rw_cb.tcb.t4t.p_retry_cmd, p_c_apdu, msg_size);
+  } else {
+    LOG(ERROR) << StringPrintf("Memory allocation error");
+    return false;
+  }
   if (NFC_SendData(conn_id, p_c_apdu) != NFC_STATUS_OK) {
     LOG(ERROR) << StringPrintf("failed");
     return false;
@@ -175,6 +191,74 @@ static bool rw_t4t_send_to_lower(NFC_HDR* p_c_apdu) {
                         (RW_T4T_TOUT_RESP * QUICK_TIMER_TICKS_PER_SEC) / 1000);
 
   return true;
+}
+
+/*******************************************************************************
+**
+** Function         rw_t4t_format_short_field_coding
+**
+** Description      Reformat Binary Command with Le coded over one byte instead
+**                  of three bytes. Applicable to MV2.0 non compliant tags
+**
+** Returns          none
+**
+*******************************************************************************/
+static void rw_t4t_format_short_field_coding(void) {
+  tRW_T4T_CB* p_t4t = &rw_cb.tcb.t4t;
+  uint8_t* p;
+  uint8_t* p_old_c_apdu;
+  NFC_HDR* p_new_c_apdu;
+  uint16_t old_Le_field;
+
+  LOG(ERROR) << StringPrintf(
+      "%s; empty payload received, retry C-APDU with "
+      "Le in Short Field coding",
+      __func__);
+
+  p_t4t->p_retry_cmd->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
+  p_old_c_apdu =
+      (uint8_t*)(p_t4t->p_retry_cmd + 1) + p_t4t->p_retry_cmd->offset;
+
+  if ((*(p_old_c_apdu + 1) == T4T_CMD_INS_READ_BINARY) &&
+      (p_t4t->p_retry_cmd->len == T4T_CMD_MAX_EFC_NO_LC_HDR_SIZE)) {
+    /* Reformat C-APDU with Le Short Field Coded on one byte */
+
+    /* Note: Le configuration 00h for first byte followed by 0000h is
+     * not used in the command coding */
+    old_Le_field = *(p_old_c_apdu + 5);
+    old_Le_field <<= 8;
+    old_Le_field |= (uint16_t)*(p_old_c_apdu + 6);
+
+    LOG(DEBUG) << StringPrintf(
+        "%s; Reformat C-APDU with Le Short Field coded on one byte", __func__);
+    p_new_c_apdu = (NFC_HDR*)GKI_getpoolbuf(NFC_RW_POOL_ID);
+
+    if (p_new_c_apdu == nullptr) {
+      LOG(ERROR) << StringPrintf("%s; Cannot allocate buffer", __func__);
+      return;
+    }
+
+    p_new_c_apdu->offset = NCI_MSG_OFFSET_SIZE + NCI_DATA_HDR_SIZE;
+    p = (uint8_t*)(p_new_c_apdu + 1) + p_new_c_apdu->offset;
+
+    /* Copy CLA + INS + P1 + P2 from original command */
+    memcpy(p, p_old_c_apdu, T4T_CMD_MIN_HDR_SIZE);
+
+    if (old_Le_field <= 0xFF) {
+      /* Copy least significant byte of Le */
+      *(p + T4T_CMD_MIN_HDR_SIZE) = *(p_old_c_apdu + 6);
+    } else {
+      /* Limit length to read to 255 bytes (0x00 not used) */
+      *(p + T4T_CMD_MIN_HDR_SIZE) = 0xFF;
+    }
+
+    p_new_c_apdu->len = T4T_CMD_MAX_HDR_SIZE;
+
+    if (!rw_t4t_send_to_lower(p_new_c_apdu)) {
+      LOG(ERROR) << StringPrintf("%s; Error calling rw_t4t_send_to_lower()",
+                                 __func__);
+    }
+  }
 }
 
 /*******************************************************************************
@@ -2112,10 +2196,27 @@ static void rw_t4t_sm_read_ndef(NFC_HDR* p_r_apdu) {
         p_t4t->rw_length -= p_r_apdu->len;
         p_t4t->rw_offset += p_r_apdu->len;
       } else {
+        if ((p_r_apdu->len == 0) &&
+            (p_t4t->cc_file.version == T4T_VERSION_2_0) &&
+            (p_t4t->intl_flags & RW_T4T_EXT_FIELD_CODING)) {
+          /* Workaround for tags not fully compliant (declaring MLe or MLc
+           * higher than respectively 256 and 255 bytes) answering with
+           * an R-APDU containing no data.
+           * Assume they do not support Extended Field coding */
+          if (p_r_apdu) GKI_freebuf(p_r_apdu);
+          p_r_apdu = nullptr;
+
+          p_t4t->intl_flags &= ~RW_T4T_EXT_FIELD_CODING;
+
+          if (p_t4t->p_retry_cmd) {
+            /* Re-send last command using Short Field coding */
+            rw_t4t_format_short_field_coding();
+            return;
+          }
+        }
         LOG(ERROR) << StringPrintf(
-            "%s - invalid payload length (%d), rw_length "
-            "(%d)",
-            __func__, p_r_apdu->len, p_t4t->rw_length);
+            "%s - invalid payload length (%d), rw_length (%d)", __func__,
+            p_r_apdu->len, p_t4t->rw_length);
         rw_t4t_handle_error(NFC_STATUS_BAD_RESP, 0, 0);
         break;
       }
