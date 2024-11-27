@@ -2047,7 +2047,7 @@ void nfc_ncif_proc_init_rsp(NFC_HDR* p_msg) {
       check_nfcee_session_and_reset();
       if (NfcAdaptation::GetInstance().NFA_GetBootMode() == NFC_FAST_BOOT_MODE) {
           nfc_set_state(NFC_STATE_IDLE);
-          nfa_sys_cback_notify_MinEnable_complete(0);
+          nfa_sys_cback_notify_partial_enable_complete(NFA_ID_SYS);
       }
       else
 #endif

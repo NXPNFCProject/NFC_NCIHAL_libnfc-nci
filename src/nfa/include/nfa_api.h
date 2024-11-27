@@ -805,10 +805,27 @@ typedef void(tNFA_NDEF_CBACK)(tNFA_NDEF_EVT event, tNFA_NDEF_EVT_DATA* p_data);
 /* NFA VSC Callback */
 typedef void(tNFA_VSC_CBACK)(uint8_t event, uint16_t param_len,
                              uint8_t* p_param);
+/* Modes used by setNfcControllerAlwaysOn */
+#define ENABLE_MODE_DEFAULT 1
+#define ENABLE_MODE_TRANSPARENT 2
+#define ENABLE_MODE_EE 3
 
 /*****************************************************************************
 **  External Function Declarations
 *****************************************************************************/
+/*******************************************************************************
+**
+** Function         NFA_SetNfccMode
+**
+** Description      This function sets the control blocks nfcc mode
+**
+**                  mode ENABLE_MODE_DEFAULT or ENABLE_MODE_TRANSPARENT
+**                  or ENABLE_MODE_EE
+**
+** Returns          none
+**
+*******************************************************************************/
+extern void NFA_SetNfccMode(uint8_t mode);
 
 /*******************************************************************************
 **
@@ -826,6 +843,26 @@ typedef void(tNFA_VSC_CBACK)(uint8_t event, uint16_t param_len,
 **
 *******************************************************************************/
 extern void NFA_Init(tHAL_NFC_ENTRY* p_hal_entry_tbl);
+
+/*******************************************************************************
+**
+** Function         NFA_Partial_Init
+**
+** Description      This function initializes control blocks for NFA based on
+**                  mode
+**
+**                  p_hal_entry_tbl points to a table of HAL entry points
+**                  mode ENABLE_MODE_DEFAULT or ENABLE_MODE_TRANSPARENT
+**                  or ENABLE_MODE_EE
+**
+**                  NOTE: the buffer that p_hal_entry_tbl points must be
+**                  persistent until NFA is disabled.
+**
+**
+** Returns          none
+**
+*******************************************************************************/
+extern void NFA_Partial_Init(tHAL_NFC_ENTRY* p_hal_entry_tbl, uint8_t mode);
 
 /*******************************************************************************
 **

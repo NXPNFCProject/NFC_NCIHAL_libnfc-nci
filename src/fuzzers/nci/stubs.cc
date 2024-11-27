@@ -38,3 +38,4 @@ void rw_mfc_process_timeout(TIMER_LIST_ENT*) { abort(); }
 void ce_t4t_process_timeout(TIMER_LIST_ENT*) { abort(); }
 void nfa_sys_event(NFC_HDR*) { abort(); }
 void nfa_sys_timer_update() { abort(); }
+void nfa_sys_cback_notify_partial_enable_complete(uint8_t) {}

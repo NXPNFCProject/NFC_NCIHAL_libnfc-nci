@@ -248,6 +248,8 @@ typedef struct {
   uint8_t deact_reason;
 
   TIMER_LIST_ENT nci_mode_set_ntf_timer; /*Mode set notification timer*/
+
+  uint8_t nfcc_mode; /* NFC controller modes */
 #if (NXP_EXTNS == TRUE)
   bool isWlcPollEnabled;
   tNFA_CREDIT_CBACK* credit_cback;
