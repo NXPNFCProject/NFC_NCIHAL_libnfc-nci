@@ -71,10 +71,6 @@
 
 using android::base::StringPrintf;
 
-#if (NFC_RW_ONLY == FALSE)
-static const uint8_t nfc_mpl_code_to_size[] = {64, 128, 192, 254};
-
-#endif /* NFC_RW_ONLY */
 #define NFC_PB_ATTRIB_REQ_FIXED_BYTES 1
 #define NFC_LB_ATTRIB_REQ_FIXED_BYTES 8
 
