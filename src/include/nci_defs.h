@@ -563,9 +563,6 @@ typedef uint8_t tNCI_DISCOVERY_TYPE;
 #define NCI_PARAM_ID_PF_DEVICES_LIMIT 0x1A
 #define NCI_PARAM_ID_PB_H_INFO 0x20
 #define NCI_PARAM_ID_PI_BIT_RATE 0x21
-
-#define NCI_PARAM_ID_BITR_NFC_DEP 0x28
-#define NCI_PARAM_ID_ATR_REQ_GEN_BYTES 0x29
 #define NCI_PARAM_ID_ATR_REQ_CONFIG 0x2A
 #define NCI_PARAM_ID_PV_DEVICES_LIMIT 0x2F
 
@@ -624,7 +621,6 @@ typedef uint8_t tNCI_DISCOVERY_TYPE;
 /* Type A Parameters */
 #define NCI_PARAM_PLATFORM_T1T 0x0C
 #define NCI_PARAM_SEL_INFO_ISODEP 0x20
-#define NCI_PARAM_SEL_INFO_NFCDEP 0x40
 /**********************************************
  * NCI Parameter ID Lens
  **********************************************/
@@ -660,7 +656,6 @@ typedef uint8_t tNCI_DISCOVERY_TYPE;
 /* Listen protocol bits - NCI_PARAM_ID_LF_PROTOCOL and
  * NCI_PARAM_ID_LB_SENSB_INFO */
 #define NCI_LISTEN_PROTOCOL_ISO_DEP 0x01
-#define NCI_LISTEN_PROTOCOL_NFC_DEP 0x02
 
 /* LF_T3T_FLAGS2 listen bits all-disabled definition */
 #define NCI_LF_T3T_FLAGS2_ALL_DISABLED 0x0000
@@ -790,21 +785,6 @@ typedef struct {
 #define NCI_P_GEN_BYTE_INDEX 15
 #define NCI_L_GEN_BYTE_INDEX 14
 #define NCI_L_NFC_DEP_TO_INDEX 13
-typedef struct {
-  uint8_t atr_res_len;              /* Length of ATR_RES */
-  uint8_t atr_res[NCI_MAX_ATS_LEN]; /* ATR_RES (Byte 3 - Byte 17+n) as defined
-                                       in [DIGPROT] */
-} tNCI_INTF_PA_NFC_DEP;
-
-/* Note: keep tNCI_INTF_PA_NFC_DEP data member in the same order as
- * tNCI_INTF_LA_NFC_DEP */
-typedef struct {
-  uint8_t atr_req_len;              /* Length of ATR_REQ */
-  uint8_t atr_req[NCI_MAX_ATS_LEN]; /* ATR_REQ (Byte 3 - Byte 18+n) as defined
-                                       in [DIGPROT] */
-} tNCI_INTF_LA_NFC_DEP;
-typedef tNCI_INTF_LA_NFC_DEP tNCI_INTF_LF_NFC_DEP;
-typedef tNCI_INTF_PA_NFC_DEP tNCI_INTF_PF_NFC_DEP;
 
 #define NCI_MAX_ATTRIB_LEN (10 + NCI_MAX_GEN_BYTES_LEN)
 

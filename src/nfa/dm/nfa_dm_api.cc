@@ -902,11 +902,10 @@ tNFA_STATUS NFA_Select(uint8_t rf_disc_id, tNFA_NFC_PROTOCOL protocol,
       "rf_disc_id:0x%X, protocol:0x%X, rf_interface:0x%X", rf_disc_id, protocol,
       rf_interface);
 
-  if (((rf_interface == NFA_INTERFACE_ISO_DEP) &&
-       (protocol != NFA_PROTOCOL_ISO_DEP)) ||
-      ((rf_interface == NFA_INTERFACE_NFC_DEP) &&
-       (protocol != NFA_PROTOCOL_NFC_DEP))) {
-    LOG(ERROR) << StringPrintf("RF interface is not matched protocol");
+  if ((rf_interface == NFA_INTERFACE_ISO_DEP) &&
+      (protocol != NFA_PROTOCOL_ISO_DEP)) {
+    LOG(ERROR) << StringPrintf("%s; RF interface is not matched protocol",
+                               __func__);
     return (NFA_STATUS_INVALID_PARAM);
   }
 

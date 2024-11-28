@@ -370,20 +370,6 @@ tNFA_STATUS nfa_dm_check_set_config(uint8_t tlv_list_len, uint8_t* p_tlv_list,
         p_stored = nfa_dm_cb.params.fwi;
         max_len = NCI_PARAM_LEN_FWI;
         break;
-      case NFC_PMID_WT:
-        p_stored = nfa_dm_cb.params.wt;
-        max_len = NCI_PARAM_LEN_WT;
-        break;
-      case NFC_PMID_ATR_REQ_GEN_BYTES:
-        p_stored = nfa_dm_cb.params.atr_req_gen_bytes;
-        max_len = NCI_MAX_GEN_BYTES_LEN;
-        p_cur_len = &nfa_dm_cb.params.atr_req_gen_bytes_len;
-        break;
-      case NFC_PMID_ATR_RES_GEN_BYTES:
-        p_stored = nfa_dm_cb.params.atr_res_gen_bytes;
-        max_len = NCI_MAX_GEN_BYTES_LEN;
-        p_cur_len = &nfa_dm_cb.params.atr_res_gen_bytes_len;
-        break;
       default:
         /*
         **  Listen F Configuration

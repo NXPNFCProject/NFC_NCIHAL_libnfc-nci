@@ -976,18 +976,6 @@ tNFA_STATUS nfa_dm_start_polling(void) {
       poll_disc_mask |= NFA_DM_DISC_MASK_P_LEGACY;
       poll_disc_mask |= NFA_DM_DISC_MASK_PA_MIFARE;
     }
-    if (NFC_GetNCIVersion() >= NCI_VERSION_2_0) {
-      if (poll_tech_mask & NFA_TECHNOLOGY_MASK_ACTIVE) {
-        poll_disc_mask |= NFA_DM_DISC_MASK_PACM_NFC_DEP;
-      }
-    } else {
-      if (poll_tech_mask & NFA_TECHNOLOGY_MASK_A_ACTIVE) {
-        poll_disc_mask |= NFA_DM_DISC_MASK_PAA_NFC_DEP;
-      }
-      if (poll_tech_mask & NFA_TECHNOLOGY_MASK_F_ACTIVE) {
-        poll_disc_mask |= NFA_DM_DISC_MASK_PFA_NFC_DEP;
-      }
-    }
     if (poll_tech_mask & NFA_TECHNOLOGY_MASK_B) {
       poll_disc_mask |= NFA_DM_DISC_MASK_PB_ISO_DEP;
 #if (NXP_EXTNS == TRUE)
@@ -1006,14 +994,6 @@ tNFA_STATUS nfa_dm_start_polling(void) {
     }
     if (poll_tech_mask & NFA_TECHNOLOGY_MASK_KOVIO) {
       poll_disc_mask |= NFA_DM_DISC_MASK_P_KOVIO;
-    }
-
-    if (!(nfc_cb.nci_interfaces & (1 << NCI_INTERFACE_NFC_DEP))) {
-      /* Remove NFC-DEP related Discovery mask, if NFC_DEP interface is not
-       * supported */
-      poll_disc_mask &=
-          ~(NFA_DM_DISC_MASK_PACM_NFC_DEP | NFA_DM_DISC_MASK_PAA_NFC_DEP |
-            NFA_DM_DISC_MASK_PFA_NFC_DEP | NFA_DM_DISC_MASK_PF_NFC_DEP);
     }
 
 #if (NXP_QTAG == TRUE)
