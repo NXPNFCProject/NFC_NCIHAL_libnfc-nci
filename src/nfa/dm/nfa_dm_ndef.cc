@@ -251,6 +251,9 @@ tNFA_DM_API_REG_NDEF_HDLR* nfa_dm_ndef_find_next_handler(
   for (; i < NFA_NDEF_MAX_HANDLERS; i++) {
     /* Check if TNF matches */
     if ((p_cb->p_ndef_handler[i]) && (p_cb->p_ndef_handler[i]->tnf == tnf)) {
+      if (p_type_name == nullptr) {
+        break;
+      }
       /* TNF matches. */
       /* If handler is for a specific URI type, check if type is WKT URI, */
       /* and that the URI prefix abrieviation for this handler matches */

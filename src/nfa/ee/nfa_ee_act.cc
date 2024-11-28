@@ -585,6 +585,12 @@ static void nfa_ee_add_sys_code_route_to_ecb(tNFA_EE_ECB* p_cb, uint8_t* pp,
       uint8_t* p_start = pp;
       /* add one SC entry */
       if (p_cb->sys_code_rt_loc_vs_info[xx] & NFA_EE_AE_ROUTE) {
+        if (start_offset >
+            (sizeof(p_cb->sys_code_cfg) - NFA_EE_SYSTEM_CODE_LEN)) {
+          LOG(ERROR) << StringPrintf("%s; start_offset higher than 2",
+                                     __func__);
+          return;
+        }
         uint8_t* p_sys_code_cfg = &p_cb->sys_code_cfg[start_offset];
         if (nfa_ee_is_active(p_cb->sys_code_rt_loc[xx] | NFA_HANDLE_GROUP_EE)) {
           if (mute_tech_route_option) {
@@ -854,6 +860,12 @@ tNFA_EE_ECB* nfa_ee_find_sys_code_offset(uint16_t sys_code, int* p_offset,
     if (p_ecb->sys_code_cfg_entries) {
       uint8_t offset = 0;
       for (uint8_t yy = 0; yy < p_ecb->sys_code_cfg_entries; yy++) {
+        if (offset >=
+            (NFA_EE_MAX_SYSTEM_CODE_ENTRIES * NFA_EE_SYSTEM_CODE_LEN)) {
+          LOG(ERROR) << StringPrintf("%s; offset higher than max allowed value",
+                                     __func__);
+          return nullptr;
+        }
         if ((memcmp(&p_ecb->sys_code_cfg[offset], &sys_code,
                     NFA_EE_SYSTEM_CODE_LEN) == 0)) {
           p_ret = p_ecb;

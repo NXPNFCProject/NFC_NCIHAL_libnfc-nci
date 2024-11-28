@@ -150,6 +150,7 @@ void GKI_init(void) {
 #endif
   p_os = &gki_cb.os;
   pthread_mutex_init(&p_os->GKI_mutex, &attr);
+  pthread_mutexattr_destroy(&attr);
   /* pthread_mutex_init(&GKI_sched_mutex, NULL); */
   /* pthread_mutex_init(&thread_delay_mutex, NULL); */ /* used in GKI_delay */
   /* pthread_cond_init (&thread_delay_cond, NULL); */
@@ -214,7 +215,9 @@ uint8_t GKI_create_task(TASKPTR task_entry, uint8_t task_id, int8_t* taskname,
       task_entry, task_id, taskname, stack, stacksize);
 
   if (task_id >= GKI_MAX_TASKS) {
-    LOG(VERBOSE) << StringPrintf("Error! task ID > max task allowed");
+    LOG(ERROR) << StringPrintf("%s; Error! task ID > max task allowed",
+                               __func__);
+    pthread_condattr_destroy(&attr);
     return (GKI_FAILURE);
   }
 
@@ -252,6 +255,9 @@ uint8_t GKI_create_task(TASKPTR task_entry, uint8_t task_id, int8_t* taskname,
 
   ret = pthread_create(&gki_cb.os.thread_id[task_id], &attr1, gki_task_entry,
                        &gki_pthread_info[task_id]);
+
+  pthread_condattr_destroy(&attr);
+  pthread_attr_destroy(&attr1);
 
   if (ret != 0) {
     LOG(VERBOSE) << StringPrintf("pthread_create failed(%d), %s!", ret, taskname);
@@ -575,11 +581,23 @@ uint16_t GKI_wait(uint16_t flag, uint32_t timeout) {
 
   gki_pthread_info_t* p_pthread_info = &gki_pthread_info[rtask];
   if (p_pthread_info->pCond != nullptr && p_pthread_info->pMutex != nullptr) {
-    LOG(VERBOSE) << StringPrintf("GKI_wait task=%i, pCond/pMutex = %p/%p", rtask,
-                               p_pthread_info->pCond, p_pthread_info->pMutex);
-    pthread_mutex_lock(p_pthread_info->pMutex);
-    pthread_cond_signal(p_pthread_info->pCond);
-    pthread_mutex_unlock(p_pthread_info->pMutex);
+    LOG(DEBUG) << StringPrintf("%s; task=%i, pCond/pMutex = %p/%p", __func__,
+                               rtask, p_pthread_info->pCond,
+                               p_pthread_info->pMutex);
+    if (pthread_mutex_lock(p_pthread_info->pMutex) != 0) {
+      LOG(ERROR) << StringPrintf("%s; Could not lock mutex", __func__);
+      return EVENT_MASK(GKI_SHUTDOWN_EVT);
+    }
+    if (pthread_cond_signal(p_pthread_info->pCond) != 0) {
+      LOG(ERROR) << StringPrintf("%s; Error calling pthread_cond_signal()",
+                                 __func__);
+      (void)pthread_mutex_unlock(p_pthread_info->pMutex);
+      return EVENT_MASK(GKI_SHUTDOWN_EVT);
+    }
+    if (pthread_mutex_unlock(p_pthread_info->pMutex) != 0) {
+      LOG(ERROR) << StringPrintf("%s; Error unlocking mutex", __func__);
+      return EVENT_MASK(GKI_SHUTDOWN_EVT);
+    }
     p_pthread_info->pMutex = nullptr;
     p_pthread_info->pCond = nullptr;
   }
