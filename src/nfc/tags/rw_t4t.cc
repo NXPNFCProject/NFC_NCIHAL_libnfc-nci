@@ -2203,12 +2203,12 @@ static void rw_t4t_sm_read_ndef(NFC_HDR* p_r_apdu) {
            * higher than respectively 256 and 255 bytes) answering with
            * an R-APDU containing no data.
            * Assume they do not support Extended Field coding */
-          if (p_r_apdu) GKI_freebuf(p_r_apdu);
-          p_r_apdu = nullptr;
 
           p_t4t->intl_flags &= ~RW_T4T_EXT_FIELD_CODING;
 
           if (p_t4t->p_retry_cmd) {
+            GKI_freebuf(p_r_apdu);
+            p_r_apdu = nullptr;
             /* Re-send last command using Short Field coding */
             rw_t4t_format_short_field_coding();
             return;
