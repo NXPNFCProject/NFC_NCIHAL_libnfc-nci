@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-
 #include <ringbuffer.h>
 
 TEST(RingbufferTest, test_new_simple) {

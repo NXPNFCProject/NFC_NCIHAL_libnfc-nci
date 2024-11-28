@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <config.h>
 #include <gtest/gtest.h>
 
-#include <config.h>
 #include <filesystem>
 
 namespace {
@@ -63,9 +63,7 @@ class ConfigTestFromFile : public ::testing::Test {
     fwrite(SIMPLE_CONFIG, 1, sizeof(SIMPLE_CONFIG), fp);
     fclose(fp);
   }
-  void TearDown() override {
-    std::filesystem::remove(kConfigFile);
-  }
+  void TearDown() override { std::filesystem::remove(kConfigFile); }
 };
 
 TEST(ConfigTestFromString, test_simple_config) {

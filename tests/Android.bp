@@ -8,10 +8,11 @@ package {
     default_applicable_licenses: ["system_nfc_license"],
 }
 
-cc_defaults {
-    name: "nfc_utils_defaults",
+cc_test {
+    name: "libnfc-nci-tests",
     include_dirs: [
-        "system/nfc",
+        "system/nfc/src/include",
+        "system/nfc/utils/include",
     ],
     cflags: [
         "-Wall",
@@ -29,43 +30,17 @@ cc_defaults {
         integer_overflow: true,
         misc_undefined: ["bounds"],
         scs: true,
-        diag: {
-            integer_overflow: true,
-            misc_undefined: ["bounds"],
-            no_recover: ["bounds", "integer"],
-        },
     },
-
-}
-
-cc_library_static {
-    name: "libnfcutils",
-    defaults: ["nfc_utils_defaults"],
-    export_include_dirs: ["include"],
-    host_supported: true,
+    test_suites: ["device-tests"],
     srcs: [
-        "config.cc",
-        "ringbuffer.cc",
+        "**/*.cc",
+    ],
+    static_libs: [
+        "libgmock",
+        "libnfc-nci",
+        "libnfcutils",
     ],
     shared_libs: [
         "libbase",
-    ],
-    apex_available: [
-         "//apex_available:platform",
-         "com.android.nfcservices",
-    ],
-}
-
-cc_fuzz {
-    name: "nfc_utils_ringbuffer_fuzzer",
-    host_supported: true,
-    srcs: [
-        "test/ringbuffer_fuzzer/ringbuffer_fuzzer.cpp",
-    ],
-    static_libs: [
-        "libnfcutils",
-    ],
-    corpus: [
-        "test/ringbuffer_fuzzer/corpus/*",
     ],
 }

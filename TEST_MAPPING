@@ -1,0 +1,12 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsNfcTestCases"
+    }
+  ],
+  "postsubmit": [
+    {
+      "name": "libnfc-nci-tests"
+    }
+  ]
+}
