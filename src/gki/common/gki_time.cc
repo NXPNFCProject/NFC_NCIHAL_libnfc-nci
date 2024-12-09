@@ -17,7 +17,7 @@
  ******************************************************************************/
 /******************************************************************************
  *
- *  Copyright 2019,2021 NXP
+ *  The original Work has been changed by NXP.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
+ *  Copyright 2019,2021,2024 NXP
  *
  ******************************************************************************/
 #include <android-base/logging.h>
@@ -813,6 +814,15 @@ void GKI_add_to_timer_list(TIMER_LIST_Q* p_timer_listq, TIMER_LIST_ENT* p_tle) {
     } else /* This entry needs to be inserted before the last entry */
     {
       /* Find the entry that the new one needs to be inserted in front of */
+#if (NXP_EXTNS == TRUE)
+      if (p_timer_listq->p_first == nullptr) {
+        LOG(ERROR) << StringPrintf(
+            "%s: Timer chain is messed up? Even though the first entry is NULL "
+            "but last ticks[%d] is not 0",
+            __func__, p_timer_listq->last_ticks);
+        return;
+      }
+#endif
       p_temp = p_timer_listq->p_first;
       while (p_tle->ticks > p_temp->ticks) {
         /* Update the tick value if looking at an unexpired entry */

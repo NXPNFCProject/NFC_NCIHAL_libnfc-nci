@@ -1714,8 +1714,20 @@ tNFC_STATUS rw_i93_get_next_blocks(uint32_t offset) {
     // first_block is an offset related to the beginning of the T5T_Area for T5T
     // tags but physical memory for ISO15693 tags
     if (p_i93->i93_t5t_mode == RW_I93_GET_SYS_INFO_MEM_INFO) {
+#if (NXP_EXTNS != TRUE)
       if (num_block + first_block > p_i93->num_block)
         num_block = p_i93->num_block - first_block;
+#else
+      if (num_block + first_block > p_i93->num_block) {
+        if (p_i93->num_block < first_block) {
+          LOG(ERROR) << StringPrintf(
+              "num_block(0x%x) must be greater than first_block(0x%x)",
+              p_i93->num_block, first_block);
+          return NFC_STATUS_FAILED;
+        }
+        num_block = p_i93->num_block - first_block;
+      }
+#endif
     } else {
       if (num_block + first_block >
           p_i93->num_block + p_i93->t5t_area_start_block)
@@ -2281,7 +2293,15 @@ void rw_i93_sm_read_ndef(NFC_HDR* p_resp) {
 
     /* adjust offset if read more blocks because the first block doesn't have
      * NDEF */
+#if (NXP_EXTNS != TRUE)
     offset -= (p_i93->rw_offset - p_i93->ndef_tlv_start_offset);
+#else
+    if ((p_i93->rw_offset - p_i93->ndef_tlv_start_offset) <= offset) {
+      offset -= (p_i93->rw_offset - p_i93->ndef_tlv_start_offset);
+    } else {
+      offset = 0;
+    }
+#endif
   } else {
     offset = 0;
   }
