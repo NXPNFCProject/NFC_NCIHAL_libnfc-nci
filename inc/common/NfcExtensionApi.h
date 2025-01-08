@@ -1,6 +1,6 @@
 /**
  *
- *  Copyright 2024 NXP
+ *  Copyright 2024-2025 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 #define NFC_EXTENSION_API_H
 
 #include "NfcExtensionConstants.h"
-#include <NfcExtension.h>
+#include <NxpVendorExtn.h>
 #include <cstdint>
 /** \addtogroup NFC_EXTENSION_API_INTERFACE
  *  @brief  interface to perform the NXP NFC functionality.
@@ -33,7 +33,7 @@ extern "C" {
  * @return void
  *
  */
-void phNxpExtn_LibInit();
+void phNxpExtn_LibInit(VendorExtnCb *vendorExtnCb);
 
 /**
  * @brief De init the extension library
@@ -42,6 +42,13 @@ void phNxpExtn_LibInit();
  *
  */
 void phNxpExtn_LibDeInit();
+
+/**
+ * @brief get nfc vendor extention control block
+ * @return void
+ *
+ */
+VendorExtnCb *getNfcVendorExtnCb();
 
 /**
  * @brief Handles the nfc event with extenstion feature support

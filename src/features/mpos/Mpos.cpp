@@ -2,7 +2,7 @@
  *
  *  The original Work has been changed by NXP.
  *
- *  Copyright 2024 NXP
+ *  Copyright 2024-2025 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 #include "Mpos.h"
 #include "NfcExtensionController.h"
 #include "NfcExtensionWriter.h"
+#include "NfcExtensionApi.h"
 #include "PlatformAbstractionLayer.h"
 #include <cstring>
 #include <phNfcNciConstants.h>
@@ -317,7 +318,9 @@ void Mpos::cardRemovalTimeoutHandler(union sigval val) {
         getInstance()->mTimeoutMaxCount) {
       getInstance()->mCurrentTimeoutCount = 0x00;
       NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s:DISC_NTF_TIMEOUT", __func__);
-      phNxpExtn_HandleHalEvent(NFCC_HAL_FATAL_ERR_CODE);
+      NfcExtEventData_t eventData;
+      eventData.hal_event = NFCC_HAL_FATAL_ERR_CODE;
+      phNxpExtn_HandleNfcEvent(HANDLE_HAL_EVENT, eventData);
       abort();
     }
   }

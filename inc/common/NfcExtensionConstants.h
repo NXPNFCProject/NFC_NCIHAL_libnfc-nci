@@ -1,6 +1,6 @@
 /**
  *
- *  Copyright 2024 NXP
+ *  Copyright 2024-2025 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -28,14 +28,6 @@
 
 #define NFC_NXP_GEN_EXT_VERSION_MAJ (0x03) /* MW Major Version */
 #define NFC_NXP_GEN_EXT_VERSION_MIN (0x00) /* MW Minor Version */
-
-#define NAME_NXP_RF_FILE_VERSION_INFO "NXP_RF_FILE_VERSION_INFO"
-
-/**
- * @brief Log name of the Gen extension library
- *
- */
-extern const char *NXPLOG_ITEM_NXP_GEN_EXTN;
 
 /**
  * @brief returns UN_SUPPORTED_FEATURE code to framework, if HAL is not
@@ -71,14 +63,21 @@ constexpr uint8_t WRITE_RSP_TIMED_OUT = 2;
 constexpr uint8_t RESPONSE_STATUS_OK = 0x00;
 constexpr uint8_t RESPONSE_STATUS_FAILED = 0x03;
 
-constexpr uint8_t STATUS_REJECTED = 0x01;
-constexpr uint8_t STATUS_INDEX = 0x03;
-constexpr uint8_t STATUS_OK = 0x00;
-constexpr uint8_t STATUS_SEMANTIC_ERROR = 0x06;
+constexpr uint8_t EXT_NFC_STATUS_REJECTED = 0x01;
+constexpr uint8_t EXT_NFC_STATUS_INDEX = 0x03;
+constexpr uint8_t EXT_NFC_STATUS_OK = 0x00;
+constexpr uint8_t EXT_NFC_STATUS_SEMANTIC_ERROR = 0x06;
+
+constexpr uint8_t NCI_MT_CMD = 0x20;
+constexpr uint8_t NCI_MT_RSP = 0x40;
+constexpr uint8_t NCI_MT_NTF = 0x60;
+constexpr uint8_t NCI_OID_MASK = 0x3F;
+constexpr uint8_t NCI_MSG_CORE_RESET = 0x00;
 
 constexpr uint8_t MT_CMD = 0x00;
 constexpr uint8_t MT_RSP = 0x01;
 constexpr uint8_t MT_NTF = 0x02;
+constexpr uint8_t MIN_HED_LEN = 0x03;
 
 constexpr uint8_t DEFAULT_RESP = 0xFF;
 constexpr uint8_t ZERO_PAYLOAD = 0x00;
@@ -92,8 +91,8 @@ constexpr uint8_t NCI_PROP_ACTION_INDEX = 0x04;
 
 constexpr uint8_t NCI_GID_INDEX = 0;
 constexpr uint8_t NCI_OID_INDEX = 1;
-constexpr uint8_t NCI_GID_MASK = 0x0F;
-constexpr uint8_t NCI_OID_MASK = 0xFF;
+constexpr uint8_t EXT_NCI_GID_MASK = 0x0F;
+constexpr uint8_t EXT_NCI_OID_MASK = 0xFF;
 
 constexpr uint8_t NCI_PROP_CMD_VAL = 0x2F;
 constexpr uint8_t NCI_PROP_RSP_VAL = 0x4F;
@@ -101,6 +100,8 @@ constexpr uint8_t NCI_PROP_NTF_VAL = 0x6F;
 constexpr uint8_t NXP_FLUSH_SRAM_AO_TO_FLASH_OID = 0x21;
 
 constexpr uint8_t NCI_ROW_PROP_OID_VAL = 0x70;
+constexpr uint8_t NCI_OEM_PROP_OID_VAL = 0x3E;
+constexpr uint8_t NCI_PROP_NTF_ANDROID_OID = 0x0C;
 constexpr uint8_t QTAG_FEATURE_SUB_GIDOID = 0x31;
 constexpr uint8_t QTAG_DETECT_NTF_SUB_GIDOID = 0x32;
 constexpr uint8_t MPOS_READER_SET_DMODE_SUB_GIDOID_VAL = 0xAE;
@@ -193,6 +194,9 @@ static const int NXP_EXTNS_HAL_REQUEST_CTRL_TIMEOUT_IN_MS = 1000;
 constexpr uint8_t NCI_TYPE_A_LISTEN = 0x80;
 constexpr uint8_t NCI_TYPE_B_LISTEN = 0x81;
 constexpr uint8_t NCI_TYPE_F_LISTEN = 0x82;
+
+constexpr uint8_t HAL_NFC_FW_UPDATE_STATUS_EVT = 0x0A;
+constexpr uint8_t HAL_EVT_STATUS_INVALID = 0xFF;
 
 /**
  * @brief Defines the state of the Handler

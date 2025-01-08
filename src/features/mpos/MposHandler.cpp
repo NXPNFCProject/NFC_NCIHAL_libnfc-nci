@@ -1,6 +1,6 @@
 /**
  *
- *  Copyright 2024 NXP
+ *  Copyright 2024-2025 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,7 +26,9 @@
 
 Mpos *mPosMngr = Mpos::getInstance();
 
-MposHandler::MposHandler() { NXPLOG_EXTNS_D("%s Enter", __func__); }
+MposHandler::MposHandler() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+}
 
 static void CreateAndReadTimerValFromConfig() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);

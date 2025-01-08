@@ -1,6 +1,6 @@
 /**
  *
- *  Copyright 2024 NXP
+ *  Copyright 2024-2025 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -105,10 +105,10 @@ void NfcExtensionWriter::stopWriteRspTimer(const uint8_t *pRspBuffer,
                                            uint16_t rspLength) {
   if (cmdData.size() >= NCI_PAYLOAD_LEN_INDEX &&
       rspLength >= NCI_PAYLOAD_LEN_INDEX) {
-    uint8_t cmdGid = (cmdData[NCI_GID_INDEX] & NCI_GID_MASK);
-    uint8_t cmdOid = (cmdData[NCI_OID_INDEX] & NCI_OID_MASK);
-    uint8_t rspGid = (pRspBuffer[NCI_GID_INDEX] & NCI_GID_MASK);
-    uint8_t rspOid = (pRspBuffer[NCI_OID_INDEX] & NCI_OID_MASK);
+    uint8_t cmdGid = (cmdData[NCI_GID_INDEX] & EXT_NCI_GID_MASK);
+    uint8_t cmdOid = (cmdData[NCI_OID_INDEX] & EXT_NCI_OID_MASK);
+    uint8_t rspGid = (pRspBuffer[NCI_GID_INDEX] & EXT_NCI_GID_MASK);
+    uint8_t rspOid = (pRspBuffer[NCI_OID_INDEX] & EXT_NCI_OID_MASK);
 
     NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
                    "%s Enter cmdGid:%d, cmdOid:%d, rspGid:%d, rspOid:%d,",

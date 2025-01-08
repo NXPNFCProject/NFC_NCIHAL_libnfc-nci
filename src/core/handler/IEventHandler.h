@@ -1,6 +1,6 @@
 /**
  *
- *  Copyright 2024 NXP
+ *  Copyright 2024-2025 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@
 #define IEVENTHANDLER_GEN_H
 
 #include "NfcExtensionWriter.h"
-#include "NfcExtension.h"
 #include "NfcExtensionConstants.h"
 #include "PlatformAbstractionLayer.h"
 #include <cstdint>
+#include <phNxpLog.h>
 
 /** \addtogroup EVENT_HANDLER_API_INTERFACE
  *  @brief  Base event handler class to handle the NCI message, response and

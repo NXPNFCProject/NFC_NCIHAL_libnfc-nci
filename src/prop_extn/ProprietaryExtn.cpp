@@ -1,6 +1,6 @@
 /**
  *
- *  Copyright 2024 NXP
+ *  Copyright 2024-2025 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 #include "NfcExtensionConstants.h"
 #include <dlfcn.h>
 #include <phNxpLog.h>
+#include <string>
 
 ProprietaryExtn *ProprietaryExtn::sProprietaryExtn;
 
@@ -68,6 +69,8 @@ void ProprietaryExtn::mapGidOidToPropRspNtf(uint16_t dataLen, uint8_t *pData) {
   if (fp_map_gid_oid_to_prop_rsp_ntf != nullptr) {
     fp_map_gid_oid_to_prop_rsp_ntf(dataLen, pData);
   }
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Exit dataLen:%d", __func__,
+                 dataLen);
 }
 
 void ProprietaryExtn::onExtWriteComplete(uint8_t status) {
@@ -94,15 +97,20 @@ void ProprietaryExtn::updateFwDnlsStatus(uint8_t status) {
   }
 }
 
-void ProprietaryExtn::setupPropExtension() {
+void ProprietaryExtn::setupPropExtension(bool isSysExt) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
-  p_prop_extn_handle =
-      dlopen("/system/vendor/lib64/libnxp_nfc_prop_ext.so", RTLD_NOW);
+  std::string propLibPath;
+  if(isSysExt) {
+    propLibPath = "/system/lib64/libnxp_nfc_prop_ext.so";
+  } else {
+    propLibPath = "/system/vendor/lib64/libnxp_nfc_prop_ext.so";
+  }
+  p_prop_extn_handle = dlopen(propLibPath.c_str(), RTLD_NOW);
   if (p_prop_extn_handle == nullptr) {
-    NXPLOG_EXTNS_E(
-        NXPLOG_ITEM_NXP_GEN_EXTN,
-        "%s Error : opening (/system/vendor/lib64/libnxp_nfc_prop_ext.so) !!",
-        __func__);
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
+                  "%s Error : opening (%s) !! dlerror: "
+                  "%s",
+                  __func__, propLibPath.c_str(), dlerror());
     return;
   }
 

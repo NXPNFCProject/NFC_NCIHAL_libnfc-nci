@@ -1,6 +1,6 @@
 /**
  *
- *  Copyright 2024 NXP
+ *  Copyright 2024-2025 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,15 +19,11 @@
 #ifndef PLATFORM_ABSTRACTION_LAYER_H
 #define PLATFORM_ABSTRACTION_LAYER_H
 
-#include <cstdint>
-#include <thread>
-#include <phNxpLog.h>
+#include "PlatformBase.h"
+#include "phNxpConfig.h"
+#include "vector"
 
-/** \addtogroup PAL_API_INTERFACE
- *  @brief  interface to perform the platform independent functionality.
- *  @{
- */
-class PlatformAbstractionLayer {
+class PlatformAbstractionLayer : public PlatformBase {
 public:
   PlatformAbstractionLayer(const PlatformAbstractionLayer &) = delete;
   PlatformAbstractionLayer &
@@ -72,46 +68,6 @@ public:
   uint16_t palenQueueRspNtf(const uint8_t *pBuffer, uint16_t wLength);
 
   /**
-   *
-   * @brief  Allocates some memoryAllocates some memory
-   *
-   * @param[in] dwSize   Size, in uint32_t, to be allocated
-   *
-   * @return            NON-NULL value:  The memory is successfully allocated ;
-   *                    the return value is a pointer to the allocated memory
-   * location NULL:The operation is not successful.
-   *
-   */
-  void *palMalloc(size_t dwSize);
-
-  /**
-   * @brief                Copies the values stored in the source memory to the
-   *                       values stored in the destination memory.
-   *
-   * @param[in] pDest     Pointer to the Destination Memory
-   * @param[in] pSrc      Pointer to the Source Memory
-   * @param[in] dwSize    Number of bytes to be copied.
-   *
-   * @return    void
-   */
-  void palMemcpy(void *pDest, size_t destSize, const void *pSrc,
-                 size_t srcSize);
-
-  /**
-   * @brief      Compares the values stored in two memory blocks.
-   *             This function compares the contents of two memory
-   *             regions, byte by byte,
-   *
-   * @param[in]  pSrc1 Pointer to the first memory block.
-   * @param[in]  pSrc2 Pointer to the second memory block.
-   * @param[in]  dataSize No of byte to be compared.
-   *
-   * @return int Result of the memory comparison: 0 for equal,
-   *         negative or positive for inequality.
-   */
-  int palMemcmp(const void *pSrc1, const void *pSrc2, size_t dataSize);
-
-  /**
    * @brief This function can be used by HAL to request control of
    *        NFCC to libnfc-nci. When control is provided to HAL it is
    *        notified through phNxpNciHal_control_granted.
@@ -136,13 +92,6 @@ public:
    *
    */
   void palSendNfcDataCallback(uint16_t dataLen, const uint8_t *pData);
-
-  /**
-   * @brief executes the provided function in another thread
-   * @return true if thread creation is success else false
-   *
-   */
-  bool palRunInThread(void* func(void*));
 
   /**
    * @brief Read byte array value from the config file.
@@ -172,29 +121,24 @@ public:
    * @return NFASTATUS_SUCCESS if success else NFCSTATUS_FAILED
    */
   uint8_t palEnableDisableDebugLog(uint8_t enable);
-  /**
-   * @brief this function returns the chip type
-   * @param  void
-   * @return return the chip type version
-   *
-   */
-  tNFC_chipType palGetChipType();
 
   /**
-   * @brief this function is called to set the system properties
-   * @param  key - Represent the name of property max 32 characters.
-   * @param  value - Represent the value to set for the property max 92
-   * characters.
-   * @return return 0 : Success the property set successfully.
-   *               -1 : Failure There was an error setting the property.
+   * @brief Internal write function to run in seprate Thread.
+   * @return None
    *
    */
-  int palproperty_set(const char *key, const char *value);
+  void enQueueWriteInternal(vector<uint8_t> buffer, uint16_t wLength);
+
+  /**
+   * @brief get the nxpnfc hidl/aidl service instance
+   * @return None
+   *
+   */
+  void getNxpNfcHal();
 
 private:
   static PlatformAbstractionLayer
       *sPlatformAbstractionLayer; // singleton object
-  pthread_t sThread;
   /**
    * @brief Initialize member variables.
    * @return None
@@ -208,13 +152,6 @@ private:
    *
    */
   ~PlatformAbstractionLayer();
-  /**
-   * @brief threadStartRoutine for palRunInAThread.
-   * @return None
-   *
-   */
-  static void* threadStartRoutine(void* arg);
-
 };
 /** @}*/
 #endif // PLATFORM_ABSTRACTION_LAYER_H

@@ -1,6 +1,6 @@
 //
 //
-//  Copyright 2024 NXP
+//  Copyright 2024-2025 NXP
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,19 +13,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-cc_library_shared {
-    name: "libnxp_nfc_gen_ext",
-    proprietary: true,
 
+cc_defaults {
+    name: "extn_defaults",
     cflags: [
         "-Wall",
         "-Werror",
         "-Wextra",
         "-Wno-implicit-fallthrough",
     ],
-
     srcs: [
         "src/api/NfcExtensionApi.cpp",
+        "src/common/log/phNxpLog.cc",
+        "src/common/utils/phNxpConfig.cc",
         "src/core/controller/NfcExtensionController.cpp",
         "src/core/nci/NciCommandBuilder.cpp",
         "src/core/nfc_comm/NfcExtensionWriter.cpp",
@@ -35,33 +35,91 @@ cc_library_shared {
         "src/features/qtag/QTag.cpp",
         "src/features/qtag/QTagHandler.cpp",
         "src/prop_extn/ProprietaryExtn.cpp",
-        "src/pal/PlatformAbstractionLayer.cpp",
+        "src/pal/common/PalIntervalTimer.cpp",
+        "src/pal/common/PalThreadMutex.cc",
+        "src/pal/common/PlatformBase.cpp",
     ],
-
     local_include_dirs: [
-        "inc",
+        "inc/common",
+        "src/common",
+        "src/common/inc",
+        "src/common/log",
+        "src/common/utils",
         "src/core/controller",
         "src/core/nci",
         "src/core/nfc_comm",
         "src/core/handler",
         "src/features/mpos",
         "src/features/qtag",
+        "src/pal/common",
         "src/prop_extn",
-        "src/pal",
     ],
-
-    include_dirs: [
-        "hardware/nxp/nfc/snxxx/halimpl_v2/common",
-        "hardware/nxp/nfc/snxxx/halimpl_v2/log",
-        "hardware/nxp/nfc/snxxx/halimpl_v2/nfc_extn",
-        "hardware/nxp/nfc/snxxx/halimpl_v2/tml",
-        "hardware/nxp/nfc/snxxx/halimpl_v2/utils",
-    ],
-
     shared_libs: [
+        "libbase",
         "libcutils",
-        "nfc_nci_nxp_snxxx_v2",
         "liblog",
         "libdl",
     ],
 }
+
+cc_library_shared {
+    name: "libnxp_nfc_gen_ext_sys",
+    stem: "libnfc_vendor_extn",
+    defaults: [
+        "extn_defaults",
+    ],
+    local_include_dirs: [
+        "inc/system_ext",
+        "src/pal/system_ext",
+    ],
+    include_dirs: [
+        "system/nfc/src/nfc_vendor_extn/include",
+        "system/nfc/utils/include/",
+        "system/nfc/src/include",
+        "system/nfc/src/nfc/include",
+        "system/nfc/src/gki/common",
+        "system/nfc/src/gki/ulinux",
+    ],
+    srcs: [
+        "src/pal/system_ext/PlatformAbstractionLayer.cpp",
+    ],
+    shared_libs: [
+        "libbinder_ndk",
+        "libhidlbase",
+        "libutils",
+    ],
+    static_libs: [
+        "android.hardware.nfc@1.0",
+        "android.hardware.nfc@1.1",
+        "android.hardware.nfc@1.2",
+        "android.hardware.nfc-V1-ndk",
+        "vendor.nxp.nxpnfc@2.0",
+        "vendor.nxp.nxpnfc_aidl-V1-ndk",
+    ],
+}
+
+//cc_library_shared {
+//    name: "libnxp_nfc_gen_ext_vnd",
+//    proprietary: true,
+//    stem: "libnxp_nfc_gen_ext",
+//    defaults: [
+//        "extn_defaults",
+//    ],
+//    local_include_dirs: [
+//        "inc/vendor_ext",
+//        "src/pal/vendor_ext",
+//    ],
+//    srcs: [
+//        "src/pal/vendor_ext/PlatformAbstractionLayer.cpp",
+//    ],
+//    include_dirs: [
+//        "hardware/nxp/nfc/snxxx/halimpl_v2/common",
+//        "hardware/nxp/nfc/snxxx/halimpl_v2/log",
+//        "hardware/nxp/nfc/snxxx/halimpl_v2/nfc_extn",
+//        "hardware/nxp/nfc/snxxx/halimpl_v2/tml",
+//        "hardware/nxp/nfc/snxxx/halimpl_v2/utils",
+//    ],
+//    shared_libs: [
+//        "nfc_nci_nxp_snxxx_v2",
+//    ],
+//}

@@ -2,7 +2,7 @@
  *
  *  The original Work has been changed by NXP.
  *
- *  Copyright 2024 NXP
+ *  Copyright 2024-2025 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -30,10 +30,6 @@
 /**********************************************************************************
  **  Macros
  **********************************************************************************/
-#define NAME_NXP_SWP_RD_TAG_OP_TIMEOUT "NXP_SWP_RD_TAG_OP_TIMEOUT"
-#define NAME_NXP_DM_DISC_NTF_TIMEOUT "NXP_DM_DISC_NTF_TIMEOUT"
-#define NAME_NXP_RDR_REQ_GUARD_TIME "NXP_RDR_REQ_GUARD_TIME"
-#define NAME_NXP_PROP_RESET_EMVCO_CMD "NXP_PROP_RESET_EMVCO_CMD"
 
 #define READER_MODE_TAG_OP_DEFAULT_TIMEOUT_IN_MS (20 * 1000)  // 20 Sec
 #define READER_MODE_CARD_REMOVE_TIMEOUT_IN_MS (1 * 1000)      //  1 Sec
@@ -146,9 +142,9 @@ public:
   bool isTimerStarted;    /* Flag to check if timer is started */
   bool isActivatedNfcRcv; /* Flag indicating if NFC activation is received */
   unsigned long tagOperationTimeout; /* Timeout for tag operation */
-  IntervalTimer tagOperationTimer;   /* Timer for tag operation */
-  IntervalTimer tagRemovalTimer;     /* Timer for tag removal */
-  IntervalTimer startStopGuardTimer; /* Timer for start/stop guard */
+  PalIntervalTimer tagOperationTimer;   /* Timer for tag operation */
+  PalIntervalTimer tagRemovalTimer;     /* Timer for tag removal */
+  PalIntervalTimer startStopGuardTimer; /* Timer for start/stop guard */
   uint32_t mTimeoutMaxCount;         /* Timeout for deactivation notification */
   uint32_t RdrReqGuardTimer;         /* Timer for reader request guard */
   ScrState_t lastScrState;           /* Last recorded SCR state */

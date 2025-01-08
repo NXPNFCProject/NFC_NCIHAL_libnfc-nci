@@ -1,6 +1,6 @@
 /**
  *
- *  Copyright 2024 NXP
+ *  Copyright 2024-2025 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@
 #ifndef NFC_EXTENSION_WRITER_H
 #define NFC_EXTENSION_WRITER_H
 
-#include "PlatformAbstractionLayer.h"
 #include "NfcExtensionConstants.h"
-#include <IntervalTimer.h>
+#include <PalIntervalTimer.h>
 #include <cstdint>
+#include <phNxpLog.h>
 #include <vector>
 
 /** \addtogroup NFC_EXTENSION_WRITER_API_INTERFACE
@@ -96,8 +96,8 @@ public:
 private:
   NfcExtensionWriter();
   ~NfcExtensionWriter();
-  IntervalTimer mWriteRspTimer;
-  IntervalTimer mHalCtrlTimer;
+  PalIntervalTimer mWriteRspTimer;
+  PalIntervalTimer mHalCtrlTimer;
   void stopHalCtrlTimer();
   std::vector<uint8_t> cmdData;
 };
