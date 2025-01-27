@@ -46,7 +46,7 @@ NFCSTATUS ProprietaryExtn::handleVendorNciMsg(uint16_t dataLen,
 }
 
 NFCSTATUS ProprietaryExtn::handleVendorNciRspNtf(uint16_t dataLen,
-                                                 const uint8_t *pData) {
+                                                 uint8_t *pData) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter dataLen:%d", __func__,
                  dataLen);
   if (fp_prop_extn_snd_vnd_rsp_ntf != nullptr) {

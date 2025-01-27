@@ -122,8 +122,7 @@ NFCSTATUS MposHandler::handleVendorNciMessage(uint16_t dataLen,
   }
 }
 
-NFCSTATUS MposHandler::handleVendorNciRspNtf(uint16_t dataLen,
-                                             const uint8_t *pData) {
+NFCSTATUS MposHandler::handleVendorNciRspNtf(uint16_t dataLen, uint8_t *pData) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
                  "MposHandler::%s "
                  "Enter dataLen:%d",

@@ -1,6 +1,6 @@
 /**
  *
- *  Copyright 2024 NXP
+ *  Copyright 2024-2025 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -46,8 +46,7 @@ public:
    * NFCSTATUS_EXTN_FEATURE_FAILURE.
    *
    */
-  NFCSTATUS handleVendorNciRspNtf(uint16_t dataLen,
-                                  const uint8_t *pData) override;
+  NFCSTATUS handleVendorNciRspNtf(uint16_t dataLen, uint8_t *pData) override;
 
 private:
 };

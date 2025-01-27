@@ -52,8 +52,7 @@ public:
    * NFCSTATUS_EXTN_FEATURE_FAILURE.
    *
    */
-  virtual NFCSTATUS handleVendorNciRspNtf(uint16_t dataLen,
-                                          const uint8_t *pData) = 0;
+  virtual NFCSTATUS handleVendorNciRspNtf(uint16_t dataLen, uint8_t *pData) = 0;
 
   /**
    * @brief this callback will be invoked by controller when it

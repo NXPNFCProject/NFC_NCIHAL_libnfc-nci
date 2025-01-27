@@ -1,6 +1,6 @@
 /**
  *
- *  Copyright 2024 NXP
+ *  Copyright 2024-2025 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ NFCSTATUS DefaultEventHandler::handleVendorNciMessage(uint16_t dataLen,
 }
 
 NFCSTATUS DefaultEventHandler::handleVendorNciRspNtf(uint16_t dataLen,
-                                                     const uint8_t *pData) {
+                                                     uint8_t *pData) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
                  "DefaultEventHandler::%s Enter dataLen:%d", __func__, dataLen);
   // call false, if it is not to be processed by Nfc Extension library

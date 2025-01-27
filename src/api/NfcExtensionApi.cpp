@@ -52,7 +52,7 @@ static NFCSTATUS phNxpExtn_HandleVendorNciMsg(uint16_t *dataLen,
  *
  */
 static NFCSTATUS phNxpExtn_HandleVendorNciRspNtf(uint16_t *dataLen,
-                                                 const uint8_t *pData);
+                                                 uint8_t *pData);
 
 /**
  * @brief provide write status callback
@@ -237,8 +237,7 @@ NFCSTATUS phNxpExtn_HandleVendorNciMsg(uint16_t *dataLen,
   return NFCSTATUS_EXTN_FEATURE_FAILURE;
 }
 
-NFCSTATUS phNxpExtn_HandleVendorNciRspNtf(uint16_t *dataLen,
-                                          const uint8_t *pData) {
+NFCSTATUS phNxpExtn_HandleVendorNciRspNtf(uint16_t *dataLen, uint8_t *pData) {
   if (*dataLen <= NCI_PAYLOAD_LEN_INDEX || pData == nullptr) {
     NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Invalid Data. Not handled!!",
                    __func__);

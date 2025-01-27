@@ -67,7 +67,7 @@ public:
    * stop the response timer.
    *
    */
-  NFCSTATUS handleVendorNciRspNtf(uint16_t dataLen, const uint8_t *pData);
+  NFCSTATUS handleVendorNciRspNtf(uint16_t dataLen, uint8_t *pData);
 
   /**
    * @brief map the vendor NCI command from PROP to ROW

@@ -38,6 +38,8 @@ cc_defaults {
         "src/pal/common/PalIntervalTimer.cpp",
         "src/pal/common/PalThreadMutex.cc",
         "src/pal/common/PlatformBase.cpp",
+        "src/features/nci_state_monitor/NciStateMonitor.cpp",
+        "src/features/nci_state_monitor/NfceeStateMonitor.cpp",
     ],
     local_include_dirs: [
         "inc/common",
@@ -53,6 +55,7 @@ cc_defaults {
         "src/features/qtag",
         "src/pal/common",
         "src/prop_extn",
+        "src/features/nci_state_monitor",
     ],
     shared_libs: [
         "libbase",

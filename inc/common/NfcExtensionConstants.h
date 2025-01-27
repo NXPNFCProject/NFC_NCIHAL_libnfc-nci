@@ -79,6 +79,10 @@ constexpr uint8_t MT_RSP = 0x01;
 constexpr uint8_t MT_NTF = 0x02;
 constexpr uint8_t MIN_HED_LEN = 0x03;
 
+constexpr uint8_t NCI_GID_CORE = 0x00;
+constexpr uint8_t NCI_GID_RF_MANAGE = 0x01;
+constexpr uint8_t NCI_GID_EE_MANAGE = 0x02;
+
 constexpr uint8_t DEFAULT_RESP = 0xFF;
 constexpr uint8_t ZERO_PAYLOAD = 0x00;
 constexpr uint8_t PAYLOAD_TWO_LEN = 0x02;
@@ -144,15 +148,16 @@ constexpr uint16_t NCI_RF_DEACTD_RSP_GID_OID = 0x4106;
 constexpr uint16_t NCI_GENERIC_ERR_NTF_GID_OID = 0x6007;
 constexpr uint16_t NCI_DATA_PKT_RSP_GID_OID = 0x0100;
 constexpr uint16_t NCI_EE_DISC_NTF_GID_OID = 0x6200;
-constexpr uint16_t NCI_EE_ACTION_NTF_GID_OID = 0x6109;
-constexpr uint16_t NCI_EE_STATUS_NTF_GID_OID = 0x6202;
-constexpr uint16_t NCI_CORE_RESET_NTF_GID_OID = 0x6000;
 
 constexpr uint16_t NCI_FW_MAJOR_VER_INDEX = 0x0A;
 constexpr uint16_t NCI_FW_MINOR_VER_INDEX = 0x0B;
 constexpr uint16_t NCI_FW_PATCH_VER_INDEX = 0x0C;
 constexpr uint16_t NCI_MIN_CORE_RESET_NTF_LEN = 0x0D;
 
+constexpr uint8_t NCI_CORE_RESET_OID = 0x00;
+constexpr uint8_t NCI_EE_MODE_SET_OID = 0x01;
+constexpr uint8_t NCI_EE_STATUS_OID = 0x02;
+constexpr uint8_t NCI_EE_ACTION_OID = 0x09;
 /* Core generic error for TAG collision detected */
 constexpr uint8_t NCI_TAG_COLLISION_DETECTED = 0xE4;
 
@@ -171,6 +176,7 @@ constexpr uint8_t NCI_EE_DISC_REQ_INDEX = 6;
 constexpr uint8_t NCI_NFCEE_STS_UNRECOVERABLE_ERROR = 0x00;
 constexpr uint8_t NCI_NFCEE_STS_PMUVCC_OFF = 0x81;
 constexpr uint8_t NCI_NFCEE_STS_PROP_UNRECOVERABLE_ERROR = 0x90;
+constexpr uint8_t NCI_NFCEE_TRANSMISSION_ERROR = 0xC1;
 /**
  * @brief Indexes to access different info from RF_NFCEE_ACTION_NTF.
  */

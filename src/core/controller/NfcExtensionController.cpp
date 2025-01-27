@@ -19,6 +19,7 @@
 #include "NfcExtensionController.h"
 #include "NfcExtensionConstants.h"
 #include "PlatformAbstractionLayer.h"
+#include <NciStateMonitor.h>
 #include <phNxpLog.h>
 
 NfcExtensionController *NfcExtensionController::sNfcExtensionController;
@@ -112,10 +113,11 @@ NFCSTATUS NfcExtensionController::handleVendorNciMessage(uint16_t dataLen,
 }
 
 NFCSTATUS NfcExtensionController::handleVendorNciRspNtf(uint16_t dataLen,
-                                                        const uint8_t *pData) {
+                                                        uint8_t *pData) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
                  "NfcExtensionController::%s Enter dataLen:%d", __func__,
                  dataLen);
+  NciStateMonitor::getInstance()->handleVendorNciRspNtf(dataLen, pData);
   return mIEventHandler->handleVendorNciRspNtf(dataLen, pData);
 }
 
@@ -170,5 +172,6 @@ NFCSTATUS NfcExtensionController::processExtnWrite(uint16_t *dataLen,
                                                    uint8_t *pData) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "NfcExtensionController %s Enter",
                  __func__);
+  NciStateMonitor::getInstance()->processExtnWrite(dataLen, pData);
   return mIEventHandler->processExtnWrite(dataLen, pData);
 }
