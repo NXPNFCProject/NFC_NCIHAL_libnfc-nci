@@ -129,19 +129,18 @@ tNFC_chipType PlatformBase::palGetChipType() {
 tNFC_chipType PlatformBase::processChipType(uint8_t* msg,
                                                         uint16_t msg_len) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
-  if (msg[0] == NCI_MT_NTF &&
-             ((msg[1] & NCI_OID_MASK) == NCI_MSG_CORE_RESET)) {
-    if ((msg != NULL) && (msg_len != 0)) {
+  if ((msg != NULL) && (msg_len != 0)) {
+    if (msg[0] == NCI_MT_NTF &&
+        ((msg[1] & NCI_OID_MASK) == NCI_MSG_CORE_RESET)) {
       if ((msg_len > 2) && msg[0] == NCI_CMD_RSP_SUCCESS_SW1 &&
-        msg[1] == NCI_CMD_RSP_SUCCESS_SW2) {
+          msg[1] == NCI_CMD_RSP_SUCCESS_SW2) {
         chipType = determineChipType(msg, msg_len);
-        NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
-                      "%s ChipType: %s",
-                      __func__, product[chipType].c_str());
+        NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s ChipType: %s", __func__,
+                       product[chipType].c_str());
       } else {
         NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
-                      "%s Wrong msg_len. Setting Default ChipType pn80T",
-                      __func__);
+                       "%s Wrong msg_len. Setting Default ChipType pn80T",
+                       __func__);
         chipType = pn81T;
       }
     }
