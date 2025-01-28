@@ -25,9 +25,16 @@
 #include <phNxpConfig.h>
 #include <phNxpLog.h>
 
-#include <aidl/vendor/nxp/nxpnfc_aidl/INxpNfc.h>
 #include <android/binder_manager.h>
 #include <vendor/nxp/nxpnfc/2.0/INxpNfc.h>
+
+#define NXP_NFC_AIDL_SUPPORTED_VER 34
+
+#if __ANDROID_API__ >= NXP_NFC_AIDL_SUPPORTED_VER
+#include <aidl/vendor/nxp/nxpnfc_aidl/INxpNfc.h>
+#else
+#include "INxpNfc.h"
+#endif
 
 using android::sp;
 using INxpNfc = vendor::nxp::nxpnfc::V2_0::INxpNfc;
