@@ -328,6 +328,11 @@ void updateConfigInternal(string oldKey, string newKey,
 void PlatformAbstractionLayer::updateHalConfig(
     map<string, ConfigValue>* pConfigMap) {
   if (pConfigMap != nullptr) {
+    // TODO: Read DEFAULT_FELICA_CLT_ROUTE value and update the
+    // NAME_DEFAULT_NFCF_ROUTE value dynamically.
+    // DEFAULT_FELICA_CLT_ROUTE to be updated as well
+    pConfigMap->erase(NAME_DEFAULT_NFCF_ROUTE);
+    pConfigMap->emplace(NAME_DEFAULT_NFCF_ROUTE, ConfigValue(192));
     updateConfigInternal(NAME_NXP_T4T_NFCEE_ENABLE, NAME_T4T_NFCEE_ENABLE,
                          pConfigMap);
     //updateConfigInternal(NAME_OFF_HOST_SIM_PIPE_ID, NAME_OFF_HOST_SIM_PIPE_IDS,
