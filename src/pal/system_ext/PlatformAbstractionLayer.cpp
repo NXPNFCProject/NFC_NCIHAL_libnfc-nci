@@ -250,13 +250,12 @@ void PlatformAbstractionLayer::updateHalConfig(
   if (pConfigMap != nullptr) {
     updateConfigInternal(NAME_NXP_T4T_NFCEE_ENABLE, NAME_T4T_NFCEE_ENABLE,
                          pConfigMap);
-    pConfigMap->erase(NAME_NXP_T4T_NFCEE_ENABLE);
-    updateConfigInternal(NAME_OFF_HOST_SIM_PIPE_ID, NAME_OFF_HOST_SIM_PIPE_IDS,
-                         pConfigMap);
-    pConfigMap->erase(NAME_OFF_HOST_SIM_PIPE_ID);
-    updateConfigInternal(NAME_OFF_HOST_SIM2_PIPE_ID, NAME_OFF_HOST_SIM_PIPE_IDS,
-                         pConfigMap);
-    pConfigMap->erase(NAME_OFF_HOST_SIM2_PIPE_ID);
+    //updateConfigInternal(NAME_OFF_HOST_SIM_PIPE_ID, NAME_OFF_HOST_SIM_PIPE_IDS,
+    //                     pConfigMap);
+    //pConfigMap->erase(NAME_OFF_HOST_SIM_PIPE_ID);
+    //updateConfigInternal(NAME_OFF_HOST_SIM2_PIPE_ID, NAME_OFF_HOST_SIM_PIPE_IDS,
+    //                     pConfigMap);
+    //pConfigMap->erase(NAME_OFF_HOST_SIM2_PIPE_ID);
     auto t3tPair = pConfigMap->find(NAME_NFA_PROPRIETARY_CFG);
     if (t3tPair != pConfigMap->end()) {
       vector<uint8_t> oldVal = t3tPair->second.getBytes();
@@ -264,6 +263,13 @@ void PlatformAbstractionLayer::updateHalConfig(
       oldVal.push_back(0x8B);
       t3tPair->second = ConfigValue(oldVal);
     }
+    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s mHostSimPipId erased & Added!", __func__);
+    pConfigMap->erase(NAME_OFF_HOST_SIM_PIPE_IDS);
+    vector<uint8_t> offHostValues = {0x0A, 0x23};
+    pConfigMap->emplace(NAME_OFF_HOST_SIM_PIPE_IDS, ConfigValue(offHostValues));
+    pConfigMap->erase(NAME_T4T_NFCEE_ENABLE);
+    pConfigMap->emplace(NAME_T4T_NFCEE_ENABLE, ConfigValue(1));
+    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s NAME_T4T_NFCEE_ENABLE(1) erased & Added!", __func__);
   }
 }
 
