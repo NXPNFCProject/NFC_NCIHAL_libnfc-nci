@@ -26,7 +26,7 @@
  *  @{
  */
 
-#define NFC_NXP_GEN_EXT_VERSION_MAJ (0x03) /* MW Major Version */
+#define NFC_NXP_GEN_EXT_VERSION_MAJ (0x04) /* MW Major Version */
 #define NFC_NXP_GEN_EXT_VERSION_MIN (0x00) /* MW Minor Version */
 
 /**
