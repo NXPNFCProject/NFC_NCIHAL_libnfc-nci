@@ -265,7 +265,7 @@ void PlatformAbstractionLayer::updateHalConfig(
     }
     NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s mHostSimPipId erased & Added!", __func__);
     pConfigMap->erase(NAME_OFF_HOST_SIM_PIPE_IDS);
-    vector<uint8_t> offHostValues = {0x0A, 0x23};
+    vector<uint8_t> offHostValues = {0x0A, 0x23, 0x2B, 0x2F};
     pConfigMap->emplace(NAME_OFF_HOST_SIM_PIPE_IDS, ConfigValue(offHostValues));
     pConfigMap->erase(NAME_T4T_NFCEE_ENABLE);
     pConfigMap->emplace(NAME_T4T_NFCEE_ENABLE, ConfigValue(1));
