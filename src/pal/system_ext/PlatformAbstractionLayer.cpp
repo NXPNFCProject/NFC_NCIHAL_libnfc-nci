@@ -38,6 +38,26 @@ using android::sp;
 using INxpNfc = vendor::nxp::nxpnfc::V2_0::INxpNfc;
 using INxpNfcAidl = ::aidl::vendor::nxp::nxpnfc_aidl::INxpNfc;
 
+enum class OemRouteLocation {
+  HOST = 0x00,
+  ESE = 0x01,
+  UICC = 0x02,
+  UICC2 = 0x03,
+  EUICC = 0x04,
+  EUICC2 = 0x05
+};
+
+enum class GenRouteLocation {
+  HOST = 0,
+  ESE = 192,
+  UICC = 128,
+  UICC2 = 129,
+  EUICC = 193,
+  EUICC2 = 194
+};
+
+map<OemRouteLocation, uint8_t> routeMap;
+
 struct NxpNfcHal {
   sp<INxpNfc> halNxpNfc;
   shared_ptr<INxpNfcAidl> aidlHalNxpNfc;
@@ -49,7 +69,17 @@ string NXPNFC_AIDL_HAL_SERVICE_NAME = "vendor.nxp.nxpnfc_aidl.INxpNfc/default";
 PlatformAbstractionLayer *PlatformAbstractionLayer::sPlatformAbstractionLayer;
 NxpNfcHal mNxpNfcHal;
 
+void initRouteMap() {
+  routeMap[OemRouteLocation::HOST] = static_cast<uint8_t> (GenRouteLocation::HOST);
+  routeMap[OemRouteLocation::ESE] = static_cast<uint8_t> (GenRouteLocation::ESE);
+  routeMap[OemRouteLocation::UICC] = static_cast<uint8_t> (GenRouteLocation::UICC);
+  routeMap[OemRouteLocation::UICC2] = static_cast<uint8_t> (GenRouteLocation::UICC2);
+  routeMap[OemRouteLocation::EUICC] = static_cast<uint8_t> (GenRouteLocation::EUICC);
+  routeMap[OemRouteLocation::EUICC2] = static_cast<uint8_t> (GenRouteLocation::EUICC2);
+}
+
 PlatformAbstractionLayer::PlatformAbstractionLayer() {
+  initRouteMap();
   getNxpNfcHal();
 }
 
@@ -200,6 +230,51 @@ void PlatformAbstractionLayer::coverAttached(string state, string type) {
   }
 }
 
+OemRouteLocation getOemRouteLocation(int value) {
+  switch (value) {
+  case 0:
+    return OemRouteLocation::HOST;
+  case 1:
+    return OemRouteLocation::ESE;
+  case 2:
+    return OemRouteLocation::UICC;
+  case 3:
+    return OemRouteLocation::UICC2;
+  case 4:
+    return OemRouteLocation::EUICC;
+  case 5:
+    return OemRouteLocation::EUICC2;
+  default:
+    return OemRouteLocation::HOST;
+  }
+}
+
+uint8_t getUnsignedRouteValue(string key, uint8_t value) {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s: key:%s,value:%d", __func__,
+                 key.c_str(), value);
+  if (key == NAME_DEFAULT_ROUTE || key == NAME_DEFAULT_AID_ROUTE ||
+      key == NAME_DEFAULT_ISODEP_ROUTE ||
+      key == NAME_DEFAULT_FELICA_CLT_ROUTE ||
+      key == NAME_DEFAULT_SYS_CODE_ROUTE || key == NAME_DEFAULT_OFFHOST_ROUTE) {
+    OemRouteLocation oemRouteLocation = getOemRouteLocation(value);
+    auto it = routeMap.find(static_cast<OemRouteLocation>(oemRouteLocation));
+    if (it != routeMap.end()) {
+      NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+                     "%s: DEFAULT_OFFHOST_ROUTE static cast value:%d", __func__,
+                     static_cast<uint8_t>(it->second));
+      return static_cast<uint8_t>(it->second);
+    } else {
+      NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
+                     "%s key not found, returned error!", __func__);
+      return 0;
+    }
+  } else {
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "%s No need of conversion!",
+                   __func__);
+    return -1;
+  }
+}
+
 void updateConfigInternal(string oldKey, string newKey,
                           map<string, ConfigValue>* pConfigMap) {
   auto oldPair = pConfigMap->find(oldKey);
@@ -214,9 +289,14 @@ void updateConfigInternal(string oldKey, string newKey,
         case ConfigValue::UNSIGNED: {
           /* code */
           uint8_t newVal = newPair->second.getUnsigned();
-          uint8_t oldVal = oldPair->second.getUnsigned();
-          std::vector<uint8_t> valVec{newVal, oldVal};
-          newConfigVal = ConfigValue(valVec);
+          uint8_t tempVal = getUnsignedRouteValue(oldKey, newVal);
+          if (-1 != tempVal) {
+            newVal = tempVal;
+          } else {
+            NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+                          "%s: key: %s value:%d", __func__, newKey.c_str(), newVal);
+          }
+          newConfigVal = ConfigValue(static_cast<unsigned>(newVal));
           break;
         }
         // if existing value is in multiple in number i.e, vector
@@ -256,6 +336,12 @@ void PlatformAbstractionLayer::updateHalConfig(
     //updateConfigInternal(NAME_OFF_HOST_SIM2_PIPE_ID, NAME_OFF_HOST_SIM_PIPE_IDS,
     //                     pConfigMap);
     //pConfigMap->erase(NAME_OFF_HOST_SIM2_PIPE_ID);
+    updateConfigInternal(NAME_DEFAULT_ROUTE, NAME_DEFAULT_ROUTE, pConfigMap);
+    updateConfigInternal(NAME_DEFAULT_ISODEP_ROUTE, NAME_DEFAULT_ISODEP_ROUTE, pConfigMap);
+    updateConfigInternal(NAME_DEFAULT_OFFHOST_ROUTE, NAME_DEFAULT_OFFHOST_ROUTE, pConfigMap);
+    updateConfigInternal(NAME_DEFAULT_FELICA_CLT_ROUTE, NAME_DEFAULT_NFCF_ROUTE, pConfigMap);
+    updateConfigInternal(NAME_DEFAULT_SYS_CODE_ROUTE, NAME_DEFAULT_SYS_CODE_ROUTE, pConfigMap);
+
     auto t3tPair = pConfigMap->find(NAME_NFA_PROPRIETARY_CFG);
     if (t3tPair != pConfigMap->end()) {
       vector<uint8_t> oldVal = t3tPair->second.getBytes();
