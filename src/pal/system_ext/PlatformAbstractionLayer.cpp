@@ -314,7 +314,7 @@ void updateConfigInternal(string oldKey, string newKey,
           return;
       }
       // update the value
-      newPair->second = newConfigVal;
+      newPair->second = std::move(newConfigVal);
     } else {
       // Adding value for new key in config map.
       pConfigMap->emplace(newKey, oldPair->second);

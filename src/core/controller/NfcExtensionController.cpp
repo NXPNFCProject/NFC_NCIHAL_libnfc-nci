@@ -27,6 +27,7 @@ NfcExtensionController::NfcExtensionController() {
   mRfState = {0};
   mNfcHalState = {0};
   mCurrentHandlerType = {0};
+  mCurrentHandlerState = HandlerState::STOPPED;
 }
 
 NfcExtensionController::~NfcExtensionController() {}

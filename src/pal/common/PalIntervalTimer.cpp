@@ -80,7 +80,9 @@ void PalIntervalTimer::kill() {
   if (mTimerId == 0)
     return;
 
-  timer_delete(mTimerId);
+  if (timer_delete(mTimerId) != 0) {
+    NXPLOG_EXTNS_E(LOG_TAG, "fail delete timer");
+  }
   mTimerId = 0;
   mCb = NULL;
 }
