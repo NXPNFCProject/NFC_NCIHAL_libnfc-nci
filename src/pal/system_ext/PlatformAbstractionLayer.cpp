@@ -147,14 +147,15 @@ void PlatformAbstractionLayer::enQueueWriteInternal(vector<uint8_t> buffer,
   }
 }
 
-NFCSTATUS PlatformAbstractionLayer::palenQueueRspNtf(const uint8_t *pBuffer,
-                                                     uint16_t wLength) {
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter wLength:%d", __func__,
-                 wLength);
-  std::vector<uint8_t> bufferCopy(pBuffer, pBuffer + wLength);
-  thread(&PlatformAbstractionLayer::palSendNfcDataCallback, this, wLength,
-         bufferCopy.data())
-      .detach();
+NFCSTATUS PlatformAbstractionLayer::palenQueueRspNtf(const uint8_t *pBuffer, uint16_t wLength) {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter wLength:%d", __func__, wLength);
+
+  auto bufferCopy = std::make_shared<std::vector<uint8_t>>(pBuffer, pBuffer + wLength);
+
+  std::thread([this, wLength, bufferCopy]() {
+      palSendNfcDataCallback(wLength, bufferCopy->data());
+  }).detach();
+
   return NFCSTATUS_SUCCESS;
 }
 
