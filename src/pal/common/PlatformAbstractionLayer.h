@@ -127,14 +127,6 @@ public:
   uint8_t palEnableDisableDebugLog(uint8_t enable);
 
   /**
-   * Saves the vendor params provided as key-value pair
-   *
-   * @param string key string value
-   * @return status as a boolean, true if success, false if failed
-   */
-  bool setVendorParam(string key, string value);
-
-  /**
    * @brief Internal write function to run in seprate Thread.
    * @return None
    *
@@ -161,6 +153,25 @@ public:
    *
    */
   void updateHalConfig(map<string, ConfigValue>* pConfigMap);
+
+  /**
+   * @brief Saves the vendor params provided as key-value pair
+   * by invoking the NxpExtns::setVendorParam
+   * @param propKey key of the vendorParam
+   * @param propValue value of the vendorParam
+   * @return True if setting vendorParam is success else false
+   *
+   */
+  bool setVendorParam(const std::string& parampKey,
+                         const std::string& paramValue);
+
+  /**
+   * @brief Invoke the NxpExtns::getVendorParam
+   * @param paramKey key of the vendorParam
+   * @return value of the paramKey if found else empty string
+   *
+   */
+  string getVendorParam(const std::string& paramKey);
 
 private:
   static PlatformAbstractionLayer

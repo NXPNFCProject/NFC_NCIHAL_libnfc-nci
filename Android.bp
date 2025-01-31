@@ -81,10 +81,11 @@ cc_library_shared {
         "system/nfc/src/nfc/include",
         "system/nfc/src/gki/common",
         "system/nfc/src/gki/ulinux",
-        "system/nfc/utils/include/",
+        "system/nfc/utils/include",
     ],
     srcs: [
         "src/pal/system_ext/PlatformAbstractionLayer.cpp",
+        "src/pal/system_ext/ConfigHandler.cpp",
     ],
     shared_libs: [
         "libbinder_ndk",
