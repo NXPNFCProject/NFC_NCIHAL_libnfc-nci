@@ -127,6 +127,14 @@ public:
   uint8_t palEnableDisableDebugLog(uint8_t enable);
 
   /**
+   * Saves the vendor params provided as key-value pair
+   *
+   * @param string key string value
+   * @return status as a boolean, true if success, false if failed
+   */
+  bool setVendorParam(string key, string value);
+
+  /**
    * @brief Internal write function to run in seprate Thread.
    * @return None
    *

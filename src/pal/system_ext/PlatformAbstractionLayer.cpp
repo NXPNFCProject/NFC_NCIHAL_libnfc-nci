@@ -200,6 +200,18 @@ uint8_t PlatformAbstractionLayer::palGetNxpNumValue(const char *name,
   return GetNxpNumValue(name, pValue, len);
 }
 
+bool PlatformAbstractionLayer::setVendorParam(string key, string value) {
+  bool status = false;
+  if (mNxpNfcHal.aidlHalNxpNfc != nullptr) {
+    mNxpNfcHal.aidlHalNxpNfc->setVendorParam(key, std::move(value), &status);
+  } else if (mNxpNfcHal.halNxpNfc != nullptr) {
+    status = mNxpNfcHal.halNxpNfc->setVendorParam(key, std::move(value));
+  } else {
+      NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "%s No aidl/hidl hal!", __func__);
+  }
+  return status;
+}
+
 uint8_t PlatformAbstractionLayer::palEnableDisableDebugLog(uint8_t enable) {
   bool status = false;
   if (mNxpNfcHal.aidlHalNxpNfc != nullptr) {
