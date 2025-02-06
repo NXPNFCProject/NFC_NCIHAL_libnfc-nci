@@ -77,12 +77,12 @@ cc_library_shared {
         "src/pal/system_ext",
     ],
     include_dirs: [
-        "system/nfc/src/nfc_vendor_extn/include",
-        "system/nfc/src/include",
-        "system/nfc/src/nfc/include",
-        "system/nfc/src/gki/common",
-        "system/nfc/src/gki/ulinux",
-        "system/nfc/utils/include",
+        "packages/modules/Nfc/libnfc-nci/src/nfc_vendor_extn/include",
+        "packages/modules/Nfc/libnfc-nci/src/include",
+        "packages/modules/Nfc/libnfc-nci/src/nfc/include",
+        "packages/modules/Nfc/libnfc-nci/src/gki/common",
+        "packages/modules/Nfc/libnfc-nci/src/gki/ulinux",
+        "packages/modules/Nfc/libnfc-nci/utils/include",
     ],
     srcs: [
         "src/pal/system_ext/PlatformAbstractionLayer.cpp",
