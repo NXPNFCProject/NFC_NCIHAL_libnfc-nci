@@ -100,7 +100,14 @@ void PlatformAbstractionLayer::coverAttached(string state, string type) {
 
 void PlatformAbstractionLayer::updateHalConfig(map<string, ConfigValue>*) {}
 
-bool PlatformAbstractionLayer::setVendorParam(string key, string value) {
+bool PlatformAbstractionLayer::setVendorParam(const std::string& paramKey,
+                                                 const std::string& paramValue){
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter Not supported", __func__);
   return false;
+}
+
+string PlatformAbstractionLayer::getVendorParam(const std::string& paramKey) {
+  string paramValue = "";
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter Not supported", __func__);
+  return paramValue;
 }
