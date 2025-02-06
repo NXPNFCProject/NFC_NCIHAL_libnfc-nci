@@ -68,6 +68,7 @@ cc_defaults {
 cc_library_shared {
     name: "libnxp_nfc_gen_ext_sys",
     stem: "libnfc_vendor_extn",
+    enabled: true,
     defaults: [
         "extn_defaults",
     ],
@@ -103,31 +104,32 @@ cc_library_shared {
     ],
 }
 
-//cc_library_shared {
-//    name: "libnxp_nfc_gen_ext_vnd",
-//    proprietary: true,
-//    stem: "libnxp_nfc_gen_ext",
-//    defaults: [
-//        "extn_defaults",
-//    ],
-//    local_include_dirs: [
-//        "inc/vendor_ext",
-//        "src/pal/vendor_ext",
-//    ],
-//    srcs: [
-//        "src/pal/vendor_ext/PlatformAbstractionLayer.cpp",
-//    ],
-//    include_dirs: [
-//        "hardware/libhardware/include_all",
-//        "hardware/nxp/nfc/snxxx/halimpl_v2/common",
-//        "hardware/nxp/nfc/snxxx/halimpl_v2/hal",
-//        "hardware/nxp/nfc/snxxx/halimpl_v2/log",
-//        "hardware/nxp/nfc/snxxx/halimpl_v2/nfc_extn",
-//        "hardware/nxp/nfc/snxxx/halimpl_v2/tml",
-//        "hardware/nxp/nfc/snxxx/halimpl_v2/utils",
-//        "system/core/libsystem/include",
-//    ],
-//    shared_libs: [
-//        "nfc_nci_nxp_snxxx_v2",
-//    ],
-//}
+cc_library_shared {
+    name: "libnxp_nfc_gen_ext_vnd",
+    stem: "libnxp_nfc_gen_ext",
+    proprietary: true,
+    enabled: false,
+    defaults: [
+        "extn_defaults",
+    ],
+    local_include_dirs: [
+        "inc/vendor_ext",
+        "src/pal/vendor_ext",
+    ],
+    srcs: [
+        "src/pal/vendor_ext/PlatformAbstractionLayer.cpp",
+    ],
+    include_dirs: [
+        "hardware/libhardware/include_all",
+        "hardware/nxp/nfc/snxxx/halimpl_v2/common",
+        "hardware/nxp/nfc/snxxx/halimpl_v2/hal",
+        "hardware/nxp/nfc/snxxx/halimpl_v2/log",
+        "hardware/nxp/nfc/snxxx/halimpl_v2/nfc_extn",
+        "hardware/nxp/nfc/snxxx/halimpl_v2/tml",
+        "hardware/nxp/nfc/snxxx/halimpl_v2/utils",
+        "system/core/libsystem/include",
+    ],
+    shared_libs: [
+        "nfc_nci_nxp_snxxx_v2",
+    ],
+}
