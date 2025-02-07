@@ -33,7 +33,7 @@ extern "C" {
  * @return void
  *
  */
-void phNxpExtn_LibInit(VendorExtnCb *vendorExtnCb);
+void vendor_nfc_init(VendorExtnCb *vendorExtnCb);
 
 /**
  * @brief De init the extension library
@@ -41,7 +41,7 @@ void phNxpExtn_LibInit(VendorExtnCb *vendorExtnCb);
  * @return void
  *
  */
-void phNxpExtn_LibDeInit();
+void vendor_nfc_de_init();
 
 /**
  * @brief get nfc vendor extention control block
@@ -59,7 +59,7 @@ VendorExtnCb *getNfcVendorExtnCb();
  * NFCSTATUS_EXTN_FEATURE_FAILURE, if it have to be handled by NFC HAL.
  *
  */
-NFCSTATUS phNxpExtn_HandleNfcEvent(NfcExtEvent_t eventCode,
+NFCSTATUS vendor_nfc_handle_event(NfcExtEvent_t eventCode,
                                    NfcExtEventData_t eventData);
 
 /**
@@ -82,7 +82,7 @@ NFCSTATUS phNxpExtn_Write(uint16_t *dataLen, uint8_t *pData);
  * @return void
  *
  */
-void phNxpExtn_OnConfigUpdate(std::map<std::string, ConfigValue>* pConfigMap);
+void vendor_nfc_on_config_update(std::map<std::string, ConfigValue>* pConfigMap);
 }
 /** @}*/
 #endif // NFC_EXTENSION_API_H

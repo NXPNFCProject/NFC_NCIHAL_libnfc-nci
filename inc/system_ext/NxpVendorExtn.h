@@ -19,7 +19,7 @@
 #ifndef NFC_SYS_EXTENSION_API_H
 #define NFC_SYS_EXTENSION_API_H
 
-#include <NxpNfcVendorExtn.h>
+#include <NfcVendorExtn.h>
 #include <cstdint>
 
 /** \addtogroup NFC_SYS_EXTENSION_API_H

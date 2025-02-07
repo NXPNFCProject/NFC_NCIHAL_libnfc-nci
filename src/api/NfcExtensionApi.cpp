@@ -131,7 +131,7 @@ static void printGenExtnLibVersion() {
                  NFC_NXP_GEN_EXT_VERSION_MAJ, NFC_NXP_GEN_EXT_VERSION_MIN);
 }
 
-void phNxpExtn_LibInit(VendorExtnCb *vendorExtnCb) {
+void vendor_nfc_init(VendorExtnCb *vendorExtnCb) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
   mVendorExtnCb = vendorExtnCb;
   printGenExtnLibVersion();
@@ -142,13 +142,13 @@ void phNxpExtn_LibInit(VendorExtnCb *vendorExtnCb) {
 
 VendorExtnCb *getNfcVendorExtnCb() { return mVendorExtnCb; }
 
-void phNxpExtn_LibDeInit() {
+void vendor_nfc_de_init() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
   NfcExtensionController::getInstance()->switchEventHandler(
       HandlerType::DEFAULT);
 }
 
-NFCSTATUS phNxpExtn_HandleNfcEvent(NfcExtEvent_t eventCode,
+NFCSTATUS vendor_nfc_handle_event(NfcExtEvent_t eventCode,
                                    NfcExtEventData_t eventData) {
   NFCSTATUS status = NFCSTATUS_SUCCESS;
   NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter eventCode:%d", __func__,
@@ -320,6 +320,6 @@ NFCSTATUS phNxpExtn_Write(uint16_t *dataLen, uint8_t *pData) {
                                                                  pData);
 }
 
-void phNxpExtn_OnConfigUpdate(map<string, ConfigValue>* pConfigMap) {
+void vendor_nfc_on_config_update(map<string, ConfigValue>* pConfigMap) {
   PlatformAbstractionLayer::getInstance()->updateHalConfig(pConfigMap);
 }
