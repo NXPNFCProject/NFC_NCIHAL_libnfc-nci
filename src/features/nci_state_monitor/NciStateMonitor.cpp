@@ -76,18 +76,17 @@ NFCSTATUS NciStateMonitor::handleVendorNciRspNtf(uint16_t dataLen,
   return status;
 }
 
-NFCSTATUS NciStateMonitor::processExtnWrite(uint16_t *dataLen, uint8_t *pData) {
+NFCSTATUS NciStateMonitor::processExtnWrite(uint16_t dataLen, const uint8_t *pData) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "NciStateMonitor %s Enter", __func__);
   vector<uint8_t> nciCmd;
   constexpr uint16_t NCI_EE_MODE_SET_CMD_GID_OID =
       (((NCI_MT_CMD | NCI_GID_EE_MANAGE) << 8) | NCI_EE_MODE_SET_OID);
-  nciCmd.assign(pData, pData + (*dataLen));
+  nciCmd.assign(pData, pData + (dataLen));
   uint16_t mGidOid = ((nciCmd[0] << 8) | nciCmd[1]);
   if ((mGidOid == NCI_EE_MODE_SET_CMD_GID_OID) &&
       (nciCmd.size() > NCI_MODE_SET_CMD_EE_INDEX)) {
     NfceeStateMonitor::getInstance()->setCurrentEE(
         nciCmd[NCI_MODE_SET_CMD_EE_INDEX]);
-    return NFCSTATUS_EXTN_FEATURE_SUCCESS;
-  } else
-    return NFCSTATUS_EXTN_FEATURE_FAILURE;
+  }
+  return NFCSTATUS_EXTN_FEATURE_FAILURE;
 }

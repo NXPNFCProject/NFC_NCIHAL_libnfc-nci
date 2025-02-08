@@ -127,20 +127,6 @@ public:
   uint8_t palEnableDisableDebugLog(uint8_t enable);
 
   /**
-   * @brief Internal write function to run in seprate Thread.
-   * @return None
-   *
-   */
-  void enQueueWriteInternal(vector<uint8_t> buffer, uint16_t wLength);
-
-  /**
-   * @brief get the nxpnfc hidl/aidl service instance
-   * @return None
-   *
-   */
-  void getNxpNfcHal();
-
-  /**
    * @brief responsible for setting cover attached system propertires
    * @return None
    *
@@ -189,6 +175,20 @@ private:
    *
    */
   ~PlatformAbstractionLayer();
+
+  /**
+   * @brief Internal write function to run in separate Thread.
+   * @return None
+   *
+   */
+  void enQueueWriteInternal(vector<uint8_t> buffer, uint16_t wLength);
+
+  /**
+   * @brief get the nxpnfc hidl/aidl service instance
+   * @return None
+   *
+   */
+  void getNxpNfcHal();
 };
 /** @}*/
 #endif // PLATFORM_ABSTRACTION_LAYER_H

@@ -213,7 +213,7 @@ public:
    * feature and handled by extension library otherwise
    * NFCSTATUS_EXTN_FEATURE_FAILURE.
    */
-  NFCSTATUS processExtnWrite(uint16_t *dataLen, uint8_t *pData);
+  NFCSTATUS processExtnWrite(uint16_t dataLen, const uint8_t *pData);
 
 private:
   static NfcExtensionController *sNfcExtensionController; // singleton object

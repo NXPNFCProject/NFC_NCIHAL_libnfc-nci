@@ -210,13 +210,14 @@ bool isVendorSpecificCmd(uint16_t dataLen, const uint8_t *pData) {
 
 NFCSTATUS phNxpExtn_HandleVendorNciMsg(uint16_t *dataLen,
                                        const uint8_t *pData) {
+  NFCSTATUS status = NFCSTATUS_EXTN_FEATURE_FAILURE;
   if (*dataLen <= NCI_PAYLOAD_LEN_INDEX || pData == nullptr) {
     NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Invalid Data. Not handled!!",
                    __func__);
-    return NFCSTATUS_EXTN_FEATURE_FAILURE;
+    return status;
   }
   if (isVendorSpecificCmd(*dataLen, pData)) {
-    NFCSTATUS status =
+    status =
         ProprietaryExtn::getInstance()->handleVendorNciMsg(*dataLen, pData);
     NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s prop status:%d", __func__,
                    static_cast<int>(status));
@@ -232,9 +233,9 @@ NFCSTATUS phNxpExtn_HandleVendorNciMsg(uint16_t *dataLen,
   } else {
     NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Not vendor specific command!!",
                    __func__);
-    phNxpExtn_Write(dataLen, (uint8_t *)pData);
+    status = phNxpExtn_Write(*dataLen, (uint8_t *)pData);
   }
-  return NFCSTATUS_EXTN_FEATURE_FAILURE;
+  return status;
 }
 
 NFCSTATUS phNxpExtn_HandleVendorNciRspNtf(uint16_t *dataLen, uint8_t *pData) {
@@ -313,9 +314,9 @@ NFCSTATUS phNxpExtn_OnHandleHalEvent(uint8_t event, uint8_t event_status) {
   return status;
 }
 
-NFCSTATUS phNxpExtn_Write(uint16_t *dataLen, uint8_t *pData) {
+NFCSTATUS phNxpExtn_Write(uint16_t dataLen, const uint8_t *pData) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s NCI datalen:%d", __func__,
-                 *dataLen);
+                 dataLen);
   return NfcExtensionController::getInstance()->processExtnWrite(dataLen,
                                                                  pData);
 }

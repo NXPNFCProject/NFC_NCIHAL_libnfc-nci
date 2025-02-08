@@ -163,7 +163,7 @@ public:
    * feature and handled by extension library otherwise
    * NFCSTATUS_EXTN_FEATURE_FAILURE.
    */
-  virtual NFCSTATUS processExtnWrite(uint16_t *dataLen, uint8_t *pData) {
+  virtual NFCSTATUS processExtnWrite(uint16_t dataLen, const uint8_t *pData) {
     NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "IEventHandler::%s Enter",
                    __func__);
     return NFCSTATUS_EXTN_FEATURE_FAILURE;

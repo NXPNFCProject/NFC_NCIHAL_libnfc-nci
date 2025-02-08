@@ -82,18 +82,18 @@ NFCSTATUS QTagHandler::handleVendorNciRspNtf(uint16_t dataLen, uint8_t *pData) {
   return QTag::getInstance()->processIntActivatedNtf(std::move(rfIntfNtf));
 }
 
-NFCSTATUS QTagHandler::processExtnWrite(uint16_t *dataLen, uint8_t *pData) {
+NFCSTATUS QTagHandler::processExtnWrite(uint16_t dataLen, const uint8_t *pData) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "QTagHandler %s Enter", __func__);
   vector<uint8_t> rfDiscCmd;
   uint8_t QTAG_RF_DISC_LEN = 6;
-  rfDiscCmd.assign(pData, pData + (*dataLen));
+  rfDiscCmd.assign(pData, pData + (dataLen));
 
   if (QTag::getInstance()->processRfDiscCmd(rfDiscCmd) ==
       NFCSTATUS_EXTN_FEATURE_SUCCESS) {
-    if ((*dataLen < rfDiscCmd.size()) ||
+    if ((dataLen < rfDiscCmd.size()) ||
         (rfDiscCmd.size() == QTAG_RF_DISC_LEN)) {
-      *dataLen = rfDiscCmd.size();
-      copy(rfDiscCmd.begin(), rfDiscCmd.end(), pData);
+      PlatformAbstractionLayer::getInstance()->palenQueueWrite(rfDiscCmd.data(),
+                                                               dataLen);
       return NFCSTATUS_EXTN_FEATURE_SUCCESS;
     }
     NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "QTagHandler %s dataLen mismatch",

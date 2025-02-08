@@ -72,7 +72,7 @@ NFCSTATUS vendor_nfc_handle_event(NfcExtEvent_t eventCode,
  * feature and handled by extension library otherwise
  * NFCSTATUS_EXTN_FEATURE_FAILURE.
  */
-NFCSTATUS phNxpExtn_Write(uint16_t *dataLen, uint8_t *pData);
+NFCSTATUS phNxpExtn_Write(uint16_t dataLen, const uint8_t *pData);
 
 /**
  * @brief This method will be invoked from libnfc-nci vendor extension

@@ -168,8 +168,8 @@ void NfcExtensionController::writeRspTimedout() {
   mIEventHandler->onWriteRspTimeout();
 }
 
-NFCSTATUS NfcExtensionController::processExtnWrite(uint16_t *dataLen,
-                                                   uint8_t *pData) {
+NFCSTATUS NfcExtensionController::processExtnWrite(uint16_t dataLen,
+                                                   const uint8_t *pData) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "NfcExtensionController %s Enter",
                  __func__);
   NciStateMonitor::getInstance()->processExtnWrite(dataLen, pData);
