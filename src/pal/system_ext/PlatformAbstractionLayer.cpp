@@ -95,7 +95,7 @@ NFCSTATUS PlatformAbstractionLayer::palenQueueWrite(const uint8_t *pBuffer,
   vector<uint8_t> pBufferCpy(wLength);
   memcpy(pBufferCpy.data(), pBuffer, wLength);
   thread(&PlatformAbstractionLayer::enQueueWriteInternal, this,
-         move(pBufferCpy), wLength)
+         std::move(pBufferCpy), wLength)
       .detach();
   return NFCSTATUS_SUCCESS;
 }
