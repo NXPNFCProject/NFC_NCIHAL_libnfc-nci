@@ -92,8 +92,8 @@ NFCSTATUS QTagHandler::processExtnWrite(uint16_t dataLen, const uint8_t *pData) 
       NFCSTATUS_EXTN_FEATURE_SUCCESS) {
     if ((dataLen < rfDiscCmd.size()) ||
         (rfDiscCmd.size() == QTAG_RF_DISC_LEN)) {
-      PlatformAbstractionLayer::getInstance()->palenQueueWrite(rfDiscCmd.data(),
-                                                               dataLen);
+      PlatformAbstractionLayer::getInstance()->palenQueueWrite(
+          rfDiscCmd.data(), rfDiscCmd.size());
       return NFCSTATUS_EXTN_FEATURE_SUCCESS;
     }
     NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "QTagHandler %s dataLen mismatch",
