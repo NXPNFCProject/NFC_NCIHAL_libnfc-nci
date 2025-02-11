@@ -25,8 +25,22 @@
 #include "ProprietaryExtn.h"
 #include "QTagHandler.h"
 #include <phNxpLog.h>
+#include <stdint.h>
 
 VendorExtnCb *mVendorExtnCb;
+
+#define NXP_EN_SN110U 1
+#define NXP_EN_SN100U 1
+#define NXP_EN_SN220U 1
+#define NXP_EN_PN557 1
+#define NXP_EN_PN560 1
+#define NXP_EN_SN300U 1
+#define NXP_EN_SN330U 1
+#define NFC_NXP_MW_ANDROID_VER (0U)  /* Android version used by NFC MW */
+#define NFC_NXP_MW_VERSION_MAJ (0x00) /* MW Major Version */
+#define NFC_NXP_MW_VERSION_MIN (0x00) /* MW Minor Version */
+#define NFC_NXP_MW_CUSTOMER_ID (0x00) /* MW Customer Id */
+#define NFC_NXP_MW_RC_VERSION (0x00)  /* MW RC Version */
 
 /**************** local methods used in this file only ************************/
 /**
@@ -127,8 +141,17 @@ static void addHandlers() {
 }
 
 static void printGenExtnLibVersion() {
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "NXP_GEN_EXT Version:%02X_%02X",
-                 NFC_NXP_GEN_EXT_VERSION_MAJ, NFC_NXP_GEN_EXT_VERSION_MIN);
+  uint32_t validation = (NXP_EN_SN100U << 13);
+  validation |= (NXP_EN_SN110U << 14);
+  validation |= (NXP_EN_SN220U << 15);
+  validation |= (NXP_EN_PN560 << 16);
+  validation |= (NXP_EN_SN300U << 17);
+  validation |= (NXP_EN_SN330U << 18);
+  validation |= (NXP_EN_PN557 << 11);
+
+  NXPLOG_EXTNS_D("NXP_GEN_EXT Version: NXP_AR_%02X_%05X_%02d.%02x.%02x",
+        NFC_NXP_MW_CUSTOMER_ID, validation, NFC_NXP_MW_ANDROID_VER,
+        NFC_NXP_MW_VERSION_MAJ, NFC_NXP_MW_VERSION_MIN);
 }
 
 void vendor_nfc_init(VendorExtnCb *vendorExtnCb) {
