@@ -36,8 +36,8 @@ VendorExtnCb *mVendorExtnCb;
 #define NXP_EN_PN560 1
 #define NXP_EN_SN300U 1
 #define NXP_EN_SN330U 1
-#define NFC_NXP_MW_ANDROID_VER (0U)  /* Android version used by NFC MW */
-#define NFC_NXP_MW_VERSION_MAJ (0x00) /* MW Major Version */
+#define NFC_NXP_MW_ANDROID_VER (16U)  /* Android version used by NFC MW */
+#define NFC_NXP_MW_VERSION_MAJ (0x03) /* MW Major Version */
 #define NFC_NXP_MW_VERSION_MIN (0x00) /* MW Minor Version */
 #define NFC_NXP_MW_CUSTOMER_ID (0x00) /* MW Customer Id */
 #define NFC_NXP_MW_RC_VERSION (0x00)  /* MW RC Version */
