@@ -25,6 +25,8 @@
 
 class PlatformAbstractionLayer : public PlatformBase {
 public:
+  string COVER_ID_PROP = "nfc.cover.cover_id";
+  string COVER_STATE_PROP = "nfc.cover.state";
   PlatformAbstractionLayer(const PlatformAbstractionLayer &) = delete;
   PlatformAbstractionLayer &
   operator=(const PlatformAbstractionLayer &) = delete;
@@ -135,6 +137,13 @@ public:
    *
    */
   void getNxpNfcHal();
+
+  /**
+   * @brief responsible for setting cover attached system propertires
+   * @return None
+   *
+   */
+  void coverAttached(string state, string type);
 
 private:
   static PlatformAbstractionLayer

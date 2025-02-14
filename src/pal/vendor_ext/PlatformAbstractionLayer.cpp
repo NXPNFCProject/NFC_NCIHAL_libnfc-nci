@@ -22,6 +22,7 @@
 #include <NfcExtension.h>
 #include <ProprietaryExtn.h>
 #include <phNxpLog.h>
+#include <phNxpNciHal_IoctlOperations.h>
 
 extern uint8_t phNxpLog_EnableDisableLogLevel(uint8_t enable);
 
@@ -90,4 +91,9 @@ uint8_t PlatformAbstractionLayer::palGetNxpNumValue(const char *name,
 uint8_t PlatformAbstractionLayer::palEnableDisableDebugLog(uint8_t enable) {
   phNxpExtLog_EnableDisableLogLevel(enable);
   return phNxpLog_EnableDisableLogLevel(enable);
+}
+
+void PlatformAbstractionLayer::coverAttached(string state, string type) {
+  phNxpNciHal_setSystemProperty(COVER_ID_PROP, std::move(type));
+  phNxpNciHal_setSystemProperty(COVER_STATE_PROP, std::move(state));
 }

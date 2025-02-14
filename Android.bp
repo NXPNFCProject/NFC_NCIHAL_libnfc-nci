@@ -113,11 +113,14 @@ cc_library_shared {
 //        "src/pal/vendor_ext/PlatformAbstractionLayer.cpp",
 //    ],
 //    include_dirs: [
+//        "hardware/libhardware/include_all",
 //        "hardware/nxp/nfc/snxxx/halimpl_v2/common",
+//        "hardware/nxp/nfc/snxxx/halimpl_v2/hal",
 //        "hardware/nxp/nfc/snxxx/halimpl_v2/log",
 //        "hardware/nxp/nfc/snxxx/halimpl_v2/nfc_extn",
 //        "hardware/nxp/nfc/snxxx/halimpl_v2/tml",
 //        "hardware/nxp/nfc/snxxx/halimpl_v2/utils",
+//        "system/core/libsystem/include",
 //    ],
 //    shared_libs: [
 //        "nfc_nci_nxp_snxxx_v2",

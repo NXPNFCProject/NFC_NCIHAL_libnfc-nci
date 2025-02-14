@@ -116,10 +116,9 @@ NFCSTATUS PlatformAbstractionLayer::palenQueueRspNtf(const uint8_t *pBuffer,
                                                      uint16_t wLength) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter wLength:%d", __func__,
                  wLength);
-  uint8_t pBufferCpy[wLength];
-  palMemcpy(pBufferCpy, wLength, pBuffer, wLength);
+  std::vector<uint8_t> bufferCopy(pBuffer, pBuffer + wLength);
   thread(&PlatformAbstractionLayer::palSendNfcDataCallback, this, wLength,
-         (uint8_t *)pBufferCpy)
+         bufferCopy.data())
       .detach();
   return NFCSTATUS_SUCCESS;
 }
@@ -180,3 +179,19 @@ uint8_t PlatformAbstractionLayer::palEnableDisableDebugLog(uint8_t enable) {
   phNxpExtLog_EnableDisableLogLevel(enable);
   return status;
 }
+
+void PlatformAbstractionLayer::coverAttached(string state, string type) {
+  if (mNxpNfcHal.aidlHalNxpNfc != nullptr) {
+    bool status = false;
+    mNxpNfcHal.aidlHalNxpNfc->setVendorParam(COVER_ID_PROP, std::move(type),
+                                             &status);
+    mNxpNfcHal.aidlHalNxpNfc->setVendorParam(COVER_STATE_PROP, std::move(state),
+                                             &status);
+  } else if (mNxpNfcHal.halNxpNfc != nullptr) {
+    mNxpNfcHal.halNxpNfc->setVendorParam(COVER_ID_PROP, std::move(type));
+    mNxpNfcHal.halNxpNfc->setVendorParam(COVER_STATE_PROP, std::move(state));
+  } else {
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Failed to call coverAttached!!!", __func__);
+  }
+}
+
