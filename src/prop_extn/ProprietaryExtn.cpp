@@ -62,6 +62,14 @@ void ProprietaryExtn::onExtWriteComplete(uint8_t status) {
   }
 }
 
+void ProprietaryExtn::handleHalEvent(uint8_t event) {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter event:%d", __func__,
+                 event);
+  if (fp_prop_extn_handle_hal_event != nullptr) {
+    return fp_prop_extn_handle_hal_event(event);
+  }
+}
+
 void ProprietaryExtn::setupPropExtension() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
   p_prop_extn_handle =
@@ -126,6 +134,13 @@ void ProprietaryExtn::setupPropExtension() {
                    "%s Failed to find phNxpProp_OnHalControlGranted !!",
                    __func__);
   }
+
+  if ((fp_prop_extn_handle_hal_event = (fp_prop_extn_handle_hal_event_t)dlsym(
+           p_prop_extn_handle, "phNxpProp_HandleHalEvent")) == NULL) {
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
+                   "%s Failed to find phNxpProp_HandleHalEvent !!", __func__);
+  }
+
   if (fp_prop_extn_init != NULL) {
     fp_prop_extn_init();
   }

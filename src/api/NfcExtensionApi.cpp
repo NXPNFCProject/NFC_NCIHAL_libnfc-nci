@@ -93,7 +93,7 @@ static void phNxpExtn_OnRfStateUpdate(uint8_t rfState);
  * @return void
  *
  */
-static void phNxpExtn_OnHandleEvent(uint8_t event);
+static void phNxpExtn_OnHandleHalEvent(uint8_t event);
 
 /**
  * @brief Add the list of supported event handlers
@@ -169,6 +169,10 @@ NFCSTATUS phNxpExtn_HandleNfcEvent(NfcExtEvent_t eventCode,
                              eventData.nci_rsp_ntf.p_data);
     break;
   }
+  case HANDLE_HAL_EVENT: {
+    phNxpExtn_OnHandleHalEvent(eventData.handle_event);
+    break;
+  }
   default: {
     NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
                    "%s Invalid eventCode. Not handled!!", __func__);
@@ -239,9 +243,11 @@ void phNxpExtn_OnRfStateUpdate(uint8_t rfState) {
   NfcExtensionController::getInstance()->updateRfState(rfState);
 }
 
-void phNxpExtn_OnHandleEvent(uint8_t event) {
+void phNxpExtn_OnHandleHalEvent(uint8_t event) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter event:%d", __func__,
                  event);
+  ProprietaryExtn::getInstance()->handleHalEvent(event);
+  NfcExtensionController::getInstance()->onHandleHalEvent(event);
 }
 
 NFCSTATUS phNxpExtn_Write(uint16_t *dataLen, uint8_t *pData) {

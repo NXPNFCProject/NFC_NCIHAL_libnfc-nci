@@ -139,6 +139,13 @@ public:
   void updateRfState(int);
 
   /**
+   * @brief Handle HAL events(error/failure).
+   * @return void
+   *
+   */
+  void onHandleHalEvent(uint8_t);
+
+  /**
    * @brief Init the controller with stack,  data callbacks and default event
    * handler.
    * @return void

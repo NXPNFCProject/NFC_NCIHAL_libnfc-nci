@@ -62,7 +62,7 @@ void MposHandler::onFeatureStart() {
   CreateAndReadTimerValFromConfig();
 }
 
-void MposHandler::handleHalEvent(int errorCode) {
+void MposHandler::handleHalEvent(uint8_t errorCode) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter errorCode:%d", __func__,
                  errorCode);
 }

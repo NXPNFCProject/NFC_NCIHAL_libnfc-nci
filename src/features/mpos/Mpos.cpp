@@ -317,6 +317,7 @@ void Mpos::cardRemovalTimeoutHandler(union sigval val) {
         getInstance()->mTimeoutMaxCount) {
       getInstance()->mCurrentTimeoutCount = 0x00;
       NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s:DISC_NTF_TIMEOUT", __func__);
+      phNxpExtn_HandleHalEvent(NFCC_HAL_FATAL_ERR_CODE);
       abort();
     }
   }

@@ -87,7 +87,7 @@ public:
    * @return void
    *
    */
-  virtual void handleHalEvent(int errorCode) {
+  virtual void handleHalEvent(uint8_t errorCode) {
     NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
                    "IEventHandler::%s Enter errorCode:%d", __func__, errorCode);
   }

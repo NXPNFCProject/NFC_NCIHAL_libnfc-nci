@@ -120,6 +120,12 @@ void NfcExtensionController::updateRfState(int state) {
   // TODO: RF state definition and mapping to be done
 }
 
+void NfcExtensionController::onHandleHalEvent(uint8_t event) {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter event:%d", __func__,
+                 event);
+  return mIEventHandler->handleHalEvent(event);
+}
+
 void NfcExtensionController::onWriteCompletion(uint8_t status) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter status:%d", __func__,
                  status);

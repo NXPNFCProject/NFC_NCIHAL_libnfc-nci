@@ -70,7 +70,7 @@ public:
    * @return void
    *
    */
-  void handleHalEvent(int errorCode) override;
+  void handleHalEvent(uint8_t errorCode) override;
 
   /**
    * @brief on Feature End, Default Handler have to be registered with

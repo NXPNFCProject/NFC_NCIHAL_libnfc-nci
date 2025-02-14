@@ -138,10 +138,35 @@ constexpr uint16_t NCI_RF_DEACTD_NTF_GID_OID = 0x6106;
 constexpr uint16_t NCI_RF_DEACTD_RSP_GID_OID = 0x4106;
 constexpr uint16_t NCI_GENERIC_ERR_NTF_GID_OID = 0x6007;
 constexpr uint16_t NCI_DATA_PKT_RSP_GID_OID = 0x0100;
+constexpr uint16_t NCI_EE_DISC_NTF_GID_OID = 0x6200;
+constexpr uint16_t NCI_EE_ACTION_NTF_GID_OID = 0x6109;
+constexpr uint16_t NCI_EE_STATUS_NTF_GID_OID = 0x6202;
 
 /* Core generic error for TAG collision detected */
 constexpr uint8_t NCI_TAG_COLLISION_DETECTED = 0xE4;
 
+constexpr uint8_t NCI_ROUTE_HOST = 0x00;
+constexpr uint8_t NCI_ROUTE_ESE_ID = 0xC0;
+constexpr uint8_t NCI_ROUTE_UICC1_ID = 0x80;
+constexpr uint8_t NCI_ROUTE_UICC2_ID = 0x81;
+constexpr uint8_t NCI_ROUTE_EUICC1_ID = 0xC1;
+constexpr uint8_t NCI_ROUTE_EUICC2_ID = 0xC2;
+constexpr uint8_t NCI_ROUTE_T4T_ID = 0x10;
+
+constexpr uint8_t NCI_EE_DISC_INDEX = 3;
+constexpr uint8_t NCI_EE_DISC_TYPE_INDEX = 4;
+constexpr uint8_t NCI_EE_DISC_REQ_INDEX = 6;
+
+constexpr uint8_t NCI_NFCEE_STS_UNRECOVERABLE_ERROR = 0x00;
+constexpr uint8_t NCI_NFCEE_STS_PMUVCC_OFF = 0x81;
+constexpr uint8_t NCI_NFCEE_STS_PROP_UNRECOVERABLE_ERROR = 0x90;
+/**
+ * @brief Indexes to access different info from RF_NFCEE_ACTION_NTF.
+ */
+constexpr uint8_t NCI_EE_ACTION_ROUTE_INDEX = 3;
+constexpr uint8_t NCI_EE_ACTION_TRIGGER_INDEX = 4;
+constexpr uint8_t NCI_EE_ACTION_AIDLEN_INDEX = 5;
+constexpr uint8_t NCI_EE_ACTION_AID_INDEX = 6;
 /**
  * @brief MAINLINE related constants
  *
