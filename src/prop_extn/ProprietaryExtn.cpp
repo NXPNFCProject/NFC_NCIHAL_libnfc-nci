@@ -97,14 +97,8 @@ void ProprietaryExtn::updateFwDnlsStatus(uint8_t status) {
   }
 }
 
-void ProprietaryExtn::setupPropExtension(bool isSysExt) {
+void ProprietaryExtn::setupPropExtension(std::string propLibPath) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
-  std::string propLibPath;
-  if(isSysExt) {
-    propLibPath = "/system/lib64/libnxp_nfc_prop_ext.so";
-  } else {
-    propLibPath = "/system/vendor/lib64/libnxp_nfc_prop_ext.so";
-  }
   p_prop_extn_handle = dlopen(propLibPath.c_str(), RTLD_NOW);
   if (p_prop_extn_handle == nullptr) {
     NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,

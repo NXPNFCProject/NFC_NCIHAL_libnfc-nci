@@ -21,10 +21,11 @@
 
 #include <NxpNfcVendorExtn.h>
 #include <cstdint>
+
 /** \addtogroup NFC_SYS_EXTENSION_API_H
  *  @brief  interface to perform the NXP NFC functionality.
  *  @{
  */
-constexpr bool IS_SYS_EXT = true;
+const std::string NXP_PROP_LIB_PATH = "/system/lib64/libnxp_nfc_prop_ext.so";
 
 #endif // NFC_SYS_EXTENSION_API_H

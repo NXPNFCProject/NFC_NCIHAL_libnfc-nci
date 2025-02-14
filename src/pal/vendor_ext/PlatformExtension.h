@@ -16,18 +16,17 @@
  *
  **/
 
-#ifndef NFC_VND_EXTENSION_API_H
-#define NFC_VND_EXTENSION_API_H
+#ifndef PLATFORM_VENDOR_H
+#define PLATFORM_VENDOR_H
 
-#include <NfcExtension.h>
-#include <string>
+struct ConfigValue {
+/**
+ * Dummy struct to
+ * not to link system headers
+ * to vendor extension
+ *
+ **/
+};
 
-/** \addtogroup NFC_VND_EXTENSION_API_H
- *  @brief  interface to perform the NXP NFC functionality.
- *  @{
- */
-constexpr uint8_t HAL_NFC_ERROR_EVT = 0x06;
-const std::string NXP_PROP_LIB_PATH = "/system/vendor/lib64/libnxp_nfc_prop_ext.so";
-
-
-#endif // NFC_VND_EXTENSION_API_H
+/** @}*/
+#endif // PLATFORM_VENDOR_H

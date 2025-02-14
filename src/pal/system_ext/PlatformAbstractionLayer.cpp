@@ -195,3 +195,70 @@ void PlatformAbstractionLayer::coverAttached(string state, string type) {
   }
 }
 
+void updateConfigInternal(string oldKey, string newKey,
+                          map<string, ConfigValue>* pConfigMap) {
+  auto oldPair = pConfigMap->find(oldKey);
+  if (oldPair != pConfigMap->end()) {
+    auto newPair = pConfigMap->find(newKey);
+    ConfigValue newConfigVal;
+    // new key already exists in map
+    if (newPair != pConfigMap->end()) {
+      switch (newPair->second.getType()) {
+        // if existing value is single UNSIGNED, Create a vector
+        // to hold multiple values for single key
+        case ConfigValue::UNSIGNED: {
+          /* code */
+          uint8_t newVal = newPair->second.getUnsigned();
+          uint8_t oldVal = oldPair->second.getUnsigned();
+          std::vector<uint8_t> valVec{newVal, oldVal};
+          newConfigVal = ConfigValue(valVec);
+          break;
+        }
+        // if existing value is in multiple in number i.e, vector
+        // add newValue to the vector
+        case ConfigValue::BYTES: {
+          // prev new value is array just do push_back
+          vector<uint8_t> oldVal = newPair->second.getBytes();
+          oldVal.push_back(oldPair->second.getUnsigned());
+          newConfigVal = ConfigValue(oldVal);
+        } break;
+        default:
+          NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+                         "%s %s ConfigValue Type (%d) Not handled!", __func__,
+                         oldKey.c_str(), newPair->second.getType());
+          return;
+      }
+      // update the value
+      newPair->second = newConfigVal;
+    } else {
+      // Adding value for new key in config map.
+      pConfigMap->emplace(newKey, oldPair->second);
+    }
+  } else {
+    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s %s Not found!", __func__,
+                   oldKey.c_str());
+  }
+}
+
+void PlatformAbstractionLayer::updateHalConfig(
+    map<string, ConfigValue>* pConfigMap) {
+  if (pConfigMap != nullptr) {
+    updateConfigInternal(NAME_NXP_T4T_NFCEE_ENABLE, NAME_T4T_NFCEE_ENABLE,
+                         pConfigMap);
+    pConfigMap->erase(NAME_NXP_T4T_NFCEE_ENABLE);
+    updateConfigInternal(NAME_OFF_HOST_SIM_PIPE_ID, NAME_OFF_HOST_SIM_PIPE_IDS,
+                         pConfigMap);
+    pConfigMap->erase(NAME_OFF_HOST_SIM_PIPE_ID);
+    updateConfigInternal(NAME_OFF_HOST_SIM2_PIPE_ID, NAME_OFF_HOST_SIM_PIPE_IDS,
+                         pConfigMap);
+    pConfigMap->erase(NAME_OFF_HOST_SIM2_PIPE_ID);
+    auto t3tPair = pConfigMap->find(NAME_NFA_PROPRIETARY_CFG);
+    if (t3tPair != pConfigMap->end()) {
+      vector<uint8_t> oldVal = t3tPair->second.getBytes();
+      //As per .conf byte[9] is T3T ID
+      oldVal.push_back(0x8B);
+      t3tPair->second = ConfigValue(oldVal);
+    }
+  }
+}
+

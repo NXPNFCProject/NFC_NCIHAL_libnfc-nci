@@ -21,6 +21,7 @@
 #include "MposHandler.h"
 #include "NfcExtensionConstants.h"
 #include "NfcExtensionController.h"
+#include "PlatformAbstractionLayer.h"
 #include "ProprietaryExtn.h"
 #include "QTagHandler.h"
 #include <phNxpLog.h>
@@ -134,7 +135,7 @@ void phNxpExtn_LibInit(VendorExtnCb *vendorExtnCb) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
   mVendorExtnCb = vendorExtnCb;
   printGenExtnLibVersion();
-  ProprietaryExtn::getInstance()->setupPropExtension(IS_SYS_EXT);
+  ProprietaryExtn::getInstance()->setupPropExtension(NXP_PROP_LIB_PATH);
   NfcExtensionController::getInstance()->init();
   addHandlers();
 }
@@ -318,4 +319,8 @@ NFCSTATUS phNxpExtn_Write(uint16_t *dataLen, uint8_t *pData) {
                  *dataLen);
   return NfcExtensionController::getInstance()->processExtnWrite(dataLen,
                                                                  pData);
+}
+
+void phNxpExtn_OnConfigUpdate(map<string, ConfigValue>* pConfigMap) {
+  PlatformAbstractionLayer::getInstance()->updateHalConfig(pConfigMap);
 }

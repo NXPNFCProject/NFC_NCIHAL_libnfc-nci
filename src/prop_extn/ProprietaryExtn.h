@@ -20,6 +20,7 @@
 #define PROP_EXTENSION_H
 
 #include <cstdint>
+#include <string>
 #include <phNfcStatus.h>
 class ProprietaryExtn {
 public:
@@ -31,7 +32,7 @@ public:
    *
    */
   static ProprietaryExtn *getInstance();
-  void setupPropExtension(bool isSysExt);
+  void setupPropExtension(std::string propLibPath);
 
   void init();
 

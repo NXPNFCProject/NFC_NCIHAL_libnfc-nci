@@ -97,3 +97,5 @@ void PlatformAbstractionLayer::coverAttached(string state, string type) {
   phNxpNciHal_setSystemProperty(COVER_ID_PROP, std::move(type));
   phNxpNciHal_setSystemProperty(COVER_STATE_PROP, std::move(state));
 }
+
+void PlatformAbstractionLayer::updateHalConfig(map<string, ConfigValue>*) {}

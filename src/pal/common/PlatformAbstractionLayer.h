@@ -20,8 +20,10 @@
 #define PLATFORM_ABSTRACTION_LAYER_H
 
 #include "PlatformBase.h"
+#include "PlatformExtension.h"
 #include "phNxpConfig.h"
 #include "vector"
+#include <map>
 
 class PlatformAbstractionLayer : public PlatformBase {
 public:
@@ -144,6 +146,13 @@ public:
    *
    */
   void coverAttached(string state, string type);
+
+  /**
+   * @brief required config values can be overriden
+   * @return None
+   *
+   */
+  void updateHalConfig(map<string, ConfigValue>* pConfigMap);
 
 private:
   static PlatformAbstractionLayer

@@ -73,6 +73,16 @@ NFCSTATUS phNxpExtn_HandleNfcEvent(NfcExtEvent_t eventCode,
  * NFCSTATUS_EXTN_FEATURE_FAILURE.
  */
 NFCSTATUS phNxpExtn_Write(uint16_t *dataLen, uint8_t *pData);
+
+/**
+ * @brief This method will be invoked from libnfc-nci vendor extension
+ * after reading all the conf defined in AIDL/Hidl Hal.
+ * required conf values can be overriden
+ * @param pConfigMap pointer to conf map with name and value as key pair.
+ * @return void
+ *
+ */
+void phNxpExtn_OnConfigUpdate(std::map<std::string, ConfigValue>* pConfigMap);
 }
 /** @}*/
 #endif // NFC_EXTENSION_API_H
