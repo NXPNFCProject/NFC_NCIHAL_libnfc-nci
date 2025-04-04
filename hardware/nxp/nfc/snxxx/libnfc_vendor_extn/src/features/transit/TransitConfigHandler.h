@@ -25,15 +25,6 @@
 
 class TransitConfigHandler : public IEventHandler {
 public:
-  static constexpr uint8_t TRANSIT_OID = 0x01;
-  static constexpr uint8_t RF_REGISTER_OID = 0x02;
-  static constexpr uint8_t TRANSIT_NCI_VENDOR_RSP_SUCCESS[] = {
-      NCI_PROP_RSP_VAL, NCI_ROW_PROP_OID_VAL, PAYLOAD_TWO_LEN,
-      TRANSIT_SUB_GIDOID, RESPONSE_STATUS_OK};
-  static constexpr uint8_t TRANSIT_NCI_VENDOR_RSP_FAILURE[] = {
-      NCI_PROP_RSP_VAL, NCI_ROW_PROP_OID_VAL, PAYLOAD_TWO_LEN,
-      TRANSIT_SUB_GIDOID, RESPONSE_STATUS_FAILED};
-
   static TransitConfigHandler *getInstance();
   /**
    * @brief handles the vendor NCI message
@@ -54,6 +45,22 @@ public:
   NFCSTATUS handleVendorNciRspNtf(uint16_t dataLen, uint8_t *pData);
 
   /**
+   * @brief on Feature start, Current Handler have to be registered with
+   * controller through switchEventHandler interface
+   * @return void
+   *
+   */
+  void onFeatureStart() override;
+
+  /**
+   * @brief on Feature End, Default Handler have to be registered with
+   * controller through switchEventHandler interface
+   * @return void
+   *
+   */
+  void onFeatureEnd() override;
+
+  /**
    * @brief stores libnfc-nci-update.conf to /data/vendor/nfc/.
    *
    * @param configCmd
@@ -65,5 +72,8 @@ public:
 
   TransitConfigHandler();
   ~TransitConfigHandler();
+
+private:
+  std::vector<uint8_t> mConfigPkt;
 };
 #endif // TRANSITCONFIG_HANDLER_H

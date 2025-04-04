@@ -31,15 +31,15 @@ void QTagHandler::onFeatureStart() {
                  __func__, mQtagNciPkt.size());
   if (mQtagNciPkt.size() >= 3) {
     switch (mQtagNciPkt[NCI_PROP_ACTION_INDEX]) {
-    case APPEND_QTAG_IN_RF_DISC:
-    case ENABLE_QTAG_ONLY: {
+    case QTAG_APPEND_OID:
+    case QTAG_ENABLE_OID: {
       QTag::getInstance()->enableQTag(mQtagNciPkt[NCI_PROP_ACTION_INDEX]);
       PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
           sizeof(QTAG_NCI_VENDOR_RSP_SUCCESS), QTAG_NCI_VENDOR_RSP_SUCCESS);
       break;
     }
-    case DISABLE_QTAG: {
-      QTag::getInstance()->enableQTag(DISABLE_QTAG);
+    case QTAG_DISABLE_OID: {
+      QTag::getInstance()->enableQTag(QTAG_DISABLE_OID);
       PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
           sizeof(QTAG_NCI_VENDOR_RSP_SUCCESS), QTAG_NCI_VENDOR_RSP_SUCCESS);
       NfcExtensionController::getInstance()->switchEventHandler(
@@ -62,7 +62,7 @@ void QTagHandler::onFeatureStart() {
 
 void QTagHandler::onFeatureEnd() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "QTagHandler %s Enter", __func__);
-  QTag::getInstance()->enableQTag(DISABLE_QTAG);
+  QTag::getInstance()->enableQTag(QTAG_DISABLE_OID);
   mQtagNciPkt.clear();
 }
 
@@ -92,6 +92,9 @@ NFCSTATUS QTagHandler::processExtnWrite(uint16_t dataLen, const uint8_t *pData) 
       NFCSTATUS_EXTN_FEATURE_SUCCESS) {
     if ((dataLen < rfDiscCmd.size()) ||
         (rfDiscCmd.size() == QTAG_RF_DISC_LEN)) {
+      NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN,
+                     "QTagHandler %s RF_DISC_CMD updated with Q_POLL",
+                     __func__);
       PlatformAbstractionLayer::getInstance()->palenQueueWrite(
           rfDiscCmd.data(), rfDiscCmd.size());
       return NFCSTATUS_EXTN_FEATURE_SUCCESS;

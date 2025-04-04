@@ -105,11 +105,17 @@ void ConfigHandler::adaptLegacySameKeyType(
                    oemKey.c_str());
     return;
   }
+
+  auto configValue = oemPair->second;
+  if (strcmp(oemKey.c_str(), NAME_NXP_T4T_NFCEE_ENABLE) == 0) {
+    configValue = ConfigValue(oemPair->second.getUnsigned() & 0x01);
+  }
+
   // single oem config => single aosp config
   // it can be unsigned, string, array etc..
   // ConfigValue can be fetched directly from OemPair
   mpConfigMap->erase(aospKey);
-  mpConfigMap->emplace(aospKey, oemPair->second);
+  mpConfigMap->emplace(aospKey, configValue);
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s %s(%s)!", __func__,
                  aospKey.c_str(), getConfigValueStr(oemPair->second).c_str());
 }

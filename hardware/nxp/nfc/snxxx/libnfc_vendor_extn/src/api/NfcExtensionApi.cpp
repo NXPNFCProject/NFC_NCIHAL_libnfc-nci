@@ -38,7 +38,7 @@ VendorExtnCb *mVendorExtnCb;
 #define NXP_EN_SN300U 1
 #define NXP_EN_SN330U 1
 #define NFC_NXP_MW_ANDROID_VER (16U)  /* Android version used by NFC MW */
-#define NFC_NXP_MW_VERSION_MAJ (0x04) /* MW Major Version */
+#define NFC_NXP_MW_VERSION_MAJ (0x05) /* MW Major Version */
 #define NFC_NXP_MW_VERSION_MIN (0x00) /* MW Minor Version */
 #define NFC_NXP_MW_CUSTOMER_ID (0x00) /* MW Customer Id */
 #define NFC_NXP_MW_RC_VERSION (0x00)  /* MW RC Version */
@@ -131,6 +131,15 @@ static NFCSTATUS phNxpExtn_OnHandleHalEvent(uint8_t event,
                                             uint8_t event_status);
 
 /**
+ * @brief Send a response with the status 'Not Supported' (0x0B) for commands
+ * whose implementation is not found.
+ * @param subGidOid of the received command
+ * @return None
+ *
+ */
+static void phNxpExtn_SendNotSupportedRsp(uint8_t subGidOid);
+
+/**
  * @brief Add the list of supported event handlers
  *        to controller.
  * \note While adding the new feature support, corresponding
@@ -161,25 +170,27 @@ static void printGenExtnLibVersion() {
   validation |= (NXP_EN_SN330U << 18);
   validation |= (NXP_EN_PN557 << 11);
 
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "NXP_GEN_EXT Version: NXP_AR_%02X_%05X_%02d.%02x.%02x",
+  NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN,
+                 "NXP_GEN_EXT Version: NXP_AR_%02X_%05X_%02d.%02x.%02x",
                  NFC_NXP_MW_CUSTOMER_ID, validation, NFC_NXP_MW_ANDROID_VER,
                  NFC_NXP_MW_VERSION_MAJ, NFC_NXP_MW_VERSION_MIN);
 }
 
 bool vendor_nfc_init(VendorExtnCb *vendorExtnCb) {
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+  NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
   mVendorExtnCb = vendorExtnCb;
   printGenExtnLibVersion();
   ProprietaryExtn::getInstance()->setupPropExtension(NXP_PROP_LIB_PATH);
   NfcExtensionController::getInstance()->init();
   addHandlers();
+  phNxpUpdate_logLevel();
   return true;
 }
 
 VendorExtnCb *getNfcVendorExtnCb() { return mVendorExtnCb; }
 
 bool vendor_nfc_de_init() {
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+  NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
   ProprietaryExtn::getInstance()->deInit();
   NfcExtensionController::getInstance()->switchEventHandler(
       HandlerType::DEFAULT);
@@ -189,7 +200,7 @@ bool vendor_nfc_de_init() {
 NFCSTATUS vendor_nfc_handle_event(NfcExtEvent_t eventCode,
                                    NfcExtEventData_t eventData) {
   NFCSTATUS status = NFCSTATUS_SUCCESS;
-  NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter eventCode:%d", __func__,
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter eventCode:%d", __func__,
                  eventCode);
   switch (eventCode) {
   case HANDLE_VENDOR_NCI_MSG: {
@@ -238,8 +249,7 @@ NFCSTATUS vendor_nfc_handle_event(NfcExtEvent_t eventCode,
 
 bool isVendorSpecificCmd(uint16_t dataLen, const uint8_t *pData) {
   if (dataLen > MIN_HED_LEN && (pData[NCI_GID_INDEX] == NCI_PROP_CMD_VAL) &&
-      (pData[NCI_OID_INDEX] == NCI_PROP_NTF_ANDROID_OID ||
-       pData[NCI_OID_INDEX] == NCI_ROW_PROP_OID_VAL ||
+      (pData[NCI_OID_INDEX] == NCI_ROW_PROP_OID_VAL ||
        pData[NCI_OID_INDEX] == NCI_OEM_PROP_OID_VAL)) {
     return true;
   }
@@ -266,7 +276,12 @@ NFCSTATUS phNxpExtn_HandleVendorNciMsg(uint16_t dataLen,
           dataLen, pData);
       NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s gen status:%d", __func__,
                      static_cast<int>(status));
-      return status;
+      if (status == NFCSTATUS_EXTN_FEATURE_SUCCESS) {
+        return status;
+      } else {
+        phNxpExtn_SendNotSupportedRsp(pData[SUB_GID_OID_INDEX]);
+        return NFCSTATUS_EXTN_FEATURE_SUCCESS;
+      }
     }
   } else {
     NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Not vendor specific command!!",
@@ -274,6 +289,18 @@ NFCSTATUS phNxpExtn_HandleVendorNciMsg(uint16_t dataLen,
     status = phNxpExtn_Write(dataLen, (uint8_t *)pData);
   }
   return status;
+}
+
+void phNxpExtn_SendNotSupportedRsp(uint8_t subGidOid) {
+  vector<uint8_t> rsp{
+      NCI_PROP_RSP_VAL,
+      NCI_OEM_PROP_OID_VAL,
+      PAYLOAD_TWO_LEN,
+      subGidOid,
+      RESPONSE_STATUS_OPERATION_NOT_SUPPORTED,
+  };
+  PlatformAbstractionLayer::getInstance()->palenQueueRspNtf(rsp.data(),
+                                                            rsp.size());
 }
 
 NFCSTATUS phNxpExtn_HandleVendorNciRspNtf(uint16_t dataLen, uint8_t *pData) {
@@ -363,11 +390,16 @@ NFCSTATUS phNxpExtn_OnHandleHalEvent(uint8_t event, uint8_t event_status) {
   return status;
 }
 
-NFCSTATUS phNxpExtn_Write(uint16_t dataLen, const uint8_t *pData) {
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s NCI datalen:%d", __func__,
+NFCSTATUS phNxpExtn_Write(uint16_t dataLen, const uint8_t* pData) {
+  NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "%s NCI datalen:%d", __func__,
                  dataLen);
-  return NfcExtensionController::getInstance()->processExtnWrite(dataLen,
-                                                                 pData);
+  NFCSTATUS status =
+      ProprietaryExtn::getInstance()->processExtnWrite(dataLen, pData);
+  if (status == NFCSTATUS_EXTN_FEATURE_FAILURE) {
+    status =
+        NfcExtensionController::getInstance()->processExtnWrite(dataLen, pData);
+  }
+  return status;
 }
 
 void vendor_nfc_on_config_update(map<string, ConfigValue>* pConfigMap) {

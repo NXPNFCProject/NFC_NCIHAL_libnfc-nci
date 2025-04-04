@@ -137,6 +137,16 @@ public:
    *
    */
   NFCSTATUS handleHalEvent(uint8_t event);
+  /**
+   * @brief update RF_DISC_CMD, if specific poll/listen feature is enabled
+   * with required poll or listen technologies & send to upper layer.
+   * @param dataLen length RF_DISC_CMD
+   * @param pData
+   * @return returns NFCSTATUS_EXTN_FEATURE_SUCCESS, if it is vendor specific
+   * feature and handled by extension library otherwise
+   * NFCSTATUS_EXTN_FEATURE_FAILURE.
+   */
+  NFCSTATUS processExtnWrite(uint16_t dataLen, const uint8_t *pData);
 
 private:
   static ProprietaryExtn *sProprietaryExtn; // singleton object
@@ -166,6 +176,8 @@ private:
   typedef void (*fp_prop_extn_on_hal_control_granted_t)();
   typedef NFCSTATUS (*fp_prop_extn_handle_hal_event_t)(uint8_t);
   typedef void (*fp_prop_extn_update_fw_dnld_status_t)(uint8_t);
+  typedef NFCSTATUS (*fp_prop_extn_process_extn_write_t)(uint16_t,
+                                                       const uint8_t*);
   fp_prop_extn_init_t fp_prop_extn_init = nullptr;
   fp_prop_extn_deinit_t fp_prop_extn_deinit = nullptr;
   fp_prop_extn_snd_vnd_msg_t fp_prop_extn_snd_vnd_msg = nullptr;
@@ -181,6 +193,7 @@ private:
   fp_prop_extn_handle_hal_event_t fp_prop_extn_handle_hal_event = nullptr;
   fp_prop_extn_update_fw_dnld_status_t fp_prop_extn_update_fw_dnld_status =
       nullptr;
-  void *p_prop_extn_handle = nullptr;
+  fp_prop_extn_process_extn_write_t fp_prop_extn_process_extn_write = nullptr;
+  void* p_prop_extn_handle = nullptr;
 };
 #endif // PROP_EXTENSION_H

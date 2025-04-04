@@ -39,7 +39,7 @@ RfStateMonitor::processRfIntfActdNtf(vector<uint8_t> &rfIntfActdNtf) {
       then updating to ISO_DEP protocol & 0x53 SAK value respectively*/
     rfIntfActdNtf[4] = ISO_DEP_RF_PROTOCOL;
     rfIntfActdNtf[15] = NXP_STD_SAK_VALUE;
-    NXPLOG_EXTNS_D(
+    NXPLOG_EXTNS_I(
         NXPLOG_ITEM_NXP_GEN_EXTN,
         "RfStateMonitor %s: Updated protocol to ISO_DEP & SAK value to 0x53",
         __func__);

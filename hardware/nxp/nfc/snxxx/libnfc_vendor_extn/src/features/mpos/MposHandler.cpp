@@ -85,7 +85,7 @@ NFCSTATUS MposHandler::handleVendorNciMessage(uint16_t dataLen,
 
   if ((pData[SUB_GID_OID_INDEX] == MPOS_READER_SET_DMODE_SUB_GIDOID_VAL) &&
       (pData[SUB_GID_OID_ACTION_INDEX] == SE_READER_DEDICATED_MODE_ON)) {
-    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "Start the SE Reader mode");
+    NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "Start the SE Reader mode");
     currentHandleType =
         NfcExtensionController::getInstance()->getEventHandlerType();
     if (currentHandleType != HandlerType::MPOS) {
@@ -99,7 +99,7 @@ NFCSTATUS MposHandler::handleVendorNciMessage(uint16_t dataLen,
               MPOS_READER_SET_DMODE_SUB_GIDOID_VAL) &&
              (pData[SUB_GID_OID_ACTION_INDEX] ==
               SE_READER_DEDICATED_MODE_OFF)) {
-    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "Stop the SE Reader mode");
+    NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "Stop the SE Reader mode");
     currentHandleType =
         NfcExtensionController::getInstance()->getEventHandlerType();
     if (currentHandleType == HandlerType::MPOS) {
@@ -150,7 +150,7 @@ void MposHandler::halControlGranted() {
 }
 
 void MposHandler::onHalRequestControlTimeout() {
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter ", __func__);
+  NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter ", __func__);
   NfcExtensionController::getInstance()
       ->getCurrentEventHandler()
       ->notifyGenericErrEvt(NCI_HAL_CONTROL_BUSY);
@@ -159,7 +159,7 @@ void MposHandler::onHalRequestControlTimeout() {
 }
 
 void MposHandler::onWriteRspTimeout() {
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter ", __func__);
+  NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter ", __func__);
   NfcExtensionController::getInstance()
       ->getCurrentEventHandler()
       ->notifyGenericErrEvt(NCI_UN_RECOVERABLE_ERR);

@@ -16,6 +16,7 @@
 
 #if !defined(NXPLOG__H_INCLUDED)
 #define NXPLOG__H_INCLUDED
+#include "phNxpConfig.h"
 #include <log/log.h>
 #include <phNfcStatus.h>
 
@@ -36,6 +37,8 @@ extern bool nfc_debug_enabled;
 /* define log module included when compile */
 #define ENABLE_EXTNS_TRACES TRUE
 
+#define NAME_NFC_DEBUG_ENABLED "NFC_DEBUG_ENABLED"
+#define NAME_NXPLOG_EXTNS_LOGLEVEL "NXPLOG_EXTNS_LOGLEVEL"
 /* ####################### Set the logging level for EVERY COMPONENT here
  * ######################## :START: */
 #define NXPLOG_LOG_SILENT_LOGLEVEL 0x00
@@ -114,5 +117,7 @@ static const char *NXPLOG_ITEM_NXP_GEN_EXTN = "NxpGenExtn";
 #endif /* NXP_VRBS_REQ */
 
 uint8_t phNxpExtLog_EnableDisableLogLevel(uint8_t enable);
+
+void phNxpUpdate_logLevel();
 
 #endif /* NXPLOG__H_INCLUDED */

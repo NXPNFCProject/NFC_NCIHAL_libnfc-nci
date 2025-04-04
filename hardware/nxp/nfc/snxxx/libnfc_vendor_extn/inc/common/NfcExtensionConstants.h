@@ -62,6 +62,7 @@ constexpr uint8_t WRITE_RSP_TIMED_OUT = 2;
  */
 constexpr uint8_t RESPONSE_STATUS_OK = 0x00;
 constexpr uint8_t RESPONSE_STATUS_FAILED = 0x03;
+constexpr uint8_t RESPONSE_STATUS_OPERATION_NOT_SUPPORTED = 0x0B;
 
 constexpr uint8_t EXT_NFC_STATUS_REJECTED = 0x01;
 constexpr uint8_t EXT_NFC_STATUS_INDEX = 0x03;
@@ -106,12 +107,11 @@ constexpr uint8_t SEND_SRAM_CMD_TIMEOUT_SEC = 2;
 
 constexpr uint8_t NCI_ROW_PROP_OID_VAL = 0x70;
 constexpr uint8_t NCI_OEM_PROP_OID_VAL = 0x3E;
-constexpr uint8_t NCI_PROP_NTF_ANDROID_OID = 0x0C;
-constexpr uint8_t QTAG_FEATURE_SUB_GIDOID = 0x31;
-constexpr uint8_t QTAG_DETECT_NTF_SUB_GIDOID = 0x32;
+constexpr uint8_t QTAG_FEATURE_SUB_GID = 0x30;
 constexpr uint8_t MPOS_READER_SET_DMODE_SUB_GIDOID_VAL = 0xAE;
 constexpr uint8_t MPOS_READER_MODE_NTF_SUB_GIDOID_VAL = 0xA0;
 constexpr uint8_t TRANSIT_SUB_GIDOID = 0xB1;
+constexpr uint8_t RF_REGISTER_SUB_GIDOID = 0xB2;
 
 constexpr uint8_t NCI_UN_RECOVERABLE_ERR = 0x01;
 constexpr uint8_t NCI_HAL_CONTROL_BUSY = 0x02;
@@ -132,6 +132,9 @@ constexpr uint8_t NCI_SHIFT_BY_8 = 8;
 // TODO//
 constexpr uint8_t NCI_CORE_RESET_NTF_GID_VAL = 0x60;
 constexpr uint8_t NCI_CORE_RESET_NTF_OID_VAL = 0x00;
+constexpr uint8_t NCI_CORE_SET_CFG_CMD_GID_VAL = 0x20;
+constexpr uint8_t NCI_CORE_SET_CFG_RSP_GID_VAL = 0x40;
+constexpr uint8_t NCI_CORE_SET_CFG_OID_VAL = 0x02;
 constexpr uint8_t NCI_TEST_RF_SPC_NTF_OID_VAL = 0x3D;
 constexpr uint8_t DEAFULT_NXP_SYS_CLK_FREQ_SEL_VALUE = 2; /*CLK_FREQ_19_2MHZ*/
 constexpr uint8_t DEAFULT_NXP_SYS_CLK_SRC_SEL = 2;

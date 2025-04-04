@@ -168,6 +168,16 @@ public:
    */
   void palEnQueueEvt(uint8_t evt, uint8_t evtStatus);
 
+  /**
+  * @brief Retrieve a legacy config name from lookup table.
+  * @param key The configuration key to look up.
+  * @param found Output parameter that is set to true
+  *        if the key has a legacy mapping, false otherwise.
+  * @return The legacy config value, otherwise default value
+  *        from lookup table.
+  */
+  uint32_t palGetLibNciConfig(const char* key, bool& found);
+
 private:
   static PlatformAbstractionLayer
       *sPlatformAbstractionLayer; // singleton object

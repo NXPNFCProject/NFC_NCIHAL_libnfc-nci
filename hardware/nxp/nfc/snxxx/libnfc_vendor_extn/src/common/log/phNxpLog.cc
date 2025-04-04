@@ -68,3 +68,52 @@ uint8_t phNxpExtLog_EnableDisableLogLevel(uint8_t enable) {
 
   return status;
 }
+
+/******************************************************************************
+ * Function         phNxpUpdate_logLevel
+ *
+ * Description      Update and get log level of module from libnfc-nxp.conf
+ *                  or Android runtime properties.
+ *                  The Android property nfc.nxp_global_log_level is to
+ *                  define log level for all modules. Modules log level will
+ *                  overwide global level.
+ *                  The Android property will overwide the level
+ *                  in libnfc-nxp.conf
+ *
+ *                  Android property names:
+ *                    nfc.nxp_log_level_global    * defines log level for all
+ *                                                  modules
+ *                    nfc.nxp_log_level_extns     * extensions module log
+ *                    nfc.nxp_log_level_hal       * Hal module log
+ *                    nfc.nxp_log_level_dnld      * firmware download module
+ *                                                  log
+ *                    nfc.nxp_log_level_tml       * TML module log
+ *                    nfc.nxp_log_level_nci       * NCI transaction log
+ *
+ *                  Log Level values:
+ *                    NXPLOG_LOG_SILENT_LOGLEVEL  0        * No trace to show
+ *                    NXPLOG_LOG_ERROR_LOGLEVEL   1        * Show Error trace
+ *                                                           only
+ *                    NXPLOG_LOG_WARN_LOGLEVEL    2        * Show Warning trace
+ *                                                           and Error trace
+ *                    NXPLOG_LOG_DEBUG_LOGLEVEL   3        * Show all traces
+ *
+ * Returns          void
+ *
+ ******************************************************************************/
+void phNxpUpdate_logLevel() {
+  unsigned long debug_enabled = 0;
+  if (!(GetNxpNumValue(NAME_NFC_DEBUG_ENABLED, &debug_enabled,
+                       sizeof(debug_enabled)))) {
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "%s NFC_DEBUG_ENABLED failed",
+                   __func__);
+  } else {
+    nfc_debug_enabled = (debug_enabled == 1) ? true : false;
+  }
+
+  if (!(GetNxpNumValue(NAME_NXPLOG_EXTNS_LOGLEVEL, &gLog_level.extns_log_level,
+                       sizeof(gLog_level.extns_log_level)))) {
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "%s NXPLOG_EXTNS_LOGLEVEL failed",
+                   __func__);
+  }
+}

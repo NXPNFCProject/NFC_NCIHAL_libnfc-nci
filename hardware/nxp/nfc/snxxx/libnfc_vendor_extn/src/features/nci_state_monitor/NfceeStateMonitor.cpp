@@ -40,45 +40,49 @@ void NfceeStateMonitor::setCurrentEE(uint8_t ee) { currentEE = ee; }
 
 NFCSTATUS
 NfceeStateMonitor::processNfceeModeSetNtf(vector<uint8_t> &nfceeModeSetNtf) {
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "NfceeStateMonitor %s Enter", __func__);
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+    "NfceeStateMonitor %s Enter, eseRecoveryCount: %d", __func__,
+    eseRecoveryCount);
   uint8_t nfceeModeSetNtf_len = nfceeModeSetNtf.size();
-  if (nfceeModeSetNtf_len == 4) {
-    vector<uint8_t> eeUnrecoverabelNtf = {0x62, 0x02, 0x02};
-    uint8_t errorCode = nfceeModeSetNtf[NCI_MODE_SET_NTF_REASON_CODE_INDEX];
-    if (currentEE == NCI_ROUTE_ESE_ID) {
+  if (nfceeModeSetNtf_len != 0x04) {
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
+      "NfceeStateMonitor %s Nfcee message invalid length", __func__);
+    return NFCSTATUS_EXTN_FEATURE_FAILURE;
+  }
+
+  uint8_t errorCode = nfceeModeSetNtf[NCI_MODE_SET_NTF_REASON_CODE_INDEX];
+  if (eseRecoveryCount >= MAX_ESE_RECOVERY_COUNT) {
+    nfceeModeSetNtf[nfceeModeSetNtf_len - 1] = RESPONSE_STATUS_FAILED;
+    NXPLOG_EXTNS_I(
+        NXPLOG_ITEM_NXP_GEN_EXTN,
+        "NfceeStateMonitor %s Max recovery count reached for 0x%x",
+        __func__, currentEE);
+    return NFCSTATUS_EXTN_FEATURE_FAILURE;
+  }
+
+  switch (errorCode) {
+    case RESPONSE_STATUS_FAILED:{
+      if (currentEE != NCI_ROUTE_ESE_ID)
+        return NFCSTATUS_EXTN_FEATURE_FAILURE;
+    }
+    case NCI_NFCEE_TRANSMISSION_ERROR:{
+      vector<uint8_t> eeUnrecoverabelNtf = {0x62, 0x02, 0x02};
+      eseRecoveryCount++;
+      nfceeModeSetNtf[nfceeModeSetNtf_len - 1] = RESPONSE_STATUS_OK;
       NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
-                     "NfceeStateMonitor %s eseRecoveryCount: %d", __func__,
-                     eseRecoveryCount);
-      if (eseRecoveryCount < MAX_ESE_RECOVERY_COUNT) {
-        switch (errorCode) {
-        case RESPONSE_STATUS_FAILED:
-        case NCI_NFCEE_TRANSMISSION_ERROR:
-          eseRecoveryCount++;
-          nfceeModeSetNtf[nfceeModeSetNtf_len - 1] = RESPONSE_STATUS_OK;
-          NXPLOG_EXTNS_D(
-              NXPLOG_ITEM_NXP_GEN_EXTN,
-              "NfceeStateMonitor %s Sending UNRECOVERABLE ERROR for 0x%x",
-              __func__, NCI_ROUTE_ESE_ID);
-          eeUnrecoverabelNtf.push_back(currentEE);
-          eeUnrecoverabelNtf.push_back(NCI_NFCEE_STS_UNRECOVERABLE_ERROR);
-          PlatformAbstractionLayer::getInstance()->palenQueueRspNtf(
-              eeUnrecoverabelNtf.data(), eeUnrecoverabelNtf.size());
-          return NFCSTATUS_EXTN_FEATURE_SUCCESS;
-          break;
-        default:
-          return NFCSTATUS_EXTN_FEATURE_FAILURE;
-        }
-      } else {
-        nfceeModeSetNtf[nfceeModeSetNtf_len - 1] = RESPONSE_STATUS_FAILED;
-        NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
-                       "NfceeStateMonitor %s Max recovery count reached for 0x%x",
-                       __func__, currentEE);
-        return NFCSTATUS_EXTN_FEATURE_SUCCESS;
-      }
+          "NfceeStateMonitor %s Sending UNRECOVERABLE ERROR for 0x%x",
+          __func__, currentEE);
+      eeUnrecoverabelNtf.push_back(currentEE);
+      eeUnrecoverabelNtf.push_back(NCI_NFCEE_STS_UNRECOVERABLE_ERROR);
+      PlatformAbstractionLayer::getInstance()->palenQueueRspNtf(
+          eeUnrecoverabelNtf.data(), eeUnrecoverabelNtf.size());
+      return NFCSTATUS_EXTN_FEATURE_FAILURE;
+    }
+    default:{
+      NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
+        "NfceeStateMonitor %s UNKNOWN ERROR 0x%x", __func__, errorCode);
     }
   }
-  NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
-                 "NfceeStateMonitor %s Nfcee message invalid format", __func__);
   return NFCSTATUS_EXTN_FEATURE_FAILURE;
 }
 
@@ -90,21 +94,16 @@ NfceeStateMonitor::processNfceeStatusNtf(vector<uint8_t> &nfceeStatusNtf) {
     uint8_t errorCode = nfceeStatusNtf[NCI_EE_STATUS_NTF_REASON_CODE_INDEX];
     if ((nfcee_id == NCI_ROUTE_ESE_ID) || (nfcee_id == NCI_ROUTE_EUICC1_ID) ||
         (nfcee_id == NCI_ROUTE_EUICC2_ID)) {
-      switch (errorCode) {
-      case NCI_NFCEE_STS_PMUVCC_OFF:
-      case NCI_NFCEE_STS_PROP_UNRECOVERABLE_ERROR:
+      if (errorCode == NCI_NFCEE_STS_PMUVCC_OFF ||
+          (errorCode & 0xF0) == NCI_NFCEE_STS_PROP_UNRECOVERABLE_ERROR) {
         nfceeStatusNtf[NCI_EE_STATUS_NTF_REASON_CODE_INDEX] =
             NCI_NFCEE_STS_UNRECOVERABLE_ERROR;
-        return NFCSTATUS_EXTN_FEATURE_FAILURE;
-        break;
-      default: {
-        return NFCSTATUS_EXTN_FEATURE_FAILURE;
-      }
       }
     }
-    return NFCSTATUS_EXTN_FEATURE_FAILURE;
+  } else {
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
+                   "NfceeStateMonitor %s Nfcee message invalid format",
+                   __func__);
   }
-  NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
-                 "NfceeStateMonitor %s Nfcee message invalid format", __func__);
   return NFCSTATUS_EXTN_FEATURE_FAILURE;
 }

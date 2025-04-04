@@ -57,7 +57,7 @@ void Mpos::updateState(ScrState_t state) {
     NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s : state updated to %s",
                    __func__, scrStateToString(mState).c_str());
   } else {
-    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s : %s [%d]", __func__,
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "%s : %s [%d]", __func__,
                    scrStateToString(state).c_str(), state);
   }
 }
@@ -114,7 +114,7 @@ static void sendSelectProfileCmd() {
         MPOS_STATE_WAIT_FOR_PROFILE_SELECT_RESPONSE);
     NFC_WRITE(selProfileCnfig, bufflen);
   } else {
-    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - START_FAIL");
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - START_FAIL");
     Mpos::getInstance()->updateState(MPOS_STATE_IDLE);
     notifyReaderModeActionEvt(ACTION_SE_READER_TAG_DISCOVERY_START_FAILED);
     NfcExtensionWriter::getInstance().releaseHALcontrol();
@@ -123,7 +123,7 @@ static void sendSelectProfileCmd() {
 
 static void notifyRfDiscoveryStarted() {
   Mpos::getInstance()->updateState(MPOS_STATE_WAIT_FOR_INTERFACE_ACTIVATION);
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - START SUCCESS");
+  NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - START SUCCESS");
   if (Mpos::getInstance()->tagOperationTimer.set(
           Mpos::getInstance()->tagOperationTimeout * 1000, NULL,
           Mpos::getInstance()->cardTapTimeoutHandler)) {
@@ -140,14 +140,14 @@ static void notifyRfDiscoveryStarted() {
 static void notifyTagActivated() {
   Mpos::getInstance()->tagOperationTimer.kill();
   Mpos::getInstance()->updateState(MPOS_STATE_RF_DISCOVERY_REQUEST_REMOVE);
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - ACTIVATED");
+  NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - ACTIVATED");
   notifyReaderModeActionEvt(ACTION_SE_READER_TAG_ACTIVATED);
 }
 
 static void notifyRfDiscoveryStopped() {
   Mpos::getInstance()->tagRemovalTimer.kill();
   Mpos::getInstance()->tagOperationTimer.kill();
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - STOP_SUCCESS");
+  NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - STOP_SUCCESS");
   notifyReaderModeActionEvt(ACTION_SE_READER_STOPPED);
 }
 
@@ -166,7 +166,7 @@ static void sendDeselectProfileCmd() {
         MPOS_STATE_WAIT_FOR_PROFILE_DESELECT_CFG_RSP);
     NFC_WRITE(selProfileCnfig, bufflen);
   } else {
-    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - REQUESTED_FAIL");
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - REQUESTED_FAIL");
     Mpos::getInstance()->updateState(MPOS_STATE_IDLE);
     notifyReaderModeActionEvt(ACTION_SE_READER_STOP_FAILED);
     switchToDefaultHandler();
@@ -175,7 +175,7 @@ static void sendDeselectProfileCmd() {
 
 static void notifySeReaderRestarted() {
   Mpos::getInstance()->tagOperationTimer.kill();
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - RESTART");
+  NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - RESTART");
   Mpos::getInstance()->updateState(MPOS_STATE_WAIT_FOR_INTERFACE_ACTIVATION);
   notifyReaderModeActionEvt(ACTION_SE_READER_TAG_DISCOVERY_RESTARTED);
   if (Mpos::getInstance()->tagOperationTimer.set(
@@ -295,7 +295,7 @@ ScrState_t Mpos::getScrState(const std::vector<uint8_t> &pData) {
 
 void Mpos::cardTapTimeoutHandler(union sigval val) {
   UNUSED_PROP(val);
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - Timeout");
+  NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - Timeout");
 
   getInstance()->tagOperationTimer.kill();
   getInstance()->updateState(MPOS_STATE_NO_TAG_TIMEOUT);
@@ -305,7 +305,7 @@ void Mpos::cardTapTimeoutHandler(union sigval val) {
 
 void Mpos::cardRemovalTimeoutHandler(union sigval val) {
   UNUSED_PROP(val);
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - REMOVE_CARD");
+  NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - REMOVE_CARD");
 
   notifyReaderModeActionEvt(ACTION_SE_READER_TAG_REMOVE_TIMEOUT);
 
@@ -317,7 +317,7 @@ void Mpos::cardRemovalTimeoutHandler(union sigval val) {
     if (getInstance()->mCurrentTimeoutCount ==
         getInstance()->mTimeoutMaxCount) {
       getInstance()->mCurrentTimeoutCount = 0x00;
-      NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s:DISC_NTF_TIMEOUT", __func__);
+      NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "%s:DISC_NTF_TIMEOUT", __func__);
       NfcExtEventData_t eventData;
       eventData.hal_event = NFCC_HAL_FATAL_ERR_CODE;
       vendor_nfc_handle_event(HANDLE_HAL_EVENT, eventData);
@@ -355,7 +355,7 @@ bool Mpos::isSeReaderRestarted(const std::vector<uint8_t> &pData) {
   uint8_t aidLength = pData[6];
 
   if ((aid != NCI_AID_VAL) || (aidLength != NCI_AID_LEN)) {
-    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
                    "Unexpected AID[0x%X] or length[0x%X]\n", aid, aidLength);
     return false;
   }
@@ -364,7 +364,7 @@ bool Mpos::isSeReaderRestarted(const std::vector<uint8_t> &pData) {
   uint8_t paramType = pData[7 + aidLength];
   uint8_t paramLength = pData[8 + aidLength];
   if ((paramType != NCI_PARAM_TYPE) || (paramLength != NCI_PARAM_TYPE_LEN)) {
-    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
                    "Unexpected ParamType[0x%X] or Len[0x%X] \n", paramType,
                    paramLength);
     return false;
@@ -414,7 +414,7 @@ bool Mpos::isProcessRdrReq(ScrState_t state) {
 }
 
 NFCSTATUS Mpos::processMposEvent(ScrState_t state) {
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s : Current state %s", __func__,
+  NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "%s : Current state %s", __func__,
                  scrStateToString(mState).c_str());
   NFCSTATUS status = NFCSTATUS_EXTN_FEATURE_FAILURE;
 
@@ -499,7 +499,7 @@ NFCSTATUS Mpos::processMposEvent(ScrState_t state) {
   }
   case MPOS_STATE_GENERIC_ERR_NTF: {
     getInstance()->tagOperationTimer.kill();
-    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+    NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN,
                    "SWP READER - MULTIPLE_TARGET_DETECTED");
     notifyReaderModeActionEvt(ACTION_SE_READER_MULTIPLE_TAG_DETECTED);
     return NFCSTATUS_EXTN_FEATURE_SUCCESS;

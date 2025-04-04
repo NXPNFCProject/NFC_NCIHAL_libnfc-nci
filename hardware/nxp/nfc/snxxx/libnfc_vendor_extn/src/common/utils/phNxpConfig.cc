@@ -489,7 +489,7 @@ CNfcConfig &CNfcConfig::GetInstance() {
             android::base::GetProperty("persist.vendor.nfc.config_file_name",
                                        ""),
             strPath)) {
-      NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s load %s", __func__,
+      NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "%s load %s", __func__,
                      strPath.c_str());
     } else if (findConfigFilePathFromTransportConfigPaths(
                    extra_config_base +
@@ -497,7 +497,7 @@ CNfcConfig &CNfcConfig::GetInstance() {
                            "ro.boot.product.hardware.sku", "") +
                        +extra_config_ext,
                    strPath)) {
-      NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s load %s", __func__,
+      NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "%s load %s", __func__,
                      strPath.c_str());
     } else {
       findConfigFilePathFromTransportConfigPaths(config_name, strPath);
@@ -615,11 +615,11 @@ const CNfcParam *CNfcConfig::find(const char *p_name) const {
       continue;
     } else if (**it == p_name) {
       if ((*it)->str_len() > 0) {
-        NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s found %s=%s", __func__,
+        NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "%s found %s=%s", __func__,
                        p_name, (*it)->str_value());
       } else {
-        NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s found %s=(0x%lx)", __func__,
-                       p_name, (*it)->numValue());
+        NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "%s found %s=(0x%lx)",
+                       __func__, p_name, (*it)->numValue());
       }
       return *it;
     } else

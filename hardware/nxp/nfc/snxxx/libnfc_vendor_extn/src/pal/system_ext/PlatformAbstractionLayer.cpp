@@ -25,6 +25,7 @@
 #include <ProprietaryExtn.h>
 #include <phNxpConfig.h>
 #include <phNxpLog.h>
+#include "NfcConfig.h"
 
 #include <android/binder_manager.h>
 #include <vendor/nxp/nxpnfc/2.0/INxpNfc.h>
@@ -69,21 +70,21 @@ PlatformAbstractionLayer *PlatformAbstractionLayer::getInstance() {
 void PlatformAbstractionLayer::getNxpNfcHal() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s: enter", __func__);
   ::ndk::SpAIBinder binder(
-      AServiceManager_checkService(NXPNFC_AIDL_HAL_SERVICE_NAME.c_str()));
+      AServiceManager_waitForService(NXPNFC_AIDL_HAL_SERVICE_NAME.c_str()));
   mNxpNfcHal.aidlHalNxpNfc = INxpNfcAidl::fromBinder(binder);
   if (mNxpNfcHal.aidlHalNxpNfc == nullptr) {
-    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+    NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN,
                    "%s: HIDL INxpNfc::tryGetService()", __func__);
     mNxpNfcHal.halNxpNfc = INxpNfc::tryGetService();
     if (mNxpNfcHal.halNxpNfc != nullptr) {
-      NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+      NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN,
                      "%s: INxpNfc::getService() returned %p (%s)", __func__,
                      mNxpNfcHal.halNxpNfc.get(),
                      (mNxpNfcHal.halNxpNfc->isRemote() ? "remote" : "local"));
     }
   } else {
     mNxpNfcHal.halNxpNfc = nullptr;
-    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+    NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN,
                    "%s: INxpNfcAidl::fromBinder returned", __func__);
   }
 }
@@ -192,10 +193,36 @@ uint8_t PlatformAbstractionLayer::palGetNxpByteArrayValue(const char *name,
   return GetNxpByteArrayValue(name, pValue, bufflen, len);
 }
 
+uint32_t PlatformAbstractionLayer::palGetLibNciConfig(const char* key, bool& found) {
+  // Lookup table : Maps legacy keys to {Mapped Key, Default Value}
+  static const std::unordered_map<std::string, std::pair<std::string, unsigned>> libNfcNciConfigMap = {
+    {"NXP_DM_DISC_NTF_TIMEOUT", {"NFA_DM_DISC_NTF_TIMEOUT", 0x00}},  // Default 0x00 if missing
+    // Add more mappings as needed
+  };
+
+  auto it = libNfcNciConfigMap.find(std::string(key));
+  if (it != libNfcNciConfigMap.end()) {
+      found = true;
+      const std::string& legacyKey = it->second.first;
+      uint32_t defaultValue = it->second.second;  // Get default value from table
+      return NfcConfig::getUnsigned(legacyKey, defaultValue);
+  }
+  found = false;
+  return 0;
+}
+
 uint8_t PlatformAbstractionLayer::palGetNxpNumValue(const char *name,
                                                     void *pValue,
                                                     unsigned long len) {
-  return GetNxpNumValue(name, pValue, len);
+  bool foundInLegacy = false;
+  uint32_t legacyValue = palGetLibNciConfig(name, foundInLegacy);
+
+  if (foundInLegacy) {
+    *(static_cast<unsigned long *>(pValue)) = (unsigned long)legacyValue;
+    return foundInLegacy;
+  } else {
+    return GetNxpNumValue(name, pValue, len);
+  }
 }
 
 uint8_t PlatformAbstractionLayer::palEnableDisableDebugLog(uint8_t enable) {

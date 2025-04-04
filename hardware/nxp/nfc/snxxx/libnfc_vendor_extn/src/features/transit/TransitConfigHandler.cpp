@@ -21,6 +21,7 @@
 #include "NfcExtensionController.h"
 #include "NfcExtensionWriter.h"
 #include "PlatformAbstractionLayer.h"
+#include "RfConfigManager.h"
 #include <android-base/file.h>
 #include <fstream>
 #include <phNxpLog.h>
@@ -42,16 +43,27 @@ TransitConfigHandler *TransitConfigHandler::getInstance() {
   return instance;
 }
 
-bool TransitConfigHandler::updateVendorConfig(vector<uint8_t> configCmd) {
+void TransitConfigHandler::onFeatureStart() {
+  NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter mConfigPkt.size:%zu",
+                 __func__, mConfigPkt.size());
+}
+
+void TransitConfigHandler::onFeatureEnd() {
+  NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "TransitConfigHandler %s Enter",
+                 __func__);
+  mConfigPkt.clear();
+}
+
+bool TransitConfigHandler::updateVendorConfig(vector<uint8_t> mConfigPkt) {
   std::string vendorNciConfigPath = "/data/vendor/nfc/libnfc-nci-update.conf";
   bool status = false;
-  if (configCmd[4] > 0) {
-    vector<uint8_t> configVect(configCmd.begin() + 5, configCmd.end());
+  if (mConfigPkt[4] > 0) {
+    vector<uint8_t> configVect(mConfigPkt.begin() + 5, mConfigPkt.end());
     std::string configStr(configVect.begin(), configVect.end());
 
     if (WriteStringToFile(configStr, vendorNciConfigPath)) {
       status = true;
-      NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+      NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN,
                      "TransitConfigHandler::%s libnfc-nci-update.conf updated",
                      __func__);
     } else {
@@ -62,7 +74,7 @@ bool TransitConfigHandler::updateVendorConfig(vector<uint8_t> configCmd) {
   } else {
     if (!remove(vendorNciConfigPath.c_str())) {
       status = true;
-      NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+      NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN,
                      "TransitConfigHandler::%s libnfc-nci-update.conf removed",
                      __func__);
     } else {
@@ -76,15 +88,29 @@ bool TransitConfigHandler::updateVendorConfig(vector<uint8_t> configCmd) {
 
 NFCSTATUS TransitConfigHandler::handleVendorNciMessage(uint16_t dataLen,
                                                        const uint8_t *pData) {
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
-                 "TransitConfigHandler::%s Enter dataLen:%d", __func__,
-                 dataLen);
+  mConfigPkt.clear();
+  mConfigPkt.assign(pData, pData + dataLen);
   uint8_t subOid = pData[SUB_GID_OID_INDEX] & 0x0F;
-  vector<uint8_t> configCmd;
-  configCmd.assign(pData, pData + (dataLen));
+  NfcExtensionController::getInstance()->switchEventHandler(
+      HandlerType::TRANSIT);
+
+  static constexpr uint8_t TRANSIT_OID = 0x01;
+  static constexpr uint8_t RF_REGISTER_OID = 0x02;
+  static constexpr uint8_t TRANSIT_NCI_VENDOR_RSP_SUCCESS[] = {
+      NCI_PROP_RSP_VAL, NCI_ROW_PROP_OID_VAL, PAYLOAD_TWO_LEN,
+      TRANSIT_SUB_GIDOID, RESPONSE_STATUS_OK};
+  static constexpr uint8_t TRANSIT_NCI_VENDOR_RSP_FAILURE[] = {
+      NCI_PROP_RSP_VAL, NCI_ROW_PROP_OID_VAL, PAYLOAD_TWO_LEN,
+      TRANSIT_SUB_GIDOID, RESPONSE_STATUS_FAILED};
+  static constexpr uint8_t RF_REGISTER_NCI_VENDOR_RSP_SUCCESS[] = {
+      NCI_PROP_RSP_VAL, NCI_ROW_PROP_OID_VAL, PAYLOAD_TWO_LEN,
+      RF_REGISTER_SUB_GIDOID, RESPONSE_STATUS_OK};
+  static constexpr uint8_t RF_REGISTER_NCI_VENDOR_RSP_FAILURE[] = {
+      NCI_PROP_RSP_VAL, NCI_ROW_PROP_OID_VAL, PAYLOAD_TWO_LEN,
+      RF_REGISTER_SUB_GIDOID, RESPONSE_STATUS_FAILED};
 
   if (subOid == TRANSIT_OID) {
-    if (updateVendorConfig(configCmd)) {
+    if (updateVendorConfig(mConfigPkt)) {
       PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
           sizeof(TRANSIT_NCI_VENDOR_RSP_SUCCESS),
           TRANSIT_NCI_VENDOR_RSP_SUCCESS);
@@ -92,6 +118,17 @@ NFCSTATUS TransitConfigHandler::handleVendorNciMessage(uint16_t dataLen,
       PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
           sizeof(TRANSIT_NCI_VENDOR_RSP_FAILURE),
           TRANSIT_NCI_VENDOR_RSP_FAILURE);
+    }
+  } else if (subOid == RF_REGISTER_OID) {
+    if (RfConfigManager::getInstance()->checkUpdateRfRegisterConfig(
+            mConfigPkt)) {
+      PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
+          sizeof(RF_REGISTER_NCI_VENDOR_RSP_SUCCESS),
+          RF_REGISTER_NCI_VENDOR_RSP_SUCCESS);
+    } else {
+      PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
+          sizeof(RF_REGISTER_NCI_VENDOR_RSP_FAILURE),
+          RF_REGISTER_NCI_VENDOR_RSP_FAILURE);
     }
   }
   return NFCSTATUS_EXTN_FEATURE_SUCCESS;
@@ -102,5 +139,6 @@ NFCSTATUS TransitConfigHandler::handleVendorNciRspNtf(uint16_t dataLen,
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
                  "TransitConfigHandler::%s Enter dataLen:%d", __func__,
                  dataLen);
-  return NFCSTATUS_EXTN_FEATURE_FAILURE;
+  std::vector<uint8_t> pRspVec(pData, pData + dataLen);
+  return RfConfigManager::getInstance()->processRsp(pRspVec);
 }

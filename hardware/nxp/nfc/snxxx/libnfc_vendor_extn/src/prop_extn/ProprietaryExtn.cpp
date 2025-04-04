@@ -104,6 +104,16 @@ void ProprietaryExtn::updateFwDnlsStatus(uint8_t status) {
   }
 }
 
+NFCSTATUS ProprietaryExtn::processExtnWrite(uint16_t dataLen,
+                                            const uint8_t* pData) {
+  NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter dataLen:%d", __func__,
+                 dataLen);
+  if (fp_prop_extn_process_extn_write != nullptr) {
+    return fp_prop_extn_process_extn_write(dataLen, pData);
+  }
+  return NFCSTATUS_EXTN_FEATURE_FAILURE;
+}
+
 void ProprietaryExtn::setupPropExtension(std::string propLibPath) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
   p_prop_extn_handle = dlopen(propLibPath.c_str(), RTLD_NOW);
@@ -193,6 +203,14 @@ void ProprietaryExtn::setupPropExtension(std::string propLibPath) {
                p_prop_extn_handle, "phNxpProp_FwDnldStatusUpdate")) == NULL) {
     NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
                    "%s Failed to find phNxpProp_FwDnldStatusUpdate !!",
+                   __func__);
+  }
+
+  if ((fp_prop_extn_process_extn_write =
+           (fp_prop_extn_process_extn_write_t)dlsym(
+               p_prop_extn_handle, "phNxpProp_ProcessExtnWrite")) == NULL) {
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
+                   "%s Failed to find phNxpProp_ProcessExtnWrite !!",
                    __func__);
   }
 

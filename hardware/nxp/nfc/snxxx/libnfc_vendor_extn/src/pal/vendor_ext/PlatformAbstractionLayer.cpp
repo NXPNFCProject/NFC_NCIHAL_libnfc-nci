@@ -113,3 +113,7 @@ string PlatformAbstractionLayer::getVendorParam(const std::string& paramKey) {
 void PlatformAbstractionLayer::updateHalConfig(map<string, ConfigValue>*) {}
 
 void PlatformAbstractionLayer::palEnQueueEvt(uint8_t, uint8_t){}
+
+unsigned PlatformAbstractionLayer::palGetLibNciConfig(const char* key, bool& found) {
+  return 0;
+}
