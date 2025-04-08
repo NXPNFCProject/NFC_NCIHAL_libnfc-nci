@@ -61,6 +61,15 @@ private:
    */
   void setCurrentEE(uint8_t ee);
 
+  /**
+   * @brief Determines whether error recovery is required for a given
+   *        error code
+   *
+   * @param eeErrorCode The error code to be evaluated
+   * @return true if recovery is required, false otherwise
+   */
+  bool isEeRecoveryRequired(uint8_t eeErrorCode);
+
   static NfceeStateMonitor *instance;
 
   NfceeStateMonitor();
