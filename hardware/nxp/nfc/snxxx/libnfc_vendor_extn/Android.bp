@@ -45,6 +45,7 @@ cc_defaults {
         "src/features/nci_state_monitor/RfStateMonitor.cpp",
         "src/features/transit/TransitConfigHandler.cpp",
         "src/features/transit/RfConfigManager.cpp",
+        "src/features/fw/FwHandler.cpp",
     ],
     export_include_dirs: [
         "inc/common",
@@ -62,6 +63,7 @@ cc_defaults {
         "src/prop_extn",
         "src/features/nci_state_monitor",
         "src/features/transit",
+        "src/features/fw",
     ],
     shared_libs: [
         "libbase",

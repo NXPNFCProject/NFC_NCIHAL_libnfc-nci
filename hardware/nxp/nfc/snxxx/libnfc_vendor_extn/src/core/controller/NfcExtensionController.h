@@ -48,6 +48,10 @@ enum class HandlerType {
    */
   QTAG = 0x03,
   /**
+   * @brief indicates FW feature handler
+   */
+  FW = 0x09,
+  /**
    * @brief indicate Transit config & RF Register feature handler
    *
    */

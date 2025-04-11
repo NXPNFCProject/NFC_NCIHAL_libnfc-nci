@@ -40,6 +40,8 @@ NciStateMonitor *NciStateMonitor::getInstance() {
   return instance;
 }
 
+vector<uint8_t> NciStateMonitor::getFwVersion() { return firmwareVersion; }
+
 NFCSTATUS NciStateMonitor::handleVendorNciMessage(uint16_t dataLen,
                                                const uint8_t *pData) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "NciStateMonitor %s Enter dataLen:%d",
@@ -62,6 +64,19 @@ NFCSTATUS NciStateMonitor::processCoreGenericErrorNtf(
   return NFCSTATUS_EXTN_FEATURE_FAILURE;
 }
 
+NFCSTATUS
+NciStateMonitor::processCoreResetNtfReceived(vector<uint8_t> coreResetNtf) {
+  constexpr uint16_t NCI_MIN_CORE_RESET_NTF_LEN = 0x0C;
+  if (coreResetNtf.size() >= NCI_MIN_CORE_RESET_NTF_LEN) {
+    firmwareVersion.clear();
+    firmwareVersion.assign(coreResetNtf.end() - 3, coreResetNtf.end());
+  } else {
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Invalid Ntf pkt length %zu",
+                   __func__, coreResetNtf.size());
+  }
+  return NFCSTATUS_EXTN_FEATURE_FAILURE;
+}
+
 NFCSTATUS NciStateMonitor::handleVendorNciRspNtf(uint16_t dataLen,
                                               uint8_t *pData) {
   vector<uint8_t> nciRspNtf(pData, pData + dataLen);
@@ -73,6 +88,8 @@ NFCSTATUS NciStateMonitor::handleVendorNciRspNtf(uint16_t dataLen,
       (((NCI_MT_NTF | NCI_GID_EE_MANAGE) << 8) | NCI_EE_MODE_SET_OID);
   constexpr uint16_t NCI_RF_DISCOVERY_NTF =
       (((NCI_MT_NTF | NCI_GID_RF_MANAGE) << 8) | NCI_RF_DISCOVERY_OID);
+  constexpr uint16_t NCI_CORE_RESET_NTF_GID_OID =
+      (((NCI_MT_NTF | NCI_GID_CORE) << 8) | NCI_CORE_RESET_OID);
   constexpr uint16_t NCI_CORE_GENERIC_ERROR_NTF =
       (((NCI_MT_NTF | NCI_GID_CORE) << 8) | NCI_CORE_GENERIC_ERROR_OID);
 
@@ -98,6 +115,10 @@ NFCSTATUS NciStateMonitor::handleVendorNciRspNtf(uint16_t dataLen,
   }
   case NCI_CORE_GENERIC_ERROR_NTF: {
     status = processCoreGenericErrorNtf(nciRspNtf);
+    break;
+  }
+  case NCI_CORE_RESET_NTF_GID_OID: {
+    status = processCoreResetNtfReceived(std::move(nciRspNtf));
     break;
   }
   default: {

@@ -65,6 +65,16 @@ public:
   NFCSTATUS processCoreGenericErrorNtf(vector<uint8_t> &coreGenericErrorNtf);
 
   /**
+   * @brief This API monitor CORE_RESET_NTF to extract information like
+   * firmware version.
+   * @param CORE_RESET_NTF
+   * @return returns NFCSTATUS_EXTN_FEATURE_SUCCESS, if it is vendor specific
+   * feature and handled by extension library otherwise
+   * NFCSTATUS_EXTN_FEATURE_FAILURE.
+   */
+  NFCSTATUS processCoreResetNtfReceived(vector<uint8_t> coreResetNtf);
+
+  /**
    * @brief on receiving NFCEE_MODE_SET_CMD for ESE, setting eseModeSetCmd to
    * true.
    *
@@ -87,12 +97,18 @@ public:
    */
   NFCSTATUS handleHalEvent(uint8_t errorCode) override;
 
+  /**
+   * @brief Get the Fw Version
+   *
+   * @return firmwareVersion
+   */
+  vector<uint8_t> getFwVersion();
 
 private:
   static NciStateMonitor *instance;
   PalThreadCondVar mSramCmdRspCondVar;
   std::vector<uint8_t> mSramCmdRspBuffer;
-
+  std::vector<uint8_t> firmwareVersion;
   NciStateMonitor();
 
   void sendSramConfigFlashCmd();
