@@ -18,7 +18,7 @@
 
 #include "DefaultEventHandler.h"
 #include "NfcExtensionApi.h"
-#include "FwHandler.h"
+#include "NfcFirmwareInfo.h"
 #include "MposHandler.h"
 #include "NfcExtensionConstants.h"
 #include "NfcExtensionController.h"
@@ -161,7 +161,7 @@ static void addHandlers() {
   NfcExtensionController::getInstance()->addEventHandler(
       HandlerType::TRANSIT, std::make_shared<TransitConfigHandler>());
   NfcExtensionController::getInstance()->addEventHandler(
-      HandlerType::FW, std::make_shared<FwHandler>());
+      HandlerType::FW, std::make_shared<NfcFirmwareInfo>());
 }
 
 static void printGenExtnLibVersion() {
