@@ -114,11 +114,11 @@ private:
   ~RfConfigManager();
 
   /* Below are A085 RF register bitpostions */
-  static const uint8_t CN_TRANSIT_BLK_NUM_CHECK_ENABLE_BIT_POS = 6;
-  static const uint8_t MIFARE_NACK_TO_RATS_ENABLE_BIT_POS = 13;
-  static const uint8_t MIFARE_MUTE_TO_RATS_ENABLE_BIT_POS = 9;
-  static const uint8_t CN_TRANSIT_CMA_BYPASSMODE_ENABLE_BIT_POS = 23;
-  static const uint8_t CHINA_TIANJIN_RF_ENABLE_BIT_POS = 28;
+  static constexpr uint8_t CN_TRANSIT_BLK_NUM_CHECK_ENABLE_BIT_POS = 6;
+  static constexpr uint8_t MIFARE_NACK_TO_RATS_ENABLE_BIT_POS = 13;
+  static constexpr uint8_t MIFARE_MUTE_TO_RATS_ENABLE_BIT_POS = 9;
+  static constexpr uint8_t CN_TRANSIT_CMA_BYPASSMODE_ENABLE_BIT_POS = 23;
+  static constexpr uint8_t CHINA_TIANJIN_RF_ENABLE_BIT_POS = 28;
 
   static const uint8_t NCI_PACKET_TLV_INDEX = 3;
   static const uint8_t NCI_PACKET_LEN_INDEX = 2;
