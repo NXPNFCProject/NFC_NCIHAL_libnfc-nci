@@ -118,13 +118,6 @@ public:
   NfcHalState getNfcHalState() { return mNfcHalState; }
 
   /**
-   * @brief Gets the current RF state.
-   * @return returns RfState
-   *
-   */
-  RfState getRfState() { return mRfState; }
-
-  /**
    * @brief Gets the current event handler.
    * @return returns a std::shared_ptr<IEventHandler>
    */
@@ -138,13 +131,6 @@ public:
    *
    */
   void updateNfcHalState(int);
-
-  /**
-   * @brief Updates the RF Hal state.
-   * @return void
-   *
-   */
-  void updateRfState(int);
 
   /**
    * @brief Handle HAL events(error/failure).
@@ -235,7 +221,6 @@ private:
   HandlerState mCurrentHandlerState;
   HandlerType mCurrentHandlerType;
   NfcHalState mNfcHalState;
-  RfState mRfState;
   std::unordered_map<int, NfcHalState> mNfcHalStateMap = {
       {0, NfcHalState::CLOSE},
       {1, NfcHalState::OPEN},

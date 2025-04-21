@@ -25,7 +25,6 @@
 NfcExtensionController *NfcExtensionController::sNfcExtensionController;
 
 NfcExtensionController::NfcExtensionController() {
-  mRfState = {0};
   mNfcHalState = {0};
   mCurrentHandlerType = {0};
   mCurrentHandlerState = HandlerState::STOPPED;
@@ -122,12 +121,6 @@ NFCSTATUS NfcExtensionController::handleVendorNciRspNtf(uint16_t dataLen,
     return status;
   }
   return mIEventHandler->handleVendorNciRspNtf(dataLen, pData);
-}
-
-void NfcExtensionController::updateRfState(int state) {
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter state:%d", __func__,
-                 state);
-  // TODO: RF state definition and mapping to be done
 }
 
 NFCSTATUS NfcExtensionController::onHandleHalEvent(uint8_t event) {

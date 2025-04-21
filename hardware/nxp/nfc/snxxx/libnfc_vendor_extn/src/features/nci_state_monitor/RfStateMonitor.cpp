@@ -19,7 +19,7 @@
 
 RfStateMonitor *RfStateMonitor::instance = nullptr;
 
-RfStateMonitor::RfStateMonitor() {}
+RfStateMonitor::RfStateMonitor() { nfcRfState = NfcRfState::IDLE; }
 
 RfStateMonitor::~RfStateMonitor() {}
 
@@ -46,3 +46,49 @@ RfStateMonitor::processRfIntfActdNtf(vector<uint8_t> &rfIntfActdNtf) {
   }
   return NFCSTATUS_EXTN_FEATURE_FAILURE;
 }
+
+NFCSTATUS RfStateMonitor::processRfDiscRspNtf(vector<uint8_t> &rfResNtf) {
+
+  uint16_t mGidOid = ((rfResNtf[0] << 8) | rfResNtf[1]);
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+                 "RfStateMonitor %s: message type: %02x", __func__, mGidOid);
+  switch (mGidOid) {
+  case NCI_RF_DEACTD_NTF_GID_OID:
+    switch (rfResNtf[3]) {
+    case static_cast<int>(RfDeactivateType::IDLE):
+      updateNfcRfState(NfcRfState::IDLE);
+      break;
+    case static_cast<int>(RfDeactivateType::SLEEP):
+      updateNfcRfState(NfcRfState::LISTEN_SLEEP);
+      break;
+    case static_cast<int>(RfDeactivateType::DISCOVER):
+      updateNfcRfState(NfcRfState::DISCOVER);
+      break;
+    }
+    break;
+  case NCI_RF_DEACTD_RSP_GID_OID:
+    if (!rfResNtf[3]) {
+      updateNfcRfState(NfcRfState::IDLE);
+    }
+    break;
+  case NCI_RF_DISC_RSP_GID_OID:
+    if (!rfResNtf[3]) {
+      updateNfcRfState(NfcRfState::DISCOVER);
+    }
+    break;
+  default:
+    break;
+  }
+
+  return NFCSTATUS_EXTN_FEATURE_FAILURE;
+}
+
+void RfStateMonitor::updateNfcRfState(NfcRfState state) {
+  NfcRfState old_state = nfcRfState;
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+                 "RfStateMonitor %s: RF state old:%d new:%d", __func__,
+                 old_state, state);
+  nfcRfState = state;
+}
+
+NfcRfState RfStateMonitor::getNfcRfState() { return nfcRfState; }

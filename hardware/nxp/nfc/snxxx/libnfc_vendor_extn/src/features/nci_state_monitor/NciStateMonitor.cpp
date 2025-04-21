@@ -121,6 +121,11 @@ NFCSTATUS NciStateMonitor::handleVendorNciRspNtf(uint16_t dataLen,
     status = processCoreResetNtfReceived(std::move(nciRspNtf));
     break;
   }
+  case NCI_RF_DEACTD_NTF_GID_OID:
+  case NCI_RF_DEACTD_RSP_GID_OID:
+  case NCI_RF_DISC_RSP_GID_OID:
+    status = RfStateMonitor::getInstance()->processRfDiscRspNtf(nciRspNtf);
+    break;
   default: {
     return status;
   }

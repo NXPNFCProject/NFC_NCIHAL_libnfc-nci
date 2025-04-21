@@ -32,6 +32,8 @@ public:
 
   RfStateMonitor(const RfStateMonitor &) = delete;
   RfStateMonitor &operator=(const RfStateMonitor &) = delete;
+  NFCSTATUS processRfDiscRspNtf(vector<uint8_t> &rfResNtf);
+  NfcRfState getNfcRfState();
 
 private:
   /**
@@ -40,8 +42,9 @@ private:
    * @param RF_INTF_ACTIVATED_NTF
    */
   NFCSTATUS processRfIntfActdNtf(vector<uint8_t> &rfIntfActdNtf);
-
+  void updateNfcRfState(NfcRfState state);
   static RfStateMonitor *instance;
+  NfcRfState nfcRfState;
 
   RfStateMonitor();
   ~RfStateMonitor();

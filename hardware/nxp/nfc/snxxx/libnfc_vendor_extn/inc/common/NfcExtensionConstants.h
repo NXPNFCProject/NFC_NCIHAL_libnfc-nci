@@ -154,6 +154,8 @@ constexpr uint16_t NCI_RF_DEACTD_RSP_GID_OID = 0x4106;
 constexpr uint16_t NCI_GENERIC_ERR_NTF_GID_OID = 0x6007;
 constexpr uint16_t NCI_DATA_PKT_RSP_GID_OID = 0x0100;
 constexpr uint16_t NCI_EE_DISC_NTF_GID_OID = 0x6200;
+constexpr uint16_t NCI_SCREEN_SUB_STATE_CMD_GID_OID = 0x2009;
+constexpr uint16_t NCI_SCREEN_SUB_STATE_RSP_GID_OID = 0x4009;
 
 constexpr uint16_t NCI_FW_MAJOR_VER_INDEX = 0x0A;
 constexpr uint16_t NCI_FW_MINOR_VER_INDEX = 0x0B;
@@ -256,35 +258,47 @@ enum class NfcHalState {
 };
 
 /**
- * @brief Defines the RfState
+ * @brief Defines the Nfc Rf State
  *
  */
-enum class RfState {
+enum class NfcRfState {
   /**
-   * @brief indicates RF state is Idle
+   * @brief indicates RF state is in Idle mode
    */
   IDLE,
   /**
-   * @brief indicates RF state is DISCOVER
+   * @brief indicates RF state is in DISCOVER (Poll and/or Listen Mode).
    */
   DISCOVER,
   /**
-   * @brief indicates RF state is FIELD_ON
+   * @brief indicates RF state is in W4_ALL_DISCOVERIES (more than one remote
+   * end point found)
    */
-  FIELD_ON,
+  W4_ALL_DISCOVERIES,
   /**
-   * @brief indicates RF state is FIELD_OFF
+   * @brief indicates RF state is W4_HOST_SELECT (waiting for the DH to select
+   * one of remote end point )
    */
-  FIELD_OFF,
+  W4_HOST_SELECT,
   /**
-   * @brief indicates RF is in interface activated state
+   * @brief indicates RF state is POLL_ACTIVE mode.
    */
-  INTERFACE_ACTIVATED,
+  POLL_ACTIVE,
   /**
-   * @brief indicates RF is in interface deactivated state
+   * @brief indicates RF state is LISTEN_ACTIVE mode.
    */
-  INTERFACE_DEACTIVATED
+  LISTEN_ACTIVE,
+  /**
+   * @brief indicates RF state is LISTEN_SLEEP mode.
+   */
+  LISTEN_SLEEP,
+
 };
 
+/**
+ * @brief Defines the RfDeactivate type
+ *
+ */
+enum class RfDeactivateType { IDLE, SLEEP, DISCOVER };
 /** @}*/
 #endif // NFC_EXTENSION_CONSTANTS_H
