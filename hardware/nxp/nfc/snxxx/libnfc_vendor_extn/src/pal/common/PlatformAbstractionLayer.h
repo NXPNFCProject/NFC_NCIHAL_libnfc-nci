@@ -177,6 +177,17 @@ public:
   *        from lookup table.
   */
   uint32_t palGetLibNciConfig(const char* key, bool& found);
+  /**
+   * @brief Release all resources.
+   * @return None
+   *
+   */
+  static inline void finalize() {
+    if (sPlatformAbstractionLayer != nullptr) {
+      delete (sPlatformAbstractionLayer);
+      sPlatformAbstractionLayer = nullptr;
+    }
+  }
 
 private:
   static PlatformAbstractionLayer

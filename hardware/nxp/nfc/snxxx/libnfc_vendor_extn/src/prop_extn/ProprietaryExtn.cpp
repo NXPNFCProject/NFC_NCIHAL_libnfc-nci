@@ -24,9 +24,14 @@
 
 ProprietaryExtn *ProprietaryExtn::sProprietaryExtn;
 
-ProprietaryExtn::ProprietaryExtn() {}
+ProprietaryExtn::ProprietaryExtn() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s: enter", __func__);
+}
 
-ProprietaryExtn::~ProprietaryExtn() {}
+ProprietaryExtn::~ProprietaryExtn() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s: enter", __func__);
+  deInit();
+}
 
 ProprietaryExtn *ProprietaryExtn::getInstance() {
   if (sProprietaryExtn == nullptr) {
@@ -38,6 +43,28 @@ void ProprietaryExtn::deInit() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
   if (fp_prop_extn_deinit != nullptr) {
     fp_prop_extn_deinit();
+  }
+  if (p_prop_extn_handle != nullptr) {
+    int32_t status = dlclose(p_prop_extn_handle);
+    dlerror(); /* Clear any existing error */
+    if (status != 0) {
+      NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Free library file failed",
+                     __func__);
+    }
+    fp_prop_extn_init = nullptr;
+    fp_prop_extn_deinit = nullptr;
+    fp_prop_extn_snd_vnd_msg = nullptr;
+    fp_prop_extn_snd_vnd_rsp_ntf = nullptr;
+    fp_map_gid_oid_to_gen_cmd = nullptr;
+    fp_map_gid_oid_to_prop_rsp_ntf = nullptr;
+    fp_prop_extn_update_nfc_hal_state = nullptr;
+    fp_prop_extn_update_rf_state = nullptr;
+    fp_prop_extn_on_write_complete = nullptr;
+    fp_prop_extn_on_hal_control_granted = nullptr;
+    fp_prop_extn_handle_hal_event = nullptr;
+    fp_prop_extn_update_fw_dnld_status = nullptr;
+    fp_prop_extn_process_extn_write = nullptr;
+    p_prop_extn_handle = nullptr;
   }
 }
 

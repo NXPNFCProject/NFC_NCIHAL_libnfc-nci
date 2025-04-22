@@ -1,6 +1,6 @@
 /**
  *
- *  Copyright 2024 NXP
+ *  Copyright 2024-2025 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -54,6 +54,18 @@ public:
    *
    */
   //uint8_t sendDiscoverMapCmd(uint8_t num, struct NciDiscoverMaps *discMaps);
+
+  /**
+   * @brief Release all resources.
+   * @return None
+   *
+   */
+  static inline void finalize() {
+    if (sNciCommandBuilder != nullptr) {
+      delete (sNciCommandBuilder);
+      sNciCommandBuilder = nullptr;
+    }
+  }
 
 private:
   static NciCommandBuilder *sNciCommandBuilder; // singleton object

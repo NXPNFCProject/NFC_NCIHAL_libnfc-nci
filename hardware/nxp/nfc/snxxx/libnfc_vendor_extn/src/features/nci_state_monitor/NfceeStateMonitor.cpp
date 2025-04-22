@@ -23,11 +23,14 @@
 NfceeStateMonitor *NfceeStateMonitor::instance = nullptr;
 
 NfceeStateMonitor::NfceeStateMonitor() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
   currentEE = NCI_ROUTE_HOST;
   eseRecoveryCount = 0;
 }
 
-NfceeStateMonitor::~NfceeStateMonitor() {}
+NfceeStateMonitor::~NfceeStateMonitor() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+}
 
 NfceeStateMonitor *NfceeStateMonitor::getInstance() {
   if (instance == nullptr) {

@@ -31,7 +31,10 @@ NciStateMonitor::NciStateMonitor() {
   mSramCmdRspBuffer.push_back(DEFAULT_RESP);
 }
 
-NciStateMonitor::~NciStateMonitor() {}
+NciStateMonitor::~NciStateMonitor() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+  NfceeStateMonitor::finalize();
+}
 
 NciStateMonitor *NciStateMonitor::getInstance() {
   if (instance == nullptr) {

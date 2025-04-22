@@ -42,7 +42,7 @@
 #define SET_CONFIG_BUFF_MAX_SIZE 0x08
 
 #define NFC_WRITE(pData, len)                                                  \
-  NfcExtensionWriter::getInstance().write(pData, len)
+  NfcExtensionWriter::getInstance()->write(pData, len)
 #define IS_START_STOP_STATE_REQUEST(state)                                     \
   ((state) == MPOS_STATE_SEND_PROFILE_SELECT_CONFIG_CMD ||                     \
    (state) == MPOS_STATE_SEND_PROFILE_DESELECT_CONFIG_CMD)
@@ -221,6 +221,17 @@ public:
    * @param sigval val
    */
   static void guardTimeoutHandler(union sigval val);
+  /**
+   * @brief Releases all the resources
+   * @return None
+   *
+   */
+  static inline void finalize() {
+    if (instance != nullptr) {
+      delete (instance);
+      instance = nullptr;
+    }
+  }
 
 private:
   static Mpos *instance; /* Singleton instance of Mpos */

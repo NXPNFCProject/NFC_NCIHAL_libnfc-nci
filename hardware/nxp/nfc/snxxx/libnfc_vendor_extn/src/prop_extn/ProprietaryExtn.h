@@ -147,6 +147,17 @@ public:
    * NFCSTATUS_EXTN_FEATURE_FAILURE.
    */
   NFCSTATUS processExtnWrite(uint16_t dataLen, const uint8_t *pData);
+  /**
+   * @brief Release all resources.
+   * @return None
+   *
+   */
+  static inline void finalize() {
+    if (sProprietaryExtn != nullptr) {
+      delete (sProprietaryExtn);
+      sProprietaryExtn = nullptr;
+    }
+  }
 
 private:
   static ProprietaryExtn *sProprietaryExtn; // singleton object

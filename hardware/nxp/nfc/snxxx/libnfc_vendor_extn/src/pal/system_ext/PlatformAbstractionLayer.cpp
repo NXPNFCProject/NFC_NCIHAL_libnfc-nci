@@ -54,11 +54,18 @@ NxpNfcHal mNxpNfcHal;
 ConfigHandler *mConfigHandler;
 
 PlatformAbstractionLayer::PlatformAbstractionLayer() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s: enter", __func__);
   mConfigHandler = ConfigHandler::getInstance();
   getNxpNfcHal();
 }
 
-PlatformAbstractionLayer::~PlatformAbstractionLayer() {}
+PlatformAbstractionLayer::~PlatformAbstractionLayer() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s: enter", __func__);
+  ConfigHandler::finalize();
+  mConfigHandler = nullptr;
+  mNxpNfcHal.halNxpNfc = nullptr;
+  mNxpNfcHal.aidlHalNxpNfc = nullptr;
+}
 
 PlatformAbstractionLayer *PlatformAbstractionLayer::getInstance() {
   if (sPlatformAbstractionLayer == nullptr) {

@@ -22,15 +22,21 @@
 #include "PlatformAbstractionLayer.h"
 #include <phNxpLog.h>
 
+NfcExtensionWriter *NfcExtensionWriter::sNfcExtensionWriter = nullptr;
+
 NfcExtensionWriter::NfcExtensionWriter() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
 }
 
-NfcExtensionWriter::~NfcExtensionWriter() {}
+NfcExtensionWriter::~NfcExtensionWriter() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+}
 
-NfcExtensionWriter &NfcExtensionWriter::getInstance() {
-  static NfcExtensionWriter instance;
-  return instance;
+NfcExtensionWriter *NfcExtensionWriter::getInstance() {
+  if (sNfcExtensionWriter == nullptr) {
+    sNfcExtensionWriter = new NfcExtensionWriter();
+  }
+  return sNfcExtensionWriter;
 }
 
 void NfcExtensionWriter::onhalControlGrant() {

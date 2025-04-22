@@ -103,6 +103,17 @@ public:
    * @return firmwareVersion
    */
   vector<uint8_t> getFwVersion();
+  /**
+   * @brief Releases all the resources
+   * @return None
+   *
+   */
+  static inline void finalize() {
+    if (instance != nullptr) {
+      delete (instance);
+      instance = nullptr;
+    }
+  }
 
 private:
   static NciStateMonitor *instance;

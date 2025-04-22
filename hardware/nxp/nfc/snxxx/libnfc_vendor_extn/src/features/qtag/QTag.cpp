@@ -24,9 +24,14 @@
 
 QTag *QTag::instance = nullptr;
 
-QTag::QTag() { mIsQTagEnabled = 0; }
+QTag::QTag() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+  mIsQTagEnabled = 0;
+}
 
-QTag::~QTag() {}
+QTag::~QTag() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+}
 
 QTag *QTag::getInstance() {
   if (instance == nullptr) {

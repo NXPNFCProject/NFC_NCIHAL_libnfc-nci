@@ -39,7 +39,7 @@ public:
    * @return Reference to this object.
    *
    */
-  static NfcExtensionWriter &getInstance();
+  static NfcExtensionWriter *getInstance();
   /**
    * @brief This function can be used by HAL to request control of
    *        NFCC to libnfc-nci. When control is provided to HAL it is
@@ -92,8 +92,20 @@ public:
    *
    */
   void stopWriteRspTimer(const uint8_t *pRspBuffer, uint16_t rspLength);
+  /**
+   * @brief Releases all the resources
+   * @return None
+   *
+   */
+  static inline void finalize() {
+    if (sNfcExtensionWriter != nullptr) {
+      delete (sNfcExtensionWriter);
+      sNfcExtensionWriter = nullptr;
+    }
+  }
 
 private:
+  static NfcExtensionWriter *sNfcExtensionWriter;
   NfcExtensionWriter();
   ~NfcExtensionWriter();
   PalIntervalTimer mWriteRspTimer;

@@ -26,6 +26,10 @@ QTagHandler::QTagHandler() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
 }
 
+QTagHandler::~QTagHandler() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+}
+
 void QTagHandler::onFeatureStart() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter mQtagNciPkt.size:%zu",
                  __func__, mQtagNciPkt.size());

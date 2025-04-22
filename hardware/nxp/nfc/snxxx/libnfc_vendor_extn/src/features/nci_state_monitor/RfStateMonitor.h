@@ -34,6 +34,17 @@ public:
   RfStateMonitor &operator=(const RfStateMonitor &) = delete;
   NFCSTATUS processRfDiscRspNtf(vector<uint8_t> &rfResNtf);
   NfcRfState getNfcRfState();
+  /**
+   * @brief Releases all the resources
+   * @return None
+   *
+   */
+  static inline void finalize() {
+    if (instance != nullptr) {
+      delete (instance);
+      instance = nullptr;
+    }
+  }
 
 private:
   /**

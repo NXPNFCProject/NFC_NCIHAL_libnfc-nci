@@ -16,13 +16,18 @@
  *
  **/
 #include "NciCommandBuilder.h"
+#include <phNxpLog.h>
 
 //struct NciDiscoverMaps;
 NciCommandBuilder *NciCommandBuilder::sNciCommandBuilder;
 
-NciCommandBuilder::NciCommandBuilder() {}
+NciCommandBuilder::NciCommandBuilder() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s: enter", __func__);
+}
 
-NciCommandBuilder::~NciCommandBuilder() {}
+NciCommandBuilder::~NciCommandBuilder() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s: enter", __func__);
+}
 
 NciCommandBuilder *NciCommandBuilder::getInstance() {
   if (sNciCommandBuilder == nullptr) {

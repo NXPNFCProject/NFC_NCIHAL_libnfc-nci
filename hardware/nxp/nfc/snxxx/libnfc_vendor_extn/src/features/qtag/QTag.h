@@ -1,6 +1,6 @@
 /**
  *
- *  Copyright 2024 NXP
+ *  Copyright 2024-2025 NXP
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -80,6 +80,17 @@ public:
    * @return false if listen tech is present.
    */
   bool checkDiscCmd(vector<uint8_t> rfDiscCmd);
+  /**
+   * @brief Releases all the resources
+   * @return None
+   *
+   */
+  static inline void finalize() {
+    if (instance != nullptr) {
+      delete (instance);
+      instance = nullptr;
+    }
+  }
 
 private:
   static QTag *instance;

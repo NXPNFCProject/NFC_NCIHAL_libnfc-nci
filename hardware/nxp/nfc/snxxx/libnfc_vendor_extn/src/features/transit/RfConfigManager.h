@@ -95,6 +95,17 @@ public:
    */
   bool isUpdateThreshold(uint8_t index, unsigned &new_value,
                          vector<uint8_t> &lpdet_cmd_response);
+  /**
+   * @brief Releases all the resources
+   * @return None
+   *
+   */
+  static inline void finalize() {
+    if (instance != nullptr) {
+      delete (instance);
+      instance = nullptr;
+    }
+  }
 
 private:
   static RfConfigManager *instance;

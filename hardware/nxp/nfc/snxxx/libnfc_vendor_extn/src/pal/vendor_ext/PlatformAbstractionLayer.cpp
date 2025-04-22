@@ -28,9 +28,13 @@ extern uint8_t phNxpLog_EnableDisableLogLevel(uint8_t enable);
 
 PlatformAbstractionLayer *PlatformAbstractionLayer::sPlatformAbstractionLayer;
 
-PlatformAbstractionLayer::PlatformAbstractionLayer() {}
+PlatformAbstractionLayer::PlatformAbstractionLayer() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+}
 
-PlatformAbstractionLayer::~PlatformAbstractionLayer() {}
+PlatformAbstractionLayer::~PlatformAbstractionLayer() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+}
 
 PlatformAbstractionLayer *PlatformAbstractionLayer::getInstance() {
   if (sPlatformAbstractionLayer == nullptr) {

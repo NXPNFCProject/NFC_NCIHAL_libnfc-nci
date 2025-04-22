@@ -32,6 +32,7 @@
 Mpos *Mpos::instance = nullptr;
 
 Mpos::Mpos() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
   mState = MPOS_STATE_IDLE;
   isActivatedNfcRcv = false;
   isTimerStarted = false;
@@ -42,7 +43,10 @@ Mpos::Mpos() {
   mCurrentTimeoutCount = 0x00;
 }
 
-Mpos::~Mpos() { mState = MPOS_STATE_UNKNOWN; }
+Mpos::~Mpos() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+  mState = MPOS_STATE_UNKNOWN;
+}
 
 Mpos *Mpos::getInstance() {
   if (instance == nullptr) {
@@ -94,7 +98,7 @@ static bool isValidNciConfig(const uint8_t *buffer, size_t length) {
 }
 
 static void switchToDefaultHandler() {
-  NfcExtensionWriter::getInstance().releaseHALcontrol();
+  NfcExtensionWriter::getInstance()->releaseHALcontrol();
   NfcExtensionController::getInstance()->switchEventHandler(
       HandlerType::DEFAULT);
 }
@@ -117,7 +121,7 @@ static void sendSelectProfileCmd() {
     NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - START_FAIL");
     Mpos::getInstance()->updateState(MPOS_STATE_IDLE);
     notifyReaderModeActionEvt(ACTION_SE_READER_TAG_DISCOVERY_START_FAILED);
-    NfcExtensionWriter::getInstance().releaseHALcontrol();
+    NfcExtensionWriter::getInstance()->releaseHALcontrol();
   }
 }
 
@@ -424,7 +428,7 @@ NFCSTATUS Mpos::processMposEvent(ScrState_t state) {
 
   switch (state) {
   case MPOS_STATE_REQUEST_HAL_CONTROL: {
-    NfcExtensionWriter::getInstance().requestHALcontrol();
+    NfcExtensionWriter::getInstance()->requestHALcontrol();
     return NFCSTATUS_EXTN_FEATURE_SUCCESS;
   }
   case MPOS_STATE_SEND_PROFILE_SELECT_CONFIG_CMD: {
@@ -439,7 +443,7 @@ NFCSTATUS Mpos::processMposEvent(ScrState_t state) {
   }
   case MPOS_STATE_NOTIFY_DISCOVER_MAP_RSP: {
     updateState(MPOS_STATE_WAIT_FOR_RF_DISCOVERY_RSP);
-    NfcExtensionWriter::getInstance().releaseHALcontrol();
+    NfcExtensionWriter::getInstance()->releaseHALcontrol();
     notifyReaderModeActionEvt(ACTION_SE_READER_START_RF_DISCOVERY);
     return NFCSTATUS_EXTN_FEATURE_SUCCESS;
   }

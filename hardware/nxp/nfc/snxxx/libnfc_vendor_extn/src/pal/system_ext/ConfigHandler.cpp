@@ -27,9 +27,13 @@
 using namespace ::android::base;
 ConfigHandler* ConfigHandler::sConfigHandler;
 
-ConfigHandler::ConfigHandler() {}
+ConfigHandler::ConfigHandler() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+}
 
-ConfigHandler::~ConfigHandler() {}
+ConfigHandler::~ConfigHandler() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+}
 
 ConfigHandler* ConfigHandler::getInstance() {
   if (sConfigHandler == nullptr) {

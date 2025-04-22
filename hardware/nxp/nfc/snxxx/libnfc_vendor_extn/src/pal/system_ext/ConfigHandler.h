@@ -54,6 +54,17 @@ class ConfigHandler {
    *
    */
   void updateConfig(map<string, ConfigValue>* pConfigMap);
+  /**
+   * @brief Releases all the resources
+   * @return None
+   *
+   */
+  static inline void finalize() {
+    if (sConfigHandler != nullptr) {
+      delete (sConfigHandler);
+      sConfigHandler = nullptr;
+    }
+  }
 
  private:
   static ConfigHandler* sConfigHandler;  // singleton object

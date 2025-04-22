@@ -101,6 +101,12 @@ public:
   NFCSTATUS processExtnWrite(uint16_t dataLen, const uint8_t *pData) override;
 
   QTagHandler();
+  /**
+   * @brief Release all resources.
+   * @return None
+   *
+   */
+  ~QTagHandler();
 
 private:
   std::vector<uint8_t> mQtagNciPkt;

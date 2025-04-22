@@ -19,9 +19,14 @@
 
 RfStateMonitor *RfStateMonitor::instance = nullptr;
 
-RfStateMonitor::RfStateMonitor() { nfcRfState = NfcRfState::IDLE; }
+RfStateMonitor::RfStateMonitor() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+  nfcRfState = NfcRfState::IDLE;
+}
 
-RfStateMonitor::~RfStateMonitor() {}
+RfStateMonitor::~RfStateMonitor() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+}
 
 RfStateMonitor *RfStateMonitor::getInstance() {
   if (instance == nullptr) {

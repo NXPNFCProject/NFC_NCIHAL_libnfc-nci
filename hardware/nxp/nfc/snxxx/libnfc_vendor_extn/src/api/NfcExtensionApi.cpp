@@ -18,10 +18,11 @@
 
 #include "DefaultEventHandler.h"
 #include "NfcExtensionApi.h"
-#include "NfcFirmwareInfo.h"
 #include "MposHandler.h"
+#include "NciCommandBuilder.h"
 #include "NfcExtensionConstants.h"
 #include "NfcExtensionController.h"
+#include "NfcFirmwareInfo.h"
 #include "PlatformAbstractionLayer.h"
 #include "ProprietaryExtn.h"
 #include "QTagHandler.h"
@@ -186,9 +187,14 @@ VendorExtnCb *getNfcVendorExtnCb() { return mVendorExtnCb; }
 
 bool vendor_nfc_de_init() {
   NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
-  ProprietaryExtn::getInstance()->deInit();
   NfcExtensionController::getInstance()->switchEventHandler(
       HandlerType::DEFAULT);
+  NfcExtensionController::finalize();
+  NciCommandBuilder::finalize();
+  NfcExtensionWriter::finalize();
+  PlatformAbstractionLayer::finalize();
+  ProprietaryExtn::finalize();
+  resetNxpConfig();
   return true;
 }
 

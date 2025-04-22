@@ -37,6 +37,17 @@ public:
 
   NfceeStateMonitor(const NfceeStateMonitor &) = delete;
   NfceeStateMonitor &operator=(const NfceeStateMonitor &) = delete;
+  /**
+   * @brief Releases all the resources
+   * @return None
+   *
+   */
+  static inline void finalize() {
+    if (instance != nullptr) {
+      delete (instance);
+      instance = nullptr;
+    }
+  };
 
 private:
   /**

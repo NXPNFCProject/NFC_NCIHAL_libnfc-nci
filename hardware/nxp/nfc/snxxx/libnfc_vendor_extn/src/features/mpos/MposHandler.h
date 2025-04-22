@@ -29,6 +29,9 @@
 #define SE_READER_DEDICATED_MODE_OFF 0x00
 #define SE_READER_DEDICATED_MODE_ON 0x01
 
+// Forward declaration
+class Mpos;
+
 /** \addtogroup MPOS_EVENT_HANDLER_API_INTERFACE
  *  @brief  interface to perform the Mpos feature functionality.
  *  @{
@@ -130,6 +133,15 @@ public:
    *
    */
   void onWriteRspTimeout() override;
+  /**
+   * @brief Releases all the resources
+   * @return None
+   *
+   */
+  ~MposHandler();
+
+private:
+  Mpos *mPosMngr = nullptr;
 };
 /** @}*/
 #endif // MPOS_HANDLER_H

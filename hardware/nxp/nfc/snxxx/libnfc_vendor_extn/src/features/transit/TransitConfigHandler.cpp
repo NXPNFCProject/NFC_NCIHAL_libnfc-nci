@@ -31,10 +31,12 @@ using android::base::WriteStringToFile;
 TransitConfigHandler *TransitConfigHandler::instance = nullptr;
 
 TransitConfigHandler::TransitConfigHandler() {
-  NXPLOG_EXTNS_D("%s Enter", __func__);
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
 }
 
-TransitConfigHandler::~TransitConfigHandler() {}
+TransitConfigHandler::~TransitConfigHandler() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+}
 
 TransitConfigHandler *TransitConfigHandler::getInstance() {
   if (instance == nullptr) {

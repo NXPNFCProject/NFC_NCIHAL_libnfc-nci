@@ -23,9 +23,13 @@
 using namespace ::android::base;
 RfConfigManager *RfConfigManager::instance = nullptr;
 
-RfConfigManager::RfConfigManager() {}
+RfConfigManager::RfConfigManager() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+}
 
-RfConfigManager::~RfConfigManager() {}
+RfConfigManager::~RfConfigManager() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+}
 
 RfConfigManager *RfConfigManager::getInstance() {
   if (instance == nullptr) {
@@ -67,8 +71,8 @@ uint8_t RfConfigManager::sendNciCmd(vector<uint8_t> rfConfigCmd) {
   mCmdBuffer.clear();
   mCmdBuffer.assign(rfConfigCmd.begin(), rfConfigCmd.end());
   mRspBuffer.clear();
-  NfcExtensionWriter::getInstance().write(rfConfigCmd.data(),
-                                          rfConfigCmd.size());
+  NfcExtensionWriter::getInstance()->write(rfConfigCmd.data(),
+                                           rfConfigCmd.size());
   mCmdRspCv.timedWait(NCI_CMD_TIMEOUT_IN_SEC);
   mCmdRspCv.unlock();
   if (mRspBuffer.size() < MIN_PCK_MSG_LEN)
@@ -158,8 +162,8 @@ void RfConfigManager::send_sram_config_to_flash() {
                  __func__);
   vector<uint8_t> send_sram_flash = {NCI_PROP_CMD_VAL,
                                      NXP_FLUSH_SRAM_AO_TO_FLASH_OID, 0x00};
-  NfcExtensionWriter::getInstance().write(send_sram_flash.data(),
-                                          send_sram_flash.size());
+  NfcExtensionWriter::getInstance()->write(send_sram_flash.data(),
+                                           send_sram_flash.size());
 }
 
 bool RfConfigManager::isUpdateThreshold(uint8_t index, unsigned &new_value,

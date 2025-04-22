@@ -211,6 +211,17 @@ public:
    * NFCSTATUS_EXTN_FEATURE_FAILURE.
    */
   NFCSTATUS processExtnWrite(uint16_t dataLen, const uint8_t *pData);
+  /**
+   * @brief Release all resources.
+   * @return None
+   *
+   */
+  static inline void finalize() {
+    if (sNfcExtensionController != nullptr) {
+      delete (sNfcExtensionController);
+      sNfcExtensionController = nullptr;
+    }
+  }
 
 private:
   static NfcExtensionController *sNfcExtensionController; // singleton object

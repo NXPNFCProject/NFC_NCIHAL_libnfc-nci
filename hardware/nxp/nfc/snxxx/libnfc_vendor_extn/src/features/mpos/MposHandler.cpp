@@ -24,15 +24,20 @@
 #include "PlatformAbstractionLayer.h"
 #include <phNxpLog.h>
 
-Mpos *mPosMngr = Mpos::getInstance();
-
 MposHandler::MposHandler() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+  mPosMngr = Mpos::getInstance();
+}
+
+MposHandler::~MposHandler() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+  Mpos::finalize();
 }
 
 static void CreateAndReadTimerValFromConfig() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
   unsigned long scrTimerVal = 0;
+  Mpos *mPosMngr = Mpos::getInstance();
 
   if (PlatformAbstractionLayer::getInstance()->palGetNxpNumValue(
           NAME_NXP_SWP_RD_TAG_OP_TIMEOUT, &scrTimerVal, sizeof(scrTimerVal))) {
@@ -68,7 +73,7 @@ void MposHandler::onFeatureEnd() {
   mPosMngr->isTimerStarted = false;
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "MposHandler::%s Enter", __func__);
   mPosMngr->updateState(MPOS_STATE_IDLE);
-  NfcExtensionWriter::getInstance().releaseHALcontrol();
+  NfcExtensionWriter::getInstance()->releaseHALcontrol();
   mPosMngr->tagOperationTimer.kill();
   mPosMngr->tagRemovalTimer.kill();
   mPosMngr->startStopGuardTimer.kill();
@@ -107,7 +112,7 @@ NFCSTATUS MposHandler::handleVendorNciMessage(uint16_t dataLen,
       mPosMngr->tagRemovalTimer.kill();
       mPosMngr->startStopGuardTimer.kill();
       mPosMngr->updateState(MPOS_STATE_SEND_PROFILE_DESELECT_CONFIG_CMD);
-      NfcExtensionWriter::getInstance().requestHALcontrol();
+      NfcExtensionWriter::getInstance()->requestHALcontrol();
     }
     PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
         sizeof(resp), resp);
@@ -126,7 +131,7 @@ NFCSTATUS MposHandler::handleVendorNciRspNtf(uint16_t dataLen, uint8_t *pData) {
   std::vector<uint8_t> pDataVec(pData, pData + dataLen);
 
   // Must to call the stopWriteRspTimer to cancel the rsp timer
-  NfcExtensionWriter::getInstance().stopWriteRspTimer(pData, dataLen);
+  NfcExtensionWriter::getInstance()->stopWriteRspTimer(pData, dataLen);
 
   return mPosMngr->processMposNciRspNtf(pDataVec);
 }
@@ -134,12 +139,12 @@ NFCSTATUS MposHandler::handleVendorNciRspNtf(uint16_t dataLen, uint8_t *pData) {
 void MposHandler::onWriteComplete(uint8_t status) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter status:%d", __func__,
                  status);
-  NfcExtensionWriter::getInstance().onWriteComplete(status);
+  NfcExtensionWriter::getInstance()->onWriteComplete(status);
 }
 
 void MposHandler::halControlGranted() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter ", __func__);
-  NfcExtensionWriter::getInstance().onhalControlGrant();
+  NfcExtensionWriter::getInstance()->onhalControlGrant();
 
   if (mPosMngr->getState() == MPOS_STATE_SEND_PROFILE_DESELECT_CONFIG_CMD) {
     mPosMngr->processMposEvent(MPOS_STATE_SEND_PROFILE_DESELECT_CONFIG_CMD);

@@ -25,12 +25,19 @@
 NfcExtensionController *NfcExtensionController::sNfcExtensionController;
 
 NfcExtensionController::NfcExtensionController() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s: enter", __func__);
   mNfcHalState = {0};
   mCurrentHandlerType = {0};
   mCurrentHandlerState = HandlerState::STOPPED;
 }
 
-NfcExtensionController::~NfcExtensionController() {}
+NfcExtensionController::~NfcExtensionController() {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s: enter", __func__);
+  mHandlers.clear();
+  mIEventHandler = nullptr;
+  mDefaultEventHandler = nullptr;
+  NciStateMonitor::finalize();
+}
 
 NfcExtensionController *NfcExtensionController::getInstance() {
   if (sNfcExtensionController == nullptr) {
