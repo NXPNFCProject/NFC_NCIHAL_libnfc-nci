@@ -46,6 +46,9 @@ cc_defaults {
         "src/features/transit/TransitConfigHandler.cpp",
         "src/features/transit/RfConfigManager.cpp",
         "src/features/fw/NfcFirmwareInfo.cpp",
+        "src/features/lxdebug/LxDebug.cpp",
+        "src/features/lxdebug/LxDebugHandler.cpp",
+
     ],
     export_include_dirs: [
         "inc/common",
@@ -64,6 +67,7 @@ cc_defaults {
         "src/features/nci_state_monitor",
         "src/features/transit",
         "src/features/fw",
+        "src/features/lxdebug",
     ],
     shared_libs: [
         "libbase",

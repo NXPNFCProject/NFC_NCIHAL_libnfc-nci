@@ -26,6 +26,7 @@
 #include "PlatformAbstractionLayer.h"
 #include "ProprietaryExtn.h"
 #include "QTagHandler.h"
+#include "LxDebugHandler.h"
 #include "TransitConfigHandler.h"
 #include <phNxpLog.h>
 #include <stdint.h>
@@ -155,6 +156,8 @@ static void addHandlers() {
       HandlerType::TRANSIT, std::make_shared<TransitConfigHandler>());
   NfcExtensionController::getInstance()->addEventHandler(
       HandlerType::FW, std::make_shared<NfcFirmwareInfo>());
+  NfcExtensionController::getInstance()->addEventHandler(
+      HandlerType::LxDebug, std::make_shared<LxDebugHandler>());
 }
 
 static void printGenExtnLibVersion() {

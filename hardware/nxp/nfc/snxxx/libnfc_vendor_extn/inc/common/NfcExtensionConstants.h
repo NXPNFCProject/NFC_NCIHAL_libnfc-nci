@@ -147,6 +147,7 @@ constexpr uint16_t NCI_DISC_REQ_NTF_GID_OID = 0x610A;
 constexpr uint16_t NCI_SET_CONFIG_RSP_GID_OID = 0x4002;
 constexpr uint16_t NCI_DISC_MAP_RSP_GID_OID = 0x4100;
 constexpr uint16_t NCI_RF_DISC_CMD_GID_OID = 0x2103;
+constexpr uint16_t NCI_RF_SET_CONFIG_CMD_GID_OID = 0x2002;
 constexpr uint16_t NCI_RF_DISC_RSP_GID_OID = 0x4103;
 constexpr uint16_t NCI_RF_INTF_ACTD_NTF_GID_OID = 0x6105;
 constexpr uint16_t NCI_RF_DEACTD_NTF_GID_OID = 0x6106;

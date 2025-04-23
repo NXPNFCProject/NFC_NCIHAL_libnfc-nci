@@ -56,6 +56,10 @@ enum class HandlerType {
    *
    */
   TRANSIT = 0x0B,
+  /**
+   * @brief indicates STR feature handler
+   */
+  LxDebug = 0x0F,
   // TODO: Align on ROW Sub GID and OID usage
   /**
    * @brief indicates t4t feature handler
