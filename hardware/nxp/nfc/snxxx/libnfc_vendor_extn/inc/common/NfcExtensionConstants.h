@@ -93,6 +93,7 @@ constexpr uint8_t SUB_GID_OID_ACTION_INDEX = 4;
 constexpr uint8_t SUB_GID_MASK = 0xF0;
 constexpr uint8_t SUB_OID_MASK = 0x0F;
 constexpr uint8_t NCI_PROP_ACTION_INDEX = 0x04;
+constexpr uint8_t SUB_GID_OID_RSP_STATUS_INDEX = 0x04;
 
 constexpr uint8_t NCI_GID_INDEX = 0;
 constexpr uint8_t NCI_OID_INDEX = 1;

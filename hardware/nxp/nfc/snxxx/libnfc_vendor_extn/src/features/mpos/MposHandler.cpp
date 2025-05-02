@@ -84,7 +84,7 @@ NFCSTATUS MposHandler::handleVendorNciMessage(uint16_t dataLen,
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "MposHandler::%s Enter dataLen:%d",
                  __func__, dataLen);
   uint8_t resp[] = {NCI_PROP_RSP_VAL, NCI_ROW_PROP_OID_VAL, PAYLOAD_TWO_LEN,
-                    MPOS_READER_SET_DMODE_SUB_GIDOID_VAL, RESPONSE_STATUS_OK};
+                    MPOS_READER_SET_DMODE_SUB_GIDOID_VAL, RESPONSE_STATUS_FAILED};
   HandlerType currentHandleType;
   NFCSTATUS status = NFCSTATUS_EXTN_FEATURE_FAILURE;
 
@@ -96,6 +96,7 @@ NFCSTATUS MposHandler::handleVendorNciMessage(uint16_t dataLen,
     if (currentHandleType != HandlerType::MPOS) {
       NfcExtensionController::getInstance()->switchEventHandler(
           HandlerType::MPOS);
+        resp[SUB_GID_OID_RSP_STATUS_INDEX] = RESPONSE_STATUS_OK;
     }
     PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
         sizeof(resp), resp);
@@ -113,6 +114,7 @@ NFCSTATUS MposHandler::handleVendorNciMessage(uint16_t dataLen,
       mPosMngr->startStopGuardTimer.kill();
       mPosMngr->updateState(MPOS_STATE_SEND_PROFILE_DESELECT_CONFIG_CMD);
       NfcExtensionWriter::getInstance()->requestHALcontrol();
+      resp[SUB_GID_OID_RSP_STATUS_INDEX] = RESPONSE_STATUS_OK;
     }
     PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
         sizeof(resp), resp);
