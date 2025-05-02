@@ -64,7 +64,7 @@ public:
 
 private:
   LxDebug *mLxDebugMngr = nullptr;
-  static constexpr uint8_t LxDebug_SUB_GID_OID = 0xF0;
+  static constexpr uint8_t LXDEBUG_SUB_GID = 0x07;
   static constexpr uint8_t FIELD_DETECT_MODE_SET_SUB_OID = 0x0F;
   static constexpr uint8_t IS_FIELD_DETECT_ENABLED_SUB_OID = 0x0E;
   static constexpr uint8_t IS_FIELD_DETECT_MODE_STARTED_SUB_OID = 0x0D;

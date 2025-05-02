@@ -49,34 +49,30 @@ NFCSTATUS LxDebugHandler::handleVendorNciMessage(uint16_t dataLen,
   response.push_back(NCI_PROP_RSP_VAL);
   response.push_back(NCI_ROW_PROP_OID_VAL);
   response.push_back(PAYLOAD_TWO_LEN);
-  response.push_back(LxDebug_SUB_GID_OID);
+  response.push_back(LXDEBUG_SUB_GID);
   response.push_back(RESPONSE_STATUS_OK);
 
-  uint8_t subGid = pData[SUB_GID_OID_INDEX];
-  uint8_t len = pData[NCI_PAYLOAD_LEN_INDEX];
-  if (subGid == LxDebug_SUB_GID_OID && len >= 2) {
+  uint8_t subGid = pData[SUB_GID_OID_INDEX] >> 4;
+  if (subGid == LXDEBUG_SUB_GID) {
+    uint8_t subOid = pData[SUB_GID_OID_INDEX] & 0x0F;
     status = NFCSTATUS_EXTN_FEATURE_SUCCESS;
-    uint8_t subAction = pData[SUB_GID_OID_ACTION_INDEX];
-    switch (subAction) {
-    case FIELD_DETECT_MODE_SET_SUB_OID:
-      if (len >= 3) {
-        bool mode = (pData[SUB_GID_OID_ACTION_INDEX + 1] == EFDM_ENABLED)
-                        ? true
-                        : false;
-        mLxDebugMngr->handleEFDMModeSet(mode);
-        currentHandleType =
-            NfcExtensionController::getInstance()->getEventHandlerType();
-        if (mode && (currentHandleType != HandlerType::LxDebug)) {
-          NfcExtensionController::getInstance()->switchEventHandler(
-              HandlerType::LxDebug);
-        } else if (currentHandleType == HandlerType::LxDebug) {
-          NfcExtensionController::getInstance()->switchEventHandler(
-              HandlerType::DEFAULT);
-        }
-      } else {
-        response[response.size() - 1] = RESPONSE_STATUS_FAILED;
+    response[SUB_GID_OID_INDEX] = LXDEBUG_SUB_GID << 4 | subOid;
+    switch (subOid) {
+    case FIELD_DETECT_MODE_SET_SUB_OID: {
+      bool mode =
+          (pData[SUB_GID_OID_ACTION_INDEX] == EFDM_ENABLED) ? true : false;
+      mLxDebugMngr->handleEFDMModeSet(mode);
+      currentHandleType =
+          NfcExtensionController::getInstance()->getEventHandlerType();
+      if (mode && (currentHandleType != HandlerType::LxDebug)) {
+        NfcExtensionController::getInstance()->switchEventHandler(
+            HandlerType::LxDebug);
+      } else if (currentHandleType == HandlerType::LxDebug) {
+        NfcExtensionController::getInstance()->switchEventHandler(
+            HandlerType::DEFAULT);
       }
       break;
+    }
     case IS_FIELD_DETECT_ENABLED_SUB_OID:
       response[NCI_PAYLOAD_LEN_INDEX] += 1;
       response.push_back(mLxDebugMngr->isFieldDetectEnabledFromConfig());

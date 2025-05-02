@@ -48,6 +48,10 @@ enum class HandlerType {
    */
   QTAG = 0x03,
   /**
+   * @brief indicates lxdebug feature handler
+   */
+  LxDebug = 0x07,
+  /**
    * @brief indicates FW feature handler
    */
   FW = 0x09,
@@ -56,10 +60,6 @@ enum class HandlerType {
    *
    */
   TRANSIT = 0x0B,
-  /**
-   * @brief indicates STR feature handler
-   */
-  LxDebug = 0x0F,
   // TODO: Align on ROW Sub GID and OID usage
   /**
    * @brief indicates t4t feature handler
