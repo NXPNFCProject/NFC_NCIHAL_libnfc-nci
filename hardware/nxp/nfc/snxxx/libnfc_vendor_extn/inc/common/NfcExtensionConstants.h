@@ -114,6 +114,7 @@ constexpr uint8_t MPOS_READER_MODE_NTF_SUB_GIDOID_VAL = 0xA0;
 constexpr uint8_t TRANSIT_SUB_GIDOID = 0xB1;
 constexpr uint8_t RF_REGISTER_SUB_GIDOID = 0xB2;
 constexpr uint8_t FW_VERSION_SUB_GIDOID = 0x9F;
+constexpr uint8_t NCI_EE_PWR_LINK_CMD_GID_OID = 0x2203;
 
 constexpr uint8_t NCI_UN_RECOVERABLE_ERR = 0x01;
 constexpr uint8_t NCI_HAL_CONTROL_BUSY = 0x02;

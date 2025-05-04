@@ -16,8 +16,9 @@
  *
  **/
 
-#include "DefaultEventHandler.h"
 #include "NfcExtensionApi.h"
+#include "DefaultEventHandler.h"
+#include "LxDebugHandler.h"
 #include "MposHandler.h"
 #include "NciCommandBuilder.h"
 #include "NfcExtensionConstants.h"
@@ -26,7 +27,7 @@
 #include "PlatformAbstractionLayer.h"
 #include "ProprietaryExtn.h"
 #include "QTagHandler.h"
-#include "LxDebugHandler.h"
+#include "SrdHandler.h"
 #include "TransitConfigHandler.h"
 #include <phNxpLog.h>
 #include <stdint.h>
@@ -158,6 +159,8 @@ static void addHandlers() {
       HandlerType::FW, std::make_shared<NfcFirmwareInfo>());
   NfcExtensionController::getInstance()->addEventHandler(
       HandlerType::LxDebug, std::make_shared<LxDebugHandler>());
+  NfcExtensionController::getInstance()->addEventHandler(
+      HandlerType::SRD, std::make_shared<SrdHandler>());
 }
 
 static void printGenExtnLibVersion() {

@@ -59,12 +59,16 @@ enum class HandlerType {
    * @brief indicate Transit config & RF Register feature handler
    *
    */
-  TRANSIT = 0x0B,
+  TRANSIT = 0x0C,
   // TODO: Align on ROW Sub GID and OID usage
   /**
    * @brief indicates t4t feature handler
    */
-  T4T = 15
+  T4T = 15,
+  /**
+   * @brief indicates mpos feature handler
+   */
+  SRD = 0x0B,
 };
 
 class NfcExtensionController {

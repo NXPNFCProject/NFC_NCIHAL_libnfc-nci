@@ -19,9 +19,9 @@
 #include "NfcExtensionController.h"
 #include "NfcExtensionConstants.h"
 #include "PlatformAbstractionLayer.h"
+#include "Srd.h"
 #include <NciStateMonitor.h>
 #include <phNxpLog.h>
-
 NfcExtensionController *NfcExtensionController::sNfcExtensionController;
 
 NfcExtensionController::NfcExtensionController() {
@@ -96,6 +96,7 @@ void NfcExtensionController::switchEventHandler(HandlerType handlerType) {
 
 void NfcExtensionController::init() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+  Srd::getInstance()->Initilize();
 }
 
 NFCSTATUS NfcExtensionController::handleVendorNciMessage(uint16_t dataLen,
