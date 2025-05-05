@@ -44,7 +44,7 @@ typedef enum {
   SRD_STATE_MAX,
 } SrdState_t;
 #define NFC_WRITE(pData, len)                                                  \
-  NfcExtensionWriter::getInstance().write(pData, len)
+  NfcExtensionWriter::getInstance()->write(pData, len)
 
 typedef enum {
   SRD_START_EVT,

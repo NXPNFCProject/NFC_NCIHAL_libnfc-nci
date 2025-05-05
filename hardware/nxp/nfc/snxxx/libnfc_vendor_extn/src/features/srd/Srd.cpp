@@ -109,7 +109,7 @@ NFCSTATUS Srd::sendModeSetCmd() {
   std::vector<uint8_t> cmd = {0x22, 0x01, 0x02, 0xC0, 0x01};
   mCmdBuffer.clear();
   mCmdBuffer.assign(cmd.begin(), cmd.end());
-  NfcExtensionWriter::getInstance().write(cmd.data(), cmd.size());
+  NfcExtensionWriter::getInstance()->write(cmd.data(), cmd.size());
   return NFCSTATUS_EXTN_FEATURE_SUCCESS;
 }
 
