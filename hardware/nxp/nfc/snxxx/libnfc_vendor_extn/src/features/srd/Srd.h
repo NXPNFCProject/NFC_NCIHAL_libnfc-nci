@@ -127,7 +127,7 @@ private:
   Srd();
   ~Srd();
   SrdState_t mState;
-  bool sIsSrdSupported;
+  bool sIsSrdSupported = false;
   static constexpr uint8_t NCI_SDR_MODE_NTF_PL_LEN = 0x02;
   static constexpr uint8_t SRD_ENABLE_DISCOVERY = 0xBC;
   static constexpr uint8_t SRD_ENABLE_MODE = 0xBE;
