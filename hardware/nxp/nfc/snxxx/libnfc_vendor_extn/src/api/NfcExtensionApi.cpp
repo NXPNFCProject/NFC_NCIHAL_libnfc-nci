@@ -16,8 +16,11 @@
  *
  **/
 
-#include "NfcExtensionApi.h"
+//Important Do Not change the order of DefaultEventHandler.h it leads to build failure*
+//The order is crtical for correct copilation
+
 #include "DefaultEventHandler.h"
+#include "NfcExtensionApi.h"
 #include "LxDebugHandler.h"
 #include "MposHandler.h"
 #include "NciCommandBuilder.h"
