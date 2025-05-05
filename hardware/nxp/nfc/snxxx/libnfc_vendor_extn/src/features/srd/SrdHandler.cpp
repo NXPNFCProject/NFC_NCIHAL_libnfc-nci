@@ -42,7 +42,7 @@ void SrdHandler::onFeatureStart() {
 
 void SrdHandler::onFeatureEnd() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "SrdHandler::%s Enter", __func__);
-  NfcExtensionWriter::getInstance().releaseHALcontrol();
+  NfcExtensionWriter::getInstance()->releaseHALcontrol();
 }
 
 NFCSTATUS SrdHandler::handleVendorNciMessage(uint16_t dataLen,
@@ -95,14 +95,14 @@ NFCSTATUS SrdHandler::handleVendorNciRspNtf(uint16_t dataLen, uint8_t *pData) {
   // Convert the raw pointer to a vector
   std::vector<uint8_t> pDataVec(pData, pData + dataLen);
 
-  NfcExtensionWriter::getInstance().stopWriteRspTimer(pData, dataLen);
+  NfcExtensionWriter::getInstance()->stopWriteRspTimer(pData, dataLen);
   return mSrdMngr->processSrdNciRspNtf(pDataVec);
 }
 
 void SrdHandler::onWriteComplete(uint8_t status) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter status:%d", __func__,
                  status);
-  NfcExtensionWriter::getInstance().onWriteComplete(status);
+  NfcExtensionWriter::getInstance()->onWriteComplete(status);
 }
 
 void SrdHandler::onWriteRspTimeout() {
