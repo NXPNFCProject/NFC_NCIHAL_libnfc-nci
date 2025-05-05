@@ -336,6 +336,7 @@ bool RfConfigManager::checkUpdateRfRegisterConfig(vector<uint8_t> rfConfigCmd) {
       auto itReg = rfRegA085Map.find(configKey);
       if (itReg == rfRegA085Map.end())
         continue;
+      b_position = (unsigned)(0x01 << itReg->second);
       if ((rf_reg_A085_value & b_position) !=
           ((new_value & 0x01) << itReg->second)) {
         rf_reg_A085_value ^= (1 << itReg->second);
