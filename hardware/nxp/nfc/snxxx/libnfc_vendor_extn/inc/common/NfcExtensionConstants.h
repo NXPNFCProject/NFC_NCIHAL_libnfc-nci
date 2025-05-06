@@ -114,6 +114,7 @@ constexpr uint8_t MPOS_READER_MODE_NTF_SUB_GIDOID_VAL = 0xA0;
 constexpr uint8_t TRANSIT_SUB_GIDOID = 0xC1;
 constexpr uint8_t RF_REGISTER_SUB_GIDOID = 0xC2;
 constexpr uint8_t FW_VERSION_SUB_GIDOID = 0x9F;
+constexpr uint8_t NCI_PROP_NTF_SYSTEM_GENERIC_INFO_OID = 0x0F;
 constexpr uint8_t NCI_EE_PWR_LINK_CMD_GID_OID = 0x2203;
 
 constexpr uint8_t NCI_UN_RECOVERABLE_ERR = 0x01;
@@ -159,6 +160,8 @@ constexpr uint16_t NCI_DATA_PKT_RSP_GID_OID = 0x0100;
 constexpr uint16_t NCI_EE_DISC_NTF_GID_OID = 0x6200;
 constexpr uint16_t NCI_SCREEN_SUB_STATE_CMD_GID_OID = 0x2009;
 constexpr uint16_t NCI_SCREEN_SUB_STATE_RSP_GID_OID = 0x4009;
+constexpr uint16_t NCI_PROP_SYSTEM_GENERIC_INFO_NTF_GID_OID =
+    ((NCI_PROP_NTF_VAL << 8) | NCI_PROP_NTF_SYSTEM_GENERIC_INFO_OID);
 
 constexpr uint16_t NCI_FW_MAJOR_VER_INDEX = 0x0A;
 constexpr uint16_t NCI_FW_MINOR_VER_INDEX = 0x0B;
@@ -225,6 +228,39 @@ constexpr uint8_t STATUS_FW_DL_REQUEST = 0x04;
 
 extern uint8_t EXT_NFC_ADAPTATION_INIT;
 extern uint8_t EXT_NFC_PRE_DISCOVER;
+
+/**
+ * @brief Defines System generic info values in TLV
+ *
+ */
+enum class NfcCorePropRfMgmtSysGenInfoValues {
+  /**
+   * @brief System generic info value No Tag found
+   */
+  NO_TAG_FOUND = 0xA9,
+  /**
+   * @brief System generic info value external field detected during poll
+   */
+  EXTENDED_FIELD_DETECTED_DURING_POLL = 0xAA,
+};
+/**
+ * @brief Defines System generic info tags in TLV
+ *
+ */
+enum class NfcCorePropRFMgmtSysGenInfoTags {
+  /**
+   * @brief System generic info Tag presence check
+   */
+  PRESENCE_CHECK = 0x30,
+  /**
+   * @brief System generic info Tag EMVCo PCD
+   */
+  EMVCO_PCD = 0x31,
+  /**
+   * @brief System generic info Tag DA Select Antenna
+   */
+  DA_SELECT_ANTENNA = 0x90
+};
 
 /**
  * @brief Defines the state of the Handler

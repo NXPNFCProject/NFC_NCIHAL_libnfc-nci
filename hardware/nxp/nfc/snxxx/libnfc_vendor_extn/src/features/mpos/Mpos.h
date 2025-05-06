@@ -105,6 +105,10 @@ typedef enum {
   MPOS_STATE_HAL_CONTROL_REQUEST_TIMEOUT,
   /* Timeout waiting for tag in RF discovery */
   MPOS_STATE_NO_TAG_TIMEOUT,
+  /* External field detected during polling */
+  MPOS_STATE_EXT_FIELD_DETECTED_DURING_POLL,
+  /* Recovery in progress on External field detected during polling */
+  MPOS_STATE_RECOVERY_ON_EXT_FIELD_DETECT,
   /* Generic error notification received */
   MPOS_STATE_GENERIC_ERR_NTF,
   /* Generic mPOS NTF consume it */
@@ -241,7 +245,20 @@ private:
   ~Mpos();
   bool isProcessRdrReq(ScrState_t state);
   std::string scrStateToString(ScrState_t state);
-
   ScrState_t mState;
+  /**
+   * @brief Checks if external field is detected during Mpos poll
+   * @param pData the data buffer
+   * @return true if external field detected during Mpos poll
+   *         false otherwise
+   */
+  static bool isExternalFieldDetected(const std::vector<uint8_t> &pData);
+  /**
+   * @brief Mpos Recovery timeout handler, It will restart rf discovery.
+   * @param sigval val
+   */
+  static void recoveryTimeoutHandler(union sigval val);
+  PalIntervalTimer mRecoveryTimer;   /* Mpos recovery timer */
+  unsigned long recoveryTimeout = 5; /* Recovery Timeout in secs */
 };
 #endif // MPOS_H

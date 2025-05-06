@@ -267,6 +267,8 @@ ScrState_t Mpos::getScrState(const std::vector<uint8_t> &pData) {
     if ((mState == MPOS_STATE_WAIT_FOR_RF_DEACTIVATION) &&
         (isActivatedNfcRcv == false)) {
       return MPOS_STATE_SE_READER_STOPPED;
+    } else if (mState == MPOS_STATE_RECOVERY_ON_EXT_FIELD_DETECT) {
+      return MPOS_STATE_RECOVERY_ON_EXT_FIELD_DETECT;
     }
     break;
   case NCI_RF_DEACTD_NTF_GID_OID:
@@ -280,6 +282,12 @@ ScrState_t Mpos::getScrState(const std::vector<uint8_t> &pData) {
         (mState == MPOS_STATE_GENERIC_ERR_NTF)) &&
         (status == NCI_TAG_COLLISION_DETECTED)) {
       return MPOS_STATE_GENERIC_ERR_NTF;
+    }
+    break;
+  }
+  case NCI_PROP_SYSTEM_GENERIC_INFO_NTF_GID_OID: {
+    if (isExternalFieldDetected(pData)) {
+      return MPOS_STATE_EXT_FIELD_DETECTED_DURING_POLL;
     }
     break;
   }
@@ -346,6 +354,37 @@ void Mpos::cardRemovalTimeoutHandler(union sigval val) {
 void Mpos::guardTimeoutHandler(union sigval val) {
   UNUSED_PROP(val);
   getInstance()->processMposEvent(getInstance()->lastScrState);
+}
+
+bool Mpos::isExternalFieldDetected(const std::vector<uint8_t> &pData) {
+  int index = 3;
+  // Get number of TLVS
+  uint8_t numOfParams = pData[index++];
+  while (numOfParams > 0) {
+    // Parse all TLVS
+    uint8_t tag = pData[index++];
+    uint8_t len = pData[index++];
+    std::vector<uint8_t> value((pData.data() + index),
+                               (pData.data() + index + len));
+    index += len;
+    numOfParams--;
+    if (tag == (uint8_t)NfcCorePropRFMgmtSysGenInfoTags::EMVCO_PCD &&
+        len == 0x01 &&
+        value[0] == (uint8_t)NfcCorePropRfMgmtSysGenInfoValues::
+                        EXTENDED_FIELD_DETECTED_DURING_POLL) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void Mpos::recoveryTimeoutHandler(union sigval val) {
+  UNUSED_PROP(val);
+  NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "MPOS RECOVERY WAIT COMPLETED");
+  NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "Restarting Rf Discovery for Mpos");
+  getInstance()->updateState(MPOS_STATE_WAIT_FOR_RF_DISCOVERY_RSP);
+  notifyReaderModeActionEvt(ACTION_SE_READER_START_RF_DISCOVERY);
+  return;
 }
 
 bool Mpos::isSeReaderRestarted(const std::vector<uint8_t> &pData) {
@@ -512,6 +551,25 @@ NFCSTATUS Mpos::processMposEvent(ScrState_t state) {
     notifySeReaderRestarted();
     return NFCSTATUS_EXTN_FEATURE_FAILURE;
   }
+  case MPOS_STATE_EXT_FIELD_DETECTED_DURING_POLL: {
+    NXPLOG_EXTNS_D(
+        NXPLOG_ITEM_NXP_GEN_EXTN,
+        "EXTERNAL FIELD DETECTED DURING POLL, STOPPING RF DISCOVERY");
+    updateState(MPOS_STATE_RECOVERY_ON_EXT_FIELD_DETECT);
+    notifyReaderModeActionEvt(ACTION_SE_READER_STOP_RF_DISCOVERY);
+    return NFCSTATUS_EXTN_FEATURE_SUCCESS;
+  }
+  case MPOS_STATE_RECOVERY_ON_EXT_FIELD_DETECT: {
+    // Start a timer to restart rf discovery after timeout
+    if (!mRecoveryTimer.set(recoveryTimeout * 1000, NULL,
+                            recoveryTimeoutHandler)) {
+      NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+                     "Failed to start MPOS_RECOVERY_TIMER");
+    } else {
+      NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "MPOS_RECOVERY_TIMER STARTED");
+    }
+    return NFCSTATUS_EXTN_FEATURE_FAILURE;
+  }
   case MPOS_STATE_GENERIC_NTF:{
     return NFCSTATUS_EXTN_FEATURE_SUCCESS;
   }
@@ -575,6 +633,10 @@ std::string Mpos::scrStateToString(ScrState_t state) {
     return "MPOS_STATE_NO_TAG_TIMEOUT";
   case MPOS_STATE_GENERIC_ERR_NTF:
     return "MPOS_STATE_GENERIC_ERR_NTF";
+  case MPOS_STATE_EXT_FIELD_DETECTED_DURING_POLL:
+    return "MPOS_STATE_EXT_FIELD_DETECTED_DURING_POLL";
+  case MPOS_STATE_RECOVERY_ON_EXT_FIELD_DETECT:
+    return "MPOS_STATE_RECOVERY_ON_EXT_FIELD_DETECT";
   case MPOS_STATE_GENERIC_NTF:
     return "MPOS_STATE_GENERIC_NTF";
   case MPOS_STATE_UNKNOWN:
