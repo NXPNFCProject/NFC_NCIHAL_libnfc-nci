@@ -143,10 +143,10 @@ NFCSTATUS Srd::processSrdNciRspNtf(const std::vector<uint8_t> &pRspBuffer) {
     break;
   case SRD_STATE_W4_HCI_CONNECTIVITY_EVT:
     if (checkSrdEvent(pRspBuffer) == SRD_START_EVT) {
-      handleRespStatus = NFCSTATUS_EXTN_FEATURE_SUCCESS;
+      handleRespStatus = NFCSTATUS_EXTN_FEATURE_FAILURE;
     }
     NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN,
-                   "%s : state = SRD_STATE_W4_HCI_CONNECTIVITY_EVT", __func__);
+                   "%s : state = SRD_STATE_W4_HCI_CONNECTIVITY_EVT propagate to upper layer", __func__);
     break;
   case SRD_STATE_W4_DISCOVER_MAP_RSP:
     NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN,
@@ -162,11 +162,11 @@ NFCSTATUS Srd::processSrdNciRspNtf(const std::vector<uint8_t> &pRspBuffer) {
     break;
   case SRD_STATE_W4_HCI_EVENT:
     NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN,
-                   "%s : mState = %d  SRD_STATE_W4_HCI_EVENT", __func__,
+                   "%s : mState = %d  SRD_STATE_W4_HCI_EVENT propagate to upper layer", __func__,
                    mState);
     if (checkSrdEvent(pRspBuffer) == SRD_STOP_EVT ||
         isTimeoutEvent(pRspBuffer)) {
-      handleRespStatus = NFCSTATUS_EXTN_FEATURE_SUCCESS;
+      handleRespStatus = NFCSTATUS_EXTN_FEATURE_FAILURE;
     }
     break;
   default:
