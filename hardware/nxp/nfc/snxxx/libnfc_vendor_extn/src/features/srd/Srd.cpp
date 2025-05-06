@@ -70,6 +70,8 @@ void Srd::Initilize() {
   if (!isfound || !isFeatureDisable) {
     /* NXP_SRD_TIMEOUT value not found in config file. */
     sIsSrdSupported = false;
+  } else {
+    sIsSrdSupported = true;
   }
   if (sIsSrdSupported) {
     NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s SRD supported Exit", __func__);
@@ -85,7 +87,13 @@ void Srd::Initilize() {
   }
 }
 
-void Srd::intSrd() { updateState(SRD_STATE_INIT); }
+void Srd::intSrd() {
+  updateState(SRD_STATE_INIT);
+  if (sIsSrdSupported)
+    notifySRDActionEvt(SRD_FEATURE_SUPPORTED);
+  else
+    notifySRDActionEvt(SRD_FEATURE_NOT_SUPPORTED);
+}
 
 NFCSTATUS Srd::startSrdSeq() {
   NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "%s : Entry", __func__);

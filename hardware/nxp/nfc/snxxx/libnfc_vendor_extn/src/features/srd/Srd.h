@@ -134,5 +134,7 @@ private:
   static constexpr uint8_t START_SRD_DISCOVERY = 0xFF;
   static constexpr uint8_t RESTART_DEFAULT_DISCOVERY = 0xFE;
   static constexpr uint8_t SRD_TIMED_OUT = 0xFD;
+  static constexpr uint8_t SRD_FEATURE_SUPPORTED = 0xFC;
+  static constexpr uint8_t SRD_FEATURE_NOT_SUPPORTED = 0xFB;
 };
 #endif // SRD_H
