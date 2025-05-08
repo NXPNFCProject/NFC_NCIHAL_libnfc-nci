@@ -121,7 +121,7 @@ NFCSTATUS NciStateMonitor::handleVendorNciRspNtf(uint16_t dataLen,
     break;
   }
   case NCI_CORE_RESET_NTF_GID_OID: {
-    status = processCoreResetNtfReceived(std::move(nciRspNtf));
+    status = processCoreResetNtfReceived(nciRspNtf);
     break;
   }
   case NCI_RF_DEACTD_NTF_GID_OID:
