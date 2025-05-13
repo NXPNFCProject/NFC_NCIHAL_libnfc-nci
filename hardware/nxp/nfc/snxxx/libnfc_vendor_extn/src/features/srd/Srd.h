@@ -86,7 +86,7 @@ public:
   /**
    * @brief Api to int the Srd resources.
    */
-  void intSrd();
+  uint8_t intSrd();
   /**
    * @brief Api to start the Srd sequence.
    */

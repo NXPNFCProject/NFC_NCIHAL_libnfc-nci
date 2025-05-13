@@ -33,7 +33,10 @@ Srd *Srd::instance = nullptr;
 
 Srd::Srd() { mState = SRD_STATE_IDLE; }
 
-Srd::~Srd() { mState = SRD_STATE_IDLE; }
+Srd::~Srd() {
+  mState = SRD_STATE_IDLE;
+  sIsSrdSupported = false;
+}
 
 Srd *Srd::getInstance() {
   if (instance == nullptr) {
@@ -87,12 +90,17 @@ void Srd::Initilize() {
   }
 }
 
-void Srd::intSrd() {
-  updateState(SRD_STATE_INIT);
-  if (sIsSrdSupported)
+uint8_t Srd::intSrd() {
+  uint8_t initRespStatus = RESPONSE_STATUS_FAILED;
+  if (sIsSrdSupported) {
+    updateState(SRD_STATE_INIT);
     notifySRDActionEvt(SRD_FEATURE_SUPPORTED);
-  else
+    initRespStatus = RESPONSE_STATUS_OK;
+  } else {
     notifySRDActionEvt(SRD_FEATURE_NOT_SUPPORTED);
+    stopSrd();
+  }
+  return initRespStatus;
 }
 
 NFCSTATUS Srd::startSrdSeq() {

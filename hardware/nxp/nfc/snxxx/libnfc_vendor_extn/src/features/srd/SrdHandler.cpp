@@ -56,7 +56,7 @@ NFCSTATUS SrdHandler::handleVendorNciMessage(uint16_t dataLen,
 
   if (pData[SUB_GID_OID_INDEX] == SRD_INIT_MODE) {
     NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "SRd Init");
-    mSrdMngr->intSrd();
+    resp[SUB_GID_OID_RSP_STATUS_INDEX] = mSrdMngr->intSrd();
     PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
         sizeof(resp), resp);
     return NFCSTATUS_EXTN_FEATURE_SUCCESS;
