@@ -95,6 +95,15 @@ public:
    */
   bool isUpdateThreshold(uint8_t index, unsigned &new_value,
                          vector<uint8_t> &lpdet_cmd_response);
+
+  /**
+   * @brief Send NCI command & Validate response.
+   *
+   * @param cmd_get_rfconfval command to be send
+   * @return true if Response is Success, else false.
+   */
+  bool sendCommandAndValidateResponse(vector<uint8_t> cmd_get_rfconfval);
+
   /**
    * @brief Releases all the resources
    * @return None
@@ -138,6 +147,16 @@ private:
   static const uint8_t RF_PATTERN_CHK_INDEX = 8;
   static const uint8_t GUARD_TIMEOUT_TX2RX_INDEX = 8;
   static const uint8_t REG_A085_DATA_INDEX = 8;
+
+  static const uint8_t CONFIG_PARAM_A0 = 0xA0;
+  static const uint8_t CONFIG_PARAM_A1 = 0xA1;
+
+  static const uint8_t DLMA_ID_TX_ENTRY_VAL = 0x34;
+  static const uint8_t INITIAL_TX_PHASE_VAL = 0x6A;
+  static const uint8_t GUARD_TIMEOUT_TX2RX_VAL = 0x0E;
+  static const uint8_t RF_PATTERN_CHK_VAL = 0x48;
+  static const uint8_t PHONEOFF_TECH_DISABLE_VAL = 0x1A;
+  static const uint8_t ISO_DEP_MERGE_SAK_VAL = 0x1B;
 
   typedef enum {
     UPDATE_DLMA_ID_TX_ENTRY,

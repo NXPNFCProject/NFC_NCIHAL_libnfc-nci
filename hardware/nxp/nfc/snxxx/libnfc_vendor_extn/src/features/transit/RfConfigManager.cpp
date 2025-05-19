@@ -86,17 +86,8 @@ bool RfConfigManager::isRFConfigUpdateRequired(
   uint8_t getPropRfCount = 0;
   uint8_t index = 10; // Index for RF register 6232
   do {
-    if (EXT_NFC_STATUS_OK != sendNciCmd(propRfGetConfigCmd)) {
-      NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
-                     "RfConfigManager::%s : Get config failed for A00D",
-                     __func__);
+    if (!sendCommandAndValidateResponse(propRfGetConfigCmd))
       return false;
-    }
-    if (GET_RES_STATUS_CHECK(mRspBuffer.size(), mRspBuffer.data())) {
-      NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
-                     "RfConfigManager::%s : Get reponse failed", __func__);
-      return false;
-    }
     if (mRspBuffer[RF_CM_TX_UNDERSHOOT_INDEX] == newValue)
       return true;
 
@@ -139,11 +130,8 @@ bool RfConfigManager::updateRfSetConfig(vector<uint8_t> &setConfCmd,
     vector<uint8_t> setConfCmdVect(
         setConfCmd.begin(),
         setConfCmd.begin() + (setConfCmd.size() - res_data_packet_len));
-    if (EXT_NFC_STATUS_OK != sendNciCmd(setConfCmdVect)) {
-      NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
-                     "RfConfigManager::%s : Set confing failed", __func__);
+    if (!sendCommandAndValidateResponse(setConfCmdVect))
       return false;
-    }
     // Clear setConf Data expect the last command response.
     setConfCmd.erase(setConfCmd.begin() + 4,
                      setConfCmd.end() - res_data_packet_len);
@@ -181,6 +169,19 @@ bool RfConfigManager::isUpdateThreshold(uint8_t index, unsigned &new_value,
     isThresholdUpdateRequired = true;
   }
   return isThresholdUpdateRequired;
+}
+
+bool RfConfigManager::sendCommandAndValidateResponse(
+    vector<uint8_t> cmd_get_rfconfval) {
+  if (EXT_NFC_STATUS_OK == sendNciCmd(cmd_get_rfconfval))
+    return true;
+
+  if (GET_RES_STATUS_CHECK(mRspBuffer.size(), mRspBuffer.data())) {
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
+                   "RfConfigManager::%s :  Get/Set config failed", __func__);
+    return false;
+  }
+  return false;
 }
 
 bool RfConfigManager::checkUpdateRfRegisterConfig(vector<uint8_t> rfConfigCmd) {
@@ -223,17 +224,9 @@ bool RfConfigManager::checkUpdateRfRegisterConfig(vector<uint8_t> rfConfigCmd) {
       {UPDATE_CN_TRANSIT_BLK_NUM_CHECK_ENABLE,
        CN_TRANSIT_BLK_NUM_CHECK_ENABLE_BIT_POS}};
 
-  if (EXT_NFC_STATUS_OK != sendNciCmd(cmd_get_rfconfval)) {
-    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
-                   "RfConfigManager::%s : Get config failed for A085",
-                   __func__);
+  if (!sendCommandAndValidateResponse(cmd_get_rfconfval))
     return false;
-  }
-  if (GET_RES_STATUS_CHECK(mRspBuffer.size(), mRspBuffer.data())) {
-    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
-                   "RfConfigManager::%s :  Get config failed", __func__);
-    return false;
-  }
+
   // Updating the A085 get config command response to vector.
   cmd_response.insert(
       cmd_response.end(), &mRspBuffer[0],
@@ -244,17 +237,9 @@ bool RfConfigManager::checkUpdateRfRegisterConfig(vector<uint8_t> rfConfigCmd) {
                                  (cmd_response[REG_A085_DATA_INDEX]));
 
   cmd_get_rfconfval[NCI_GET_CMD_TLV_INDEX2] = 0x9E;
-  if (EXT_NFC_STATUS_OK != sendNciCmd(cmd_get_rfconfval)) {
-    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
-                   "RfConfigManager::%s : Get config failed for A09E",
-                   __func__);
+  if (!sendCommandAndValidateResponse(cmd_get_rfconfval))
     return false;
-  }
-  if (GET_RES_STATUS_CHECK(mRspBuffer.size(), mRspBuffer.data())) {
-    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
-                   "RfConfigManager::%s : Get config failed", __func__);
-    return false;
-  }
+
   // Updating the A09E get config command response to vector.
   lpdet_cmd_response.insert(
       lpdet_cmd_response.end(), &mRspBuffer[0],
@@ -359,18 +344,8 @@ bool RfConfigManager::checkUpdateRfRegisterConfig(vector<uint8_t> rfConfigCmd) {
       break;
     }
     if (index_to_value) {
-      if (EXT_NFC_STATUS_OK != sendNciCmd(cmd_get_rfconfval)) {
-        NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
-                       "RfConfigManager::%s : Get config failed for %d",
-                       __func__, configKey);
+      if (!sendCommandAndValidateResponse(cmd_get_rfconfval))
         return false;
-      }
-      if (GET_RES_STATUS_CHECK(mRspBuffer.size(), mRspBuffer)) {
-        NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
-                       "RfConfigManager::%s : Get confing response failed ",
-                       __func__);
-        return false;
-      }
       read_value = 0;
       read_value = mRspBuffer[index_to_value];
       if (update_mode == BYTEWISE)
@@ -433,18 +408,10 @@ bool RfConfigManager::checkUpdateRfRegisterConfig(vector<uint8_t> rfConfigCmd) {
 
   if (cmd_set_rfconfval[NCI_PACKET_TLV_INDEX] != 0x00) {
     /*If update require do set-config in NFCC otherwise skip */
-    if (EXT_NFC_STATUS_OK == sendNciCmd(cmd_set_rfconfval)) {
-      if (is_feature_update_required) {
-        send_sram_config_to_flash();
-      }
-    } else {
-      if (GET_RES_STATUS_CHECK(mRspBuffer.size(), mRspBuffer)) {
-        NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
-                       "RfConfigManager::%s Set RF update cmd  is failed..",
-                       __func__);
-      }
+    if (!sendCommandAndValidateResponse(cmd_set_rfconfval))
       return false;
-    }
+    if (is_feature_update_required)
+      send_sram_config_to_flash();
   }
   return true;
 }
