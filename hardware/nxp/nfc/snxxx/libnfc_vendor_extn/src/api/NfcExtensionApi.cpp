@@ -370,7 +370,8 @@ NFCSTATUS phNxpExtn_OnHandleHalEvent(uint8_t event, uint8_t event_status) {
   switch (event) {
   case HANDLE_DOWNLOAD_FIRMWARE_REQUEST:
     event_status = STATUS_FW_DL_REQUEST;
-    break;
+    phNxpExtn_OnFwDnldStatusUpdate(event_status);
+    return NFCSTATUS_EXTN_FEATURE_SUCCESS;
   case HAL_NFC_FW_UPDATE_STATUS_EVT:
     phNxpExtn_OnFwDnldStatusUpdate(event_status);
     return NFCSTATUS_EXTN_FEATURE_SUCCESS;
