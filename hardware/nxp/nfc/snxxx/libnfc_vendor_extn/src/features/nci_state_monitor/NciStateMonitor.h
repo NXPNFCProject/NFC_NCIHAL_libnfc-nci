@@ -116,12 +116,22 @@ public:
       instance = nullptr;
     }
   }
+  /**
+   * @brief check if resend is required
+   * @param dataLen
+   * @param pData
+   * @param type if its CMD or RSP type
+   * @return bool
+   */
+  bool isNciRspTimeoutHandlingNeeded(uint16_t dataLen, const uint8_t *pData,
+                                     uint8_t type);
 
-private:
+ private:
   static NciStateMonitor *instance;
   PalThreadCondVar mSramCmdRspCondVar;
   std::vector<uint8_t> mSramCmdRspBuffer;
   std::vector<uint8_t> firmwareVersion;
+  vector<uint8_t> nciCmd;
   NciStateMonitor();
 
   void sendSramConfigFlashCmd();

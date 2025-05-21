@@ -79,7 +79,17 @@ void NfcExtensionWriter::requestHALcontrol() {
 static void writeRspTimeoutCbk(union sigval val) {
   UNUSED_PROP(val);
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
-  NfcExtensionController::getInstance()->writeRspTimedout();
+  NfcExtensionWriter &mExtWriter = *NfcExtensionWriter::getInstance();
+  if (mExtWriter.lastNciCmd.size() >= 3) {
+    PlatformAbstractionLayer::getInstance()->setVendorParam("nfc.cmd_timeout",
+                                                            "");
+    mExtWriter.write(mExtWriter.lastNciCmd.data(),
+                     mExtWriter.lastNciCmd.size(),
+                     NXP_EXTNS_WRITE_RSP_TIMEOUT_IN_MS);
+    mExtWriter.lastNciCmd.clear();
+  } else {
+    NfcExtensionController::getInstance()->writeRspTimedout();
+  }
   return;
 }
 
@@ -87,6 +97,8 @@ NFCSTATUS NfcExtensionWriter::write(const uint8_t *pBuffer, uint16_t wLength,
                                     int timeout) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter wLength:%d", __func__,
                  wLength);
+  lastNciCmd.clear();
+  lastNciCmd.assign(pBuffer, pBuffer + wLength);
   if (mWriteRspTimer.set(timeout, NULL, writeRspTimeoutCbk)) {
     cmdData.clear();
     cmdData.assign(pBuffer, pBuffer + wLength);

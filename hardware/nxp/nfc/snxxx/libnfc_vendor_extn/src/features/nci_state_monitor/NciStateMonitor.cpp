@@ -103,6 +103,11 @@ NFCSTATUS NciStateMonitor::handleVendorNciRspNtf(uint16_t dataLen,
     return NFCSTATUS_EXTN_FEATURE_SUCCESS;
   }
 
+  if (isNciRspTimeoutHandlingNeeded(dataLen, pData, NCI_MT_RSP)) {
+    // Must to call the stopWriteRspTimer to cancel the rsp timer if its retry
+    NfcExtensionWriter::getInstance()->stopWriteRspTimer(pData, dataLen);
+  }
+
   switch (mGidOid) {
   case NCI_EE_STATUS_NTF: {
     status = NfceeStateMonitor::getInstance()->processNfceeStatusNtf(nciRspNtf);
@@ -145,9 +150,9 @@ NFCSTATUS NciStateMonitor::handleVendorNciRspNtf(uint16_t dataLen,
 
 NFCSTATUS NciStateMonitor::processExtnWrite(uint16_t dataLen, const uint8_t *pData) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "NciStateMonitor %s Enter", __func__);
-  vector<uint8_t> nciCmd;
   constexpr uint16_t NCI_EE_MODE_SET_CMD_GID_OID =
       (((NCI_MT_CMD | NCI_GID_EE_MANAGE) << 8) | NCI_EE_MODE_SET_OID);
+  nciCmd.clear();
   nciCmd.assign(pData, pData + (dataLen));
   uint16_t mGidOid = ((nciCmd[0] << 8) | nciCmd[1]);
   if ((mGidOid == NCI_EE_MODE_SET_CMD_GID_OID) &&
@@ -155,7 +160,46 @@ NFCSTATUS NciStateMonitor::processExtnWrite(uint16_t dataLen, const uint8_t *pDa
     NfceeStateMonitor::getInstance()->setCurrentEE(
         nciCmd[NCI_MODE_SET_CMD_EE_INDEX]);
   }
+
+  if (isNciRspTimeoutHandlingNeeded(
+          dataLen, pData, NCI_MT_CMD)) {  // check if packet resending required.
+    NfcExtensionWriter::getInstance()->write(
+        pData, dataLen, NXP_EXTNS_HAL_REQUEST_CTRL_TIMEOUT_IN_MS);
+    return NFCSTATUS_EXTN_FEATURE_SUCCESS;
+  }
   return NFCSTATUS_EXTN_FEATURE_FAILURE;
+}
+
+bool NciStateMonitor::isNciRspTimeoutHandlingNeeded(uint16_t dataLen,
+                                                    const uint8_t *pData,
+                                                    uint8_t type) {
+  if ((dataLen > 1 && pData[0] == (type | NCI_GID_RF_MANAGE) &&
+       pData[1] == NCI_RF_DEACTIVATE_OID) ||
+      ((dataLen > 4 && pData[0] == (NCI_MT_CMD | NCI_GID_EE_MANAGE) &&
+        pData[1] == NCI_EE_MODE_SET_OID &&
+        pData[4] == NCI_EE_MODE_SET_DEACTIVATE_VAL) ||
+       ((nciCmd.size() > 4 && nciCmd[0] == (NCI_MT_CMD | NCI_GID_EE_MANAGE) &&
+         nciCmd[1] == NCI_EE_MODE_SET_OID &&
+         nciCmd[4] == NCI_EE_MODE_SET_DEACTIVATE_VAL) &&
+        (dataLen > 3 && pData[0] == (NCI_MT_RSP | NCI_GID_EE_MANAGE) &&
+         pData[1] == NCI_EE_MODE_SET_OID))) ||
+      (dataLen > 1 && pData[0] == (type | NCI_GID_CORE) &&
+       pData[1] == NCI_CORE_SET_POWER_SUB_STATE_OID) ||
+      (dataLen > 3 && pData[0] == (type | NCI_GID_RF_MANAGE) &&
+       pData[1] == NCI_RF_DISCOVERY_OID) ||
+      ((dataLen > 4 && pData[0] == (type | NCI_GID_CORE) &&
+        pData[1] == NCI_CORE_SET_CFG_OID_VAL &&
+        pData[4] == NCI_CORE_SET_CONF_CON_DISCOVERY_PARAM) ||
+       ((nciCmd.size() > 4 && nciCmd[0] == (NCI_MT_CMD | NCI_GID_CORE) &&
+         nciCmd[1] == NCI_CORE_SET_CFG_OID_VAL &&
+         nciCmd[4] == NCI_CORE_SET_CONF_CON_DISCOVERY_PARAM) &&
+        (dataLen > 4 && pData[0] == (NCI_MT_RSP | NCI_GID_CORE) &&
+         pData[1] == NCI_CORE_SET_CFG_OID_VAL)))) {
+    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s, timeout handling required",
+                   __func__);
+    return true;
+  }
+  return false;
 }
 
 void NciStateMonitor::sendSramConfigFlashCmd() {

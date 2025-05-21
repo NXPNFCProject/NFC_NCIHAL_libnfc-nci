@@ -104,6 +104,7 @@ public:
     }
   }
 
+std::vector<uint8_t> lastNciCmd;
 private:
   static NfcExtensionWriter *sNfcExtensionWriter;
   NfcExtensionWriter();

@@ -174,8 +174,10 @@ constexpr uint8_t NCI_CORE_INIT_OID = 0x01;
 constexpr uint8_t NCI_EE_MODE_SET_OID = 0x01;
 constexpr uint8_t NCI_EE_STATUS_OID = 0x02;
 constexpr uint8_t NCI_RF_DISCOVERY_OID = 0x03;
+constexpr uint8_t NCI_RF_DEACTIVATE_OID = 0x06;
 constexpr uint8_t NCI_CORE_GENERIC_ERROR_OID = 0x07;
 constexpr uint8_t NCI_EE_ACTION_OID = 0x09;
+constexpr uint8_t NCI_CORE_SET_POWER_SUB_STATE_OID = 0x09;
 /* Core generic error for TAG collision detected */
 constexpr uint8_t NCI_TAG_COLLISION_DETECTED = 0xE4;
 
@@ -229,6 +231,10 @@ constexpr uint8_t STATUS_FW_DL_REQUEST = 0x04;
 
 extern uint8_t EXT_NFC_ADAPTATION_INIT;
 extern uint8_t EXT_NFC_PRE_DISCOVER;
+
+constexpr uint8_t NCI_EE_MODE_SET_ACTIVATE_VAL = 0x01;
+constexpr uint8_t NCI_EE_MODE_SET_DEACTIVATE_VAL = 0x00;
+constexpr uint8_t NCI_CORE_SET_CONF_CON_DISCOVERY_PARAM = 0x02;
 
 /**
  * @brief Defines System generic info values in TLV

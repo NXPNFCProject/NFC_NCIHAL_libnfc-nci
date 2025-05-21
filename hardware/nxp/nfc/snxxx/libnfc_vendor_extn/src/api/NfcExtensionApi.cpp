@@ -67,6 +67,10 @@ uint8_t EXT_NFC_PRE_DISCOVER = HANDLE_NFC_PRE_DISCOVER;
  * @return returns NFCSTATUS_EXTN_FEATURE_SUCCESS, if it is vendor specific
  * feature and handled by extension library otherwise
  * NFCSTATUS_EXTN_FEATURE_FAILURE.
+ * @Note resend logic is handled in extension library for following NCI
+ * commands- NCI_MSG_RF_DEACTIVATE, NCI_MSG_NFCEE_MODE_SET,
+ * NCI_MSG_CORE_SET_POWER_SUB_STATE NCI_MSG_RF_DISCOVER,NCI_MSG_CORE_SET_CONFIG
+ * - NCI_PARAM_ID_CON_DISCOVERY_PARAM
  */
 static NFCSTATUS phNxpExtn_HandleVendorNciMsg(uint16_t dataLen,
                                               const uint8_t *pData);
