@@ -128,7 +128,7 @@ void PalThreadCondVar::timedWait(struct timespec *time) {
 *******************************************************************************/
 void PalThreadCondVar::timedWait(uint8_t sec) {
   struct timespec timeout_spec;
-  clock_gettime(CLOCK_REALTIME, &timeout_spec);
+  clock_gettime(CLOCK_MONOTONIC, &timeout_spec);
   timeout_spec.tv_sec += sec;
   pthread_cond_timedwait(&mCondVar, *this, &timeout_spec);
 }
