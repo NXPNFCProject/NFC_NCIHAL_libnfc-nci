@@ -80,6 +80,15 @@ public:
    * @return false if listen tech is present.
    */
   bool checkDiscCmd(vector<uint8_t> rfDiscCmd);
+
+  /**
+   * @brief Checks for observemode flag in discovery command.
+   * @param rfDiscCmd RF_DISC_CMD
+   * @return true if observe mode flag present in discovery command.
+   * @return false if observe mode flag not present.
+   */
+  bool isObserveModeEnabled(vector<uint8_t> rfDiscCmd);
+
   /**
    * @brief Releases all the resources
    * @return None

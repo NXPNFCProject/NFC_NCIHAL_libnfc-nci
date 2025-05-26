@@ -94,6 +94,9 @@ NFCSTATUS QTagHandler::processExtnWrite(uint16_t *dataLen, uint8_t *pData) {
 
   if (QTag::getInstance()->processRfDiscCmd(rfDiscCmd) ==
       NFCSTATUS_EXTN_FEATURE_SUCCESS) {
+    if (QTag::getInstance()->isObserveModeEnabled(rfDiscCmd)) {
+      QTAG_RF_DISC_LEN += 2;
+    }
     if (((*dataLen < rfDiscCmd.size()) ||
          (rfDiscCmd.size() == QTAG_RF_DISC_LEN)) &&
         (rfDiscCmd.size() <= NCI_MAX_DATA_LEN)) {

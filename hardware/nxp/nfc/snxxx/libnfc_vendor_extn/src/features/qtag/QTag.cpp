@@ -95,6 +95,14 @@ NFCSTATUS QTag::processRfDiscCmd(vector<uint8_t> &rfDiscCmd) {
   if (mGidOid == NCI_RF_DISC_CMD_GID_OID) {
     if (checkDiscCmd(rfDiscCmd)) {
       if (QTag::getInstance()->getQTagStatus() == QTAG_ENABLE_OID) {
+        if (QTag::getInstance()->isObserveModeEnabled(rfDiscCmd)) {
+          QTAG_RF_DISC_CMD[NCI_RF_DISC_NUM_OF_CONFIG_INDEX]++;
+          QTAG_RF_DISC_CMD[NCI_RF_DISC_PAYLOAD_LEN_INDEX] +=
+              NCI_QTAG_PAYLOAD_LEN;
+          QTAG_RF_DISC_CMD.push_back(0xFF);
+          QTAG_RF_DISC_CMD.push_back(0x01);
+        }
+
         rfDiscCmd.assign(QTAG_RF_DISC_CMD.begin(), QTAG_RF_DISC_CMD.end());
         return NFCSTATUS_EXTN_FEATURE_SUCCESS;
       } else if (QTag::getInstance()->getQTagStatus() == QTAG_APPEND_OID) {
@@ -115,4 +123,9 @@ NFCSTATUS QTag::processRfDiscCmd(vector<uint8_t> &rfDiscCmd) {
     return NFCSTATUS_EXTN_FEATURE_FAILURE;
   }
   return NFCSTATUS_EXTN_FEATURE_FAILURE;
+}
+
+bool QTag::isObserveModeEnabled(vector<uint8_t> rfDiscCmd) {
+  return rfDiscCmd.size() > 2 && rfDiscCmd[rfDiscCmd.size() - 2] == 0xFF &&
+         rfDiscCmd[rfDiscCmd.size() - 1] == 0x01;
 }
