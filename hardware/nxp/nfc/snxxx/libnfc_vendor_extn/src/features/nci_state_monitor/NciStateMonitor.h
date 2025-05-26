@@ -33,7 +33,9 @@
  */
 class NciStateMonitor : public IEventHandler {
 public:
+  static constexpr uint8_t HAL_INPUT_CLK_ERR_CODE = 0xF0;
   static constexpr uint8_t HAL_FATAL_ERR_CODE = 0xF2;
+  static constexpr uint8_t HAL_ASSERT_ERR_CODE = 0xF6;
   static constexpr uint8_t HAL_TRANS_ERR_CODE = 0xF8;
   static constexpr uint8_t NCI_MODE_SET_CMD_EE_INDEX = 3;
   static NciStateMonitor *getInstance();
