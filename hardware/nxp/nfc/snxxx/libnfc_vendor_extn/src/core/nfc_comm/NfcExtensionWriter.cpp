@@ -102,15 +102,14 @@ NFCSTATUS NfcExtensionWriter::write(const uint8_t *pBuffer, uint16_t wLength,
   if (mWriteRspTimer.set(timeout, NULL, writeRspTimeoutCbk, &mWriteRspTimerId)) {
     cmdData.clear();
     cmdData.assign(pBuffer, pBuffer + wLength);
-    PlatformAbstractionLayer::getInstance()->palenQueueWrite(pBuffer, wLength);
-    return NFCSTATUS_SUCCESS;
+    return PlatformAbstractionLayer::getInstance()->palenQueueWrite(pBuffer, wLength);
   } else {
     NfcExtensionController::getInstance()
         ->getCurrentEventHandler()
         ->notifyGenericErrEvt(NCI_UN_RECOVERABLE_ERR);
     NfcExtensionController::getInstance()->switchEventHandler(
         HandlerType::DEFAULT);
-    return NFCSTATUS_FAILED;
+    return NFCSTATUS_INSUFFICIENT_RESOURCES;
   }
 }
 

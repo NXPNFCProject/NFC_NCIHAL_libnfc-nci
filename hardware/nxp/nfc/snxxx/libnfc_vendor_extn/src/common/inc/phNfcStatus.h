@@ -50,6 +50,11 @@
 #define NFCSTATUS_INVALID_PARAM (0x09)
 
 /*
+ * Not enough resources Memory, Timer etc(e.g. allocation failed.)
+ */
+#define NFCSTATUS_INSUFFICIENT_RESOURCES (0x000C)
+
+/*
  * Response Time out for the control message(NFCC not responded)
  */
 #define NFCSTATUS_RESPONSE_TIMEOUT (0x0025)
