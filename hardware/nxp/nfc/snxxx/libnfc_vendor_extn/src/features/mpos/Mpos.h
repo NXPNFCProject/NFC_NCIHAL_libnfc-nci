@@ -149,6 +149,9 @@ public:
   PalIntervalTimer tagOperationTimer;   /* Timer for tag operation */
   PalIntervalTimer tagRemovalTimer;     /* Timer for tag removal */
   PalIntervalTimer startStopGuardTimer; /* Timer for start/stop guard */
+  timer_t tagOperationTimerId = 0;  /* Timer ID for tag operation */
+  timer_t tagRemovalTimerId = 0;     /* Timer ID for tag removal */
+  timer_t startStopGuardTimerId = 0; /* Timer ID for start/stop guard */
   uint32_t mTimeoutMaxCount;         /* Timeout for deactivation notification */
   uint32_t RdrReqGuardTimer;         /* Timer for reader request guard */
   ScrState_t lastScrState;           /* Last recorded SCR state */
@@ -259,6 +262,7 @@ private:
    */
   static void recoveryTimeoutHandler(union sigval val);
   PalIntervalTimer mRecoveryTimer;   /* Mpos recovery timer */
+  timer_t mRecoveryTimerId = 0;
   unsigned long recoveryTimeout = 5; /* Recovery Timeout in secs */
 };
 #endif // MPOS_H

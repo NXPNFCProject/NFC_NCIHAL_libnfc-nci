@@ -46,7 +46,7 @@ void NfcExtensionWriter::onhalControlGrant() {
 
 void NfcExtensionWriter::stopHalCtrlTimer() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
-  mHalCtrlTimer.kill();
+  mHalCtrlTimer.kill(mHalCtrlTimerId);
 }
 
 static void halRequestControlTimeoutCbk(union sigval val) {
@@ -65,7 +65,7 @@ void NfcExtensionWriter::releaseHALcontrol() {
 void NfcExtensionWriter::requestHALcontrol() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter ", __func__);
   if (mHalCtrlTimer.set(NXP_EXTNS_HAL_REQUEST_CTRL_TIMEOUT_IN_MS, NULL,
-                        halRequestControlTimeoutCbk)) {
+                        halRequestControlTimeoutCbk, &mHalCtrlTimerId)) {
     PlatformAbstractionLayer::getInstance()->palRequestHALcontrol();
   } else {
     NfcExtensionController::getInstance()
@@ -99,7 +99,7 @@ NFCSTATUS NfcExtensionWriter::write(const uint8_t *pBuffer, uint16_t wLength,
                  wLength);
   lastNciCmd.clear();
   lastNciCmd.assign(pBuffer, pBuffer + wLength);
-  if (mWriteRspTimer.set(timeout, NULL, writeRspTimeoutCbk)) {
+  if (mWriteRspTimer.set(timeout, NULL, writeRspTimeoutCbk, &mWriteRspTimerId)) {
     cmdData.clear();
     cmdData.assign(pBuffer, pBuffer + wLength);
     PlatformAbstractionLayer::getInstance()->palenQueueWrite(pBuffer, wLength);
@@ -132,7 +132,7 @@ void NfcExtensionWriter::stopWriteRspTimer(const uint8_t *pRspBuffer,
                    "%s Enter cmdGid:%d, cmdOid:%d, rspGid:%d, rspOid:%d,",
                    __func__, cmdGid, cmdOid, rspGid, rspOid);
     if (cmdGid == rspGid && cmdOid == rspOid) {
-      mWriteRspTimer.kill();
+      mWriteRspTimer.kill(mWriteRspTimerId);
     }
   }
 }

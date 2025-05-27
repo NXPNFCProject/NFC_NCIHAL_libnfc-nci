@@ -28,11 +28,18 @@ using namespace std;
 class PlatformBase {
 public:
   /**
+   * @brief execute threadJoin
+   * @param tid thread id
+   *
+   */
+  void palThreadJoin(pthread_t tid);
+
+  /**
    * @brief executes the provided function in another thread
    * @return true if thread creation is success else false
    *
    */
-  bool palRunInThread(void *func(void *));
+  bool palRunInThread(void *func(void *), pthread_t *tid);
 
   /**
    * @brief                Copies the values stored in the source memory to the

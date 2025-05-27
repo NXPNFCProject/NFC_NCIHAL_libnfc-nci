@@ -130,7 +130,8 @@ static void notifyRfDiscoveryStarted() {
   NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - START SUCCESS");
   if (Mpos::getInstance()->tagOperationTimer.set(
           Mpos::getInstance()->tagOperationTimeout * 1000, NULL,
-          Mpos::getInstance()->cardTapTimeoutHandler)) {
+          Mpos::getInstance()->cardTapTimeoutHandler,
+          &Mpos::getInstance()->tagOperationTimerId)) {
     notifyReaderModeActionEvt(ACTION_SE_READER_TAG_DISCOVERY_STARTED);
   } else {
     NfcExtensionController::getInstance()
@@ -142,15 +143,18 @@ static void notifyRfDiscoveryStarted() {
 }
 
 static void notifyTagActivated() {
-  Mpos::getInstance()->tagOperationTimer.kill();
+  Mpos::getInstance()->tagOperationTimer.kill(
+      Mpos::getInstance()->tagOperationTimerId);
   Mpos::getInstance()->updateState(MPOS_STATE_RF_DISCOVERY_REQUEST_REMOVE);
   NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - ACTIVATED");
   notifyReaderModeActionEvt(ACTION_SE_READER_TAG_ACTIVATED);
 }
 
 static void notifyRfDiscoveryStopped() {
-  Mpos::getInstance()->tagRemovalTimer.kill();
-  Mpos::getInstance()->tagOperationTimer.kill();
+  Mpos::getInstance()->tagRemovalTimer.kill(
+      Mpos::getInstance()->tagRemovalTimerId);
+  Mpos::getInstance()->tagOperationTimer.kill(
+      Mpos::getInstance()->tagOperationTimerId);
   NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - STOP_SUCCESS");
   notifyReaderModeActionEvt(ACTION_SE_READER_STOPPED);
 }
@@ -178,13 +182,15 @@ static void sendDeselectProfileCmd() {
 }
 
 static void notifySeReaderRestarted() {
-  Mpos::getInstance()->tagOperationTimer.kill();
+  Mpos::getInstance()->tagOperationTimer.kill(
+      Mpos::getInstance()->tagOperationTimerId);
   NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - RESTART");
   Mpos::getInstance()->updateState(MPOS_STATE_WAIT_FOR_INTERFACE_ACTIVATION);
   notifyReaderModeActionEvt(ACTION_SE_READER_TAG_DISCOVERY_RESTARTED);
   if (Mpos::getInstance()->tagOperationTimer.set(
           Mpos::getInstance()->tagOperationTimeout * 1000, NULL,
-          Mpos::getInstance()->cardTapTimeoutHandler) == false) {
+          Mpos::getInstance()->cardTapTimeoutHandler,
+          &Mpos::getInstance()->tagOperationTimerId) == false) {
     NfcExtensionController::getInstance()
         ->getCurrentEventHandler()
         ->notifyGenericErrEvt(NCI_UN_RECOVERABLE_ERR);
@@ -309,7 +315,7 @@ void Mpos::cardTapTimeoutHandler(union sigval val) {
   UNUSED_PROP(val);
   NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - Timeout");
 
-  getInstance()->tagOperationTimer.kill();
+  getInstance()->tagOperationTimer.kill(getInstance()->tagOperationTimerId);
   getInstance()->updateState(MPOS_STATE_NO_TAG_TIMEOUT);
   getInstance()->processMposEvent(MPOS_STATE_NO_TAG_TIMEOUT);
   return;
@@ -340,7 +346,8 @@ void Mpos::cardRemovalTimeoutHandler(union sigval val) {
   if (getInstance()->getState() == MPOS_STATE_WAIT_FOR_RF_DEACTIVATION) {
     if (Mpos::getInstance()->tagRemovalTimer.set(
             READER_MODE_CARD_REMOVE_TIMEOUT_IN_MS, NULL,
-            cardRemovalTimeoutHandler) == false) {
+            cardRemovalTimeoutHandler,
+            &getInstance()->tagRemovalTimerId) == false) {
       NfcExtensionController::getInstance()
           ->getCurrentEventHandler()
           ->notifyGenericErrEvt(NCI_UN_RECOVERABLE_ERR);
@@ -433,7 +440,7 @@ bool Mpos::isProcessRdrReq(ScrState_t state) {
   if (IS_START_STOP_STATE_REQUEST(state)) {
     if (isTimerStarted) {
       /* Stop guard timer & continue with normal seq */
-      getInstance()->startStopGuardTimer.kill();
+      getInstance()->startStopGuardTimer.kill(startStopGuardTimerId);
       isTimerStarted = false;
       lastScrState = MPOS_STATE_UNKNOWN;
     } else {
@@ -442,7 +449,7 @@ bool Mpos::isProcessRdrReq(ScrState_t state) {
       isTimerStarted = true;
       /* Start timer on expire process the last reader requested event */
       if (getInstance()->startStopGuardTimer.set(
-              RdrReqGuardTimer, NULL, guardTimeoutHandler) == false) {
+              RdrReqGuardTimer, NULL, guardTimeoutHandler, &startStopGuardTimerId) == false) {
         NfcExtensionController::getInstance()
             ->getCurrentEventHandler()
             ->notifyGenericErrEvt(NCI_UN_RECOVERABLE_ERR);
@@ -497,7 +504,7 @@ NFCSTATUS Mpos::processMposEvent(ScrState_t state) {
   case MPOS_STATE_NOTIFY_STOP_RF_DISCOVERY: {
     updateState(MPOS_STATE_WAIT_FOR_RF_DEACTIVATION);
     if (tagRemovalTimer.set(READER_MODE_CARD_REMOVE_TIMEOUT_IN_MS, NULL,
-                            cardRemovalTimeoutHandler)) {
+                            cardRemovalTimeoutHandler, &tagRemovalTimerId)) {
       notifyReaderModeActionEvt(ACTION_SE_READER_STOP_RF_DISCOVERY);
     } else {
       NfcExtensionController::getInstance()
@@ -541,7 +548,7 @@ NFCSTATUS Mpos::processMposEvent(ScrState_t state) {
     return NFCSTATUS_EXTN_FEATURE_SUCCESS;
   }
   case MPOS_STATE_GENERIC_ERR_NTF: {
-    getInstance()->tagOperationTimer.kill();
+    getInstance()->tagOperationTimer.kill(tagOperationTimerId);
     NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN,
                    "SWP READER - MULTIPLE_TARGET_DETECTED");
     notifyReaderModeActionEvt(ACTION_SE_READER_MULTIPLE_TAG_DETECTED);
@@ -562,7 +569,7 @@ NFCSTATUS Mpos::processMposEvent(ScrState_t state) {
   case MPOS_STATE_RECOVERY_ON_EXT_FIELD_DETECT: {
     // Start a timer to restart rf discovery after timeout
     if (!mRecoveryTimer.set(recoveryTimeout * 1000, NULL,
-                            recoveryTimeoutHandler)) {
+                            recoveryTimeoutHandler, &mRecoveryTimerId)) {
       NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
                      "Failed to start MPOS_RECOVERY_TIMER");
     } else {

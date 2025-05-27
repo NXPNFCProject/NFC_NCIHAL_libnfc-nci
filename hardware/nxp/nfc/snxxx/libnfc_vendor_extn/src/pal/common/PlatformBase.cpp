@@ -22,7 +22,6 @@
 #include <cutils/properties.h>
 #include <string>
 
-pthread_t sThread;
 tNFC_chipType chipType = DEFAULT_CHIP_TYPE;
 string product[15] = {"UNKNOWN", "PN547C2", "PN65T", "PN548C2", "PN66T",
                              "PN551",   "PN67T",   "PN553", "PN80T",   "PN557",
@@ -92,13 +91,25 @@ int PlatformBase::palMemcmp(const void *pSrc1, const void *pSrc2,
   return memcmp(pSrc1, pSrc2, dataSize);
 }
 
-bool PlatformBase::palRunInThread(void *func(void *)) {
+void PlatformBase::palThreadJoin(pthread_t tid) {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s:enter", __func__);
+
+  if(tid == 0){
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "%s:Thread ID is null", __func__);
+    return;
+  }
+
+  pthread_join(tid, nullptr);
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s:exit", __func__);
+  return;
+}
+
+bool PlatformBase::palRunInThread(void *func(void *), pthread_t *tid) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s:enter", __func__);
   pthread_attr_t sPThreadAttr;
   pthread_attr_init(&sPThreadAttr);
-  pthread_attr_setdetachstate(&sPThreadAttr, PTHREAD_CREATE_DETACHED);
   int creation_result =
-      pthread_create(&sThread, &sPThreadAttr, threadStartRoutine,
+      pthread_create(tid, &sPThreadAttr, threadStartRoutine,
                      reinterpret_cast<void *>(func));
   if (creation_result >= 0) {
     NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "PalThread creation success!");

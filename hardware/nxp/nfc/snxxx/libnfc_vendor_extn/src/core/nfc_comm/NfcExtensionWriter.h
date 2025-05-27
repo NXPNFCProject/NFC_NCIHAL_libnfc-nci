@@ -111,6 +111,8 @@ private:
   ~NfcExtensionWriter();
   PalIntervalTimer mWriteRspTimer;
   PalIntervalTimer mHalCtrlTimer;
+  timer_t mWriteRspTimerId = 0;
+  timer_t mHalCtrlTimerId = 0;
   void stopHalCtrlTimer();
   std::vector<uint8_t> cmdData;
 };

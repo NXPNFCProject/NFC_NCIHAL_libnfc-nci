@@ -40,24 +40,23 @@
 
 #include "phNxpLog.h"
 #include <PalIntervalTimer.h>
+#include <errno.h>
 
 PalIntervalTimer::PalIntervalTimer() {
-  mTimerId = 0;
   mCb = NULL;
 }
 
-bool PalIntervalTimer::set(int ms, void *ptr, TIMER_FUNC cb) {
-  if (mTimerId == 0) {
-    if (cb == NULL)
-      return false;
+bool PalIntervalTimer::set(int ms, void *ptr, TIMER_FUNC cb, timer_t* timerId) {
+  if (cb == nullptr || timerId == nullptr) {
+    return false;
+  }
 
-    if (!create(ptr, cb))
-      return false;
+  if (!create(ptr, cb, timerId)) {
+    return false;
   }
   if (cb != mCb) {
-    kill();
-    if (!create(ptr, cb))
-      return false;
+    kill(*timerId);
+    if (!create(ptr, cb, timerId)) return false;
   }
 
   int stat = 0;
@@ -68,26 +67,30 @@ bool PalIntervalTimer::set(int ms, void *ptr, TIMER_FUNC cb) {
   ts.it_interval.tv_sec = 0;
   ts.it_interval.tv_nsec = 0;
 
-  stat = timer_settime(mTimerId, 0, &ts, 0);
-  if (stat == -1)
-    NXPLOG_EXTNS_D(LOG_TAG, "fail set timer");
+  stat = timer_settime(timerId, 0, &ts, 0);
+  if (stat == -1) {
+    NXPLOG_EXTNS_D(LOG_TAG, "%s fail to set timer, errno : %x", __func__,
+                   errno);
+  }
   return stat == 0;
 }
 
-PalIntervalTimer::~PalIntervalTimer() { kill(); }
+PalIntervalTimer::~PalIntervalTimer() {
+}
 
-void PalIntervalTimer::kill() {
-  if (mTimerId == 0)
-    return;
-
-  if (timer_delete(mTimerId) != 0) {
+void PalIntervalTimer::kill(timer_t timerId) {
+  if (timerId == 0) return;
+  if (timer_delete(timerId) != 0) {
     NXPLOG_EXTNS_E(LOG_TAG, "fail delete timer");
   }
-  mTimerId = 0;
+  timerId = 0;
   mCb = NULL;
 }
 
-bool PalIntervalTimer::create(void *ptr, TIMER_FUNC cb) {
+bool PalIntervalTimer::create(void* ptr, TIMER_FUNC cb, timer_t* timerId) {
+  if (cb == nullptr || timerId == nullptr) {
+    return false;
+  }
   struct sigevent se;
   int stat = 0;
 
@@ -102,7 +105,7 @@ bool PalIntervalTimer::create(void *ptr, TIMER_FUNC cb) {
   se.sigev_notify_attributes = NULL;
   se.sigev_signo = 0;
   mCb = cb;
-  stat = timer_create(CLOCK_MONOTONIC, &se, &mTimerId);
+  stat = timer_create(CLOCK_MONOTONIC, &se, timerId);
   if (stat == -1)
     NXPLOG_EXTNS_D(LOG_TAG, "fail create timer");
   return stat == 0;

@@ -46,12 +46,11 @@ public:
   typedef void (*TIMER_FUNC)(union sigval);
   PalIntervalTimer();
   ~PalIntervalTimer();
-  bool set(int ms, void *ptr, TIMER_FUNC cb);
-  void kill();
-  bool create(void *ptr, TIMER_FUNC);
+  bool set(int ms, void *ptr, TIMER_FUNC cb, timer_t* timerId);
+  void kill(timer_t timerId);
+  bool create(void *ptr, TIMER_FUNC, timer_t* timerId);
 
 private:
-  timer_t mTimerId;
   TIMER_FUNC mCb;
 };
 #endif // __PALINTERVALTIMER_H__
