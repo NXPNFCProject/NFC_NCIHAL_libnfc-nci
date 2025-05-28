@@ -67,7 +67,7 @@ bool PalIntervalTimer::set(int ms, void *ptr, TIMER_FUNC cb, timer_t* timerId) {
   ts.it_interval.tv_sec = 0;
   ts.it_interval.tv_nsec = 0;
 
-  stat = timer_settime(timerId, 0, &ts, 0);
+  stat = timer_settime(*timerId, 0, &ts, 0);
   if (stat == -1) {
     NXPLOG_EXTNS_D(LOG_TAG, "%s fail to set timer, errno : %x", __func__,
                    errno);
