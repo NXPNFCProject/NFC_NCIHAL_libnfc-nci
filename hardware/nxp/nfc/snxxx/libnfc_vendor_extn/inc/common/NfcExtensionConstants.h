@@ -79,6 +79,7 @@ constexpr uint8_t MT_CMD = 0x00;
 constexpr uint8_t MT_RSP = 0x01;
 constexpr uint8_t MT_NTF = 0x02;
 constexpr uint8_t MIN_HED_LEN = 0x03;
+constexpr uint16_t NCI_MAX_DATA_LEN = 300;
 
 constexpr uint8_t NCI_GID_CORE = 0x00;
 constexpr uint8_t NCI_GID_RF_MANAGE = 0x01;
@@ -173,6 +174,7 @@ constexpr uint8_t NCI_CORE_RESET_OID = 0x00;
 constexpr uint8_t NCI_CORE_INIT_OID = 0x01;
 constexpr uint8_t NCI_EE_MODE_SET_OID = 0x01;
 constexpr uint8_t NCI_EE_STATUS_OID = 0x02;
+constexpr uint8_t NCI_POWER_LINK_OID = 0x03;
 constexpr uint8_t NCI_RF_DISCOVERY_OID = 0x03;
 constexpr uint8_t NCI_RF_DEACTIVATE_OID = 0x06;
 constexpr uint8_t NCI_CORE_GENERIC_ERROR_OID = 0x07;

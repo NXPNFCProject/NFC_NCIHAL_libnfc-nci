@@ -101,7 +101,7 @@ public:
    * feature and handled by extension library otherwise
    * NFCSTATUS_EXTN_FEATURE_FAILURE.
    */
-  NFCSTATUS processExtnWrite(uint16_t dataLen, const uint8_t *pData) override;
+  NFCSTATUS processExtnWrite(uint16_t *dataLen, uint8_t *pData) override;
 
 private:
   static constexpr uint8_t SRD_INIT_MODE = 0xBF;

@@ -401,11 +401,12 @@ NFCSTATUS phNxpExtn_OnHandleHalEvent(uint8_t event, uint8_t event_status) {
 NFCSTATUS phNxpExtn_Write(uint16_t dataLen, const uint8_t* pData) {
   NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "%s NCI datalen:%d", __func__,
                  dataLen);
+  uint8_t *nciCmd = const_cast<uint8_t *>(pData);
   NFCSTATUS status =
-      ProprietaryExtn::getInstance()->processExtnWrite(dataLen, pData);
+      ProprietaryExtn::getInstance()->processExtnWrite(&dataLen, nciCmd);
   if (status == NFCSTATUS_EXTN_FEATURE_FAILURE) {
-    status =
-        NfcExtensionController::getInstance()->processExtnWrite(dataLen, pData);
+    status = NfcExtensionController::getInstance()->processExtnWrite(&dataLen,
+                                                                     nciCmd);
   }
   return status;
 }

@@ -117,6 +117,6 @@ void SrdHandler::onWriteRspTimeout() {
   }
 }
 
-NFCSTATUS SrdHandler::processExtnWrite(uint16_t dataLen, const uint8_t *pData) {
+NFCSTATUS SrdHandler::processExtnWrite(uint16_t *dataLen, uint8_t *pData) {
   return mSrdMngr->processPowerLinkCmd(dataLen, pData);
 }

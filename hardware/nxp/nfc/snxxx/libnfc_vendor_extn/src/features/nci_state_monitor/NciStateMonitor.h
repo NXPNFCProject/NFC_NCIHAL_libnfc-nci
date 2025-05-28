@@ -86,7 +86,7 @@ public:
    * feature and handled by extension library otherwise
    * NFCSTATUS_EXTN_FEATURE_FAILURE.
    */
-  NFCSTATUS processExtnWrite(uint16_t dataLen, const uint8_t *pData) override;
+  NFCSTATUS processNciCmd(uint16_t dataLen, const uint8_t *pData);
 
   /**
    * @brief this callback will be invoked by controller when HAL

@@ -60,7 +60,7 @@ public:
   void onFeatureEnd() override;
   LxDebugHandler();
   ~LxDebugHandler();
-  NFCSTATUS processExtnWrite(uint16_t dataLen, const uint8_t *pData) override;
+  NFCSTATUS processExtnWrite(uint16_t *dataLen, uint8_t *pData) override;
 
 private:
   LxDebug *mLxDebugMngr = nullptr;

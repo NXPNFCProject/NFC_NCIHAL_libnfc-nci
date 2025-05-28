@@ -131,8 +131,7 @@ void ProprietaryExtn::updateFwDnlsStatus(uint8_t status) {
   }
 }
 
-NFCSTATUS ProprietaryExtn::processExtnWrite(uint16_t dataLen,
-                                            const uint8_t* pData) {
+NFCSTATUS ProprietaryExtn::processExtnWrite(uint16_t *dataLen, uint8_t *pData) {
   NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter dataLen:%d", __func__,
                  dataLen);
   if (fp_prop_extn_process_extn_write != nullptr) {

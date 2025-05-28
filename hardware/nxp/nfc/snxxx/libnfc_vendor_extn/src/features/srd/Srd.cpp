@@ -377,21 +377,27 @@ std::string Srd::scrStateToString(SrdState_t state) {
   }
 }
 
-NFCSTATUS Srd::processPowerLinkCmd(uint16_t dataLen, const uint8_t *pData) {
+NFCSTATUS Srd::processPowerLinkCmd(uint16_t *dataLen, uint8_t *pData) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "Srd %s Enter", __func__);
   if (mState == SRD_STATE_IDLE)
     return NFCSTATUS_EXTN_FEATURE_FAILURE;
 
   vector<uint8_t> pwrLinkCmd;
-  pwrLinkCmd.assign(pData, pData + (dataLen));
+  pwrLinkCmd.assign(pData, pData + (*dataLen));
   uint16_t mGidOid = ((pwrLinkCmd[0] << 8) | pwrLinkCmd[1]);
   if (mGidOid == NCI_EE_PWR_LINK_CMD_GID_OID) {
     NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
                    "Srd %s Enter PWR link cmd updated with 0x02", __func__);
     pwrLinkCmd.back() = 0x02;
-    PlatformAbstractionLayer::getInstance()->palenQueueWrite(pwrLinkCmd.data(),
-                                                             pwrLinkCmd.size());
-    return NFCSTATUS_EXTN_FEATURE_SUCCESS;
+    if (pwrLinkCmd.size() <= NCI_MAX_DATA_LEN) {
+      copy(pwrLinkCmd.begin(), pwrLinkCmd.end(), pData);
+      *dataLen = pwrLinkCmd.size();
+      return NFCSTATUS_EXTN_FEATURE_SUCCESS;
+    } else {
+      NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "Srd %s dataLen mismatch",
+                     __func__);
+      return NFCSTATUS_EXTN_FEATURE_FAILURE;
+    }
   }
   return NFCSTATUS_EXTN_FEATURE_FAILURE;
 }

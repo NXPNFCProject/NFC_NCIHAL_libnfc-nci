@@ -101,19 +101,24 @@ NFCSTATUS LxDebugHandler::handleVendorNciRspNtf(uint16_t dataLen,
   return NFCSTATUS_EXTN_FEATURE_FAILURE;
 }
 
-NFCSTATUS LxDebugHandler::processExtnWrite(uint16_t dataLen,
-                                           const uint8_t *pData) {
+NFCSTATUS LxDebugHandler::processExtnWrite(uint16_t *dataLen, uint8_t *pData) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "LxDebugHandler %s Enter ",
                  __func__);
   NFCSTATUS status = NFCSTATUS_EXTN_FEATURE_FAILURE;
 
   if (mLxDebugMngr->isEFDMStarted()) {
     vector<uint8_t> rfDiscCmd;
-    rfDiscCmd.assign(pData, pData + (dataLen));
+    rfDiscCmd.assign(pData, pData + (*dataLen));
     status = mLxDebugMngr->processRfDiscCmd(rfDiscCmd);
     if (status == NFCSTATUS_EXTN_FEATURE_SUCCESS) {
-      PlatformAbstractionLayer::getInstance()->palenQueueWrite(
-          rfDiscCmd.data(), rfDiscCmd.size());
+      if (rfDiscCmd.size() <= NCI_MAX_DATA_LEN) {
+        copy(rfDiscCmd.begin(), rfDiscCmd.end(), pData);
+        *dataLen = rfDiscCmd.size();
+      } else {
+        status = NFCSTATUS_EXTN_FEATURE_FAILURE;
+        NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
+                       "LxDebugHandler::%s dataLen mismatch", __func__);
+      }
     }
   }
   return status;

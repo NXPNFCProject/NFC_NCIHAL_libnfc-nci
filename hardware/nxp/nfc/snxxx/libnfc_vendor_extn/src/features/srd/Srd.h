@@ -96,7 +96,7 @@ public:
    */
   NFCSTATUS stopSrd();
 
-  NFCSTATUS processPowerLinkCmd(uint16_t dataLen, const uint8_t *pData);
+  NFCSTATUS processPowerLinkCmd(uint16_t *dataLen, uint8_t *pData);
   void srdSndDiscoverMapCmd();
   void updateState(SrdState_t state);
   std::string scrStateToString(SrdState_t state);
