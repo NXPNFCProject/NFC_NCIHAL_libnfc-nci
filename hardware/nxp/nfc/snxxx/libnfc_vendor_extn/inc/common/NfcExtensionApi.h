@@ -55,14 +55,14 @@ VendorExtnCb *getNfcVendorExtnCb();
 /**
  * @brief Handles the nfc event with extenstion feature support
  * @param eventCode event code indicating the functionality
- * @param eventData data of the functionality
+ * @param eventData pointer to data  of the event functionality
  * @return returns NFCSTATUS_EXTN_FEATURE_SUCCESS, if it is vendor specific
  * feature and it have to be handled by extension library. returns
  * NFCSTATUS_EXTN_FEATURE_FAILURE, if it have to be handled by NFC HAL.
  *
  */
 NFCSTATUS vendor_nfc_handle_event(NfcExtEvent_t eventCode,
-                                   NfcExtEventData_t eventData);
+                                  NfcExtEventData_t *eventData);
 
 /**
  * @brief Before sending the NCI packet to NFCC, phNxpExtn_Write is called

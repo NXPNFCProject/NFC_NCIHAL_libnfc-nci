@@ -30,6 +30,7 @@
 #include "PlatformAbstractionLayer.h"
 #include "ProprietaryExtn.h"
 #include "QTagHandler.h"
+#include "RfStateMonitor.h"
 #include "SrdHandler.h"
 #include "TransitConfigHandler.h"
 #include <phNxpLog.h>
@@ -212,23 +213,23 @@ bool vendor_nfc_de_init() {
 }
 
 NFCSTATUS vendor_nfc_handle_event(NfcExtEvent_t eventCode,
-                                   NfcExtEventData_t eventData) {
+                                  NfcExtEventData_t *eventData) {
   NFCSTATUS status = NFCSTATUS_SUCCESS;
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter eventCode:%d", __func__,
                  eventCode);
   switch (eventCode) {
   case HANDLE_VENDOR_NCI_MSG: {
-    status = phNxpExtn_HandleVendorNciMsg(eventData.nci_msg.data_len,
-                                          eventData.nci_msg.p_data);
+    status = phNxpExtn_HandleVendorNciMsg(eventData->nci_msg.data_len,
+                                          eventData->nci_msg.p_data);
     break;
   }
   case HANDLE_VENDOR_NCI_RSP_NTF: {
-    status = phNxpExtn_HandleVendorNciRspNtf(eventData.nci_rsp_ntf.data_len,
-                                             eventData.nci_rsp_ntf.p_data);
+    status = phNxpExtn_HandleVendorNciRspNtf(eventData->nci_rsp_ntf.data_len,
+                                             eventData->nci_rsp_ntf.p_data);
     break;
   }
   case HANDLE_WRITE_COMPLETE_STATUS: {
-    phNxpExtn_OnWriteComplete(eventData.write_status);
+    phNxpExtn_OnWriteComplete(eventData->write_status);
     break;
   }
   case HANDLE_HAL_CONTROL_GRANTED: {
@@ -236,19 +237,21 @@ NFCSTATUS vendor_nfc_handle_event(NfcExtEvent_t eventCode,
     break;
   }
   case HANDLE_NFC_HAL_STATE_UPDATE: {
-    phNxpExtn_OnNfcHalStateUpdate(eventData.hal_state);
+    phNxpExtn_OnNfcHalStateUpdate(eventData->hal_state);
     break;
   }
-  case HANDLE_RF_HAL_STATE_UPDATE: {
+  case HANDLE_RF_HAL_STATE_GET: {
+    NfcRfState nfcRfState = RfStateMonitor::getInstance()->getNfcRfState();
+    eventData->rf_state = (NfcRfState_t)nfcRfState;
     break;
   }
   case HANDLE_FW_DNLD_STATUS_UPDATE: {
-    phNxpExtn_OnFwDnldStatusUpdate(eventData.hal_event_status);
+    phNxpExtn_OnFwDnldStatusUpdate(eventData->hal_event_status);
     break;
   }
   case HANDLE_HAL_EVENT: {
-    status = phNxpExtn_OnHandleHalEvent(eventData.hal_event,
-                                        eventData.hal_event_status);
+    status = phNxpExtn_OnHandleHalEvent(eventData->hal_event,
+                                        eventData->hal_event_status);
     break;
   }
   default: {
