@@ -116,7 +116,6 @@ constexpr uint8_t TRANSIT_SUB_GIDOID = 0xC1;
 constexpr uint8_t RF_REGISTER_SUB_GIDOID = 0xC2;
 constexpr uint8_t FW_VERSION_SUB_GIDOID = 0x9F;
 constexpr uint8_t NCI_PROP_NTF_SYSTEM_GENERIC_INFO_OID = 0x0F;
-constexpr uint8_t NCI_EE_PWR_LINK_CMD_GID_OID = 0x2203;
 
 constexpr uint8_t NCI_UN_RECOVERABLE_ERR = 0x01;
 constexpr uint8_t NCI_HAL_CONTROL_BUSY = 0x02;
@@ -150,6 +149,7 @@ constexpr uint8_t ENABLE_LOG = 0x01;
 constexpr uint16_t NCI_DISC_REQ_NTF_GID_OID = 0x610A;
 constexpr uint16_t NCI_SET_CONFIG_RSP_GID_OID = 0x4002;
 constexpr uint16_t NCI_DISC_MAP_RSP_GID_OID = 0x4100;
+constexpr uint16_t NCI_RF_DISC_STOP_RSP_GID_OID = 0x4106;
 constexpr uint16_t NCI_RF_DISC_CMD_GID_OID = 0x2103;
 constexpr uint16_t NCI_RF_SET_CONFIG_CMD_GID_OID = 0x2002;
 constexpr uint16_t NCI_RF_DISC_RSP_GID_OID = 0x4103;
@@ -161,6 +161,10 @@ constexpr uint16_t NCI_DATA_PKT_RSP_GID_OID = 0x0100;
 constexpr uint16_t NCI_EE_DISC_NTF_GID_OID = 0x6200;
 constexpr uint16_t NCI_SCREEN_SUB_STATE_CMD_GID_OID = 0x2009;
 constexpr uint16_t NCI_SCREEN_SUB_STATE_RSP_GID_OID = 0x4009;
+constexpr uint16_t NCI_RF_DISC_MAP_CMD_GID_OID = 0x2100;
+constexpr uint16_t NCI_RF_DISC_STOP_CMD_GID_OID = 0x2106;
+constexpr uint16_t NCI_EE_PWR_LINK_CMD_GID_OID = 0x2203;
+constexpr uint16_t NCI_EE_PWR_LINK_RSP_GID_OID = 0x4203;
 constexpr uint16_t NCI_PROP_SYSTEM_GENERIC_INFO_NTF_GID_OID =
     ((NCI_PROP_NTF_VAL << 8) | NCI_PROP_NTF_SYSTEM_GENERIC_INFO_OID);
 constexpr uint16_t NCI_RF_PLL_UNLOCK_NTF_GID_OID = 0x6121;

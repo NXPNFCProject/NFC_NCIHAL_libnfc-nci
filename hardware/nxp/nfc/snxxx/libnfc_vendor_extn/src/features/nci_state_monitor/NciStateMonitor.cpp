@@ -44,6 +44,9 @@ NciStateMonitor *NciStateMonitor::getInstance() {
 }
 
 vector<uint8_t> NciStateMonitor::getFwVersion() { return firmwareVersion; }
+vector<uint8_t> NciStateMonitor::getDefaultRFDiscMapCmd() {
+  return mDefaultDiscMapCmd;
+}
 
 NFCSTATUS NciStateMonitor::handleVendorNciMessage(uint16_t dataLen,
                                                const uint8_t *pData) {
@@ -157,6 +160,13 @@ NFCSTATUS NciStateMonitor::processNciCmd(uint16_t dataLen,
   nciCmd.clear();
   nciCmd.assign(pData, pData + (dataLen));
   uint16_t mGidOid = ((nciCmd[0] << 8) | nciCmd[1]);
+  if (mGidOid == NCI_RF_DISC_MAP_CMD_GID_OID) {
+    mDefaultDiscMapCmd.clear();
+    for (size_t i = 0; i < dataLen; i++) {
+      mDefaultDiscMapCmd.push_back(pData[i]);
+    }
+  }
+
   if ((mGidOid == NCI_EE_MODE_SET_CMD_GID_OID) &&
       (nciCmd.size() > NCI_MODE_SET_CMD_EE_INDEX)) {
     NfceeStateMonitor::getInstance()->setCurrentEE(

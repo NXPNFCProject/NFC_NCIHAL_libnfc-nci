@@ -105,8 +105,9 @@ public:
 
 private:
   static constexpr uint8_t SRD_INIT_MODE = 0xBF;
-  static constexpr uint8_t SRD_ENABLE_MODE = 0xBE;
-  static constexpr uint8_t SRD_DISABLE_MODE = 0xBD;
+  static constexpr uint8_t ACTIVE_SE = 0xBE;
+  static constexpr uint8_t DEACTIVE_SE = 0xBD;
+  static constexpr uint8_t SRD_DISABLE_MODE = 0xBC;
 };
 /** @}*/
 #endif // MPOS_HANDLER_H

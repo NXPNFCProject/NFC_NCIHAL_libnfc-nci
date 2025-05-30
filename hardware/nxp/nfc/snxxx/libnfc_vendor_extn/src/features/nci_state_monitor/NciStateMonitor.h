@@ -117,6 +117,14 @@ public:
    * @return None
    *
    */
+
+  /**
+   * @brief Get the default Rf disc map command
+   *
+   * @return mDefaultDiscMapCmd
+   */
+  vector<uint8_t> getDefaultRFDiscMapCmd();
+
   static inline void finalize() {
     if (instance != nullptr) {
       delete (instance);
@@ -139,6 +147,7 @@ public:
   PalThreadCondVar mSramCmdRspCondVar;
   std::vector<uint8_t> mSramCmdRspBuffer;
   std::vector<uint8_t> firmwareVersion;
+  std::vector<uint8_t> mDefaultDiscMapCmd;
   vector<uint8_t> nciCmd;
   NciStateMonitor();
 
