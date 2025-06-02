@@ -196,10 +196,8 @@ bool NciStateMonitor::isNciRspTimeoutHandlingNeeded(uint16_t dataLen,
          nciCmd[4] == NCI_CORE_SET_CONF_CON_DISCOVERY_PARAM) &&
         (dataLen > 4 && pData[0] == (NCI_MT_RSP | NCI_GID_CORE) &&
          pData[1] == NCI_CORE_SET_CFG_OID_VAL))) ||
-      ((nciCmd.size() > 4 && nciCmd[0] == (NCI_MT_CMD | NCI_GID_CORE) &&
-        nciCmd[1] == NCI_POWER_LINK_OID) ||
-       (dataLen > 4 && pData[0] == (type | NCI_GID_CORE) &&
-        pData[1] == NCI_POWER_LINK_OID))) {
+       (dataLen > 3 && pData[0] == (type | NCI_GID_EE_MANAGE) &&
+        pData[1] == NCI_POWER_LINK_OID)) {
     NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s, timeout handling required",
                    __func__);
     return true;
