@@ -112,13 +112,6 @@ NFCSTATUS QTag::processRfDiscCmd(vector<uint8_t> &rfDiscCmd) {
         rfDiscCmd.push_back(QTAG_ENABLE_OID);
         return NFCSTATUS_EXTN_FEATURE_SUCCESS;
       }
-    } else {
-      enableQTag(QTAG_DISABLE_OID);
-      NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN,
-                     "%s Listen tech also enabled, disabling QPoll", __func__);
-      PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
-          sizeof(QTAG_NCI_VENDOR_NTF_FAILURE), QTAG_NCI_VENDOR_NTF_FAILURE);
-      return NFCSTATUS_EXTN_FEATURE_FAILURE;
     }
     return NFCSTATUS_EXTN_FEATURE_FAILURE;
   }
