@@ -105,6 +105,13 @@ public:
    * @return firmwareVersion
    */
   vector<uint8_t> getFwVersion();
+
+  /**
+   * @brief get service state
+   * @return Nfc state 1:on 0:off
+   */
+  bool isNfcOn();
+
   /**
    * @brief Releases all the resources
    * @return None
@@ -128,6 +135,7 @@ public:
 
  private:
   static NciStateMonitor *instance;
+  bool mIsNfcOn = false;
   PalThreadCondVar mSramCmdRspCondVar;
   std::vector<uint8_t> mSramCmdRspBuffer;
   std::vector<uint8_t> firmwareVersion;

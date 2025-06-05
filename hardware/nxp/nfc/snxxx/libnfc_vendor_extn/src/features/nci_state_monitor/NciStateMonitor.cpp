@@ -133,6 +133,7 @@ NFCSTATUS NciStateMonitor::handleVendorNciRspNtf(uint16_t dataLen,
   case NCI_RF_DEACTD_RSP_GID_OID:
   case NCI_RF_DISC_RSP_GID_OID:
     status = RfStateMonitor::getInstance()->processRfDiscRspNtf(nciRspNtf);
+    if (mIsNfcOn == 0) mIsNfcOn = 1;
     break;
   default: {
     return status;
@@ -243,8 +244,17 @@ NFCSTATUS NciStateMonitor::handleHalEvent(uint8_t event) {
     case EXT_HAL_NFC_OPEN_CPLT_EVT:
       sSendSramConfigToFlash = true;
       break;
+    case EXT_HAL_NFC_CLOSE_CPLT_EVT:
+      if (mIsNfcOn == 1) mIsNfcOn = 0;
+      break;
     default:
       break;
   }
   return status;
+}
+
+bool NciStateMonitor::isNfcOn() {
+  NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN,
+                 "%s Nfc state:%d", __func__, mIsNfcOn);
+  return mIsNfcOn;
 }
