@@ -54,7 +54,7 @@ enum class HandlerType {
   /**
    * @brief indicates FW feature handler
    */
-  FW = 0x09,
+  FW = 0x06,
   /**
    * @brief indicate Transit config & RF Register feature handler
    *
