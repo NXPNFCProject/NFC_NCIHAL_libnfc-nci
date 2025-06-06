@@ -92,6 +92,7 @@ cc_library_shared {
     export_include_dirs: [
         "inc/system_ext",
         "src/pal/system_ext",
+        "src/features/nci_state_monitor",
     ],
     srcs: [
         "src/pal/system_ext/PlatformAbstractionLayer.cpp",
@@ -124,6 +125,7 @@ cc_library_shared {
     export_include_dirs: [
         "inc/vendor_ext",
         "src/pal/vendor_ext",
+        "src/features/nci_state_monitor",
     ],
     srcs: [
         "src/pal/vendor_ext/PlatformAbstractionLayer.cpp",
