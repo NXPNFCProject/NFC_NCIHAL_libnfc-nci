@@ -64,6 +64,7 @@ NFCSTATUS RfStateMonitor::processRfDiscRspNtf(vector<uint8_t> &rfResNtf) {
       updateNfcRfState(NfcRfState::IDLE);
       break;
     case static_cast<int>(RfDeactivateType::SLEEP):
+    case static_cast<int>(RfDeactivateType::SLEEP_AF):
       updateNfcRfState(NfcRfState::LISTEN_SLEEP);
       break;
     case static_cast<int>(RfDeactivateType::DISCOVER):

@@ -347,6 +347,6 @@ enum class NfcRfState {
  * @brief Defines the RfDeactivate type
  *
  */
-enum class RfDeactivateType { IDLE, SLEEP, DISCOVER };
+enum class RfDeactivateType { IDLE, SLEEP, SLEEP_AF, DISCOVER };
 /** @}*/
 #endif // NFC_EXTENSION_CONSTANTS_H
