@@ -240,9 +240,11 @@ NFCSTATUS vendor_nfc_handle_event(NfcExtEvent_t eventCode,
     phNxpExtn_OnNfcHalStateUpdate(eventData->hal_state);
     break;
   }
-  case HANDLE_RF_HAL_STATE_GET: {
+  /* TODO: To align with vendor freeze
+           UPDATE is used to get the RF state */
+  case HANDLE_RF_HAL_STATE_UPDATE: {
     NfcRfState nfcRfState = RfStateMonitor::getInstance()->getNfcRfState();
-    eventData->rf_state = (NfcRfState_t)nfcRfState;
+    eventData->rf_state = (uint8_t)nfcRfState;
     break;
   }
   case HANDLE_FW_DNLD_STATUS_UPDATE: {
