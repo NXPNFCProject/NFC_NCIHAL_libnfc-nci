@@ -20,6 +20,7 @@
 #include "NfceeStateMonitor.h"
 #include "NfcExtensionConstants.h"
 #include "RfStateMonitor.h"
+#include "phNxpConfig.h"
 #include <phNxpLog.h>
 #include <stdio.h>
 
@@ -155,6 +156,7 @@ NFCSTATUS NciStateMonitor::handleVendorNciRspNtf(uint16_t dataLen,
 NFCSTATUS NciStateMonitor::processNciCmd(uint16_t dataLen,
                                          const uint8_t *pData) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "NciStateMonitor %s Enter", __func__);
+  uint8_t num = 0;
   constexpr uint16_t NCI_EE_MODE_SET_CMD_GID_OID =
       (((NCI_MT_CMD | NCI_GID_EE_MANAGE) << 8) | NCI_EE_MODE_SET_OID);
   nciCmd.clear();
@@ -164,6 +166,14 @@ NFCSTATUS NciStateMonitor::processNciCmd(uint16_t dataLen,
     mDefaultDiscMapCmd.clear();
     for (size_t i = 0; i < dataLen; i++) {
       mDefaultDiscMapCmd.push_back(pData[i]);
+    }
+    if (GetNxpNumValue(NAME_MIFARE_READER_ENABLE, &num, sizeof(num)) &&
+        (num != 0)) {
+      mDefaultDiscMapCmd[2] += 3;
+      mDefaultDiscMapCmd[3] += 1;
+      mDefaultDiscMapCmd.push_back(0x80);
+      mDefaultDiscMapCmd.push_back(0x01);
+      mDefaultDiscMapCmd.push_back(0x80);
     }
   }
 
