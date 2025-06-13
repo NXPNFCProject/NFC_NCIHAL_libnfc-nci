@@ -112,8 +112,8 @@ constexpr uint8_t NCI_OEM_PROP_OID_VAL = 0x3E;
 constexpr uint8_t QTAG_FEATURE_SUB_GID = 0x30;
 constexpr uint8_t MPOS_READER_SET_DMODE_SUB_GIDOID_VAL = 0xAE;
 constexpr uint8_t MPOS_READER_MODE_NTF_SUB_GIDOID_VAL = 0xA0;
-constexpr uint8_t TRANSIT_SUB_GIDOID = 0xC1;
-constexpr uint8_t RF_REGISTER_SUB_GIDOID = 0xC2;
+constexpr uint8_t TRANSIT_SUB_GIDOID = 0x71;
+constexpr uint8_t RF_REGISTER_SUB_GIDOID = 0x72;
 constexpr uint8_t FW_VERSION_SUB_GIDOID = 0x6F;
 constexpr uint8_t NCI_PROP_NTF_SYSTEM_GENERIC_INFO_OID = 0x0F;
 

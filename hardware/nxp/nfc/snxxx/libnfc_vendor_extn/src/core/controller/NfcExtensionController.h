@@ -59,7 +59,7 @@ enum class HandlerType {
    * @brief indicate Transit config & RF Register feature handler
    *
    */
-  TRANSIT = 0x0C,
+  TRANSIT = 0x07,
   // TODO: Align on ROW Sub GID and OID usage
   /**
    * @brief indicates t4t feature handler
