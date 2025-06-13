@@ -40,6 +40,10 @@ enum class HandlerType {
    */
   DEFAULT,
   /**
+   * @brief indicates lxdebug feature handler
+   */
+  LxDebug = 0x01,
+  /**
    * @brief indicates mpos feature handler
    */
   MPOS = 0x0A,
@@ -47,10 +51,6 @@ enum class HandlerType {
    * @brief indicates QTAG feature handler
    */
   QTAG = 0x03,
-  /**
-   * @brief indicates lxdebug feature handler
-   */
-  LxDebug = 0x07,
   /**
    * @brief indicates FW feature handler
    */
