@@ -68,7 +68,7 @@ enum class HandlerType {
   /**
    * @brief indicates mpos feature handler
    */
-  SRD = 0x0B,
+  SRD = 0x02,
 };
 
 class NfcExtensionController {

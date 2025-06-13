@@ -98,7 +98,6 @@ public:
   NFCSTATUS stopSrd();
   NFCSTATUS activeSe();
   NFCSTATUS deactiveSe();
-  NFCSTATUS disableSrd();
   void srdSndDiscoverMapCmd();
   void updateState(SrdState_t state);
   std::string scrStateToString(SrdState_t state);
@@ -141,13 +140,11 @@ private:
   bool sIsSrdSupported = false;
   bool srdStopReceived = false;
   static constexpr uint8_t NCI_SDR_MODE_NTF_PL_LEN = 0x02;
-  static constexpr uint8_t SRD_ENABLE_DISCOVERY = 0xBC;
-  static constexpr uint8_t ACTIVE_SE = 0xBE;
-  static constexpr uint8_t DEACTIVE_SE = 0xBD;
-  static constexpr uint8_t START_SRD_DISCOVERY = 0xFF;
-  static constexpr uint8_t RESTART_DEFAULT_DISCOVERY = 0xFE;
-  static constexpr uint8_t SRD_TIMED_OUT = 0xFD;
-  static constexpr uint8_t SRD_FEATURE_SUPPORTED = 0xFC;
-  static constexpr uint8_t SRD_FEATURE_NOT_SUPPORTED = 0xFB;
+  static constexpr uint8_t SRD_MODE_NTF_SUB_GID_OID = 0x23;
+  static constexpr uint8_t ACTIVE_SE = 0x21;
+  static constexpr uint8_t DEACTIVE_SE = 0x22;
+  static constexpr uint8_t SRD_MODE_NTF_START_SRD_DISCOVERY = 0x00;
+  static constexpr uint8_t SRD_MODE_NTF_SRD_TIMED_OUT = 0x01;
+  static constexpr uint8_t SRD_MODE_NTF_SRD_FEATURE_NOT_SUPPORTED = 0x02;
 };
 #endif // SRD_H

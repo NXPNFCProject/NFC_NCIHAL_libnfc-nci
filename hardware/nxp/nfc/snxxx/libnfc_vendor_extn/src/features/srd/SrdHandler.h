@@ -104,10 +104,9 @@ public:
   NFCSTATUS processExtnWrite(uint16_t *dataLen, uint8_t *pData) override;
 
 private:
-  static constexpr uint8_t SRD_INIT_MODE = 0xBF;
-  static constexpr uint8_t ACTIVE_SE = 0xBE;
-  static constexpr uint8_t DEACTIVE_SE = 0xBD;
-  static constexpr uint8_t SRD_DISABLE_MODE = 0xBC;
+  static constexpr uint8_t SRD_INIT_MODE = 0x20;
+  static constexpr uint8_t ACTIVE_SE = 0x21;
+  static constexpr uint8_t DEACTIVE_SE = 0x22;
 };
 /** @}*/
 #endif // MPOS_HANDLER_H

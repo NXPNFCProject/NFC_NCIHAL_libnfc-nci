@@ -78,17 +78,6 @@ NFCSTATUS SrdHandler::handleVendorNciMessage(uint16_t dataLen,
     PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
         sizeof(resp), resp);
     return NFCSTATUS_EXTN_FEATURE_SUCCESS;
-  } else if ((pData[SUB_GID_OID_INDEX] == SRD_DISABLE_MODE)) {
-    NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "Stop the SRD Mode");
-    resp[3] = SRD_DISABLE_MODE;
-    currentHandleType =
-        NfcExtensionController::getInstance()->getEventHandlerType();
-    if (currentHandleType == HandlerType::SRD) {
-      mSrdMngr->disableSrd();
-    }
-    PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
-        sizeof(resp), resp);
-    return NFCSTATUS_EXTN_FEATURE_SUCCESS;
   } else {
     return NFCSTATUS_EXTN_FEATURE_FAILURE;
   }

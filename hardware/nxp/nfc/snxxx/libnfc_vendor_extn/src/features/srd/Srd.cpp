@@ -119,12 +119,6 @@ NFCSTATUS Srd::stopSrd() {
   return NFCSTATUS_EXTN_FEATURE_SUCCESS;
 }
 
-NFCSTATUS Srd::disableSrd() {
-  NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "%s : Entry", __func__);
-  updateState(SRD_STATE_INIT);
-  switchToDefaultHandler();
-  return NFCSTATUS_EXTN_FEATURE_SUCCESS;
-}
 
 NFCSTATUS Srd::sendModeSetCmd() {
   NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "%s : sendModeSetCmd", __func__);
@@ -142,7 +136,7 @@ void Srd::notifySRDActionEvt(uint8_t ntfType) {
   srdActNtf[0] = NCI_PROP_NTF_VAL;
   srdActNtf[1] = NCI_ROW_PROP_OID_VAL;
   srdActNtf[2] = NCI_SDR_MODE_NTF_PL_LEN;
-  srdActNtf[3] = ACTIVE_SE;
+  srdActNtf[3] = SRD_MODE_NTF_SUB_GID_OID;
   srdActNtf[4] = ntfType;
   PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
       sizeof(srdActNtf), srdActNtf);
@@ -182,7 +176,7 @@ NFCSTATUS Srd::processSrdNciRspNtf(std::vector<uint8_t> &pRspBuffer) {
                      "to upper layer",
                      __func__);
     } else {
-      notifySRDActionEvt(SRD_FEATURE_NOT_SUPPORTED);
+      notifySRDActionEvt(SRD_MODE_NTF_SRD_FEATURE_NOT_SUPPORTED);
       updateState(SRD_STATE_INIT);
       switchToDefaultHandler();
       handleRespStatus = NFCSTATUS_EXTN_FEATURE_SUCCESS;
@@ -419,7 +413,7 @@ void Srd::processDiscoverMapRsp(const std::vector<uint8_t> &pRspHciEvtData) {
     switch (mState) {
     case SRD_STATE_W4_DISCOVER_MAP_RSP:
       updateState(SRD_STATE_W4_RF_DISCOVERY_RSP);
-      notifySRDActionEvt(START_SRD_DISCOVERY);
+      notifySRDActionEvt(SRD_MODE_NTF_START_SRD_DISCOVERY);
     default:
       break;
     }
@@ -452,7 +446,7 @@ bool Srd::isTimeoutEvent(const std::vector<uint8_t> &pRspHciEvtData) {
     switch (mState) {
     case SRD_STATE_W4_HCI_EVENT:
       if ((pRspHciEvtData[2] == 0x01) && (pRspHciEvtData[3] == 0xE2)) {
-        notifySRDActionEvt(SRD_TIMED_OUT);
+        notifySRDActionEvt(SRD_MODE_NTF_SRD_TIMED_OUT);
         stopSrd();
         return true;
       }
