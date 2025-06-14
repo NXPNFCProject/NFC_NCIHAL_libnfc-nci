@@ -75,9 +75,9 @@ PlatformAbstractionLayer *PlatformAbstractionLayer::getInstance() {
 }
 
 void PlatformAbstractionLayer::getNxpNfcHal() {
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s: enter", __func__);
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s: enter checkAIDLService", __func__);
   ::ndk::SpAIBinder binder(
-      AServiceManager_waitForService(NXPNFC_AIDL_HAL_SERVICE_NAME.c_str()));
+      AServiceManager_checkService(NXPNFC_AIDL_HAL_SERVICE_NAME.c_str()));
   mNxpNfcHal.aidlHalNxpNfc = INxpNfcAidl::fromBinder(binder);
   if (mNxpNfcHal.aidlHalNxpNfc == nullptr) {
     NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN,
