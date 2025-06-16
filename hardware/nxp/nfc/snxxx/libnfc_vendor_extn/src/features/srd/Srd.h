@@ -139,6 +139,7 @@ private:
   SrdState_t mState;
   bool sIsSrdSupported = false;
   bool srdStopReceived = false;
+  bool isDeactCmdFromSrd = false;
   static constexpr uint8_t NCI_SDR_MODE_NTF_PL_LEN = 0x02;
   static constexpr uint8_t SRD_MODE_NTF_SUB_GID_OID = 0x23;
   static constexpr uint8_t ACTIVE_SE = 0x21;

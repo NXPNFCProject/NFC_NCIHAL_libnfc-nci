@@ -24,6 +24,7 @@
 #include "NfcExtensionController.h"
 #include "NfcExtensionWriter.h"
 #include "PlatformAbstractionLayer.h"
+#include "RfStateMonitor.h"
 #include <cstring>
 #include <phNfcNciConstants.h>
 #include <phNxpLog.h>
@@ -266,12 +267,27 @@ NFCSTATUS Srd::processDiscStopResp(const std::vector<uint8_t> &pRspBuffer) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s: enter", __func__);
   uint16_t mGidOid = ((pRspBuffer[0] << 8) | pRspBuffer[1]);
   if (mGidOid == NCI_RF_DISC_STOP_RSP_GID_OID) {
-    mDiscStopResp.clear();
-    mDiscStopResp.insert(mDiscStopResp.begin(), pRspBuffer.begin(),
-                         pRspBuffer.end());
-    sendDefaultDiscoverMapCmd();
+    if (isDeactCmdFromSrd) {
+      isDeactCmdFromSrd = false;
+      NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+                     "%s: sendDefaultDiscoverMapCmd enter", __func__);
+      mDiscStopResp.clear();
+      mDiscStopResp.insert(mDiscStopResp.begin(), pRspBuffer.begin(),
+                           pRspBuffer.end());
+      sendDefaultDiscoverMapCmd();
+      return NFCSTATUS_EXTN_FEATURE_FAILURE;
+    } else {
+      isDeactCmdFromSrd = true;
+      std::vector<uint8_t> deactIdleCmd = {0x21, 0x06, 0x01, 0x00};
+      NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+                     "%s: sendDeActivate2IdleCmd enter", __func__);
+      updateState(SRD_STATE_STOP_W4_DISCOVERY_STOP_RSP);
+      NfcExtensionWriter::getInstance()->write(deactIdleCmd.data(),
+                                               deactIdleCmd.size());
+      return NFCSTATUS_EXTN_FEATURE_SUCCESS;
+    }
   }
-  return NFCSTATUS_EXTN_FEATURE_SUCCESS;
+  return NFCSTATUS_EXTN_FEATURE_FAILURE;
 }
 
 void Srd::sendDefaultDiscoverMapCmd() {
