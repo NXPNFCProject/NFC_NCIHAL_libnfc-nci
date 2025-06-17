@@ -32,7 +32,6 @@
 #include "QTagHandler.h"
 #include "RfStateMonitor.h"
 #include "SrdHandler.h"
-#include "Type4Tag.h"
 #include "TransitConfigHandler.h"
 #include <phNxpLog.h>
 #include <stdint.h>
@@ -209,7 +208,6 @@ bool vendor_nfc_de_init() {
   NfcExtensionWriter::finalize();
   PlatformAbstractionLayer::finalize();
   ProprietaryExtn::finalize();
-  Type4Tag::finalize();
   resetNxpConfig();
   return true;
 }
@@ -256,16 +254,6 @@ NFCSTATUS vendor_nfc_handle_event(NfcExtEvent_t eventCode,
   case HANDLE_HAL_EVENT: {
     status = phNxpExtn_OnHandleHalEvent(eventData->hal_event,
                                         eventData->hal_event_status);
-    break;
-  }
-  case HANDLE_T4T_ENABLE: {
-    (void)eventData;
-    status = Type4Tag::getInstance()->enable();
-    break;
-  }
-  case HANDLE_T4T_UPDATE_PROP_PARAM: {
-    status = Type4Tag::getInstance()->updatePropParam(
-      eventData->nci_rsp_ntf.data_len, eventData->nci_rsp_ntf.p_data);
     break;
   }
   default: {

@@ -50,7 +50,6 @@ cc_defaults {
         "src/features/lxdebug/LxDebugHandler.cpp",
         "src/features/srd/Srd.cpp",
         "src/features/srd/SrdHandler.cpp",
-        "src/features/Type4Tag/Type4Tag.cpp",
     ],
     export_include_dirs: [
         "inc/common",
@@ -71,7 +70,6 @@ cc_defaults {
         "src/features/fw",
         "src/features/lxdebug",
         "src/features/srd",
-        "src/features/Type4Tag",
     ],
     shared_libs: [
         "libbase",
