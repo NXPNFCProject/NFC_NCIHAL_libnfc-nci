@@ -36,6 +36,7 @@
 #include <android-base/logging.h>
 #include <android-base/parseint.h>
 #include <android-base/strings.h>
+#include <ranges>
 #include <phNxpLog.h>
 using namespace ::std;
 using namespace ::android::base;
@@ -43,12 +44,7 @@ using namespace ::android::base;
 namespace {
 
 bool parseBytesString(std::string in, std::vector<uint8_t>& out) {
-  std::stringstream ss(in);
-  string item;
-  vector<string> values;
-  while (std::getline(ss, item, ':')) {
-    values.push_back(item);
-  }
+  vector<string> values = Split(in, ":");
   if (values.size() == 0) return false;
   for (const string& value : values) {
     if (value.length() != 2) return false;
@@ -160,9 +156,8 @@ void ConfigFile::parseFromFile(const std::string& file_name) {
 }
 
 void ConfigFile::parseFromString(const std::string& config) {
-  std::stringstream ss(config);
-  std::string line;
-  while (std::getline(ss, line)) {
+  for (auto lineR : std::views::split(config, '\n')) {
+    string line(lineR.begin(), lineR.end());
     line = Trim(line);
     if (line.empty()) continue;
     if (line.at(0) == '#') continue;
