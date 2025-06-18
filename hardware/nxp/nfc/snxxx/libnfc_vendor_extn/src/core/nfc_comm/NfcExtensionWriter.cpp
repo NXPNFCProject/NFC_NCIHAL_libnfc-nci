@@ -130,8 +130,9 @@ void NfcExtensionWriter::stopWriteRspTimer(const uint8_t *pRspBuffer,
     NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
                    "%s Enter cmdGid:%d, cmdOid:%d, rspGid:%d, rspOid:%d,",
                    __func__, cmdGid, cmdOid, rspGid, rspOid);
-    if (cmdGid == rspGid && cmdOid == rspOid) {
+    if (cmdGid == rspGid && cmdOid == rspOid && mWriteRspTimerId != 0) {
       mWriteRspTimer.kill(mWriteRspTimerId);
+      mWriteRspTimerId = 0;
     }
   }
 }

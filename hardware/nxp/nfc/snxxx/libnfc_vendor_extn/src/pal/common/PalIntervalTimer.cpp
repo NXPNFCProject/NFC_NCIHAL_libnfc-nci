@@ -83,8 +83,8 @@ void PalIntervalTimer::kill(timer_t timerId) {
   if (timer_delete(timerId) != 0) {
     NXPLOG_EXTNS_E(LOG_TAG, "fail delete timer");
   }
-  timerId = 0;
-  mCb = NULL;
+  if (mCb != NULL)
+    mCb = NULL;
 }
 
 bool PalIntervalTimer::create(void* ptr, TIMER_FUNC cb, timer_t* timerId) {

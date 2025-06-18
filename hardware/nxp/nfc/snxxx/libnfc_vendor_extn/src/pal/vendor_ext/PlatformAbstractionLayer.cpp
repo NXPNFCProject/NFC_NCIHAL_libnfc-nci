@@ -44,25 +44,14 @@ PlatformAbstractionLayer *PlatformAbstractionLayer::getInstance() {
   return sPlatformAbstractionLayer;
 }
 
-void PlatformAbstractionLayer::enQueueWriteInternal(vector<uint8_t> buffer,
-                                                    uint16_t wLength) {
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter wLength:%d", __func__,
-                 wLength);
-  uint8_t pBufferCpy[wLength];
-  palMemcpy(pBufferCpy, wLength, buffer.data(), wLength);
-  phNxpHal_EnqueueWrite(pBufferCpy, wLength);
-}
 NFCSTATUS PlatformAbstractionLayer::palenQueueWrite(const uint8_t *pBuffer,
                                                     uint16_t wLength) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
                  "%s Enter enqueue using seperate thread wLength:%d", __func__,
                  wLength);
-  vector<uint8_t> pBufferCpy(wLength);
-  memcpy(pBufferCpy.data(), pBuffer, wLength);
-  thread(&PlatformAbstractionLayer::enQueueWriteInternal, this,
-         std::move(pBufferCpy), wLength)
-      .detach();
-  return NFCSTATUS_SUCCESS;
+  uint8_t pBufferCpy[wLength];
+  palMemcpy(pBufferCpy, wLength, pBuffer, wLength);
+  return phNxpHal_EnqueueWrite(pBufferCpy, wLength);
 }
 
 NFCSTATUS PlatformAbstractionLayer::palenQueueRspNtf(const uint8_t *pBuffer,
