@@ -382,8 +382,8 @@ bool CNfcConfig::readConfig(const char *name, bool bResetContent) {
           int n = (i + 1) / 2;
           while (n-- > 0) {
             numValue = numValue >> (n * 8);
-            unsigned char c = (numValue) & 0xFF;
-            strValue.push_back(c);
+            unsigned char chVal = (numValue) & 0xFF;
+            strValue.push_back(chVal);
           }
         }
 
