@@ -74,9 +74,9 @@ void MposHandler::onFeatureEnd() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "MposHandler::%s Enter", __func__);
   mPosMngr->updateState(MPOS_STATE_IDLE);
   NfcExtensionWriter::getInstance()->releaseHALcontrol();
-  mPosMngr->tagOperationTimer.kill(mPosMngr->tagOperationTimerId);
-  mPosMngr->tagRemovalTimer.kill(mPosMngr->tagRemovalTimerId);
-  mPosMngr->startStopGuardTimer.kill(mPosMngr->startStopGuardTimerId);
+  mPosMngr->tagOperationTimer.kill(&mPosMngr->tagOperationTimerId);
+  mPosMngr->tagRemovalTimer.kill(&mPosMngr->tagRemovalTimerId);
+  mPosMngr->startStopGuardTimer.kill(&mPosMngr->startStopGuardTimerId);
 }
 
 NFCSTATUS MposHandler::handleVendorNciMessage(uint16_t dataLen,
@@ -109,9 +109,9 @@ NFCSTATUS MposHandler::handleVendorNciMessage(uint16_t dataLen,
     currentHandleType =
         NfcExtensionController::getInstance()->getEventHandlerType();
     if (currentHandleType == HandlerType::MPOS) {
-      mPosMngr->tagOperationTimer.kill(mPosMngr->tagOperationTimerId);
-      mPosMngr->tagRemovalTimer.kill(mPosMngr->tagRemovalTimerId);
-      mPosMngr->startStopGuardTimer.kill(mPosMngr->startStopGuardTimerId);
+      mPosMngr->tagOperationTimer.kill(&mPosMngr->tagOperationTimerId);
+      mPosMngr->tagRemovalTimer.kill(&mPosMngr->tagRemovalTimerId);
+      mPosMngr->startStopGuardTimer.kill(&mPosMngr->startStopGuardTimerId);
       mPosMngr->updateState(MPOS_STATE_SEND_PROFILE_DESELECT_CONFIG_CMD);
       NfcExtensionWriter::getInstance()->requestHALcontrol();
       resp[SUB_GID_OID_RSP_STATUS_INDEX] = RESPONSE_STATUS_OK;

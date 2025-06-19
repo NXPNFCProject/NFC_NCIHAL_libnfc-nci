@@ -47,7 +47,7 @@ public:
   PalIntervalTimer();
   ~PalIntervalTimer();
   bool set(int ms, void *ptr, TIMER_FUNC cb, timer_t* timerId);
-  void kill(timer_t timerId);
+  void kill(timer_t* timerId);
   bool create(void *ptr, TIMER_FUNC, timer_t* timerId);
 
 private:

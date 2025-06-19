@@ -144,7 +144,7 @@ static void notifyRfDiscoveryStarted() {
 
 static void notifyTagActivated() {
   Mpos::getInstance()->tagOperationTimer.kill(
-      Mpos::getInstance()->tagOperationTimerId);
+      &Mpos::getInstance()->tagOperationTimerId);
   Mpos::getInstance()->updateState(MPOS_STATE_RF_DISCOVERY_REQUEST_REMOVE);
   NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - ACTIVATED");
   notifyReaderModeActionEvt(ACTION_SE_READER_TAG_ACTIVATED);
@@ -152,9 +152,9 @@ static void notifyTagActivated() {
 
 static void notifyRfDiscoveryStopped() {
   Mpos::getInstance()->tagRemovalTimer.kill(
-      Mpos::getInstance()->tagRemovalTimerId);
+      &Mpos::getInstance()->tagRemovalTimerId);
   Mpos::getInstance()->tagOperationTimer.kill(
-      Mpos::getInstance()->tagOperationTimerId);
+      &Mpos::getInstance()->tagOperationTimerId);
   NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - STOP_SUCCESS");
   notifyReaderModeActionEvt(ACTION_SE_READER_STOPPED);
 }
@@ -183,7 +183,7 @@ static void sendDeselectProfileCmd() {
 
 static void notifySeReaderRestarted() {
   Mpos::getInstance()->tagOperationTimer.kill(
-      Mpos::getInstance()->tagOperationTimerId);
+      &Mpos::getInstance()->tagOperationTimerId);
   NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - RESTART");
   Mpos::getInstance()->updateState(MPOS_STATE_WAIT_FOR_INTERFACE_ACTIVATION);
   notifyReaderModeActionEvt(ACTION_SE_READER_TAG_DISCOVERY_RESTARTED);
@@ -315,7 +315,7 @@ void Mpos::cardTapTimeoutHandler(union sigval val) {
   UNUSED_PROP(val);
   NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - Timeout");
 
-  getInstance()->tagOperationTimer.kill(getInstance()->tagOperationTimerId);
+  getInstance()->tagOperationTimer.kill(&getInstance()->tagOperationTimerId);
   getInstance()->updateState(MPOS_STATE_NO_TAG_TIMEOUT);
   getInstance()->processMposEvent(MPOS_STATE_NO_TAG_TIMEOUT);
   return;
@@ -440,7 +440,7 @@ bool Mpos::isProcessRdrReq(ScrState_t state) {
   if (IS_START_STOP_STATE_REQUEST(state)) {
     if (isTimerStarted) {
       /* Stop guard timer & continue with normal seq */
-      getInstance()->startStopGuardTimer.kill(startStopGuardTimerId);
+      getInstance()->startStopGuardTimer.kill(&startStopGuardTimerId);
       isTimerStarted = false;
       lastScrState = MPOS_STATE_UNKNOWN;
     } else {
@@ -548,7 +548,7 @@ NFCSTATUS Mpos::processMposEvent(ScrState_t state) {
     return NFCSTATUS_EXTN_FEATURE_SUCCESS;
   }
   case MPOS_STATE_GENERIC_ERR_NTF: {
-    getInstance()->tagOperationTimer.kill(tagOperationTimerId);
+    getInstance()->tagOperationTimer.kill(&tagOperationTimerId);
     NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN,
                    "SWP READER - MULTIPLE_TARGET_DETECTED");
     notifyReaderModeActionEvt(ACTION_SE_READER_MULTIPLE_TAG_DETECTED);

@@ -46,7 +46,7 @@ void NfcExtensionWriter::onhalControlGrant() {
 
 void NfcExtensionWriter::stopHalCtrlTimer() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
-  mHalCtrlTimer.kill(mHalCtrlTimerId);
+  mHalCtrlTimer.kill(&mHalCtrlTimerId);
 }
 
 static void halRequestControlTimeoutCbk(union sigval val) {
@@ -130,9 +130,7 @@ void NfcExtensionWriter::stopWriteRspTimer(const uint8_t *pRspBuffer,
     NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
                    "%s Enter cmdGid:%d, cmdOid:%d, rspGid:%d, rspOid:%d,",
                    __func__, cmdGid, cmdOid, rspGid, rspOid);
-    if (cmdGid == rspGid && cmdOid == rspOid && mWriteRspTimerId != 0) {
-      mWriteRspTimer.kill(mWriteRspTimerId);
-      mWriteRspTimerId = 0;
-    }
+    if (cmdGid == rspGid && cmdOid == rspOid && mWriteRspTimerId != 0)
+      mWriteRspTimer.kill(&mWriteRspTimerId);
   }
 }
