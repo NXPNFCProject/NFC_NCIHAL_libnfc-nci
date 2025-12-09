@@ -113,6 +113,8 @@ private:
   PalIntervalTimer mHalCtrlTimer;
   timer_t mWriteRspTimerId = 0;
   timer_t mHalCtrlTimerId = 0;
+  static void writeRspTimeoutCbk(union sigval val);  // Static callback
+  static void halRequestControlTimeoutCbk(union sigval val);
   void stopHalCtrlTimer();
   std::vector<uint8_t> cmdData;
 };

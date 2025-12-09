@@ -105,11 +105,12 @@ NFCSTATUS QTagHandler::processExtnWrite(uint16_t *dataLen, uint8_t *pData) {
                      __func__);
       copy(rfDiscCmd.begin(), rfDiscCmd.end(), pData);
       *dataLen = rfDiscCmd.size();
-      return NFCSTATUS_EXTN_FEATURE_SUCCESS;
-    }
+      /* updated command should be send to controller */
+      return NFCSTATUS_EXTN_FEATURE_SUCCESS_CONTINUE;
+    } else {
     NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "QTagHandler %s dataLen mismatch",
                    __func__);
-    return NFCSTATUS_EXTN_FEATURE_FAILURE;
+    }
   }
   return NFCSTATUS_EXTN_FEATURE_FAILURE;
 }

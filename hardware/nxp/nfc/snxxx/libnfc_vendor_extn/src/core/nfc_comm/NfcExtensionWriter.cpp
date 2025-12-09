@@ -49,9 +49,10 @@ void NfcExtensionWriter::stopHalCtrlTimer() {
   mHalCtrlTimer.kill(&mHalCtrlTimerId);
 }
 
-static void halRequestControlTimeoutCbk(union sigval val) {
+void NfcExtensionWriter::halRequestControlTimeoutCbk(union sigval val) {
   UNUSED_PROP(val);
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter ", __func__);
+  getInstance()->mHalCtrlTimer.kill(&getInstance()->mHalCtrlTimerId);
   NfcExtensionController::getInstance()->halRequestControlTimedout();
   return;
 }
@@ -76,9 +77,12 @@ void NfcExtensionWriter::requestHALcontrol() {
   }
 }
 
-static void writeRspTimeoutCbk(union sigval val) {
-  UNUSED_PROP(val);
+void NfcExtensionWriter::writeRspTimeoutCbk(union sigval val) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+  NfcExtensionWriter *writer = static_cast<NfcExtensionWriter *>(val.sival_ptr);
+  if (writer) {
+    writer->mWriteRspTimer.kill(&writer->mWriteRspTimerId);
+  }
   NfcExtensionWriter &mExtWriter = *NfcExtensionWriter::getInstance();
   if (mExtWriter.lastNciCmd.size() >= 3) {
     PlatformAbstractionLayer::getInstance()->setVendorParam("nfc.cmd_timeout",
@@ -99,7 +103,8 @@ NFCSTATUS NfcExtensionWriter::write(const uint8_t *pBuffer, uint16_t wLength,
                  wLength);
   lastNciCmd.clear();
   lastNciCmd.assign(pBuffer, pBuffer + wLength);
-  if (mWriteRspTimer.set(timeout, NULL, writeRspTimeoutCbk, &mWriteRspTimerId)) {
+  if (mWriteRspTimer.set(timeout, (void*)this, writeRspTimeoutCbk,
+                         &mWriteRspTimerId)) {
     cmdData.clear();
     cmdData.assign(pBuffer, pBuffer + wLength);
     return PlatformAbstractionLayer::getInstance()->palenQueueWrite(pBuffer, wLength);

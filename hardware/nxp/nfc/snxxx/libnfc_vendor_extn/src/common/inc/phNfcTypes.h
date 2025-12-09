@@ -17,6 +17,7 @@
 #ifndef PHNFCTYPES_H
 #define PHNFCTYPES_H
 
+#include "NfcExtensionConstants.h"
 #include <stdint.h>
 
 #define UNUSED_PROP(X) (void)(X);
@@ -29,7 +30,7 @@ typedef uint16_t NFCSTATUS; /* Return values */
  */
 typedef struct phLibNfc_Message {
   uint32_t eMsgType; /* Type of the message to be posted*/
-  void *pMsgData;    /* Pointer to message specific data block in case any*/
+  uint8_t data[NCI_MAX_DATA_LEN]; /* Message data maintained with MAX*/
   uint32_t Size;     /* Size of the datablock*/
 } phLibNfc_Message_t, *pphLibNfc_Message_t;
 

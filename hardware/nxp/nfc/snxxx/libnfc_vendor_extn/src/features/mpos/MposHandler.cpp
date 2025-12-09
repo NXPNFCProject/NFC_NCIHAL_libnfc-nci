@@ -132,9 +132,6 @@ NFCSTATUS MposHandler::handleVendorNciRspNtf(uint16_t dataLen, uint8_t *pData) {
   // Convert the raw pointer to a vector
   std::vector<uint8_t> pDataVec(pData, pData + dataLen);
 
-  // Must to call the stopWriteRspTimer to cancel the rsp timer
-  NfcExtensionWriter::getInstance()->stopWriteRspTimer(pData, dataLen);
-
   return mPosMngr->processMposNciRspNtf(pDataVec);
 }
 

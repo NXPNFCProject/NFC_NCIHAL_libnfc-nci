@@ -33,10 +33,10 @@
 
 Srd *Srd::instance = nullptr;
 
-Srd::Srd() { mState = SRD_STATE_IDLE; }
+Srd::Srd() { mPrevState = mState = SRD_STATE_IDLE; }
 
 Srd::~Srd() {
-  mState = SRD_STATE_IDLE;
+  mState = mPrevState = SRD_STATE_IDLE;
   sIsSrdSupported = false;
 }
 
@@ -63,6 +63,10 @@ void Srd::Initilize() {
   long bufflen = 260;
   srd_config = (uint8_t *)malloc(bufflen * sizeof(uint8_t));
   long retlen = 0;
+
+  if (!srd_config)
+    return;
+
   memset(srd_config, 0x00, bufflen);
   isfound = GetNxpByteArrayValue(NAME_NXP_SRD_TIMEOUT, (char *)srd_config,
                                  bufflen, &retlen);
@@ -116,7 +120,7 @@ NFCSTATUS Srd::deactiveSe() {
 
 NFCSTATUS Srd::stopSrd() {
   NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "%s : Entry", __func__);
-  updateState(SRD_STATE_W4_PWR_LINK_PWR_ON_RSP);
+  updateState(SRD_STATE_STOP_IN_PROGRESS);
   return NFCSTATUS_EXTN_FEATURE_SUCCESS;
 }
 
@@ -143,12 +147,40 @@ void Srd::notifySRDActionEvt(uint8_t ntfType) {
       sizeof(srdActNtf), srdActNtf);
 }
 
+bool Srd::notifySRDStopNtfEvt(const std::vector<uint8_t> &pRspHciEvtData) {
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s: Enter ", __func__);
+  std::vector<uint8_t> srdActNtf(5 + pRspHciEvtData.size(), 0x00);
+  int offset = 0;
+  srdActNtf[offset++] = NCI_PROP_NTF_VAL;
+  srdActNtf[offset++] = NCI_ROW_PROP_OID_VAL;
+  srdActNtf[offset++] = NCI_SDR_MODE_NTF_PL_LEN + pRspHciEvtData.size();
+  srdActNtf[offset++] = SRD_MODE_NTF_SUB_GID_OID;
+  srdActNtf[offset++] = SRD_MODE_NTF_SRD_TRANSACTION_STOP;
+  srdActNtf.insert(srdActNtf.begin() + offset, pRspHciEvtData.begin(),
+                   pRspHciEvtData.end());
+  PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
+      srdActNtf.size(), srdActNtf.data());
+  stopSrd();
+  return true;
+}
+
 NFCSTATUS Srd::processSrdNciRspNtf(std::vector<uint8_t> &pRspBuffer) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s: enter mState = %d", __func__,
                  mState);
   NFCSTATUS handleRespStatus = NFCSTATUS_EXTN_FEATURE_FAILURE;
+  /* need to support only T2T Protocol from muti-protocol tag in SRD Mode */
+  if (checkAndHandleRfDiscNtf(pRspBuffer)) {
+    /* skip sending ntf to upper layer */
+    return NFCSTATUS_EXTN_FEATURE_SUCCESS;
+  }
   bool status = false;
   switch (mState) {
+  case SRD_STATE_W4_SELECT_RSP:
+    NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN,
+                   "%s : state = SRD_STATE_W4_SELECT_RSP", __func__);
+    updateState(mPrevState);
+    handleRespStatus = NFCSTATUS_EXTN_FEATURE_SUCCESS;
+    break;
   case SRD_STATE_W4_PWR_LINK_ALWAYS_ON_RSP:
     NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN,
                    "%s : state = SRD_STATE_W4_PWR_LINK_ALWAYS_ON_RSP",
@@ -204,9 +236,9 @@ NFCSTATUS Srd::processSrdNciRspNtf(std::vector<uint8_t> &pRspBuffer) {
     NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN,
                    "%s : mState = %d  SRD_STATE_W4_HCI_EVENT propagate to upper layer", __func__,
                    mState);
-    if (checkSrdEvent(pRspBuffer) == SRD_STOP_EVT ||
-        isTimeoutEvent(pRspBuffer)) {
-      handleRespStatus = NFCSTATUS_EXTN_FEATURE_FAILURE;
+    if (((checkSrdEvent(pRspBuffer) == SRD_STOP_EVT) &&
+        notifySRDStopNtfEvt(pRspBuffer)) || isTimeoutEvent(pRspBuffer)) {
+      handleRespStatus = NFCSTATUS_EXTN_FEATURE_SUCCESS;
     }
     break;
   case SRD_STATE_W4_PWR_LINK_PWR_ON_RSP:
@@ -248,6 +280,7 @@ Srd::processDefaultDiscMapRsp(const std::vector<uint8_t> &pRspBuffer) {
     }
     PlatformAbstractionLayer::getInstance()->palenQueueRspNtf(
         mDiscStopResp.data(), mDiscStopResp.size());
+    mDiscStopResp.clear();
     return NFCSTATUS_EXTN_FEATURE_SUCCESS;
   }
   return NFCSTATUS_EXTN_FEATURE_FAILURE;
@@ -267,25 +300,13 @@ NFCSTATUS Srd::processDiscStopResp(const std::vector<uint8_t> &pRspBuffer) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s: enter", __func__);
   uint16_t mGidOid = ((pRspBuffer[0] << 8) | pRspBuffer[1]);
   if (mGidOid == NCI_RF_DISC_STOP_RSP_GID_OID) {
-    if (isDeactCmdFromSrd) {
-      isDeactCmdFromSrd = false;
-      NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
-                     "%s: sendDefaultDiscoverMapCmd enter", __func__);
-      mDiscStopResp.clear();
-      mDiscStopResp.insert(mDiscStopResp.begin(), pRspBuffer.begin(),
-                           pRspBuffer.end());
-      sendDefaultDiscoverMapCmd();
-      return NFCSTATUS_EXTN_FEATURE_FAILURE;
-    } else {
-      isDeactCmdFromSrd = true;
-      std::vector<uint8_t> deactIdleCmd = {0x21, 0x06, 0x01, 0x00};
-      NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
-                     "%s: sendDeActivate2IdleCmd enter", __func__);
-      updateState(SRD_STATE_STOP_W4_DISCOVERY_STOP_RSP);
-      NfcExtensionWriter::getInstance()->write(deactIdleCmd.data(),
-                                               deactIdleCmd.size());
-      return NFCSTATUS_EXTN_FEATURE_SUCCESS;
-    }
+    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+                   "%s: sendDefaultDiscoverMapCmd enter", __func__);
+    mDiscStopResp.clear();
+    mDiscStopResp.insert(mDiscStopResp.begin(), pRspBuffer.begin(),
+                         pRspBuffer.end());
+    sendDefaultDiscoverMapCmd();
+    return NFCSTATUS_EXTN_FEATURE_SUCCESS;
   }
   return NFCSTATUS_EXTN_FEATURE_FAILURE;
 }
@@ -487,11 +508,39 @@ void Srd::updateState(SrdState_t state) {
     NXPLOG_EXTNS_D(
         NXPLOG_ITEM_NXP_GEN_EXTN, "%s : state updating from %s to %s", __func__,
         scrStateToString(mState).c_str(), scrStateToString(state).c_str());
+    mPrevState = mState;
     mState = state;
   } else {
     NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "%s : %s [%d]", __func__,
                    scrStateToString(state).c_str(), state);
   }
+}
+
+bool Srd::checkAndHandleRfDiscNtf(const std::vector<uint8_t> &pRspBuffer) {
+  if (pRspBuffer.size() > NCI_RF_DISC_NTF_PROTOCOL_INDEX) {
+    uint16_t gidOid = ((pRspBuffer[0] << 8) | pRspBuffer[1]);
+    if (gidOid == NCI_RF_DISC_NTF_GID_OID) {
+      switch (pRspBuffer[NCI_RF_DISC_NTF_PROTOCOL_INDEX]) {
+      case T2T_RF_PROTOCOL: {
+        std::vector<uint8_t> selectCmd = {
+            0x21, 0x04, 0x03, pRspBuffer[NCI_RF_ID_INDEX], T2T_RF_PROTOCOL,
+            0x01};
+        updateState(SRD_STATE_W4_SELECT_RSP);
+        NfcExtensionWriter::getInstance()->write(selectCmd.data(),
+                                                 selectCmd.size());
+        break;
+      }
+      default:
+        NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+                       "%s: Skip NCI_RF_DISC_NTF for %u ", __func__,
+                       pRspBuffer[NCI_RF_DISC_NTF_PROTOCOL_INDEX]);
+        break;
+      }
+      /*do not send ntf to upper layer */
+      return true;
+    }
+  }
+  return false;
 }
 
 std::string Srd::scrStateToString(SrdState_t state) {
@@ -528,8 +577,27 @@ std::string Srd::scrStateToString(SrdState_t state) {
 }
 
 NFCSTATUS Srd::processExtnsWrite(uint16_t *dataLen, uint8_t *pData) {
-  if (checkStopDiscCmd(dataLen, pData)) {
-    updateState(SRD_STATE_STOP_W4_DISCOVERY_STOP_RSP);
+
+  if (pData == nullptr || !(*dataLen)) {
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "%s: Invalid Params ", __func__);
+    return NFCSTATUS_INVALID_PARAM;
+  }
+
+  uint8_t msgType = pData[NCI_MSG_TYPE_INDEX] >> 5;
+  switch (msgType) {
+    case NCI_MSG_TYPE_CMD:
+      if (checkStopDiscCmd(dataLen, pData)) {
+        updateState(SRD_STATE_STOP_W4_DISCOVERY_STOP_RSP);
+      }
+      break;
+    case NCI_MSG_TYPE_DATA:
+      if (checkAndProcessHaltCommand(dataLen, pData)) {
+        return NFCSTATUS_EXTN_FEATURE_SUCCESS;
+      }
+      break;
+    default:
+      NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "%s: Unknown Command", __func__);
+      break;
   }
   return NFCSTATUS_EXTN_FEATURE_FAILURE;
 }
@@ -542,6 +610,19 @@ bool Srd::checkStopDiscCmd(uint16_t *dataLen, uint8_t *pData) {
         NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s: enter", __func__);
         return true;
       }
+    }
+  }
+  return false;
+}
+
+bool Srd::checkAndProcessHaltCommand(uint16_t *dataLen, uint8_t *pData) {
+  if (pData != nullptr) {
+    if (*dataLen == sHaltCmd.size() &&
+        std::equal(pData, pData + *dataLen, sHaltCmd.begin())) {
+      NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s: Skip HALT during SRD", __func__);
+      PlatformAbstractionLayer::getInstance()->palenQueueRspNtf(
+          sHaltCreditNtf.data(), sHaltCreditNtf.size());
+        return true;
     }
   }
   return false;

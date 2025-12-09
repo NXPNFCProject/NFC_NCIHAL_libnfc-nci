@@ -25,6 +25,10 @@
 
 class TransitConfigHandler : public IEventHandler {
 public:
+  static const uint8_t CONFIG_LEN_INDEX = 4;
+  static const uint8_t PBF_INDEX = 5;
+  static const uint8_t MIN_TRANSIT_HEADER_SIZE = 6;
+
   static TransitConfigHandler *getInstance();
   /**
    * @brief handles the vendor NCI message
@@ -63,10 +67,18 @@ public:
   /**
    * @brief stores libnfc-nci-update.conf to /data/vendor/nfc/.
    *
-   * @param configCmd
+   * @param configPkt
    * @return true/false
    */
-  bool updateVendorConfig(vector<uint8_t> configCmd);
+  bool updateVendorConfig(vector<uint8_t> configPkt);
+
+  /**
+   * @brief stores config to vector.
+   *
+   * @param configPkt
+   * @return true/false
+   */
+  bool storeVendorConfig(vector<uint8_t> configPkt);
 
   static TransitConfigHandler *instance;
 
@@ -86,5 +98,6 @@ public:
 
 private:
   std::vector<uint8_t> mConfigPkt;
+  std::vector<uint8_t> mStoredConfig;
 };
 #endif // TRANSITCONFIG_HANDLER_H

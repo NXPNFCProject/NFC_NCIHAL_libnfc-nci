@@ -32,10 +32,12 @@ TransitConfigHandler *TransitConfigHandler::instance = nullptr;
 
 TransitConfigHandler::TransitConfigHandler() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+  mStoredConfig.clear();
 }
 
 TransitConfigHandler::~TransitConfigHandler() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
+  mStoredConfig.clear();
 }
 
 TransitConfigHandler *TransitConfigHandler::getInstance() {
@@ -56,13 +58,28 @@ void TransitConfigHandler::onFeatureEnd() {
   mConfigPkt.clear();
 }
 
-bool TransitConfigHandler::updateVendorConfig(vector<uint8_t> mConfigPkt) {
+bool TransitConfigHandler::storeVendorConfig(vector<uint8_t> configPkt) {
+  if ((configPkt.size() < MIN_TRANSIT_HEADER_SIZE) ||
+      (configPkt[CONFIG_LEN_INDEX] < 3)) {
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
+                   "TransitConfigHandler::%s invalid command", __func__);
+    mStoredConfig.clear();
+    return false;
+  }
+  mStoredConfig.insert(mStoredConfig.end(), configPkt.begin() + 6,
+                       configPkt.end());
+  return true;
+}
+
+bool TransitConfigHandler::updateVendorConfig(vector<uint8_t> configPkt) {
   std::string vendorNciConfigPath = "/data/vendor/nfc/libnfc-nci-update.conf";
   bool status = false;
-  if (mConfigPkt[4] > 0) {
-    vector<uint8_t> configVect(mConfigPkt.begin() + 5, mConfigPkt.end());
-    std::string configStr(configVect.begin(), configVect.end());
 
+  if (configPkt.size() > 0) {
+    std::string configStr(configPkt.begin(), configPkt.end());
+    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+                   "TransitConfigHandler::%s configStr: %s", __func__,
+                   configStr.c_str());
     if (WriteStringToFile(configStr, vendorNciConfigPath)) {
       status = true;
       NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN,
@@ -85,6 +102,7 @@ bool TransitConfigHandler::updateVendorConfig(vector<uint8_t> mConfigPkt) {
                      __func__, vendorNciConfigPath.c_str());
     }
   }
+  mStoredConfig.clear();
   return status;
 }
 
@@ -93,6 +111,7 @@ NFCSTATUS TransitConfigHandler::handleVendorNciMessage(uint16_t dataLen,
   mConfigPkt.clear();
   mConfigPkt.assign(pData, pData + dataLen);
   uint8_t subOid = pData[SUB_GID_OID_INDEX] & 0x0F;
+  bool rspStatus = true;
   NfcExtensionController::getInstance()->switchEventHandler(
       HandlerType::TRANSIT);
 
@@ -111,23 +130,35 @@ NFCSTATUS TransitConfigHandler::handleVendorNciMessage(uint16_t dataLen,
       NCI_PROP_RSP_VAL, NCI_ROW_PROP_OID_VAL, PAYLOAD_TWO_LEN,
       RF_REGISTER_SUB_GIDOID, RESPONSE_STATUS_FAILED};
 
+  rspStatus = storeVendorConfig(mConfigPkt);
+
   if (subOid == TRANSIT_OID) {
-    if (updateVendorConfig(mConfigPkt)) {
+    if (mConfigPkt[PBF_INDEX] == 0x00) {
+      rspStatus = updateVendorConfig(mStoredConfig);
+      mStoredConfig.clear();
+    }
+    if (rspStatus) {
       PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
           sizeof(TRANSIT_NCI_VENDOR_RSP_SUCCESS),
           TRANSIT_NCI_VENDOR_RSP_SUCCESS);
     } else {
+      mStoredConfig.clear();
       PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
           sizeof(TRANSIT_NCI_VENDOR_RSP_FAILURE),
           TRANSIT_NCI_VENDOR_RSP_FAILURE);
     }
   } else if (subOid == RF_REGISTER_OID) {
-    if (RfConfigManager::getInstance()->checkUpdateRfRegisterConfig(
-            mConfigPkt)) {
+    if (mConfigPkt[PBF_INDEX] == 0x00) {
+      rspStatus = RfConfigManager::getInstance()->checkUpdateRfRegisterConfig(
+          mStoredConfig);
+      mStoredConfig.clear();
+    }
+    if (rspStatus) {
       PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
           sizeof(RF_REGISTER_NCI_VENDOR_RSP_SUCCESS),
           RF_REGISTER_NCI_VENDOR_RSP_SUCCESS);
     } else {
+      mStoredConfig.clear();
       PlatformAbstractionLayer::getInstance()->palSendNfcDataCallback(
           sizeof(RF_REGISTER_NCI_VENDOR_RSP_FAILURE),
           RF_REGISTER_NCI_VENDOR_RSP_FAILURE);

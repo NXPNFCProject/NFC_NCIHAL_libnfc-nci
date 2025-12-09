@@ -36,8 +36,9 @@
 #include <android-base/logging.h>
 #include <android-base/parseint.h>
 #include <android-base/strings.h>
-#include <ranges>
 #include <phNxpLog.h>
+#include <locale>
+
 using namespace ::std;
 using namespace ::android::base;
 
@@ -156,12 +157,24 @@ void ConfigFile::parseFromFile(const std::string& file_name) {
 }
 
 void ConfigFile::parseFromString(const std::string& config) {
-  for (auto lineR : std::views::split(config, '\n')) {
-    string line(lineR.begin(), lineR.end());
+  if (config.empty()) {
+    // Handle the empty string case appropriately
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
+                   "Config string is empty. Skipping parsing.");
+    return;
+  }
+  std::stringstream ss(config);
+  std::locale localeWithCtype(std::locale::classic(), new std::ctype<char>);
+  std::locale localeWithNumGet(localeWithCtype, new std::num_get<char>);
+  std::locale customLocale(localeWithNumGet, new std::num_put<char>);
+  ss.imbue(customLocale);
+  std::string line;
+  while (std::getline(ss, line)) {
     line = Trim(line);
-    if (line.empty()) continue;
-    if (line.at(0) == '#') continue;
-    if (line.at(0) == 0) continue;
+    // Skip empty lines and comments
+    if (line.empty() || line[0] == '#' || line[0] == '\0') {
+      continue;
+    }
 
     auto search = line.find('=');
     CHECK(search != string::npos);
@@ -174,12 +187,13 @@ void ConfigFile::parseFromString(const std::string& config) {
     CHECK(value_parsed);
     if (updateNciCfg) {
       if (updateConfig(key, value))
-      NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
-        "ConfigFile updated - [%s] = %s",key.c_str(),value_string.c_str());
+        NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
+                       "ConfigFile updated - [%s] = %s", key.c_str(),
+                       value_string.c_str());
     } else {
       addConfig(key, value);
-      NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
-        "ConfigFile - [%s] = %s",key.c_str(),value_string.c_str());
+      NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "ConfigFile - [%s] = %s",
+                     key.c_str(), value_string.c_str());
     }
   }
 }

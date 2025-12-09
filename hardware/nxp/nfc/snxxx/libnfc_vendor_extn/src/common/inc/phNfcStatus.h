@@ -74,4 +74,10 @@
  */
 #define NFCSTATUS_EXTN_FEATURE_FAILURE (0x0051)
 
+/*
+ * Indicates, it is partially handled as part of extenstion feature
+ * & need to handle further by another feature.
+ */
+#define NFCSTATUS_EXTN_FEATURE_SUCCESS_CONTINUE (0x0052)
+
 #endif /* PHNFCSTATUS_H */

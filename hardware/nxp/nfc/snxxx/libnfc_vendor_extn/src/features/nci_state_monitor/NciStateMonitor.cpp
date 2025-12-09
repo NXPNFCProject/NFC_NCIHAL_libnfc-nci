@@ -61,7 +61,8 @@ NFCSTATUS NciStateMonitor::processCoreGenericErrorNtf(
   vector<uint8_t> propNtf = {0x6F, 0x0C, 0x01, 0x07};
 
   if ((coreGenericErrorNtf.size() == propNtf.size()) &&
-      (coreGenericErrorNtf[3] == NCI_STATUS_PMU_TXLDO_OVERCURRENT)) {
+      (coreGenericErrorNtf[3] == NCI_STATUS_PMU_TXLDO_OVERCURRENT ||
+       coreGenericErrorNtf[3] == NCI_STATUS_GPADC_ERROR)) {
     coreGenericErrorNtf.assign(propNtf.begin(), propNtf.end());
     NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
                    "NciStateMonitor %s CORE_GENERIC_ERROR_NTF updated with "
@@ -105,11 +106,6 @@ NFCSTATUS NciStateMonitor::handleVendorNciRspNtf(uint16_t dataLen,
     mSramCmdRspBuffer.assign(nciRspNtf.begin(), nciRspNtf.end());
     mSramCmdRspCondVar.signal();
     return NFCSTATUS_EXTN_FEATURE_SUCCESS;
-  }
-
-  if (isNciRspTimeoutHandlingNeeded(dataLen, pData, NCI_MT_RSP)) {
-    // Must to call the stopWriteRspTimer to cancel the rsp timer if its retry
-    NfcExtensionWriter::getInstance()->stopWriteRspTimer(pData, dataLen);
   }
 
   switch (mGidOid) {
@@ -166,14 +162,6 @@ NFCSTATUS NciStateMonitor::processNciCmd(uint16_t dataLen,
     mDefaultDiscMapCmd.clear();
     for (size_t i = 0; i < dataLen; i++) {
       mDefaultDiscMapCmd.push_back(pData[i]);
-    }
-    if (GetNxpNumValue(NAME_MIFARE_READER_ENABLE, &num, sizeof(num)) &&
-        (num != 0)) {
-      mDefaultDiscMapCmd[2] += 3;
-      mDefaultDiscMapCmd[3] += 1;
-      mDefaultDiscMapCmd.push_back(0x80);
-      mDefaultDiscMapCmd.push_back(0x01);
-      mDefaultDiscMapCmd.push_back(0x80);
     }
   }
 

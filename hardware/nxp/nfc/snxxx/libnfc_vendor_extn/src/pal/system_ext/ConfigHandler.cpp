@@ -22,12 +22,12 @@
 #include <android-base/strings.h>
 #include <phNxpLog.h>
 #include <stdio.h>
-#include <ranges>
+#include <locale>
 
 using namespace ::android::base;
 ConfigHandler* ConfigHandler::sConfigHandler;
 
-ConfigHandler::ConfigHandler() {
+ConfigHandler::ConfigHandler(): mpConfigMap(nullptr) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter", __func__);
 }
 
@@ -42,15 +42,26 @@ ConfigHandler* ConfigHandler::getInstance() {
   return sConfigHandler;
 }
 
-map<string, ConfigValue> ConfigHandler::parseFromString(string input) {
+map<string, ConfigValue> ConfigHandler::parseFromString(const std::string& input) {
   map<string, ConfigValue> configs;
-  for (auto lineR : std::views::split(input, '\n')) {
-    string line(lineR.begin(), lineR.end());
+  if (input.empty()) {
+    // Handle the empty string case appropriately
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
+                   "Config string is empty. Skipping parsing.");
+    return configs;
+  }
+  std::stringstream ss(input);
+  std::locale localeWithCtype(std::locale::classic(), new std::ctype<char>);
+  std::locale localeWithNumGet(localeWithCtype, new std::num_get<char>);
+  std::locale customLocale(localeWithNumGet, new std::num_put<char>);
+  ss.imbue(customLocale);
+  std::string line;
+  while (std::getline(ss, line)) {
     line = Trim(line);
-    if (line.empty()) continue;
-    if (line.at(0) == '#') continue;
-    if (line.at(0) == 0) continue;
-
+    // Skip empty lines and comments
+    if (line.empty() || line[0] == '#' || line[0] == '\0') {
+      continue;
+    }
     auto search = line.find('=');
     CHECK(search != string::npos);
 
@@ -59,7 +70,7 @@ map<string, ConfigValue> ConfigHandler::parseFromString(string input) {
     ConfigValue value;
     bool value_parsed = value.parseFromString(value_string);
     CHECK(value_parsed);
-    configs.emplace(key, value);
+    configs.emplace(std::move(key), std::move(value));
   }
   return configs;
 }
@@ -157,7 +168,7 @@ void ConfigHandler::adaptLegacyDiffKeyType(
   }
 }
 
-void ConfigHandler::adaptLegacyConfigs(map<string, ConfigValue> nxpNfcConfig) {
+void ConfigHandler::adaptLegacyConfigs(const map<string, ConfigValue>& nxpNfcConfig) {
   map<vector<string>, string> updateConfigMap{
       {{NAME_NXP_T4T_NFCEE_ENABLE}, NAME_T4T_NFCEE_ENABLE},
       {{NAME_OFF_HOST_SIM_PIPE_ID, NAME_OFF_HOST_SIM2_PIPE_ID,

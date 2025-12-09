@@ -18,7 +18,9 @@
 
 #include "RfConfigManager.h"
 #include <android-base/parseint.h>
+#include <android-base/strings.h>
 #include <phNxpLog.h>
+#include <sstream>
 
 using namespace ::android::base;
 RfConfigManager *RfConfigManager::instance = nullptr;
@@ -67,7 +69,6 @@ NFCSTATUS RfConfigManager::processRsp(vector<uint8_t> rfConfigRsp) {
 uint8_t RfConfigManager::sendNciCmd(vector<uint8_t> rfConfigCmd) {
   NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "RfConfigManager::%s Enter ",
                  __func__);
-  uint8_t status = 0xFF;
   mCmdBuffer.clear();
   mCmdBuffer.assign(rfConfigCmd.begin(), rfConfigCmd.end());
   mRspBuffer.clear();
@@ -75,7 +76,7 @@ uint8_t RfConfigManager::sendNciCmd(vector<uint8_t> rfConfigCmd) {
                                            rfConfigCmd.size());
   mCmdRspCv.timedWait(NCI_CMD_TIMEOUT_IN_SEC);
   mCmdRspCv.unlock();
-  if (mRspBuffer.size() < MIN_PCK_MSG_LEN)
+  if (mRspBuffer.size() <= MIN_PCK_MSG_LEN)
     return DEFAULT_RESP;
   return mRspBuffer.at(EXT_NFC_STATUS_INDEX);
 }
@@ -127,9 +128,15 @@ bool RfConfigManager::updateRfSetConfig(vector<uint8_t> &setConfCmd,
   if (setConfCmd.size() >= 0xFF) {
     NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
                    "RfConfigManager::%s : set rf command", __func__);
-    vector<uint8_t> setConfCmdVect(
-        setConfCmd.begin(),
-        setConfCmd.begin() + (setConfCmd.size() - res_data_packet_len));
+    if (setConfCmd.size() < res_data_packet_len) {
+      NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
+                     "RfConfigManager::%s : Invalid command", __func__);
+      return false;
+    }
+    vector<uint8_t> setConfCmdVect;
+    setConfCmdVect.assign(setConfCmd.begin(),
+                          setConfCmd.begin() +
+                              (setConfCmd.size() - res_data_packet_len));
     if (!sendCommandAndValidateResponse(setConfCmdVect))
       return false;
     // Clear setConf Data expect the last command response.
@@ -176,7 +183,8 @@ bool RfConfigManager::sendCommandAndValidateResponse(
   if (EXT_NFC_STATUS_OK == sendNciCmd(cmd_get_rfconfval))
     return true;
 
-  if (GET_RES_STATUS_CHECK(mRspBuffer.size(), mRspBuffer.data())) {
+  if ((mRspBuffer.size() <= MIN_PCK_MSG_LEN) ||
+      (GET_RES_STATUS_CHECK(mRspBuffer.size(), mRspBuffer.data()))) {
     NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
                    "RfConfigManager::%s :  Get/Set config failed", __func__);
     return false;
@@ -184,18 +192,17 @@ bool RfConfigManager::sendCommandAndValidateResponse(
   return false;
 }
 
-bool RfConfigManager::checkUpdateRfRegisterConfig(vector<uint8_t> rfConfigCmd) {
+bool RfConfigManager::checkUpdateRfRegisterConfig(
+    vector<uint8_t> rfConfigPayload) {
   NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "RfConfigManager::%s Enter ",
                  __func__);
-
-  vector<uint8_t> rfConfigPayload(rfConfigCmd.begin() + 5, rfConfigCmd.end());
-
   if (rfConfigPayload.size() == 0) {
     NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
                    "RfConfigManager::%s :  RF register config is invalid",
                    __func__);
     return false;
   }
+  std::string config(rfConfigPayload.begin(), rfConfigPayload.end());
 
   vector<uint8_t> cmd_get_rfconfval{0x20, 0x03, 0x03, 0x01, 0xA0, 0x85};
   vector<uint8_t> cmd_response{};
@@ -210,6 +217,9 @@ bool RfConfigManager::checkUpdateRfRegisterConfig(vector<uint8_t> rfConfigCmd) {
   bool is_lpdet_threshold_required = false;
   uint8_t index_to_value = 0;
   uint8_t update_mode = BITWISE;
+  uint8_t configKey = 0;
+  stringstream key_value_pairs(config);
+  string single_key_value;
   unsigned b_position = 0;
   unsigned new_value = 0;
   unsigned read_value = 0;
@@ -245,33 +255,23 @@ bool RfConfigManager::checkUpdateRfRegisterConfig(vector<uint8_t> rfConfigCmd) {
       lpdet_cmd_response.end(), &mRspBuffer[0],
       (&mRspBuffer[0] + (mRspBuffer[NCI_PACKET_LEN_INDEX] + NCI_HEADER_LEN)));
 
-  size_t cnt = 0;
-  while (cnt < rfConfigPayload.size()) {
-    uint8_t configKey = rfConfigPayload[cnt];
-    if (!((cnt + 1) < rfConfigPayload.size())) {
-      NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
-                     "RfConfigManager::%s : Invalid input payload", __func__);
-      return false;
-    }
-    uint8_t configLen = rfConfigPayload[cnt + 1];
-    if (!((cnt + configLen + 1) < rfConfigPayload.size())) {
-      NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
-                     "RfConfigManager::%s : Invalid input payload", __func__);
-      return false;
-    }
-    uint8_t configValStart = cnt + 2;
-    uint8_t configValEnd = configValStart + configLen;
-    if (configLen == 2) {
-      new_value = (rfConfigPayload[configValStart] << 8) |
-                  rfConfigPayload[configValStart + 1];
-    } else {
-      new_value = rfConfigPayload[configValStart];
-    }
-    cnt = configValEnd;
+  while (getline(key_value_pairs, single_key_value)) {
+    auto search = single_key_value.find('=');
+    if (search == string::npos)
+      continue;
+
+    string key(Trim(single_key_value.substr(0, search)));
+    string value(Trim(single_key_value.substr(search + 1, string::npos)));
+    ParseUint(value.c_str(), &new_value);
     update_mode = BITWISE;
     NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN,
-                   "RfConfigManager::%s : configKey:%d ConfigVal:%02x",
-                   __func__, configKey, new_value);
+                   "RfConfigManager::%s: Update Key = %s Value: %02x", __func__,
+                   key.c_str(), new_value);
+    auto it = tokenMap.find(key);
+    if (it != tokenMap.end()) {
+      configKey = it->second;
+    } else
+      configKey = UPDATE_UNKNOWN;
 
     switch (configKey) {
     case UPDATE_DLMA_ID_TX_ENTRY:

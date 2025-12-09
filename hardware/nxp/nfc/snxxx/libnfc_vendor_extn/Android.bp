@@ -97,6 +97,8 @@ cc_library_shared {
     srcs: [
         "src/pal/system_ext/PlatformAbstractionLayer.cpp",
         "src/pal/system_ext/ConfigHandler.cpp",
+        "src/pal/system_ext/MessageQueue.cpp",
+        "src/pal/system_ext/WriterThread.cpp",
         "src/common/utils/NfcConfig.cc"
     ],
     shared_libs: [

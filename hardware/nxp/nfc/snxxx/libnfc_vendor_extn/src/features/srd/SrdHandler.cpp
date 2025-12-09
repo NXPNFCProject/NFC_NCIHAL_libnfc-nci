@@ -92,7 +92,6 @@ NFCSTATUS SrdHandler::handleVendorNciRspNtf(uint16_t dataLen, uint8_t *pData) {
   // Convert the raw pointer to a vector
   std::vector<uint8_t> pDataVec(pData, pData + dataLen);
 
-  NfcExtensionWriter::getInstance()->stopWriteRspTimer(pData, dataLen);
   return mSrdMngr->processSrdNciRspNtf(pDataVec);
 }
 

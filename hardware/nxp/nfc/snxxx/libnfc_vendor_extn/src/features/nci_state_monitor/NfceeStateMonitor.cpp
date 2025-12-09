@@ -44,10 +44,14 @@ void NfceeStateMonitor::setCurrentEE(uint8_t ee) { currentEE = ee; }
 bool NfceeStateMonitor::isEeRecoveryRequired(uint8_t eeErrorCode) {
   switch (eeErrorCode) {
   case RESPONSE_STATUS_FAILED: {
-    if (currentEE != NCI_ROUTE_ESE_ID)
-      return false;
+    if (currentEE == NCI_ROUTE_ESE_ID)
+      return true;
+    return false;
   }
   case NCI_NFCEE_TRANSMISSION_ERROR: {
+    if ((PlatformAbstractionLayer::getInstance()->palGetChipType() == pn557) &&
+        (currentEE == NCI_ROUTE_UICC1_ID || currentEE == NCI_ROUTE_UICC2_ID))
+      return false;
     return true;
   }
   default: {

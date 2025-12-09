@@ -20,6 +20,7 @@
 #define NFC_EXTENSION_API_H
 
 #include "NfcExtensionConstants.h"
+#include "phNfcTypes.h"
 #include <NxpVendorExtn.h>
 #include <cstdint>
 /** \addtogroup NFC_EXTENSION_API_INTERFACE

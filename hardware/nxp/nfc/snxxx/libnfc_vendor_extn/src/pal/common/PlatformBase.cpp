@@ -99,7 +99,10 @@ void PlatformBase::palThreadJoin(pthread_t tid) {
     return;
   }
 
-  pthread_join(tid, nullptr);
+  if (pthread_join(tid, nullptr) != 0) {
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "%s:pthread_join failed",
+                   __func__);
+  }
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s:exit", __func__);
   return;
 }

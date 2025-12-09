@@ -46,7 +46,8 @@ public:
   typedef void (*TIMER_FUNC)(union sigval);
   PalIntervalTimer();
   ~PalIntervalTimer();
-  bool set(int ms, void *ptr, TIMER_FUNC cb, timer_t* timerId);
+  bool set(int ms, void *ptr, TIMER_FUNC cb, timer_t *timerId,
+           bool oneShot = true);
   void kill(timer_t* timerId);
   bool create(void *ptr, TIMER_FUNC, timer_t* timerId);
 

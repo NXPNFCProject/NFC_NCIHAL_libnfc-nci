@@ -46,7 +46,8 @@ PalIntervalTimer::PalIntervalTimer() {
   mCb = NULL;
 }
 
-bool PalIntervalTimer::set(int ms, void *ptr, TIMER_FUNC cb, timer_t* timerId) {
+bool PalIntervalTimer::set(int ms, void *ptr, TIMER_FUNC cb, timer_t *timerId,
+                           bool oneShot) {
   if (cb == nullptr || timerId == nullptr) {
     return false;
   }
@@ -63,10 +64,15 @@ bool PalIntervalTimer::set(int ms, void *ptr, TIMER_FUNC cb, timer_t* timerId) {
   struct itimerspec ts;
   ts.it_value.tv_sec = ms / 1000;
   ts.it_value.tv_nsec = (ms % 1000) * 1000000;
-
-  ts.it_interval.tv_sec = 0;
-  ts.it_interval.tv_nsec = 0;
-
+  if (oneShot) {
+    // No repeat, timer will be trigerred only once
+    ts.it_interval.tv_sec = 0;
+    ts.it_interval.tv_nsec = 0;
+  } else {
+    // Timer will be trigerred repeatedly at specified interval
+    ts.it_interval.tv_sec = ts.it_value.tv_sec;
+    ts.it_interval.tv_nsec = ts.it_value.tv_nsec;
+  }
   stat = timer_settime(*timerId, 0, &ts, 0);
   if (stat == -1) {
     NXPLOG_EXTNS_D(LOG_TAG, "%s fail to set timer, errno : %x", __func__,
@@ -85,9 +91,7 @@ void PalIntervalTimer::kill(timer_t* timerId) {
   }
 
   *timerId = 0;
-
-  if (mCb != NULL)
-    mCb = NULL;
+  mCb = NULL;
 }
 
 bool PalIntervalTimer::create(void* ptr, TIMER_FUNC cb, timer_t* timerId) {

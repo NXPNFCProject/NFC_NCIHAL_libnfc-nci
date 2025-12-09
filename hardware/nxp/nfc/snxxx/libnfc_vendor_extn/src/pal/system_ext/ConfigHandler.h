@@ -144,7 +144,7 @@ class ConfigHandler {
    * @return None
    *
    */
-  void adaptLegacyConfigs(map<string, ConfigValue> nxpNfcConfig);
+  void adaptLegacyConfigs(const map<string, ConfigValue>& nxpNfcConfig);
 
   /**
    * @brief Maps the oem route configuration to the aosp defined route
@@ -161,7 +161,7 @@ class ConfigHandler {
    * @return map of configs which are successfully parsed
    *
    */
-  map<string, ConfigValue> parseFromString(string input);
+  map<string, ConfigValue> parseFromString(const std::string& input);
 
   /**
    * @brief Read the content of /vendor/etc/libnfc-nxp.conf

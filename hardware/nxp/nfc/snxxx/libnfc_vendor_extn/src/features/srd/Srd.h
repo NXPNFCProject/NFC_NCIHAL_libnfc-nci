@@ -46,6 +46,7 @@ typedef enum {
   SRD_STATE_STOP_IN_PROGRESS,
   SRD_STATE_STOP_W4_DISCOVERY_STOP_RSP,
   SRD_STATE_STOP_W4_DISCOVER_MAP_RSP,
+  SRD_STATE_W4_SELECT_RSP,
   SRD_STATE_MAX,
 } SrdState_t;
 #define NFC_WRITE(pData, len)                                                  \
@@ -122,6 +123,11 @@ public:
 
 private:
   static Srd *instance; /* Singleton instance of Srd */
+  static const uint8_t T2T_RF_PROTOCOL = 0x02;
+  static constexpr std::array<uint8_t, 5> sHaltCmd = {0x00, 0x00, 0x02, 0x50, 0x00};
+  static constexpr std::array<uint8_t, 6> sHaltCreditNtf = {0x60, 0x06, 0x03, 0x01, 0x00, 0x01};
+  bool checkAndProcessHaltCommand(uint16_t *dataLen, uint8_t *pData);
+  bool checkAndHandleRfDiscNtf(const std::vector<uint8_t> &pRspBuffer);
   SrdEvent_t checkSrdEvent(const std::vector<uint8_t> &pDataPacket);
   SrdEvent_t parseandCheckSrdEvent(const std::vector<uint8_t> &pRspHciEvtData);
   bool isTimeoutEvent(const std::vector<uint8_t> &pRspHciEvtData);
@@ -134,12 +140,13 @@ private:
   NFCSTATUS processDefaultDiscMapRsp(const std::vector<uint8_t> &pRspBuffer);
   void processSRDEvent(const std::vector<uint8_t> &pRspHciEvtData,
                        SrdEvent_t srdEvent);
+  bool notifySRDStopNtfEvt(const std::vector<uint8_t> &pRspHciEvtData);
   Srd();
   ~Srd();
   SrdState_t mState;
+  SrdState_t mPrevState;
   bool sIsSrdSupported = false;
   bool srdStopReceived = false;
-  bool isDeactCmdFromSrd = false;
   static constexpr uint8_t NCI_SDR_MODE_NTF_PL_LEN = 0x02;
   static constexpr uint8_t SRD_MODE_NTF_SUB_GID_OID = 0x23;
   static constexpr uint8_t ACTIVE_SE = 0x21;
@@ -147,5 +154,6 @@ private:
   static constexpr uint8_t SRD_MODE_NTF_START_SRD_DISCOVERY = 0x00;
   static constexpr uint8_t SRD_MODE_NTF_SRD_TIMED_OUT = 0x01;
   static constexpr uint8_t SRD_MODE_NTF_SRD_FEATURE_NOT_SUPPORTED = 0x02;
+  static constexpr uint8_t SRD_MODE_NTF_SRD_TRANSACTION_STOP = 0x03;
 };
 #endif // SRD_H

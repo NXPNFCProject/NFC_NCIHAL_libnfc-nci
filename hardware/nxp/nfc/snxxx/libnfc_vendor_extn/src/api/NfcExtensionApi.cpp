@@ -46,7 +46,7 @@ VendorExtnCb *mVendorExtnCb;
 #define NXP_EN_SN300U 1
 #define NXP_EN_SN330U 1
 #define NFC_NXP_MW_ANDROID_VER (16U)  /* Android version used by NFC MW */
-#define NFC_NXP_MW_VERSION_MAJ (0x07) /* MW Major Version */
+#define NFC_NXP_MW_VERSION_MAJ (0x09) /* MW Major Version */
 #define NFC_NXP_MW_VERSION_MIN (0x00) /* MW Minor Version */
 #define NFC_NXP_MW_CUSTOMER_ID (0x00) /* MW Customer Id */
 #define NFC_NXP_MW_RC_VERSION (0x00)  /* MW RC Version */
@@ -240,7 +240,7 @@ NFCSTATUS vendor_nfc_handle_event(NfcExtEvent_t eventCode,
     phNxpExtn_OnNfcHalStateUpdate(eventData->hal_state);
     break;
   }
-  /* TODO: To align with vendor freeze
+  /* TODO: To align with vendor freeze 
            UPDATE is used to get the RF state */
   case HANDLE_RF_HAL_STATE_UPDATE: {
     NfcRfState nfcRfState = RfStateMonitor::getInstance()->getNfcRfState();
@@ -332,6 +332,8 @@ NFCSTATUS phNxpExtn_HandleVendorNciRspNtf(uint16_t dataLen, uint8_t *pData) {
     PlatformAbstractionLayer::getInstance()->processChipType((uint8_t *)pData,
                                                             dataLen);
   }
+  // Must to call the stopWriteRspTimer to cancel the rsp timer
+  NfcExtensionWriter::getInstance()->stopWriteRspTimer(pData, dataLen);
   NFCSTATUS status =
       ProprietaryExtn::getInstance()->handleVendorNciRspNtf(dataLen, pData);
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s prop status:%d", __func__,

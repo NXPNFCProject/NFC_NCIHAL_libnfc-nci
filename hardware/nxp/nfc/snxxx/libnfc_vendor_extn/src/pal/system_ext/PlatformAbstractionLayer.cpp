@@ -16,16 +16,17 @@
  *
  **/
 
-#include <thread>
 #include "PlatformAbstractionLayer.h"
+#include "ConfigHandler.h"
+#include "NfcConfig.h"
+#include "NfcExtensionApi.h"
 #include "NfcExtensionConstants.h"
 #include "NfcExtensionController.h"
-#include "NfcExtensionApi.h"
-#include "ConfigHandler.h"
+#include "WriterThread.h"
 #include <ProprietaryExtn.h>
 #include <phNxpConfig.h>
 #include <phNxpLog.h>
-#include "NfcConfig.h"
+#include <thread>
 
 #include <android/binder_manager.h>
 #include <vendor/nxp/nxpnfc/2.0/INxpNfc.h>
@@ -52,9 +53,14 @@ PlatformAbstractionLayer *PlatformAbstractionLayer::sPlatformAbstractionLayer;
 string propVal;
 NxpNfcHal mNxpNfcHal;
 ConfigHandler *mConfigHandler;
+WriterThread &mWriterThread = WriterThread::getInstance();
 
 PlatformAbstractionLayer::PlatformAbstractionLayer() {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s: enter", __func__);
+  if (!mWriterThread.Start()) {
+    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "Failed to Start WriterThread");
+    return;
+  }
   mConfigHandler = ConfigHandler::getInstance();
   getNxpNfcHal();
 }
@@ -65,6 +71,10 @@ PlatformAbstractionLayer::~PlatformAbstractionLayer() {
   mConfigHandler = nullptr;
   mNxpNfcHal.halNxpNfc = nullptr;
   mNxpNfcHal.aidlHalNxpNfc = nullptr;
+  // Close writer thread
+  if (!mWriterThread.Stop()) {
+    NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "Failed to Stop WriterThread");
+  }
 }
 
 PlatformAbstractionLayer *PlatformAbstractionLayer::getInstance() {
@@ -75,10 +85,13 @@ PlatformAbstractionLayer *PlatformAbstractionLayer::getInstance() {
 }
 
 void PlatformAbstractionLayer::getNxpNfcHal() {
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s: enter checkAIDLService", __func__);
-  ::ndk::SpAIBinder binder(
-      AServiceManager_checkService(NXPNFC_AIDL_HAL_SERVICE_NAME.c_str()));
-  mNxpNfcHal.aidlHalNxpNfc = INxpNfcAidl::fromBinder(binder);
+  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s: enter", __func__);
+  // Check if NFC AIDL is declared or not
+  if (AServiceManager_isDeclared(NXPNFC_AIDL_HAL_SERVICE_NAME.c_str())) {
+    ::ndk::SpAIBinder binder(
+        AServiceManager_waitForService(NXPNFC_AIDL_HAL_SERVICE_NAME.c_str()));
+    mNxpNfcHal.aidlHalNxpNfc = INxpNfcAidl::fromBinder(binder);
+  }
   if (mNxpNfcHal.aidlHalNxpNfc == nullptr) {
     NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN,
                    "%s: HIDL INxpNfc::tryGetService()", __func__);
@@ -100,44 +113,17 @@ NFCSTATUS PlatformAbstractionLayer::palenQueueWrite(const uint8_t *pBuffer,
                                                     uint16_t wLength) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter wLength:%d", __func__,
                  wLength);
-  vector<uint8_t> pBufferCpy(wLength);
-  memcpy(pBufferCpy.data(), pBuffer, wLength);
-  thread(&PlatformAbstractionLayer::enQueueWriteInternal, this,
-         std::move(pBufferCpy), wLength)
-      .detach();
-  return NFCSTATUS_SUCCESS;
-}
-
-void PlatformAbstractionLayer::enQueueWriteInternal(vector<uint8_t> buffer,
-                                                    uint16_t wLength) {
-  NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter wLength:%d", __func__,
-                 wLength);
-  if (getNfcVendorExtnCb() != nullptr) {
-    if (getNfcVendorExtnCb()->aidlHal != nullptr) {
-      int ret;
-      getNfcVendorExtnCb()->aidlHal->write(buffer, &ret);
-    } else if (getNfcVendorExtnCb()->hidlHal != nullptr) {
-      ::android::hardware::nfc::V1_0::NfcData data;
-      data.setToExternal(buffer.data(), wLength);
-      getNfcVendorExtnCb()->hidlHal->write(data);
-    } else {
-      NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "%s No HAL to Write!", __func__);
-    }
-  } else {
-    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "%s No Vendor Extension CB!",
-                   __func__);
+  if (!mWriterThread.Post(pBuffer, wLength)) {
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
+                   "%s: Failed to post msg to WriterThread", __func__);
+    return NFCSTATUS_FAILED;
   }
+  return NFCSTATUS_SUCCESS;
 }
 
 NFCSTATUS PlatformAbstractionLayer::palenQueueRspNtf(const uint8_t *pBuffer, uint16_t wLength) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter wLength:%d", __func__, wLength);
-
-  auto bufferCopy = std::make_shared<std::vector<uint8_t>>(pBuffer, pBuffer + wLength);
-
-  std::thread([this, wLength, bufferCopy]() {
-      palSendNfcDataCallback(wLength, bufferCopy->data());
-  }).detach();
-
+  palSendNfcDataCallback(wLength, pBuffer);
   return NFCSTATUS_SUCCESS;
 }
 
@@ -172,9 +158,7 @@ void PlatformAbstractionLayer::palSendNfcDataCallback(uint16_t dataLen,
 
 void PlatformAbstractionLayer::palEnQueueEvt(uint8_t evt, uint8_t evtStatus) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "%s Enter evt: %d", __func__, evt);
-  std::thread([this, evt, evtStatus]() {
-    palSendNfcEventCallback(evt, evtStatus);
-  }).detach();
+  palSendNfcEventCallback(evt, evtStatus);
 }
 
 void PlatformAbstractionLayer::palSendNfcEventCallback(uint8_t evt, uint8_t evtStatus) {
@@ -233,10 +217,11 @@ uint8_t PlatformAbstractionLayer::palGetNxpNumValue(const char *name,
 }
 
 uint8_t PlatformAbstractionLayer::palEnableDisableDebugLog(uint8_t enable) {
-  bool status = setVendorParam(DEBUG_ENABLE_PROP_NAME,
-                                                   enable ? "1" : "0");
-  status = phNxpExtLog_EnableDisableLogLevel(enable);
-  return status;
+
+  if (!setVendorParam(DEBUG_ENABLE_PROP_NAME, enable ? "1" : "0"))
+    NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN,
+        "%s setVendorParam failed", __func__);
+  return phNxpExtLog_EnableDisableLogLevel(enable);;
 }
 
 bool PlatformAbstractionLayer::setVendorParam(const std::string& paramKey,

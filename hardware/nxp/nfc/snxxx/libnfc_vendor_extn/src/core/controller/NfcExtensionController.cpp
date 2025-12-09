@@ -180,6 +180,8 @@ NFCSTATUS NfcExtensionController::processExtnWrite(uint16_t *dataLen,
                                                    uint8_t *pData) {
   NXPLOG_EXTNS_D(NXPLOG_ITEM_NXP_GEN_EXTN, "NfcExtensionController %s Enter",
                  __func__);
-  mIEventHandler->processExtnWrite(dataLen, pData);
+  if (mIEventHandler->processExtnWrite(dataLen, pData) == NFCSTATUS_EXTN_FEATURE_SUCCESS) {
+    return NFCSTATUS_EXTN_FEATURE_SUCCESS;
+  }
   return NciStateMonitor::getInstance()->processNciCmd(*dataLen, pData);
 }

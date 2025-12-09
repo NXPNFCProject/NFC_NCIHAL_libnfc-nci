@@ -324,6 +324,7 @@ void Mpos::cardTapTimeoutHandler(union sigval val) {
 void Mpos::cardRemovalTimeoutHandler(union sigval val) {
   UNUSED_PROP(val);
   NXPLOG_EXTNS_I(NXPLOG_ITEM_NXP_GEN_EXTN, "SWP READER - REMOVE_CARD");
+  getInstance()->tagRemovalTimer.kill(&getInstance()->tagRemovalTimerId);
 
   notifyReaderModeActionEvt(ACTION_SE_READER_TAG_REMOVE_TIMEOUT);
 
@@ -360,6 +361,8 @@ void Mpos::cardRemovalTimeoutHandler(union sigval val) {
 
 void Mpos::guardTimeoutHandler(union sigval val) {
   UNUSED_PROP(val);
+  getInstance()->startStopGuardTimer.kill(
+      &getInstance()->startStopGuardTimerId);
   getInstance()->processMposEvent(getInstance()->lastScrState);
 }
 
@@ -388,6 +391,7 @@ bool Mpos::isExternalFieldDetected(const std::vector<uint8_t> &pData) {
 void Mpos::recoveryTimeoutHandler(union sigval val) {
   UNUSED_PROP(val);
   NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "MPOS RECOVERY WAIT COMPLETED");
+  getInstance()->mRecoveryTimer.kill(&getInstance()->mRecoveryTimerId);
   NXPLOG_EXTNS_E(NXPLOG_ITEM_NXP_GEN_EXTN, "Restarting Rf Discovery for Mpos");
   getInstance()->updateState(MPOS_STATE_WAIT_FOR_RF_DISCOVERY_RSP);
   notifyReaderModeActionEvt(ACTION_SE_READER_START_RF_DISCOVERY);

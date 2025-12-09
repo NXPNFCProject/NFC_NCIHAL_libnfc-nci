@@ -132,6 +132,8 @@ constexpr uint8_t NCI_OID_TYPE_INDEX = 1;
 constexpr uint8_t NCI_SHIFT_BY_4 = 4;
 constexpr uint8_t NCI_HEADER_LEN = 0x03;
 constexpr uint8_t NCI_SHIFT_BY_8 = 8;
+constexpr uint8_t NCI_MSG_TYPE_CMD = 0x01;
+constexpr uint8_t NCI_MSG_TYPE_DATA = 0x00;
 
 // TODO//
 constexpr uint8_t NCI_CORE_RESET_NTF_GID_VAL = 0x60;
@@ -168,6 +170,7 @@ constexpr uint16_t NCI_EE_PWR_LINK_RSP_GID_OID = 0x4203;
 constexpr uint16_t NCI_PROP_SYSTEM_GENERIC_INFO_NTF_GID_OID =
     ((NCI_PROP_NTF_VAL << 8) | NCI_PROP_NTF_SYSTEM_GENERIC_INFO_OID);
 constexpr uint16_t NCI_RF_PLL_UNLOCK_NTF_GID_OID = 0x6121;
+constexpr uint16_t NCI_RF_DISC_NTF_GID_OID = 0x6103;
 
 constexpr uint16_t NCI_FW_MAJOR_VER_INDEX = 0x0A;
 constexpr uint16_t NCI_FW_MINOR_VER_INDEX = 0x0B;
@@ -187,6 +190,9 @@ constexpr uint8_t NCI_CORE_SET_POWER_SUB_STATE_OID = 0x09;
 /* Core generic error for TAG collision detected */
 constexpr uint8_t NCI_TAG_COLLISION_DETECTED = 0xE4;
 
+constexpr uint8_t NCI_RF_DISC_NTF_PROTOCOL_INDEX = 4;
+constexpr uint8_t NCI_RF_ID_INDEX = 3;
+
 constexpr uint8_t NCI_ROUTE_HOST = 0x00;
 constexpr uint8_t NCI_ROUTE_ESE_ID = 0xC0;
 constexpr uint8_t NCI_ROUTE_UICC1_ID = 0x80;
@@ -204,6 +210,7 @@ constexpr uint8_t NCI_NFCEE_STS_PMUVCC_OFF = 0x81;
 constexpr uint8_t NCI_NFCEE_STS_PROP_UNRECOVERABLE_ERROR = 0x90;
 constexpr uint8_t NCI_NFCEE_TRANSMISSION_ERROR = 0xC1;
 constexpr uint8_t NCI_STATUS_PMU_TXLDO_OVERCURRENT = 0xE3;
+constexpr uint8_t NCI_STATUS_GPADC_ERROR = 0xE7;
 /**
  * @brief Indexes to access different info from RF_NFCEE_ACTION_NTF.
  */
